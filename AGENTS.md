@@ -134,6 +134,32 @@ Useful pack comparisons show at least:
 - trace or reasoning difference;
 - eventual score difference when resolved.
 
+### Verify Challenge Submissions
+
+External forecasts arrive as PRs adding
+`challenge/inbox/<github-login>/<cell>.json`, optionally signed with
+Sigstore keyless (a `<cell>.json.sigstore.json` sidecar; see
+`docs/challenge-signing.md`). Before publishing any of them, sweep the
+inbox:
+
+```bash
+uv run --extra challenge python scripts/verify_challenge_signatures.py
+```
+
+Unsigned submissions stay valid (schema-checked only; full intake
+validation happens at publication) — signing is optional. A
+present-but-invalid bundle, a bundle without a Signed Entry Timestamp,
+an orphan bundle, a symlink, or any file not shaped `<login>/<cell>.json`
+must fail the sweep and must never be published. The sweep always covers
+the whole inbox; in `--json` mode stdout is exactly one JSON document of
+`thesis_challenge_signature_v1` blocks, which the publish adapter stores
+alongside the merge SHA it already records. The signature never
+authenticates the `challenger` account — the adapter must separately
+require `challenger == github:<PR opener>` (and the matching inbox
+directory) and persist PR number, opener, and merge SHA. Submitter
+signing distributes proof, never signing authority: publish-side signing
+stays CI-only and challenger PRs never touch `records/**`.
+
 ### Work On Resolution Or Scoring
 
 Resolution and scoring code should preserve these invariants:
@@ -215,7 +241,15 @@ artifact attestations). `scripts/verify_records_attestations.py` — run by
 audit — fails when any records commit after the enforcement epoch lacks a
 valid attestation from an allowlisted publishing workflow on
 `refs/heads/main`. The epoch is self-anchoring: the commit that introduced
-the verifier script.
+the verifier script. Under the PR-only regime, a merge commit that leaves
+`records/**` byte-identical to at least one post-epoch parent is an exempt
+no-op (printed as `NOOP-MERGE`) — that covers both PR merges whose branch
+lags the workflows' records pushes and the update-branch merges those PRs
+carry. A merge whose records content differs from every in-scope parent,
+or whose only TREESAME parents predate the epoch, is a records push like
+any other, and a push range whose endpoints disagree about records content
+with nothing attestable in between fails closed. Records content itself
+never lands through PRs.
 
 This binds each records commit to an allowlisted workflow run that
 asserted the push (Sigstore proves the run attested the subject; push

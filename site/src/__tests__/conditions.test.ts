@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   CONDITIONS,
+  PROVISION_ENACTED_CHECK_SOURCE,
   conditionForCell,
   conditionForContract,
   conditionStatusFor,
+  conditionValidationErrors,
   isConditionGated,
+  resolveProvisionEnactedCondition,
+  type ProvisionEnactedConditionDefinition,
+  type ProvisionEnactmentEvidence,
 } from "@/data/conditions";
 import { FORECAST_CELLS } from "@/data/forecast-cells";
 import {
@@ -17,11 +22,19 @@ import { getForecastRunEntries } from "@/data/forecast-cells";
 // condition actually occurred.
 
 describe("condition registry", () => {
+  it("validates every registered condition definition", () => {
+    for (const condition of CONDITIONS) {
+      expect(
+        conditionValidationErrors(condition),
+        condition.conditionId,
+      ).toEqual([]);
+    }
+  });
+
   it("registers every published conditional cell's contract", () => {
     const unregistered = FORECAST_CELLS.filter(
       (cell) =>
-        cell.type === "conditional" &&
-        conditionForCell(cell) === undefined,
+        cell.type === "conditional" && conditionForCell(cell) === undefined,
     ).map((cell) => `${cell.slug}: ${cell.conditionalOn}`);
     expect(unregistered).toEqual([]);
   });
@@ -65,6 +78,150 @@ describe("condition registry", () => {
         seen.add(text);
       }
     }
+  });
+});
+
+describe("provision_enacted conditions", () => {
+  const crpCondition = CONDITIONS.find(
+    (condition): condition is ProvisionEnactedConditionDefinition =>
+      condition.conditionId === "cond.crp-acreage-ceiling-fy2027-31.enacted" &&
+      condition.type === "provision_enacted",
+  );
+
+  function registeredCrpCondition(): ProvisionEnactedConditionDefinition {
+    if (!crpCondition) throw new Error("CRP provision condition is missing");
+    return crpCondition;
+  }
+
+  function qualifyingEvidence(
+    overrides: Partial<ProvisionEnactmentEvidence> = {},
+  ): ProvisionEnactmentEvidence {
+    const condition = registeredCrpCondition();
+    return {
+      kind: "enacted_public_law",
+      enactedOn: "2027-09-29",
+      checkSource: PROVISION_ENACTED_CHECK_SOURCE,
+      statutoryTest: condition.statutoryTest,
+      satisfiesStatutoryTest: true,
+      ...overrides,
+    };
+  }
+
+  it("registers the exact CRP statutory contract", () => {
+    const condition = registeredCrpCondition();
+    expect(condition).toMatchObject({
+      type: "provision_enacted",
+      provisionDescription:
+        "CRP acreage ceiling for fiscal years 2027 through 2031",
+      statutoryTest:
+        "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31",
+      checkSource: "govinfo enrolled bill text",
+      deadline: "2027-09-30",
+      resolvesBy: "2027-09-30",
+      status: "open",
+    });
+    expect(condition.matchStrings).toEqual([condition.statutoryTest]);
+    expect(conditionForContract(condition.statutoryTest)).toBe(condition);
+  });
+
+  it("requires complete provision metadata, ISO dates, and the exact source", () => {
+    const condition = registeredCrpCondition();
+    const cases: Array<[ProvisionEnactedConditionDefinition, string]> = [
+      [
+        { ...condition, provisionDescription: "" },
+        "provisionDescription is required",
+      ],
+      [{ ...condition, statutoryTest: "" }, "statutoryTest is required"],
+      [
+        {
+          ...condition,
+          checkSource: "GovInfo enrolled bill text",
+        } as unknown as ProvisionEnactedConditionDefinition,
+        'checkSource must be exactly "govinfo enrolled bill text"',
+      ],
+      [
+        { ...condition, deadline: "2027-02-29" },
+        "deadline must be an ISO date",
+      ],
+      [
+        { ...condition, resolvesBy: "2027-09-29" },
+        "deadline must equal resolvesBy",
+      ],
+    ];
+
+    for (const [definition, error] of cases) {
+      expect(conditionValidationErrors(definition)).toContain(error);
+    }
+  });
+
+  it("stays open before the deadline and fails at the deadline otherwise", () => {
+    const condition = registeredCrpCondition();
+    expect(resolveProvisionEnactedCondition(condition, "2027-09-29", [])).toBe(
+      "open",
+    );
+    expect(resolveProvisionEnactedCondition(condition, "2027-09-30", [])).toBe(
+      "failed",
+    );
+    expect(resolveProvisionEnactedCondition(condition, "2027-10-01", [])).toBe(
+      "failed",
+    );
+  });
+
+  it("is satisfied by qualifying enactment on or before the deadline", () => {
+    const condition = registeredCrpCondition();
+    expect(
+      resolveProvisionEnactedCondition(condition, "2027-09-29", [
+        qualifyingEvidence(),
+      ]),
+    ).toBe("satisfied");
+    expect(
+      resolveProvisionEnactedCondition(condition, "2027-09-30", [
+        qualifyingEvidence({ enactedOn: "2027-09-30" }),
+      ]),
+    ).toBe("satisfied");
+    expect(
+      resolveProvisionEnactedCondition(condition, "2027-10-01", [
+        qualifyingEvidence(),
+      ]),
+    ).toBe("satisfied");
+  });
+
+  it("rejects evidence that does not prove the exact statutory test", () => {
+    const condition = registeredCrpCondition();
+    const nonqualifying = [
+      qualifyingEvidence({ satisfiesStatutoryTest: false }),
+      qualifyingEvidence({ checkSource: "congress.gov bill page" }),
+      qualifyingEvidence({ statutoryTest: "a different statutory test" }),
+      qualifyingEvidence({ enactedOn: "2027-10-01" }),
+      qualifyingEvidence({ enactedOn: "not-a-date" }),
+      {
+        ...qualifyingEvidence(),
+        kind: "introduced_bill",
+      } as unknown as ProvisionEnactmentEvidence,
+    ];
+
+    expect(
+      resolveProvisionEnactedCondition(condition, "2027-10-02", nonqualifying),
+    ).toBe("failed");
+  });
+
+  it("does not use qualifying evidence before its enactment date", () => {
+    const condition = registeredCrpCondition();
+    expect(
+      resolveProvisionEnactedCondition(condition, "2027-09-28", [
+        qualifyingEvidence(),
+      ]),
+    ).toBe("open");
+  });
+
+  it("rejects a non-ISO as-of date", () => {
+    expect(() =>
+      resolveProvisionEnactedCondition(
+        registeredCrpCondition(),
+        "2027-9-30",
+        [],
+      ),
+    ).toThrow("asOf must be an ISO date");
   });
 });
 
@@ -139,9 +296,7 @@ describe("condition gate on scoring", () => {
     if (admitted === undefined) {
       // If the synthetic ledger shape misses the join, the failed override
       // path is indistinguishable — so assert directly on the classifier.
-      expect(
-        conditionStatusFor(conditionalCell, overrides),
-      ).toBe("satisfied");
+      expect(conditionStatusFor(conditionalCell, overrides)).toBe("satisfied");
     } else {
       expect(admitted.forecastSlug).toBe(conditionalCell.slug);
     }

@@ -1,4 +1,5 @@
 import { BENEFIT_PROGRAM_EXAMPLES } from "./forecast-examples/benefits";
+import { AUTO_2026_07_31_6415613D4C0F6B8316BB53768A21427181F6B5E99FD813B1978D86A679308AD3_WAVE } from "./forecast-examples/auto-2026-07-31-6415613d4c0f6b8316bb53768a21427181f6b5e99fd813b1978d86a679308ad3";
 import { AUTO_2026_07_31_6B40B67800E9D2E5ECC9E16BC1CDD92ED06072519A80B7BE10F4ADD15086FBC0_WAVE } from "./forecast-examples/auto-2026-07-31-6b40b67800e9d2e5ecc9e16bc1cdd92ed06072519a80b7be10f4add15086fbc0";
 import { AUTO_2026_07_27_BC7296B4F60596939B56A0DDAFD53A0FD20BE53F388D69433BE58DE612FB8DF4_WAVE } from "./forecast-examples/auto-2026-07-27-bc7296b4f60596939b56a0ddafd53a0fd20be53f388d69433be58de612fb8df4";
 import { AUTO_2026_07_26_D0FCE8F0A336D37CD3FF2BE8BF0FD29479E05F71469F084F605C23A50C30C501_WAVE } from "./forecast-examples/auto-2026-07-26-d0fce8f0a336d37cd3ff2be8bf0fd29479e05f71469f084f605c23a50c30c501";
@@ -48,6 +49,7 @@ import { US_DEFENSE_EXAMPLES } from "./forecast-examples/us-defense";
 import { US_NEAR_TERM_EXAMPLES } from "./forecast-examples/us-near-term";
 import {
   buildNumericCdfFromInterval,
+  buildNumericCdfFromQuantiles,
   type PredictionDistribution,
 } from "./prediction-distribution";
 export type {
@@ -5207,6 +5209,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   },
 
   ...LAUNCH_CADENCE_EXAMPLES,
+  ...AUTO_2026_07_31_6415613D4C0F6B8316BB53768A21427181F6B5E99FD813B1978D86A679308AD3_WAVE,
   ...AUTO_2026_07_31_6B40B67800E9D2E5ECC9E16BC1CDD92ED06072519A80B7BE10F4ADD15086FBC0_WAVE,
   ...AUTO_2026_07_27_BC7296B4F60596939B56A0DDAFD53A0FD20BE53F388D69433BE58DE612FB8DF4_WAVE,
   ...AUTO_2026_07_26_D0FCE8F0A336D37CD3FF2BE8BF0FD29479E05F71469F084F605C23A50C30C501_WAVE,
@@ -5634,6 +5637,125 @@ const FORECAST_COMPARISON_RUN_AUGMENTS: Record<
   string,
   ForecastComparisonRun[]
 > = {
+  "jolts-hires-rate-june-2026": [
+    {
+      variantId:
+        "jolts-hires-rate-june-2026-challenge-github-pavelmakarchuk-2026-07-31t14-00-26z",
+      label: "PavelMakarchuk challenge submission",
+      description:
+        "Published challenge forecast recorded in records/2026-07-31/digest-30648581183-1.json.",
+      pointEstimate: 3.3,
+      ciLow: 3.1,
+      ciHigh: 3.45,
+      confidence: 0.8,
+      drivers: [
+        "May 2026 JTSHIR first print was 3.3 percent",
+        "24-month month-over-month change standard deviation was about 0.135 percentage points",
+        "June payrolls rose 57,000 while leisure and hospitality hiring was weak",
+        "First-print revision risk widened the submitted interval",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-31T14:00:26Z",
+        agent:
+          "github:PavelMakarchuk::Claude Fable 5 (pavel onboarding agent)",
+        model: "Claude Fable 5 (pavel onboarding agent)",
+        runLabel: "PavelMakarchuk challenge submission",
+        runDescription:
+          "Published challenge forecast recorded in records/2026-07-31/digest-30648581183-1.json.",
+        sourceContext: [
+          "records/2026-07-31/digest-30648581183-1.json",
+        ],
+      },
+      predictionDistribution: buildNumericCdfFromQuantiles({
+        pointEstimate: 3.3,
+        quantiles: [
+          { probability: 0.05, value: 3.05 },
+          { probability: 0.1, value: 3.1 },
+          { probability: 0.25, value: 3.2 },
+          { probability: 0.5, value: 3.3 },
+          { probability: 0.75, value: 3.4 },
+          { probability: 0.9, value: 3.45 },
+          { probability: 0.95, value: 3.5 },
+        ],
+      }),
+      reasoning: [
+        { kind: "heading", text: "Published challenge submission" },
+        {
+          kind: "text",
+          text: "Base rate: May 2026 print 3.3 (JTSHIR); 24m MoM-change stdev ~0.135pp, 20/24 changes within +/-0.1pp. June payrolls +57k with weak leisure/hospitality hiring tilts risk slightly down; claims calm near 215k. First-print resolution: ALFRED vintages show +/-0.1pp first-print revisions (Apr 2026 printed 3.2, revised 3.3), so interval widened ~0.05pp beyond the pure MoM base rate.",
+        },
+        {
+          kind: "math",
+          text: "Submitted quantiles: q05 = 3.05, q10 = 3.1, q25 = 3.2, q50 = 3.3, q75 = 3.4, q90 = 3.45, q95 = 3.5.",
+        },
+        {
+          kind: "text",
+          text: "Source record: records/2026-07-31/digest-30648581183-1.json.",
+        },
+        { kind: "forecast", point: 3.3, ciLow: 3.1, ciHigh: 3.45 },
+      ],
+    },
+  ],
+  "u6-underemployment-rate-july-2026": [
+    {
+      variantId:
+        "u6-underemployment-rate-july-2026-challenge-github-khs-2026-07-31t14-05-19z",
+      label: "khs challenge submission",
+      description:
+        "Published challenge forecast recorded in records/2026-07-31/digest-30648581183-1.json.",
+      pointEstimate: 7.9,
+      ciLow: 7.7,
+      ciHigh: 8.1,
+      confidence: 0.8,
+      drivers: [
+        "2026 seasonally adjusted U-6 was range-bound from 7.9 to 8.2 percent",
+        "Monthly-change standard deviation was 0.18 percentage points",
+        "July survey-week initial claims were 188,000",
+        "U-3 unemployment eased to 4.2 percent",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-31T14:05:19Z",
+        agent: "github:khs::Claude Opus 5 (Claude Code)",
+        model: "Claude Opus 5 (Claude Code)",
+        runLabel: "khs challenge submission",
+        runDescription:
+          "Published challenge forecast recorded in records/2026-07-31/digest-30648581183-1.json.",
+        sourceContext: [
+          "records/2026-07-31/digest-30648581183-1.json",
+        ],
+      },
+      predictionDistribution: buildNumericCdfFromQuantiles({
+        pointEstimate: 7.9,
+        quantiles: [
+          { probability: 0.05, value: 7.64 },
+          { probability: 0.1, value: 7.7 },
+          { probability: 0.25, value: 7.79 },
+          { probability: 0.5, value: 7.9 },
+          { probability: 0.75, value: 8.01 },
+          { probability: 0.9, value: 8.1 },
+          { probability: 0.95, value: 8.16 },
+        ],
+      }),
+      reasoning: [
+        { kind: "heading", text: "Published challenge submission" },
+        {
+          kind: "text",
+          text: "Base rate: 2026 U-6 SA is range-bound 7.9-8.2 (mean 8.03, sd of monthly change 0.18), June at 7.9. Random walk from June centers 7.9; mean reversion pulls up, but July survey-week initial claims (188k, w/e 7/18) and U-3 easing to 4.2 pull down. The two roughly offset. Disconfirming: two straight declines could mark a real downshift below the range, and July SA is noisy (auto retooling, teen employment). Verified against BLS LNS13327709 live.",
+        },
+        {
+          kind: "math",
+          text: "Submitted quantiles: q05 = 7.64, q10 = 7.7, q25 = 7.79, q50 = 7.9, q75 = 8.01, q90 = 8.1, q95 = 8.16.",
+        },
+        {
+          kind: "text",
+          text: "Source record: records/2026-07-31/digest-30648581183-1.json.",
+        },
+        { kind: "forecast", point: 7.9, ciLow: 7.7, ciHigh: 8.1 },
+      ],
+    },
+  ],
   "canada-cpi-yoy-may-2026": buildPackShadowRuns({
     slug: "canada-cpi-yoy-may-2026",
     target: "statcan.cpi.allitems.yoy.2026-05",

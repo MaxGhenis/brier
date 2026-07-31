@@ -189,16 +189,23 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
 
     assert len(entries) == 21
     for entry in entries:
-        target = recurring_seed_target(entry, set(), dt.date(2026, 7, 25))
-        assert target is not None
+        # Evaluate each seed the day before its own pinned release: valid
+        # whenever the registry is re-seeded (a fixed review date broke on
+        # the 2026-07-31 ECI Q3 re-seed — release outside the roll horizon
+        # from a frozen 2026-07-25; data-state-literal disease #8).
         period = entry["seedPeriod"]
+        docket_day = dt.date.fromisoformat(
+            entry["releaseDates"][period]
+        ) - dt.timedelta(days=1)
+        target = recurring_seed_target(entry, set(), docket_day)
+        assert target is not None
         assert target["period"] == period
         assert target["expectedReleaseDate"] == entry["releaseDates"][period]
         assert target["releaseCalendarUrl"] == entry["releaseCalendarUrl"]
 
         contract = register_targets.build_contract(
             target,
-            dt.date(2026, 7, 25),
+            docket_day,
         )
         assert contract["sourceBinding"]["expectedReleaseWindow"] == {
             "start": entry["releaseDates"][period],

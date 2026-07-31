@@ -33,7 +33,7 @@ function startsUnit(line: string): boolean {
 // hyphenated word breaks, and merge lines so text wraps naturally,
 // breaking only at SEC. headings and quoted designators like ''(23),
 // ''(A), ''(i).
-function cleanForDisplay(slice: string): string {
+export function cleanForDisplay(slice: string): string {
   const lines = slice
     .split("\n")
     .filter((line) => !/^\s*\d+\s*$/.test(line))

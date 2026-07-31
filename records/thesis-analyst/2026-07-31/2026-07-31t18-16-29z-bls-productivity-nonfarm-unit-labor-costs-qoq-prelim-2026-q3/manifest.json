@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T18:16:29Z",
+  "runStartedAt": "2026-07-31T18:16:29Z",
+  "series": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim",
+  "period": "2026-Q3",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-unit-labor-costs-q3-2026-prelim",
+    "country": "US",
+    "dataPointId": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim.2026_q3.first_print",
+    "period": "2026-Q3",
+    "registeredAt": "2026-07-31T18:02:17Z",
+    "registeredAtUtc": "2026-07-31T18:02:17Z",
+    "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+    "registrationState": "preregistered",
+    "series": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-11-13",
+        "start": "2026-10-30"
+      },
+      "field": "PRS85006112",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "PRS85006112",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PRS85006112",
+      "table": "Productivity and Costs, nonfarm business sector",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391",
+    "targetRegistrationPath": "records/targets/2026-07-31-5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+  "targetContentHash": "5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391",
+  "targetRegistrationPath": "records/targets/2026-07-31-5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391.json",
+  "registeredAtUtc": "2026-07-31T18:02:17Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T18:16:29Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "221e63e852e8f17b659a1666f9af8e2d51bb8ba2ff67d0db50c69ff0eec1998b"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft resolver names the BLS news release URL, while the canonical ledger sourceBinding specifies the ALFRED/FRED PRS85006112 first-print source URL and allowed host.",
+        "actionRequested": "Align the forecast's resolver/source fields with the canonical ledger contract, or explicitly state the ledger discrepancy in reasoning while keeping the target tied to the same slug and dataPointId."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify why the eight-print sample is sufficient for volatility rather than using a longer same-variant preliminary history."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval math is acceptable, but note that ULC is often revision-prone and first-print noise may widen tails."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent, but it should reconcile the published resolver fields with the canonical ledger source binding before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/prompt.md",
+      "sha256": "efc7582103fc37b4baa99a71963b7b3dce485180cc3e04846fea82136da1a24a",
+      "bytes": 8934,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_command.json",
+      "sha256": "72165ceef0e5e7498d31eef36ec9a4355c2dd75bf513e9de9b2b54f3a413abc2",
+      "bytes": 757,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_stdout.jsonl",
+      "sha256": "d42f3685b51cdd5761d8fcaf56b413cd6c945cc219a10a1e67c6ad4c4f1c26f0",
+      "bytes": 13815,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_stderr.log",
+      "sha256": "45a8c1b7555dd4849a91ef7beb876e97a549b502a191c973904489be86e12bca",
+      "bytes": 233,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_events.jsonl",
+      "sha256": "95a94e1f7a74367c23967c7060f541bcd545e848dbdb73ef47ef59ad8b012b91",
+      "bytes": 13802,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_last_message.txt",
+      "sha256": "54b567d10ca37949bf51edc09d1a175186a89a50b4804125f70d6b294cc8efe8",
+      "bytes": 5597,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_trace.json",
+      "sha256": "6c97c5daab9cfc4df15a19721b8bebb4cfeee18af9bebffae0cb59f5c0d7c3bf",
+      "bytes": 534,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_stdout.txt",
+      "sha256": "54b567d10ca37949bf51edc09d1a175186a89a50b4804125f70d6b294cc8efe8",
+      "bytes": 5597,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_stderr.txt",
+      "sha256": "fea7b41f9ca100c4b23a3569823e1949df27019806036f7ffdaacce6e2e57fa5",
+      "bytes": 248,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_prompt.md",
+      "sha256": "4f031ac735791d400ffc8d7ba3d7ef074d517b6a103d8dadd96887e381c8663a",
+      "bytes": 8684,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_command.json",
+      "sha256": "fc0efd5244579185d058266c31955ffbcbcc8c2f7698e556cf2f45f137ad07c2",
+      "bytes": 753,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9b603446eb4ae795a487cc735f78318e5d7022fd91dff414321a1ec1b32cb525",
+      "bytes": 1236,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_stderr.log",
+      "sha256": "fa985304d9af2270c70badadee485255d684de580be582eb6eeba64702c21d67",
+      "bytes": 233,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_events.jsonl",
+      "sha256": "8f6617cabdcc7d782c95be25b019160a48485ad03b198b32ea0247e11afefbfc",
+      "bytes": 1258,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_last_message.txt",
+      "sha256": "dbeadba6f4d45c7612e316fab18694c68c7f7a1c9fe6c5c13f596cfa3f3dac9d",
+      "bytes": 890,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_trace.json",
+      "sha256": "f776bf963bee0db7877b74d756ae8e934564c0ca511389ea32d5f3da2353aeec",
+      "bytes": 531,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_stdout.txt",
+      "sha256": "dbeadba6f4d45c7612e316fab18694c68c7f7a1c9fe6c5c13f596cfa3f3dac9d",
+      "bytes": 890,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_stderr.txt",
+      "sha256": "db302e80db9bb6b001f76ca4ccccec41a8a39acd4e1ccc7acdd34c05f96cd381",
+      "bytes": 248,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/revision_prompt.md",
+      "sha256": "baf17fe4ee50a69207627b8bec8da4b816f433fa484b37df4c33bb9f98af7480",
+      "bytes": 16357,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/command.json",
+      "sha256": "020893cba7e60795e149c8a9689455c46ec0fa57d1df3c23ae7227ec08a62e9f",
+      "bytes": 751,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_stdout.jsonl",
+      "sha256": "907b3ba4f5f7a5798b6e0bf70cac2523d2c1eeee8f707ed4232aa657a5e090e7",
+      "bytes": 7542,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_stderr.log",
+      "sha256": "82a8bcfd9f4dacf9d77aeed42d78af54935b415e2c82a48b6f96773966311530",
+      "bytes": 233,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_events.jsonl",
+      "sha256": "d5736bbc1527a446047b1db7b500fe35c4df280cf10c829a497bfa93429156e1",
+      "bytes": 7564,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_last_message.txt",
+      "sha256": "0bb6b41bad911a7e1ae9cb59ee707f5ff8ff9218c5c36272a9ec5932b0f30114",
+      "bytes": 6965,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_trace.json",
+      "sha256": "2ca7dd9ac7d5b85a1bb79ecbced273e4cd7f42f9cfce85eea9478e60fe55f16b",
+      "bytes": 527,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/stdout.txt",
+      "sha256": "0bb6b41bad911a7e1ae9cb59ee707f5ff8ff9218c5c36272a9ec5932b0f30114",
+      "bytes": 6965,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/stderr.txt",
+      "sha256": "0d00bd6ef35f460aa6f9fd45f521a763abf190353eaa62619eea436c40164f58",
+      "bytes": 248,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/raw_response.txt",
+      "sha256": "0bb6b41bad911a7e1ae9cb59ee707f5ff8ff9218c5c36272a9ec5932b0f30114",
+      "bytes": 6965,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/parsed_cells.json",
+      "sha256": "bdf15fcd3f5ea0fc97d5b5427c6199072792bfd29d7afc23b0e4c3dbad2945f4",
+      "bytes": 7972,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/normalized_cells.json",
+      "sha256": "341105721a1b7eca0dc1bf2dcf7bbf3506423fa3063cfbf7d388063e05d12f1f",
+      "bytes": 25319,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/distribution.json",
+      "sha256": "536b7914d521a5f1ec05bbb7b7f4c871aad4eee8fa1ab51e13be2230e0379243",
+      "bytes": 13563,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/validation.json",
+      "sha256": "01d7c5a0830ae5a66fedf7a68b74f9b26c167722dd93dd32dbb263e0b045bfe5",
+      "bytes": 135,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/cells.with_activity.json",
+      "sha256": "3f464405595b64f094e4472223872e4658e7e63e26fd0d233f4f85098693929f",
+      "bytes": 40834,
+      "createdAt": "2026-07-31T18:16:29Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/manifest.json",
+      "sha256": "a32c97b613690f778e9446ffa281273f62318429c0078263205e2dfe493e2778",
+      "bytes": 15715,
+      "createdAt": "2026-07-31T18:16:29Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-unit-labor-costs-q3-2026-prelim",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "8f1aa398a5bc17847aef42a43f9c77d5ea92f2a9669ebae2dd534a5b9685da06"
+}

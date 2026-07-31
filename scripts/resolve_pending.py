@@ -40,6 +40,7 @@ import math
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -49,6 +50,7 @@ import urllib.parse
 import urllib.request
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import quote, urlparse
 
@@ -543,7 +545,8 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     # US docket expansion (drafted 2026-07-24, anchor-verified 2026-07-25
     # through the alfredgraph vintage transport — three anchors per series,
-    # recorded in ANCHORS.md; six carry one flagged late-vintage anchor).
+    # recorded in docs/anchor-verifications.md; six carry one flagged
+    # late-vintage anchor).
     "fed.g17.industrial_production.total_index_mom": {
         "fred": "INDPRO",
         "transform": "pct_change_1d",
@@ -1064,7 +1067,8 @@ for _spec in BLS_API_ADAPTERS.values():
 
 # QCEW open-data preparation. The parser and fetch path are deliberately
 # fail-closed until the mandatory three live-source anchors can be reproduced
-# and recorded in ANCHORS.md. The current execution environment cannot reach
+# and recorded in docs/anchor-verifications.md. The current execution
+# environment cannot reach
 # data.bls.gov, and a repository forecast is not an acceptable substitute for
 # an official observation. Changing ``anchor_status`` without adding at least
 # three anchors still fails the runtime gate.
@@ -1101,6 +1105,52 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
         # Keep the registered www.bls.gov source page on the fact. The exact
         # fetched data.bls.gov response is separately hash-bound and archived.
         "source_page": "https://www.bls.gov/cew/downloadable-data-files.htm",
+    },
+}
+
+# FSA CRP monthly-summary preparation. The official statistics landing page
+# links dated PDF summaries rather than exposing a structured API. This family
+# therefore binds the stable landing page, selects exactly one target-month PDF,
+# extracts its layout text with the runner image's ``pdftotext`` binary, and
+# reads only the TOTAL CRP row's Acres column. The landing URL and observed PDF
+# row layout remain admission-TBV until an integrating session checks the live
+# publication. No placeholder below is an observation.
+FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
+    "usda.fsa.crp.enrolled_acres_total": {
+        "anchor_status": "VERIFIED",
+        # Integrator-verified 2026-07-31 against the official FSA PDFs
+        # (printed TOTAL CRP Acres cell, page-1 sign-up-type table — never
+        # derived sums: March's components cross-foot one acre under the
+        # printed total because FSA totals sum unrounded acreage).
+        "anchors": {
+            "2025-11": 26317011,
+            "2026-03": 26203615,
+            "2026-04": 26182019,
+        },
+        "source_url": (
+            "https://www.fsa.usda.gov/resources/programs/"
+            "conservation-reserve-program/statistics"
+        ),
+        "allowed_hosts": ("www.fsa.usda.gov",),
+        "series_id": "usda.fsa.crp.enrolled_acres_total",
+        "field": "enrolled_acres_total",
+        "source_table": (
+            "USDA FSA Conservation Reserve Program Statistics, CRP Monthly "
+            "Summary, total row"
+        ),
+        "row_label": "TOTAL CRP",
+        "column_label": "Acres",
+        "unit": "count",
+        "label": "US Conservation Reserve Program total enrolled acres",
+        "measure_concept": "usda.fsa.crp.enrolled_acres_total",
+        "source_name": "usda_fsa",
+        "concept_authority": "usda_fsa",
+        "source_concept": "CRP Monthly Summary; TOTAL CRP row; Acres column",
+        "evidence_notes": (
+            "Total CRP enrolled acres for {period}, read from the TOTAL CRP "
+            "row's Acres column in the dated CRP Monthly Summary PDF selected "
+            "from {source_url}; the fetched PDF bytes are archived."
+        ),
     },
 }
 
@@ -1592,7 +1642,8 @@ _STATCAN_EI_SPEC = {
     # the two freshest anchors are checked, at a tolerance wide enough for
     # documented SA refits but far below any wrong-series miss.
     # Back months revise, so first-print anchors are checked against captured
-    # release payloads in tests/fixtures and ANCHORS.md, not against today's
+    # release payloads in tests/fixtures and docs/anchor-verifications.md,
+    # not against today's
     # mutable table.
     "anchors": {},
     "candidate_anchors": {
@@ -3918,6 +3969,356 @@ def bls_first_print(
     return state["value"], None
 
 
+FSA_CRP_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+FSA_CRP_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+
+
+def fsa_crp_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the complete reviewed seven-key FSA CRP source binding."""
+
+    return {
+        "adapter": "fsa-crp-monthly-summary",
+        "sourceUrl": spec["source_url"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": {"operation": "identity", "factor": 1},
+        "releasePolicy": "first_print",
+    }
+
+
+def fsa_crp_binding_matches_spec(
+    binding: Any, spec: Mapping[str, Any]
+) -> bool:
+    """Require the registered seven keys to match the executor exactly."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - FSA_CRP_BINDING_DERIVED_KEYS
+        != FSA_CRP_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    allowed_hosts = binding.get("allowedHosts")
+    if allowed_hosts is not None and (
+        not isinstance(allowed_hosts, list)
+        or sorted(allowed_hosts) != sorted(spec["allowed_hosts"])
+    ):
+        return False
+    projection = {
+        key: binding[key] for key in FSA_CRP_BINDING_TEMPLATE_KEYS
+    }
+    return canonical_bytes(projection) == canonical_bytes(
+        fsa_crp_binding_template(spec)
+    )
+
+
+class _FsaCrpLinkParser(HTMLParser):
+    """Collect anchor hrefs and their visible text from the FSA page."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.links: list[tuple[str, str]] = []
+        self._href: str | None = None
+        self._text: list[str] = []
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        if tag.lower() != "a":
+            return
+        self._href = next(
+            (
+                value
+                for name, value in attrs
+                if name.lower() == "href" and value
+            ),
+            None,
+        )
+        self._text = []
+
+    def handle_data(self, data: str) -> None:
+        if self._href is not None:
+            self._text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "a" and self._href is not None:
+            self.links.append((self._href, " ".join(self._text)))
+            self._href = None
+            self._text = []
+
+
+def _fsa_crp_normalized_text(value: str) -> str:
+    return re.sub(
+        r"[^a-z0-9]+",
+        " ",
+        urllib.parse.unquote(value).lower(),
+    ).strip()
+
+
+def fsa_crp_summary_pdf_url(
+    raw_html: bytes,
+    period: str,
+    *,
+    landing_url: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[str | None, str | None]:
+    """Select exactly one target-month CRP Monthly Summary PDF link."""
+
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
+        raise ValueError(f"FSA CRP period must be YYYY-MM, got {period!r}")
+    try:
+        html = raw_html.decode("utf-8")
+    except UnicodeDecodeError:
+        return None, "FSA statistics landing page is not UTF-8 HTML"
+    parser = _FsaCrpLinkParser()
+    try:
+        parser.feed(html)
+        parser.close()
+    except Exception as exc:  # noqa: BLE001 - malformed upstream HTML
+        return None, f"FSA statistics landing page did not parse: {exc}"
+
+    year, month_number = period.split("-")
+    month_date = dt.date(int(year), int(month_number), 1)
+    month_name = month_date.strftime("%B").lower()
+    month_abbreviation = month_date.strftime("%b").lower()
+    period_tokens = {
+        f"{month_name} {year}",
+        f"{month_abbreviation} {year}",
+        f"{year} {month_name}",
+        f"{year} {month_abbreviation}",
+        f"{month_number} {year}",
+        f"{year} {month_number}",
+    }
+    matches: set[str] = set()
+    for href, label in parser.links:
+        url = urllib.parse.urljoin(landing_url, href)
+        descriptor = _fsa_crp_normalized_text(
+            f"{label} {urllib.parse.urlparse(url).path}"
+        )
+        padded = f" {descriptor} "
+        if "crp monthly summary" not in descriptor:
+            continue
+        if not any(f" {token} " in padded for token in period_tokens):
+            continue
+        if not urllib.parse.urlparse(url).path.lower().endswith(".pdf"):
+            continue
+        try:
+            _require_allowed_host(url, allowed_hosts)
+        except ValueError as exc:
+            return None, str(exc)
+        matches.add(url)
+    if not matches:
+        return None, None
+    if len(matches) != 1:
+        return None, (
+            f"expected one {month_name.title()} {year} CRP Monthly Summary "
+            f"PDF, found {len(matches)}"
+        )
+    return next(iter(matches)), None
+
+
+def fsa_crp_value_from_text(
+    text: str, period: str
+) -> tuple[float | None, str | None]:
+    """Read the TOTAL CRP row's Acres column from layout-preserved text."""
+
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
+        raise ValueError(f"FSA CRP period must be YYYY-MM, got {period!r}")
+    if not re.search(
+        r"\b(?:CRP|CONSERVATION\s+RESERVE\s+PROGRAM)\b[\s\S]{0,120}?"
+        r"\bMONTHLY\s+SUMMARY\b", text, re.IGNORECASE
+    ):
+        # The published header spells out the program name on its own line
+        # above "MONTHLY SUMMARY — <MONTH> <YEAR>"; the acronym form is
+        # accepted for robustness but the real PDFs use the spelled form.
+        return None, "PDF text is not labeled CRP Monthly Summary"
+    year, month_number = period.split("-")
+    month_date = dt.date(int(year), int(month_number), 1)
+    month_pattern = re.compile(
+        rf"\b(?:{month_date.strftime('%B')}|{month_date.strftime('%b')})"
+        rf"\s+{year}\b",
+        re.IGNORECASE,
+    )
+    if not month_pattern.search(text):
+        return None, f"PDF text does not identify target month {period}"
+
+    rows: list[tuple[int, list[str]]] = []
+    lines = (
+        text.replace("\r\n", "\n").replace("\r", "\n").splitlines()
+    )
+    for index, line in enumerate(lines):
+        cells = re.split(r"\s{2,}", line.strip()) if line.strip() else []
+        if cells and _fsa_crp_normalized_text(cells[0]) == "total crp":
+            rows.append((index, cells))
+    if len(rows) != 1:
+        return None, f"expected one TOTAL CRP row, found {len(rows)}"
+    row_index, row = rows[0]
+
+    header_matches: list[tuple[int, list[str]]] = []
+    for index in range(max(0, row_index - 30), row_index):
+        cells = re.split(r"\s{2,}", lines[index].strip())
+        if "acres" in {
+            _fsa_crp_normalized_text(cell) for cell in cells
+        }:
+            header_matches.append((index, cells))
+    if len(header_matches) != 1:
+        return None, (
+            "expected one table header with an exact Acres column before "
+            f"TOTAL CRP, found {len(header_matches)}"
+        )
+    _, header = header_matches[0]
+    acres_indices = [
+        index
+        for index, cell in enumerate(header)
+        if _fsa_crp_normalized_text(cell) == "acres"
+    ]
+    if len(acres_indices) != 1 or acres_indices[0] >= len(row):
+        return None, "TOTAL CRP row does not align with one Acres column"
+    raw_value = row[acres_indices[0]].strip()
+    if not re.fullmatch(r"\d{1,3}(?:,\d{3})*|\d+", raw_value):
+        return None, (
+            f"TOTAL CRP Acres value is not an integer: {raw_value!r}"
+        )
+    value = float(raw_value.replace(",", ""))
+    if not math.isfinite(value) or value <= 0 or not value.is_integer():
+        return None, "TOTAL CRP Acres value is not a positive integer"
+    return value, None
+
+
+def fsa_crp_pdf_text(raw: bytes) -> tuple[str | None, str | None]:
+    """Extract PDF text with the runner's external tool, failing closed."""
+
+    if not raw.startswith(b"%PDF-"):
+        return None, "CRP Monthly Summary response is not a PDF"
+    executable = shutil.which("pdftotext")
+    if executable is None:
+        return (
+            None,
+            "pdftotext is unavailable in the bare-Python resolver runtime",
+        )
+    try:
+        completed = subprocess.run(
+            [executable, "-layout", "-enc", "UTF-8", "-", "-"],
+            input=raw,
+            capture_output=True,
+            check=False,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return None, f"pdftotext failed: {exc}"
+    if completed.returncode != 0:
+        detail = completed.stderr.decode(
+            "utf-8", errors="replace"
+        ).strip()
+        return (
+            None,
+            f"pdftotext exited {completed.returncode}: {detail[:200]}",
+        )
+    try:
+        text = completed.stdout.decode("utf-8")
+    except UnicodeDecodeError:
+        return None, "pdftotext output is not UTF-8"
+    if not text.strip():
+        return None, "pdftotext returned no text"
+    return text, None
+
+
+def fsa_crp_verified_anchors(
+    spec: Mapping[str, Any],
+) -> dict[str, float] | None:
+    """Return admitted positive-integer anchors or None while unarmed."""
+
+    anchors = spec.get("anchors")
+    if (
+        spec.get("anchor_status") != "VERIFIED"
+        or not isinstance(anchors, dict)
+        or len(anchors) < 3
+    ):
+        return None
+    verified: dict[str, float] = {}
+    for period, expected in anchors.items():
+        if not isinstance(period, str) or not re.fullmatch(
+            r"\d{4}-(0[1-9]|1[0-2])", period
+        ):
+            return None
+        if isinstance(expected, bool) or not isinstance(
+            expected, (int, float)
+        ):
+            return None
+        value = float(expected)
+        if not math.isfinite(value) or value <= 0 or not value.is_integer():
+            return None
+        verified[period] = value
+    return verified
+
+
+def fsa_crp_anchor_mismatches(
+    values: Mapping[str, float | None], anchors: Mapping[str, float]
+) -> list[str]:
+    """Compare every live-retrieved FSA anchor exactly."""
+
+    if len(anchors) < 3:
+        return [f"only {len(anchors)} verified anchors; at least 3 required"]
+    problems = []
+    for period, expected in sorted(anchors.items()):
+        got = values.get(period)
+        if got is None:
+            problems.append(f"{period}=missing (official {expected})")
+        elif got != expected:
+            problems.append(f"{period}={got} (official {expected})")
+    return problems
+
+
+def fsa_crp_fetch_period(
+    spec: Mapping[str, Any], period: str
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch the landing page, select one dated PDF, and parse its total."""
+
+    landing_url = str(spec["source_url"])
+    try:
+        landing_raw, landing_retrieved_at, _ = http_get(
+            landing_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (OSError, ValueError) as exc:
+        return (
+            None,
+            None,
+            landing_url,
+            utc_now(),
+            f"landing fetch failed: {exc}",
+        )
+    pdf_url, refusal = fsa_crp_summary_pdf_url(
+        landing_raw,
+        period,
+        landing_url=landing_url,
+        allowed_hosts=spec["allowed_hosts"],
+    )
+    if refusal:
+        return None, None, landing_url, landing_retrieved_at, refusal
+    if pdf_url is None:
+        return None, None, landing_url, landing_retrieved_at, None
+    try:
+        raw, retrieved_at, final_url = http_get(
+            pdf_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (OSError, ValueError) as exc:
+        return None, None, pdf_url, utc_now(), f"PDF fetch failed: {exc}"
+    text, refusal = fsa_crp_pdf_text(raw)
+    if refusal or text is None:
+        return None, raw, final_url, retrieved_at, refusal
+    value, refusal = fsa_crp_value_from_text(text, period)
+    return value, raw, final_url, retrieved_at, refusal
+
+
 def qcew_api_url(spec: dict[str, Any], period: str) -> str:
     """Official QCEW industry-slice URL for canonical quarter ``YYYY-MM``."""
     if not re.fullmatch(r"\d{4}-(01|04|07|10)", period):
@@ -4227,6 +4628,25 @@ def pending_adapter_refs(
                         ref,
                         "bls_api",
                         spec,
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        fsa_crp_stem = next(
+            (stem for stem in FSA_CRP_ADAPTERS if ref.startswith(stem + ".")),
+            None,
+        )
+        if fsa_crp_stem:
+            parsed = parse_ref_period(ref, fsa_crp_stem)
+            if parsed and parsed[0] == "month":
+                out.append(
+                    (
+                        ref,
+                        "fsa_crp",
+                        FSA_CRP_ADAPTERS[fsa_crp_stem],
                         parsed[0],
                         parsed[1],
                         release_date,
@@ -5654,6 +6074,7 @@ FAMILY_ADAPTERS = {
     # 2026-07-10 generic-url registration met a newly added ALFRED stem.
     "alfred": {"alfred-fred"},
     "bls_api": {"bls-api"},
+    "fsa_crp": {"fsa-crp-monthly-summary"},
     "qcew": {"bls-qcew"},
     "usaspending": {"usaspending-api"},
 }
@@ -5828,6 +6249,10 @@ def main() -> int:
     bls_cache: dict[
         tuple[str, int, int], tuple[dict, bytes | None, str, str]
     ] = {}
+    fsa_crp_cache: dict[
+        str,
+        tuple[float | None, bytes | None, str, str, str | None],
+    ] = {}
     qcew_cache: dict[
         tuple[str, str],
         tuple[float | None, bytes | None, str, str, str | None],
@@ -5984,6 +6409,57 @@ def main() -> int:
             release_day = dt.date.fromisoformat(retrieved_at[:10])
             source_file = "timeseries/data (BLS Public Data API v2)"
             extension = "json"
+        elif kind == "fsa_crp":
+            verified_anchors = fsa_crp_verified_anchors(spec)
+            if verified_anchors is None:
+                print(
+                    f"  FSA CRP ADAPTER UNVERIFIED (refusing): {ref} — "
+                    "three live official-source anchors are required"
+                )
+                continue
+            registration = loop_contracts.get(ref) or {}
+            binding = (registration.get("contract") or {}).get("sourceBinding") or {}
+            if not fsa_crp_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
+                )
+                continue
+            anchor_values: dict[str, float | None] = {}
+            anchor_fetch_failed = False
+            for anchor_period in verified_anchors:
+                if anchor_period not in fsa_crp_cache:
+                    fsa_crp_cache[anchor_period] = fsa_crp_fetch_period(
+                        spec, anchor_period
+                    )
+                anchor_value, anchor_raw, _, _, anchor_refusal = fsa_crp_cache[
+                    anchor_period
+                ]
+                if anchor_raw is None or anchor_refusal:
+                    anchor_fetch_failed = True
+                anchor_values[anchor_period] = anchor_value
+            if anchor_fetch_failed:
+                print(f"  FSA CRP anchor fetch/parse failed (deferring): {ref}")
+                continue
+            mismatches = fsa_crp_anchor_mismatches(
+                anchor_values, verified_anchors
+            )
+            if mismatches:
+                print(
+                    f"  ANCHOR MISMATCH (refusing, wrong FSA CRP row?): {ref} — "
+                    + "; ".join(mismatches)
+                )
+                continue
+            if period not in fsa_crp_cache:
+                fsa_crp_cache[period] = fsa_crp_fetch_period(spec, period)
+            value, raw, fetched_url, retrieved_at, refusal = fsa_crp_cache[period]
+            if refusal:
+                print(f"  FSA CRP PARSE REFUSAL (refusing): {ref} — {refusal}")
+                continue
+            source_url = spec["source_url"]
+            source_file = fetched_url
+            series_id = spec["series_id"]
+            extension = "pdf"
         elif kind == "qcew":
             if not qcew_adapter_verified(spec):
                 print(

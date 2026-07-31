@@ -1,0 +1,1243 @@
+[
+  {
+    "slug": "us-eci-private-wages-salaries-q3-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US ECI Private Wages Q3 2026",
+    "question": "What will the first-print BLS Employment Cost Index quarter-over-quarter percent growth be for wages and salaries, private industry workers, all workers, seasonally adjusted, for 2026 Q3?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.82,
+    "ciLow": 0.69,
+    "ciHigh": 0.95,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-30",
+    "resolutionSource": "ALFRED/FRED ECIWAG first-print vintage of BLS Employment Cost Index Table 2",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECIWAG",
+    "resolutionRule": "Resolve to the first-print quarter-over-quarter percent growth for BLS Employment Cost Index series ECIWAG, wages and salaries for Private industry workers, All workers, seasonally adjusted, for 2026 Q3, using the first vintage of the ECIWAG index released with BLS Employment Cost Index Table 2 on October 30, 2026. Compute percent growth from the first-print 2026 Q3 index versus the first-print 2026 Q2 index; do not revise for later vintages or annual seasonal readjustments. If only the official BLS Table 2 one-decimal 3-month percent change is available, use that printed first-print value.",
+    "dataPointId": "bls.eci.private_wages_salaries_qoq.2026_q3.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-Q2 first print",
+        "value": 0.9
+      },
+      {
+        "label": "2026-Q1 first print",
+        "value": 0.7
+      },
+      {
+        "label": "2025-Q4 first print",
+        "value": 0.7
+      },
+      {
+        "label": "2025-Q3 first print",
+        "value": 0.8
+      },
+      {
+        "label": "2025-Q2 first print",
+        "value": 1
+      }
+    ],
+    "drivers": [
+      "private wage ECI has clustered around 0.7 to 1.0 percent recently",
+      "Q2 2026 rebound to 0.9 percent after two 0.7 percent prints",
+      "average hourly earnings growth is steady but not accelerating sharply",
+      "labor market cooling limits upside wage pressure",
+      "ECIWAG first-vintage index growth is the ledger resolver"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/eci.htm",
+      "https://www.bls.gov/news.release/eci.t02.htm",
+      "https://fred.stlouisfed.org/series/ECIWAG",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECIWAG",
+      "https://www.bls.gov/news.release/archives/empsit_07022026.htm"
+    ],
+    "runAt": "2026-07-31T18:16:29Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US ECI private wages and salaries, 2026 Q3 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the BLS Employment Cost Index Table 2 seasonally adjusted quarter-over-quarter percent growth for wages and salaries, Private industry workers, All workers, for the quarter ended September 2026. The ledger resolver is the ALFRED/FRED ECIWAG first-print index vintage, with BLS Table 2 as the underlying official release table."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Employment Cost Index release schedule lookup",
+        "result": "BLS schedule lists Third Quarter 2026 Employment Cost Index release date as Oct. 30, 2026 at 08:30 AM; Second Quarter 2026 was Jul. 31, 2026 and First Quarter 2026 was Apr. 30, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Employment Cost Index Table 2 latest private industry all-workers wages row",
+        "result": "For Private industry workers, All workers, BLS Table 2 shows indexes 177.498 in Mar. 2026 and 179.010 in Jun. 2026, with 3-month percent changes 0.8, 0.8, 0.9, 0.8, 1.0, 0.8, 0.7, 0.7, and 0.9 from Jun. 2024 through Jun. 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "public_mirror.lookup",
+        "call": "FRED ECIWAG mirror check for target identity and latest index level",
+        "result": "FRED ECIWAG reports Q2 2026 index 179.010, Q1 2026 index 177.498, Q4 2025 index 176.233, Q3 2025 index 174.948, and Q2 2025 index 173.563; units are Index Dec 2005=100, seasonally adjusted, quarterly."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Employment Situation wage and labor-market cross-check",
+        "result": "The June 2026 Employment Situation reported total nonfarm payroll employment +57,000, unemployment rate 4.2 percent, average hourly earnings up 0.3 percent in June to $37.64, and average hourly earnings up 3.5 percent over the year."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: the direct reference class is recent first-print seasonally adjusted BLS Table 2 quarter-over-quarter private wage ECI changes. The last 9 printed changes average about 0.82 percent, and the last 5 values are 1.0, 0.8, 0.7, 0.7, and 0.9, so the base rate is a persistent 0.8 percent rather than a sharp acceleration or collapse."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the last-9-quarter BLS Table 2 private wage q/q sample: [0.8, 0.8, 0.9, 0.8, 1.0, 0.8, 0.7, 0.7, 0.9], mean = 7.4/9 = 0.82; sigma = 0.10 percentage points from those values; 1.28*sigma = 0.12 percentage points, so an 80% interval around 0.82 is about 0.70 to 0.94, widened trivially to 0.69 to 0.95 for first-print/index-rounding uncertainty. Adjustment components: +0.02 for Q2 momentum after the 0.9 print, -0.02 for payroll cooling and steady 3.5 percent AHE growth, net 0.00, leaving point = 0.82."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the ECIWAG index level rose from 177.498 to 179.010 in Q2, confirming wage growth remained firm. Momentum is still in the 0.7 to 0.9 band, while slower payroll growth and unemployment at 4.2 percent argue against a sustained jump above 1 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is renewed wage pressure in health care, construction, or incentive-heavy occupations that would land above the interval near 1.0 percent or higher. Downside risk is broader labor-market weakening, retail and leisure pay softness, or lower bonuses pulling private wage growth toward 0.6 percent, which would land below the interval. An outside the interval result would likely require a visible shift in labor demand or compensation mix rather than ordinary quarter-to-quarter noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the ledger's ALFRED ECIWAG first-print binding and clarifying that the forecast resolves to index-implied first-vintage q/q percent growth, with BLS Table 2 as the official source table; retained the prior, sigma, and interval calibration."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.82,
+        "ciLow": 0.69,
+        "ciHigh": 0.95
+      }
+    ],
+    "agentReportedRunAt": "2026-07-31T18:15:06Z",
+    "runStartedAt": "2026-07-31T18:14:25Z",
+    "promptMode": "fast",
+    "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+    "targetContentHash": "2c36c5c31274178a05853fc5716e0ea00060cceeb591cc495a2f9dd286451d0c",
+    "targetRegistrationPath": "records/targets/2026-07-31-2c36c5c31274178a05853fc5716e0ea00060cceeb591cc495a2f9dd286451d0c.json",
+    "registeredAtUtc": "2026-07-31T18:02:17Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 0.495,
+        "upper": 1.145
+      },
+      "points": [
+        {
+          "value": 0.495,
+          "probability": 0.0
+        },
+        {
+          "value": 0.49825,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 0.5015,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 0.50475,
+          "probability": 0.005
+        },
+        {
+          "value": 0.508,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 0.51125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 0.5145,
+          "probability": 0.01
+        },
+        {
+          "value": 0.51775,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 0.521,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 0.52425,
+          "probability": 0.015
+        },
+        {
+          "value": 0.5275,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 0.53075,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 0.534,
+          "probability": 0.02
+        },
+        {
+          "value": 0.53725,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 0.5405,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 0.54375,
+          "probability": 0.025
+        },
+        {
+          "value": 0.547,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 0.55025,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 0.5535,
+          "probability": 0.03
+        },
+        {
+          "value": 0.55675,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 0.56,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 0.56325,
+          "probability": 0.035
+        },
+        {
+          "value": 0.5665,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 0.56975,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 0.573,
+          "probability": 0.04
+        },
+        {
+          "value": 0.57625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 0.5795,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 0.58275,
+          "probability": 0.045
+        },
+        {
+          "value": 0.586,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 0.58925,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 0.5925,
+          "probability": 0.05
+        },
+        {
+          "value": 0.59575,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 0.599,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 0.60225,
+          "probability": 0.055
+        },
+        {
+          "value": 0.6055,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 0.60875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 0.612,
+          "probability": 0.06
+        },
+        {
+          "value": 0.61525,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 0.6185,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 0.62175,
+          "probability": 0.065
+        },
+        {
+          "value": 0.625,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 0.62825,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 0.6315,
+          "probability": 0.07
+        },
+        {
+          "value": 0.63475,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 0.638,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 0.64125,
+          "probability": 0.075
+        },
+        {
+          "value": 0.6445,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 0.64775,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 0.651,
+          "probability": 0.08
+        },
+        {
+          "value": 0.65425,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 0.6575,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 0.66075,
+          "probability": 0.085
+        },
+        {
+          "value": 0.664,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 0.66725,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 0.6705,
+          "probability": 0.09
+        },
+        {
+          "value": 0.67375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 0.677,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 0.68025,
+          "probability": 0.095
+        },
+        {
+          "value": 0.6835,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 0.68675,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 0.69,
+          "probability": 0.1
+        },
+        {
+          "value": 0.69325,
+          "probability": 0.11
+        },
+        {
+          "value": 0.6965,
+          "probability": 0.12
+        },
+        {
+          "value": 0.69975,
+          "probability": 0.13
+        },
+        {
+          "value": 0.703,
+          "probability": 0.14
+        },
+        {
+          "value": 0.70625,
+          "probability": 0.15
+        },
+        {
+          "value": 0.7095,
+          "probability": 0.16
+        },
+        {
+          "value": 0.71275,
+          "probability": 0.17
+        },
+        {
+          "value": 0.716,
+          "probability": 0.18
+        },
+        {
+          "value": 0.71925,
+          "probability": 0.19
+        },
+        {
+          "value": 0.7225,
+          "probability": 0.2
+        },
+        {
+          "value": 0.72575,
+          "probability": 0.21
+        },
+        {
+          "value": 0.729,
+          "probability": 0.22
+        },
+        {
+          "value": 0.73225,
+          "probability": 0.23
+        },
+        {
+          "value": 0.7355,
+          "probability": 0.24
+        },
+        {
+          "value": 0.73875,
+          "probability": 0.25
+        },
+        {
+          "value": 0.742,
+          "probability": 0.26
+        },
+        {
+          "value": 0.74525,
+          "probability": 0.27
+        },
+        {
+          "value": 0.7485,
+          "probability": 0.28
+        },
+        {
+          "value": 0.75175,
+          "probability": 0.29
+        },
+        {
+          "value": 0.755,
+          "probability": 0.3
+        },
+        {
+          "value": 0.75825,
+          "probability": 0.31
+        },
+        {
+          "value": 0.7615,
+          "probability": 0.32
+        },
+        {
+          "value": 0.76475,
+          "probability": 0.33
+        },
+        {
+          "value": 0.768,
+          "probability": 0.34
+        },
+        {
+          "value": 0.77125,
+          "probability": 0.35
+        },
+        {
+          "value": 0.7745,
+          "probability": 0.36
+        },
+        {
+          "value": 0.77775,
+          "probability": 0.37
+        },
+        {
+          "value": 0.781,
+          "probability": 0.38
+        },
+        {
+          "value": 0.78425,
+          "probability": 0.39
+        },
+        {
+          "value": 0.7875,
+          "probability": 0.4
+        },
+        {
+          "value": 0.79075,
+          "probability": 0.41
+        },
+        {
+          "value": 0.794,
+          "probability": 0.42
+        },
+        {
+          "value": 0.79725,
+          "probability": 0.43
+        },
+        {
+          "value": 0.8005,
+          "probability": 0.44
+        },
+        {
+          "value": 0.80375,
+          "probability": 0.45
+        },
+        {
+          "value": 0.807,
+          "probability": 0.46
+        },
+        {
+          "value": 0.81025,
+          "probability": 0.47
+        },
+        {
+          "value": 0.8135,
+          "probability": 0.48
+        },
+        {
+          "value": 0.81675,
+          "probability": 0.49
+        },
+        {
+          "value": 0.82,
+          "probability": 0.5
+        },
+        {
+          "value": 0.82325,
+          "probability": 0.51
+        },
+        {
+          "value": 0.8265,
+          "probability": 0.52
+        },
+        {
+          "value": 0.82975,
+          "probability": 0.53
+        },
+        {
+          "value": 0.833,
+          "probability": 0.54
+        },
+        {
+          "value": 0.83625,
+          "probability": 0.55
+        },
+        {
+          "value": 0.8395,
+          "probability": 0.56
+        },
+        {
+          "value": 0.84275,
+          "probability": 0.57
+        },
+        {
+          "value": 0.846,
+          "probability": 0.58
+        },
+        {
+          "value": 0.84925,
+          "probability": 0.59
+        },
+        {
+          "value": 0.8525,
+          "probability": 0.6
+        },
+        {
+          "value": 0.85575,
+          "probability": 0.61
+        },
+        {
+          "value": 0.859,
+          "probability": 0.62
+        },
+        {
+          "value": 0.86225,
+          "probability": 0.63
+        },
+        {
+          "value": 0.8655,
+          "probability": 0.64
+        },
+        {
+          "value": 0.86875,
+          "probability": 0.65
+        },
+        {
+          "value": 0.872,
+          "probability": 0.66
+        },
+        {
+          "value": 0.87525,
+          "probability": 0.67
+        },
+        {
+          "value": 0.8785,
+          "probability": 0.68
+        },
+        {
+          "value": 0.88175,
+          "probability": 0.69
+        },
+        {
+          "value": 0.885,
+          "probability": 0.7
+        },
+        {
+          "value": 0.88825,
+          "probability": 0.71
+        },
+        {
+          "value": 0.8915,
+          "probability": 0.72
+        },
+        {
+          "value": 0.89475,
+          "probability": 0.73
+        },
+        {
+          "value": 0.898,
+          "probability": 0.74
+        },
+        {
+          "value": 0.90125,
+          "probability": 0.75
+        },
+        {
+          "value": 0.9045,
+          "probability": 0.76
+        },
+        {
+          "value": 0.90775,
+          "probability": 0.77
+        },
+        {
+          "value": 0.911,
+          "probability": 0.78
+        },
+        {
+          "value": 0.91425,
+          "probability": 0.79
+        },
+        {
+          "value": 0.9175,
+          "probability": 0.8
+        },
+        {
+          "value": 0.92075,
+          "probability": 0.81
+        },
+        {
+          "value": 0.924,
+          "probability": 0.82
+        },
+        {
+          "value": 0.92725,
+          "probability": 0.83
+        },
+        {
+          "value": 0.9305,
+          "probability": 0.84
+        },
+        {
+          "value": 0.93375,
+          "probability": 0.85
+        },
+        {
+          "value": 0.937,
+          "probability": 0.86
+        },
+        {
+          "value": 0.94025,
+          "probability": 0.87
+        },
+        {
+          "value": 0.9435,
+          "probability": 0.88
+        },
+        {
+          "value": 0.94675,
+          "probability": 0.89
+        },
+        {
+          "value": 0.95,
+          "probability": 0.9
+        },
+        {
+          "value": 0.95325,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 0.9565,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 0.95975,
+          "probability": 0.905
+        },
+        {
+          "value": 0.963,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 0.96625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 0.9695,
+          "probability": 0.91
+        },
+        {
+          "value": 0.97275,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 0.976,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 0.97925,
+          "probability": 0.915
+        },
+        {
+          "value": 0.9825,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 0.98575,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 0.989,
+          "probability": 0.92
+        },
+        {
+          "value": 0.99225,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 0.9955,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 0.99875,
+          "probability": 0.925
+        },
+        {
+          "value": 1.002,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1.00525,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1.0085,
+          "probability": 0.93
+        },
+        {
+          "value": 1.01175,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1.015,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1.01825,
+          "probability": 0.935
+        },
+        {
+          "value": 1.0215,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1.02475,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1.028,
+          "probability": 0.94
+        },
+        {
+          "value": 1.03125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1.0345,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1.03775,
+          "probability": 0.945
+        },
+        {
+          "value": 1.041,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1.04425,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1.0475,
+          "probability": 0.95
+        },
+        {
+          "value": 1.05075,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1.054,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1.05725,
+          "probability": 0.955
+        },
+        {
+          "value": 1.0605,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1.06375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1.067,
+          "probability": 0.96
+        },
+        {
+          "value": 1.07025,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1.0735,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1.07675,
+          "probability": 0.965
+        },
+        {
+          "value": 1.08,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1.08325,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1.0865,
+          "probability": 0.97
+        },
+        {
+          "value": 1.08975,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1.093,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1.09625,
+          "probability": 0.975
+        },
+        {
+          "value": 1.0995,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1.10275,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1.106,
+          "probability": 0.98
+        },
+        {
+          "value": 1.10925,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1.1125,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1.11575,
+          "probability": 0.985
+        },
+        {
+          "value": 1.119,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1.12225,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1.1255,
+          "probability": 0.99
+        },
+        {
+          "value": 1.12875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1.132,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1.13525,
+          "probability": 0.995
+        },
+        {
+          "value": 1.1385,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1.14175,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1.145,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 0.82,
+        "median": 0.82,
+        "interval80": {
+          "lower": 0.69,
+          "upper": 0.95
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/prompt.md",
+        "sha256": "47a3a59b81e316d8e2402b6974e9041b6e5d0c5b059170f2185fea9a15204d9d",
+        "bytes": 8869,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_command.json",
+        "sha256": "0cf7e0862887102cc591b3c5909ac7a2533459830767bb205f521cd5e3f60df5",
+        "bytes": 739,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_codex_stdout.jsonl",
+        "sha256": "1eaadbc95ff7fb3aeaff7970d5d06341c84d2c798ea3ecba3d47762e1e759e93",
+        "bytes": 10671,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_codex_stderr.log",
+        "sha256": "05354ac086b827a7018901b422edba0ebffda3215a87c112f05111f25dc61d35",
+        "bytes": 233,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_codex_events.jsonl",
+        "sha256": "58a780427319456d173eb7a508ea59a005b20b5421e9d3669f9738a6ea7c5a17",
+        "bytes": 10670,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_codex_last_message.txt",
+        "sha256": "b6a15f4b9076f5f4fb1d169d146a21a8389ccca749b2dca946714dcef342800c",
+        "bytes": 5599,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_codex_trace.json",
+        "sha256": "1a097d7f1880cbe4c96b11b9b8e74357f2febbe2da9160ee9da456876f72301f",
+        "bytes": 533,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_stdout.txt",
+        "sha256": "b6a15f4b9076f5f4fb1d169d146a21a8389ccca749b2dca946714dcef342800c",
+        "bytes": 5599,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_stderr.txt",
+        "sha256": "4770ccb8cd3a8aa374d05be569bcc0ea8fd2532cbe127c86237a692fbf29957d",
+        "bytes": 248,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_prompt.md",
+        "sha256": "24b1839a55064527fc69c724381db8d0327363a8647e5345bb1a78383ecb1c23",
+        "bytes": 8621,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_command.json",
+        "sha256": "89ba7c0afb15352f3977335a156080c4c95ae8abc276c85176d007ccc802f936",
+        "bytes": 735,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "18e3f1610b4aab325b7479ea5889d336087e189cf22adbf6ab73aad4b70a8b24",
+        "bytes": 1872,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_codex_stderr.log",
+        "sha256": "bfae4e4a499d628f6551173f00a03339e559c32d7c206530ade1944fdd71dce2",
+        "bytes": 233,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_codex_events.jsonl",
+        "sha256": "fcfae8fd02e618148bd42647fe89c93d23213a43ab4b49021799565959541f77",
+        "bytes": 1894,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_codex_last_message.txt",
+        "sha256": "d9383a67dff82b69298dfb0ebde56db2edb630a0bcc750c29cc63f42d5c476ca",
+        "bytes": 1494,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_codex_trace.json",
+        "sha256": "f956f88537f9dd2587723d0b9684cb8d4fe85e4d89248df09900e01e90d00590",
+        "bytes": 527,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_stdout.txt",
+        "sha256": "d9383a67dff82b69298dfb0ebde56db2edb630a0bcc750c29cc63f42d5c476ca",
+        "bytes": 1494,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_stderr.txt",
+        "sha256": "21886cf1c38ce5cee29aaf6a823f02a1d2c4e4d212f4a3be26f1b82babde7a23",
+        "bytes": 248,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/revision_prompt.md",
+        "sha256": "9bf25d5da4a66a062f10285dd1e029c324e06f2230d52a9d7f122cb4fd036573",
+        "bytes": 16898,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/command.json",
+        "sha256": "cfb62e3c25388925b9f349aff2b0727a4c9c0b93d7e934dbc8405c50fbc9b2a8",
+        "bytes": 733,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/codex_stdout.jsonl",
+        "sha256": "db8564a8197a6d273cadb1e1fb749ff4b8cd0a84ca131e30384d81da04cbdb24",
+        "bytes": 6811,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/codex_stderr.log",
+        "sha256": "306db9f6016346be8e9dbee70f9f815c156c5fa9f6d521f1470b4063c5f4a6ad",
+        "bytes": 233,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/codex_events.jsonl",
+        "sha256": "e2598efd7ad7a77521b7f8b3f407fa0ca33b5eddef1785af4a220fc6f36a702f",
+        "bytes": 6833,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/codex_last_message.txt",
+        "sha256": "cac4596c21e48e511260e5a4ed8284da42003552aa554ec4fd602c6f0884c522",
+        "bytes": 6252,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/codex_trace.json",
+        "sha256": "f58004d1afdbc9177454efe160557f57aef831cb31cb9a1c7cae75e3b1a79c40",
+        "bytes": 527,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/stdout.txt",
+        "sha256": "cac4596c21e48e511260e5a4ed8284da42003552aa554ec4fd602c6f0884c522",
+        "bytes": 6252,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/stderr.txt",
+        "sha256": "f5400e0995b17022c5c51b8d7000959f8f5d8664f45302051109ac1bfa3ce074",
+        "bytes": 248,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/raw_response.txt",
+        "sha256": "cac4596c21e48e511260e5a4ed8284da42003552aa554ec4fd602c6f0884c522",
+        "bytes": 6252,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/parsed_cells.json",
+        "sha256": "07c2b9380828858183171ad6c4664f449ba642527e636b6e4209a7faf94f8fa1",
+        "bytes": 7149,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/normalized_cells.json",
+        "sha256": "6fdd4bdbca60c57421346f1124812821f79ed96f0a130bd0680951cb933b903c",
+        "bytes": 24636,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/distribution.json",
+        "sha256": "4f25dd3cfc7cec1677c652c7235b5a2741abad2bfd960c27d874aacd925fb34c",
+        "bytes": 13703,
+        "createdAt": "2026-07-31T18:14:25Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/validation.json",
+        "sha256": "49887b43251d38e5c90f4f3933b956f93dee3bbcf49a16918a58444070a753c0",
+        "bytes": 138,
+        "createdAt": "2026-07-31T18:14:25Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-31T18:14:25Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "dbf7f5aaecaaecae5e6ba2674c9de6e30d6c894114c9af9c42a49d4327a6458e"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft JSON uses BLS Table 2 URL as the resolutionSourceUrl, while the canonical ledger sourceBinding for this target is the ALFRED/FRED ECIWAG first-print binding.",
+          "actionRequested": "Set the resolver/source fields to match the ledger binding, or explicitly state the ledger/source discrepancy in reasoning while keeping the same target."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The reasoning says the target can resolve to the printed one-decimal Table 2 change or equivalently the first-print index vintage, but the forecast fields use two-decimal point and interval values.",
+          "actionRequested": "Clarify whether resolution is the printed one-decimal percent change or the percent change implied from the first-print ECIWAG index, and ensure the final JSON wording is consistent."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The prior/update/interval step is strong; keep the stated last-9-quarter sample, sigma, adjustment components, and implied bounds."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Tail scenarios are concrete enough, but naming one or two specific wage-sensitive sectors in both upside and downside cases would make them tighter."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the ledger's ALFRED ECIWAG first-print binding and clarifying that the forecast resolves to index-implied first-vintage q/q percent growth, with BLS Table 2 as the official source table; retained the prior, sigma, and interval calibration.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the ledger's ALFRED ECIWAG first-print binding and clarifying that the forecast resolves to index-implied first-vintage q/q percent growth, with BLS Table 2 as the official source table; retained the prior, sigma, and interval calibration.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the ledger's ALFRED ECIWAG first-print binding and clarifying that the forecast resolves to index-implied first-vintage q/q percent growth, with BLS Table 2 as the official source table; retained the prior, sigma, and interval calibration.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the ledger's ALFRED ECIWAG first-print binding and clarifying that the forecast resolves to index-implied first-vintage q/q percent growth, with BLS Table 2 as the official source table; retained the prior, sigma, and interval calibration.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is mostly publishable, but it should align the resolver/source fields with the ledger source binding and clarify the rounded-table versus index-implied resolution rule."
+    }
+  }
+]

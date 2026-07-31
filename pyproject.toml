@@ -37,6 +37,11 @@ Issues = "https://github.com/ThesisInstitute/thesis/issues"
 custody = [
     "receipt==0.3.0; python_version >= '3.11'",
 ]
+challenge = [
+    # Submitter-side keyless signing for the challenge lane (#52). Exact-pinned
+    # like receipt: any bump must pass the full suite at the new pin first.
+    "sigstore==4.5.0; python_version >= '3.11'",
+]
 experiments = [
     "numpy>=2.2.6",
     "scipy>=1.15.3",
@@ -78,4 +83,6 @@ target-version = ["py310"]
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]

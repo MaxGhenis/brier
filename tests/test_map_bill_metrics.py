@@ -290,3 +290,40 @@ def test_existing_draft_for_colliding_hint_is_not_overwritten(
 
     assert existing_path.read_bytes() == existing_bytes
     assert not bill_path.with_suffix(".mapped.json").exists()
+
+
+def test_crp_draft_is_unregistered_and_has_a_complete_binding_template() -> None:
+    draft = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-entries"
+            / "usda-fsa-crp-enrolled-acres-total.json"
+        ).read_text(encoding="utf-8")
+    )
+    docket = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text(encoding="utf-8")
+    )
+
+    assert draft["series"] == "usda.fsa.crp.enrolled_acres_total"
+    assert draft["cadence"] == "monthly"
+    assert draft["slug"] == "us-crp-enrolled-acres-{month}-{year}"
+    assert draft["integrationStatus"] == "ANCHOR_TBV"
+    assert draft["series"] not in {
+        entry["series"] for entry in docket["series"]
+    }
+
+    extras = draft["extras"]
+    assert extras["targetUnit"] == "count"
+    assert extras["valueScale"] == 1
+    assert "condition" not in extras
+    assert set(extras["sourceBinding"]) == {
+        "adapter",
+        "sourceUrl",
+        "sourceSeriesId",
+        "field",
+        "table",
+        "transform",
+        "releasePolicy",
+    }
+    assert extras["sourceBinding"]["adapter"] == "fsa-crp-monthly-summary"

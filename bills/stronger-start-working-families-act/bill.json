@@ -1,0 +1,96 @@
+{
+  "bill": {
+    "name": "Stronger Start for Working Families Act",
+    "number": "S.3596",
+    "congress": 119,
+    "sponsors": ["Sen. Maggie Hassan (D-NH)", "Sen. Todd Young (R-IN)"],
+    "status": "Introduced 2026-01-08; read twice and referred to the Committee on Finance",
+    "pages": 2,
+    "analyzed": "policyengine-us@1.784.3 via scripts/tools/policyengine.py (issue #45)",
+    "analysisDate": "2026-07-31",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/3596/text"
+  },
+  "provisions": [
+    {
+      "title": "Earned income threshold for the refundable Child Tax Credit",
+      "heading": "SEC. 2. EARNED INCOME THRESHOLD FOR REFUNDABLE CHILD TAX CREDIT",
+      "quote": "Section 24(d)(1)(B)(i) of the Internal Revenue Code of 1986 is amended by striking “$3,000” and inserting “$1”. (b) CONFORMING AMENDMENT.—Section 24(h) is amended by striking paragraph (6). (c) EFFECTIVE DATE.—… taxable years beginning after December 31, 2025.",
+      "goals": [
+        "Let the refundable Child Tax Credit phase in from the first dollar of earnings",
+        "Extend the full CTC to low-earning working families currently excluded by the $2,500 earnings threshold"
+      ],
+      "effects": [
+        {
+          "mechanism": "Refundable CTC (ACTC) earned-income phase-in threshold: $2,500 (current law) -> $1 (statute; PolicyEngine models $0)",
+          "text": "About 3.5 million working families with children gain; the refundable credit begins phasing in at 15% from the first dollar of earnings instead of above $2,500. Maximum household gain is modest (~$375) and concentrated in the lowest income deciles."
+        }
+      ],
+      "barriers": [
+        {
+          "actor": "Senate Finance Committee / floor",
+          "text": "Referred to Finance with no markup scheduled; would need to be reported or folded into a larger tax vehicle. Bipartisan sponsorship (Hassan D + Young R) raises the odds relative to a single-party marker bill, but there is no scheduled vehicle."
+        },
+        {
+          "actor": "Cost offset",
+          "text": "Adds ~$1.6B/yr (~$14.6B/10yr, PolicyEngine) of unoffset refundable outlays; any pay-for fight is the live risk to enactment."
+        }
+      ],
+      "metrics": [
+        {
+          "kind": "poverty",
+          "text": "SPM child poverty rate (the provision targets low-earning families with children)",
+          "series_hint": "census-spm-child-poverty"
+        },
+        {
+          "kind": "outlays",
+          "text": "Additional Child Tax Credit (refundable ACTC) outlays",
+          "series_hint": "treasury-irs-actc-outlays"
+        }
+      ],
+      "conditionals": [
+        "If S.3596 is enacted, gov.irs.credits.ctc.refundable.phase_in.threshold = $1 for tax years beginning after 2025-12-31 (PolicyEngine policy 85587 models the threshold at $0)."
+      ],
+      "compute": [
+        {
+          "model": "policyengine-us",
+          "engine": "modal",
+          "pe_us_version": "1.764.6",
+          "pe_core_version": "3.26.11",
+          "dataset": "populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z",
+          "certification": {
+            "certified_model_version": "1.764.6",
+            "running_model_version": "1.764.6",
+            "certified": true
+          },
+          "reform": {
+            "gov.irs.credits.ctc.refundable.phase_in.threshold": {
+              "2026-01-01.2100-12-31": 0
+            }
+          },
+          "year": 2026,
+          "region": "us",
+          "reform_policy_id": 85587,
+          "baseline_policy_id": 2,
+          "status": "ok",
+          "budgetary_impact": -1826050568.8,
+          "state_tax_revenue_impact_2026": -350000.0,
+          "poverty_child_pct_change": -0.011552696480137504,
+          "poverty_all_pct_change": -0.004806689475126822,
+          "deep_child_poverty_pct_change": -0.008493180160926827,
+          "gini_pct_change": -0.0002020049409573674,
+          "beneficiaries_share": 0.06475774355,
+          "decile_average_change": {"1": 31.9, "2": 28.54, "3": 25.42, "4": 17.17, "5": 12.31, "6": 4.9, "7": 3.91, "8": 3.75, "9": 2.48, "10": 0.3},
+          "result_summary": "2026: federal budgetary impact -$1.83B (income_tax delta minus benefits delta, measured 0; state spillover -$0.3M reported separately); child poverty -1.2%; 6.5% gain; Gini -0.02%. (Engine-proper federal aggregation on Populace build P, certified stack us==1.764.6, Modal 32GB; artifacts buildP-economy-2026.json + compute-row-2026.json.)",
+          "provision_title": "Sec. 2 — strike refundable CTC earnings threshold ($2,500 -> $1)",
+          "internal_consistency": "budgetary impact via household_net_income delta (-1,826,396,339) vs household_tax delta (-1,826,395,934) agree to ~$400; benefit_spending_impact 0.0 as expected for a pure tax-credit provision",
+          "external_anchors": [
+            {"source": "PolicyEngine published (older data build)", "annual_2026_usd": -1600000000, "ten_year_usd": -14600000000, "child_poverty_pct_change": -0.004, "gini_pct_change": -0.00024, "beneficiaries_share": 0.059, "note": "stale build; superseded by this run"},
+            {"source": "Tax Policy Center", "ten_year_usd": -9500000000, "note": "~$1.0B/yr; ~$100 avg gain bottom quintile"}
+          ],
+          "caveat": "Static microsim; differs from CBO/JCT by behavioral+timing effects. Fresh build-P cost (-$1.83B/2026) runs ~14% above the stale published PE figure and hotter than TPC's ~$1B/yr — same order of magnitude; the data refresh moved the poverty effect from -0.4% to -1.2%. One evidence stream with its own error bars. Ten-year (2026-2035) FEDERAL cost on build P: $17.07B (-17069142980.93), engine-proper aggregation, total state spillover $3.5M excluded and itemized; see buildP-sweep-2026-2035.json.",
+          "source": "scripts/tools/modal_economy.py run 2026-07-31 (modal.com/apps/policyengine/main/ap-h8MkCPV0VxseeURiPlckQE); artifact bills/stronger-start-working-families-act/buildP-economy-2026.json"
+        }
+      ]
+    }
+  ]
+}

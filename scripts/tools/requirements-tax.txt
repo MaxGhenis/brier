@@ -1,0 +1,18 @@
+# Certified compute stack for the bills lane (issue #45) — Populace build P.
+#
+# EXACT pins, because certification is exact: build
+# populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z certifies
+# precisely this pairing (its release_manifest.json). Bump BOTH pins together
+# when adopting a new certified build. Mirrors scripts/tools/modal_economy.py.
+#
+# Install into a SEPARATE venv (not the repo .venv):
+#   uv venv .venv-tax && uv pip install --python .venv-tax -r scripts/tools/requirements-tax.txt
+#
+# Not a [dependency-groups] entry in pyproject.toml on purpose:
+# policyengine-core (all recent versions) pins pytest>=8,<9 while brier[dev]
+# needs pytest>=9 — one resolution universe is unsatisfiable (broke CI's
+# `uv sync --all-extras`). The API path in scripts/tools/policyengine.py is
+# stdlib-only and needs none of this; this file is only for offline parameter
+# validation and local/household cross-checks on the certified stack.
+policyengine-us==1.764.6
+policyengine-core==3.26.11

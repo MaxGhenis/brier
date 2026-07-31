@@ -52,6 +52,7 @@ export function MetricCard({
   badgeClass,
   rationale,
   stance,
+  forecast,
 }: {
   kind: string;
   text: string;
@@ -59,6 +60,14 @@ export function MetricCard({
   badgeClass: string;
   rationale?: string;
   stance?: StanceFold | null;
+  forecast?: {
+    slug: string;
+    href?: string;
+    pointLabel: string;
+    ciLabel: string;
+    resolutionDate: string;
+    moreCount: number;
+  };
 }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = text.length > 220;
@@ -98,6 +107,14 @@ export function MetricCard({
         >
           {expanded ? "Less ↑" : "Full sourcing ↓"}
         </button>
+      )}
+      {forecast && (
+        <a
+          href={forecast.href ?? `/${forecast.slug}`}
+          className="mt-2 inline-block [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[#1F6B33] no-underline hover:underline"
+        >
+          Live forecast {forecast.pointLabel} →
+        </a>
       )}
       {rationale && (
         <details className="mt-3 border-t border-[var(--theme-border)] pt-3">

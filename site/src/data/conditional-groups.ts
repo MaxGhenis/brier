@@ -6,7 +6,8 @@ export interface ConditionalGroup {
   question: string;
   eventLabel: string;
   trueArmSlug: string;
-  falseArmSlug: string;
+  /** Absent for single-arm registrations (enacted-conditional only). */
+  falseArmSlug?: string;
   probabilitySlug?: string;
   unconditionalSlug?: string;
   gapNote?: string;
@@ -44,7 +45,7 @@ export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
 export interface ResolvedConditionalGroup {
   group: ConditionalGroup;
   trueArm: ForecastCell;
-  falseArm: ForecastCell;
+  falseArm?: ForecastCell;
   probability?: ForecastCell;
   unconditional?: ForecastCell;
 }
@@ -55,8 +56,12 @@ export function getConditionalGroup(
   const group = CONDITIONAL_GROUPS.find((g) => g.slug === slug);
   if (!group) return undefined;
   const trueArm = getForecastCell(group.trueArmSlug);
-  const falseArm = getForecastCell(group.falseArmSlug);
-  if (!trueArm || !falseArm) return undefined;
+  const falseArm = group.falseArmSlug
+    ? getForecastCell(group.falseArmSlug)
+    : undefined;
+  if (!trueArm) return undefined;
+  // A named-but-missing baseline arm is a data error — fail closed.
+  if (group.falseArmSlug && !falseArm) return undefined;
   return {
     group,
     trueArm,
