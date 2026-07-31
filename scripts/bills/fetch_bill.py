@@ -52,6 +52,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -59,6 +60,63 @@ import httpx
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = REPO_ROOT / "bills" / "raw"
+
+# --slug is attacker-shaped input: it participates in path math, so it
+# must never carry separators or dot segments.
+SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+# Total download budget. The httpx timeout is per-read — a slow drip or
+# an unbounded body would otherwise stream forever.
+MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024
+DOWNLOAD_DEADLINE_SECONDS = 300
+
+
+def validate_slug(slug: str) -> str:
+    if not SLUG_RE.fullmatch(slug):
+        sys.exit(
+            f"error: invalid slug {slug!r} — lowercase letters, digits, and "
+            "hyphens only (no separators or dot segments)"
+        )
+    return slug
+
+
+def safe_dest(name: str) -> Path:
+    """A write destination inside bills/raw/ — or a hard refusal.
+
+    Refuses symlinks (an attacker-planted link would redirect the write)
+    and any resolved path that escapes the raw directory.
+    """
+    candidate = RAW_DIR / name
+    if candidate.is_symlink():
+        sys.exit(f"error: refusing symlink destination {candidate}")
+    if not candidate.resolve().is_relative_to(RAW_DIR.resolve()):
+        sys.exit(f"error: destination escapes bills/raw/: {candidate}")
+    return candidate
+
+
+def bounded_download(client: httpx.Client, url: str) -> httpx.Response:
+    """GET with a total size cap and wall-clock deadline."""
+    deadline = time.monotonic() + DOWNLOAD_DEADLINE_SECONDS
+    with client.stream("GET", url) as resp:
+        resp.raise_for_status()
+        declared = resp.headers.get("content-length")
+        if declared and int(declared) > MAX_DOWNLOAD_BYTES:
+            raise RuntimeError(f"download exceeds {MAX_DOWNLOAD_BYTES} bytes")
+        chunks: list[bytes] = []
+        total = 0
+        for chunk in resp.iter_bytes():
+            total += len(chunk)
+            if total > MAX_DOWNLOAD_BYTES:
+                raise RuntimeError(
+                    f"download exceeds {MAX_DOWNLOAD_BYTES} bytes"
+                )
+            if time.monotonic() > deadline:
+                raise RuntimeError(
+                    f"download exceeded {DOWNLOAD_DEADLINE_SECONDS}s deadline"
+                )
+            chunks.append(chunk)
+        resp._content = b"".join(chunks)
+        return resp
 
 AXIOM_SUPABASE_URL = os.environ.get(
     "AXIOM_SUPABASE_URL", "https://tgohtgoqkjyrvwbvsspx.supabase.co"
@@ -320,9 +378,8 @@ def fetch_from_congress_api(
         key=lambda c: (-stage_rank(c["label"]), _FORMAT_PREF[c["format"]]),
     )
     try:
-        doc = client.get(best["url"])
-        doc.raise_for_status()
-    except httpx.HTTPError as exc:
+        doc = bounded_download(client, best["url"])
+    except (httpx.HTTPError, RuntimeError) as exc:
         print(f"  congress.gov: download failed ({exc})", file=sys.stderr)
         return None
     text = to_text(best["format"], doc.content)
@@ -346,9 +403,8 @@ def fetch_from_congress_api(
 def fetch_from_url(client: httpx.Client, url: str) -> dict | None:
     """Direct fetch of an arbitrary document URL (committee drafts etc.)."""
     try:
-        resp = client.get(url)
-        resp.raise_for_status()
-    except httpx.HTTPError as exc:
+        resp = bounded_download(client, url)
+    except (httpx.HTTPError, RuntimeError) as exc:
         print(f"  url: download failed ({exc})", file=sys.stderr)
         return None
     content_type = resp.headers.get("content-type", "").lower()
@@ -383,12 +439,13 @@ def fetch_from_url(client: httpx.Client, url: str) -> dict | None:
 
 
 def write_artifacts(slug: str, result: dict) -> Path:
+    validate_slug(slug)
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    txt_path = RAW_DIR / f"{slug}.txt"
+    txt_path = safe_dest(f"{slug}.txt")
     txt_path.write_text(result["text"], encoding="utf-8")
     doc_path = None
     if result["source_bytes"] and result["format"] in ("xml", "html", "pdf"):
-        doc_path = RAW_DIR / f"{slug}.{result['format']}"
+        doc_path = safe_dest(f"{slug}.{result['format']}")
         doc_path.write_bytes(result["source_bytes"])
     meta = {
         "slug": slug,
@@ -404,7 +461,7 @@ def write_artifacts(slug: str, result: dict) -> Path:
         "text_file": txt_path.name,
         "source_file": doc_path.name if doc_path else None,
     }
-    (RAW_DIR / f"{slug}.meta.json").write_text(
+    safe_dest(f"{slug}.meta.json").write_text(
         json.dumps(meta, indent=2) + "\n", encoding="utf-8"
     )
     return txt_path
@@ -438,7 +495,7 @@ def main() -> int:
         timeout=60, follow_redirects=True, headers={"User-Agent": "thesis-bills/0.1"}
     ) as client:
         if args.url:
-            slug = args.slug
+            slug = validate_slug(args.slug)
             if (RAW_DIR / f"{slug}.txt").exists() and not args.force:
                 print(f"cached: bills/raw/{slug}.txt (--force to refetch)")
                 return 0
@@ -448,7 +505,7 @@ def main() -> int:
             if not ref:
                 parser.error(f"could not parse bill reference: {args.ref!r}")
             congress, bill_type, number = ref
-            slug = args.slug or f"{bill_type}{number}-{congress}"
+            slug = validate_slug(args.slug or f"{bill_type}{number}-{congress}")
             if (RAW_DIR / f"{slug}.txt").exists() and not args.force:
                 print(f"cached: bills/raw/{slug}.txt (--force to refetch)")
                 return 0

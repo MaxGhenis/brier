@@ -106,6 +106,49 @@ class TestToText:
         assert fetch_bill.to_text("docx", b"whatever") is None
 
 
+class TestSlugContainment:
+    @pytest.mark.parametrize(
+        "slug",
+        ["../escaped", "/etc/passwd", "a/b", "..", ".hidden", "UPPER", "", "a_b"],
+    )
+    def test_hostile_slugs_rejected(self, slug):
+        with pytest.raises(SystemExit):
+            fetch_bill.validate_slug(slug)
+
+    @pytest.mark.parametrize("slug", ["hr818-119", "farm-bill-2-0", "s3596-119"])
+    def test_real_slugs_accepted(self, slug):
+        assert fetch_bill.validate_slug(slug) == slug
+
+    def test_write_refuses_traversal_slug(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(fetch_bill, "RAW_DIR", tmp_path)
+        result = {
+            "resolved_via": "direct-url", "title": None, "bill_number": None,
+            "text": "x", "version_label": None, "format": "txt",
+            "source_url": "https://example.gov", "source_fetched_at": None,
+            "text_sha256": "s", "source_bytes": None,
+        }
+        with pytest.raises(SystemExit):
+            fetch_bill.write_artifacts("../escaped", result)
+        assert not (tmp_path.parent / "escaped.txt").exists()
+
+    def test_write_refuses_symlink_destination(self, tmp_path, monkeypatch):
+        raw = tmp_path / "raw"
+        raw.mkdir()
+        outside = tmp_path / "outside.txt"
+        outside.write_text("original")
+        (raw / "sneaky.txt").symlink_to(outside)
+        monkeypatch.setattr(fetch_bill, "RAW_DIR", raw)
+        result = {
+            "resolved_via": "direct-url", "title": None, "bill_number": None,
+            "text": "overwritten", "version_label": None, "format": "txt",
+            "source_url": "https://example.gov", "source_fetched_at": None,
+            "text_sha256": "s", "source_bytes": None,
+        }
+        with pytest.raises(SystemExit):
+            fetch_bill.write_artifacts("sneaky", result)
+        assert outside.read_text() == "original"
+
+
 class TestAxiomBackfill:
     def test_command_targets_axiom_bills_workflow(self):
         cmd = fetch_bill.backfill_command(119, "s", 3596)
