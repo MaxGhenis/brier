@@ -197,10 +197,17 @@ Three results, ranked by strength:
    comparison CI's upper bound is −0.008: significant at the nominal level,
    marginal under multiplicity correction; the persistence comparison is the
    robust one.
-2. **The effort × bill-context interaction.** The same fable recipe at default
-   effort is among the worst arms (+0.047 vs its naive baseline; coverage
-   0.61). Bill text harms at default effort and pays only at max effort —
-   context requires reasoning budget to be used rather than to bias.
+2. **The effort × bill-context interaction, with mechanism.** The same fable
+   recipe at default effort is among the worst arms (+0.047 vs its naive
+   baseline). Decomposition: the damage is point error (+0.082 SD; widths
+   unchanged), concentrated on Medicaid-unwinding and WEP/GPO units, and the
+   direction is overshoot — the bill pushes forecasts further along the
+   statute's implied direction, past the truth (worst case: a near-correct
+   baseline plus an aggressively sized one-time-payment adjustment that the
+   series' SAAR convention multiplies by 12). At max effort the same
+   adjustment is sized correctly and the recipe leads the board: effort
+   disciplines the magnitude of bill-triggered adjustments rather than their
+   direction.
 3. **Ornate scaffolds bought nothing.** Instruction styles and multi-stage
    scaffolds (scenario mixture, variance auditor, persona pool) cluster at or
    below the plain arms on matched units. The gains all came from model tier,
