@@ -11,11 +11,15 @@ first run. Adversarial audit of our own constructions:
 Scope: **Leg B (conditional forecast) plus the S.3596 mechanical arm**; the
 team's extraction leg is out of scope and nothing here merges the two.
 
-**Totals: ~5,900 scored runs** — 2,520 (corpus A grid) + 720 (amendment arms
-H/I/J/K) + 180 (arm P) + ~1,400 (CTC arm) + 260 quarantined-and-rerun — across
-**20 retrospective units (5 enacted laws, 5 programs)** and **14
-PolicyEngine-verified household cases**. All first prints frozen before any
-model ran; zero API errors; every failed run quarantined, none silently cleaned.
+**Totals: ~5,600 usable scored runs** — 2,520 (corpus A grid) + 719
+(amendment arms H/I/J/K) + 180 (arm P) + 180 (A3) + 240 (A4) + 1,380 (CTC) +
+the A5/bake-off arms landing at time of writing — across **28 retrospective
+units (5 enacted laws, 5 programs)** and **14 PolicyEngine-verified household
+cases**. 171 failed cells were quarantined with recorded reasons and
+re-executed; replacements are counted once, inside the arm totals, and 20 CTC
+cells (all sonnet-5 without tools) remain unparseable after re-execution and
+are reported as such in §4's denominators. All first prints frozen before any
+model ran; zero API transport errors.
 
 ---
 
@@ -124,18 +128,27 @@ recall-anchoring; restructuring the elicitation does.**
 
 S.3596 (Stronger Start for Working Families Act; CTC phase-in threshold
 $2,500 → $1) against 14 PolicyEngine-verified household cases (zero-delta and
-partial-delta traps included). Exact-answer rates (±$1):
+partial-delta traps included). Exact-answer rates (±$1), **single-pass runs,
+all runs in the denominator — unparseable responses count as wrong** (they are
+concentrated in sonnet-without-tools; scoring them out would flatter exactly
+the model that failed to answer). n = 70 per cell (14 cases × 5 reps); fable
+ran only the full-bill conditions and is marked — elsewhere.
 
-| Condition | haiku-4.5 | sonnet-5 | opus-5 / fable-5 |
-|---|---|---|---|
-| full bill, no tools | **4%** | 74% | 100% |
-| full bill + PolicyEngine tool | **100%** | 100% | 100% |
-| §2(a) only (conforming amendment withheld), no tools | — | **60%** (31% on partial-delta) | 100% |
-| plain-English summary, no tools | — | 98% | 100% |
+| Condition | haiku-4.5 | sonnet-5 | opus-5 | fable-5 |
+|---|---|---|---|---|
+| full bill, no tools | 4% | 66% | 100% | 100% |
+| full bill + PolicyEngine tool | **100%** | 100% | 100% | 100% |
+| §2(a) only (conforming amendment withheld), no tools | — | **50%** (30% on partial-delta, n=20) | 100% | — |
+| §2(a) only + tool | — | 100% | 86% (85% partial-delta) | — |
+| plain-English summary, no tools | — | 94% | 100% | — |
 
-Three demo-grade facts: **the tool converts every model to 100%** (haiku
-4→100); the **statutory trap works** — verbatim-but-incomplete statute is
-*worse* input than a plain description for mid-tier models; and **tools fix
+Multi-agent pipeline (extractor→analyst→critic→judge), full bill: opus 100%
+with or without tools (n=70 each); sonnet 50% without tools, 100% with
+(n=70 each) — the pipeline does not substitute for either capability or tools.
+
+Three facts: **the tool converts every model to 100%** (haiku 4→100); the
+**statutory trap works** — the verbatim-but-incomplete excerpt is *worse*
+input than a plain description for sonnet (50% vs 94%); and **tools fix
 arithmetic, not extraction** — opus with the tool but the incomplete excerpt
 dips to 86%, feeding a mis-extracted threshold into a correct calculator.
 

@@ -23,6 +23,9 @@ def main() -> None:
                 plan.append((uid, {"corpus": "B", "policy_context": "operative_only",
                                    "elicitation": "decomposed_json", "model": model,
                                    "magnitude": "actual"}, rep))
+                plan.append((uid, {"corpus": "B", "policy_context": "operative_only",
+                                   "elicitation": "point_ci_json", "model": model,
+                                   "magnitude": "actual", "effort": "max"}, rep))
     out_path = HERE / "runs_bakeoff.jsonl"
     done = set()
     if out_path.exists():
@@ -31,7 +34,8 @@ def main() -> None:
                 try: done.add(json.loads(line)["cell_key"])
                 except Exception: pass
     def key(uid, cfg, rep):
-        return "|".join(["BO", uid, cfg["policy_context"], cfg["elicitation"], cfg["model"], str(rep)])
+        return "|".join(["BO", uid, cfg["policy_context"], cfg["elicitation"], cfg["model"],
+                         cfg.get("effort", "default"), str(rep)])
     todo = [(u, c, r) for u, c, r in plan if key(u, c, r) not in done]
     print(f"units={len(units)} planned={len(plan)} todo={len(todo)}", flush=True)
     out = out_path.open("a"); lock = threading.Lock(); n = [0]; t0 = time.time()

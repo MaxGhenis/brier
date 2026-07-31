@@ -188,7 +188,8 @@ def run_single_b(unit: dict, config: dict) -> dict:
         "prompt_chars": len(prompt),
         "parser_version": H.PARSER_VERSION,
     }
-    res = H.call_model(prompt, config["model"], max_tokens=6000)
+    res = H.call_model(prompt, config["model"], max_tokens=6000,
+                       effort=config.get("effort"))
     rec["calls"] = [{
         "role": "draft", "ok": res.ok, "duration_s": round(res.duration_s, 2),
         "prompt_tokens": res.prompt_tokens, "completion_tokens": res.completion_tokens,
