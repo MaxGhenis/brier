@@ -95,7 +95,7 @@ def call_model(
             "claude-haiku-4-5-20251001": "anthropic/claude-haiku-4.5",
         }.get(model, model)
         if effort is not None:
-            payload["reasoning"] = {"effort": "high" if effort == "max" else effort}
+            payload["reasoning"] = {"effort": effort}  # verified passthrough incl. "max"
             payload["temperature"] = 1.0
             payload["max_tokens"] = max(max_tokens, 32000)
     elif effort is not None:
