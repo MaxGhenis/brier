@@ -4,6 +4,7 @@ import {
   FROZEN_PRE_CUSTODY_SLUGS,
   classifyTraceProvenance,
 } from "@/data/trace-provenance";
+import frozen from "@/data/trace-provenance-frozen.json";
 
 describe("classifyTraceProvenance", () => {
   it("classes archived activity as activity-backed", () => {
@@ -69,6 +70,29 @@ describe("the real-tool-calls assertion", () => {
   });
 
   it("has no duplicate frozen entries", () => {
-    expect(FROZEN_PRE_CUSTODY_SLUGS.size).toBeGreaterThan(0);
+    // Read the raw array, not FROZEN_PRE_CUSTODY_SLUGS: that is a Set built
+    // from these slugs, so it silently absorbs duplicates and cannot witness
+    // the thing this test is named for. Asserting on its .size passed
+    // unconditionally while a duplicated entry sat in the JSON.
+    const slugs: string[] = frozen.slugs;
+    expect(slugs.length).toBeGreaterThan(0);
+
+    const counts = new Map<string, number>();
+    for (const slug of slugs) counts.set(slug, (counts.get(slug) ?? 0) + 1);
+    const duplicated = [...counts.entries()]
+      .filter(([, n]) => n > 1)
+      .map(([slug, n]) => `${slug} (x${n})`);
+
+    expect(
+      duplicated,
+      "site/src/data/trace-provenance-frozen.json lists these slugs more " +
+        "than once. The registry is a pinned census of the pre-custody " +
+        "population and is shrink-only, so a repeated entry means an edit " +
+        "re-added a slug that was already there — which inflates the " +
+        "apparent size of the frozen population and hides whether the list " +
+        "is really shrinking. Delete the extra occurrences; do not " +
+        "de-duplicate by widening the Set, which is what masked this.",
+    ).toEqual([]);
+    expect(FROZEN_PRE_CUSTODY_SLUGS.size).toBe(slugs.length);
   });
 });
