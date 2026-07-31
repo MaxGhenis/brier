@@ -32,15 +32,47 @@ describe("target architecture hashing", () => {
       sourceCommit: "0123456789abcdef0123456789abcdef01234567",
     });
 
-    expect(manifest.schemaVersion).toBe(
-      "thesis_target_architecture_manifest_v2",
-    );
-    expect(manifest.projectionRootSha256).toBe(
-      sha256Hex(buildTargetArchitectureRootPayload(manifest)),
-    );
+    // Everything below is one claim: the single published root digest
+    // commits to every table manifest, every chunk, and the source commit —
+    // so a verifier who checks the root has checked the whole projection.
+    const CHAIN =
+      "The root is the ONLY digest published for the target-architecture\n" +
+      "projection. If any link below stops holding, a reader who verifies the\n" +
+      "root has verified nothing about the rows they actually downloaded.\n";
+    expect(
+      manifest.schemaVersion,
+      "The target-architecture manifest schema version moved.\n" +
+        'Verifiers pin "thesis_target_architecture_manifest_v2".\n' +
+        "REMEDY: bump the readers (and scripts/ingest_target_architecture.py) in\n" +
+        "the same commit. DO NOT edit only this expectation.",
+    ).toBe("thesis_target_architecture_manifest_v2");
+    expect(
+      manifest.projectionRootSha256,
+      "The published root digest is not the hash of its own root payload.\n" +
+        `manifest.projectionRootSha256 = ${manifest.projectionRootSha256}\n` +
+        `sha256Hex(buildTargetArchitectureRootPayload(manifest)) = ` +
+        `${sha256Hex(buildTargetArchitectureRootPayload(manifest))}\n` +
+        CHAIN +
+        "Usual cause: a field was added to the manifest but not to the root\n" +
+        "payload builder (or vice versa) in\n" +
+        "site/src/data/thesis-target-architecture-export.ts.\n" +
+        "REMEDY: make buildTargetArchitectureManifest compute the root FROM\n" +
+        "buildTargetArchitectureRootPayload so they cannot drift.",
+    ).toBe(sha256Hex(buildTargetArchitectureRootPayload(manifest)));
     for (const table of manifest.tables) {
       const { sha256, ...tablePayload } = table;
-      expect(sha256).toBe(sha256Hex(tablePayload));
+      expect(
+        sha256,
+        `Table manifest digest does not match its own payload.\n` +
+          `Table: "${table.table}" (${table.chunkCount} chunk(s)).\n` +
+          `manifest sha256 = ${sha256}\n` +
+          `recomputed      = ${sha256Hex(tablePayload)}\n` +
+          CHAIN +
+          "The root commits to these table digests, so a stale one detaches the\n" +
+          `whole "${table.table}" table from the root.\n` +
+          "REMEDY: recompute table digests wherever the table manifest is built,\n" +
+          "in site/src/data/thesis-target-architecture-export.ts.",
+      ).toBe(sha256Hex(tablePayload));
       for (const reference of table.chunks) {
         const chunk = buildTargetArchitectureChunkExport(
           projection,
@@ -48,19 +80,49 @@ describe("target architecture hashing", () => {
           reference.index,
           manifest,
         );
-        expect(chunk.projectionRootSha256).toBe(manifest.projectionRootSha256);
-        expect(reference.sha256).toBe(
-          sha256Hex(buildTargetArchitectureChunkHashPayload(chunk)),
-        );
+        const where = `table "${table.table}", chunk index ${reference.index}`;
+        expect(
+          chunk.projectionRootSha256,
+          `A chunk does not carry the root it belongs to.\n` +
+            `Location: ${where}.\n` +
+            `chunk.projectionRootSha256 = ${chunk.projectionRootSha256}\n` +
+            `manifest root              = ${manifest.projectionRootSha256}\n` +
+            CHAIN +
+            "Each chunk self-identifies its generation so a downloaded chunk can be\n" +
+            "matched to the manifest it was published under; without it, chunks from\n" +
+            "two generations are indistinguishable and can be silently mixed.\n" +
+            "REMEDY: pass the manifest through to buildTargetArchitectureChunkExport.",
+        ).toBe(manifest.projectionRootSha256);
+        expect(
+          reference.sha256,
+          `Manifest chunk digest does not match the exported chunk.\n` +
+            `Location: ${where}.\n` +
+            `manifest reference sha256 = ${reference.sha256}\n` +
+            `recomputed from export    = ` +
+            `${sha256Hex(buildTargetArchitectureChunkHashPayload(chunk))}\n` +
+            CHAIN +
+            "Usual cause: buildTargetArchitectureChunkHashPayload and the manifest's\n" +
+            "chunking disagree about which fields are covered, or about row order.\n" +
+            "REMEDY: hash the chunk through the same payload builder on both paths.\n" +
+            "DO NOT re-derive the manifest digest from the chunk at publish time —\n" +
+            "that makes the check tautological and hides real drift.",
+        ).toBe(sha256Hex(buildTargetArchitectureChunkHashPayload(chunk)));
       }
     }
 
     const otherCommit = buildTargetArchitectureManifest(projection, {
       sourceCommit: "ffffffffffffffffffffffffffffffffffffffff",
     });
-    expect(otherCommit.projectionRootSha256).not.toBe(
-      manifest.projectionRootSha256,
-    );
+    expect(
+      otherCommit.projectionRootSha256,
+      "Two different source commits produced the SAME projection root.\n" +
+        "The root must commit to the sourceCommit it was generated from, so that\n" +
+        "a published root identifies exactly one revision of the generator. If it\n" +
+        "does not, two builds of different code are indistinguishable by digest\n" +
+        "and the audit chain cannot say which produced a given row.\n" +
+        "REMEDY: include sourceCommit in buildTargetArchitectureRootPayload\n" +
+        "(site/src/data/thesis-target-architecture-export.ts).",
+    ).not.toBe(manifest.projectionRootSha256);
   });
 
   it("hashes every chunk of a table larger than the chunk boundary", () => {
@@ -199,13 +261,36 @@ describe("target architecture hashing", () => {
     );
 
     expect(
-      projection.forecastDistributions.every(
-        (point) =>
-          ["agent_reported", "interval_seeded"].includes(
-            point.distributionProvenance,
-          ) && point.transformVersion.endsWith("_v1"),
+      Array.from(
+        new Set(
+          projection.forecastDistributions
+            .filter(
+              (point) =>
+                !["agent_reported", "interval_seeded"].includes(
+                  point.distributionProvenance,
+                ) || !point.transformVersion.endsWith("_v1"),
+            )
+            .map(
+              (point) =>
+                `provenance=${point.distributionProvenance}, ` +
+                `transformVersion=${point.transformVersion}`,
+            ),
+        ),
       ),
-    ).toBe(true);
+      "Forecast distribution points carry an unrecognized provenance or\n" +
+        "transform version (distinct offending combinations listed above; there\n" +
+        `are ${projection.forecastDistributions.length} points in total).\n` +
+        "Every published CDF point must say whether the agent reported the\n" +
+        "distribution itself (agent_reported) or the site seeded it from the\n" +
+        "stated interval (interval_seeded), and must name a _v1 transform.\n" +
+        "Scores are only comparable across runs if that distinction is recorded:\n" +
+        "an interval-seeded CDF is the site's construction, not the agent's, and\n" +
+        "silently mixing the two attributes site-made sharpness to the agent.\n" +
+        "REMEDY: set the provenance where the distribution is built in\n" +
+        "site/src/data/prediction-distribution.ts. A genuinely new transform must\n" +
+        "be versioned and added here AND to the score-ID payload, so old scores\n" +
+        "do not silently change meaning. DO NOT just append the new string.",
+    ).toEqual([]);
   });
 
   it("retains full payload digests while truncating public IDs to 16 hex", () => {
@@ -214,35 +299,95 @@ describe("target architecture hashing", () => {
       THESIS_TARGET_LEDGER,
     );
 
-    expect(projection.observations.length).toBeGreaterThan(0);
+    // These were `.every(...)` booleans, which render as a bare
+    // `expected false to be true`. Collect the offenders instead so the
+    // failure names the row and the value that broke the rule.
+    const TRUNCATION_RULE =
+      "The split rule: public IDs may be truncated to 16 hex for readability,\n" +
+      "but the digest a verifier recomputes must stay the FULL 64-hex sha256.\n" +
+      "A truncated payload digest is not a collision-resistant commitment, so\n" +
+      "silently shortening one turns a verifiable row into a decorative one.\n" +
+      "REMEDY: truncate only when building the *Id fields in\n" +
+      "site/src/data/thesis-target-architecture.ts. DO NOT loosen FULL_DIGEST.";
     expect(
-      projection.observations.every((row) => FULL_DIGEST.test(row.payloadHash)),
-    ).toBe(true);
+      projection.observations.length,
+      "The real catalog projected zero observations, so this digest gate\n" +
+        "checked nothing. Either the ledger join broke or THESIS_TARGET_LEDGER\n" +
+        "is empty — both would also empty the resolved/scored surfaces.",
+    ).toBeGreaterThan(0);
     expect(
-      projection.observationVintages.every((row) =>
-        FULL_DIGEST.test(row.normalizedPayloadHash),
-      ),
-    ).toBe(true);
+      projection.observations
+        .filter((row) => !FULL_DIGEST.test(row.payloadHash))
+        .map((row) => `${row.observationId} -> payloadHash=${row.payloadHash}`),
+      `Observations whose payloadHash is not a full 64-hex digest.\n${TRUNCATION_RULE}`,
+    ).toEqual([]);
     expect(
-      projection.packVersions.every((row) =>
-        FULL_DIGEST.test(row.promptContentHash),
-      ),
-    ).toBe(true);
+      projection.observationVintages
+        .filter((row) => !FULL_DIGEST.test(row.normalizedPayloadHash))
+        .map(
+          (row) =>
+            `${row.vintageId} -> normalizedPayloadHash=${row.normalizedPayloadHash}`,
+        ),
+      `Observation vintages whose normalizedPayloadHash is not a full 64-hex digest.\n` +
+        "This digest is what proves a revision is the same bytes the resolver\n" +
+        `fetched, so it must survive at full width.\n${TRUNCATION_RULE}`,
+    ).toEqual([]);
     expect(
-      projection.strategyVersions.every(
-        (row) =>
-          (!row.promptPolicyHash || FULL_DIGEST.test(row.promptPolicyHash)) &&
-          (!row.toolPolicyHash || FULL_DIGEST.test(row.toolPolicyHash)),
-      ),
-    ).toBe(true);
+      projection.packVersions
+        .filter((row) => !FULL_DIGEST.test(row.promptContentHash))
+        .map(
+          (row) =>
+            `${row.packVersionId} -> promptContentHash=${row.promptContentHash}`,
+        ),
+      `Pack versions whose promptContentHash is not a full 64-hex digest.\n` +
+        "Pack comparisons are only meaningful if each pack version is pinned to\n" +
+        `the exact prompt content it shipped.\n${TRUNCATION_RULE}`,
+    ).toEqual([]);
     expect(
-      projection.artifactRefs.every((row) => FULL_DIGEST.test(row.contentHash)),
-    ).toBe(true);
+      projection.strategyVersions
+        .filter(
+          (row) =>
+            (row.promptPolicyHash && !FULL_DIGEST.test(row.promptPolicyHash)) ||
+            (row.toolPolicyHash && !FULL_DIGEST.test(row.toolPolicyHash)),
+        )
+        .map(
+          (row) =>
+            `${row.strategyVersionId} -> promptPolicyHash=${String(row.promptPolicyHash)}, ` +
+            `toolPolicyHash=${String(row.toolPolicyHash)}`,
+        ),
+      `Strategy versions carrying a policy hash that is present but not a full\n` +
+        "64-hex digest. (Absent hashes are allowed — legacy strategy versions\n" +
+        "predate policy pinning — but a present one must be complete.)\n" +
+        "These hashes are what separate two prompt/tool lanes of the same agent,\n" +
+        `so a mangled one silently pools them into a single lane.\n${TRUNCATION_RULE}`,
+    ).toEqual([]);
     expect(
       projection.artifactRefs
-        .filter((row) => /^artifact\.[0-9a-f]+$/.test(row.artifactRefId))
-        .every((row) => /^artifact\.[0-9a-f]{16}$/.test(row.artifactRefId)),
-    ).toBe(true);
+        .filter((row) => !FULL_DIGEST.test(row.contentHash))
+        .map((row) => `${row.artifactRefId} -> contentHash=${row.contentHash}`),
+      `Artifact refs whose contentHash is not a full 64-hex digest.\n` +
+        "contentHash is how an archived prompt/stdout artifact is proven to be\n" +
+        `the bytes the run actually produced.\n${TRUNCATION_RULE}`,
+    ).toEqual([]);
+    expect(
+      projection.artifactRefs
+        .filter(
+          (row) =>
+            /^artifact\.[0-9a-f]+$/.test(row.artifactRefId) &&
+            !/^artifact\.[0-9a-f]{16}$/.test(row.artifactRefId),
+        )
+        .map((row) => row.artifactRefId),
+      "Digest-derived artifact ref IDs that are not exactly 16 hex chars.\n" +
+        "Public artifact IDs are the truncated form (artifact.<16 hex>); an ID of\n" +
+        "some other length means the truncation width drifted, which would\n" +
+        "re-key every published artifact reference at once.\n" +
+        "Note the filter: only IDs already shaped `artifact.<hex>` are checked,\n" +
+        "so human-readable artifact IDs are deliberately exempt.\n" +
+        "REMEDY: fix the truncation in site/src/data/thesis-target-architecture.ts.\n" +
+        "DO NOT change the width to match — 16 hex is the published contract, and\n" +
+        "the collision guard (see the colliding-artifact test in this file)\n" +
+        "assumes it.",
+    ).toEqual([]);
   });
 
   it("throws with both payload digests when truncated artifact IDs collide", () => {

@@ -29,10 +29,35 @@ describe("model lane stats", () => {
     }
     expect(publishedByModel.size).toBeGreaterThan(0);
     for (const [model, published] of publishedByModel) {
-      const passed = MODEL_LANE_STATS.filter(
-        (row) => row.model === model,
-      ).reduce((sum, row) => sum + row.passed, 0);
-      expect(passed).toBeGreaterThanOrEqual(published);
+      const rows = MODEL_LANE_STATS.filter((row) => row.model === model);
+      const passed = rows.reduce((sum, row) => sum + row.passed, 0);
+      expect(
+        passed,
+        `Lane stats under-count model "${model}".\n` +
+          `Published comparison rows for this model: ${published}\n` +
+          `Lane stats say passed: ${passed}` +
+          (rows.length
+            ? ` (from ${rows.length} lane row(s): ${rows
+                .map((row) => `${row.lane} ${row.passed}/${row.attempted}`)
+                .join(", ")})`
+            : " — this model has NO rows in MODEL_LANE_STATS at all") +
+          `\nModels present in stats: ${
+            [...new Set(MODEL_LANE_STATS.map((row) => row.model))].join(", ") ||
+            "(none)"
+          }\n\n` +
+          "Lane stats must cover at least the runs the site publishes. They may\n" +
+          "legitimately be LARGER (they also count runs outside the comparison\n" +
+          "corpus), never smaller. Smaller means the site is showing comparison\n" +
+          "rows the pass-rate denominator does not know about, so the published\n" +
+          "attempt/pass rate understates how many runs that model really took —\n" +
+          "the exact number a reader uses to judge selection effects.\n\n" +
+          "Usual cause: a new model string appeared in\n" +
+          "STRATEGY_COMPARISON_RUN_AUGMENTS but\n" +
+          "site/src/data/model-lane-stats.generated.ts was not regenerated, or\n" +
+          "the two spell the model differently (check the list above).\n\n" +
+          "REMEDY: regenerate the lane stats. DO NOT hand-edit the generated file\n" +
+          "and DO NOT drop the comparison row to make the counts line up.",
+      ).toBeGreaterThanOrEqual(published);
     }
   });
 });

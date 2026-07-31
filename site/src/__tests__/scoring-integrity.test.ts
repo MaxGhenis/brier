@@ -739,32 +739,107 @@ describe("Supabase projection compatibility (N10)", () => {
       join(__dirname, "../../supabase/migrations/20260709_ledger_normalization_scale.sql"),
       "utf8",
     );
-    expect(migration).toContain("'ledger_dispersion'");
-    expect(migration).toContain("'unavailable'");
-    expect(migration).not.toContain("target_primary_width");
+    const MIGRATION =
+      "site/supabase/migrations/20260709_ledger_normalization_scale.sql";
+    expect(
+      migration,
+      `${MIGRATION} no longer admits 'ledger_dispersion' in its CHECK\n` +
+        "constraint, but the TypeScript scorer still emits it. Any ingest of the\n" +
+        "published scores would be rejected row-by-row.\n" +
+        "REMEDY: keep the SQL CHECK and the scorer's source enum in lockstep in\n" +
+        "one commit.",
+    ).toContain("'ledger_dispersion'");
+    expect(
+      migration,
+      `${MIGRATION} no longer admits 'unavailable'. Young-ledger targets have\n` +
+        "no independent scale and are published with that source; without it in\n" +
+        "the CHECK, exactly the honest rows fail to ingest.\n" +
+        "REMEDY: restore it in the migration.",
+    ).toContain("'unavailable'");
+    expect(
+      migration,
+      `${MIGRATION} mentions target_primary_width again.\n` +
+        "That was the re-audit X2 defect: using the forecast's own interval width\n" +
+        "as the CRPS denominator let a run shrink its normalized error simply by\n" +
+        "widening itself. The fallback was removed deliberately; 'unavailable' is\n" +
+        "the correct answer when the ledger cannot supply an independent scale.\n" +
+        "REMEDY: delete the reintroduced fallback. DO NOT reinstate any\n" +
+        "forecast-derived denominator — that is the bug, not a workaround.",
+    ).not.toContain("target_primary_width");
 
     const ledger = await loadPolicyEngineLedger();
     const prepared = withResolvedOutcomes(FORECAST_CELLS, ledger);
     const scores = scoreResolvedForecasts(prepared, ledger);
-    expect(scores.length).toBeGreaterThan(0);
-    for (const score of scores) {
-      // Mirrors scores_normalization_availability_check exactly: the
-      // TypeScript projection must be row-for-row ingestible.
-      expect(["ledger_dispersion", "unavailable"]).toContain(
-        score.normalizationScaleSource,
+    expect(
+      scores.length,
+      "No forecast scored at all, so this gate checked nothing.\n" +
+        "Either the PolicyEngine ledger fetch returned no observations at build\n" +
+        "time or the resolution join broke — both of which would also empty the\n" +
+        "published accuracy surfaces.\n" +
+        "REMEDY: check loadPolicyEngineLedger() and the observation join before\n" +
+        "touching this assertion.",
+    ).toBeGreaterThan(0);
+    // Projection first: gather every violating row so one failure names all
+    // of them, with the slug and score ID needed to look each one up.
+    const where = (score: (typeof scores)[number]) =>
+      `${score.forecastSlug} (scoreId ${score.scoreId}, source ` +
+      `${String(score.normalizationScaleSource)})`;
+    const CHECK =
+      "This mirrors the scores_normalization_availability_check constraint in\n" +
+      "site/supabase/migrations/20260709_ledger_normalization_scale.sql exactly.\n" +
+      "The TypeScript projection must be row-for-row ingestible: a row that\n" +
+      "violates the CHECK does not fail loudly at ingest time, it aborts\n" +
+      "scripts/ingest_target_architecture.py partway and leaves the published\n" +
+      "database disagreeing with the site.\n";
+    const badSource = scores
+      .filter(
+        (score) =>
+          !["ledger_dispersion", "unavailable"].includes(
+            score.normalizationScaleSource,
+          ),
+      )
+      .map(where);
+    expect(
+      badSource,
+      "Scores carry a normalization scale source the migration's CHECK does not\n" +
+        "admit. Only 'ledger_dispersion' and 'unavailable' are legal.\n" +
+        CHECK +
+        "REMEDY: add the new source to the SQL CHECK and the scorer together, or\n" +
+        "stop emitting it. DO NOT widen this array alone.",
+    ).toEqual([]);
+    // Null shape must agree with the source: populated iff ledger_dispersion.
+    const nullShapeViolations = scores
+      .filter((score) => {
+        const fields = [
+          score.normalizationScale,
+          score.normalizedCrps,
+          score.normalizedAbsoluteError,
+          score.sharpness,
+        ];
+        return score.normalizationScaleSource === "ledger_dispersion"
+          ? fields.some((field) => typeof field !== "number")
+          : fields.some((field) => field !== null);
+      })
+      .map(
+        (score) =>
+          `${where(score)} -> scale=${String(score.normalizationScale)}, ` +
+          `normalizedCrps=${String(score.normalizedCrps)}, ` +
+          `normalizedAbsErr=${String(score.normalizedAbsoluteError)}, ` +
+          `sharpness=${String(score.sharpness)}`,
       );
-      if (score.normalizationScaleSource === "ledger_dispersion") {
-        expect(score.normalizationScale).toEqual(expect.any(Number));
-        expect(score.normalizedCrps).toEqual(expect.any(Number));
-        expect(score.normalizedAbsoluteError).toEqual(expect.any(Number));
-        expect(score.sharpness).toEqual(expect.any(Number));
-      } else {
-        expect(score.normalizationScale).toBeNull();
-        expect(score.normalizedCrps).toBeNull();
-        expect(score.normalizedAbsoluteError).toBeNull();
-        expect(score.sharpness).toBeNull();
-      }
-    }
+    expect(
+      nullShapeViolations,
+      "Scores whose null shape contradicts their normalization scale source.\n" +
+        "The invariant: source 'ledger_dispersion' means all four of\n" +
+        "normalizationScale / normalizedCrps / normalizedAbsoluteError /\n" +
+        "sharpness are numbers; source 'unavailable' means all four are null.\n" +
+        "There is no half state — a normalized number without an independent\n" +
+        "scale is unanchored, and a scale with no normalized values is a\n" +
+        "silently dropped score.\n" +
+        CHECK +
+        "REMEDY: fix the scorer in site/src/data/thesis-log.ts so it sets all\n" +
+        "four together. DO NOT special-case the offending rows here.",
+    ).toEqual([]);
   }, 60_000);
 });
 
