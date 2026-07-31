@@ -55,6 +55,14 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
   {
     billSlug: "s3596-119",
     question:
+      "ACTC claimant returns TY2027 \u2014 conditional on legislation enacted by 2027-12-31 making the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1.",
+    status: "pending",
+    note: "Two runner drafts today were rejected by the pre-submit rubric for missing interval-falsification phrasing; the arm publishes when a draft passes review, not before.",
+  },
+
+  {
+    billSlug: "s3596-119",
+    question:
       "Census SPM child poverty rate, CY2026 — conditional on the CTC phase-in provision (IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1) being enacted in substantially similar form by 2027-12-31.",
     status: "refused",
     note: "Runner refused under its resolution-date rule, verbatim: “No valid forecast cell can be produced yet because the Census Bureau has not published an official release date… Census announced on 2026-07-17 that its 2019–2024 SPM estimates will be revised, so the currently published history is not a stable calibration set.”",

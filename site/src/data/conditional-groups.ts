@@ -15,6 +15,18 @@ export interface ConditionalGroup {
 
 export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
   {
+    slug: "s3596-actc-ty2027-threshold-one-dollar",
+    title: "ACTC claimant returns under S.3596's phase-in provision",
+    question:
+      "How many families claim the refundable child tax credit for tax year 2027, and what does S.3596's first-dollar phase-in do to that number?",
+    eventLabel:
+      "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold for tax year 2027 \u2014 current law holds",
+    trueArmSlug: "additional-child-tax-credit-total-claims-ty2027-current-law",
+    gapNote:
+      "The enacted arm is in the pre-submit review loop \u2014 the rubric has rejected two drafts today for missing falsification phrasing. It publishes when it passes, not before.",
+  },
+
+  {
     slug: "medicaid-work-req-wait-mar-2027",
     title: "Medicaid hold times under the work-requirement deadline",
     question:
@@ -39,15 +51,6 @@ export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
     falseArmSlug: "snap-error-rate-fy2026-cost-share-repealed",
     gapNote:
       "The 0.9-point gap between arms is the forecasted effect of the cost-share incentive on payment accuracy — published before the policy question is settled.",
-  },
-  {
-    slug: "s3596-actc-ty2027-threshold-one-dollar",
-    title: "ACTC claimant returns under the $1 phase-in threshold",
-    question:
-      "Conditional on legislation enacted by 2027-12-31 making the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027, how many U.S. individual income tax returns will claim the refundable child tax credit or Additional Child Tax Credit for tax year 2027 in the first IRS Statistics of Income Complete Report table 3.3, without seasonal adjustment?",
-    eventLabel:
-      "IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1 for TY2027, enacted by 2027-12-31 (condition fails → unresolved)",
-    trueArmSlug: "irs-actc-total-claims-ty2027-threshold-one-dollar",
   },
 ];
 

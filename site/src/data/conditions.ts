@@ -131,6 +131,19 @@ export function resolveProvisionEnactedCondition(
 export const CONDITIONS: ConditionDefinition[] = [
   {
     type: "recorded_status",
+    conditionId: "cond.s3596-actc-threshold.current-law",
+    description:
+      "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) " +
+      "earned-income threshold of $2,500 for tax year 2027; current law holds.",
+    matchStrings: [
+      "No legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 amount.",
+    ],
+    status: "open",
+    resolvesBy: "2027-12-31",
+  },
+
+  {
+    type: "recorded_status",
     conditionId: "cond.medicaid-work-req-deadline.holds",
     description:
       "The 2025 reconciliation law's Medicaid community-engagement " +
