@@ -138,5 +138,130 @@ export const S3596_CONDITIONALS_2026_07_31: ForecastCell[] = [
       "ciHigh": 21.6
     }
   ]
+},
+{
+  "slug": "irs-actc-total-claims-ty2027-threshold-2500",
+  "country": "US",
+  "type": "conditional",
+  "title": "ACTC claimant returns, TY2027, current-law threshold",
+  "question": "Conditional on no legislation enacted by 2027-12-31 changing the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027, how many U.S. individual income tax returns will claim the refundable child tax credit or Additional Child Tax Credit for tax year 2027 in the first IRS Statistics of Income Individual Income Tax Returns Complete Report table 3.3, without seasonal adjustment?",
+  "unit": "millions",
+  "pointEstimate": 17.6,
+  "ciLow": 16.4,
+  "ciHigh": 18.9,
+  "confidence": 0.8,
+  "resolutionDate": "2029-12-31",
+  "resolutionSource": "IRS Statistics of Income Individual Income Tax Returns Complete Report, table 3.3",
+  "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+  "resolutionRule": "First evaluate the condition at the end of 2027-12-31: no legislation enacted by then may change the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027. If the condition fails, mark the forecast unresolved. If it holds, resolve to the first IRS Statistics of Income Individual Income Tax Returns Complete Report table 3.3 for tax year 2027, row 'All returns, total', number of returns for 'Refundable child tax credit or additional child tax credit', divided by 1,000,000 and rounded to 0.1 million. Use that first SOI estimate only and ignore later revisions. The canonical ledger deadline is retained; IRS had not posted an exact TY2027 Complete Report release date at run time.",
+  "dataPointId": "irs.soi.additional_child_tax_credit_returns.ty2027.conditional_threshold_2500",
+  "conditionalOn": "No legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; condition fails means unresolved.",
+  "historicalContext": [
+    {
+      "label": "TY2019 ACTC claimant returns, millions",
+      "value": 19.65807
+    },
+    {
+      "label": "TY2020 ACTC claimant returns, millions",
+      "value": 18.84684
+    },
+    {
+      "label": "TY2021 refundable CTC/ACTC claimant returns under ARPA, millions",
+      "value": 37.48751
+    },
+    {
+      "label": "TY2022 ACTC claimant returns, millions",
+      "value": 17.69145
+    },
+    {
+      "label": "TY2023 refundable CTC/ACTC claimant returns, millions",
+      "value": 17.626084
+    }
+  ],
+  "drivers": [
+    "Last-print persistence at 17.6 million",
+    "Current-law $2,500 earned-income threshold",
+    "Recent non-ARPA claimant-count dispersion",
+    "Eligible-child population and filing take-up",
+    "Broader refundability changes are an upper-tail risk"
+  ],
+  "sourceContext": [
+    "https://www.irs.gov/pub/irs-soi/19in55cmcsv.csv",
+    "https://www.irs.gov/pub/irs-soi/20in55cmcsv.csv",
+    "https://www.irs.gov/pub/irs-soi/21in55cmcsv.csv",
+    "https://www.irs.gov/pub/irs-soi/22in55cmcsv.csv",
+    "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+    "https://www.irs.gov/statistics/soi-tax-stats-upcoming-data-releases",
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section24&num=0&edition=prelim",
+    "https://app.thesisinstitute.org/specs.json"
+  ],
+  "runAt": "2026-07-31T20:46:04Z",
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "TY2027 ACTC claims conditional on the current-law earnings threshold"
+    },
+    {
+      "kind": "text",
+      "text": "Framing: the target is the first IRS SOI Complete Report table 3.3 count of tax-year 2027 returns with refundable child tax credit or ACTC, in millions and not seasonally adjusted, conditional on the $2,500 earned-income threshold remaining unchanged through 2027-12-31. The repository did not expose a committed registration for this exact arm; I retained the supplied target identity and the public sibling target's IRS table, millions unit, first-print rule, and canonical 2029-12-31 deadline. IRS had not scheduled the TY2027 report at run time."
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "Fetch IRS Historic Table 2 CSV files for tax years 2019-2022 and read US, AGI_STUB=0, field N11070.",
+      "result": "Official IRS CSV values fetched this run: TY2019 19,658,070; TY2020 18,846,840; TY2021 37,487,510; TY2022 17,691,450 returns with additional child tax credit."
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "Fetch IRS TY2023 Complete Report table 3.3 XLS and inspect the All returns, total row and refundable-child-credit columns.",
+      "result": "Official IRS TY2023 table 3.3 fetched this run: All returns total 160,602,107; total refundable child tax credit or additional child tax credit number of returns 17,626,084; refundable portion number of returns 16,638,574; used to offset other taxes number of returns 1,509,231."
+    },
+    {
+      "kind": "tool",
+      "tool": "law.lookup",
+      "call": "Fetch current 26 U.S.C. §24 from the Office of the Law Revision Counsel.",
+      "result": "Fetched statutory text this run: §24(d)(1)(B)(i) specifies a 15 percent phase-in for earned income exceeding $3,000, and §24(h)(6) substitutes $2,500 for $3,000. The forecast condition holds only if enacted legislation does not change that $2,500 threshold for tax year 2027 by 2027-12-31."
+    },
+    {
+      "kind": "tool",
+      "tool": "model.candidates",
+      "call": "Construct thesis_model_candidate_v1 persistence candidate from the four comparable official non-ARPA prints, with fallback-prior intervals from their sample dispersion.",
+      "result": "Persistence candidate: point/p50 17.626084 million; p10 16.373901; p90 18.878267; 80% interval 16.373901-18.878267; 90% interval 16.016833-19.235335; interval method fallback-prior sample standard deviation; calibration_n 4; train cutoff TY2023; walk-forward MAE 0.677329 million across 3 comparable transitions. Rounded benchmark point is 17.6 million."
+    },
+    {
+      "kind": "tool",
+      "tool": "calendar.lookup",
+      "call": "Fetch the IRS SOI upcoming-data-releases page and check the required Thesis specs endpoint for slug uniqueness.",
+      "result": "The IRS upcoming-releases page fetched with 123,232 bytes but listed no exact TY2027 Individual Income Tax Returns Complete Report release date. The required Thesis specs URL returned HTTP 404 with an 11,289-byte response; the proposed slug was absent from the local public catalog, but remote uniqueness could not be confirmed."
+    },
+    {
+      "kind": "text",
+      "text": "Base-rate/reference-class: excluding TY2021 because ARPA changed refundability, credit amounts, child-age eligibility, and payment timing together, the four comparable official prints are 19.658070, 18.846840, 17.691450, and 17.626084 million. Their mean is 18.455611 million, sample standard deviation 0.978268 million, and range 17.626084-19.658070 million. The last-print persistence benchmark is 17.626084 million; comparable changes are -0.811230, -1.155390, and -0.065366 million, with mean absolute change 0.677329 million."
+    },
+    {
+      "kind": "text",
+      "text": "Candidate selection and update test: persistence is selected because this is a sparse annual series with a clear TY2021 regime break, and no fetched current evidence supports moving materially from the latest comparable print. The condition itself preserves the current-law $2,500 threshold, so its policy adjustment is zero rather than an extra effect. TY2021 is retained only as a structural upper-tail precedent, not as a comparable baseline observation."
+    },
+    {
+      "kind": "math",
+      "text": "Point = selected persistence candidate 17.626084 + current-law threshold adjustment 0.000000 = 17.626084 million, rounded to 17.6. Comparable-print sample standard deviation is 0.978268 million; normal 80% half-width = 1.28 × 0.978268 = 1.252183 million. Centered on persistence, implied bounds are 17.626084 ± 1.252183 = 16.373901 to 18.878267 million, rounded to agency-aligned 0.1-million precision as 16.4 to 18.9. Three of the four comparable prints fall within an analogous band around their mean; the oldest print misses the upper edge by only about 0.003 million."
+    },
+    {
+      "kind": "text",
+      "text": "Prior/update/interval: prior = selected 17.626084 million last-print persistence candidate using official TY2019-TY2023 history with TY2021 excluded from comparable dispersion; benchmark = 17.626084 million; adjustment components = +0.0 million for unchanged threshold, +0.0 for unsupported demographic or take-up narratives; interval method = comparable-current-law sample standard deviation multiplied by 1.28; implied 80% bounds = 16.4-18.9 million."
+    },
+    {
+      "kind": "text",
+      "text": "Counter-consideration and tails: below 16.4 million if eligible-child counts, low-income employment, or filing take-up fall enough to extend the recent decline; above 18.9 million if claimant take-up or the eligible-child population rebounds sharply without a statutory threshold change. A broader enacted refundability or credit expansion would instead make this conditional unresolved; if such a change escaped the condition's wording, the TY2021 precedent shows the outcome could lie far above the interval."
+    },
+    {
+      "kind": "forecast",
+      "point": 17.6,
+      "ciLow": 16.4,
+      "ciHigh": 18.9
+    }
+  ]
 }
 ];

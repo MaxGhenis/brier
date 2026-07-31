@@ -15,6 +15,19 @@ export interface ConditionalGroup {
 
 export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
   {
+    slug: "s3596-actc-phase-in-ty2027",
+    title: "ACTC take-up under the S.3596 phase-in provision",
+    question:
+      "What does S.3596's provision phasing the refundable child tax credit in from the first dollar of earnings do to the number of families claiming it for tax year 2027?",
+    eventLabel:
+      "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027",
+    trueArmSlug: "irs-actc-total-claims-ty2027-threshold-one-dollar",
+    falseArmSlug: "irs-actc-total-claims-ty2027-threshold-2500",
+    gapNote:
+      "The 1.4-million-return gap between arms is the forecasted take-up effect of phasing the credit in from the first dollar \u2014 published before Congress decides.",
+  },
+
+  {
     slug: "medicaid-work-req-wait-mar-2027",
     title: "Medicaid hold times under the work-requirement deadline",
     question:
