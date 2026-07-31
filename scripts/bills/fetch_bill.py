@@ -235,6 +235,49 @@ def parse_bill_ref(arg: str) -> tuple[int, str, int] | None:
     return None
 
 
+def trim_statute_map(bill_row: dict) -> dict | None:
+    """Provision-to-statute map from axiom's precomputed diffs — trimmed.
+
+    Strictly additive enrichment: returns None whenever axiom hasn't
+    computed diffs for the bill (partial rulespec coverage, drafts,
+    not-yet-processed bills), and nothing downstream requires the block.
+    Where present it carries, per amended section, the exact citation
+    and the pointer to the encoded rule in rulespec-us. Heavy diff
+    bodies are dropped — this is a map, not a mirror.
+    """
+    diffs = bill_row.get("diffs")
+    if not isinstance(diffs, dict) or not diffs.get("sections"):
+        return None
+    sections = []
+    for section in diffs["sections"]:
+        encoding = section.get("encoding") or None
+        sections.append(
+            {
+                "citation": section.get("citation"),
+                "heading": section.get("heading"),
+                "encoded": encoding is not None,
+                "encoding": (
+                    {
+                        k: encoding[k]
+                        for k in ("repo", "citation", "file_path", "github_url")
+                        if k in encoding
+                    }
+                    if encoding
+                    else None
+                ),
+                "axiom_url": section.get("axiom_url"),
+            }
+        )
+    return {
+        "touches_rulespec": bill_row.get("touches_rulespec"),
+        "touches_corpus": bill_row.get("touches_corpus"),
+        "needs_new_encoding": bill_row.get("needs_new_encoding"),
+        "statutory_effective_from": diffs.get("statutory_effective_from"),
+        "sections": sections,
+        "source": "axiom-bills precompute-diffs",
+    }
+
+
 def fetch_from_axiom(
     client: httpx.Client, congress: int, bill_type: str, number: int
 ) -> dict | None:
@@ -257,7 +300,7 @@ def fetch_from_axiom(
                 # Congress disambiguation lives on the sessions table
                 # (bill numbers repeat across Congresses).
                 "sessions.name": f"eq.{congress}th Congress",
-                "select": "id,number,title,source_url,sessions!inner(name)",
+                "select": "id,number,title,source_url,touches_rulespec,touches_corpus,needs_new_encoding,diffs,sessions!inner(name)",
             },
             headers=headers,
         )
@@ -294,6 +337,7 @@ def fetch_from_axiom(
         "resolved_via": "axiom-supabase",
         "title": bill.get("title"),
         "bill_number": bill["number"],
+        "statute_map": trim_statute_map(bill),
         "text": best["text"],
         "version_label": best["version_label"],
         "format": normalize_format(best["format"]),
@@ -461,6 +505,9 @@ def write_artifacts(slug: str, result: dict) -> Path:
         "text_file": txt_path.name,
         "source_file": doc_path.name if doc_path else None,
     }
+    # Optional enrichment — present only when axiom computed diffs.
+    if result.get("statute_map"):
+        meta["statuteMap"] = result["statute_map"]
     safe_dest(f"{slug}.meta.json").write_text(
         json.dumps(meta, indent=2) + "\n", encoding="utf-8"
     )
