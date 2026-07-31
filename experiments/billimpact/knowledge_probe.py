@@ -22,6 +22,7 @@ HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
 
 import harness as H  # noqa: E402
+from probe_fix import generic_last_json, to_float  # noqa: E402  (H._last_json_object requires "point")
 
 # Series descriptions, verbatim from extended_harness.SERIES_DESC (first 4)
 # and booking_sweep.SERIES_DESC (last 4); titles were FRED-verified when
@@ -102,7 +103,9 @@ def main() -> None:
             label=H.month_label(u["target_month"]),
             hist=fmt_hist(u["history"]) if variant == "anchored" else "",
         )
-        res = H.call_model(prompt, model, max_tokens=400)
+        # 2000, not 400: opus burned a 400 cap on deliberation and returned
+        # empty content on 98/432 first-pass calls (worst on anchored).
+        res = H.call_model(prompt, model, max_tokens=2000)
         rec = {
             "cell_key": f"KP|{uid}|{model}|{variant}|{rep}",
             "unit_id": uid, "model": model, "variant": variant, "rep": rep,
@@ -111,13 +114,13 @@ def main() -> None:
             "transport": os.environ.get("BILLIMPACT_TRANSPORT", "anthropic"),
         }
         if res.ok:
-            obj = H._last_json_object(res.text) or {}
-            rec["recall"] = H._to_float(obj.get("value"))
+            obj = generic_last_json(res.text) or {}
+            rec["recall"] = to_float(obj.get("value"))
             if rec["recall"] is None:
                 m = re.search(r'"value"\s*:\s*"?\$?([-\d.,]+)', res.text)
                 rec["recall"] = H._to_float(m.group(1)) if m else None
             rec["basis"] = obj.get("basis")
-            rec["text"] = res.text[:300]
+            rec["text"] = res.text[:600]
         else:
             rec["error"] = res.error
         with lock:
