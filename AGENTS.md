@@ -146,11 +146,17 @@ inbox:
 uv run --extra challenge python scripts/verify_challenge_signatures.py
 ```
 
-Unsigned submissions are valid — signing is optional. A
-present-but-invalid bundle, an orphan bundle, or any unexpected inbox
-file must fail the sweep and must never be published. The publish adapter
-stores each verified signature's `thesis_challenge_signature_v1` block
-(from `--json`) alongside the merge SHA it already records. Submitter
+Unsigned submissions stay valid (schema-checked only; full intake
+validation happens at publication) — signing is optional. A
+present-but-invalid bundle, a bundle without a Signed Entry Timestamp,
+an orphan bundle, a symlink, or any file not shaped `<login>/<cell>.json`
+must fail the sweep and must never be published. The sweep always covers
+the whole inbox; in `--json` mode stdout is exactly one JSON document of
+`thesis_challenge_signature_v1` blocks, which the publish adapter stores
+alongside the merge SHA it already records. The signature never
+authenticates the `challenger` account — the adapter must separately
+require `challenger == github:<PR opener>` (and the matching inbox
+directory) and persist PR number, opener, and merge SHA. Submitter
 signing distributes proof, never signing authority: publish-side signing
 stays CI-only and challenger PRs never touch `records/**`.
 

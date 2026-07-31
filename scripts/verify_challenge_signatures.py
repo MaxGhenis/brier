@@ -1,23 +1,40 @@
 #!/usr/bin/env python3
 """Verify submitter signatures across the challenge inbox.
 
-For every submission under ``challenge/inbox/`` this checks, fail-closed:
+The sweep always covers the ENTIRE inbox, fail-closed:
 
-- inbox hygiene: only submissions, their sidecar bundles, and README.md;
-  no symlinks, no orphan bundles (a bundle whose submission is gone);
-- for each signed submission: the Sigstore bundle cryptographically
-  verifies over the submission's exact bytes (Fulcio chain, Rekor
-  inclusion, signed entry timestamp — delegated to sigstore-python),
-  the bundle's digest matches the file, and the Rekor ``integratedTime``
-  strictly precedes the target's release instant (registry day floor, or
-  ``--release-at`` when the caller knows the actual first-print instant);
-- unsigned submissions are reported and remain valid — signing is
-  optional (issue #52; PR #49 is grandfathered).
+- inbox hygiene: entries must be ``<login>/<cell>.json`` submissions,
+  their sidecar bundles, or the root README.md; symlinks (including a
+  symlinked inbox root), orphan bundles, and any other name shape fail
+  the run — the anchored name shape also makes printed paths
+  injection-proof;
+- every signed submission: the Sigstore bundle cryptographically verifies
+  over the submission's exact bytes (Fulcio chain, Merkle inclusion proof
+  against the signed checkpoint, Signed Entry Timestamp — delegated to
+  sigstore-python), a Signed Entry Timestamp is REQUIRED (a bundle whose
+  ``integratedTime`` is not SET-bound has no authenticated Rekor
+  chronology and is refused), the raw bundle metadata must match the
+  verified transparency-log entry exactly, and the SET-bound
+  ``integratedTime`` strictly precedes the target's release instant
+  (registry day floor, or ``--release-at`` when the caller knows the
+  actual first-print instant);
+- unsigned submissions are reported and remain schema-valid — signing is
+  optional (issue #52; PR #49 grandfathered). Full intake validation
+  happens at publication, not here.
 
-A present-but-invalid bundle always fails the run: a broken proof is
-tampering evidence, not a missing option. ``--json`` emits the exact
+``--submission`` narrows only which provenance blocks are exported —
+hygiene and signature verification always cover everything discovered. A
+present-but-invalid bundle always fails the run: a broken proof is
+tampering evidence, not a missing option.
+
+``--json`` writes exactly one JSON document (the
 ``thesis_challenge_signature_v1`` provenance blocks the publish adapter
-stores alongside each record's merge SHA.
+stores alongside each record's merge SHA) to stdout; all diagnostics go
+to stderr. ``--staging`` verifies against Sigstore staging trust roots
+for rehearsals and refuses ``--json``: staging proof must never feed the
+adapter. A successful default exit does NOT mean every signature precedes
+its release — publishers must read ``precedesRelease`` (or gate with
+``--require-prerelease``).
 
 Exit codes: 0 verified/clean, 1 verification or hygiene failure, 2 usage.
 """
@@ -57,6 +74,15 @@ def _block_root(inbox: pathlib.Path) -> pathlib.Path:
     return resolved
 
 
+def _sanitized(path: pathlib.Path) -> str:
+    """Render a possibly attacker-named path without control characters."""
+
+    text = str(path)
+    if text.isprintable():
+        return text
+    return repr(text)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -70,7 +96,8 @@ def main(argv: list[str] | None = None) -> int:
         type=pathlib.Path,
         action="append",
         default=None,
-        help="verify only these submissions (repeatable)",
+        help="export provenance blocks only for these submissions "
+        "(repeatable); hygiene and verification still cover the whole inbox",
     )
     parser.add_argument(
         "--release-at",
@@ -93,13 +120,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--require-prerelease",
         action="store_true",
-        help="fail if any signed submission's Rekor time does not precede "
-        "the release instant",
+        help="fail if any signed submission's SET-bound Rekor time does not "
+        "precede the release instant",
     )
     parser.add_argument(
         "--require-identity",
         default=None,
-        help="enforce this certificate identity (needs --require-issuer)",
+        help="enforce this certificate identity (needs --require-issuer; "
+        "both must be nonempty)",
     )
     parser.add_argument(
         "--require-issuer",
@@ -109,14 +137,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--staging",
         action="store_true",
-        help="verify against Sigstore staging trust roots (rehearsals only)",
+        help="verify against Sigstore staging trust roots (rehearsals only; "
+        "incompatible with --json)",
+    )
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="do not refresh Sigstore trust roots over the network",
     )
     parser.add_argument(
         "--json",
         action="store_true",
-        help="emit thesis_challenge_signature_v1 provenance blocks",
+        help="write exactly one JSON document of "
+        "thesis_challenge_signature_v1 provenance blocks to stdout "
+        "(diagnostics go to stderr)",
     )
     args = parser.parse_args(argv)
+
+    if args.staging and args.json:
+        print(
+            "--staging is a rehearsal mode; refusing --json export so "
+            "staging proof can never feed the publish adapter",
+            file=sys.stderr,
+        )
+        return 2
+
+    info_stream = sys.stderr if args.json else sys.stdout
+
+    def info(message: str) -> None:
+        print(message, file=info_stream)
 
     release_at = None
     if args.release_at is not None:
@@ -135,24 +184,23 @@ def main(argv: list[str] | None = None) -> int:
 
     failures: list[str] = []
     for orphan in audit.orphan_bundles:
-        failures.append(f"orphan bundle without a submission: {orphan}")
+        failures.append(f"orphan bundle without a submission: {_sanitized(orphan)}")
     for unexpected in audit.unexpected:
         failures.append(
-            f"unexpected inbox entry (not a regular submission "
-            f"or bundle): {unexpected}"
+            "unexpected inbox entry (not a <login>/<cell>.json submission "
+            f"or its bundle): {_sanitized(unexpected)}"
         )
 
-    selected = audit.submissions
+    exported = None
     if args.submission:
-        requested = {path.resolve() for path in args.submission}
-        selected = [p for p in audit.submissions if p.resolve() in requested]
-        missing = requested - {p.resolve() for p in selected}
-        for path in sorted(missing):
+        exported = {path.resolve() for path in args.submission}
+        known = {p.resolve() for p in audit.submissions}
+        for path in sorted(exported - known):
             failures.append(f"requested submission is not in the inbox: {path}")
 
     blocks = []
     signed = unsigned = 0
-    for submission in selected:
+    for submission in audit.submissions:
         relative = submission.resolve().relative_to(root.resolve())
         bundle = audit.bundles.get(submission)
         if bundle is None:
@@ -165,7 +213,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.require_signature:
                 failures.append(f"unsigned submission: {relative}")
             else:
-                print(f"unsigned {relative} (valid; signing is optional)")
+                info(f"unsigned {relative} (signature optional; schema-checked only)")
             continue
         try:
             verification = verify_submission(
@@ -176,6 +224,7 @@ def main(argv: list[str] | None = None) -> int:
                 expected_identity=args.require_identity,
                 expected_issuer=args.require_issuer,
                 staging=args.staging,
+                offline=args.offline,
             )
         except ChallengeSigningError as exc:
             failures.append(str(exc))
@@ -186,24 +235,25 @@ def main(argv: list[str] | None = None) -> int:
             if verification.precedes_release
             else "does NOT precede release"
         )
-        print(
+        info(
             f"signed   {relative}: rekor logIndex="
-            f"{verification.metadata.log_index} "
+            f"{verification.verified.log_index} "
             f"integrated={verification.integrated_time_utc:%Y-%m-%dT%H:%M:%SZ} "
-            f"{verdict}"
+            f"[{verification.verified.environment}] {verdict}"
         )
         if args.require_prerelease and not verification.precedes_release:
             failures.append(
                 f"signature does not precede the release instant: {relative}"
             )
-        blocks.append(
-            signature_provenance_block(verification, repo_root=_block_root(root))
-        )
+        if exported is None or submission.resolve() in exported:
+            blocks.append(
+                signature_provenance_block(verification, repo_root=_block_root(root))
+            )
 
     if args.json:
         print(json.dumps(blocks, indent=2, sort_keys=True))
-    print(
-        f"checked {len(selected)} submission(s): {signed} signed, "
+    info(
+        f"checked {len(audit.submissions)} submission(s): {signed} signed, "
         f"{unsigned} unsigned, {len(failures)} failure(s)"
     )
     for failure in failures:

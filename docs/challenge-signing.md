@@ -63,33 +63,58 @@ sweeps the inbox fail-closed. For each signed submission it checks:
 1. **Cryptographic validity** — delegated entirely to
    [sigstore-python](https://github.com/sigstore/sigstore-python) (pinned
    `sigstore==4.5.0` in the `challenge` extra): certificate chains to
-   Fulcio, certificate transparency SCT, Rekor inclusion, Rekor's signed
-   entry timestamp, and the signature over the submission's exact bytes.
+   Fulcio, certificate transparency SCT, the Merkle inclusion proof
+   against the log's signed checkpoint, the Signed Entry Timestamp, and
+   the signature over the submission's exact bytes.
 2. **Digest match** — the bundle's `messageDigest` equals the file's
    sha256, reported as `artifactSha256`. A bundle made for different bytes
    is refused outright.
-3. **Chronology** — the Rekor `integratedTime` must *strictly precede* the
-   target's release instant. By default that instant is derived
-   conservatively from the registered target: the earlier of
+3. **An authenticated time source is REQUIRED.** Chronology values are
+   read back from the *cryptographically verified* transparency-log
+   entry, never from the bundle's advertised JSON, and the entry must
+   carry a Signed Entry Timestamp binding a nonzero `integratedTime` —
+   sigstore accepts v0.2+ bundles with no inclusion promise when an
+   RFC 3161 timestamp is present, and skips SET verification for a zero
+   `integratedTime`, so both cases are refused here (a bundle whose
+   `integratedTime` is not SET-bound has no authenticated Rekor
+   chronology; TSA-time support would be a separate, explicitly labeled
+   extension). The advertised bundle metadata must equal the verified
+   entry exactly or the bundle is refused.
+4. **Chronology** — the SET-bound `integratedTime` must *strictly
+   precede* the target's release instant. By default that instant is
+   derived conservatively from the registered target: the earlier of
    `resolutionDate` and `sourceBinding.expectedReleaseWindow.start`,
    floored to 00:00:00 UTC of that day (day-granularity fields prove
    nothing about intraday order, so the signature must beat the day's
    first instant). At scoring time, pass the actual first-print instant
    with `--release-at` for the exact comparison.
 
-Unsigned submissions are listed and remain valid. A present-but-invalid
-bundle always fails the sweep: a broken proof is tampering evidence, not a
-missing option. Orphan bundles (no matching submission) and unexpected
-inbox files fail it too.
+Unsigned submissions are listed and remain schema-checked-valid (full
+intake validation happens at publication). A present-but-invalid bundle
+always fails the sweep — the sweep always covers the whole inbox, even
+when `--submission` narrows the export — a broken proof is tampering
+evidence, not a missing option. Orphan bundles (no matching submission),
+symlinks, and any file not shaped `<login>/<cell>.json` fail it too. In
+`--json` mode stdout carries exactly one JSON document (diagnostics on
+stderr), and `--staging` (rehearsals) refuses `--json` so staging proof
+can never feed the adapter. A successful default exit does **not** mean
+every signature precedes its release — publishers read `precedesRelease`
+per block, or gate with `--require-prerelease`.
 
 ### Identity is recorded, not enforced (by default)
 
 A keyless certificate from the interactive flow names the GitHub-verified
 **email** the challenger logged in with; there is no mechanical mapping
-from that email to the `challenger: github:<login>` field, so account
-attribution stays where it always was — the GitHub identity that opened
-the inbox PR. The verifier records the certificate's subjects and OIDC
-issuer verbatim (`identityPolicy: recorded_not_enforced`).
+from that email to the `challenger: github:<login>` field. **The
+signature therefore never authenticates the `challenger` account** — it
+proves that the recorded certificate principal signed these exact bytes,
+nothing more. Account attribution is a separate leg that the publish
+adapter MUST enforce mechanically: `challenger` must equal
+`github:<PR opener>`, the inbox path's `<login>/` directory must match,
+and the published record must persist the PR number, opener, and merge
+SHA. The verifier records the certificate's subjects and OIDC issuer
+verbatim (`identityPolicy: recorded_not_enforced`) and refuses a
+certificate with no subject at all.
 
 Challengers who want account-bound certificates can sign from a GitHub
 Actions workflow in their own fork (ambient OIDC): the certificate subject
@@ -115,10 +140,11 @@ the verifier's `thesis_challenge_signature_v1` block verbatim
 |---|---|
 | `artifactPath`, `artifactSha256` | repo-relative submission path and its digest |
 | `bundlePath`, `bundleMediaType` | the sidecar bundle the proof lives in |
-| `rekorLogIndex`, `rekorLogIdKeyId` | transparency-log coordinates |
-| `rekorEntryUuid` | RFC 6962 leaf hash of the entry's canonicalized body |
-| `rekorIntegratedTimeUtc` | the independent public timestamp |
-| `certificateSubjects`, `certificateOidcIssuer` | recorded signer identity |
+| `rekorLogIndex`, `rekorLogIdKeyId` | transparency-log coordinates, read from the verified entry |
+| `rekorEntryUuid` | RFC 6962 leaf hash of the verified entry's canonicalized body |
+| `rekorIntegratedTimeUtc`, `rekorIntegratedTimeSource` | the independent public timestamp and its authentication (`signed_entry_timestamp`) |
+| `sigstoreEnvironment` | `production` (staging bundles are never exported) |
+| `certificateSubjects`, `certificateOidcIssuer` | recorded signer identity — NOT the challenger account (see above) |
 | `identityPolicy` | `recorded_not_enforced` or `enforced` |
 | `precedesRelease`, `releaseInstantUtc`, `releaseInstantSource` | the chronology verdict and what it was measured against |
 
@@ -130,13 +156,21 @@ against the live log 2026-07-31).
 
 ## How this composes with existing custody
 
-Three independent proof legs, none sharing a trust root:
+Three proof legs with partially overlapping trust domains — overlaps
+stated plainly rather than claimed away:
 
-| Leg | Proves | Trust root |
+| Leg | Proves | Trust domain |
 |---|---|---|
 | Git provenance (PR, merge SHA) | who submitted, what entered the repo | GitHub |
-| Records chain (producer signature, workflow attestations, dual-TSA witnesses) | what Thesis published and when | code-pinned Ed25519 SPKI + RFC 3161 TSAs |
+| Records chain (producer signature, workflow attestations, dual-TSA witnesses) | what Thesis published and when | code-pinned Ed25519 SPKI + RFC 3161 TSAs; the workflow-attestation half also rests on GitHub (Actions identity) and Sigstore (Fulcio) infrastructure |
 | Submitter signature (this doc) | the artifact existed, digest-exact, before the release — regardless of Thesis | Sigstore (Fulcio/Rekor) |
+
+The producer Ed25519 key and the RFC 3161 witnesses are the separately
+rooted parts; submitter signatures and records-push attestations both
+lean on Sigstore infrastructure, and Git provenance shares GitHub with
+the Actions identities. A Sigstore compromise would therefore degrade
+two legs at once — the producer signature and TSA witnesses are the
+custody that survives it.
 
 The v5 chronology tiers are unchanged: headline eligibility still comes
 from the witnessed records chain. The Rekor timestamp is an additional,
