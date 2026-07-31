@@ -262,10 +262,32 @@ def test_scope_predicate_on_real_merge_dags(
     assert provenance.commit_in_scope(side, epoch) is True  # incomparable
     assert provenance.commit_in_scope(post, epoch) is True  # descendant
 
-    # Full-history enumeration must surface the side-branch records commit.
+    # First-parent enumeration: the side-branch records change is enforced
+    # at the merge that landed it on the published line (P1-2's protection,
+    # attributed to the landing push), and the side commit itself is not
+    # separately demanded.
     monkeypatch.setattr(provenance, "git_output", lambda *a: _git(repo, *a))
+    landing = _git(repo, "log", "--merges", "--format=%H", "-1", "HEAD").strip()
     commits = provenance.records_commits(f"{epoch}..HEAD")
-    assert side in commits, "path simplification hid the side-branch commit"
+    assert landing in commits, "landing merge of side-branch records missing"
+    assert side not in commits, "side commit demanded directly despite first-parent attribution"
+    assert post in commits, "mainline records commit missing"
+
+    # Innocent merge (the db4ca2f2 shape): a branch forked before mainline
+    # records landed, adding only non-records files, merged after — its
+    # first-parent diff touches no records path and it must NOT be selected.
+    _git(repo, "checkout", "-q", "-b", "docs", landing)
+    _commit(repo, "docs/notes.txt", "docs only")
+    _git(repo, "checkout", "-q", "main")
+    _git(
+        repo,
+        "-c", "user.name=t", "-c", "user.email=t@example.com",
+        "merge", "-q", "--no-ff", "-m", "merge docs", "docs",
+    )
+    innocent = _git(repo, "log", "--merges", "--format=%H", "-1", "HEAD").strip()
+    commits2 = provenance.records_commits(f"{epoch}..HEAD")
+    assert innocent not in commits2, "innocent merge misattributed as a records commit"
+    assert landing in commits2 and post in commits2
 
     with pytest.raises(provenance.ProvenanceError, match="merge-base"):
         provenance.commit_in_scope("f" * 40, epoch)

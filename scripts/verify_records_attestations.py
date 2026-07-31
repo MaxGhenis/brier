@@ -203,10 +203,18 @@ def enforcement_epoch() -> str:
 
 
 def records_commits(rev_range: str) -> list[str]:
-    # --full-history: path simplification may otherwise drop a records
-    # commit that arrived on a side branch (Sol review P1-2).
+    # --first-parent: attribute records changes to what each commit landed
+    # on the published line. A merge is selected iff its FIRST-parent diff
+    # touches records/** — side-branch records changes are enforced at the
+    # merge that lands them (Sol review P1-2's protection, moved to the
+    # landing merge), while a merge that merely trails main's own records
+    # commits (TREESAME to its first parent under records/) is no longer
+    # misattributed (2026-07-31: db4ca2f2, an innocent copy-PR merge,
+    # flagged because its second parent predated the morning's witness
+    # records). --full-history still pins path simplification on the
+    # walked line.
     output = git_output(
-        "log", "--full-history", "--format=%H", rev_range,
+        "log", "--full-history", "--first-parent", "--format=%H", rev_range,
         "--", PROTECTED_PREFIX,
     )
     return output.splitlines() if output else []
