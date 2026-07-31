@@ -3,6 +3,11 @@
 This script intentionally freezes the original paper prompt wording so a new
 OpenAI rerun can be compared to the original GPT-5.2 corpus without also
 changing the prompts.
+
+The live tracks compose from `brier.experiments.components`; this file is the
+one deliberate exception and must NOT be wired to it. Its `legacy_*` prompt
+builders are an archival copy of the Study 1 treatment, so they have to keep
+their literals even when the shared components move on.
 """
 
 from __future__ import annotations
