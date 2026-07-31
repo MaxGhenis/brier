@@ -263,6 +263,7 @@ export default async function BillDetailPage({
                       };
                     })}
                     conditionals={provision.conditionals}
+                    compute={provision.compute}
                   />
                 </div>
               </details>
