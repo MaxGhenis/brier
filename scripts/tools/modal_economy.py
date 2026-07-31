@@ -188,6 +188,21 @@ def _validate_or_die(pe, reform: dict):
     return v
 
 
+def _certify_or_die(pe):
+    """Check the pinned stack against the build BEFORE a container starts.
+
+    The image pins PE_US and the run pins BUILD_P, so the pairing is decided at
+    edit time; catching a mismatch here costs nothing, while catching it in
+    compute_block costs a 32 GB container and yields a number somebody will
+    quote before reading the warning."""
+    try:
+        cert = pe.require_certification(BUILD_P, PE_US)
+    except pe.UncertifiedPairing as exc:
+        raise SystemExit(f"refusing to run: {exc}")
+    print(f"certified {cert['certified_model_version']} against {BUILD_P}")
+    return cert
+
+
 def _record(pe, v, result: dict, provision: str) -> dict:
     """Register the remote result in the wrapper's audit trail and emit the
     bill.json compute row via pe.compute_block — the artifact goes through the
@@ -208,6 +223,7 @@ def _record(pe, v, result: dict, provision: str) -> dict:
         impact=imp, message="ok", engine="modal", dataset=result["dataset"],
         pe_us_version=result["pe_us_version"], param_source=v.param_source,
         checked_existence=v.checked_existence,
+        certification=pe.certification_note(result["dataset"], result["pe_us_version"]),
         computed_at=datetime.now(timezone.utc).isoformat(),
     )
     pe._log_call(run, pe.DEFAULT_LOG_DIR)
@@ -218,6 +234,7 @@ def _record(pe, v, result: dict, provision: str) -> dict:
 def main():
     pe = _wrapper()
     v = _validate_or_die(pe, STRONGER_START)
+    _certify_or_die(pe)
     result = economy.remote(STRONGER_START, 2026)
     print(json.dumps(result, indent=2))
     block = _record(pe, v, result,
@@ -235,6 +252,7 @@ def sweep(start: int = 2026, end: int = 2035):
     modal run scripts/tools/modal_economy.py::sweep"""
     pe = _wrapper()
     v = _validate_or_die(pe, STRONGER_START)
+    _certify_or_die(pe)
     years = list(range(start, end + 1))
     rows = []
     for res in economy.map([STRONGER_START] * len(years), years):

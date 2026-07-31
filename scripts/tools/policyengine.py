@@ -107,6 +107,31 @@ class PolicyEngineError(RuntimeError):
     pass
 
 
+class UncertifiedPairing(PolicyEngineError):
+    """Raised when a dataset-backed run is asked for on an uncertified stack."""
+
+    def __init__(self, note: dict):
+        super().__init__(note["warning"])
+        self.note = note
+
+
+def require_certification(build: str, running_version: Optional[str]) -> dict:
+    """Certification as a GATE, not a footnote.
+
+    ``certification_note`` fails closed as a *report*, but a report only binds a
+    caller that reads it, and it was consulted in exactly one place —
+    ``compute_block``, i.e. after the number already existed. Anything that
+    computed and returned without serializing a bill row (a forecast cell, a
+    notebook, a driver script) never saw it, which is how a figure priced on an
+    uncertified pairing reaches a slide. This raises instead, before the
+    microdata is touched, so an uncertified run produces no number to quote.
+    """
+    note = certification_note(build, running_version)
+    if not note["certified"]:
+        raise UncertifiedPairing(note)
+    return note
+
+
 # --------------------------------------------------------------------------- #
 # HTTP (stdlib)                                                                #
 # --------------------------------------------------------------------------- #
@@ -352,6 +377,11 @@ class EconomyRun:
     pe_us_version: Optional[str] = None
     engine: str = "api"               # "api" (hosted, opaque dataset) | "local" (pinned build)
     dataset: Optional[str] = None     # Populace build id when engine == "local"
+    # The gate's own verdict, recorded on the run so the audit log carries the
+    # pairing that produced the number rather than one recomputed later.
+    certification: Optional[dict] = None
+    # Set for variable-count runs (population_impact_local); None for economy runs.
+    variable: Optional[str] = None
 
 
 def economy_impact(
@@ -457,12 +487,20 @@ def economy_local(
     if not v.ok:
         return _finish("error", message="reform failed validation:\n  - " + "\n  - ".join(v.problems))
 
+    # Certification BEFORE the microdata is touched: an uncertified pairing must
+    # not produce a number at all, not a number carrying a warning.
+    try:
+        cert = require_certification(build, policyengine_us_version())
+    except UncertifiedPairing as e:
+        return _finish("error", message=str(e), certification=e.note)
+
     try:
         import gc
         from policyengine_us import Microsimulation  # type: ignore
         from policyengine_core.reforms import Reform  # type: ignore
     except Exception as e:  # pragma: no cover
-        return _finish("error", message=f"policyengine-us not installed (scripts/tools/requirements-tax.txt): {e}")
+        return _finish("error", message=f"policyengine-us not installed (scripts/tools/requirements-tax.txt): {e}",
+                       certification=cert)
 
     ds = populace_dataset_uri(build)
 
@@ -507,12 +545,165 @@ def economy_local(
         },
         "deep_poverty": {"child": _pov_block(base["deep_child"], ref["deep_child"])},
     }
-    return _finish("ok", impact=impact, message="ok")
+    return _finish("ok", impact=impact, message="ok", certification=cert)
 
 
 def _pov_block(base: float, ref: float) -> dict:
     change = (ref - base) / base if base else None
     return {"baseline": base, "reform": ref, "pct_change": change}
+
+
+# --------------------------------------------------------------------------- #
+# Population counts for one variable, computed BY the engine                  #
+# --------------------------------------------------------------------------- #
+def _engine_series(sim, variable: str, year: int, map_to: str):
+    """Values and weights for ``variable``, both taken from the engine.
+
+    The weights come off the MicroSeries the engine returns, never off the
+    dataset. Reading ``weight`` out of the HDF5 and multiplying it by a
+    hand-written mask reproduces neither the variable's logic nor its entity
+    mapping, and is how a "PolicyEngine number" ends up never having been
+    through PolicyEngine. If the engine hands back something unweighted we
+    refuse rather than reach around it for the raw column.
+    """
+    import numpy as np
+
+    series = sim.calculate(variable, period=year, map_to=map_to)
+    weights = getattr(series, "weights", None)
+    if weights is None:
+        raise PolicyEngineError(
+            f"{variable} came back unweighted from the engine (map_to={map_to!r}); "
+            "refusing to substitute raw dataset weights"
+        )
+    return np.asarray(series.values), np.asarray(weights, dtype=float)
+
+
+def cluster_bootstrap_sigma(contrib, clusters, draws: int = 400, seed: int = 0) -> float:
+    """Sampling sigma of a weighted total, resampling whole households.
+
+    Persons in a household share a survey weight and are not independent draws,
+    so resampling persons understates the spread. Households are the sampling
+    unit, so they are what gets resampled.
+    """
+    import numpy as np
+
+    contrib = np.asarray(contrib, dtype=float)
+    clusters = np.asarray(clusters)
+    if contrib.size == 0:
+        return 0.0
+    order = np.argsort(clusters, kind="stable")
+    sorted_ids, sorted_contrib = clusters[order], contrib[order]
+    starts = np.concatenate(([0], np.flatnonzero(np.diff(sorted_ids)) + 1))
+    per_cluster = np.add.reduceat(sorted_contrib, starts)
+    n = len(per_cluster)
+    if n < 2:
+        return 0.0
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, n, size=(draws, n))
+    return float(per_cluster[idx].sum(axis=1).std(ddof=1))
+
+
+def population_impact_local(
+    reform: dict,
+    year: int,
+    variable: str,
+    build: str = POPULACE_BUILD,
+    map_to: str = "person",
+    bootstrap: int = 400,
+    seed: int = 0,
+    validate: bool = True,
+    log_dir: Optional[Path] = DEFAULT_LOG_DIR,
+    now: Optional[str] = None,
+) -> EconomyRun:
+    """Weighted counts of a boolean variable under baseline and reform.
+
+    The population analogue of ``economy_local``: same pinned build, same
+    fail-closed validation and certification, same audit record — but the metric
+    is one variable the engine computes, so a reform that reaches an outcome
+    through a threshold (rather than through the budget) can be measured without
+    anybody reimplementing that threshold by hand.
+
+    Both arms run against the same pinned dataset, so records align positionally
+    and the transition counts are well defined. Only the value and weight arrays
+    survive an arm, so peak memory is one microsim, matching ``economy_local``.
+    """
+    stamp = now or datetime.now(timezone.utc).isoformat()
+    v = validate_reform(reform, COUNTRY) if validate else ValidationResult(True, [], "unvalidated", False)
+
+    def _finish(status: str, **kw) -> EconomyRun:
+        run = EconomyRun(status, year, COUNTRY, "us", reform, None, baseline_id(COUNTRY),
+                         param_source=v.param_source, checked_existence=v.checked_existence,
+                         pe_us_version=policyengine_us_version(), engine="local",
+                         dataset=build, computed_at=stamp, variable=variable, **kw)
+        _log_call(run, log_dir)
+        return run
+
+    if not v.ok:
+        return _finish("error", message="reform failed validation:\n  - " + "\n  - ".join(v.problems))
+
+    try:
+        cert = require_certification(build, policyengine_us_version())
+    except UncertifiedPairing as e:
+        return _finish("error", message=str(e), certification=e.note)
+
+    try:
+        import gc
+        import numpy as np
+        from policyengine_us import Microsimulation  # type: ignore
+        from policyengine_core.reforms import Reform  # type: ignore
+    except Exception as e:  # pragma: no cover
+        return _finish("error", message=f"policyengine-us not installed (scripts/tools/requirements-tax.txt): {e}",
+                       certification=cert)
+
+    ds = populace_dataset_uri(build)
+    try:
+        base_sim = Microsimulation(dataset=ds)
+        base_vals, weights = _engine_series(base_sim, variable, year, map_to)
+        # Cluster ids come from the engine too, mapped to the same entity as the
+        # metric, so the bootstrap resamples the survey's own sampling unit.
+        clusters = np.asarray(base_sim.calculate("household_id", period=year, map_to=map_to))
+        del base_sim
+        gc.collect()  # drop the baseline sim before building the reform arm
+        ref_vals, _ = _engine_series(
+            Microsimulation(dataset=ds, reform=Reform.from_dict(reform, country_id=COUNTRY)),
+            variable, year, map_to,
+        )
+        gc.collect()
+    except MemoryError as e:
+        return _finish("error", certification=cert, message=(
+            f"national microsim exhausted memory computing {variable}: {e}. "
+            "A national run needs a big-memory box — use the Modal path "
+            "(scripts/tools/modal_population.py)."))
+    except PolicyEngineError as e:
+        return _finish("error", message=str(e), certification=cert)
+
+    if base_vals.shape != ref_vals.shape:
+        return _finish("error", certification=cert, message=(
+            f"arms disagree on record count ({base_vals.shape} vs {ref_vals.shape}); "
+            "transition counts would be meaningless"))
+
+    base_true, ref_true = base_vals.astype(bool), ref_vals.astype(bool)
+    impact = {
+        "variable": variable,
+        "entity": map_to,
+        "records": int(base_true.size),
+        "weighted_population": float(weights.sum()),
+        "baseline_true_weighted": float(weights[base_true].sum()),
+        "reform_true_weighted": float(weights[ref_true].sum()),
+        # The two transitions, kept separate: a net change hides a reform that
+        # moves people both ways, and the direction is the whole finding here.
+        "became_false_weighted": float(weights[base_true & ~ref_true].sum()),
+        "became_true_weighted": float(weights[~base_true & ref_true].sum()),
+    }
+    impact["net_change_weighted"] = (
+        impact["reform_true_weighted"] - impact["baseline_true_weighted"]
+    )
+    impact["became_false_sigma"] = cluster_bootstrap_sigma(
+        weights * (base_true & ~ref_true), clusters, draws=bootstrap, seed=seed
+    )
+    impact["bootstrap_draws"] = bootstrap
+    impact["bootstrap_seed"] = seed
+    return _finish("ok", impact=impact, message="ok", certification=cert)
 
 
 # --------------------------------------------------------------------------- #
@@ -589,13 +780,16 @@ def compute_block(run: EconomyRun, provision_title: str = "") -> dict:
         "result_summary": summary,
         "provision_title": provision_title,
         "param_source": run.param_source,
-        "certification": certification_note(
+        # Prefer the verdict the gate actually reached at run time; recomputing
+        # it here would re-read the manifest and could certify a run that was
+        # refused (or refuse one that was allowed) if the manifest moved between.
+        "certification": run.certification or (certification_note(
             run.dataset,
             # local/modal runs know their model version; the hosted API's model
             # version is NOT knowable from api_version (that is the service
             # version) — pass None so certification REFUSES explicitly.
             run.pe_us_version if run.engine in ("local", "modal") else None,
-        ) if run.dataset else None,
+        ) if run.dataset else None),
         "caveat": "Static microsim; differs from CBO/JCT by behavioral+timing effects. One evidence stream with its own error bars.",
     }
 

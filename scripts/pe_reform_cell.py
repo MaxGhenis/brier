@@ -2,14 +2,13 @@
 """Minimal reform -> PolicyEngine -> outcome metric -> draft forecast cell.
 
 The smallest end-to-end path through the lab for a *policy* target: change ONE
-PolicyEngine-US parameter, recompute a population outcome under baseline and
-reform, size an 80% interval from the microdata itself, and emit a draft cell
-that satisfies docs/cell-contract.md.
+PolicyEngine-US parameter, have the engine recompute a population outcome under
+baseline and reform, size an 80% interval from the run itself, and emit a draft
+cell that satisfies docs/cell-contract.md.
 
 Worked example (the defaults): raise the federal minimum wage
-(``gov.dol.minimum_wage``) from $7.25 to $15.00 and measure how many working-age
-adults are newly exposed to failing the OBBBA Medicaid community-engagement
-("work") requirement through its income route in 2027.
+(``gov.dol.minimum_wage``) from $7.25 to $15.00 and measure how many people lose
+``medicaid_work_requirement_eligible`` in 2027.
 
 MODELING CAVEAT — read before citing any number this produces.
 PolicyEngine-US is a STATIC tax-benefit model. Raising the minimum wage does not
@@ -29,31 +28,42 @@ through the income route while earnings are held fixed, and modelled
 eligibility goes DOWN. That is the threshold-indexation channel. It is NOT an
 estimate of the labour-market effect of a wage floor.
 
-TWO-STAGE DESIGN (and why).
-Running ``Microsimulation.calculate("medicaid_work_requirement_eligible")`` over
-the national dataset costs ~13 GB of commit — the cost is the VARIABLE GRAPH,
-not the data. On an 8 GB box that thrashes the pagefile rather than computing.
-``Simulation.subsample()`` does not help: it materialises the whole dataset via
-``to_input_dataframe()`` before sampling, so its peak is roughly flat in n
-(measured: 0.97 GB -> 5.46 GB just to build at n=2500).
+HOW THE NUMBER IS PRODUCED (and how it used to be, which was wrong).
+An earlier revision of this script counted the exposed population by opening the
+Populace HDF5 with h5py, reading the ``weight`` column, and multiplying it by a
+hand-written approximation of the variable's rule — an income band, an imputed
+hours proxy, and two of the variable's many exemptions. That is not a
+PolicyEngine number. It reproduces neither the variable's logic nor its entity
+mapping, it silently drops every exemption the columns cannot see, and it is
+unfalsifiable against the model it claims to be running. House doctrine: never
+touch the weights directly, always go through the microsimulation.
 
-So the pipeline splits the work:
+Both stages now run through the audited wrapper (``scripts/tools/policyengine.py``,
+POLICYENGINE.md):
 
-  Stage 1 (mechanism)  A tiny Simulation over a handful of synthetic households
-                       runs the REAL Reform through the REAL variable and shows
-                       the eligibility flip. Cheap, exact, proves the plumbing.
-  Stage 2 (population) The exposed population is counted by reading the
-                       microdata columns directly out of the HDF5 and applying
-                       the threshold rule the variable implements. Bounded
-                       memory, real weights, national scope.
+  Stage 1 (mechanism)   A tiny Simulation over synthetic households runs the real
+                        Reform through the real variable and shows the eligibility
+                        flip. No dataset, so no certification question; it proves
+                        the parameter reaches the outcome, nothing more.
+  Stage 2 (population)  ``pe.population_impact_local`` (or a Modal run recorded by
+                        ``scripts/tools/modal_population.py``) has the ENGINE
+                        compute the variable under both arms on a pinned Populace
+                        build, and counts transitions with the engine's own
+                        weights.
 
-Stage 2 is a rule-applied-to-microdata estimate, not a full variable-graph
-computation, and the emitted cell says so.
+Stage 2 is certification-gated and fail-closed. A national microsim needs a
+big-memory box and the build's certified model version; on anything else this
+script refuses and emits nothing rather than producing a figure that was never
+priced by PolicyEngine.
 
 Usage:
-    python scripts/pe_reform_cell.py --out draft_cells.json
+    python scripts/pe_reform_cell.py                        # local certified run
+    modal run scripts/tools/modal_population.py             # produce a run artifact
+    python scripts/pe_reform_cell.py --from-run drafts/pe-reform/<artifact>.json
 
-Requires policyengine-us (see docs/policyengine-reform-loop.md).
+Output is confined to drafts/ — this loop stops at a draft cell and never
+publishes: the converter requires a custody envelope that only a recorded
+run_thesis_analyst.py agent run legitimately produces.
 """
 
 from __future__ import annotations
@@ -66,13 +76,18 @@ from datetime import datetime, timezone
 
 import numpy as np
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent / "tools"))
+import policyengine as pe  # noqa: E402  the audited call path (issue #45)
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+# Everything this loop writes lands here. The result is a draft, not a
+# publication: it has no custody envelope, no recorded agent run and no
+# pre-registration, so it must not sit anywhere that reads as blessed output.
+DRAFTS_ROOT = ROOT / "drafts"
+
 # 80% interval => +/- 1.28 sigma. Named because the contract's validator greps
 # the math step for this multiplier.
 Z_80 = 1.28
-
-# Hard ceiling on this process's commit. The national variable-graph path wants
-# ~13 GB on a 7.4 GB box; abort loudly instead of thrashing the pagefile.
-COMMIT_GUARD_MB = 3_500
 
 SOURCE_CONTEXT = [
     "https://github.com/PolicyEngine/policyengine-us",
@@ -97,29 +112,61 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--value", type=float, default=15.00)
     p.add_argument("--period", type=int, default=2027)
     p.add_argument("--metric", default="medicaid_work_requirement_eligible")
-    p.add_argument("--out", type=pathlib.Path, default=pathlib.Path("draft_cells.json"))
+    p.add_argument(
+        "--out",
+        type=pathlib.Path,
+        default=DRAFTS_ROOT / "pe-reform" / "minwage-15-draft-cell.json",
+        help="draft cell path; must be under drafts/",
+    )
     p.add_argument("--run-json", type=pathlib.Path, default=None)
+    p.add_argument(
+        "--from-run",
+        type=pathlib.Path,
+        default=None,
+        help="consume a recorded run artifact (e.g. from modal_population.py) "
+        "instead of computing locally",
+    )
+    p.add_argument("--build", default=pe.POPULACE_BUILD)
     p.add_argument("--bootstrap", type=int, default=400)
     p.add_argument("--seed", type=int, default=20260731)
     p.add_argument(
-        "--dataset",
-        type=pathlib.Path,
-        default=None,
-        help="populace_us_*.h5; defaults to the newest in the HF cache",
+        "--drift-sigma-frac",
+        type=float,
+        default=0.25,
+        help="model/dataset drift sigma as a fraction of the point estimate; "
+        "see the math step for what this is and why it is the weak input",
     )
     p.add_argument(
         "--slug",
-        default="us-adults-newly-exposed-medicaid-work-requirement-2027",
+        default="us-adults-losing-medicaid-work-requirement-eligibility-2027",
     )
     return p.parse_args(argv)
 
 
+def in_drafts(path: pathlib.Path) -> pathlib.Path:
+    """Resolve ``path`` and refuse anything outside drafts/.
+
+    A draft that can be written to examples/ is a draft that ends up cited as an
+    example. The confinement is enforced here rather than left to the caller's
+    ``--out``, because the caller is usually a shell history line.
+    """
+    resolved = (path if path.is_absolute() else pathlib.Path.cwd() / path).resolve()
+    try:
+        resolved.relative_to(DRAFTS_ROOT.resolve())
+    except ValueError:
+        raise SystemExit(
+            f"refusing to write {resolved}: this loop emits drafts only, and "
+            f"drafts live under {DRAFTS_ROOT}"
+        )
+    return resolved
+
+
 def report_memory(stage: str) -> dict:
-    """Print commit + free RAM for a stage, and abort if commit runs away.
+    """Print commit + free RAM for a stage.
 
     Working set is the misleading metric here: once Windows starts paging, RSS
     *falls* while the process is actually in trouble. Commit (private bytes) is
-    what tracks real demand, so that is what gets printed and guarded on.
+    what tracks real demand, so that is what gets printed.
     """
     try:
         import psutil
@@ -133,25 +180,11 @@ def report_memory(stage: str) -> dict:
         file=sys.stderr,
         flush=True,
     )
-    if commit_mb > COMMIT_GUARD_MB:
-        raise MemoryError(
-            f"commit {commit_mb:,.0f}MB exceeded the {COMMIT_GUARD_MB:,}MB guard "
-            f"at stage {stage!r} — aborting rather than thrashing the pagefile"
-        )
     return {"stage": stage, "commit_mb": commit_mb, "free_mb": free_mb}
 
 
-def find_dataset(explicit: pathlib.Path | None) -> pathlib.Path:
-    if explicit:
-        return explicit
-    cache = pathlib.Path.home() / ".cache/huggingface/hub"
-    candidates = sorted(cache.glob("**/populace_us_*.h5"))
-    if not candidates:
-        raise FileNotFoundError(
-            "no populace_us_*.h5 in the HuggingFace cache; run a Microsimulation "
-            "once to download it, or pass --dataset"
-        )
-    return candidates[-1]
+def reform_dict(args) -> dict:
+    return {args.parameter: {f"{args.period}-01-01.{args.period}-12-31": args.value}}
 
 
 # --------------------------------------------------------------------------
@@ -160,14 +193,17 @@ def find_dataset(explicit: pathlib.Path | None) -> pathlib.Path:
 
 
 def run_mechanism_check(args) -> dict:
+    """Household point-check: does the parameter reach the outcome at all?
+
+    No dataset is involved, so this is the one leg with no certification
+    question (POLICYENGINE.md 0.1: household checks are fast and datasetless).
+    It cannot produce a population number and is not asked to.
+    """
     from policyengine_core.reforms import Reform
     from policyengine_us import Simulation
 
     year = str(args.period)
-    reform = Reform.from_dict(
-        {args.parameter: {f"{args.period}-01-01.{args.period}-12-31": args.value}},
-        country_id="us",
-    )
+    reform = Reform.from_dict(reform_dict(args), country_id="us")
 
     # Earnings chosen to straddle both bars: below baseline, between the two,
     # and above reform. Zero weekly hours so the 80-hour activity route cannot
@@ -218,78 +254,86 @@ def run_mechanism_check(args) -> dict:
 
 
 # --------------------------------------------------------------------------
-# Stage 2: population. Direct columnar read of the microdata.
+# Stage 2: population, computed BY the engine on a pinned build.
 # --------------------------------------------------------------------------
 
-
-def load_microdata(path: pathlib.Path) -> dict[str, np.ndarray]:
-    import h5py
-
-    cols = (
-        "age",
-        "employment_income",
-        "self_employment_income",
-        "weight",
-        "person_household_id",
-        "is_disabled",
-        "is_full_time_college_student",
-        "hourly_wage",
-    )
-    with h5py.File(path, "r") as f:
-        table = f["person"]["table"]
-        # Read the columns we need one at a time; reading the whole compound
-        # row set would pull all 250 fields into memory for nothing.
-        data = {c: np.asarray(table[c]) for c in cols}
-    return data
+RUN_ARTIFACT_KEYS = {
+    "variable",
+    "dataset",
+    "pe_us_version",
+    "records",
+    "weighted_population",
+    "baseline_true_weighted",
+    "reform_true_weighted",
+    "became_false_weighted",
+    "became_true_weighted",
+    "became_false_sigma",
+}
 
 
-def exposed_mask(data: dict[str, np.ndarray], base_bar: float, reform_bar: float):
-    """People newly failing the INCOME route who cannot fall back on hours.
-
-    Deliberately an upper bound on newly-exposed adults: the real variable
-    exempts many more groups (pregnancy, caretakers of children <=13, medically
-    frail, AIAN, incarcerated, veterans, former foster youth, Medicare) that the
-    microdata columns here cannot identify.
-    """
-    earnings = data["employment_income"] + data["self_employment_income"]
-    age = data["age"]
-
-    working_age = (age >= 19) & (age < 65)
-    in_band = (earnings >= base_bar) & (earnings < reform_bar)
-
-    # The 80h/month activity route: anyone plausibly clearing it is not exposed.
-    wage = np.where(data["hourly_wage"] > 0, data["hourly_wage"], np.nan)
-    implied_monthly_hours = np.divide(
-        earnings, wage * MONTHS, out=np.zeros_like(earnings), where=~np.isnan(wage)
-    )
-    fails_hours = implied_monthly_hours < 80
-
-    observable_exempt = (data["is_disabled"] > 0) | (
-        data["is_full_time_college_student"] > 0
-    )
-
-    return working_age & in_band & fails_hours & ~observable_exempt, {
-        "working_age": working_age,
-        "in_band": in_band,
-        "fails_hours": fails_hours,
-        "observable_exempt": observable_exempt,
+def load_recorded_run(path: pathlib.Path) -> dict:
+    """Adapt a modal_population.py artifact to the shape the cell builder wants."""
+    result = json.loads(path.read_text(encoding="utf-8"))
+    missing = RUN_ARTIFACT_KEYS - set(result)
+    if missing:
+        raise SystemExit(
+            f"{path} is not a population run artifact (missing {sorted(missing)})"
+        )
+    # Re-derive certification from the artifact's own recorded pairing rather
+    # than trusting a flag inside it: the artifact is data, not an authority.
+    return {
+        "result": result,
+        "certification": pe.certification_note(result["dataset"], result["pe_us_version"]),
+        "engine": result.get("engine", "modal"),
     }
 
 
-def cluster_bootstrap_sigma(
-    contrib: np.ndarray, clusters: np.ndarray, draws: int, seed: int
-) -> float:
-    """Sampling sigma of a weighted count, resampling households."""
-    rng = np.random.default_rng(seed)
-    order = np.argsort(clusters, kind="stable")
-    sorted_ids, sorted_contrib = clusters[order], contrib[order]
-    starts = np.concatenate(([0], np.flatnonzero(np.diff(sorted_ids)) + 1))
-    per_cluster = np.add.reduceat(sorted_contrib, starts)
-    n = len(per_cluster)
-    if n == 0:
-        return 0.0
-    idx = rng.integers(0, n, size=(draws, n))
-    return float(per_cluster[idx].sum(axis=1).std(ddof=1))
+def population_run(args) -> dict:
+    if args.from_run:
+        return load_recorded_run(args.from_run)
+
+    run = pe.population_impact_local(
+        reform_dict(args),
+        year=args.period,
+        variable=args.metric,
+        build=args.build,
+        bootstrap=args.bootstrap,
+        seed=args.seed,
+    )
+    if run.status != "ok":
+        raise SystemExit(
+            f"population run did not complete ({run.status}): {run.message}\n"
+            "Emitting nothing - a cell built on a refused run would carry a "
+            "number PolicyEngine never produced."
+        )
+    return {
+        "result": {
+            **run.impact,
+            "dataset": run.dataset,
+            "pe_us_version": run.pe_us_version,
+        },
+        "certification": run.certification,
+        "engine": run.engine,
+    }
+
+
+def require_certified(recorded: dict) -> dict:
+    """The last gate before a number becomes a quotable cell."""
+    cert = recorded.get("certification") or {}
+    if not cert.get("certified"):
+        raise SystemExit(
+            f"refusing to emit a cell: {cert.get('warning', 'certification missing')}\n"
+            "A quotable figure must come from a model version the data build "
+            "certifies. Install the certified stack "
+            "(scripts/tools/requirements-tax.txt) or use the Modal path "
+            "(scripts/tools/modal_population.py)."
+        )
+    return cert
+
+
+# --------------------------------------------------------------------------
+# Cell
+# --------------------------------------------------------------------------
 
 
 def build_cell(args, facts: dict) -> dict:
@@ -303,16 +347,14 @@ def build_cell(args, facts: dict) -> dict:
         ci_high = round(point + 0.01, 2)
 
     mech = facts["mechanism"]
-    flipped_at = [
-        e for e, f in zip(mech["earnings"], mech["flipped"]) if f
-    ]
+    flipped_at = [e for e, f in zip(mech["earnings"], mech["flipped"]) if f]
 
     reasoning = [
         {
             "kind": "heading",
             "text": (
-                f"US adults newly exposed to the Medicaid work requirement in "
-                f"{args.period} under a ${args.value:.2f} federal minimum wage"
+                f"US people losing {args.metric} in {args.period} under a "
+                f"${args.value:.2f} federal minimum wage"
             ),
         },
         {
@@ -334,7 +376,7 @@ def build_cell(args, facts: dict) -> dict:
             "kind": "tool",
             "tool": "policyengine.simulation",
             "call": (
-                "Mechanism check: ran the real Reform through the real "
+                "Mechanism point-check: ran the real Reform through the real "
                 f"{args.metric} variable on {len(mech['earnings'])} synthetic "
                 "single-adult households with zero weekly hours."
             ),
@@ -350,30 +392,39 @@ def build_cell(args, facts: dict) -> dict:
         },
         {
             "kind": "tool",
-            "tool": "policyengine.microdata",
+            "tool": "policyengine.microsimulation",
             "call": (
-                f"Read {facts['n_records']:,} person records from "
-                f"{facts['dataset_name']} and applied the threshold rule."
+                "Ran the national microsimulation on Populace build "
+                f"{facts['dataset']} under baseline and reform with "
+                f"policyengine-us {facts['policyengine_version']} (a pairing the "
+                "build certifies), and had the engine compute "
+                f"{args.metric} for all {facts['records']:,} "
+                f"{facts['entity']} records in each arm."
             ),
             "result": (
                 f"Weighted population {facts['weighted_population'] / 1e6:,.1f} "
-                f"million; {facts['in_band_weighted'] / 1e6:.2f} million people "
-                f"have earnings in the newly exposed band "
-                f"${facts['baseline_bar']:,.0f}-${facts['reform_bar']:,.0f}."
+                f"million. Baseline eligibility "
+                f"{facts['baseline_true'] / 1e6:,.2f} million, reform "
+                f"{facts['reform_true'] / 1e6:,.2f} million — a net change of "
+                f"{facts['net_change'] / 1e6:+,.2f} million."
             ),
         },
         {
             "kind": "tool",
-            "tool": "policyengine.microdata",
+            "tool": "policyengine.microsimulation",
             "call": (
-                "Filtered that band to working-age adults who cannot fall back "
-                "on the 80-hour activity route and are not observably exempt."
+                "Counted the per-record transitions between the two arms using "
+                "the weights the engine returned with the variable, never the "
+                "dataset's raw weight column."
             ),
             "result": (
-                f"{facts['exposed']:,.0f} people ({point:.2f} million) remain "
-                f"exposed, {facts['exposed'] / facts['in_band_weighted'] * 100:.1f} "
-                "percent of the raw band after the age, hours and exemption "
-                "screens."
+                f"{facts['exposed']:,.0f} people ({point:.2f} million) hold the "
+                "eligibility at baseline and lose it under the reform; "
+                f"{facts['became_true'] / 1e6:,.2f} million move the other way. "
+                "Every exemption the variable encodes — pregnancy, caretakers "
+                "of children 13 and under, the medically frail, AIAN members, "
+                "veterans, former foster youth, Medicare enrollees — is applied "
+                "by the engine rather than approximated here."
             ),
         },
         {
@@ -390,15 +441,23 @@ def build_cell(args, facts: dict) -> dict:
         {
             "kind": "math",
             "text": (
-                f"Point = {point:.2f} million exposed. sigma_sampling = "
-                f"{facts['sigma_sampling'] / 1e6:.3f}M from a {args.bootstrap}-draw "
-                "household-clustered bootstrap of the weighted count. "
-                f"sigma_scope = {facts['sigma_scope'] / 1e6:.3f}M, taken as a "
-                "quarter of the exposed count, reflecting that unobservable "
-                "exemptions can only reduce it and the hours proxy is "
-                "imputed. Combining independently: sigma = sqrt("
-                f"{facts['sigma_sampling'] / 1e6:.3f}^2 + "
-                f"{facts['sigma_scope'] / 1e6:.3f}^2) = {sigma_m:.3f}M. "
+                f"Point = {point:.2f} million losing eligibility. "
+                f"sigma_sampling = {facts['sigma_sampling'] / 1e6:.3f}M from a "
+                f"{facts['bootstrap_draws']}-draw household-clustered bootstrap "
+                "of the weighted transition count, resampling households "
+                "because persons inside one share a survey weight. "
+                f"sigma_drift = {facts['sigma_drift'] / 1e6:.3f}M "
+                f"({args.drift_sigma_frac:.0%} of the point), covering model and "
+                "dataset movement between now and resolution, since this "
+                "resolves against the then-current release rather than a pinned "
+                "one. That fraction is the weakest input in this cell: the only "
+                "in-repo measurement of build-to-build drift is the build O to "
+                "build P refresh, which moved a comparable static-microsim "
+                "budget line by +14% while roughly tripling its child-poverty "
+                "line, so one figure is being asked to cover a two-order spread "
+                "and is chosen wide on purpose. Combining independently: "
+                f"sigma = sqrt({facts['sigma_sampling'] / 1e6:.3f}^2 + "
+                f"{facts['sigma_drift'] / 1e6:.3f}^2) = {sigma_m:.3f}M. "
                 f"80% interval = {point:.2f} +/- 1.28 * {sigma_m:.3f} = "
                 f"[{ci_low:.2f}, {ci_high:.2f}] million."
             ),
@@ -406,15 +465,15 @@ def build_cell(args, facts: dict) -> dict:
         {
             "kind": "text",
             "text": (
-                "What would land outside the interval: this is an upper bound "
-                "on newly exposed adults, because the real variable exempts "
-                "pregnancy, caretakers of children 13 and under, the medically "
-                "frail, AIAN members, veterans, former foster youth and "
-                "Medicare enrollees, none of which these microdata columns "
-                "identify. Downside risk therefore dominates — a full "
-                "variable-graph run would land below this figure. Upside risk "
-                "is narrower: it needs the hourly-wage imputation to overstate "
-                "how many people clear the 80-hour route."
+                "What would land outside the interval: the count is exact given "
+                "this model and this build, so error comes from what changes "
+                "before resolution rather than from what the run approximated. "
+                "A Populace rebuild that reweights the low-earnings tail moves "
+                "it most; a policyengine-us release that revises the work "
+                "requirement's exemptions or its income route moves it "
+                "discontinuously and in either direction. A resolver pinning "
+                "the build used here would instead find this number "
+                "reproducible to the record."
             ),
         },
         {"kind": "forecast", "point": point, "ciLow": ci_low, "ciHigh": ci_high},
@@ -425,15 +484,14 @@ def build_cell(args, facts: dict) -> dict:
         "country": "US",
         "type": "policy",
         "title": (
-            f"US adults newly exposed to Medicaid work requirement, "
+            f"US people losing Medicaid work-requirement eligibility, "
             f"{args.period}, ${args.value:.0f} minimum wage"
         ),
         "question": (
             "Under a counterfactual in which the federal minimum wage "
             f"(gov.dol.minimum_wage) is ${args.value:.2f} for {args.period}, how "
-            "many US working-age adults have earnings in the band that newly "
-            "fails the Medicaid community-engagement income route and cannot "
-            "fall back on the 80-hour activity route, in millions?"
+            f"many US people hold {args.metric} under current law and lose it "
+            "under the reform, in millions?"
         ),
         "unit": "millions",
         "pointEstimate": point,
@@ -445,20 +503,20 @@ def build_cell(args, facts: dict) -> dict:
         "resolutionSourceUrl": "https://github.com/PolicyEngine/policyengine-us",
         "resolutionRule": (
             "Resolve by recomputation with the latest policyengine-us release "
-            "available on the resolution date, using that release's default US "
-            f"microdata. Apply the single-parameter reform {args.parameter} = "
-            f"{args.value:.2f} for {args.period}. Count weighted persons aged "
-            "19-64 whose employment plus self-employment income falls in "
-            "[baseline bar, reform bar) where each bar is minimum_wage x 80 x "
-            "12, whose imputed monthly hours are under 80, and who are neither "
-            "disabled nor full-time students. Report in millions to 2 decimals. "
-            "The forecast is against the THEN-CURRENT release, not a pinned "
-            "one: model and dataset drift are part of what is forecast. "
-            f"Baseline was policyengine-us {facts['policyengine_version']} on "
-            f"{facts['dataset_name']}."
+            "available on the resolution date, paired with the Populace build "
+            "that release certifies. Apply the single-parameter reform "
+            f"{args.parameter} = {args.value:.2f} for {args.period}. Run the "
+            "national microsimulation under both arms, have the engine compute "
+            f"{args.metric} per {facts['entity']}, and report the weighted count "
+            "of records true under baseline and false under reform, using the "
+            "weights the engine returns with the variable. Report in millions "
+            "to 2 decimals. The forecast is against the THEN-CURRENT certified "
+            "pairing, not a pinned one: model and dataset drift are part of "
+            "what is forecast. Baseline was policyengine-us "
+            f"{facts['policyengine_version']} on {facts['dataset']}."
         ),
         "dataPointId": (
-            f"policyengine.us.medicaid_work_requirement_exposed.{args.period}."
+            f"policyengine.us.medicaid_work_requirement_lost.{args.period}."
             f"reform_min_wage_{int(args.value)}"
         ),
         "conditionalOn": (
@@ -471,7 +529,7 @@ def build_cell(args, facts: dict) -> dict:
             f"Annual income bar rises from ${facts['baseline_bar']:,.0f} to ${facts['reform_bar']:,.0f}",
             "Static model holds earnings fixed, so a higher floor strictly tightens the income route",
             "OBBBA work requirement only switches on 2027-01-01",
-            "Unobservable exemptions make this an upper bound on newly exposed adults",
+            "Resolution is against the then-current certified pairing, so model and data drift are forecast too",
         ],
         "sourceContext": SOURCE_CONTEXT,
         "runAt": facts["run_at"],
@@ -481,6 +539,10 @@ def build_cell(args, facts: dict) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    out_path = in_drafts(args.out)
+    run_json = in_drafts(args.run_json) if args.run_json else out_path.with_name(
+        out_path.stem + ".run.json"
+    )
     mem_trace = [report_memory("start")]
 
     try:
@@ -491,7 +553,7 @@ def main(argv: list[str] | None = None) -> int:
 
     run_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    print("stage 1: mechanism check (real reform, real variable)...", file=sys.stderr)
+    print("stage 1: mechanism point-check (real reform, real variable)...", file=sys.stderr)
     mechanism = run_mechanism_check(args)
     mem_trace.append(report_memory("mechanism checked"))
     if not any(mechanism["flipped"]):
@@ -502,59 +564,57 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 3
 
-    dataset = find_dataset(args.dataset)
-    print(f"stage 2: reading microdata {dataset.name}...", file=sys.stderr)
-    data = load_microdata(dataset)
-    mem_trace.append(report_memory("microdata loaded"))
+    print("stage 2: national microsimulation through the engine...", file=sys.stderr)
+    recorded = population_run(args)
+    certification = require_certified(recorded)
+    result = recorded["result"]
+    mem_trace.append(report_memory("population computed"))
 
-    base_bar = mechanism["baseline"]["annual_bar"]
-    reform_bar = mechanism["reform"]["annual_bar"]
-    mask, parts = exposed_mask(data, base_bar, reform_bar)
-
-    weights = data["weight"]
-    exposed = float((mask * weights).sum())
-    in_band_weighted = float((parts["in_band"] & parts["working_age"]) @ weights)
-
-    sigma_sampling = cluster_bootstrap_sigma(
-        mask * weights, data["person_household_id"], args.bootstrap, args.seed
-    )
-    mem_trace.append(report_memory("metric computed"))
+    exposed = float(result["became_false_weighted"])
+    sigma_sampling = float(result["became_false_sigma"])
+    sigma_drift = exposed * args.drift_sigma_frac
+    baseline_true = float(result["baseline_true_weighted"])
+    reform_true = float(result["reform_true_weighted"])
 
     facts = {
         "run_at": run_at,
-        "policyengine_version": getattr(policyengine_us, "__version__", "unknown"),
-        "dataset_name": dataset.name,
-        "n_records": len(weights),
-        "weighted_population": float(weights.sum()),
+        "engine": recorded["engine"],
+        "policyengine_version": result["pe_us_version"],
+        "dataset": result["dataset"],
+        "certification": certification,
+        "entity": result.get("entity", "person"),
+        "records": int(result["records"]),
+        "weighted_population": float(result["weighted_population"]),
         "baseline_wage": mechanism["baseline"]["minimum_wage"],
         "reform_wage": mechanism["reform"]["minimum_wage"],
-        "baseline_bar": base_bar,
-        "reform_bar": reform_bar,
-        "in_band_weighted": in_band_weighted,
+        "baseline_bar": mechanism["baseline"]["annual_bar"],
+        "reform_bar": mechanism["reform"]["annual_bar"],
+        "baseline_true": baseline_true,
+        "reform_true": reform_true,
+        "net_change": float(result.get("net_change_weighted", reform_true - baseline_true)),
+        "became_true": float(result["became_true_weighted"]),
         "exposed": exposed,
         "sigma_sampling": sigma_sampling,
-        "sigma_scope": exposed * 0.25,
+        "sigma_drift": sigma_drift,
+        "drift_sigma_frac": args.drift_sigma_frac,
+        "bootstrap_draws": int(result.get("bootstrap_draws", args.bootstrap)),
+        "bootstrap_seed": int(result.get("bootstrap_seed", args.seed)),
         "mechanism": mechanism,
         "memory_trace": mem_trace,
         "peak_commit_mb": max((m.get("commit_mb", 0) for m in mem_trace), default=0),
     }
-    facts["sigma_total"] = float(np.hypot(facts["sigma_sampling"], facts["sigma_scope"]))
+    facts["sigma_total"] = float(np.hypot(sigma_sampling, sigma_drift))
 
     cell = build_cell(args, facts)
 
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps([cell], indent=1), encoding="utf-8")
-    print(f"wrote draft cell -> {args.out}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps([cell], indent=1), encoding="utf-8")
+    print(f"wrote draft cell -> {out_path}")
 
-    run_json = args.run_json or args.out.with_name(args.out.stem + ".run.json")
     run_json.write_text(
         json.dumps(
             {
-                "reform": {
-                    "parameter": args.parameter,
-                    "value": args.value,
-                    "period": args.period,
-                },
+                "reform": reform_dict(args),
                 "metric": args.metric,
                 "facts": facts,
             },
@@ -571,6 +631,7 @@ def main(argv: list[str] | None = None) -> int:
                 "point": cell["pointEstimate"],
                 "ciLow": cell["ciLow"],
                 "ciHigh": cell["ciHigh"],
+                "certified": certification.get("certified"),
                 "peak_commit_mb": round(facts["peak_commit_mb"]),
             },
             indent=2,
