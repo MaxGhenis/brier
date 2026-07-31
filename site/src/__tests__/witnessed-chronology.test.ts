@@ -201,19 +201,77 @@ describe("bundled witnessed timeline", () => {
       "thesis_witnessed_timeline_v1",
     );
     const entries = Object.entries(WITNESSED_CUSTODY_ROOTS);
-    expect(entries.length).toBeGreaterThan(0);
+    expect(
+      entries.length,
+      "The bundled witnessed timeline is empty, so no run can ever reach the\n" +
+        "witness_verified headline tier. The timeline is generated into\n" +
+        "site/src/data/witnessed-timeline.generated.ts from the public record\n" +
+        "chain; an empty bundle means the extractor produced nothing.\n" +
+        "REMEDY: regenerate it. DO NOT skip this test — silently shipping an\n" +
+        "empty timeline demotes every headline score without saying so.",
+    ).toBeGreaterThan(0);
+    const REGENERATE =
+      "\nThis file is GENERATED (site/src/data/witnessed-timeline.generated.ts).\n" +
+      "REMEDY: fix the extractor and regenerate. DO NOT hand-edit the generated\n" +
+      "file and DO NOT relax the assertion — these are the verifier-side\n" +
+      "invariants that let the site claim an external witness proved when a\n" +
+      "run's bytes existed. A timeline the site trusts but cannot check is\n" +
+      "worse than no timeline.";
     for (const [sha, entry] of entries) {
-      expect(sha).toMatch(/^[0-9a-f]{64}$/);
-      expect(["direct", "transitive"]).toContain(entry.coverage);
-      expect(entry.earliestWitnessedAt).toMatch(/Z$/);
-      expect(entry.witnessDigest).toMatch(/^records\//);
+      const where = `custody root ${sha}`;
+      expect(
+        sha,
+        `Timeline key is not a sha256 digest.\nOffending key: ${JSON.stringify(sha)}\n` +
+          "Keys are custody root digests and are looked up directly from\n" +
+          `predictionRun.custodyRootSha256, so a malformed key can never match.\n${REGENERATE}`,
+      ).toMatch(/^[0-9a-f]{64}$/);
+      expect(
+        ["direct", "transitive"],
+        `Unrecognized witness coverage for ${where}: ` +
+          `${JSON.stringify(entry.coverage)}.\n` +
+          "Coverage says whether the witness timestamped this root itself\n" +
+          '("direct") or an ancestor that commits to it ("transitive"). An\n' +
+          `unknown value means the verifier cannot say what was proven.\n${REGENERATE}`,
+      ).toContain(entry.coverage);
+      expect(
+        entry.earliestWitnessedAt,
+        `Witness time for ${where} is not an explicit UTC instant: ` +
+          `${JSON.stringify(entry.earliestWitnessedAt)}.\n` +
+          "Chronology compares this against the observation time, and a timestamp\n" +
+          "without a Z offset is only comparable at written-day granularity — so a\n" +
+          "non-UTC witness time silently downgrades proofs to unknown ordering\n" +
+          `(see instantPrecedence in site/src/data/witnessed-timeline.ts).\n${REGENERATE}`,
+      ).toMatch(/Z$/);
+      expect(
+        entry.witnessDigest,
+        `Witness digest path for ${where} does not point into the record chain: ` +
+          `${JSON.stringify(entry.witnessDigest)} (expected a records/… path).\n` +
+          "This path is the receipt a third party re-fetches to check the claim;\n" +
+          `if it does not resolve, the proof is unverifiable.\n${REGENERATE}`,
+      ).toMatch(/^records\//);
       // Mirrors the extractor's invariants: legacy inventories are never
       // headline eligible, and eligibility implies completeness.
       if (entry.inventoryStatus === "legacy-incomplete") {
-        expect(entry.headlineEligible).toBe(false);
+        expect(
+          entry.headlineEligible,
+          `${where} is marked legacy-incomplete but ALSO headline eligible.\n` +
+            "A legacy-incomplete custody inventory does not enumerate everything\n" +
+            "the run touched, so a witness over it proves only that some bytes\n" +
+            "existed — never that the published trace is the archived one. Letting\n" +
+            "such a root into the headline is precisely the re-audit N1 defect.\n" +
+            `${REGENERATE}`,
+        ).toBe(false);
       }
       if (entry.headlineEligible) {
-        expect(entry.inventoryStatus).toBe("complete");
+        expect(
+          entry.inventoryStatus,
+          `${where} is headline eligible but its inventory status is ` +
+            `"${entry.inventoryStatus}" rather than "complete".\n` +
+            "Eligibility must imply completeness in one direction only: complete\n" +
+            "inventories may still be ineligible (a failed or validation-incomplete\n" +
+            "analyst run), but an eligible root with an incomplete inventory would\n" +
+            `award the headline tier on a partial proof.\n${REGENERATE}`,
+        ).toBe("complete");
       }
     }
   });
