@@ -16,6 +16,7 @@ on:
 permissions:
   contents: read
   attestations: read
+  issues: write
 
 jobs:
   verify:
@@ -38,4 +39,20 @@ jobs:
             python3 scripts/verify_records_attestations.py --range "$EVENT_BEFORE..$EVENT_AFTER"
           else
             python3 scripts/verify_records_attestations.py
+          fi
+
+      # A red audit means an unattested or mis-attested records push (or an
+      # audit bug) — the 2026-07-31 failures ran silent for ninety minutes
+      # because nothing alarmed. Same deduped-daily-issue pattern as CI.
+      - name: Alert on main provenance failure
+        if: failure() && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Records provenance failed on main $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq 'first(.[].number)' || true)
+          if [ -z "$existing" ] || [ "$existing" = "null" ]; then
+            gh issue create --title "$title" \
+              --body "The records provenance audit is red on main: https://github.com/${GH_REPO}/actions/runs/${{ github.run_id }}. Every records/** commit must carry allowlisted workflow provenance — diagnose before more records land."
           fi

@@ -14,6 +14,23 @@ RFC 3161 witness chain (which proves when, not who). It inherits the standard
 SLSA caveats: an actor who can rewrite the workflows themselves on main, or
 who controls repository administration, is outside this control's reach.
 
+Merge commits: GitHub PR merges land on main outside the workflows (the
+2026-07-31 PR-only regime), and --full-history enumerates any merge that is
+not TREESAME to all parents — including merges that change nothing under
+records/** because their branch simply forked before a workflow's records
+push. Only such no-op merges are exempt: records/** byte-identical to a
+post-epoch FIRST parent, printed as a NOOP-MERGE line. A merge that
+introduces records content, or whose first parent predates the epoch, is
+treated as a records push and fails without workflow provenance. A range
+whose endpoints disagree about records content while nothing in it requires
+attestation fails closed (the parent-order-trickery shape lands there).
+Residual, stated honestly: a crafted direct-push merge onto a stale
+post-epoch first parent is caught by that range check on its own push
+event, but a later epoch..HEAD full audit alone would not re-flag it once
+attestable commits exist elsewhere in the range — the control stays
+detective, anchored at push time, with the witness chain covering content
+history independently.
+
 The enforcement epoch is self-anchoring: the commit that introduced this
 script. Commits before it predate the control and are exempt.
 
@@ -210,6 +227,83 @@ def records_commits(rev_range: str) -> list[str]:
         "--", PROTECTED_PREFIX,
     )
     return output.splitlines() if output else []
+
+
+def commit_parents(commit: str) -> list[str]:
+    proc = subprocess.run(
+        ["git", "rev-list", "--parents", "-n", "1", commit],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        raise ProvenanceError(
+            f"cannot read parents of {commit}: {proc.stderr.strip()}"
+        )
+    return proc.stdout.split()[1:]
+
+
+def records_trees_identical(a: str, b: str) -> bool:
+    proc = subprocess.run(
+        ["git", "diff", "--quiet", a, b, "--", PROTECTED_PREFIX],
+        cwd=ROOT,
+        capture_output=True,
+    )
+    if proc.returncode == 0:
+        return True
+    if proc.returncode == 1:
+        return False
+    raise ProvenanceError(
+        f"git diff failed for {a} vs {b}: "
+        f"{proc.stderr.decode(errors='replace').strip()}"
+    )
+
+
+def merge_is_records_noop(commit: str, epoch: str) -> bool:
+    """True only for a merge that provably introduces no records content.
+
+    --full-history lists any merge not TREESAME to every parent, so a PR
+    forked before a workflow's records push is enumerated even though it
+    changes nothing under records/**. Exemption requires BOTH: records/**
+    byte-identical to the FIRST parent, and that first parent itself
+    post-epoch. A merge carrying records content stays required (records
+    changes never come through PRs), and a merge whose first-parent line
+    reaches behind the epoch stays required too — the ancient-rollback
+    shape must never self-exempt. The stale-post-epoch variant is closed
+    by enforce_range_content_closure instead.
+    """
+
+    parents = commit_parents(commit)
+    if len(parents) < 2:
+        return False
+    first_parent = parents[0]
+    if not commit_in_scope(first_parent, epoch):
+        return False
+    return records_trees_identical(first_parent, commit)
+
+
+def enforce_range_content_closure(rev_range: str, required: list[str]) -> None:
+    """Endpoints that disagree about records content need an attestable commit.
+
+    The no-op-merge exemption never waives a content change: if every
+    in-range commit was exempted or pre-epoch yet records/** differs
+    between the endpoints, the change rode in through parent-order
+    trickery (e.g. a merge whose first parent is a stale post-epoch
+    commit) and the audit fails closed. Ranges containing an attestable
+    commit are covered by the per-commit checks.
+    """
+
+    if required or ".." not in rev_range:
+        return
+    base, tip = rev_range.split("..", 1)
+    if not base or not tip:
+        return
+    if not records_trees_identical(base, tip):
+        raise ProvenanceError(
+            f"records content differs across {rev_range} but no commit in "
+            "the range requires attestation — parent-order trickery or an "
+            "enumeration gap; refusing"
+        )
 
 
 def commit_age_seconds(commit: str) -> int:
@@ -424,13 +518,32 @@ def main() -> int:
         raise ProvenanceError(f"--range must be A..B, got {rev_range!r}")
 
     validate_repository_eras()
-    commits = [
+    in_scope = [
         commit
         for commit in records_commits(rev_range)
         if commit_in_scope(commit, epoch)
     ]
+    commits: list[str] = []
+    noop_merges: list[str] = []
+    for commit in in_scope:
+        if merge_is_records_noop(commit, epoch):
+            noop_merges.append(commit)
+            print(
+                f"records provenance NOOP-MERGE: {commit} leaves records/** "
+                "byte-identical to its post-epoch first parent; not a "
+                "records push"
+            )
+        else:
+            commits.append(commit)
+    enforce_range_content_closure(rev_range, commits)
     if not commits:
-        print(f"records provenance OK: no records commits in {rev_range}")
+        summary = (
+            f"records provenance OK: no attestable records commits in "
+            f"{rev_range}"
+        )
+        if noop_merges:
+            summary += f" ({len(noop_merges)} no-op merge(s) exempt)"
+        print(summary)
         return 0
 
     failures: list[str] = []
@@ -463,6 +576,8 @@ def main() -> int:
     summary = f"records provenance OK: {verified} commit(s) verified"
     if waived:
         summary += f", {waived} permanently waived (unattested local pushes)"
+    if noop_merges:
+        summary += f", {len(noop_merges)} no-op merge(s) exempt"
     print(summary)
     return 0
 

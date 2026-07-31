@@ -212,7 +212,13 @@ artifact attestations). `scripts/verify_records_attestations.py` — run by
 audit — fails when any records commit after the enforcement epoch lacks a
 valid attestation from an allowlisted publishing workflow on
 `refs/heads/main`. The epoch is self-anchoring: the commit that introduced
-the verifier script.
+the verifier script. Under the PR-only regime, a PR merge commit that
+leaves `records/**` byte-identical to its post-epoch first parent is an
+exempt no-op (printed as `NOOP-MERGE`); a merge that introduces records
+content, or whose first parent predates the epoch, is a records push like
+any other, and a push range whose endpoints disagree about records content
+with nothing attestable in between fails closed. Records content itself
+never lands through PRs.
 
 This binds each records commit to an allowlisted workflow run that
 asserted the push (Sigstore proves the run attested the subject; push

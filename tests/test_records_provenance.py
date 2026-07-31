@@ -480,3 +480,104 @@ def test_mixed_result_arrays_attribute_only_pinned_certificates(
     monkeypatch.setattr(provenance.subprocess, "run", garbled)
     with pytest.raises(provenance.ProvenanceError, match="not JSON"):
         provenance.verify_commit(commit, "ThesisInstitute/thesis")
+
+
+def _merge(repo: pathlib.Path, message: str, ref: str, *extra: str) -> str:
+    _git(
+        repo,
+        "-c", "user.name=t", "-c", "user.email=t@example.com",
+        "merge", "-q", "--no-ff", *extra, "-m", message, ref,
+    )
+    return _git(repo, "rev-parse", "HEAD")
+
+
+def test_noop_pr_merges_are_exempt_and_content_merges_are_not(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PR-only regime (2026-07-31): a GitHub merge of a branch forked before
+    a workflow's records push is enumerated by --full-history yet introduces
+    nothing under records/** — exempt as a no-op. A merge that carries
+    records content, and the smuggled branch commit itself, stay required."""
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _commit(repo, "records/base.txt", "base records")
+    epoch = _commit(repo, "scripts/verify_records_attestations.py", "epoch")
+    workflow_push = _commit(repo, "records/wave.txt", "workflow records push")
+
+    _git(repo, "checkout", "-q", "-b", "pr-site", epoch)
+    _commit(repo, "site/page.tsx", "site-only change")
+    _git(repo, "checkout", "-q", "main")
+    noop_merge = _merge(repo, "merge pr-site", "pr-site")
+
+    _git(repo, "checkout", "-q", "-b", "pr-records", epoch)
+    smuggled = _commit(repo, "records/smuggled.txt", "smuggled records")
+    _git(repo, "checkout", "-q", "main")
+    content_merge = _merge(repo, "merge pr-records", "pr-records")
+
+    monkeypatch.setattr(provenance, "ROOT", repo)
+    monkeypatch.setattr(provenance, "git_output", lambda *a: _git(repo, *a))
+
+    # Exemption is classification, never enumeration: everything stays listed.
+    listed = provenance.records_commits(f"{epoch}..HEAD")
+    assert noop_merge in listed
+    assert smuggled in listed
+    assert content_merge in listed
+
+    assert provenance.merge_is_records_noop(noop_merge, epoch) is True
+    assert provenance.merge_is_records_noop(content_merge, epoch) is False
+    # Non-merges never take the exemption path.
+    assert provenance.merge_is_records_noop(workflow_push, epoch) is False
+
+
+def test_rollback_shaped_merges_never_self_exempt(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A merge whose FIRST parent predates the epoch cannot claim the no-op
+    exemption even when records/** is byte-identical to that parent — the
+    ancient-rollback shape stays attestation-required forever."""
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    base = _commit(repo, "records/base.txt", "base records")
+    epoch = _commit(repo, "scripts/verify_records_attestations.py", "epoch")
+    _commit(repo, "records/wave.txt", "workflow records push")
+
+    _git(repo, "checkout", "-q", base)
+    rollback = _merge(repo, "rollback merge", "main", "-s", "ours")
+
+    monkeypatch.setattr(provenance, "ROOT", repo)
+    assert provenance.merge_is_records_noop(rollback, epoch) is False
+
+
+def test_range_closure_refuses_unattested_content_change(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Parent-order trickery: a merge onto a stale post-epoch first parent is
+    individually no-op-exempt, but a push range whose endpoints disagree
+    about records content with nothing attestable in between fails closed."""
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _commit(repo, "records/base.txt", "base records")
+    epoch = _commit(repo, "scripts/verify_records_attestations.py", "epoch")
+    stale = _commit(repo, "records/state.txt", "records v1")
+    tip = _commit(repo, "records/state.txt", "records v2")
+
+    _git(repo, "checkout", "-q", stale)
+    swap = _merge(repo, "parent-swap merge", "main", "-s", "ours")
+
+    monkeypatch.setattr(provenance, "ROOT", repo)
+    # In isolation the crafted merge looks like a no-op vs its first parent…
+    assert provenance.merge_is_records_noop(swap, epoch) is True
+    # …but the push range's endpoints disagree about records content.
+    with pytest.raises(
+        provenance.ProvenanceError, match="no commit in .* requires"
+    ):
+        provenance.enforce_range_content_closure(f"{tip}..{swap}", [])
+    # Endpoints that agree pass, and any attestable commit short-circuits.
+    provenance.enforce_range_content_closure(f"{stale}..{swap}", [])
+    provenance.enforce_range_content_closure(f"{tip}..{swap}", [tip])
