@@ -146,16 +146,15 @@ export function ProvisionAnalysis({
       {effects.length > 0 && (
         <div className="mb-6">
           <SectionLabel>Likely effects — shown regardless of the goals</SectionLabel>
-          <ul className="m-0 grid list-none gap-3 p-0">
+          <ul className="m-0 grid list-none gap-4 p-0">
             {effects.map((effect, i) => (
-              <li
-                key={i}
-                className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
-              >
-                <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                  {effect.mechanism}
-                </span>
-                {renderInline(effect.text)}
+              <li key={i} className="text-[0.92rem] leading-[1.6]">
+                <p className="m-0 mb-1 font-medium text-[var(--theme-text)]">
+                  {renderInline(effect.mechanism)}
+                </p>
+                <p className="m-0 text-[var(--theme-text-muted)]">
+                  {renderInline(effect.text)}
+                </p>
               </li>
             ))}
           </ul>
@@ -165,16 +164,15 @@ export function ProvisionAnalysis({
       {barriers.length > 0 && (
         <div className="mb-6">
           <SectionLabel>Implementation barriers</SectionLabel>
-          <ul className="m-0 grid list-none gap-3 p-0">
+          <ul className="m-0 grid list-none gap-4 p-0">
             {barriers.map((barrier, i) => (
-              <li
-                key={i}
-                className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
-              >
-                <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                  {barrier.actor}
-                </span>
-                {renderInline(barrier.text)}
+              <li key={i} className="text-[0.92rem] leading-[1.6]">
+                <p className="m-0 mb-1 font-medium text-[var(--theme-text)]">
+                  {renderInline(barrier.actor)}
+                </p>
+                <p className="m-0 text-[var(--theme-text-muted)]">
+                  {renderInline(barrier.text)}
+                </p>
               </li>
             ))}
           </ul>
