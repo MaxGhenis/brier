@@ -266,12 +266,6 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
         </div>
       )}
 
-      <p className="mt-6 max-w-[820px] text-[0.82rem] leading-[1.6] text-[var(--theme-text-dim)]">
-        Exactly one arm resolves — against the resolution rule on its cell
-        page. When the outcome publishes, the resolving arm is scored on the
-        public calibration record. Disagree with the headline? Say which cell
-        you disagree with.
-      </p>
     </div>
   );
 }
