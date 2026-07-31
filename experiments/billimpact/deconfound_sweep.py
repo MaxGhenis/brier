@@ -10,11 +10,14 @@ MODELS = ["claude-opus-5", "claude-fable-5"]
 def build_ctx_unnamed(dose):
     ctx, meta = A3.build_context_a3("retro2021", dose)
     # strip the identifying header line and any Pub. L. reference
-    ctx = re.sub(r"POLICY CONTEXT \(verbatim statutory text,[^)]*\):",
-                 "POLICY CONTEXT (verbatim text of a statute; assume it is in force through the target month):", ctx)
+    ctx = re.sub(r"POLICY CONTEXT \(.*?\):",
+                 "POLICY CONTEXT (verbatim text of a statute; assume it is in force through the target month):", ctx, count=1, flags=re.S)
     ctx = re.sub(r"Pub\. L\. [0-9–-]+", "the statute", ctx)
     meta = dict(meta); meta["name_redacted"] = True
-    assert "116-260" not in ctx and "Consolidated Appropriations" not in ctx
+    # Match the FUTURE arm's anonymization delta exactly: header identity removed;
+    # body's internal CARES-act references stay (they were present in the future
+    # arm too). Assert only the header identifiers are gone.
+    assert "116-260" not in ctx and "Consolidated Appropriations" not in ctx, ctx[:200]
     return ctx, meta
 
 def main():
