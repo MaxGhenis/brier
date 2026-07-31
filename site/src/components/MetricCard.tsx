@@ -16,13 +16,7 @@ const stanceBadgeClass: Record<string, string> = {
 
 function stanceLabel(stance: StanceFold): string {
   if (stance.kind !== "counts") {
-    return stance.kind === "serves"
-      ? "Serves confirmed goals"
-      : stance.kind === "opposes"
-        ? "Opposes confirmed goals"
-        : stance.kind === "mixed"
-          ? "Mixed vs confirmed goals"
-          : "Orthogonal to confirmed goals";
+    return stance.kind.charAt(0).toUpperCase() + stance.kind.slice(1);
   }
   const parts = [
     stance.serves > 0 ? `${stance.serves} serves` : null,
@@ -30,6 +24,21 @@ function stanceLabel(stance: StanceFold): string {
     stance.orthogonal > 0 ? `${stance.orthogonal} orthogonal` : null,
   ].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : "No goals in force";
+}
+
+function stanceTitle(stance: StanceFold): string {
+  switch (stance.kind) {
+    case "serves":
+      return "Serves at least one countersigned goal; opposes none";
+    case "opposes":
+      return "Opposes at least one countersigned goal; serves none";
+    case "mixed":
+      return "Serves one countersigned goal while opposing another";
+    case "orthogonal":
+      return "Neither serves nor opposes any countersigned goal";
+    case "counts":
+      return "No goals countersigned yet — raw stance counts across the goal set";
+  }
 }
 
 /**
@@ -64,7 +73,8 @@ export function MetricCard({
         </span>
         {stance && (
           <span
-            className={`inline-block rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] ${stanceBadgeClass[stance.kind]}`}
+            title={stanceTitle(stance)}
+            className={`inline-block cursor-help rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] ${stanceBadgeClass[stance.kind]}`}
           >
             {stanceLabel(stance)}
           </span>

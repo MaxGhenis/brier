@@ -47,6 +47,13 @@ export interface BillMetric {
    * index. The client folds this over the countersign store.
    */
   stances?: MetricStance[];
+  /**
+   * Layer addendum (issue #43): does the agency act, do people engage,
+   * does the world change. Intrinsic to the metric; accepted now,
+   * rendered when the intended/unintended/operational grouping lands.
+   */
+  layer?: "execution" | "participation" | "outcome";
+  category?: string;
 }
 
 export interface BillCompute {
