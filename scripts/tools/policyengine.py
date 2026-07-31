@@ -565,7 +565,9 @@ def compute_block(run: EconomyRun, provision_title: str = "") -> dict:
         b = imp["budgetary_impact"]
         cp = imp.get("poverty", {}).get("child", {}).get("pct_change")
         cp_txt = f", child poverty {cp*100:+.1f}%" if isinstance(cp, (int, float)) else ""
-        src = f"Populace {run.dataset}" if run.engine == "local" else f"hosted API, region={run.region}"
+        src = (f"Populace {run.dataset}, engine={run.engine}"
+               if run.engine in ("local", "modal")
+               else f"hosted API, region={run.region}")
         summary = f"{run.year}: budgetary impact ${b/1e9:,.1f}B{cp_txt} (PolicyEngine static; {src})"
     elif run.status == "pending":
         summary = f"{run.year}: PolicyEngine run pending — interval widened, not blocked"
@@ -588,7 +590,11 @@ def compute_block(run: EconomyRun, provision_title: str = "") -> dict:
         "provision_title": provision_title,
         "param_source": run.param_source,
         "certification": certification_note(
-            run.dataset, run.pe_us_version if run.engine == "local" else run.api_version
+            run.dataset,
+            # local/modal runs know their model version; the hosted API's model
+            # version is NOT knowable from api_version (that is the service
+            # version) — pass None so certification REFUSES explicitly.
+            run.pe_us_version if run.engine in ("local", "modal") else None,
         ) if run.dataset else None,
         "caveat": "Static microsim; differs from CBO/JCT by behavioral+timing effects. One evidence stream with its own error bars.",
     }

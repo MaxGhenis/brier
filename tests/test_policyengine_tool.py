@@ -141,6 +141,31 @@ def test_compute_block_ok():
     assert block["provision_title"] == "strike $2,500 -> $1"
 
 
+def test_compute_block_modal_engine_certifies_with_model_version(monkeypatch):
+    # Regression (review follow-up): modal runs know their model version and
+    # must certify against it; the summary must not claim "hosted API".
+    monkeypatch.setattr(pe, "certified_model_version", lambda build=None: "1.764.6")
+    run = pe.EconomyRun("ok", 2026, "us", "us", GOOD_REFORM, None, 2,
+                        impact=pe.normalize_economy(RAW), engine="modal",
+                        dataset="some-build", pe_us_version="1.764.6")
+    block = pe.compute_block(run)
+    assert block["certification"]["certified"] is True
+    assert "engine=modal" in block["result_summary"]
+    assert "hosted API" not in block["result_summary"]
+
+
+def test_compute_block_api_engine_refuses_certification(monkeypatch):
+    # api_version is the service version, not the model — certification must
+    # refuse explicitly rather than conflate the two.
+    monkeypatch.setattr(pe, "certified_model_version", lambda build=None: "1.764.6")
+    run = pe.EconomyRun("ok", 2026, "us", "us", GOOD_REFORM, 85587, 2,
+                        impact=pe.normalize_economy(RAW), engine="api",
+                        dataset="some-build", api_version="3.2.1")
+    block = pe.compute_block(run)
+    assert block["certification"]["certified"] is False
+    assert "CANNOT CERTIFY" in block["certification"]["warning"]
+
+
 def test_compute_block_pending_widens():
     run = pe.EconomyRun("pending", 2026, "us", "us", GOOD_REFORM, 85587, 2,
                         message="still computing")
