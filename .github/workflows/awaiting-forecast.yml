@@ -31,6 +31,9 @@ on:
       codex_model:
         description: "Codex model for the analyst (empty = pipeline default)"
         default: ""
+      dry_run:
+        description: "true = select and bind only; no analyst, no publish"
+        default: "false"
 
 permissions:
   contents: read
@@ -115,7 +118,13 @@ jobs:
           retention-days: 7
 
   generate:
-    if: ${{ needs.select.result == 'success' && needs.select.outputs.count != '0' }}
+    # dry_run stops here: select + bind are the novel legs and the ones worth
+    # exercising first. Everything below is roll-docket's publish path, and
+    # running it for real spends analyst budget and pushes records to main.
+    if: >-
+      ${{ needs.select.result == 'success'
+      && needs.select.outputs.count != '0'
+      && github.event.inputs.dry_run != 'true' }}
     needs: select
     runs-on: ubuntu-latest
     timeout-minutes: 150
@@ -195,7 +204,7 @@ jobs:
           retention-days: 7
 
   publish:
-    if: ${{ always() }}
+    if: ${{ always() && github.event.inputs.dry_run != 'true' }}
     needs: [select, generate]
     runs-on: ubuntu-latest
     timeout-minutes: 60

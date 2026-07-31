@@ -657,3 +657,51 @@ def test_snapshot_seed_rejects_unreviewable_annual_entries(
         dt.date(2026, 8, 1),
     ) is None
     assert "warning: skip" in capsys.readouterr().err
+
+
+def test_roll_skips_candidates_whose_release_window_already_opened(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The cursor picks periods arithmetically and can fall behind reality."""
+
+    today = dt.date(2026, 7, 25)
+    target = {"series": "census.mtis.x", "period": "2026-05", "catalogSlug": "s"}
+
+    def window(start: str, end: str):
+        return lambda *_args: {"start": start, "end": end}
+
+    # Closed before the roll: the real census.mtis 2026-05 (window closed
+    # 07-21) and bls.ces 2026-06 (07-09) shape, both registered 2026-07-25
+    # and both duly expired unforecast.
+    monkeypatch.setattr(
+        register_targets, "expected_release_window", window("2026-07-13", "2026-07-21")
+    )
+    assert roll_docket.release_window_already_open(target, today) is True
+
+    # Open but not closed: still rejected, because the print may already be
+    # out and no forecast of it could be honest.
+    monkeypatch.setattr(
+        register_targets, "expected_release_window", window("2026-07-24", "2026-08-01")
+    )
+    assert roll_docket.release_window_already_open(target, today) is True
+
+    # Opens today: allowed, matching build_contract's guard exactly, which
+    # permits start == the registration date.
+    monkeypatch.setattr(
+        register_targets, "expected_release_window", window("2026-07-25", "2026-08-01")
+    )
+    assert roll_docket.release_window_already_open(target, today) is False
+
+    # Future window: the normal path.
+    monkeypatch.setattr(
+        register_targets, "expected_release_window", window("2026-08-10", "2026-08-17")
+    )
+    assert roll_docket.release_window_already_open(target, today) is False
+
+    # A window that cannot be derived must never break the roll. The
+    # registrar stays the authority and fails closed on its own.
+    def boom(*_args):
+        raise RuntimeError("unbindable")
+
+    monkeypatch.setattr(register_targets, "expected_release_window", boom)
+    assert roll_docket.release_window_already_open(target, today) is False
