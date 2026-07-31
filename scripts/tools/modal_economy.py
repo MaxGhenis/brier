@@ -40,8 +40,10 @@ PE_CORE = "3.26.11"
 BUILD_P = "populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z"
 DATASET = f"hf://datasets/policyengine/populace-us/populace_us_2024.h5@{BUILD_P}"
 
-_REPO = Path(__file__).resolve().parents[2]
-_OUT_DIR = _REPO / "bills" / "stronger-start-working-families-act"
+def _out_dir() -> Path:
+    # Resolved LAZILY at the local entrypoint only — the Modal container mounts
+    # this file at a shallow path where .parents[2] raises IndexError at import.
+    return Path(__file__).resolve().parents[2] / "bills" / "stronger-start-working-families-act"
 
 STRONGER_START = {"gov.irs.credits.ctc.refundable.phase_in.threshold": {"2026-01-01.2100-12-31": 0}}
 
@@ -221,9 +223,9 @@ def main():
     block = _record(pe, v, result,
                     "Sec. 2 — strike refundable CTC earnings threshold ($2,500 -> $1)")
     print(json.dumps(block, indent=2))
-    with open(_OUT_DIR / "buildP-economy-2026.json", "w") as f:
+    with open(_out_dir() / "buildP-economy-2026.json", "w") as f:
         json.dump(result, f, indent=2)
-    with open(_OUT_DIR / "compute-row-2026.json", "w") as f:
+    with open(_out_dir() / "compute-row-2026.json", "w") as f:
         json.dump(block, f, indent=2)
 
 
@@ -252,6 +254,6 @@ def sweep(start: int = 2026, end: int = 2035):
            "validation": {"param_source": v.param_source, "checked_existence": v.checked_existence},
            "years": rows, "ten_year_budgetary_impact": total}
     print(json.dumps(out, indent=2))
-    with open(_OUT_DIR / f"buildP-sweep-{start}-{end}.json", "w") as f:
+    with open(_out_dir() / f"buildP-sweep-{start}-{end}.json", "w") as f:
         json.dump(out, f, indent=2)
     print(f"TOTAL {start}-{end}: ${total/1e9:,.1f}B")
