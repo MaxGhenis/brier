@@ -101,3 +101,45 @@ parsimonious account, consistent with the §2 name decomposition, is that
 recall-anchoring is keyed by statutory identity. A named-future cell was not
 run, so a residual period contribution is not excluded; identity is
 demonstrated sufficient. (60 runs, 60 parsed, second transport.)
+
+---
+
+## Appendix (registered 2026-07-31, committed before any run): knowledge probe + fictional-identity arm
+
+**Knowledge probe** (`knowledge_probe.py` -> `runs_probe.jsonl`). Recall
+questions with NO forecasting frame: "as first published, what was the value
+of {series} in {month}?" — anchored variant (last 12 history rows, ending
+before the asked month) and bare variant (no history). opus-5 and fable-5,
+3 reps per variant, all 36 accuracy-corpus units, no reasoning-effort param,
+JSON answer + self-classified basis (known/estimate/guess). Classifier fixed
+in advance: a unit is KNOWN to a model iff median |recall − first print| /
+history pstdev < 0.5 across that model's anchored reps (sensitivity reported
+at 0.25 and 1.0; bare variant reported as a stricter secondary). Payoff runs
+on EXISTING forecast records only: stratify the registered
+fable·bill·max-vs-naive and vs-persistence contrasts by KNOWN/UNKNOWN.
+Branches committed now: skill surviving on UNKNOWN units = evidence of
+genuine retrospective derivation; skill collapsing on UNKNOWN units =
+contamination quantified and reported as such, not softened; the per-unit
+recall-error vs forecast-error correlation is reported either way.
+
+**Fictional-identity arm** (`fictional_sweep.py` -> `runs_fictional.jsonl`).
+Same 36 units, real history values (scoring unchanged), ONE builder for both
+frames so the paired contrast never crosses builders; frames differ only in
+identity slots. REAL frame: true series title + FRED id + statute citation.
+FICTIONAL frame: generic type description (no proper nouns), no series id,
+the deconfound redaction extended to the statute's own short title (the
+selfcheck caught an operative text repeating it inline), an explicit
+self-contained-hypothetical instruction, and a post-forecast self-report
+(recognized: none/suspected/identified + series_guess) as a MANIPULATION
+CHECK, not a gate. Both frames carry the same in-force clause; operative
+sections joined in registered order as in build_context_b. Calendar dates
+and dollar amounts retained — mechanism, not identity; residual
+identifiability through them is what the self-report measures. Config
+mirrors the winning cell: fable-5, bill context, point+80% CI JSON,
+effort=max, 3 reps per frame (216 calls). Analysis: paired real-vs-fictional
+per unit (paired bootstrap seed 20260731 + sign test), overall and
+stratified by probe KNOWN/UNKNOWN. Branches committed now: fictional-frame
+accuracy holding on probe-KNOWN units = derivation demonstrated where recall
+was available; collapse on KNOWN with survival on UNKNOWN = recall
+dependence quantified per-unit. Recognition rate reported alongside
+whichever branch fires.
