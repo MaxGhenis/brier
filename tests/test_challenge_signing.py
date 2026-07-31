@@ -749,9 +749,20 @@ def test_e2e_real_bundle_refuses_different_artifact_bytes() -> None:
         _real_verify(SIGSTORE_ARTIFACT.read_bytes() + b"x", SIGSTORE_BUNDLE.read_text())
 
 
-def test_e2e_real_bundle_refuses_a_tampered_integrated_time() -> None:
+@pytest.mark.parametrize(
+    "tampered_time",
+    [
+        # +1s stays inside the certificate's validity window, so the refusal
+        # can only come from the SET signature check — the sharp regression.
+        str(SIGSTORE_BUNDLE_INTEGRATED_TIME + 1),
+        "1",  # far outside the window; certificate-time validation also trips
+    ],
+)
+def test_e2e_real_bundle_refuses_a_tampered_integrated_time(
+    tampered_time: str,
+) -> None:
     tampered = json.loads(SIGSTORE_BUNDLE.read_text())
-    tampered["verificationMaterial"]["tlogEntries"][0]["integratedTime"] = "1"
+    tampered["verificationMaterial"]["tlogEntries"][0]["integratedTime"] = tampered_time
     with pytest.raises(cs.ChallengeSigningError):
         _real_verify(SIGSTORE_ARTIFACT.read_bytes(), json.dumps(tampered))
 
@@ -968,6 +979,23 @@ def test_cli_refuses_staging_json_export(tmp_path, capsys) -> None:
     write_submission(inbox / "tester" / "cell.json")
     assert verify_cli.main(["--inbox", str(inbox), "--staging", "--json"]) == 2
     assert "rehearsal" in capsys.readouterr().err
+
+
+def test_cli_refuses_an_incomplete_identity_pair_even_on_unsigned_inboxes(
+    tmp_path, capsys
+) -> None:
+    """A misconfigured enforcement flag must fail at startup, not silently
+    pass because every discovered submission happened to be unsigned."""
+
+    inbox = tmp_path / "inbox"
+    write_submission(inbox / "tester" / "cell.json")
+    assert (
+        verify_cli.main(
+            ["--inbox", str(inbox), "--require-identity", "someone@example.com"]
+        )
+        == 2
+    )
+    assert "issuer" in capsys.readouterr().err
 
 
 def test_cli_rejects_a_malformed_release_at(tmp_path) -> None:

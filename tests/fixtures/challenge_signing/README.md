@@ -13,5 +13,3 @@
   v4.5.0 `test/assets/` (Apache-2.0). Staging-signed; verified in tests
   with `Verifier.staging(offline=True)`, the same offline pattern
   sigstore's own suite uses, so no network or OIDC flow is needed.
-- `trustedroot.v1.json` — sigstore-python v4.5.0 test trust root
-  (Apache-2.0), kept alongside the bundles for provenance completeness.

@@ -19,7 +19,8 @@ it validates the submission parses against the schema, refuses paths
 outside ``challenge/inbox/``, refuses to overwrite an existing bundle,
 and after signing reports the Rekor entry (log index, UUID, integrated
 time) plus a transparency-log search link. Signing is optional — unsigned
-submissions stay valid.
+submissions stay accepted (schema-checked; full intake validation happens
+at publication).
 """
 
 from __future__ import annotations

@@ -50,6 +50,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from challenge_signing import (  # noqa: E402
     ChallengeSigningError,
+    _validated_identity_requirements,
     audit_inbox,
     inbox_root,
     load_submission,
@@ -160,6 +161,15 @@ def main(argv: list[str] | None = None) -> int:
             "staging proof can never feed the publish adapter",
             file=sys.stderr,
         )
+        return 2
+
+    try:
+        # Validate the pair up front: an incomplete identity-enforcement
+        # configuration must fail the run even when every submission turns
+        # out to be unsigned, not only inside the signed-item loop.
+        _validated_identity_requirements(args.require_identity, args.require_issuer)
+    except ChallengeSigningError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
 
     info_stream = sys.stderr if args.json else sys.stdout

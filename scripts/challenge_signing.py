@@ -16,7 +16,8 @@ establishes two claims without trusting this repository:
   Rekor's signed entry timestamp, which bundle verification checks)
   strictly precedes the target's release instant.
 
-Signing is optional: unsigned submissions remain valid and attributed via
+Signing is optional: unsigned submissions remain accepted (schema-checked
+here; full intake validation happens at publication) and attributed via
 the GitHub identity that opened the PR (the first submission, PR #49,
 predates this and is grandfathered). The certificate identity is recorded,
 not enforced, by default — a keyless certificate obtained through the
