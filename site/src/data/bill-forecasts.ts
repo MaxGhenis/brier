@@ -29,20 +29,7 @@ export interface BillForecastLink {
   example?: boolean;
 }
 
-export const BILL_FORECAST_LINKS: BillForecastLink[] = [
-  {
-    billSlug: "farm-bill-2-0",
-    metricLabel: "Medicaid call wait",
-    groupSlug: "medicaid-work-req-wait-mar-2027",
-    example: true,
-  },
-  {
-    billSlug: "farm-bill-2-0",
-    metricLabel: "SNAP error rate",
-    groupSlug: "snap-cost-share-error-rate-fy2026",
-    example: true,
-  },
-];
+export const BILL_FORECAST_LINKS: BillForecastLink[] = [];
 
 export interface BillForecastGroup {
   metricLabel: string;
