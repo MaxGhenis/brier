@@ -596,7 +596,9 @@ def test_range_closure_refuses_unattested_content_change(
     # it honestly: exempt in isolation, refused by the range closure.
     stale_tree = _git(repo, "rev-parse", f"{stale}^{{tree}}")
     swap2 = _git(
-        repo, "commit-tree", stale_tree, "-p", tip, "-p", stale,
+        repo,
+        "-c", "user.name=t", "-c", "user.email=t@example.com",
+        "commit-tree", stale_tree, "-p", tip, "-p", stale,
         "-m", "reversed parent-swap",
     )
     assert provenance.merge_is_records_noop(swap2, epoch) is True
