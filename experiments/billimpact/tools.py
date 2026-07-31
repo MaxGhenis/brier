@@ -12,6 +12,7 @@ it, and we measure how far the answers move.
 from __future__ import annotations
 
 import json
+import os
 import queue
 import subprocess
 import threading
@@ -21,10 +22,10 @@ from pathlib import Path
 from typing import Any, Optional
 
 HERE = Path(__file__).parent
-PE_PYTHON = (
-    "/private/tmp/claude-501/-Users-davidgringras26-27/"
-    "b9c6a92e-ac85-46b3-b535-b4e5f67cac5a/scratchpad/pe-venv/bin/python3"
-)
+# Interpreter of a venv with policyengine-us installed. Set PE_PYTHON, e.g.:
+#   python3 -m venv ~/.venvs/pe && ~/.venvs/pe/bin/pip install policyengine-us
+#   export PE_PYTHON=~/.venvs/pe/bin/python3
+PE_PYTHON = os.environ.get("PE_PYTHON", "python3")
 PE_SERVER = HERE / "pe_server.py"
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"

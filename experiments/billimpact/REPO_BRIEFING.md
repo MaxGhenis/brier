@@ -914,6 +914,28 @@ carries the tier: `scoreId` hashes in `chronology` and `CHRONOLOGY_POLICY_VERSIO
 (`site/src/data/thesis-log.ts:1756-1787`, re-audit **X3**), so a chronology change
 mints a new score rather than silently editing one.
 
+### 5.3 Custody roots
+
+Written after all activity artifacts, containing raw-byte and canonical-JSON SHA-256
+commitments including a commitment to the manifest before its root reference; the
+runner then performs the only final manifest write, adding `custodyRootSha256`
+(`docs/thesis-analyst-runner.md:299-304`). Construction is at
+`scripts/run_thesis_analyst.py:333-373` (`custody_artifact_entry`,
+`build_custody_root`); the root hash is the canonical-JSON SHA-256 of the whole
+`custody_root.json` document (`:402`), and the document includes a hash of the manifest
+*with the `custodyRootSha256` field excluded* — avoiding the self-reference.
+
+Verify with `python3 scripts/verify_custody.py <run-dir>`, which recomputes
+`canonical_sha256(custody)` and requires it to equal the manifest's claim
+(`:1709-1714`); custody-era converter inputs are rejected if verification fails.
+**Inventory v2** rejects missing required files *and any regular file in the run
+directory not referenced by the manifest* (`docs/thesis-analyst-runner.md:306-312`);
+40 pre-v2 roots are permanently headline-ineligible (`waivers.json`).
+
+`headlineEligible` is defined narrowly:
+`run_mode == "analyst" and inventory_status == "complete" and run_succeeded`
+(`scripts/verify_custody.py:105-120`).
+
 ### 5.4 The RFC-3161 chain
 
 **What is timestamped.** Not a forecast file. `scripts/record_forecast_snapshot.py`
@@ -972,11 +994,8 @@ re-verifies each committed custody-root/manifest against the digest's claimed ha
 calls `verify_run(run_dir)`, requires
 `verified.custody_root_sha256 == commitment["custodyRootSha256"]` (`:232-234`), and
 only then admits the root — carrying its `inventoryStatus` and `headlineEligible`
-from `scripts/verify_custody.py` — into the generated
-`site/src/data/witnessed-timeline.generated.ts` as `WITNESSED_CUSTODY_ROOTS`.
-`headlineEligible` is itself defined narrowly:
-`run_mode == "analyst" and inventory_status == "complete" and run_succeeded`
-(`scripts/verify_custody.py:105-120`).
+(§5.3) — into the generated `site/src/data/witnessed-timeline.generated.ts` as
+`WITNESSED_CUSTODY_ROOTS`, which is the map `classifyPublicationProof` joins against.
 
 ### 5.5 Chronology gates reward, hard
 
@@ -1002,20 +1021,6 @@ with claimed-time-only scores published below the fold via
 `isHeadlineChronology` has **no call site outside its own definition** — the gating is
 implemented by the literal check and by `SCORE_CARRYING_ELIGIBILITIES`. Behaviourally
 equivalent; worth knowing if you go looking for it.
-
-### 5.3 Custody roots
-
-Written after all activity artifacts, containing raw-byte and canonical-JSON SHA-256
-commitments including a commitment to the manifest before its root reference; the
-runner then performs the only final manifest write, adding `custodyRootSha256`
-(`docs/thesis-analyst-runner.md:299-304`). Verify with
-`python3 scripts/verify_custody.py <run-dir>`; custody-era converter inputs are
-rejected if verification fails. **Inventory v2** rejects missing required files *and
-any regular file in the run directory not referenced by the manifest* (`:306-312`);
-40 pre-v2 roots are permanently headline-ineligible (`waivers.json`).
-
-*(RFC-3161 token mechanics — TSA, file layout, requesting and verifying scripts,
-counts — see §5.4, filled from a dedicated read.)*
 
 ---
 
@@ -1255,6 +1260,24 @@ than a gap:
   parallel witnessing track over `PolicyEngine/ledger` release manifests; its receipts
   appear to live in that repository's own tree rather than as bare `.tsr` files here,
   but that was not confirmed.
+- **The 2026-06 Vercel incident narrative.** The prohibition on `vercel --prod` is
+  stated twice as settled fact (`CLAUDE.md:75-77`, `forecast-api/README.md:4-6`), but
+  no postmortem describing what broke exists anywhere in the repo. The rule is
+  load-bearing; the story is not recoverable from here.
+- **Whether PolicyEngine was ever actually mistaken for ground truth in a scored run.**
+  The prohibition and the calibration prior imply the lesson was learned from *some*
+  comparison, but I found no documented incident. Present §6 to Max as doctrine, not
+  as a scar.
 - **I did not run any build, test suite, or script.** Every number above was read from
   a committed file. Build-time-computed values (the Strategy Lab tables, the
   judge↔-nCRPS correlation) have no value I can quote.
+- **Sub-investigation provenance.** Sections 1.7, 2.11-2.19, 4 and 5.4 were assembled
+  with dedicated read-only sweeps of `paper/`, the SOL/review notes,
+  `scripts/resolve_pending.py` and the chronology machinery respectively. I
+  independently re-verified the claims that bear on today's work — the chronology class
+  names and the `composeScoreChronology` predicate, the normalisation dispersion, the
+  `forecast-api` port drift, and the `reviews/` referee finding — by reading the source
+  myself. Citations I did not personally re-open are the deep resolver internals
+  (`resolve_pending.py` beyond §4.1's dispatch table) and the RFC-3161 verification
+  internals of `verify_record_chain.py`. Those are the two places to double-check first
+  if a number ever looks wrong.

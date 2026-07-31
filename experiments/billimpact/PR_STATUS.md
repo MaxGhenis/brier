@@ -202,7 +202,7 @@ The 7 already-tracked `billimpact` files: `PREREGISTRATION.md`,
 (`harness.py`) and 21 new files: `analyze.py`, `ctc_harness.py`, `ctc_sweep.py`,
 `pe_server.py`, `pin_against_typescript.py`, `requarantine.py`, `runs.jsonl`,
 `runs_api.jsonl`, `scoring.py`, `sweep.py`, `tools.py`, `ts_driver.mjs`, and ten files
-under `bills/`. Plus `SESSION-PROMPT-bill-impact-validation.md` untracked at repo root.
+under `bills/`.
 
 A broad `git add` stages all of it. CI would not object on content grounds —
 `.github/workflows/ci.yml` runs `uv run pytest tests/ -q` (not `experiments/`), and the

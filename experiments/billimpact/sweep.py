@@ -26,9 +26,8 @@ FABLE = "claude-fable-5"
 
 POLICY_CONTEXTS = ["none", "summary", "operative_only", "purpose_only", "operative_plus_purpose"]
 ELICITATIONS = ["point_ci_json", "free_text", "cot_then_json", "forced_choice_bins"]
-# D4 amended 2026-07-31 12:05 EDT: Fable added as a fourth tier at David's
-# request. Strictly additive — haiku-4.5 is retained, so no level is dropped
-# after seeing data. Model tier is declared exploratory in PREREGISTRATION.md.
+# D4 amended 2026-07-31: Fable added as a fourth tier. Strictly additive —
+# haiku-4.5 is retained, so no level is dropped after seeing data. Model tier is declared exploratory in PREREGISTRATION.md.
 MODELS = [OPUS, SONNET, HAIKU, FABLE]
 MAGNITUDES = ["actual", "severe", "inert"]
 

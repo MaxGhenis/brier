@@ -47,7 +47,15 @@ RECORDS = REPO_ROOT / "records"
 OUT_MD = HERE / "baseline_comparison.md"
 
 GROUND_TRUTH = HERE / "ground_truth.json"
-RUNS = HERE / "runs_api.jsonl"
+# The sweep's canonical output and the corrected re-extraction of the same
+# rows.  Which one is read is a decision, so it is made explicitly and
+# printed, never inherited from whichever file happened to be named first.
+RUNS_CANONICAL = HERE / "runs_api.jsonl"
+RUNS_REPARSED = HERE / "runs_api.reparsed.jsonl"
+# The pre-fix bytes, preserved by reparse.py --apply before it rewrote the
+# canonical file in place. This is the only artefact that still carries the v1
+# parses, and it is what the defect comparison has to be scored against.
+RUNS_PREFIX = HERE / "runs_api.preparserfix.jsonl"
 
 # House split boundaries, read out of the export itself rather than retyped;
 # these constants only name the fields we assert against.
@@ -126,6 +134,7 @@ def find_reward_snapshot() -> dict[str, Any]:
 
     return {
         "payload": json.loads(payload_bytes),
+        "ledgerPath": (digest.get("surfaces") or {}).get("ledger", {}).get("archivePath"),
         "digestPath": str(digest_path.relative_to(REPO_ROOT)),
         "bodyPath": surface["archivePath"],
         "url": surface.get("url"),
@@ -320,6 +329,46 @@ def house_dispersion_scale(values: list[float]) -> dict[str, Any]:
     }
 
 
+def probe_ledger_for_our_series(
+    ledger_archive_path: str | None, units: dict[str, Any]
+) -> dict[str, Any]:
+    """Check, rather than assert, that the ledger has nothing for our series.
+
+    The claim 'the house normalization is inapplicable to us' rests entirely
+    on this absence, so it is re-derived from the sealed ledger surface on
+    every run instead of being written down once and trusted.
+    """
+    if not ledger_archive_path:
+        return {"checked": False, "reason": "snapshot carries no ledger surface"}
+    path = REPO_ROOT / ledger_archive_path
+    if not path.exists():
+        return {"checked": False, "reason": f"missing {ledger_archive_path}"}
+    entries = json.loads(gzip.decompress(path.read_bytes())).get("entries", [])
+    blob = json.dumps(entries).lower()
+    series_hits = {
+        unit["unit"]["series_id"]: blob.count(unit["unit"]["series_id"].lower())
+        for unit in units.values()
+    }
+    stem_hits = {
+        stem: blob.count(stem)
+        for stem in ("fns.snap.recipients", "m647ncen", "snap_recipients")
+    }
+    return {
+        "checked": True,
+        "ledgerPath": ledger_archive_path,
+        "ledgerEntries": len(entries),
+        "targetRegistered": sum(
+            1 for entry in entries if entry.get("kind") == "target_registered"
+        ),
+        "observationsRecorded": sum(
+            1 for entry in entries if entry.get("kind") == "observation_recorded"
+        ),
+        "seriesIdHits": series_hits,
+        "stemHits": stem_hits,
+        "anyHit": any(series_hits.values()) or any(stem_hits.values()),
+    }
+
+
 def month_gap(start: str, end: str) -> int:
     sy, sm = int(start[:4]), int(start[5:7])
     ey, em = int(end[:4]), int(end[5:7])
@@ -346,20 +395,43 @@ def load_units() -> dict[str, dict[str, Any]]:
     return units
 
 
-def load_runs() -> dict[str, Any]:
-    """Snapshot runs_api.jsonl once and pin its identity.
+def load_runs(path: Path) -> dict[str, Any]:
+    """Snapshot a runs file once and pin its identity.
 
-    The sweep writes this file; a report that does not pin the bytes it read
-    is not reproducible.
+    The sweep and the reparser both write these files while this script may be
+    running; a report that does not pin the bytes it read is not reproducible.
     """
-    raw = RUNS.read_bytes()
+    raw = path.read_bytes()
     rows = [json.loads(line) for line in raw.decode().splitlines() if line.strip()]
     return {
+        "path": str(path.relative_to(REPO_ROOT)),
         "rows": rows,
         "sha256": hashlib.sha256(raw).hexdigest(),
         "bytes": len(raw),
         "rowCount": len(rows),
     }
+
+
+def choose_runs_file() -> tuple[Path, Path | None]:
+    """Score the canonical file; keep the PRE-FIX file for comparison.
+
+    Intent, unchanged: the report must show the extraction defect rather than
+    quietly benefiting from its fix, so the defective vintage is scored too.
+
+    What changed (2026-07-31, when the fix landed in the harness rather than in
+    a side file): `reparse.py --apply` re-derived every stored response through
+    `harness.parse_forecast` and rewrote `runs_api.jsonl` IN PLACE, preserving
+    the pre-fix bytes at `runs_api.preparserfix.jsonl`. The canonical file is
+    therefore the corrected one, and it is the only file that also carries the
+    five truncated cells after they were quarantined and re-executed.
+
+    This function previously treated `runs_api.reparsed.jsonl` as primary and
+    the canonical file as the legacy vintage. That was correct while the
+    correction lived only in a side file and is now exactly inverted:
+    `runs_api.reparsed.jsonl` is a regenerated mirror of the canonical rows, so
+    selecting it as primary silently scored a stale intermediate.
+    """
+    return RUNS_CANONICAL, (RUNS_PREFIX if RUNS_PREFIX.exists() else None)
 
 
 def summarize_ours(units: dict[str, Any], runs: list[dict]) -> dict[str, Any]:
@@ -417,8 +489,11 @@ def summarize_ours(units: dict[str, Any], runs: list[dict]) -> dict[str, Any]:
         mode: cohort_summary([r for r in scored if r["parseMode"] == mode])
         for mode in sorted({r["parseMode"] or "unknown" for r in scored})
     }
+    # The JSON elicitation path, whichever parser version produced it
+    # ("json" under v1, "json_v2" after the re-extraction). Matching the exact
+    # v1 string silently returned an empty cohort against the corrected file.
     summary["jsonOnly"] = cohort_summary(
-        [row for row in scored if row["parseMode"] == "json"]
+        [row for row in scored if str(row["parseMode"] or "").startswith("json")]
     )
     # Year-shaped points are the diagnostic signature of the prose parser
     # picking a calendar year out of the narrative instead of the forecast.
@@ -473,6 +548,9 @@ def build_markdown(
     ours: dict[str, Any],
     units: dict[str, Any],
     runs_meta: dict[str, Any],
+    probe: dict[str, Any],
+    legacy: dict[str, Any] | None,
+    legacy_meta: dict[str, Any] | None,
 ) -> str:
     c_norm = cite("site/src/data/thesis-log.ts", "export function targetNormalizationScale")
     c_diffs = cite("site/src/data/thesis-log.ts", "const diffs = values.slice(1).map")
@@ -680,10 +758,38 @@ def build_markdown(
     add(
         "**The house convention is not literally applicable, and the reason is "
         "the substrate, not the estimator.** Our targets are state monthly SNAP "
-        "recipient counts (`BR<ST><FIPS>M647NCEN`). The PolicyEngine Ledger "
-        "contains no `target_registered` entry and no `observation_recorded` "
-        "entries for these series, so `ledgerHistoryAtCutoff` returns an empty "
-        f"history and `targetNormalizationScale` would return `null` "
+        "recipient counts (`BR<ST><FIPS>M647NCEN`), and the PolicyEngine Ledger "
+        "carries nothing for them."
+    )
+    add("")
+    if probe.get("checked"):
+        add(
+            f"Verified on this run rather than asserted: the sealed ledger "
+            f"surface `{probe['ledgerPath']}` holds {probe['ledgerEntries']} "
+            f"entries ({probe['targetRegistered']} `target_registered`, "
+            f"{probe['observationsRecorded']} `observation_recorded`). "
+            "Substring hits for each of our twelve series ids: "
+            + ", ".join(f"`{k}` {v}" for k, v in probe["seriesIdHits"].items())
+            + ". Hits for the id stems "
+            + ", ".join(f"`{k}` {v}" for k, v in probe["stemHits"].items())
+            + "."
+        )
+        if probe["anyHit"]:
+            add("")
+            add(
+                "**The probe found a hit, which contradicts the paragraph above "
+                "— re-read the normalization section before trusting any "
+                "normalized figure in this report.**"
+            )
+    else:
+        add(
+            f"The ledger-absence probe did not run ({probe.get('reason')}), so "
+            "the inapplicability claim below is unverified on this run."
+        )
+    add("")
+    add(
+        "With no ledger history, `ledgerHistoryAtCutoff` returns an empty list "
+        "and `targetNormalizationScale` returns `null` "
         "(`source = \"unavailable\"`) for all twelve units. Under the house "
         "function verbatim, our normalized CRPS is undefined for every row."
     )
@@ -728,12 +834,12 @@ def build_markdown(
         )
     add("")
 
-    add("## 6. A parser defect that contaminates the pooled numbers")
+    add("## 6. Extraction integrity")
     add("")
     add(
-        "Scoring the full run set surfaced a problem that is not about forecast "
-        "quality at all. `runs_api.jsonl` records a `forecast.parse_mode` per "
-        "run, and the three modes do not behave alike:"
+        f"Scored file: `{runs_meta['path']}`. Every run record carries a "
+        "`forecast.parse_mode`, and the point-over-truth ratio per mode is the "
+        "cheapest test of whether the extractor found the forecast at all:"
     )
     add("")
     add("| parse_mode | runs | median point / truth | min | max | median CRPS |")
@@ -748,31 +854,57 @@ def build_markdown(
         )
     add("")
     add(
-        f"**{len(ours['yearShaped'])} runs carry a point estimate between 1900 and "
-        "2100** — that is, a calendar year standing where a recipient count should "
-        "be. They are essentially all in the prose paths, which are essentially "
-        "all `free_text`. A forecast of `2023` against a truth of `5,318,809` is "
-        "the extraction step failing, not a model believing California has two "
-        "thousand SNAP recipients."
+        f"Runs whose point estimate falls in [1900, 2100] — a calendar year "
+        f"standing where a recipient count should be: **{len(ours['yearShaped'])}**."
     )
     add("")
-    add(
-        "Consequences that matter for the preregistration: **P2 (dispersion "
-        "across D2 `elicitation`) currently measures the parser, not the "
-        "elicitation contract**, because `free_text` is the mode whose extraction "
-        "is broken. The pooled CRPS mean below is likewise dominated by these "
-        "rows. Nothing is dropped here — the primary table reports the full "
-        "population — but a `parse_mode == \"json\"` cut is reported alongside it. "
-        "That cut is a *parser-integrity* restriction on a field the harness "
-        "records itself, decided before looking at any score, not an outlier trim "
-        "on the outcome."
-    )
-    add("")
+    if legacy is not None and legacy_meta is not None:
+        add(
+            f"**This report reads the canonical run file, whose forecasts were "
+            f"re-derived through the corrected parser.** The pre-fix bytes at "
+            f"`{legacy_meta['path']}` are preserved and scored alongside it, so "
+            "the defect stays visible instead of being quietly fixed away. The "
+            "v1 prose fallback filtered candidate numbers with `n > 1000` "
+            "(calendar years clear that) and returned the first ordered triple, "
+            "so a prose response that discusses history before answering parsed "
+            "as its years. Same model responses in both rows — the only "
+            "difference is the extraction."
+        )
+        add("")
+        add("| file | runs scored | year-shaped points | median CRPS | mean normalized CRPS | 80% coverage |")
+        add("| --- | ---: | ---: | ---: | ---: | ---: |")
+        for label, cohort, meta in (
+            ("corrected", ours, runs_meta),
+            ("pre-fix", legacy, legacy_meta),
+        ):
+            add(
+                f"| `{meta['path'].rsplit('/', 1)[-1]}` ({label}) | {cohort['n']} | "
+                f"{len(cohort['yearShaped'])} | {fmt(cohort['crps']['median'])} | "
+                f"{fmt(cohort['normalizedCrps']['mean'])} | "
+                f"{fmt(cohort['coverageRate'])} |"
+            )
+        add("")
+        add(
+            "The defect fired only on `free_text`, which is one LEVEL of a "
+            "measured dimension (D2 `elicitation`). That is worse than noise: it "
+            "manufactures a difference between free text and JSON that has "
+            "nothing to do with elicitation format, which is exactly the class "
+            "of artifact this experiment exists to detect. Preregistered "
+            "analysis P2 must be read off the corrected file."
+        )
+        add("")
+    elif len(ours["yearShaped"]) > 0:
+        add(
+            "**No corrected re-extraction is present on disk, and the file read "
+            "still carries year-shaped points.** Treat every pooled figure below "
+            "as contaminated by extraction failure rather than forecast error."
+        )
+        add("")
     if ours["skipped"]:
         add(
-            f"A further **{len(ours['skipped'])}** runs were unscoreable outright "
-            "(`ci_low == ci_high`, so no interval exists) and are excluded from "
-            "every figure rather than imputed. All nine are `free_text`."
+            f"**{len(ours['skipped'])}** run(s) in the scored file are unusable "
+            "outright (no interval: `ci_low == ci_high`, or a missing field) and "
+            "are excluded from every figure rather than imputed."
         )
         add("")
 
@@ -782,7 +914,7 @@ def build_markdown(
         f"House rows are the {house['scoreCarryingRows']} score-carrying rows of "
         f"the sealed export ({house['normalizedRows']} of them normalized). Our "
         f"rows are the {ours['n']} scored bill-impact runs "
-        f"(`runs_api.jsonl`, sha256 `{runs_meta['sha256'][:16]}…`, "
+        f"(`{runs_meta['path']}`, sha256 `{runs_meta['sha256'][:16]}…`, "
         f"{runs_meta['rowCount']} lines, {runs_meta['bytes']} bytes at read time; "
         "the sweep was still writing this file, so the snapshot identity is "
         "pinned rather than assumed)."
@@ -795,9 +927,9 @@ def build_markdown(
     add("| billimpact, all runs " + stat_row("CRPS (recipients)", ours["crps"]))
     add("| billimpact, all runs " + stat_row("normalized CRPS", ours["normalizedCrps"]))
     add("| billimpact, all runs " + stat_row("PIT", ours["pit"]))
-    add("| billimpact, `parse_mode == json` " + stat_row("CRPS (recipients)", ours["jsonOnly"]["crps"]))
-    add("| billimpact, `parse_mode == json` " + stat_row("normalized CRPS", ours["jsonOnly"]["normalizedCrps"]))
-    add("| billimpact, `parse_mode == json` " + stat_row("PIT", ours["jsonOnly"]["pit"]))
+    add("| billimpact, JSON path " + stat_row("CRPS (recipients)", ours["jsonOnly"]["crps"]))
+    add("| billimpact, JSON path " + stat_row("normalized CRPS", ours["jsonOnly"]["normalizedCrps"]))
+    add("| billimpact, JSON path " + stat_row("PIT", ours["jsonOnly"]["pit"]))
     add("")
     add("| population | 80% interval coverage | N |")
     add("| --- | ---: | ---: |")
@@ -815,7 +947,7 @@ def build_markdown(
         f"({ours['coverageCovered']}/{ours['coverageN']}) | {ours['coverageN']} |"
     )
     add(
-        f"| billimpact, `parse_mode == json` | {fmt(ours['jsonOnly']['coverageRate'])} "
+        f"| billimpact, JSON path | {fmt(ours['jsonOnly']['coverageRate'])} "
         f"({ours['jsonOnly']['coverageCovered']}/{ours['jsonOnly']['coverageN']}) | "
         f"{ours['jsonOnly']['coverageN']} |"
     )
@@ -852,10 +984,9 @@ def build_markdown(
         "built with). That part *is* apples to apples."
     )
     add(
-        "- **Read the `json` cut, not the pooled row, for anything about "
-        "forecast quality.** The pooled mean is a parser artifact "
-        f"(§6); the `parse_mode == \"json\"` cohort is {ours['jsonOnly']['n']} runs "
-        "whose extraction is intact."
+        "- **The JSON-path cut is reported alongside the pooled row** because "
+        "that elicitation path was never touched by the extraction defect in "
+        f"§6; it is {ours['jsonOnly']['n']} runs."
     )
     add("")
 
@@ -872,8 +1003,14 @@ def main() -> int:
     snapshot = find_reward_snapshot()
     house = summarize_house(snapshot["payload"])
     units = load_units()
-    runs_meta = load_runs()
+    probe = probe_ledger_for_our_series(snapshot.get("ledgerPath"), units)
+    primary_path, legacy_path = choose_runs_file()
+    runs_meta = load_runs(primary_path)
     ours = summarize_ours(units, runs_meta["rows"])
+    legacy_meta = load_runs(legacy_path) if legacy_path else None
+    legacy = (
+        summarize_ours(units, legacy_meta["rows"]) if legacy_meta else None
+    )
 
     print(f"reward snapshot: {snapshot['bodyPath']}")
     print(f"  origin: {snapshot['url']}  recorded {snapshot['recordedAt']}")
@@ -890,7 +1027,11 @@ def main() -> int:
         f" = {house['coverageRate']}"
     )
     print()
-    print(f"billimpact runs read       : {runs_meta['rowCount']} (sha256 {runs_meta['sha256'][:16]}…)")
+    print(f"billimpact runs read       : {runs_meta['path']} — "
+          f"{runs_meta['rowCount']} rows (sha256 {runs_meta['sha256'][:16]}…)")
+    if legacy_meta:
+        print(f"  legacy comparison file   : {legacy_meta['path']} — "
+              f"{legacy_meta['rowCount']} rows")
     print(f"billimpact scored          : {ours['n']} (skipped {len(ours['skipped'])})")
     print(f"billimpact CRPS            : {ours['crps']}")
     print(f"billimpact normalized CRPS : {ours['normalizedCrps']}")
@@ -913,7 +1054,19 @@ def main() -> int:
     )
     print()
 
-    OUT_MD.write_text(build_markdown(snapshot, house, ours, units, runs_meta))
+    OUT_MD.write_text(
+        build_markdown(
+            snapshot, house, ours, units, runs_meta, probe, legacy, legacy_meta
+        )
+    )
+    print(
+        "ledger probe for our series: "
+        + (
+            f"{probe['ledgerEntries']} entries scanned, any hit = {probe['anyHit']}"
+            if probe.get("checked")
+            else f"NOT RUN ({probe.get('reason')})"
+        )
+    )
     print(f"wrote {OUT_MD.relative_to(REPO_ROOT)}")
     return 0
 

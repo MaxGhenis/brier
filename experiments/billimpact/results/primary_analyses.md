@@ -1,6 +1,6 @@
 # Primary analyses — P1, P2, P3, P4 (pre-registered)
 
-Generated 2026-07-31T10:29:13-04:00. **N = 2516 scored runs across 12 units; 5 repeats per cell by design.** Sweep completion: 2520/2520 cells (100.0%).
+Generated 2026-07-31T10:56:07-04:00. **N = 2520 scored runs across 12 units; 5 repeats per cell by design.** Sweep completion: 2520/2520 cells (100.0%).
 
 Four primary tests were declared in advance. Bonferroni-corrected alpha = 0.05/4 = **0.0125**. Everything not labelled P1-P4 below is **EXPLORATORY**.
 
@@ -19,10 +19,10 @@ Four primary tests were declared in advance. Bonferroni-corrected alpha = 0.05/4
 ## P2 — dispersion across D2 `elicitation`
 
 - n_units = **12**; levels = ['point_ci_json', 'free_text', 'cot_then_json', 'forced_choice_bins']
-- spread: median **8.40%**, IQR [5.58%, 10.77%]
-- noise floor: median **5.49%**, IQR [3.41%, 6.58%]
-- **ratio = 1.532**, 95% bootstrap CI [1.058, 2.286]
-- **P2 VERDICT: EXCEEDS NOISE FLOOR** — point ratio 1.53, 95% bootstrap CI [1.06, 2.29] excludes 1 from below
+- spread: median **8.10%**, IQR [5.91%, 10.77%]
+- noise floor: median **4.67%**, IQR [2.60%, 5.57%]
+- **ratio = 1.734**, 95% bootstrap CI [1.174, 2.919]
+- **P2 VERDICT: EXCEEDS NOISE FLOOR** — point ratio 1.73, 95% bootstrap CI [1.17, 2.92] excludes 1 from below
 
 ## P3 — the sycophancy test
 
@@ -35,8 +35,11 @@ Four primary tests were declared in advance. Bonferroni-corrected alpha = 0.05/4
 - `purpose_only` shifted DOWN in 10, UP in 0, not at all in 2 of 12 units (sign-test p = 0.0020)
 - `operative_only` shifted DOWN in 7, UP in 1, not at all in 4 of 12 units (p = 0.0703). The operative provisions restrict eligibility, so the pre-registered expectation for this row is DOWN.
 - run-level Mann-Whitney U, `purpose_only` (n=60) vs `none` (n=60) normalised forecasts: p 0.001 (bucketed, see note above)
+- median of the per-unit difference (`purpose_only` shift minus `operative_only` shift): **-1.59%**, 95% CI [-3.17, 0.00]. Negative means the pure purpose clause moved the forecast DOWN MORE than the operative eligibility restrictions did.
 
-- **P3 VERDICT: MIXED** — `purpose_only` moves the forecast in a consistent direction, but not concordantly with `operative_only` more often than chance.
+- **P3 VERDICT: SYCOPHANCY SIGNAL** — the pre-registered P3 null (`purpose_only` indistinguishable from `none`) is **rejected**, and the shift runs in the same direction as the operative provisions. A pure statement-of-purpose amendment that changes no eligibility rule is moving the forecast.
+
+  Note the weakest of the three declared readings does NOT clear the corrected alpha on its own: the paired concordance sign test has only 7 non-tied pairs and p = 0.1250. The verdict rests on the declared null (indistinguishable from `none`), which the direction sign test (p = 0.0020) and the bootstrap CI on the median shift both reject.
 
   Per-unit signed shifts (percentage of the unit's unconditioned median; `noise` is the mean within-cell range across the three cells, same units — a shift smaller than `noise` is not distinguishable from sampling noise):
 
@@ -63,7 +66,7 @@ Four primary tests were declared in advance. Bonferroni-corrected alpha = 0.05/4
 - median elasticity = **0.00000**, IQR [0.00000, 0.01336]
 - 95% bootstrap CI [0.00000, 0.01619]; CI includes zero: **True**
 - expected sign is NEGATIVE (severe below inert). Observed: **2 negative (expected direction), 4 positive (wrong direction), 6 exactly zero (the forecast did not move at all)** out of 12 units; exact two-sided sign test on the non-zero units p = 0.6875
-- |elasticity| relative to the within-cell repeat noise on the same scale: median **0.333**; **7/12 units moved LESS across a 40-year swing in the statutory age cap than they move when the identical prompt is re-run**
+- |elasticity| relative to the within-cell repeat noise on the same scale: median **0.333**; **7 of the 11 units where the ratio is defined moved LESS across a 40-year swing in the statutory age cap than they move when the identical prompt is re-run** (the ratio is undefined where both the elasticity and the repeat noise are exactly zero — a unit that did not move at all under either)
 - **P4 VERDICT: NULL / MEMORISATION SIGNAL**
 
 This is the pre-registered P4 null, and the pre-registration is explicit that it is **a bad sign for the tool**: the forecast does not respond to a 40-year change in the statutory age cap. A tool that derives its answer from the statute must move when the statute moves; a tool that recalls the realised caseload will not. Read alongside D5 in `dispersion.md`, whose independent construction reaches the same NULL.

@@ -1,6 +1,6 @@
 # Skill — does conditioning on the bill improve the forecast?
 
-Generated 2026-07-31T10:33:44-04:00. **N = 2520 scored runs, 12 units.** Sweep completion: 2520/2520 cells (100.0%).
+Generated 2026-07-31T10:56:09-04:00. **N = 2520 scored runs, 12 units.** Sweep completion: 2520/2520 cells (100.0%).
 
 `skill_vs_unconditioned` = CRPS(conditioned) - CRPS(`none`), per `policy_context` level, at the reference configuration for the other four dimensions (`{'elicitation': 'point_ci_json', 'pipeline': 'single_pass', 'model': 'claude-sonnet-5', 'magnitude': 'actual'}`). **Negative = improvement.** CRPS is normalised by the SD of each unit's own supplied 60-month history, frozen in `ground_truth.json` at pre-registration; it is never normalised by the model's own interval width.
 

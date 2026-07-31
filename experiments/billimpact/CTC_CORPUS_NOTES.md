@@ -108,7 +108,7 @@ Breakdown across the corpus: **4 full ($374.85)**, **4 partial**, **6 zero**.
 ## Tool invocation
 
 ```
-/private/tmp/claude-501/-Users-davidgringras26-27/b9c6a92e-ac85-46b3-b535-b4e5f67cac5a/scratchpad/pe-venv/bin/python3 \
+$PE_PYTHON \
   experiments/billimpact/pe_server.py
 ```
 

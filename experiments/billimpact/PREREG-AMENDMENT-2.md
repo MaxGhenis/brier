@@ -1,8 +1,8 @@
 # Amendment 2 — decomposing the P3 purpose-clause effect
 
 **Written 2026-07-31 ~11:20 EDT, committed before its first run.** Post-hoc
-amendment; motivated by a critique from David Gringras that the P3 result is
-confounded, which inspection confirmed and sharpened.
+amendment; motivated by an internal critique that the P3 result is confounded,
+which inspection confirmed and sharpened.
 
 ## The confound
 

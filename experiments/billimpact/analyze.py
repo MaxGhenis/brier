@@ -45,7 +45,10 @@ import scoring  # noqa: E402  (experiments/billimpact/scoring.py — pinned CRPS
 # 0.05 / 0.10 / 0.20) rather than exact ones — that limitation is surfaced in
 # every table that uses them.
 try:
-    from brier.experiments.analyze import mann_whitney_u, proportion_z_test  # noqa: E402
+    from brier.experiments.analyze import (  # noqa: E402
+        mann_whitney_u,
+        proportion_z_test,
+    )
 
     REPO_STATS_AVAILABLE = True
     REPO_STATS_NOTE = (
@@ -97,13 +100,32 @@ REFERENCE = {
 }
 UNCONDITIONED_LEVEL = "none"
 
-# harness.py max_tokens caps, mirrored to classify truncation-caused parse
-# failures. draft=2000 (3000 for cot_then_json); skeptic/verifier/judge=1200.
-MAX_TOKENS = {"draft": 2000, "draft_cot": 3000, "skeptic": 1200, "verifier": 1200, "judge": 1200}
+# harness.py max_tokens caps, used ONLY for run records written before the
+# harness began recording `max_tokens` on each call (2026-07-31 ~14:40 EDT).
+# Two regimes have run: the original caps, and the raised caps adopted at 14:05
+# after five runs truncated exactly at the cap and lost their trailing JSON.
+# A mirrored constant is a hand-maintained copy of another file's behaviour and
+# had already gone stale once — this table therefore lists every cap a role has
+# EVER run under, and the recorded value on the call wins whenever present.
+MAX_TOKENS_HISTORY = {
+    "draft": (2000, 4000),
+    "draft_cot": (3000, 6000),
+    "skeptic": (1200, 2500),
+    "verifier": (1200, 2500),
+    "judge": (1200, 2500),
+}
 
 PRIMARY_TESTS = 4  # P1-P4; Bonferroni alpha = 0.05 / 4
 ALPHA = 0.05
 ALPHA_BONF = ALPHA / PRIMARY_TESTS
+
+# A bootstrap over 1-2 units cannot produce an honest interval: resampling so
+# few units yields a degenerate CI (often ci_low == ci_high), which would then
+# read as a confident verdict. Below this many units, and whenever the interval
+# comes back degenerate, the verdict is UNDETERMINED rather than significant.
+# This binds on partial sweeps; at the full pre-registered N (12 units) it never
+# fires.
+MIN_UNITS_FOR_VERDICT = 3
 
 # Plausibility band for a parsed forecast, as a multiple of the unit's LAST
 # OBSERVED history value. A state SNAP caseload cannot plausibly move by 10x in
@@ -262,15 +284,25 @@ def load_ground_truth(path: Path) -> tuple[dict[str, dict], dict[str, Any]]:
     return units, notes
 
 
-def _final_call_cap(rec: dict) -> Optional[int]:
+def _final_call_caps(rec: dict) -> tuple[int, ...]:
+    """Caps the final call could have run under, tightest evidence first.
+
+    A completion truncated at the cap reports `completion_tokens` EXACTLY equal
+    to it, so the test downstream is equality, not `>=`: against a set of
+    candidate caps `>=` would flag a 3,100-token response as truncated merely
+    because an older, smaller cap once existed.
+    """
     calls = rec.get("calls") or []
     if not calls:
-        return None
+        return ()
+    recorded = calls[-1].get("max_tokens")
+    if isinstance(recorded, int):
+        return (recorded,)
     role = calls[-1].get("role")
     if role == "draft":
-        return MAX_TOKENS["draft_cot"] if rec.get("config", {}).get(
-            "elicitation") == "cot_then_json" else MAX_TOKENS["draft"]
-    return MAX_TOKENS.get(role)
+        role = ("draft_cot" if rec.get("config", {}).get("elicitation") == "cot_then_json"
+                else "draft")
+    return MAX_TOKENS_HISTORY.get(role, ())
 
 
 def load_runs(path: Path, units: dict[str, dict]) -> tuple[list[dict], dict[str, Any]]:
@@ -302,6 +334,21 @@ def load_runs(path: Path, units: dict[str, dict]) -> tuple[list[dict], dict[str,
         "scored": 0,
         "scoring_errors": 0,
         "scoring_error_examples": [],
+        # Derived from the `forecast_v1` field that reparse.py preserves on
+        # every re-derived record. These are MEASURED off the file being
+        # analysed, not narrated, so the correction claim carries its operands.
+        "parser_correction": {
+            "records_with_v1_parse": 0,
+            "points_changed": 0,
+            "v1_year_shaped_points": 0,
+            "v1_degenerate_intervals": 0,
+            "v2_year_shaped_points": 0,
+            "v1_parse_modes": {},
+            "v1_year_shaped_by_elicitation": {},
+            "v1_json_path_records": 0,
+            "v1_json_path_unchanged": 0,
+        },
+        "parser_versions": {},
     }
     runs: list[dict] = []
     api_err = Counter()
@@ -361,6 +408,36 @@ def load_runs(path: Path, units: dict[str, dict]) -> tuple[list[dict], dict[str,
 
         cfg = rec.get("config") or {}
         fc = rec.get("forecast") or {}
+
+        # Pre-fix parse, where reparse.py preserved one. Absent on records the
+        # sweep wrote after the fix landed, which is why the denominator below
+        # is `records_with_v1_parse` rather than `records_read`.
+        v1 = rec.get("forecast_v1")
+        if isinstance(v1, dict) and v1:
+            pc = q["parser_correction"]
+            pc["records_with_v1_parse"] += 1
+            pc["v1_parse_modes"][str(v1.get("parse_mode"))] = (
+                pc["v1_parse_modes"].get(str(v1.get("parse_mode")), 0) + 1)
+            if v1.get("point") != fc.get("point"):
+                pc["points_changed"] += 1
+            if v1.get("point") is not None and 1900 <= v1["point"] <= 2100:
+                pc["v1_year_shaped_points"] += 1
+                elic = str(cfg.get("elicitation"))
+                pc["v1_year_shaped_by_elicitation"][elic] = (
+                    pc["v1_year_shaped_by_elicitation"].get(elic, 0) + 1)
+            if v1.get("ci_low") is not None and v1.get("ci_low") == v1.get("ci_high"):
+                pc["v1_degenerate_intervals"] += 1
+            # The fix must be confined to the prose and malformed-JSON paths.
+            # Anything that parsed via strict JSON before must be identical now.
+            if v1.get("parse_mode") == "json":
+                pc["v1_json_path_records"] += 1
+                if all(v1.get(k) == fc.get(k) for k in ("point", "ci_low", "ci_high", "bin")):
+                    pc["v1_json_path_unchanged"] += 1
+        if fc.get("point") is not None and 1900 <= fc["point"] <= 2100:
+            q["parser_correction"]["v2_year_shaped_points"] += 1
+        pv = str(rec.get("parser_version") or "<unrecorded>")
+        q["parser_versions"][pv] = q["parser_versions"].get(pv, 0) + 1
+
         row: dict[str, Any] = {
             "unit_id": uid,
             "rep": rec.get("rep"),
@@ -390,12 +467,13 @@ def load_runs(path: Path, units: dict[str, dict]) -> tuple[list[dict], dict[str,
         if "parse_error" in fc or fc.get("point") is None:
             q["parse_failures"] += 1
             kind = fc.get("parse_error", "missing_forecast")
-            cap = _final_call_cap(rec)
+            caps = _final_call_caps(rec)
             calls = rec.get("calls") or []
             ctok = calls[-1].get("completion_tokens") if calls else None
-            if cap is not None and ctok is not None and ctok >= cap:
+            hit = next((c for c in caps if ctok == c), None) if ctok is not None else None
+            if hit is not None:
                 q["parse_failures_truncated_at_max_tokens"] += 1
-                kind = f"{kind} (output truncated at max_tokens={cap})"
+                kind = f"{kind} (output truncated at max_tokens={hit})"
             parse_err[kind] += 1
             row["parse_error"] = kind
             runs.append(row)
@@ -453,6 +531,7 @@ def scan_sibling_quarantine(runs_path: Path, present: set[str]) -> dict[str, Any
         if sib == runs_path or "quarantin" not in sib.name:
             continue
         n, reasons, keys = 0, Counter(), set()
+        year_shaped_v1 = 0
         for line in sib.read_text().splitlines():
             line = line.strip()
             if not line:
@@ -465,6 +544,9 @@ def scan_sibling_quarantine(runs_path: Path, present: set[str]) -> dict[str, Any
                 continue
             reasons[str(r.get("_quarantined_reason")
                         or r.get("quarantine_reason") or "<no reason field>")[:80]] += 1
+            v1p = (r.get("forecast_v1") or {}).get("point")
+            if v1p is not None and 1900 <= v1p <= 2100:
+                year_shaped_v1 += 1
             if r.get("cell_key"):
                 keys.add(r["cell_key"])
         out[sib.name] = {
@@ -472,6 +554,7 @@ def scan_sibling_quarantine(runs_path: Path, present: set[str]) -> dict[str, Any
             "reasons": dict(reasons),
             "n_cells_also_present_in_runs_file": len(keys & present),
             "n_cells_absent_from_runs_file": len(keys - present),
+            "n_year_shaped_v1_parses": year_shaped_v1,
         }
     return out
 
@@ -641,8 +724,12 @@ def write_results_table(rows: list[dict], q: dict, units: dict, out: Path, meta:
              "analysis that excludes them is reported separately in `dispersion.md` and "
              "`primary_analyses.md`.\n")
 
-    if q["implausible_extractions"]:
-        L.append(extraction_defect_block(q))
+    # Always rendered. The defect below is CORRECTED, and a corrected defect
+    # that stops being reported is indistinguishable from one that never
+    # happened — 214 of these runs really did carry a calendar year as their
+    # forecast until the parser was fixed, and the pre-registration does not
+    # permit quietly tidying that out of the record.
+    L.append(extraction_defect_block(q))
 
     hdr = ("| policy_context | elicitation | pipeline | model | magnitude | n_runs | n_units | "
            "n_scored | n_parse_fail | n_api_err | n_implaus | median_persons | median_norm | "
@@ -675,46 +762,131 @@ def write_results_table(rows: list[dict], q: dict, units: dict, out: Path, meta:
 
 
 def extraction_defect_block(q: dict) -> str:
-    """The free-text extraction defect, stated up front wherever it bites."""
+    """The free-text extraction defect: what it was, and what was done about it.
+
+    This section is rendered unconditionally, including when the defect is fully
+    corrected and the flagged count is zero. A data-quality finding that
+    disappears from the report once it is fixed leaves a reader unable to tell a
+    corrected pipeline from one that never had the problem, and the numbers
+    below were wrong in a published intermediate state.
+    """
+    pc = q["parser_correction"]
+    scored = q["scored"] or 1
+    quarantined_year_shaped = sum(
+        v.get("n_year_shaped_v1_parses", 0)
+        for v in (q.get("sibling_quarantine_files") or {}).values()
+    )
+    n_v1 = pc["records_with_v1_parse"]
+
     lines = [
-        "\n## DATA-QUALITY FINDING — free-text extraction returns calendar years as forecasts\n",
-        f"**{q['implausible_extractions']} of {q['scored']} scored runs "
-        f"({100.0 * q['implausible_extractions'] / q['scored']:.1f}%) parsed to a value outside "
-        "[0.1x, 10x] the unit's last observed caseload.** Every one of them came from the "
-        "prose fallback in `harness.parse_forecast`, and the modal failure is the same: a "
-        "four-digit CALENDAR YEAR extracted as a person count.",
+        "\n## DATA-QUALITY FINDING (CORRECTED) — free-text extraction returned calendar "
+        "years as forecasts\n",
+        "**Status: found, fixed, and re-derived offline. No run was dropped.** The numbers "
+        "in every table in this report come from the corrected parse "
+        f"(parser versions observed on the run records: `{q.get('parser_versions')}`).",
         "",
-        "Mechanism (harness.py, unmodified — this is a report, not a patch): the prose fallback "
-        "regex `_NUM` (harness.py:338) matches any number, and the filter at harness.py:379 "
-        "keeps candidates with `n > 1000`. `2021`, `2023` and `2024` all clear that threshold, "
-        "so a sentence like \"the last available data point in June 2021\" yields "
-        "`{point: 2023, ci_low: 2021, ci_high: 2023}` for a series whose true level is ~4.2 "
-        "million. The JSON path is unaffected: 0 of the `json`-parsed runs are flagged.",
+        "### What went wrong",
         "",
-        "| elicitation / parse_mode | scored | implausible | rate |",
+        "The v1 prose fallback in `harness.parse_forecast` matched any number, filtered "
+        "candidates with `n > 1000`, and returned the FIRST 3-wide window satisfying an "
+        "ordering test. `2021`, `2023` and `2024` all clear 1000, and a prose forecast "
+        "discusses the series history before it states an answer, so the first matching "
+        "window was routinely a run of calendar years: \"the last available data point in "
+        "June 2021\" yielded `{point: 2023, ci_low: 2021, ci_high: 2023}` for a series whose "
+        "true level is ~4.2 million persons.",
+        "",
+        "This was not noise. It fired only on prose, which is one LEVEL of a measured "
+        "dimension (D2 `elicitation`), so it manufactured a difference between `free_text` "
+        "and JSON that had nothing to do with elicitation format — the exact class of "
+        "artefact this experiment exists to detect. A quieter second case hit "
+        "`cot_then_json`: a trailing JSON object truncated at `max_tokens` or broken by a "
+        "stray quote never reached the JSON path, so the prose heuristic mined the reasoning "
+        "instead of reading the answer.",
+        "",
+        "### Measured extent, before and after",
+        "",
+        f"Derived from the `forecast_v1` field preserved on **{n_v1}** re-derived records "
+        "(`reparse.py`), not from narrative. Cells that were quarantined and re-executed no "
+        "longer carry a v1 parse in this file, so their pre-fix parses are counted separately "
+        f"below: **{quarantined_year_shaped}** further calendar-year points sit in the sibling "
+        f"quarantine file(s), for a complete pre-fix total of "
+        f"**{pc['v1_year_shaped_points'] + quarantined_year_shaped}**.",
+        "",
+        "| quantity | before fix | after fix |",
+        "|---|---|---|",
+        f"| points that were a calendar year (1900-2100) | "
+        f"{pc['v1_year_shaped_points'] + quarantined_year_shaped} "
+        f"({pc['v1_year_shaped_points']} here + {quarantined_year_shaped} quarantined) | "
+        f"{pc['v2_year_shaped_points']} |",
+        f"| forecasts with no interval at all (`ci_low == ci_high`) | "
+        f"{pc['v1_degenerate_intervals']} | 0 |",
+        f"| runs outside [0.1x, 10x] the unit's last observed caseload | "
+        f"(all of the above) | {q['implausible_extractions']} |",
+        f"| point estimates changed by the re-derivation | — | {pc['points_changed']} |",
+        "",
+        f"v1 parse modes across those records: `{pc['v1_parse_modes']}`. "
+        f"Calendar-year points by elicitation level: "
+        f"`{pc['v1_year_shaped_by_elicitation']}`.",
+        "",
+        "### How it was corrected",
+        "",
+        "1. `harness.parse_forecast` v2 rejects year-shaped tokens, restricts prose "
+        "candidates to within [0.2x, 5x] the unit's own last OBSERVED history value, locates "
+        "the interval from explicit interval language taking the LAST such statement, and "
+        "takes the point from the cue-marked candidate nearest that interval. The band is a "
+        "SCALE filter, not an accuracy filter — a forecast of a 3x collapse still parses and "
+        "is then scored badly on merit — and it is applied to the prose path ONLY, never to "
+        "the JSON path, so D5 `magnitude_elasticity` (which runs entirely at "
+        "`point_ci_json`) cannot be muted by it.",
+        "2. The parser is strictly EXTRACTIVE. A response stating an interval but no point, "
+        "or truncated before it answers, FAILS the parse and is counted; it is never repaired "
+        "by imputing a midpoint the model did not write.",
+        "3. Every stored response was re-derived OFFLINE — no model was re-called for the "
+        "correction, so the re-parse is deterministic and introduces no new sampling. The "
+        "alternative, re-eliciting `free_text`, would have drawn a fresh sample at a later "
+        "date on one level of a measured dimension, which is a worse cure than the disease.",
+        f"4. All **{pc['v1_json_path_unchanged']} of {pc['v1_json_path_records']}** runs that "
+        "had parsed via strict JSON re-derived to identical values, confirming the fix is "
+        "confined to the prose and malformed-JSON paths.",
+        "5. Runs that remained unparseable were QUARANTINED with a recorded reason and "
+        "re-executed under the raised `max_tokens` caps (see the quarantine table below); "
+        "they were all truncations at the older caps, not model refusals.",
+        "",
+        "| elicitation / parse_mode | scored | flagged implausible | rate |",
         "|---|---|---|---|",
     ]
     for k in sorted(q["scored_by_elicitation_and_parse_mode"]):
         tot = q["scored_by_elicitation_and_parse_mode"][k]
         bad = q["implausible_by_elicitation_and_parse_mode"].get(k, 0)
         lines.append(f"| `{k}` | {tot} | {bad} | {100.0 * bad / tot:.1f}% |")
-    lines += [
-        "",
+
+    consequence = (
         "Consequence for the analysis: D2 `elicitation` is the only pre-registered dimension "
-        "that contains a non-JSON elicitation level, so **P2 is the only primary result this "
-        "defect can reach**. D1, D3, D4, D5 and the whole of `skill.md` run at "
-        "`elicitation=point_ci_json`, where nothing is flagged. P2 is reported twice — with all "
-        "runs (primary, as pre-registered) and with flagged runs excluded (sensitivity, "
-        "labelled) — because the primary number measures the parser as much as it measures the "
-        "elicitation format.",
-        "",
-        "Examples (verbatim from the run records):",
-        "",
-        "```json",
-    ]
-    for e in q["implausible_examples"][:4]:
-        lines.append(json.dumps(e))
-    lines += ["```", ""]
+        "containing a non-JSON elicitation level, so **P2 was the only primary result this "
+        "defect could reach**. D1, D3, D4, D5 and the whole of `skill.md` run at "
+        "`elicitation=point_ci_json` and were never affected."
+    )
+    if q["implausible_extractions"]:
+        consequence += (
+            f" **{q['implausible_extractions']} of {scored} scored runs "
+            f"({100.0 * q['implausible_extractions'] / scored:.1f}%) remain outside the "
+            "plausibility band**, so P2 is still reported twice — with all runs (primary, as "
+            "pre-registered) and with flagged runs excluded (sensitivity, labelled)."
+        )
+    else:
+        consequence += (
+            " After the correction **no run is flagged implausible**, so the sensitivity view "
+            "excludes nothing and is identical to the primary by construction; P2 is still "
+            "reported both ways for continuity, and the primary P2 now measures elicitation "
+            "format rather than the parser."
+        )
+    lines += ["", consequence, ""]
+
+    if q["implausible_examples"]:
+        lines += ["Residual flagged extractions (verbatim from the run records):", "", "```json"]
+        for e in q["implausible_examples"][:4]:
+            lines.append(json.dumps(e))
+        lines += ["```", ""]
     return "\n".join(lines)
 
 
@@ -748,9 +920,14 @@ def quality_block(q: dict, meta: dict) -> list[str]:
             L.append(f"    - `{k}`: {v}")
     L.append(f"- Parse failures attributable to output truncation at the harness `max_tokens` "
              f"cap: **{q['parse_failures_truncated_at_max_tokens']}** of {q['parse_failures']}.")
-    L.append(f"- Parse modes: {q['parse_mode_counts']}. `json` is the intended path; "
-             "`prose_triple` / `prose_ordered` are the free-text regex fallbacks in "
-             "`harness.parse_forecast` and carry more extraction risk.")
+    L.append(f"- Parse modes: {q['parse_mode_counts']}. `json` is the intended path. "
+             "`json_keyscan` reads point/ci_low/ci_high by key out of a trailing object that "
+             "will not `json.loads` (truncated or malformed) — extraction, not repair, and "
+             "all three keys are required. `prose_cued` is the free-text path: the interval "
+             "comes from explicit interval language and the point from the cue-marked "
+             "candidate nearest it. `prose_bracketed` / `prose_ordered` are tail-scanned "
+             "fallbacks used only when no interval language is present and carry more "
+             "extraction risk. See the corrected-defect section above.")
     L.append(f"- Runs scored: **{q['scored']}**; scoring exceptions: {q['scoring_errors']}"
              + (f" — {q['scoring_error_examples']}" if q["scoring_error_examples"] else "") + ".")
     L.append(f"- Forecasts flagged `implausible_extraction` (retained, **not dropped**): "
@@ -846,7 +1023,6 @@ def dimension_spread(idx: Index, dim: str, uncond: dict[str, float],
               if e["spread_pp"] is not None and e["noise_floor_pp"]]
     spreads = [per_unit[u]["spread_pp"] for u in usable]
     noises = [per_unit[u]["noise_floor_pp"] for u in usable]
-    ratios = [per_unit[u]["ratio"] for u in usable]
 
     def stat_ratio_of_medians(sample: list[str]) -> Optional[float]:
         s = med([per_unit[u]["spread_pp"] for u in sample])
@@ -894,6 +1070,15 @@ def classify_ratio(boot: dict[str, Any]) -> tuple[str, str]:
     pt, lo, hi = boot.get("point"), boot.get("ci_low"), boot.get("ci_high")
     if pt is None or lo is None or hi is None:
         return "UNDETERMINED", "ratio or its bootstrap CI could not be computed"
+    n_u = boot.get("n_units") or 0
+    if n_u < MIN_UNITS_FOR_VERDICT:
+        return "UNDETERMINED", (f"only {n_u} unit(s) contribute; a bootstrap over fewer than "
+                                f"{MIN_UNITS_FOR_VERDICT} units cannot produce an honest "
+                                "interval, so no verdict is issued")
+    if hi - lo < 1e-12:
+        return "UNDETERMINED", (f"the bootstrap CI is degenerate ([{lo:.4f}, {hi:.4f}]) — every "
+                                "resample returned the same value, so the interval carries no "
+                                "information about sampling variability")
     if lo <= 1.0 <= hi:
         return "NULL", (f"95% bootstrap CI [{lo:.2f}, {hi:.2f}] includes 1 — the across-level "
                         "spread is not distinguishable from the within-cell noise floor")
@@ -1256,10 +1441,13 @@ def magnitude_elasticity(idx: Index, uncond: dict[str, float], rng: random.Rando
         "median_elasticity_vs_noise": med(
             [per_unit[u]["elasticity_vs_noise"] for u in usable]),
         "verdict": (
+            "UNDETERMINED" if (len(usable) < MIN_UNITS_FOR_VERDICT
+                               or boot.get("point") is None
+                               or ci_lo is None or ci_hi is None
+                               or ci_hi - ci_lo < 1e-15) else
             "NULL / MEMORISATION SIGNAL" if includes_zero else
             "MOVES, BUT IN THE WRONG DIRECTION" if (boot.get("point") or 0) > 0 else
-            "RESPONDS TO STATUTORY MAGNITUDE" if boot.get("point") is not None else
-            "UNDETERMINED"),
+            "RESPONDS TO STATUTORY MAGNITUDE"),
         "alpha_bonferroni": ALPHA_BONF,
     }
 
@@ -1378,10 +1566,16 @@ def write_primary(disp: dict, syc: dict, elas: dict, sens: dict,
         # indistinguishable from none", so the verdict is decided on that, not
         # on the concordance test alone (which drops ties and is the weakest of
         # the three declared readings).
-        distinguishable = syc["purpose_distinguishable_from_none"]
+        enough = n >= MIN_UNITS_FOR_VERDICT
+        distinguishable = syc["purpose_distinguishable_from_none"] and enough
         same_dir = syc["same_central_direction"]
-        bigger = (bd.get("ci_high") is not None and bd["ci_high"] < 0)
-        if distinguishable and same_dir:
+        bigger = (bd.get("ci_high") is not None and bd["ci_high"] < 0 and enough)
+        if not enough:
+            L.append(f"\n- **P3 VERDICT: UNDETERMINED** — only {n} unit(s) contribute, below the "
+                     f"{MIN_UNITS_FOR_VERDICT}-unit floor this analysis requires before issuing "
+                     "a verdict from a bootstrap. Not a null; a statement about the data "
+                     "available to this run.")
+        elif distinguishable and same_dir:
             L.append("\n- **P3 VERDICT: SYCOPHANCY SIGNAL** — the pre-registered P3 null "
                      "(`purpose_only` indistinguishable from `none`) is **rejected**, and the "
                      "shift runs in the same direction as the operative provisions. A pure "
@@ -1547,8 +1741,8 @@ def skill_analysis(idx: Index, units: dict, rng: random.Random, draws: int) -> d
         boot_med = bootstrap_ci(usable, lambda s: med([diffs_norm[u] for u in s]), rng, draws)
         n_improved = sum(1 for v in diffs_norm.values() if v < 0)
         lo, hi = boot.get("ci_low"), boot.get("ci_high")
-        if lo is None or hi is None:
-            verdict = "UNDETERMINED"
+        if lo is None or hi is None or len(usable) < MIN_UNITS_FOR_VERDICT or hi - lo < 1e-15:
+            verdict = "UNDETERMINED (too few units or degenerate bootstrap)"
         elif hi < 0:
             verdict = "IMPROVES"
         elif lo > 0:
@@ -1624,7 +1818,16 @@ def write_skill(sk: dict, out: Path, meta: dict, q: dict) -> None:
 
     improving = [lv for lv, r in sk["per_level"].items() if r["verdict"] == "IMPROVES"]
     degrading = [lv for lv, r in sk["per_level"].items() if r["verdict"] == "DEGRADES"]
-    if sk["per_level"] and not improving:
+    decided = [lv for lv, r in sk["per_level"].items()
+               if not r["verdict"].startswith("UNDETERMINED")]
+    if sk["per_level"] and not decided:
+        L.append("## Headline\n")
+        L.append("**No skill verdict can be issued.** Every `policy_context` level has too few "
+                 f"contributing units (minimum {MIN_UNITS_FOR_VERDICT}) or a degenerate "
+                 "bootstrap. This is a statement about the data available to this run, not a "
+                 "finding about the tool: it is neither the pre-registered skill null nor "
+                 "evidence of skill. Re-run against a complete sweep.\n")
+    elif sk["per_level"] and not improving:
         L.append("## Headline\n")
         L.append("**Conditioning on the bill does not improve the forecast.** No "
                  "`policy_context` level has a 95% bootstrap CI for "
@@ -1823,8 +2026,7 @@ def write_figure(idx: Index, idx_plaus: Index, uncond: dict[str, float], units: 
                 f"{dim}  {field}", ha="center", va="top", fontsize=17, fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.32", facecolor="#eeeeee", edgecolor="#bbbbbb"))
 
-    ax.set_xlabel("configuration (dimension slice; all other dimensions held at reference)",
-                  labelpad=14)
+    xlabel_text = "configuration (dimension slice; all other dimensions held at reference)"
     ax.set_ylabel("forecast / unit's unconditioned median", labelpad=10)
     d1 = meta.get("d1_ratio_str", "")
     fig.suptitle("Bill-conditioned SNAP forecasts: harness dispersion",
@@ -1844,21 +2046,43 @@ def write_figure(idx: Index, idx_plaus: Index, uncond: dict[str, float], units: 
                 Line2D([], [], color="#444444", linewidth=3, linestyle="--", label="2024-03")]
     ax.legend(handles=handles, loc="center left", bbox_to_anchor=(1.005, 0.5),
               frameon=True, title="unit", title_fontsize=15)
-    caption = (f"Flat lines = robustness to the harness. Fanning = harness sensitivity. "
-               f"Gaps = cell not run. No configuration is recommended.\n"
-               f"{len(cols)} slice positions spanning {n_distinct} distinct configurations "
-               "(the reference cell recurs once per dimension); each point is the median of 5 "
-               "repeats.")
+    import textwrap
+    cap_parts = [
+        "Flat lines = robustness to the harness. Fanning = harness sensitivity. "
+        "Gaps = cell not run. No configuration is recommended.",
+        f"{len(cols)} slice positions spanning {n_distinct} distinct configurations (the "
+        "reference cell recurs once per dimension); each point is the median of 5 repeats.",
+    ]
     if n_offscale:
-        caption += (f"\n{n_offscale} point(s) fall outside the plotted range and are marked with "
-                    "triangles at the axis edge: cells whose median is a mis-extracted "
-                    "free-text forecast (a calendar year read as a caseload). "
-                    "They are retained in every reported number; see results_table.md.")
-    bottom = 0.30 if n_offscale else 0.26
-    fig.text(0.008, 0.015, caption, fontsize=13, color="#444444", va="bottom")
+        cap_parts.append(
+            f"{n_offscale} point(s) fall outside the plotted range and are marked with "
+            "triangles at the axis edge: cells whose median is a mis-extracted free-text "
+            "forecast (a calendar year read as a caseload). They are retained in every "
+            "reported number; see results_table.md.")
+    wrap_at = int(11.5 * max(15.0, 0.62 * len(cols)))
+    caption = "\n".join(textwrap.fill(p, wrap_at) for p in cap_parts)
+    # Deterministic vertical stack, all in FIGURE coordinates: caption at the
+    # foot, then the x-label, then the axes. Letting matplotlib place the
+    # x-label relative to the rotated tick labels put it on top of the caption.
+    n_cap_lines = caption.count("\n") + 1
+    cap_y = 0.012
+    cap_top = cap_y + 0.028 * n_cap_lines
+    xlabel_y = cap_top + 0.030
+    fig.text(0.008, cap_y, caption, fontsize=12.5, color="#444444", va="bottom",
+             linespacing=1.35)
+    fig.text(0.465, xlabel_y, xlabel_text, fontsize=20, ha="center", va="bottom")
     # Explicit geometry rather than tight_layout + bbox_inches="tight": the two
     # together left a large dead band between the tick labels and the x-label.
-    fig.subplots_adjust(left=0.075, right=0.855, top=0.855, bottom=bottom)
+    # The bottom margin is MEASURED from the rendered rotated tick labels rather
+    # than guessed, so a longer level name cannot silently overlap the x-label.
+    fig.subplots_adjust(left=0.075, right=0.855, top=0.855, bottom=0.33)
+    fig.canvas.draw()
+    inv = fig.transFigure.inverted()
+    drop = 0.0
+    for lab in ax.get_xticklabels():
+        bb = lab.get_window_extent(renderer=fig.canvas.get_renderer())
+        drop = max(drop, ax.get_position().y0 - inv.transform((0, bb.y0))[1])
+    fig.subplots_adjust(bottom=min(0.55, xlabel_y + drop + 0.035))
     png = outdir / "figure_dispersion.png"
     svg = outdir / "figure_dispersion.svg"
     fig.savefig(png, dpi=130)

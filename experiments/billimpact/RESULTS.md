@@ -2,7 +2,10 @@
 
 **2026-07-31, Hacking the Think Tank II (FAI/IFP, Washington DC).**
 David Gringras. Design frozen in [`PREREGISTRATION.md`](PREREGISTRATION.md),
-committed at 11:38 EDT — **before the first model call** (commit `f95c4b6c`).
+committed at 09:59 EDT — **before the first model call** (commit `f95c4b6c`).
+Amendments: [`PREREG-AMENDMENT-1.md`](PREREG-AMENDMENT-1.md) (corpus B, bake-off,
+decomposed elicitation, FPUC $-perturbation), [`PREREG-AMENDMENT-2.md`](PREREG-AMENDMENT-2.md)
+(P3 mechanism decomposition) — each committed before its own first run.
 
 Canonical analysis outputs: [`results/`](results/). Figure for the demo:
 [`results/demo_dispersion.png`](results/demo_dispersion.png).

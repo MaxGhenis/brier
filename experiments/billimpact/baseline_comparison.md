@@ -86,7 +86,11 @@ The train boundary is the literal at `site/src/data/brier-lab.ts:387`. Unresolve
 
 ## 5. Applying the house normalization to our runs
 
-**The house convention is not literally applicable, and the reason is the substrate, not the estimator.** Our targets are state monthly SNAP recipient counts (`BR<ST><FIPS>M647NCEN`). The PolicyEngine Ledger contains no `target_registered` entry and no `observation_recorded` entries for these series, so `ledgerHistoryAtCutoff` returns an empty history and `targetNormalizationScale` would return `null` (`source = "unavailable"`) for all twelve units. Under the house function verbatim, our normalized CRPS is undefined for every row.
+**The house convention is not literally applicable, and the reason is the substrate, not the estimator.** Our targets are state monthly SNAP recipient counts (`BR<ST><FIPS>M647NCEN`), and the PolicyEngine Ledger carries nothing for them.
+
+Verified on this run rather than asserted: the sealed ledger surface `records/2026-07-30/bodies-30559368462-1/ledger.json.gz` holds 908 entries (745 `target_registered`, 163 `observation_recorded`). Substring hits for each of our twelve series ids: `BRCA06M647NCEN` 0, `BRFL12M647NCEN` 0, `BRNY36M647NCEN` 0, `BRTX48M647NCEN` 0, `BRPA42M647NCEN` 0, `BROH39M647NCEN` 0. Hits for the id stems `fns.snap.recipients` 0, `m647ncen` 0, `snap_recipients` 0.
+
+With no ledger history, `ledgerHistoryAtCutoff` returns an empty list and `targetNormalizationScale` returns `null` (`source = "unavailable"`) for all twelve units. Under the house function verbatim, our normalized CRPS is undefined for every row.
 
 What this script does instead, stated exactly:
 
@@ -110,43 +114,48 @@ What this script does instead, stated exactly:
 | `snap.oh.2023-12` | BROH39M647NCEN | 2023-12 | 2021-06 | 30 | 60 | 32,309 |
 | `snap.oh.2024-03` | BROH39M647NCEN | 2024-03 | 2021-06 | 33 | 60 | 32,309 |
 
-## 6. A parser defect that contaminates the pooled numbers
+## 6. Extraction integrity
 
-Scoring the full run set surfaced a problem that is not about forecast quality at all. `runs_api.jsonl` records a `forecast.parse_mode` per run, and the three modes do not behave alike:
+Scored file: `experiments/billimpact/runs_api.jsonl`. Every run record carries a `forecast.parse_mode`, and the point-over-truth ratio per mode is the cheapest test of whether the extractor found the forecast at all:
 
 | parse_mode | runs | median point / truth | min | max | median CRPS |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `json` | 2212 | 0.992 | 0.7368 | 1.192 | 90,847 |
-| `prose_ordered` | 102 | 0.0006876 | 0.0003734 | 1.115 | 2,857,610 |
-| `prose_triple` | 197 | 0.001451 | 0.0003738 | 1.128 | 1,291,165 |
+| `json` | 2216 | 0.992 | 0.7368 | 1.192 | 90,847 |
+| `json_keyscan` | 4 | 0.9018 | 0.8553 | 0.9543 | 236,580 |
+| `prose_cued` | 300 | 0.9863 | 0.7426 | 1.192 | 66,639 |
 
-**205 runs carry a point estimate between 1900 and 2100** — that is, a calendar year standing where a recipient count should be. They are essentially all in the prose paths, which are essentially all `free_text`. A forecast of `2023` against a truth of `5,318,809` is the extraction step failing, not a model believing California has two thousand SNAP recipients.
+Runs whose point estimate falls in [1900, 2100] — a calendar year standing where a recipient count should be: **0**.
 
-Consequences that matter for the preregistration: **P2 (dispersion across D2 `elicitation`) currently measures the parser, not the elicitation contract**, because `free_text` is the mode whose extraction is broken. The pooled CRPS mean below is likewise dominated by these rows. Nothing is dropped here — the primary table reports the full population — but a `parse_mode == "json"` cut is reported alongside it. That cut is a *parser-integrity* restriction on a field the harness records itself, decided before looking at any score, not an outlier trim on the outcome.
+**This report reads the canonical run file, whose forecasts were re-derived through the corrected parser.** The pre-fix bytes at `experiments/billimpact/runs_api.preparserfix.jsonl` are preserved and scored alongside it, so the defect stays visible instead of being quietly fixed away. The v1 prose fallback filtered candidate numbers with `n > 1000` (calendar years clear that) and returned the first ordered triple, so a prose response that discusses history before answering parsed as its years. Same model responses in both rows — the only difference is the extraction.
 
-A further **9** runs were unscoreable outright (`ci_low == ci_high`, so no interval exists) and are excluded from every figure rather than imputed. All nine are `free_text`.
+| file | runs scored | year-shaped points | median CRPS | mean normalized CRPS | 80% coverage |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `runs_api.jsonl` (corrected) | 2520 | 0 | 86,391 | 2.843 | 0.5512 |
+| `runs_api.preparserfix.jsonl` (pre-fix) | 2511 | 205 | 116,217 | 14.24 | 0.5161 |
+
+The defect fired only on `free_text`, which is one LEVEL of a measured dimension (D2 `elicitation`). That is worse than noise: it manufactures a difference between free text and JSON that has nothing to do with elicitation format, which is exactly the class of artifact this experiment exists to detect. Preregistered analysis P2 must be read off the corrected file.
 
 ## 7. Side by side
 
-House rows are the 11 score-carrying rows of the sealed export (5 of them normalized). Our rows are the 2511 scored bill-impact runs (`runs_api.jsonl`, sha256 `d98c74ef1e264721…`, 2520 lines, 4649166 bytes at read time; the sweep was still writing this file, so the snapshot identity is pinned rather than assumed).
+House rows are the 11 score-carrying rows of the sealed export (5 of them normalized). Our rows are the 2520 scored bill-impact runs (`experiments/billimpact/runs_api.jsonl`, sha256 `b4dbc27b96b3b35d…`, 2520 lines, 5011984 bytes at read time; the sweep was still writing this file, so the snapshot identity is pinned rather than assumed).
 
 | population | metric | N | mean | median | Q1 | Q3 | min | max |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | house (`ledger_dispersion` + raw) | CRPS (mixed units) | 11 | 9.927 | 4.134 | 0.3876 | 16.23 | 0.03187 | 39.79 |
 | house | normalized CRPS | 5 | 1.901 | 1.856 | 1.274 | 2.845 | 0.5315 | 2.996 |
-| billimpact, all runs | CRPS (recipients) | 2511 | 524,620 | 116,217 | 44,168 | 229,263 | 7737 | 225,654,012 |
-| billimpact, all runs | normalized CRPS | 2511 | 14.24 | 1.953 | 1.128 | 4.333 | 0.2108 | 11,089 |
-| billimpact, all runs | PIT | 2511 | 0.5582 | 0.6013 | 0.2101 | 0.9112 | 0 | 1 |
-| billimpact, `parse_mode == json` | CRPS (recipients) | 2212 | 159,524 | 90,847 | 40,765 | 189,055 | 7737 | 1,342,630 |
-| billimpact, `parse_mode == json` | normalized CRPS | 2212 | 2.889 | 1.78 | 1.066 | 3.102 | 0.2108 | 15.63 |
-| billimpact, `parse_mode == json` | PIT | 2212 | 0.5159 | 0.5509 | 0.1616 | 0.862 | 0 | 1 |
+| billimpact, all runs | CRPS (recipients) | 2520 | 157,868 | 86,391 | 40,271 | 189,554 | 7737 | 1,342,630 |
+| billimpact, all runs | normalized CRPS | 2520 | 2.843 | 1.779 | 1.055 | 3.102 | 0.2108 | 15.63 |
+| billimpact, all runs | PIT | 2520 | 0.5232 | 0.5619 | 0.1711 | 0.8813 | 0 | 1 |
+| billimpact, JSON path | CRPS (recipients) | 2220 | 159,492 | 90,847 | 40,956 | 189,554 | 7737 | 1,342,630 |
+| billimpact, JSON path | normalized CRPS | 2220 | 2.894 | 1.78 | 1.066 | 3.102 | 0.2108 | 15.63 |
+| billimpact, JSON path | PIT | 2220 | 0.5168 | 0.5547 | 0.1616 | 0.8637 | 0 | 1 |
 
 | population | 80% interval coverage | N |
 | --- | ---: | ---: |
 | house, all score-carrying rows | 0.3636 (4/11) | 11 |
 | house, witness-verified agent rows only | 0.375 (3/8) | 8 |
-| billimpact, all scored runs | 0.5161 (1296/2511) | 2511 |
-| billimpact, `parse_mode == json` | 0.5552 (1228/2212) | 2212 |
+| billimpact, all scored runs | 0.5512 (1389/2520) | 2520 |
+| billimpact, JSON path | 0.555 (1232/2220) | 2220 |
 
 ### What this table does and does not license
 
@@ -154,7 +163,7 @@ House rows are the 11 score-carrying rows of the sealed export (5 of them normal
 - **N.** The house side is single digits. Treat its mean and quartiles as a description of eleven rows, not as a lab-wide calibration estimate.
 - **Population.** House rows are witness-verified single forecasts on registered targets plus three deterministic persistence baselines. Ours are repeated single-shot API calls across a deliberately varied scaffolding grid, so their dispersion is the experiment's object of study rather than an agent's best effort.
 - **Same transform, same scorer.** Both sides run the identical CDF construction and CRPS integral: `scripts/run_thesis_analyst.py:159` (the Python port used here) against `site/src/data/prediction-distribution.ts:147` (the TypeScript original the export was built with). That part *is* apples to apples.
-- **Read the `json` cut, not the pooled row, for anything about forecast quality.** The pooled mean is a parser artifact (§6); the `parse_mode == "json"` cohort is 2212 runs whose extraction is intact.
+- **The JSON-path cut is reported alongside the pooled row** because that elicitation path was never touched by the extraction defect in §6; it is 2220 runs.
 
 ## 8. Reproduce
 

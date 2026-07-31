@@ -1,6 +1,6 @@
 # Skill — does conditioning on the bill improve the forecast?
 
-Generated 2026-07-31T10:29:13-04:00. **N = 2516 scored runs, 12 units.** Sweep completion: 2520/2520 cells (100.0%).
+Generated 2026-07-31T10:56:07-04:00. **N = 2520 scored runs, 12 units.** Sweep completion: 2520/2520 cells (100.0%).
 
 `skill_vs_unconditioned` = CRPS(conditioned) - CRPS(`none`), per `policy_context` level, at the reference configuration for the other four dimensions (`{'elicitation': 'point_ci_json', 'pipeline': 'single_pass', 'model': 'claude-sonnet-5', 'magnitude': 'actual'}`). **Negative = improvement.** CRPS is normalised by the SD of each unit's own supplied 60-month history, frozen in `ground_truth.json` at pre-registration; it is never normalised by the model's own interval width.
 
@@ -12,10 +12,10 @@ Generated 2026-07-31T10:29:13-04:00. **N = 2516 scored runs, 12 units.** Sweep c
 
 | level | n_units | mean skill (normalised CRPS) | 95% CI | median skill | 95% CI | mean skill (persons) | units improved | sign-test p | verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| `summary` | 12 | 0.3063 | [-0.0668, 0.7312] | 0.0351 | [-0.1278, 0.6507] | 23218 | 5/12 | 0.7744 | **NO DETECTABLE SKILL (CI includes 0)** |
-| `operative_only` | 12 | 0.2209 | [-0.0685, 0.5912] | -0.0303 | [-0.0752, 0.1690] | 9096 | 7/12 | 0.7744 | **NO DETECTABLE SKILL (CI includes 0)** |
-| `purpose_only` | 12 | 0.1989 | [-0.1202, 0.5388] | 0.1826 | [-0.2737, 0.5110] | 16341 | 4/12 | 0.3877 | **NO DETECTABLE SKILL (CI includes 0)** |
-| `operative_plus_purpose` | 12 | 0.4630 | [-0.0794, 1.1113] | 0.1172 | [-0.1328, 0.6058] | 64620 | 4/12 | 0.3877 | **NO DETECTABLE SKILL (CI includes 0)** |
+| `summary` | 12 | 0.3063 | [-0.0907, 0.7405] | 0.0351 | [-0.1278, 0.6507] | 23218 | 5/12 | 0.7744 | **NO DETECTABLE SKILL (CI includes 0)** |
+| `operative_only` | 12 | 0.2209 | [-0.0702, 0.5973] | -0.0303 | [-0.0752, 0.1690] | 9096 | 7/12 | 0.7744 | **NO DETECTABLE SKILL (CI includes 0)** |
+| `purpose_only` | 12 | 0.1989 | [-0.1166, 0.5389] | 0.1826 | [-0.2737, 0.5110] | 16341 | 4/12 | 0.3877 | **NO DETECTABLE SKILL (CI includes 0)** |
+| `operative_plus_purpose` | 12 | 0.4630 | [-0.0868, 1.1082] | 0.1172 | [-0.1328, 0.6058] | 64620 | 4/12 | 0.3877 | **NO DETECTABLE SKILL (CI includes 0)** |
 
 ## Accuracy and calibration by level (context for the numbers above)
 
@@ -28,6 +28,17 @@ Generated 2026-07-31T10:29:13-04:00. **N = 2516 scored runs, 12 units.** Sweep c
 | `operative_plus_purpose` | 12 | 60 | 196,583 | 1.336 | 18274 | 0.283 | 0.636 | 242,833 | 1.632 |
 
 Calibration reading (EXPLORATORY, per the pre-registration): nominal 80% coverage is 0.80 and a calibrated mean PIT is 0.50. A mean PIT near 0 or 1 means the intervals sit systematically on one side of the realised value.
+
+**Every level is badly over-confident.** Observed 80% coverage ranges 0.283-0.500 against a nominal 0.80: these are not 80% intervals at this horizon. This is EXPLORATORY (PIT calibration was declared exploratory in advance), and it is the same story the skill table tells — the dominant error at a 30-33 month horizon is not the policy signal.
+
+Run-level coverage vs the unconditioned baseline (EXPLORATORY; two-proportion z-test from `brier/experiments/analyze.py`, whose p-values are **bucketed**, not exact):
+
+| level | n_runs | coverage | coverage(`none`) | difference | p (bucketed) |
+|---|---|---|---|---|---|
+| `summary` | 60 | 0.417 | 0.500 | -0.083 | 0.200 |
+| `operative_only` | 60 | 0.317 | 0.500 | -0.183 | 0.050 |
+| `purpose_only` | 60 | 0.283 | 0.500 | -0.217 | 0.050 |
+| `operative_plus_purpose` | 60 | 0.283 | 0.500 | -0.217 | 0.050 |
 
 ## Per-unit skill (normalised CRPS difference vs `none`)
 

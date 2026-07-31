@@ -1,6 +1,6 @@
 # Dispersion — the headline
 
-Generated 2026-07-31T10:29:55-04:00. **N = 2516 scored runs, 12 units, 5 repeats per cell by design.** Sweep completion: 2520/2520 cells (100.0%).
+Generated 2026-07-31T10:56:07-04:00. **N = 2520 scored runs, 12 units, 5 repeats per cell by design.** Sweep completion: 2520/2520 cells (100.0%).
 
 > The pre-registered headline quantity is a **dispersion, not a best configuration**. No configuration is recommended anywhere in this file, and none will be.
 
@@ -23,7 +23,7 @@ For each dimension, all OTHER dimensions are held at the reference configuration
 | dim | field | n_levels | n_units | spread % (median) | spread IQR | noise floor % (median) | noise IQR | ratio | 95% CI | verdict |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | `policy_context` | 5 | 12 | 3.54 | [2.86, 4.69] | 1.96 | [1.49, 2.85] | 1.81 | [1.11, 2.65] | **EXCEEDS NOISE FLOOR** |
-| D2 | `elicitation` | 4 | 12 | 8.40 | [5.58, 10.77] | 5.49 | [3.41, 6.58] | 1.53 | [1.06, 2.29] | **EXCEEDS NOISE FLOOR** |
+| D2 | `elicitation` | 4 | 12 | 8.10 | [5.91, 10.77] | 4.67 | [2.60, 5.57] | 1.73 | [1.17, 2.92] | **EXCEEDS NOISE FLOOR** |
 | D3 | `pipeline` | 2 | 12 | 1.04 | [0.52, 1.73] | 2.97 | [2.01, 4.42] | 0.35 | [0.10, 0.76] | **NULL** |
 | D4 | `model` | 4 | 12 | 9.31 | [4.89, 12.69] | 2.00 | [1.87, 2.72] | 4.65 | [2.11, 6.46] | **EXCEEDS NOISE FLOOR** |
 | D5 | `magnitude` | 3 | 11 | 2.13 | [1.06, 2.86] | 1.82 | [1.22, 3.03] | 1.17 | [0.34, 1.94] | **NULL** |
@@ -87,46 +87,46 @@ For each dimension, all OTHER dimensions are held at the reference configuration
 - Levels present in data: ['point_ci_json', 'free_text', 'cot_then_json', 'forced_choice_bins']
 - Held fixed: `{'policy_context': 'operative_only', 'pipeline': 'single_pass', 'model': 'claude-sonnet-5', 'magnitude': 'actual'}`
 - Units contributing: **12**
-- spread: median **8.40%**, IQR [5.58%, 10.77%]
-- noise_floor: median **5.49%**, IQR [3.41%, 6.58%]
-- **ratio (median spread / median noise) = 1.532**, 95% CI [1.058, 2.286] (2000/2000 valid draws)
-- median_of_ratios = 1.912, 95% CI [1.610, 2.272]
-- **Verdict: EXCEEDS NOISE FLOOR** — point ratio 1.53, 95% bootstrap CI [1.06, 2.29] excludes 1 from below
-- *Robustness (EXPLORATORY), pooling over all 5 `policy_context` levels instead of holding it at `operative_only`:* ratio 1.202, 95% CI [0.781, 1.989], verdict NULL (n_units 12).
+- spread: median **8.10%**, IQR [5.91%, 10.77%]
+- noise_floor: median **4.67%**, IQR [2.60%, 5.57%]
+- **ratio (median spread / median noise) = 1.734**, 95% CI [1.174, 2.919] (2000/2000 valid draws)
+- median_of_ratios = 1.799, 95% CI [1.282, 2.708]
+- **Verdict: EXCEEDS NOISE FLOOR** — point ratio 1.73, 95% bootstrap CI [1.17, 2.92] excludes 1 from below
+- *Robustness (EXPLORATORY), pooling over all 5 `policy_context` levels instead of holding it at `operative_only`:* ratio 1.431, 95% CI [1.039, 2.058], verdict EXCEEDS NOISE FLOOR (n_units 12).
 
   Per-unit values:
 
   | unit | spread % | noise floor % | ratio | levels present | reps per level |
   |---|---|---|---|---|---|
-  | snap.ca.2023-12 | 19.95 | 8.33 | 2.39 | 4 | 19 |
-  | snap.ca.2024-03 | 11.52 | 6.57 | 1.75 | 4 | 20 |
-  | snap.fl.2023-12 | 11.79 | 7.18 | 1.64 | 4 | 20 |
+  | snap.ca.2023-12 | 22.22 | 8.33 | 2.67 | 4 | 20 |
+  | snap.ca.2024-03 | 11.52 | 5.96 | 1.93 | 4 | 20 |
+  | snap.fl.2023-12 | 11.79 | 4.29 | 2.75 | 4 | 20 |
   | snap.fl.2024-03 | 10.53 | 6.32 | 1.67 | 4 | 20 |
-  | snap.ny.2023-12 | 3.45 | 1.67 | 2.07 | 4 | 20 |
-  | snap.ny.2024-03 | 3.16 | 1.40 | 2.26 | 4 | 20 |
-  | snap.oh.2023-12 | 6.94 | 2.43 | 2.86 | 4 | 20 |
-  | snap.oh.2024-03 | 8.28 | 3.84 | 2.15 | 4 | 20 |
-  | snap.pa.2023-12 | 8.53 | 3.73 | 2.29 | 4 | 20 |
-  | snap.pa.2024-03 | 6.28 | 5.46 | 1.15 | 4 | 20 |
-  | snap.tx.2023-12 | 2.82 | 6.62 | 0.43 | 4 | 20 |
-  | snap.tx.2024-03 | 8.70 | 5.51 | 1.58 | 4 | 20 |
+  | snap.ny.2023-12 | 2.76 | 2.24 | 1.23 | 4 | 20 |
+  | snap.ny.2024-03 | 2.37 | 2.42 | 0.98 | 4 | 20 |
+  | snap.oh.2023-12 | 6.94 | 2.34 | 2.96 | 4 | 20 |
+  | snap.oh.2024-03 | 8.28 | 3.28 | 2.53 | 4 | 20 |
+  | snap.pa.2023-12 | 8.53 | 2.67 | 3.20 | 4 | 20 |
+  | snap.pa.2024-03 | 7.92 | 5.05 | 1.57 | 4 | 20 |
+  | snap.tx.2023-12 | 2.82 | 5.28 | 0.53 | 4 | 20 |
+  | snap.tx.2024-03 | 7.25 | 5.43 | 1.33 | 4 | 20 |
 
   Per-unit level medians, normalised to each unit's unconditioned median (1.000 = identical to the unconditioned forecast):
 
   | unit | point_ci_json | free_text | cot_then_json | forced_choice_bins |
   |---|---|---|---|---|
-  | snap.ca.2023-12 | 1.000 | 0.856 | 1.056 | 0.883 |
-  | snap.ca.2024-03 | 1.000 | 0.990 | 1.000 | 0.885 |
+  | snap.ca.2023-12 | 1.000 | 0.838 | 1.061 | 0.883 |
+  | snap.ca.2024-03 | 1.000 | 1.000 | 1.000 | 0.885 |
   | snap.fl.2023-12 | 1.007 | 1.018 | 1.036 | 1.125 |
   | snap.fl.2024-03 | 1.000 | 1.000 | 1.018 | 1.105 |
-  | snap.ny.2023-12 | 0.983 | 0.976 | 0.983 | 1.010 |
-  | snap.ny.2024-03 | 0.973 | 0.958 | 0.983 | 0.990 |
+  | snap.ny.2023-12 | 0.983 | 0.983 | 0.983 | 1.010 |
+  | snap.ny.2024-03 | 0.973 | 0.966 | 0.983 | 0.990 |
   | snap.oh.2023-12 | 0.993 | 0.993 | 0.972 | 1.042 |
-  | snap.oh.2024-03 | 0.993 | 1.055 | 0.993 | 1.076 |
+  | snap.oh.2024-03 | 0.993 | 0.993 | 0.993 | 1.076 |
   | snap.pa.2023-12 | 0.976 | 1.003 | 1.013 | 0.928 |
-  | snap.pa.2024-03 | 0.973 | 1.011 | 1.000 | 0.948 |
+  | snap.pa.2024-03 | 0.973 | 1.027 | 1.000 | 0.948 |
   | snap.tx.2023-12 | 0.972 | 0.958 | 0.972 | 0.944 |
-  | snap.tx.2024-03 | 1.000 | 0.971 | 1.014 | 1.058 |
+  | snap.tx.2024-03 | 1.000 | 0.986 | 1.014 | 1.058 |
 
 ### D3 — `pipeline`
 

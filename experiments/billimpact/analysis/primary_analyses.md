@@ -1,6 +1,6 @@
 # Primary analyses — P1, P2, P3, P4 (pre-registered)
 
-Generated 2026-07-31T10:33:44-04:00. **N = 2520 scored runs across 12 units; 5 repeats per cell by design.** Sweep completion: 2520/2520 cells (100.0%).
+Generated 2026-07-31T10:56:09-04:00. **N = 2520 scored runs across 12 units; 5 repeats per cell by design.** Sweep completion: 2520/2520 cells (100.0%).
 
 Four primary tests were declared in advance. Bonferroni-corrected alpha = 0.05/4 = **0.0125**. Everything not labelled P1-P4 below is **EXPLORATORY**.
 
@@ -19,12 +19,10 @@ Four primary tests were declared in advance. Bonferroni-corrected alpha = 0.05/4
 ## P2 — dispersion across D2 `elicitation`
 
 - n_units = **12**; levels = ['point_ci_json', 'free_text', 'cot_then_json', 'forced_choice_bins']
-- spread: median **98.51%**, IQR [12.03%, 103.35%]
-- noise floor: median **28.12%**, IQR [24.79%, 28.98%]
-- **ratio = 3.503**, 95% bootstrap CI [0.409, 4.149]
-- **P2 VERDICT: NULL** — 95% bootstrap CI [0.41, 4.15] includes 1 — the across-level spread is not distinguishable from the within-cell noise floor
-
-> **P2 is the one primary result the free-text extraction defect can reach.** 271 scored runs parsed to a calendar year or similar artefact instead of a caseload, all from the prose fallback, and `free_text` is a D2 level (full diagnosis in `results_table.md`). The numbers above retain those runs, as pre-registered. Excluding them: spread median 7.76%, noise floor median 4.09%, ratio 1.896 95% CI [1.038, 2.893], verdict **EXCEEDS NOISE FLOOR** (n_units 12). Neither figure is the 'true' one on its own: the primary measures the harness end-to-end (parser included, which is what a user would actually get), the sensitivity measures the elicitation format alone.
+- spread: median **8.10%**, IQR [5.91%, 10.77%]
+- noise floor: median **4.67%**, IQR [2.60%, 5.57%]
+- **ratio = 1.734**, 95% bootstrap CI [1.174, 2.919]
+- **P2 VERDICT: EXCEEDS NOISE FLOOR** — point ratio 1.73, 95% bootstrap CI [1.17, 2.92] excludes 1 from below
 
 ## P3 — the sycophancy test
 

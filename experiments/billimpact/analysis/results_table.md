@@ -1,6 +1,6 @@
 # Results table — one row per configuration cell
 
-Generated 2026-07-31T10:33:44-04:00 from `experiments/billimpact/runs_api.jsonl`.
+Generated 2026-07-31T10:56:09-04:00 from `/Users/davidgringras26-27/career/thesis/experiments/billimpact/runs_api.jsonl`.
 
 **N = 2520 runs read, 2520 scored, 42 configuration cells, 12 units.** Sweep completion: 2520/2520 cells (100.0%).
 
@@ -17,48 +17,62 @@ Every row states its own N. Reps per (cell, unit) = 5 by pre-registration; a par
 - `n_implaus` — runs flagged `implausible_extraction`. A parsed forecast is flagged `implausible_extraction` when its point OR either interval endpoint falls outside [0.1x, 10x] the unit's last observed history value. This band is deliberately loose (a state SNAP caseload cannot move 10-fold in 30 months). It exists to separate an extraction artefact from a forecast, not to filter forecasts by quality. **Flagged runs are retained in every number in this table**; the sensitivity analysis that excludes them is reported separately in `dispersion.md` and `primary_analyses.md`.
 
 
-## DATA-QUALITY FINDING — free-text extraction returns calendar years as forecasts
+## DATA-QUALITY FINDING (CORRECTED) — free-text extraction returned calendar years as forecasts
 
-**271 of 2520 scored runs (10.8%) parsed to a value outside [0.1x, 10x] the unit's last observed caseload.** Every one of them came from the prose fallback in `harness.parse_forecast`, and the modal failure is the same: a four-digit CALENDAR YEAR extracted as a person count.
+**Status: found, fixed, and re-derived offline. No run was dropped.** The numbers in every table in this report come from the corrected parse (parser versions observed on the run records: `{'parse_forecast_v2': 2520}`).
 
-Mechanism (harness.py, unmodified — this is a report, not a patch): the prose fallback regex `_NUM` (harness.py:338) matches any number, and the filter at harness.py:379 keeps candidates with `n > 1000`. `2021`, `2023` and `2024` all clear that threshold, so a sentence like "the last available data point in June 2021" yields `{point: 2023, ci_low: 2021, ci_high: 2023}` for a series whose true level is ~4.2 million. The JSON path is unaffected: 0 of the `json`-parsed runs are flagged.
+### What went wrong
 
-| elicitation / parse_mode | scored | implausible | rate |
+The v1 prose fallback in `harness.parse_forecast` matched any number, filtered candidates with `n > 1000`, and returned the FIRST 3-wide window satisfying an ordering test. `2021`, `2023` and `2024` all clear 1000, and a prose forecast discusses the series history before it states an answer, so the first matching window was routinely a run of calendar years: "the last available data point in June 2021" yielded `{point: 2023, ci_low: 2021, ci_high: 2023}` for a series whose true level is ~4.2 million persons.
+
+This was not noise. It fired only on prose, which is one LEVEL of a measured dimension (D2 `elicitation`), so it manufactured a difference between `free_text` and JSON that had nothing to do with elicitation format — the exact class of artefact this experiment exists to detect. A quieter second case hit `cot_then_json`: a trailing JSON object truncated at `max_tokens` or broken by a stray quote never reached the JSON path, so the prose heuristic mined the reasoning instead of reading the answer.
+
+### Measured extent, before and after
+
+Derived from the `forecast_v1` field preserved on **2515** re-derived records (`reparse.py`), not from narrative. Cells that were quarantined and re-executed no longer carry a v1 parse in this file, so their pre-fix parses are counted separately below: **4** further calendar-year points sit in the sibling quarantine file(s), for a complete pre-fix total of **214**.
+
+| quantity | before fix | after fix |
+|---|---|---|
+| points that were a calendar year (1900-2100) | 214 (210 here + 4 quarantined) | 0 |
+| forecasts with no interval at all (`ci_low == ci_high`) | 9 | 0 |
+| runs outside [0.1x, 10x] the unit's last observed caseload | (all of the above) | 0 |
+| point estimates changed by the re-derivation | — | 263 |
+
+v1 parse modes across those records: `{'json': 2212, 'prose_triple': 201, 'prose_ordered': 102}`. Calendar-year points by elicitation level: `{'free_text': 209, 'cot_then_json': 1}`.
+
+### How it was corrected
+
+1. `harness.parse_forecast` v2 rejects year-shaped tokens, restricts prose candidates to within [0.2x, 5x] the unit's own last OBSERVED history value, locates the interval from explicit interval language taking the LAST such statement, and takes the point from the cue-marked candidate nearest that interval. The band is a SCALE filter, not an accuracy filter — a forecast of a 3x collapse still parses and is then scored badly on merit — and it is applied to the prose path ONLY, never to the JSON path, so D5 `magnitude_elasticity` (which runs entirely at `point_ci_json`) cannot be muted by it.
+2. The parser is strictly EXTRACTIVE. A response stating an interval but no point, or truncated before it answers, FAILS the parse and is counted; it is never repaired by imputing a midpoint the model did not write.
+3. Every stored response was re-derived OFFLINE — no model was re-called for the correction, so the re-parse is deterministic and introduces no new sampling. The alternative, re-eliciting `free_text`, would have drawn a fresh sample at a later date on one level of a measured dimension, which is a worse cure than the disease.
+4. All **2212 of 2212** runs that had parsed via strict JSON re-derived to identical values, confirming the fix is confined to the prose and malformed-JSON paths.
+5. Runs that remained unparseable were QUARANTINED with a recorded reason and re-executed under the raised `max_tokens` caps (see the quarantine table below); they were all truncations at the older caps, not model refusals.
+
+| elicitation / parse_mode | scored | flagged implausible | rate |
 |---|---|---|---|
-| `cot_then_json/json` | 294 | 0 | 0.0% |
-| `cot_then_json/prose_ordered` | 1 | 1 | 100.0% |
-| `cot_then_json/prose_triple` | 5 | 5 | 100.0% |
+| `cot_then_json/json` | 298 | 0 | 0.0% |
+| `cot_then_json/json_keyscan` | 2 | 0 | 0.0% |
 | `forced_choice_bins/json` | 299 | 0 | 0.0% |
-| `forced_choice_bins/prose_triple` | 1 | 0 | 0.0% |
-| `free_text/prose_ordered` | 101 | 100 | 99.0% |
-| `free_text/prose_triple` | 199 | 165 | 82.9% |
+| `forced_choice_bins/json_keyscan` | 1 | 0 | 0.0% |
+| `free_text/prose_cued` | 300 | 0 | 0.0% |
 | `point_ci_json/json` | 1619 | 0 | 0.0% |
-| `point_ci_json/prose_triple` | 1 | 0 | 0.0% |
+| `point_ci_json/json_keyscan` | 1 | 0 | 0.0% |
 
-Consequence for the analysis: D2 `elicitation` is the only pre-registered dimension that contains a non-JSON elicitation level, so **P2 is the only primary result this defect can reach**. D1, D3, D4, D5 and the whole of `skill.md` run at `elicitation=point_ci_json`, where nothing is flagged. P2 is reported twice — with all runs (primary, as pre-registered) and with flagged runs excluded (sensitivity, labelled) — because the primary number measures the parser as much as it measures the elicitation format.
-
-Examples (verbatim from the run records):
-
-```json
-{"cell_key": "snap.ca.2023-12|summary|free_text|single_pass|claude-sonnet-5|actual|1", "point": 2023.0, "ci_low": 2021.0, "ci_high": 2023.0, "last_history_value": 4237518.0, "parse_mode": "prose_ordered"}
-{"cell_key": "snap.ca.2023-12|operative_only|free_text|single_pass|claude-sonnet-5|actual|1", "point": 2023.0, "ci_low": 2021.0, "ci_high": 4240000.0, "last_history_value": 4237518.0, "parse_mode": "prose_ordered"}
-{"cell_key": "snap.ca.2023-12|none|free_text|single_pass|claude-sonnet-5|actual|2", "point": 2023.0, "ci_low": 2022.0, "ci_high": 2023.0, "last_history_value": 4237518.0, "parse_mode": "prose_ordered"}
-{"cell_key": "snap.ca.2023-12|operative_only|free_text|single_pass|claude-sonnet-5|actual|2", "point": 4200000.0, "ci_low": 2021.0, "ci_high": 4237518.0, "last_history_value": 4237518.0, "parse_mode": "prose_triple"}
-```
+Consequence for the analysis: D2 `elicitation` is the only pre-registered dimension containing a non-JSON elicitation level, so **P2 was the only primary result this defect could reach**. D1, D3, D4, D5 and the whole of `skill.md` run at `elicitation=point_ci_json` and were never affected. After the correction **no run is flagged implausible**, so the sensitivity view excludes nothing and is identical to the primary by construction; P2 is still reported both ways for continuity, and the primary P2 now measures elicitation format rather than the parser.
 
 | policy_context | elicitation | pipeline | model | magnitude | n_runs | n_units | n_scored | n_parse_fail | n_api_err | n_implaus | median_persons | median_norm | sd_reps_% | sd_reps_persons | mean_crps | sd_crps | mean_crps_norm | cov80 | mean_pit | width | width_norm |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | none | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.007 | 1.97 | 66017 | 100,750 | 100,675 | 0.654 | 0.700 | 0.500 | 364,333 | 2.570 |
 | none | forced_choice_bins | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,950,000 | 1.017 | 3.42 | 129,335 | 173,472 | 250,288 | 0.994 | 0.500 | 0.424 | 250,383 | 1.722 |
-| none | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 59 | 2022 | 0.001 | 156.51 | 1,048,889 | 5,719,410 | 28,914,050 | 98.045 | 0.283 | 0.877 | 35,159,257 | 767.914 |
+| none | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,925,000 | 1.010 | 2.58 | 83200 | 115,448 | 120,662 | 0.739 | 0.667 | 0.513 | 363,333 | 2.541 |
 | none | point_ci_json | debate | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.011 | 1.79 | 58705 | 109,440 | 97846 | 0.711 | 0.850 | 0.493 | 503,833 | 3.693 |
 | none | point_ci_json | single_pass | claude-fable-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,955,000 | 1.021 | 0.70 | 26360 | 99020 | 75689 | 0.618 | 0.867 | 0.423 | 543,000 | 3.565 |
 | none | point_ci_json | single_pass | claude-haiku-4-5-20251001 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 3,048,500 | 0.964 | 1.01 | 26492 | 307,269 | 371,916 | 2.168 | 0.167 | 0.486 | 159,050 | 1.006 |
 | none | point_ci_json | single_pass | claude-opus-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.007 | 0.99 | 32872 | 88788 | 56368 | 0.584 | 0.983 | 0.479 | 599,083 | 3.977 |
 | none | point_ci_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,875,000 | 1.000 | 1.91 | 54524 | 131,963 | 119,532 | 0.873 | 0.500 | 0.545 | 309,000 | 2.202 |
-| operative_only | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 1 | 2,900,000 | 0.997 | 7.42 | 275,140 | 177,907 | 398,944 | 1.114 | 0.567 | 0.536 | 386,925 | 2.588 |
+| operative_only | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.000 | 3.14 | 100,418 | 128,725 | 138,668 | 0.918 | 0.583 | 0.530 | 327,167 | 2.350 |
 | operative_only | forced_choice_bins | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 3,040,000 | 0.990 | 1.47 | 48973 | 298,206 | 330,998 | 2.134 | 0.183 | 0.450 | 177,167 | 1.204 |
-| operative_only | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 49 | 2023 | 0.001 | 116.50 | 1,239,537 | 5,343,762 | 28,861,442 | 69.679 | 0.167 | 0.823 | 34,956,107 | 522.451 |
+| operative_only | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,850,000 | 1.000 | 2.31 | 77021 | 166,957 | 250,256 | 0.998 | 0.433 | 0.588 | 284,167 | 2.036 |
 | operative_only | point_ci_json | debate | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.010 | 2.15 | 72129 | 130,620 | 147,132 | 0.732 | 0.683 | 0.521 | 376,000 | 2.692 |
 | operative_only | point_ci_json | single_pass | claude-fable-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,950,000 | 1.017 | 0.98 | 34881 | 89209 | 73773 | 0.549 | 0.833 | 0.411 | 462,167 | 3.061 |
 | operative_only | point_ci_json | single_pass | claude-haiku-4-5-20251001 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 3,115,000 | 0.951 | 1.22 | 28910 | 311,665 | 368,152 | 2.208 | 0.017 | 0.468 | 141,267 | 0.879 |
@@ -66,25 +80,25 @@ Examples (verbatim from the run records):
 | operative_only | point_ci_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,850,000 | 0.993 | 0.69 | 19234 | 141,059 | 110,957 | 1.094 | 0.317 | 0.613 | 233,833 | 1.549 |
 | operative_only | point_ci_json | single_pass | claude-sonnet-5 | inert | 60 | 12 | 60 | 0 | 0 | 0 | 2,835,000 | 0.981 | 1.57 | 49192 | 169,748 | 187,724 | 1.238 | 0.250 | 0.649 | 242,333 | 1.617 |
 | operative_only | point_ci_json | single_pass | claude-sonnet-5 | severe | 60 | 12 | 60 | 0 | 0 | 0 | 2,840,000 | 1.000 | 0.47 | 10908 | 127,762 | 95106 | 1.034 | 0.233 | 0.627 | 248,167 | 1.645 |
-| operative_plus_purpose | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 1 | 2,900,000 | 1.000 | 7.56 | 290,163 | 204,967 | 692,852 | 1.111 | 0.650 | 0.542 | 326,333 | 2.351 |
+| operative_plus_purpose | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.000 | 3.21 | 111,274 | 117,919 | 172,202 | 0.764 | 0.667 | 0.529 | 333,833 | 2.381 |
 | operative_plus_purpose | forced_choice_bins | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 0.993 | 1.63 | 54139 | 320,459 | 374,346 | 2.197 | 0.167 | 0.508 | 176,500 | 1.140 |
-| operative_plus_purpose | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 54 | 2022 | 0.001 | 141.70 | 981,776 | 1,822,108 | 1,116,198 | 14.538 | 0.167 | 0.924 | 1,356,802 | 10.811 |
+| operative_plus_purpose | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,875,000 | 0.993 | 3.60 | 126,910 | 154,075 | 214,598 | 1.105 | 0.450 | 0.572 | 295,167 | 2.069 |
 | operative_plus_purpose | point_ci_json | debate | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.000 | 1.74 | 59092 | 111,641 | 99421 | 0.759 | 0.667 | 0.537 | 376,667 | 2.629 |
 | operative_plus_purpose | point_ci_json | single_pass | claude-fable-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,955,000 | 1.019 | 0.91 | 39372 | 93002 | 80782 | 0.573 | 0.817 | 0.417 | 469,500 | 3.077 |
 | operative_plus_purpose | point_ci_json | single_pass | claude-haiku-4-5-20251001 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,967,500 | 0.951 | 1.11 | 29796 | 303,530 | 380,359 | 2.092 | 0.117 | 0.515 | 150,233 | 0.944 |
 | operative_plus_purpose | point_ci_json | single_pass | claude-opus-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,905,000 | 1.008 | 0.76 | 27021 | 84731 | 55570 | 0.551 | 1.000 | 0.475 | 556,250 | 3.764 |
 | operative_plus_purpose | point_ci_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,790,000 | 0.976 | 0.71 | 18705 | 196,583 | 279,278 | 1.336 | 0.283 | 0.636 | 242,833 | 1.632 |
-| purpose_only | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 1 | 2,825,000 | 0.986 | 2.93 | 93598 | 160,253 | 337,977 | 1.786 | 0.600 | 0.580 | 737,966 | 11.336 |
+| purpose_only | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,825,000 | 0.988 | 2.88 | 92723 | 117,833 | 108,545 | 0.835 | 0.600 | 0.585 | 341,500 | 2.448 |
 | purpose_only | forced_choice_bins | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,875,000 | 1.000 | 3.07 | 108,553 | 165,482 | 153,878 | 1.567 | 0.367 | 0.539 | 234,083 | 1.463 |
-| purpose_only | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 49 | 2023 | 0.001 | 136.79 | 1,281,112 | 1,517,659 | 1,308,195 | 12.579 | 0.317 | 0.851 | 1,392,391 | 10.218 |
+| purpose_only | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,825,000 | 0.993 | 2.29 | 60750 | 126,101 | 106,980 | 0.842 | 0.500 | 0.621 | 280,333 | 2.027 |
 | purpose_only | point_ci_json | debate | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,885,000 | 1.007 | 2.32 | 82246 | 125,463 | 131,836 | 0.784 | 0.800 | 0.534 | 474,667 | 3.317 |
 | purpose_only | point_ci_json | single_pass | claude-fable-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,955,000 | 1.021 | 0.62 | 20965 | 91034 | 73558 | 0.577 | 0.833 | 0.426 | 471,000 | 3.202 |
 | purpose_only | point_ci_json | single_pass | claude-haiku-4-5-20251001 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,965,000 | 0.947 | 0.85 | 20218 | 311,812 | 367,349 | 2.245 | 0.083 | 0.534 | 172,400 | 1.134 |
 | purpose_only | point_ci_json | single_pass | claude-opus-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,930,000 | 1.014 | 0.96 | 31615 | 90566 | 61017 | 0.582 | 1.000 | 0.470 | 577,333 | 3.862 |
 | purpose_only | point_ci_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,750,000 | 0.973 | 0.79 | 24326 | 148,304 | 121,836 | 1.072 | 0.283 | 0.676 | 289,500 | 2.082 |
-| summary | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 3 | 2,865,000 | 1.000 | 11.62 | 335,325 | 193,274 | 419,909 | 1.375 | 0.633 | 0.555 | 488,232 | 3.470 |
+| summary | cot_then_json | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,865,000 | 1.000 | 2.85 | 93680 | 126,092 | 151,048 | 0.862 | 0.633 | 0.558 | 338,667 | 2.400 |
 | summary | forced_choice_bins | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,850,000 | 1.021 | 2.73 | 89845 | 250,164 | 279,056 | 1.642 | 0.317 | 0.544 | 201,583 | 1.406 |
-| summary | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 54 | 2023 | 0.001 | 101.22 | 968,229 | 1,849,320 | 1,468,895 | 14.475 | 0.167 | 0.906 | 1,183,326 | 10.730 |
+| summary | free_text | single_pass | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,875,000 | 1.000 | 2.49 | 83891 | 166,672 | 241,100 | 0.941 | 0.567 | 0.561 | 298,667 | 2.234 |
 | summary | point_ci_json | debate | claude-sonnet-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,900,000 | 1.013 | 2.26 | 82109 | 116,610 | 137,492 | 0.717 | 0.783 | 0.497 | 442,500 | 3.120 |
 | summary | point_ci_json | single_pass | claude-fable-5 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,950,000 | 1.020 | 0.51 | 18069 | 96164 | 73084 | 0.600 | 0.867 | 0.417 | 521,333 | 3.425 |
 | summary | point_ci_json | single_pass | claude-haiku-4-5-20251001 | actual | 60 | 12 | 60 | 0 | 0 | 0 | 2,915,000 | 0.952 | 0.97 | 22199 | 291,324 | 377,340 | 2.077 | 0.200 | 0.573 | 167,617 | 1.061 |
@@ -96,12 +110,12 @@ Examples (verbatim from the run records):
 - Lines in file: **2520** (blank 0, malformed JSON 0, missing required field 0).
 - Records read (one per `cell_key`): **2520**; duplicate `cell_key` seen: **0**, of which 0 were resolved in favour of a later record that parsed (the rest kept the first occurrence); unknown unit_id: **0**.
 - **Records removed from the runs file by another process** (found in sibling quarantine files beside it — reported, not analysed, because a dropped-run count computed only from `--runs` would silently understate):
-    - `runs_api.quarantined.jsonl`: 9 record(s); 9 of those cells were subsequently re-run and ARE present in the runs file, 0 are not; reasons {'max_tokens truncation; re-run with raised cap': 9}
+    - `runs_api.quarantined.jsonl`: 14 record(s); 14 of those cells were subsequently re-run and ARE present in the runs file, 0 are not; reasons {'max_tokens truncation; re-run with raised cap': 9, 'single_value_no_interval; completion_tokens=3000; queued for re-execution': 2, 'no_interval_structure; completion_tokens=3000; queued for re-execution': 1, 'no_scale_candidates; completion_tokens=3000; queued for re-execution': 1, 'single_value_no_interval; completion_tokens=2000; queued for re-execution': 1}
 - API errors: **0**.
 - Parse failures: **0** (0.00% of records read)
 - Parse failures attributable to output truncation at the harness `max_tokens` cap: **0** of 0.
-- Parse modes: {'json': 2212, 'prose_triple': 206, 'prose_ordered': 102}. `json` is the intended path; `prose_triple` / `prose_ordered` are the free-text regex fallbacks in `harness.parse_forecast` and carry more extraction risk.
+- Parse modes: {'json': 2216, 'json_keyscan': 4, 'prose_cued': 300}. `json` is the intended path. `json_keyscan` reads point/ci_low/ci_high by key out of a trailing object that will not `json.loads` (truncated or malformed) — extraction, not repair, and all three keys are required. `prose_cued` is the free-text path: the interval comes from explicit interval language and the point from the cue-marked candidate nearest it. `prose_bracketed` / `prose_ordered` are tail-scanned fallbacks used only when no interval language is present and carry more extraction risk. See the corrected-defect section above.
 - Runs scored: **2520**; scoring exceptions: 0.
-- Forecasts flagged `implausible_extraction` (retained, **not dropped**): **271** — see the section above.
+- Forecasts flagged `implausible_extraction` (retained, **not dropped**): **0** — see the section above.
 - `truth` disagreements between run records and ground_truth.json: **0**.
 - Pre-registered grid: **2520** (unit, config, rep) cells; observed **2520**; **missing 0** (2520/2520 cells (100.0%)). Observed cells not in the planned grid: 0.

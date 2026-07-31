@@ -21,7 +21,11 @@ python3 fetch_ground_truth.py --spec corpus_extra.json --out ground_truth_extra.
 (`https://www.govinfo.gov/content/pkg/PLAW-<congress>publ<num>/html/PLAW-<congress>publ<num>.htm`),
 HTML-stripped, HTML-unescaped, and whitespace-normalised (`re.sub(r'\s+',' ',t)`) *before*
 any phrase search — govinfo hard-wraps at ~72 characters, so multi-word phrases do not match
-raw. The slices in `provisions_extra.json` are cut from the normalised text by exact index,
+raw. Every block quote below is byte-identical to the normalised source text, including
+govinfo's own editorial markers (`<<NOTE: …>>`, `[[Page 134 STAT. 209]]`); they are retained
+rather than tidied away so the quotes can be grep-verified against `bills/*.txt`. A machine
+check of all ten quotes against the fetched files is the last thing run before this file
+ships. The slices in `provisions_extra.json` are cut from the normalised text by exact index,
 so they are verbatim modulo that whitespace collapse and HTML unescaping. No claim below is
 made from memory; each is quoted from the file named beside it.
 
@@ -78,7 +82,8 @@ bulk updates), and it is why the horizons here are 3–14 months rather than 30+
 
 Verbatim, establishing the parameter change and its date (§2(a), (c)):
 
-> (a) Rate Adjustment.--Effective on December 1, 2023, the Secretary of Veterans Affairs
+> (a) <<NOTE: 38 USC 1114 note.>> Rate Adjustment.--Effective on December 1, 2023, the
+> Secretary of Veterans Affairs
 > shall increase, in accordance with subsection (c), the dollar amounts in effect on
 > November 30, 2023, for the payment of disability compensation and dependency and indemnity
 > compensation under the provisions specified in subsection (b).
@@ -131,11 +136,12 @@ Verbatim (§2(a), §3(a), §4):
 > paragraph (7); (2) in subsection (d), by striking paragraph (3); and (3) in subsection (f),
 > by striking paragraph (9).
 
-> SEC. 4. EFFECTIVE DATE. The amendments made by this Act shall apply with respect to monthly
-> insurance benefits payable under title II of the Social Security Act for months after
-> December 2023. Notwithstanding section 215(f) of the Social Security Act, the Commissioner
-> of Social Security shall adjust primary insurance amounts to the extent necessary to take
-> into account the amendments made by section 3.
+> SEC. 4. <<NOTE: 42 USC 402 note.>> EFFECTIVE DATE. <<NOTE: Applicability.>> The amendments
+> made by this Act shall apply with respect to monthly insurance benefits payable under title
+> II of the Social Security Act for months after December 2023. <<NOTE: Adjustment.>>
+> Notwithstanding section 215(f) of the Social Security Act, the Commissioner of Social
+> Security shall adjust primary insurance amounts to the extent [[Page 138 STAT. 3233]]
+> necessary to take into account the amendments made by section 3.
 
 Note the structure: the Act was approved 2025-01-05 but reaches back to months after
 December 2023, so it forces a retroactive true-up on top of a permanent level shift. That is
@@ -168,14 +174,15 @@ the ``Continued Assistance for Unemployed Workers Act of 2020''."
 Verbatim (§203(a), §203(b)(1)):
 
 > (a) In General.--Section 2104(e) of the CARES Act (15 U.S.C. 9023(e)) is amended to read as
-> follows: ``(e) Applicability.--An agreement entered into under this section shall apply--
+> follows: ``(e) <<NOTE: Time periods.>> Applicability.--An agreement entered into under this
+> section shall apply--
 > ``(1) to weeks of unemployment beginning after the date on which such agreement is entered
 > into and ending on or before July 31, 2020; and ``(2) to weeks of unemployment beginning
 > after December 26, 2020 (or, if later, the date on which such agreement is entered into),
 > and ending on or before March 14, 2021.''.
 
-> ``(3) Amount of federal pandemic unemployment compensation.-- ``(A) In general.--The amount
-> specified in this paragraph is the following amount: ``(i) For weeks of unemployment
+> ``(3) Amount of federal pandemic unemployment compensation.-- ``(A) <<NOTE: Time periods.>>
+> In general.--The amount specified in this paragraph is the following amount: ``(i) For weeks of unemployment
 > beginning after the date on which an agreement is entered into under this section and
 > ending on or before July 31, 2020, $600. ``(ii) For weeks of unemployment beginning after
 > December 26, 2020 (or, if later, the date on which such agreement is entered into), and
@@ -185,7 +192,9 @@ A clean weekly-dollar parameter with both a start and an end date — $600, a la
 the face of the statute (window (1) ends July 31, 2020; window (2) opens after December 26,
 2020), then $300. That makes the March target month diagnostically interesting: it straddles
 the March 14, 2021 expiry, which ARPA later overrode. Verified, not recalled — American
-Rescue Plan Act of 2021, Pub. L. 117-2, 135 Stat. 4, `<<NOTE: Mar. 11, 2021 - [H.R. 1319]>>`,
+Rescue Plan Act of 2021, Pub. L. 117-2, 135 Stat. 4, fetched to `bills/ARPA-2021-117publ2.txt`
+from https://www.govinfo.gov/content/pkg/PLAW-117publ2/html/PLAW-117publ2.htm,
+`<<NOTE: Mar. 11, 2021 - [H.R. 1319]>>`,
 "Approved March 11, 2021", §9013: "(a) In General.--Section 2104(e)(2) of the CARES Act
 (15 U.S.C. 9023(e)(2)) is amended by striking ``March 14, 2021'' and inserting ``September 6,
 2021''. (b) Amount.--Section 2104(b)(3)(A)(ii) of such Act … is amended by striking ``March
@@ -230,7 +239,7 @@ Medicaid continuous-enrolment condition, verbatim:
 
 > (3) the State fails to provide that an individual who is enrolled for benefits under such
 > plan (or waiver) as of the date of enactment of this section or enrolls for benefits under
-> such plan (or waiver) during the period beginning on such date of enactment and ending the
+> [[Page 134 STAT. 209]] such plan (or waiver) during the period beginning on such date of enactment and ending the
 > last day of the month in which the emergency period described in subsection (a) ends shall
 > be treated as eligible for such benefits through the end of the month in which such
 > emergency period ends unless the individual requests a voluntary termination of eligibility
@@ -239,8 +248,8 @@ Medicaid continuous-enrolment condition, verbatim:
 So the composite effect is exact: continuous enrolment, previously open-ended and tied to the
 public-health emergency, terminates **March 31, 2023**. §5131 also sets the FMAP step-down on
 a quarterly schedule — "6.2 percentage points" through March 31, 2023, then 5, then 2.5, then
-1.5 — and closes with "(c) Effective Date.--The amendments made by this section take effect
-on April 1, 2023."
+1.5 — and closes with "(c) <<NOTE: 42 USC 1396a note.>> Effective Date.--The amendments made by this
+section take effect on April 1, 2023."
 
 Note the phrase "continuous enrollment" appears **nowhere** in Pub. L. 117-328. Anyone
 searching for it by name in the statute finds nothing; the provision is identifiable only by
@@ -285,8 +294,9 @@ events; a written-by-us preamble is not the treatment FRA §313 is.
 
 What the extension *does* add is a second instance of the FRA §314 structure — a provision
 that is operative but imposes only a reporting/publication duty with no benefit mechanics.
-PL 118-6 §3 ("The Secretary of Veterans Affairs shall publish in the Federal Register the
-amounts specified in section 2(b), as increased under that section…") is the analogue, tagged
+PL 118-6 §3 ("The <<NOTE: Federal Register, publication.>> Secretary of Veterans Affairs shall
+publish in the Federal Register the amounts specified in section 2(b), as increased under that
+section…") is the analogue, tagged
 `s3_operative_ancillary` in `provisions_extra.json`. If the ablation of interest is
 "operative-but-inert text", there are now two events carrying it.
 
