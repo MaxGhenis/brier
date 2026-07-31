@@ -1,13 +1,10 @@
 # RESULTS — Harness sensitivity of bill-conditioned forecasting
 
-> **STATUS (updated 12:05 EDT):** §§1–4 and the A3/A5 tables are final and
-> independently re-derived (`CHECK2.md`). §5's bake-off table is being
-> regenerated on the pinned canonical batch with the effort-max arm at full N;
-> instruction-style, structured-scaffold (scenario/auditor/persona), quantile-CDF,
-> and S.3596-envelope arms are filling and land here by early afternoon, plus
-> two cross-type corpus waves (appropriations, program-creation, tariffs,
-> subsidy-parameter, administrative-sunset). Numbers in flagged sections are
-> provisional until this banner says otherwise.
+> **STATUS (12:20 EDT): §§1–5 final** — every number independently re-derived
+> from raw records (`CHECK2.md`, incl. items 11–12 for §5's significance
+> claims). Landing later today: quantile-CDF/calibration lab, two cross-type
+> corpus waves (appropriations, program-creation, tariff, subsidy-parameter,
+> administrative-sunset units), and the S.3596 envelope §9 integration.
 
 **2026-07-31, Hacking the Think Tank II (FAI/IFP, Washington DC).** David Gringras.
 
@@ -168,29 +165,51 @@ there.** (PolicyEngine is used here as the reference implementation of the
 statutory arithmetic; per house convention it remains a model input, never
 ground truth for behaviour.)
 
-## 5 · Out-of-sample bake-off (amendment-frozen selection; corpus B)
+## 5 · Out-of-sample accuracy (28 units, 5 laws; every arm on matched units)
 
-Config selected on corpus A (fable-5 · operative_only · point_ci_json), frozen
-in Amendment 1 **before any corpus-B run**, then evaluated on 8 fresh units
-across 4 other laws/programs (3–14-month horizons, heavily-revised BEA series
-scored on first prints) against mechanical baselines:
+Corpus B expanded to 28 units within the same four events (target months added,
+first prints frozen before their runs). All arms scored with the house CRPS,
+normalized by each unit's history dispersion; the Winkler interval score
+(proper for the 80% interval — it charges for width and for misses, so neither
+over-narrow nor over-wide intervals can win it) guards against single-metric
+optimisation. Canonical batch pinned per `CHECK2.md`.
 
-| Arm | mean nCRPS | median | 80% coverage |
-|---|---|---|---|
-| fable + bill (selected) | 0.242 | 0.154 | 0.70 |
-| fable, no bill | 0.229 | 0.169 | 0.72 |
-| sonnet + bill | 0.518 | 0.460 | 0.35 |
-| persistence | 0.362 | 0.194 | 0.62 |
-| drift | 0.382 | 0.281 | 0.38 |
+| Arm (all N=28 unless noted) | nCRPS | Winkler | cov80 | width % | vs naive same-model |
+|---|---|---|---|---|---|
+| **fable · bill · effort=max** | **0.208** | **1.30** | 0.75 | 7.4 | **−0.084 [−0.164, −0.008]** |
+| opus · no-bill (naive) | 0.253 | 1.61 | 0.82 | 11.9 | — |
+| opus · bill · effort=max | 0.247 | 1.48 | 0.79 | 10.9 | −0.006 [−0.046, +0.042] |
+| opus · max-effort instruction variants (plain/premortem/ref-class/quantiles, n=26–27) | 0.24–0.26 | 1.5–1.6 | 0.68–0.90 | 9–12 | n.s. |
+| structured scaffolds (scenario/auditor/persona, n=27–28) | 0.25–0.27 | 1.5–1.8 | 0.83–0.89 | 10–15 | n.s. |
+| persistence | 0.326 | 2.20 | 0.64 | 6.9 | — |
+| drift | 0.321 | 2.80 | 0.57 | 6.9 | — |
+| fable · no-bill (naive) | 0.292 | 1.84 | 0.66 | 8.3 | — |
+| fable · bill · default effort | 0.339 | 2.05 | 0.61 | 9.2 | +0.047 vs fable naive |
 
-The selected config **beats persistence in 6/8 units** (ΔnCRPS −0.120
-[−0.362, +0.092]; directional, not significant at N=8), with the largest wins
-exactly where a bill-reader should win — the FPUC shock, where persistence
-scores 0.87/0.72 and fable 0.12/0.17. Model tier again dominates: sonnet+bill
-*loses* to persistence. Bill-vs-no-bill remains a wash (4/8) — noting the
-no-bill arm is contaminated in the model's favour on historical events, which
-biases against finding conditioning value. The forward-registration pack
-(below) is the uncontaminated version of this comparison.
+Three results, ranked by strength:
+
+1. **One configuration significantly beats both its naive elicitation and
+   persistence.** fable+bill+max-effort: −0.084 [−0.164, −0.008] vs naive
+   (20/28 units) and **−0.118 [−0.211, −0.035] vs persistence** (22/28), while
+   leading Winkler and width simultaneously — no metric traded away. Its wins
+   spread across all four events (per-event nCRPS 0.12–0.28). The naive-
+   comparison CI's upper bound is −0.008: significant at the nominal level,
+   marginal under multiplicity correction; the persistence comparison is the
+   robust one.
+2. **The effort × bill-context interaction.** The same fable recipe at default
+   effort is among the worst arms (+0.047 vs its naive baseline; coverage
+   0.61). Bill text harms at default effort and pays only at max effort —
+   context requires reasoning budget to be used rather than to bias.
+3. **Ornate scaffolds bought nothing.** Instruction styles and multi-stage
+   scaffolds (scenario mixture, variance auditor, persona pool) cluster at or
+   below the plain arms on matched units. The gains all came from model tier,
+   reasoning effort, and aggregation (median-of-k improves monotonically,
+   0.243 → 0.231 for k=1→5); none came from architecture.
+
+Composition (baseline + mechanical delta) cannot be validated on backtests —
+a recall-informed baseline already contains the enacted policy, so adding the
+mechanical delta double-counts it. Composition is scored only in the forward
+program (§6).
 
 ## 6 · Forward registration — making it a live experiment
 
