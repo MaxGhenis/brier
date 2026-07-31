@@ -133,11 +133,6 @@ export default async function BillDetailPage({
   const entry = getBill(slug);
   if (!entry) notFound();
   const forecastViews = buildForecastViews(slug);
-  const totalGoals = entry.provisions.reduce((n, p) => n + p.goals.length, 0);
-  const totalMetrics = entry.provisions.reduce(
-    (n, p) => n + p.metrics.length,
-    0,
-  );
 
   return (
     <div>
@@ -178,10 +173,6 @@ export default async function BillDetailPage({
             <span className="inline-block rounded-full border border-[#D8C7EE] bg-[#F4EDFC] px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[#5B3E86]">
               Conditional forecasts
             </span>
-            <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
-              Outcomes forecast both ways · enacted vs baseline · exactly one
-              arm resolves
-            </span>
           </div>
           {forecastViews.length > 0 ? (
             <BillForecasts views={forecastViews} />
@@ -197,15 +188,9 @@ export default async function BillDetailPage({
         </section>
 
         <section>
-          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="[font-family:var(--font-mono)] text-[0.75rem] uppercase tracking-[0.14em] text-[var(--theme-text)]">
-              Provisions · {entry.provisions.length}
-            </h2>
-            <p className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-              {totalGoals} countersignable goals · {totalMetrics} candidate
-              metrics
-            </p>
-          </div>
+          <h2 className="mb-5 [font-family:var(--font-mono)] text-[0.75rem] uppercase tracking-[0.14em] text-[var(--theme-text)]">
+            Provisions
+          </h2>
 
           <div className="grid gap-3">
             {entry.provisions.map((provision, index) => (
