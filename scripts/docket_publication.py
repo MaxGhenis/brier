@@ -125,25 +125,51 @@ def path_policy_error(
 ) -> str | None:
     lower_name = path.name.lower()
     if ".github" in path.parts:
-        return "workflow/control paths are forbidden"
+        return (
+            "workflow/control paths are forbidden — an unprivileged docket run "
+            "may not ship changes to the machinery that grades it"
+        )
     if lower_name in {"chain_genesis.json", "chain_head.json"}:
-        return "record-chain control files are forbidden"
+        return (
+            "record-chain control files are forbidden — the chain head is "
+            "advanced by the privileged chain tooling, never by a bundle"
+        )
     if re.fullmatch(r"digest(?:-[a-z0-9._-]+)?\.json", lower_name):
-        return "record-chain digest files are forbidden"
+        return (
+            "record-chain digest files are forbidden — digests attest to "
+            "records, so a bundle that carried its own digest would attest to "
+            "itself"
+        )
     if re.fullmatch(
         r"(?:resolution|resolved)(?:[_-][a-z0-9._-]+)?"
         r"\.(?:jsonl?|log|md|txt)",
         lower_name,
     ):
-        return "resolution markers are forbidden"
+        return (
+            "resolution markers are forbidden — outcomes are appended by the "
+            "resolver from official sources; a forecast run may not carry its "
+            "own answer key"
+        )
     if path.suffix.lower() in CODE_SUFFIXES:
-        return "executable source code is forbidden"
+        return (
+            f"executable source code is forbidden ({path.suffix}) — a "
+            "publication bundle crosses a trust boundary, so it may carry "
+            f"only inert data files {sorted(ALLOWED_DATA_SUFFIXES)}"
+        )
     if path.suffix.lower() not in ALLOWED_DATA_SUFFIXES:
-        return f"bundle file is not an allowed data type ({path.suffix or 'none'})"
+        return (
+            f"bundle file is not an allowed data type ({path.suffix or 'none'})"
+            f" — allowed suffixes are {sorted(ALLOWED_DATA_SUFFIXES)}"
+        )
     if lower_name == "custody_root.json" and not any(
         prefix in path.parents for prefix in (run_prefixes or set())
     ):
-        return "custody roots are allowed only for this invocation's new runs"
+        return (
+            "custody roots are allowed only for this invocation's new runs — "
+            "this one sits outside the run directories the batch manifest "
+            f"names ({sorted(str(p) for p in (run_prefixes or set()))}), so it "
+            "would re-seal an older run's artifacts"
+        )
     return None
 
 
@@ -159,14 +185,28 @@ def batch_scope(
     batch: dict[str, Any],
 ) -> tuple[set[pathlib.PurePosixPath], set[pathlib.PurePosixPath]]:
     if batch.get("schemaVersion") != "thesis_batch_manifest_v1":
-        raise PublicationError("unsupported batch manifest schema")
+        raise PublicationError(
+            "unsupported batch manifest schema: "
+            f"{batch.get('schemaVersion')!r} in {batch_relative}, expected "
+            "'thesis_batch_manifest_v1' — regenerate the batch with "
+            "scripts/run_thesis_batch.py rather than editing schemaVersion"
+        )
     results = batch.get("results")
     if not isinstance(results, list) or not all(
         isinstance(result, dict) for result in results
     ):
-        raise PublicationError("batch results must be an object list")
+        raise PublicationError(
+            f"batch results must be an object list in {batch_relative}, got "
+            f"{type(results).__name__}"
+        )
     if type(batch.get("targets")) is not int or batch["targets"] != len(results):
-        raise PublicationError("batch target count does not match result inventory")
+        raise PublicationError(
+            "batch target count does not match result inventory: "
+            f"{batch_relative} declares targets={batch.get('targets')!r} but "
+            f"carries {len(results)} results. The declared count is what proves "
+            "no result was dropped between the run and publication, so fix the "
+            "generator — never edit the count to match the results"
+        )
 
     batch_match = BATCH_RE.fullmatch(batch_relative.as_posix())
     assert batch_match is not None
@@ -313,7 +353,12 @@ def assert_append_only(
     source_bytes = source.read_bytes()
     if committed is not None and committed != source_bytes:
         raise PublicationError(
-            f"append-only publication may not overwrite HEAD path: {relative}"
+            f"append-only publication may not overwrite HEAD path: {relative} "
+            f"already exists in HEAD with different bytes ({len(committed)}B "
+            f"committed vs {len(source_bytes)}B staged). Records are "
+            "append-only, so a rerun that changed an already-published record "
+            "means the run was regenerated over its own directory — publish it "
+            "under a fresh run timestamp; do not force the overwrite"
         )
     destination = safe_join(ROOT, relative)
     if source.resolve() == destination.resolve():
@@ -354,7 +399,14 @@ def stage(args: argparse.Namespace) -> None:
             raise PublicationError(f"forbidden bundle path {relative}: {policy_error}")
         if not path_in_scope(relative, exact, prefixes):
             raise PublicationError(
-                f"path is outside this invocation's publication scope: {relative}"
+                f"path is outside this invocation's publication scope: "
+                f"{relative}. A publication may carry only the batch manifest, "
+                "the target registrations it names, and files under the run "
+                "directories it names — nothing else crosses the trust "
+                f"boundary. In scope here: exact={sorted(map(str, exact))}, "
+                f"run prefixes={sorted(map(str, prefixes))}. If the file "
+                "belongs to this batch, reference it from the manifest; do not "
+                "widen the scope to admit it"
             )
         source = safe_join(ROOT, relative)
         if source.is_symlink() or not source.is_file():
@@ -439,7 +491,14 @@ def load_bundle(
         if path.stat().st_size != entry.get("bytes") or sha256(path) != entry.get(
             "sha256"
         ):
-            raise PublicationError(f"bundle hash mismatch: {relative}")
+            raise PublicationError(
+                f"bundle hash mismatch: {relative} is {path.stat().st_size}B / "
+                f"sha256 {sha256(path)}, but bundle_manifest.json declares "
+                f"{entry.get('bytes')!r}B / sha256 {entry.get('sha256')!r}. The "
+                "manifest is what the privileged side trusts, so the bundle "
+                "was modified after staging — re-run `stage`; do not update "
+                "the manifest hashes in place"
+            )
         secret_hits = scan_bytes(path.read_bytes())
         if secret_hits:
             raise PublicationError(
@@ -469,7 +528,14 @@ def load_bundle(
             raise PublicationError(f"forbidden bundle path {relative}: {policy_error}")
         if not path_in_scope(relative, exact, prefixes):
             raise PublicationError(
-                f"path is outside this invocation's publication scope: {relative}"
+                f"path is outside this invocation's publication scope: "
+                f"{relative}. A publication may carry only the batch manifest, "
+                "the target registrations it names, and files under the run "
+                "directories it names — nothing else crosses the trust "
+                f"boundary. In scope here: exact={sorted(map(str, exact))}, "
+                f"run prefixes={sorted(map(str, prefixes))}. If the file "
+                "belongs to this batch, reference it from the manifest; do not "
+                "widen the scope to admit it"
             )
         assert_append_only(relative, safe_join(repo, relative))
     return repo, manifest
@@ -623,7 +689,15 @@ def validate_target_registration(
     if actual_hash != content_hash or not relative.name.endswith(
         f"-{content_hash}.json"
     ):
-        raise PublicationError(f"target registration hash mismatch: {relative}")
+        raise PublicationError(
+            f"target registration hash mismatch: {relative} (read from "
+            f"{source}) hashes to {actual_hash}, but the batch target claims "
+            f"targetContentHash={content_hash!r}. A registration filename must "
+            "end in -<its own content hash>.json and the batch must quote that "
+            "same hash — this is the binding that proves the forecast was made "
+            "against the pre-registered contract. Re-register the target; "
+            "never rename the snapshot or edit the hash to agree"
+        )
     contract = next(
         (
             row
@@ -779,7 +853,13 @@ def validate_run_binding(
         raise PublicationError("run manifest createdAt/runStartedAt mismatch")
     for field in ("series", "period", "conditional"):
         if not canonical_equal(manifest.get(field), target.get(field)):
-            raise PublicationError(f"run manifest target identity mismatch: {field}")
+            raise PublicationError(
+                f"run manifest target identity mismatch: {field} is "
+                f"{manifest.get(field)!r} in the run manifest but "
+                f"{target.get(field)!r} in the trusted batch target. The run "
+                "must be the run that was commissioned for this target — a "
+                "mismatch means a manifest from a different run was attached"
+            )
     run_start = parse_instant(run_started_at, "run manifest runStartedAt")
     manifest_relative = relative_repo_path(str(result.get("manifestPath") or ""))
     run_dir_stamp = manifest_relative.parent.name[:20]
@@ -792,17 +872,38 @@ def validate_run_binding(
             f"run directory lacks a canonical start timestamp: {manifest_relative}"
         ) from exc
     if path_start != run_start:
-        raise PublicationError("run directory timestamp differs from runStartedAt")
+        raise PublicationError(
+            "run directory timestamp differs from runStartedAt: directory "
+            f"{manifest_relative.parent.name} encodes "
+            f"{path_start.isoformat()}, manifest says {run_started_at!r}. The "
+            "directory name IS the run's declared start — a mismatch means the "
+            "manifest was moved into another run's directory"
+        )
     wrapper_start = parse_instant(result.get("startedAt"), "batch result startedAt")
     wrapper_finish = parse_instant(result.get("finishedAt"), "batch result finishedAt")
     if wrapper_finish < wrapper_start:
-        raise PublicationError("batch result finishes before it starts")
+        raise PublicationError(
+            "batch result finishes before it starts: startedAt "
+            f"{result.get('startedAt')!r} > finishedAt "
+            f"{result.get('finishedAt')!r}"
+        )
     if wrapper_start > run_start or wrapper_finish < run_start:
-        raise PublicationError("batch wrapper timestamps do not contain the run start")
+        raise PublicationError(
+            "batch wrapper timestamps do not contain the run start: run "
+            f"started {run_started_at!r}, outside the batch's witnessed window "
+            f"[{result.get('startedAt')!r}, {result.get('finishedAt')!r}] for "
+            "this result. The wrapper interval is the batch's independent "
+            "witness that the run happened when it claims"
+        )
     for field in REGISTRATION_BINDING_FIELDS:
         if not canonical_equal(manifest.get(field), target.get(field)):
             raise PublicationError(
-                f"run manifest registration binding mismatch: {field}"
+                f"run manifest registration binding mismatch: {field} is "
+                f"{manifest.get(field)!r} in the run manifest but "
+                f"{target.get(field)!r} in the trusted batch target. All of "
+                f"{list(REGISTRATION_BINDING_FIELDS)} must be copied through "
+                "unchanged — they are what pins this run to the commit that "
+                "pre-registered the target"
             )
     validate_target_registration(
         repo,
@@ -811,16 +912,40 @@ def validate_run_binding(
         require_git_binding=True,
     )
     for cell in cells:
+        slug = cell.get("slug", "?")
         if cell.get("runStartedAt") != run_started_at:
-            raise PublicationError("cell runStartedAt differs from run manifest")
+            raise PublicationError(
+                f"cell runStartedAt differs from run manifest: cell {slug} says "
+                f"{cell.get('runStartedAt')!r}, manifest says "
+                f"{run_started_at!r} — the cell was produced by a different run"
+            )
         cell_run_at = parse_instant(cell.get("runAt"), "cell runAt")
         if cell_run_at < run_start:
-            raise PublicationError("cell seal time predates run start")
+            raise PublicationError(
+                f"cell seal time predates run start: cell {slug} has "
+                f"runAt={cell.get('runAt')!r}, before the run's own start "
+                f"{run_started_at!r}. A cell cannot be sealed before the run "
+                "that produced it began — the timestamp was hand-set or "
+                "carried over from an earlier attempt"
+            )
         if cell_run_at > wrapper_finish:
-            raise PublicationError("cell seal time postdates batch result finish")
+            raise PublicationError(
+                f"cell seal time postdates batch result finish: cell {slug} has "
+                f"runAt={cell.get('runAt')!r}, after the batch recorded this "
+                f"result as finished at {result.get('finishedAt')!r}. The "
+                "wrapper interval is the witnessed window for the run, so a "
+                "later seal means the cell was edited after the fact"
+            )
         for field in REGISTRATION_BINDING_FIELDS:
             if not canonical_equal(cell.get(field), target.get(field)):
-                raise PublicationError(f"cell registration binding mismatch: {field}")
+                raise PublicationError(
+                    f"cell registration binding mismatch: {field} is "
+                    f"{cell.get(field)!r} on cell {slug} but "
+                    f"{target.get(field)!r} on the trusted batch target. Every "
+                    "published cell must quote the registration it was "
+                    "commissioned against, or the site cannot verify it was "
+                    "pre-registered"
+                )
 
 
 def validate_cells(
@@ -901,11 +1026,18 @@ def validate_cells(
             manifest = load_json(manifest_path, "run manifest")
             if bool(manifest.get("ok")) != expected_ok:
                 raise PublicationError(
-                    f"run manifest status mismatch: {manifest_relative}"
+                    f"run manifest status mismatch: {manifest_relative} says "
+                    f"ok={manifest.get('ok')!r}, but the batch result {index} "
+                    f"says ok={expected_ok!r}. Failed runs are published too "
+                    "(the trace is the record) — what may not differ is the "
+                    "verdict, so one of the two files is from a different run"
                 )
             if manifest.get("cellsPath") != cells_value:
                 raise PublicationError(
-                    f"run manifest cellsPath mismatch: {manifest_relative}"
+                    f"run manifest cellsPath mismatch: {manifest_relative} "
+                    f"declares {manifest.get('cellsPath')!r}, batch result "
+                    f"{index} declares {cells_value!r} — the batch and the run "
+                    "must name the same cells payload"
                 )
             validate_run_file_inventory(repo, manifest_relative, manifest)
             try:
@@ -950,9 +1082,24 @@ def validate_cells(
             collision_exclusion=collision_exclusion,
         )
         if bool(report.get("ok")) != expected_ok:
+            replay_detail = (
+                "; ".join(
+                    f"{row.get('slug', '?')}: "
+                    + " | ".join(row.get("errors") or ["(no errors listed)"])
+                    for row in report.get("cells", [])
+                    if not row.get("ok")
+                )
+                or "every replayed cell passed"
+            )
             raise PublicationError(
-                f"validator status mismatch for {cells_relative}: "
-                f"batch ok={expected_ok}, replay={report}"
+                f"validator status mismatch for {cells_relative}: the batch "
+                f"recorded ok={expected_ok}, but replaying the cell validator "
+                f"on the privileged side gives ok={bool(report.get('ok'))}. "
+                f"Replay says — {replay_detail}. The run's own verdict has to "
+                "reproduce here, so a mismatch means the cells, the target "
+                "context, or the catalog they collide against changed after "
+                "the run finished. Regenerate the run; do not edit `ok` in the "
+                "batch manifest to match the replay"
             )
 
         if not manifest_value:

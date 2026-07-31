@@ -97,41 +97,97 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     if errs:
         return errs
     if not SLUG_RE.match(cell["slug"]):
-        errs.append("bad slug format")
+        errs.append(
+            f"bad slug format {cell['slug']!r}: catalog slugs are lowercase "
+            "kebab-case, /^[a-z0-9]+(-[a-z0-9]+)*$/ — no underscores, capitals, "
+            "dots, or leading/trailing/doubled dashes"
+        )
     if cell["slug"] in taken:
-        errs.append("slug collides with existing catalog")
+        errs.append(
+            f"slug collides with existing catalog entry {cell['slug']!r}: every "
+            "published cell needs its own slug, so qualify this one with its "
+            "period (…-june-2026) — do not delete or overwrite the module that "
+            "already owns the slug"
+        )
     if cell["unit"] not in ALLOWED_UNITS:
-        errs.append(f"unit {cell['unit']!r} not allowed")
+        errs.append(
+            f"unit {cell['unit']!r} not allowed; allowed units are "
+            f"{sorted(ALLOWED_UNITS)} — add to ALLOWED_UNITS only together with "
+            "a site formatter, never by relabelling the cell into a near-miss"
+        )
     if cell["country"] not in ALLOWED_COUNTRIES:
-        errs.append(f"country {cell['country']!r} not allowed")
+        errs.append(
+            f"country {cell['country']!r} not allowed; allowed codes are "
+            f"{sorted(ALLOWED_COUNTRIES)}"
+        )
     if cell["type"] not in ALLOWED_TYPES:
-        errs.append(f"type {cell['type']!r} not allowed")
+        errs.append(
+            f"type {cell['type']!r} not allowed; allowed types are "
+            f"{sorted(ALLOWED_TYPES)}"
+        )
     # Discrete-outcome cells (e.g. policy-rate decisions) may legitimately put
     # the modal point at an interval edge; the interval itself must be real.
     if not (
         cell["ciLow"] <= cell["pointEstimate"] <= cell["ciHigh"]
         and cell["ciLow"] < cell["ciHigh"]
     ):
-        errs.append("CI does not bracket point estimate")
+        errs.append(
+            "CI does not bracket point estimate: need ciLow <= pointEstimate <= "
+            f"ciHigh and ciLow < ciHigh, got ciLow={cell['ciLow']}, "
+            f"pointEstimate={cell['pointEstimate']}, ciHigh={cell['ciHigh']} — "
+            "re-derive point and interval together in the math step; do not "
+            "nudge one number until the inequality passes"
+        )
     if cell["confidence"] != 0.8:
-        errs.append("confidence must be 0.8")
+        errs.append(
+            f"confidence is {cell['confidence']!r}, must be exactly 0.8: the "
+            "whole catalog is scored as 80% intervals, so a cell at any other "
+            "level is not comparable — re-derive the 10th/90th percentiles "
+            "rather than relabelling a wider or narrower interval as 0.8"
+        )
     for key in ("resolutionDate",):
         try:
             datetime.strptime(cell[key], "%Y-%m-%d")
         except ValueError:
-            errs.append(f"{key} not YYYY-MM-DD")
+            errs.append(
+                f"{key} {cell[key]!r} is not YYYY-MM-DD: use the calendar date "
+                "of the official release taken from the publisher's release "
+                "calendar, not a period label like '2026-Q2' or 'June 2026'"
+            )
     try:
         run_at = datetime.fromisoformat(cell["runAt"].replace("Z", "+00:00"))
         if run_at > datetime.now(timezone.utc):
-            errs.append("runAt is in the future")
+            errs.append(
+                f"runAt {cell['runAt']!r} is in the future: runAt must be the "
+                "instant the agent actually produced the forecast, so this is "
+                "a hand-written or clock-skewed stamp — re-emit from the run"
+            )
         if run_at < datetime(2026, 6, 1, tzinfo=timezone.utc):
-            errs.append("runAt predates the pipeline")
+            errs.append(
+                f"runAt {cell['runAt']!r} predates the pipeline (2026-06-01): a "
+                "cell is a recorded agent run, so a pre-pipeline stamp means "
+                "the numbers were copied from an older artifact instead of "
+                "generated"
+            )
     except ValueError:
-        errs.append("runAt not ISO-8601")
+        errs.append(
+            f"runAt {cell['runAt']!r} is not ISO-8601: expected an instant with "
+            "a UTC offset, e.g. 2026-07-31T14:05:00Z"
+        )
     if not str(cell["resolutionSourceUrl"]).startswith("https://"):
-        errs.append("resolutionSourceUrl not https")
+        errs.append(
+            f"resolutionSourceUrl {cell['resolutionSourceUrl']!r} is not "
+            "https://: resolution must name a public official page the resolver "
+            "can fetch months from now — never a local path, a file:// URL, or "
+            "plain http"
+        )
     if len(cell["historicalContext"]) < 2:
-        errs.append("needs >=2 historical points")
+        errs.append(
+            f"needs >=2 historical points, got {len(cell['historicalContext'])}: "
+            "the base rate has to be visible in the published cell — fetch more "
+            "prior prints of the SAME series/vintage rather than padding with "
+            "a related series"
+        )
     for h in cell["historicalContext"]:
         if isinstance(h.get("value"), str):
             cleaned = h["value"].replace("%", "").replace(",", "").strip()
@@ -142,13 +198,22 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         if isinstance(h.get("value"), float) and h["value"].is_integer():
             h["value"] = int(h["value"])
     if len(cell["sourceContext"]) < 2:
-        errs.append("needs >=2 source URLs")
+        errs.append(
+            f"needs >=2 source URLs, got {len(cell['sourceContext'])}: at "
+            "minimum the release calendar that fixes resolutionDate and the "
+            "series history that fixes the base rate"
+        )
     # Mirror of trace-depth.test.ts: sourceContext entries are public URLs,
     # never local repo paths (a sibling run's artifacts are context, not
     # citable provenance).
     for url in cell["sourceContext"]:
         if not re.match(r"^https?://", str(url)):
-            errs.append(f"sourceContext entry is not an http(s) URL: {url}")
+            errs.append(
+                f"sourceContext entry is not an http(s) URL: {url} — published "
+                "provenance must be a page a reader can open; a repo path or a "
+                "sibling run's artifact is context, not a citation, so cite the "
+                "official page that artifact came from"
+            )
     private_hits = private_source_hits(cell)
     if private_hits:
         errs.append(
@@ -157,15 +222,33 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
 
     steps = cell["reasoning"]
     if len(steps) < 7:
-        errs.append(f"only {len(steps)} reasoning steps (need >=7)")
+        errs.append(
+            f"only {len(steps)} reasoning steps (need >=7): the trace-depth "
+            "rubric (mirrored in site/src/__tests__/trace-depth.test.ts) wants "
+            "the whole derivation published — fetches, base rate, math, "
+            "disconfirming consideration, forecast — not a summary of it"
+        )
     tools = [s for s in steps if s.get("kind") == "tool"]
     if len(tools) < 2:
-        errs.append(f"only {len(tools)} tool steps (need >=2)")
+        errs.append(
+            f'only {len(tools)} tool steps (need >=2, kind="tool"): a cell '
+            "with no recorded fetches cannot be distinguished from an invented "
+            "one, so record the real calls to the release calendar and the "
+            "series history"
+        )
     for t in tools:
         if not re.search(r"\d", str(t.get("result", ""))):
-            errs.append(f"tool step without numeric result: {t.get('tool')}")
+            errs.append(
+                f"tool step without numeric result: {t.get('tool')} — a tool "
+                "step's `result` must carry the numbers the fetch returned so a "
+                "reader can re-derive from them; a prose summary is not auditable"
+            )
     if not any(s.get("kind") == "math" for s in steps):
-        errs.append("no math step")
+        errs.append(
+            'no math step (kind="math"): the trace must show how point and '
+            "interval fall out of the fetched history — a stated number with "
+            "no derivation is a vibe, not a forecast"
+        )
     # Interval width must be derived, not vibed: the math step has to show
     # sigma (or the 1.28 z-multiplier) so the width is auditable. Applies to
     # cells run on/after 2026-07-05, same cutoff as trace-depth.test.ts —
@@ -242,7 +325,15 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         r"central|right-skewed|saturation tail"
     )
     if not re.search(base_rate_re, trace_text):
-        errs.append("no explicit base-rate/reference-class phrasing (CI regex)")
+        errs.append(
+            "no explicit base-rate/reference-class phrasing (CI regex): the "
+            "outside view has to be stated in words somewhere in the trace — "
+            '"base rate", "reference class", "last 12 prints", "trailing '
+            '24-month distribution", "historical range" all satisfy it. '
+            "Computing a mean without naming the reference class does not; "
+            "the regex is byte-identical to trace-depth.test.ts, so loosening "
+            "it here just moves the failure to CI"
+        )
     if not re.search(falsification_re, trace_text):
         errs.append(
             "no interval-falsification phrasing (CI regex — say what would "
@@ -254,13 +345,26 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         return errs
     last = steps[-1]
     if last.get("kind") != "forecast":
-        errs.append("last step is not the forecast")
+        errs.append(
+            f"last step is not the forecast (kind={last.get('kind')!r}): the "
+            'trace must END with the kind="forecast" step, so the published '
+            "numbers read as the conclusion of the reasoning rather than a "
+            "headline the later steps drifted away from"
+        )
     elif (last.get("point"), last.get("ciLow"), last.get("ciHigh")) != (
         cell["pointEstimate"],
         cell["ciLow"],
         cell["ciHigh"],
     ):
-        errs.append("forecast step numbers do not match cell numbers")
+        errs.append(
+            "forecast step numbers do not match cell numbers: trace step says "
+            f"point={last.get('point')!r}, ciLow={last.get('ciLow')!r}, "
+            f"ciHigh={last.get('ciHigh')!r}; cell says "
+            f"point={cell['pointEstimate']!r}, ciLow={cell['ciLow']!r}, "
+            f"ciHigh={cell['ciHigh']!r} — the trace is the evidence, so fix "
+            "whichever the math step actually derives; do not copy the cell "
+            "numbers into the step to silence this"
+        )
     return errs
 
 
@@ -360,7 +464,11 @@ def load_cells(path: pathlib.Path) -> list[dict]:
 
     cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
-        raise ValueError(f"cell input must be a JSON list: {path}")
+        raise ValueError(
+            f"cell input must be a JSON list of cell objects, got "
+            f"{type(cells).__name__}: {path} — a single cell still has to be "
+            "wrapped in a one-element list"
+        )
     sealed_agent = sealed_agent_meta(path.parent)
     if sealed_agent:
         for cell in cells:
@@ -377,8 +485,13 @@ def load_cells(path: pathlib.Path) -> list[dict]:
             declared = ROOT / declared
         if declared.resolve() != path.resolve():
             raise ValueError(
-                "manifest cellsPath does not name converter input: "
-                f"{declared} != {path}"
+                "manifest cellsPath does not name converter input: manifest "
+                f"{manifest_path} declares {declared}, but this invocation was "
+                f"handed {path}. The custody root hashes the manifest's own "
+                "cells file, so converting a different payload would publish "
+                "cells under a custody root that never covered them — point "
+                "the converter at the manifest's cellsPath; do not edit the "
+                "manifest to match the input"
             )
         for cell in cells:
             cell["custodyRootSha256"] = manifest["custodyRootSha256"]
@@ -386,7 +499,13 @@ def load_cells(path: pathlib.Path) -> list[dict]:
         str(cell.get("runAt", ""))[:10] >= CUSTODY_ENFORCEMENT_DATE for cell in cells
     ):
         raise ValueError(
-            f"run on/after {CUSTODY_ENFORCEMENT_DATE} lacks custody_root.json: {path}"
+            f"run on/after {CUSTODY_ENFORCEMENT_DATE} lacks custody_root.json: "
+            f"no custody root beside {path}, but at least one cell there has "
+            f"runAt >= {CUSTODY_ENFORCEMENT_DATE}. Every run sealed on or after "
+            "that date must ship a custody root hash-binding its artifacts, so "
+            "this payload was hand-assembled or copied out of its run "
+            "directory — regenerate it with scripts/run_thesis_analyst.py. Do "
+            "not backdate runAt, and do not write a custody_root.json by hand"
         )
     return cells
 

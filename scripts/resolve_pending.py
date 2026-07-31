@@ -3092,6 +3092,7 @@ def fetch_first(
 ) -> tuple[bytes, str, str]:
     """Try pinned URLs in order; returns (bytes, url, retrievedAt)."""
     last_error: Exception | None = None
+    attempts: list[str] = []
     for url in urls:
         try:
             raw, retrieved_at, final_url = http_get(
@@ -3100,7 +3101,19 @@ def fetch_first(
             return raw, final_url, retrieved_at
         except Exception as exc:  # noqa: BLE001 - next pin is the fallback
             last_error = exc
-    raise RuntimeError(f"all pinned URLs failed (last: {last_error})")
+            attempts.append(f"  {url} -> {type(exc).__name__}: {exc}")
+    raise RuntimeError(
+        f"all pinned URLs failed (last: {last_error}). Tried "
+        f"{len(urls)} pinned URL(s) against allowlist "
+        f"{sorted(allowed_hosts)!r}:\n"
+        + "\n".join(attempts or ["  (no URLs were pinned for this adapter)"])
+        + "\nEvery URL is host-pinned, so a 'not in adapter allowlist' error "
+        "means the publisher moved or redirected the series off its "
+        "registered host and the target needs re-registering; HTTP/timeout "
+        "errors on all pins usually mean the release simply is not out yet, "
+        "which the resolver should retry rather than resolve around. Do not "
+        "widen the allowlist to whatever host answered"
+    )
 
 
 def statcan_series_from_payload(raw: bytes, vector: int) -> dict[str, float]:
@@ -5338,7 +5351,17 @@ def registration_contracts(
         except RegistrationError as exc:
             raise ValueError(f"invalid target registration {path}: {exc}") from exc
         if content_hash != match.group(1):
-            raise ValueError(f"target registration hash mismatch: {path}")
+            raise ValueError(
+                f"target registration hash mismatch: {path} hashes to "
+                f"{content_hash}, but its filename claims {match.group(1)}. A "
+                "registration file is named for its own schema-aware content "
+                "hash (registration_content_hash, NOT a whole-file hash), and "
+                "that hash is what published cells quote to prove they were "
+                "pre-registered. Every resolution is blocked until this is "
+                "consistent — restore the snapshot's committed bytes; do not "
+                "rename the file to the new hash, which would orphan every "
+                "cell that quoted the old one"
+            )
         for target in snapshot.get("targets", []):
             data_point_id = target.get("dataPointId")
             if not data_point_id:

@@ -185,7 +185,15 @@ def main() -> int:
         template = slug_template(slug, period, cadence) if cadence else None
         if not template:
             print(
-                f"  cannot derive template for {series} ({slug}) — leaving on probation"
+                f"  cannot derive slug template for {series}: its scored slug "
+                f"{slug!r} does not contain the period {period!r} as whole "
+                f"tokens (cadence {cadence or 'unrecognized'}), so the roll "
+                "loop could not mint next period's slug from it. A monthly "
+                "slug needs the month name and year as separate tokens "
+                "(…-june-2026), quarterly needs q<n> and the year, weekly "
+                "needs the ISO week-ending date. Leaving on probation — fix "
+                "the slug convention on the NEXT run rather than hand-adding "
+                "a template to scripts/docket_series.json"
             )
             continue
         context = manifest.get("targetContext") or {}
@@ -193,9 +201,23 @@ def main() -> int:
         if not isinstance(source_binding, dict) or set(source_binding) != (
             SOURCE_BINDING_TEMPLATE_KEYS | SOURCE_BINDING_DERIVED_KEYS
         ):
+            expected = sorted(
+                SOURCE_BINDING_TEMPLATE_KEYS | SOURCE_BINDING_DERIVED_KEYS
+            )
+            found = (
+                sorted(source_binding)
+                if isinstance(source_binding, dict)
+                else type(source_binding).__name__
+            )
             print(
-                f"  cannot derive source-binding template for {series} "
-                "— leaving on probation"
+                f"  cannot derive source-binding template for {series}: its "
+                f"run manifest targetContext.sourceBinding has {found}, but "
+                f"adoption needs exactly {expected}. The registry stores the "
+                f"template keys {sorted(SOURCE_BINDING_TEMPLATE_KEYS)} and "
+                f"re-derives {sorted(SOURCE_BINDING_DERIVED_KEYS)} each roll, "
+                "so a partial binding would freeze a stale release window. "
+                "Leaving on probation — re-register the target with a full "
+                "source binding; do not hand-write the registry entry"
             )
             continue
         extras = {
