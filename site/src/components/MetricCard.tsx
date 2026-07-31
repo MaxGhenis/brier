@@ -2,6 +2,35 @@
 
 import { useState } from "react";
 import { renderInline } from "@/lib/render-inline";
+import type { StanceFold } from "@/lib/stances";
+
+const stanceBadgeClass: Record<string, string> = {
+  serves: "border-[#BFE3D2] bg-[#EAF7F0] text-[#1C6B4A]",
+  opposes: "border-[#E5C8C0] bg-[#F9EFEC] text-[#93412A]",
+  mixed: "border-[#F2DCAF] bg-[#FFF4DD] text-[#7A5C20]",
+  orthogonal:
+    "border-[var(--theme-border)] bg-transparent text-[var(--theme-text-dim)]",
+  counts:
+    "border-[var(--theme-border)] bg-transparent text-[var(--theme-text-muted)]",
+};
+
+function stanceLabel(stance: StanceFold): string {
+  if (stance.kind !== "counts") {
+    return stance.kind === "serves"
+      ? "Serves confirmed goals"
+      : stance.kind === "opposes"
+        ? "Opposes confirmed goals"
+        : stance.kind === "mixed"
+          ? "Mixed vs confirmed goals"
+          : "Orthogonal to confirmed goals";
+  }
+  const parts = [
+    stance.serves > 0 ? `${stance.serves} serves` : null,
+    stance.opposes > 0 ? `${stance.opposes} opposes` : null,
+    stance.orthogonal > 0 ? `${stance.orthogonal} orthogonal` : null,
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : "No goals in force";
+}
 
 /**
  * Candidate-metric card with the long sourcing note clamped to a few
@@ -13,12 +42,14 @@ export function MetricCard({
   badgeLabel,
   badgeClass,
   rationale,
+  stance,
 }: {
   kind: string;
   text: string;
   badgeLabel: string;
   badgeClass: string;
   rationale?: string;
+  stance?: StanceFold | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = text.length > 220;
@@ -31,6 +62,13 @@ export function MetricCard({
         >
           {badgeLabel}
         </span>
+        {stance && (
+          <span
+            className={`inline-block rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] ${stanceBadgeClass[stance.kind]}`}
+          >
+            {stanceLabel(stance)}
+          </span>
+        )}
         <span className="[font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
           {kind}
         </span>

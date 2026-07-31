@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { MetricStance } from "@/lib/stances";
 
 // bill.json artifacts live at the repo root (bills/<slug>.json), written
 // by scripts/ingest_bill.py — the site reads them at build time. Vercel
@@ -40,6 +41,12 @@ export interface BillMetric {
    * a disclosure when present.
    */
   rationale?: string;
+  /**
+   * Stance v1 (issue #43 micro-spec): one extraction-time
+   * serves/opposes/orthogonal judgment per imputed goal, keyed by goal
+   * index. The client folds this over the countersign store.
+   */
+  stances?: MetricStance[];
 }
 
 export interface BillCompute {

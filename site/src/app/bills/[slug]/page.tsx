@@ -6,7 +6,7 @@ import {
   BillForecasts,
   type BillForecastView,
 } from "@/components/BillForecasts";
-import { MetricCard } from "@/components/MetricCard";
+import { ProvisionAnalysis } from "@/components/ProvisionAnalysis";
 import { getBillForecastGroups } from "@/data/bill-forecasts";
 import {
   REGISTRY_LABEL,
@@ -117,14 +117,6 @@ const registryBadgeClass: Record<RegistryStatus, string> = {
   "no-series": "bg-[var(--color-mist-100)] text-[var(--theme-text-muted)] border-[var(--color-mist-200)]",
   unknown: "bg-transparent text-[var(--theme-text-dim)] border-[var(--theme-border)]",
 };
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <h4 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
-      {children}
-    </h4>
-  );
-}
 
 export default async function BillDetailPage({
   params,
@@ -241,98 +233,25 @@ export default async function BillDetailPage({
                     </details>
                   )}
 
-                  {provision.goals.length > 0 && (
-                    <div className="mb-6">
-                      <SectionLabel>Countersignable goals</SectionLabel>
-                      <div className="grid gap-3">
-                        {provision.goals.map((goal, i) => (
-                          <div
-                            key={i}
-                            className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] p-4 text-[0.92rem] leading-[1.6] text-[var(--theme-text)]"
-                          >
-                            {renderInline(goal)}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {provision.effects.length > 0 && (
-                    <div className="mb-6">
-                      <SectionLabel>
-                        Likely effects — shown regardless of the goals
-                      </SectionLabel>
-                      <ul className="m-0 grid list-none gap-3 p-0">
-                        {provision.effects.map((effect, i) => (
-                          <li
-                            key={i}
-                            className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
-                          >
-                            <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                              {effect.mechanism}
-                            </span>
-                            {renderInline(effect.text)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {provision.barriers.length > 0 && (
-                    <div className="mb-6">
-                      <SectionLabel>Implementation barriers</SectionLabel>
-                      <ul className="m-0 grid list-none gap-3 p-0">
-                        {provision.barriers.map((barrier, i) => (
-                          <li
-                            key={i}
-                            className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
-                          >
-                            <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                              {barrier.actor}
-                            </span>
-                            {renderInline(barrier.text)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {provision.metrics.length > 0 && (
-                    <div className="mb-6">
-                      <SectionLabel>Candidate outcome metrics</SectionLabel>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        {provision.metrics.map((metric, i) => {
-                          const { status } = metricRegistryStatus(metric);
-                          return (
-                            <MetricCard
-                              key={i}
-                              kind={metric.kind}
-                              text={stripRegistryNote(metric.text)}
-                              badgeLabel={REGISTRY_LABEL[status]}
-                              badgeClass={registryBadgeClass[status]}
-                              rationale={metric.rationale}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {provision.conditionals.length > 0 && (
-                    <div>
-                      <SectionLabel>Conditional forecast sketches</SectionLabel>
-                      <div className="grid gap-2">
-                        {provision.conditionals.map((conditional, i) => (
-                          <pre
-                            key={i}
-                            className="m-0 overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] p-3 [font-family:var(--font-mono)] text-[0.78rem] leading-[1.5] text-[var(--theme-text)]"
-                          >
-                            {conditional.replaceAll("`", "")}
-                          </pre>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <ProvisionAnalysis
+                    billSlug={slug}
+                    provisionIndex={index}
+                    goals={provision.goals}
+                    effects={provision.effects}
+                    barriers={provision.barriers}
+                    metrics={provision.metrics.map((metric) => {
+                      const { status } = metricRegistryStatus(metric);
+                      return {
+                        kind: metric.kind,
+                        text: stripRegistryNote(metric.text),
+                        badgeLabel: REGISTRY_LABEL[status],
+                        badgeClass: registryBadgeClass[status],
+                        rationale: metric.rationale,
+                        stances: metric.stances,
+                      };
+                    })}
+                    conditionals={provision.conditionals}
+                  />
                 </div>
               </details>
             ))}
