@@ -77,13 +77,28 @@ def call_model(
     `effort` sets reasoning effort ("low"/"medium"/"high"/"max") via adaptive
     thinking + output_config — an elicitation dimension. None = provider default.
     """
+    transport = os.environ.get("BILLIMPACT_TRANSPORT", "anthropic")
     payload: dict = {
         "model": model,
         "temperature": temperature,
         "max_tokens": max_tokens,
         "messages": [{"role": "user", "content": prompt}],
     }
-    if effort is not None:
+    if transport == "openrouter":
+        # Model-id mapping + unified reasoning param. "max" maps to "high"
+        # (OpenRouter's ceiling); the run record carries transport so arms are
+        # never silently mixed across transports.
+        payload["model"] = {
+            "claude-opus-5": "anthropic/claude-opus-5",
+            "claude-fable-5": "anthropic/claude-fable-5",
+            "claude-sonnet-5": "anthropic/claude-sonnet-5",
+            "claude-haiku-4-5-20251001": "anthropic/claude-haiku-4.5",
+        }.get(model, model)
+        if effort is not None:
+            payload["reasoning"] = {"effort": "high" if effort == "max" else effort}
+            payload["temperature"] = 1.0
+            payload["max_tokens"] = max(max_tokens, 32000)
+    elif effort is not None:
         payload["thinking"] = {"type": "adaptive"}
         payload["output_config"] = {"effort": effort}
         payload["temperature"] = 1.0
@@ -93,6 +108,24 @@ def call_model(
     last = ""
     for attempt in range(retries + 1):
         try:
+            if transport == "openrouter":
+                or_key = None
+                for line in (Path.home() / ".env").read_text().splitlines():
+                    if line.startswith("OPENROUTER_API_KEY"):
+                        or_key = line.split("=", 1)[1].strip()
+                req = urllib.request.Request(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    data=body,
+                    headers={"Authorization": f"Bearer {or_key}",
+                             "Content-Type": "application/json"},
+                )
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    resp = json.loads(r.read().decode())
+                text = resp["choices"][0]["message"]["content"] or ""
+                usage = resp.get("usage") or {}
+                return CallResult(text=text, ok=True, duration_s=time.time() - start,
+                                  prompt_tokens=usage.get("prompt_tokens"),
+                                  completion_tokens=usage.get("completion_tokens"))
             req = urllib.request.Request(
                 ANTHROPIC_URL,
                 data=body,
