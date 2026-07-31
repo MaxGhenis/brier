@@ -337,6 +337,7 @@ def fetch_from_axiom(
         "resolved_via": "axiom-supabase",
         "title": bill.get("title"),
         "bill_number": bill["number"],
+        "axiom_bill_id": bill.get("id"),
         "statute_map": trim_statute_map(bill),
         "text": best["text"],
         "version_label": best["version_label"],
@@ -505,7 +506,16 @@ def write_artifacts(slug: str, result: dict) -> Path:
         "text_file": txt_path.name,
         "source_file": doc_path.name if doc_path else None,
     }
-    # Optional enrichment — present only when axiom computed diffs.
+    # Optional enrichment — present only when the bill came from the
+    # axiom store (drafts and fallback fetches simply omit these).
+    if result.get("axiom_bill_id"):
+        meta["axiomBillId"] = result["axiom_bill_id"]
+        meta["axiomDashboardUrl"] = (
+            os.environ.get(
+                "AXIOM_BILLS_DASHBOARD_BASE", "https://axiom.org/bills/bills"
+            ).rstrip("/")
+            + f"/{result['axiom_bill_id']}"
+        )
     if result.get("statute_map"):
         meta["statuteMap"] = result["statute_map"]
     safe_dest(f"{slug}.meta.json").write_text(

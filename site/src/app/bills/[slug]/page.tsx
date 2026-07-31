@@ -11,6 +11,7 @@ import { getBillForecastGroups } from "@/data/bill-forecasts";
 import {
   REGISTRY_LABEL,
   getBill,
+  loadBillMeta,
   loadBills,
   metricRegistryStatus,
   type RegistryStatus,
@@ -128,6 +129,7 @@ export default async function BillDetailPage({
   const entry = getBill(slug);
   if (!entry) notFound();
   const forecastViews = buildForecastViews(slug);
+  const rawMeta = loadBillMeta(slug);
 
   return (
     <div>
@@ -160,6 +162,19 @@ export default async function BillDetailPage({
             >
               bill text
             </a>
+            {rawMeta?.axiomDashboardUrl && (
+              <>
+                {" · "}
+                <a
+                  href={rawMeta.axiomDashboardUrl}
+                  className="text-[var(--color-accent)]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  axiom bills ↗
+                </a>
+              </>
+            )}
           </p>
         </header>
 
