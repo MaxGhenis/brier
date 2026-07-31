@@ -62,6 +62,7 @@ export function MetricCard({
   stance?: StanceFold | null;
   forecast?: {
     slug: string;
+    href?: string;
     pointLabel: string;
     ciLabel: string;
     resolutionDate: string;
@@ -109,7 +110,7 @@ export function MetricCard({
       )}
       {forecast && (
         <a
-          href={`/${forecast.slug}`}
+          href={forecast.href ?? `/${forecast.slug}`}
           className="mt-2 inline-block [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[#1F6B33] no-underline hover:underline"
         >
           Live forecast {forecast.pointLabel} →

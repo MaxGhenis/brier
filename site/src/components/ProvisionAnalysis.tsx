@@ -18,6 +18,7 @@ export interface ProvisionMetricView {
   stances?: MetricStance[];
   forecast?: {
     slug: string;
+    href?: string;
     pointLabel: string;
     ciLabel: string;
     resolutionDate: string;

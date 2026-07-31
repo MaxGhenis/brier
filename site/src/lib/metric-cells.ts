@@ -20,6 +20,9 @@ export interface MetricCellMatch {
   question: string;
   pointLabel: string;
   ciLabel: string;
+  point: number;
+  ciLow: number;
+  ciHigh: number;
   resolutionDate: string;
   /** Other cells on the same series (earlier/later periods). */
   moreCount: number;
@@ -57,6 +60,9 @@ export function resolveMetricCell(
       chosen.ciHigh,
       chosen.unit,
     )}`,
+    point: chosen.pointEstimate,
+    ciLow: chosen.ciLow,
+    ciHigh: chosen.ciHigh,
     resolutionDate: chosen.resolutionDate ?? "",
     moreCount: matches.length - 1,
   };

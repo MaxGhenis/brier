@@ -219,34 +219,71 @@ export default async function BillDetailPage({
                 unconditional, bill or no bill
               </h3>
               <div className="divide-y divide-[var(--theme-border)] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]">
-                {unconditionalCells.map(({ cell, from }) => (
-                  <Link
-                    key={cell.slug}
-                    href={`/${cell.slug}`}
-                    className="block px-5 py-4 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
-                  >
-                    <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                      <span className="min-w-[14rem] flex-1 text-[0.95rem] font-medium leading-[1.5]">
-                        {cell.title}
-                      </span>
-                      <span className="[font-family:var(--font-display)] text-[1.25rem] font-normal leading-none">
-                        {cell.pointLabel}
-                      </span>
-                      <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)]">
-                        80% {cell.ciLabel}
-                      </span>
-                      <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                        resolves {cell.resolutionDate} →
-                      </span>
-                    </div>
-                    <p className="m-0 mt-1 max-w-[760px] text-[0.85rem] leading-[1.55] text-[var(--theme-text-muted)]">
-                      {cell.question}
-                    </p>
-                    <p className="m-0 mt-1 [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-                      candidate metric in {from.join(" · ")}
-                    </p>
-                  </Link>
-                ))}
+                {unconditionalCells.map(({ cell, from }) => {
+                  const span = cell.ciHigh - cell.ciLow || 1;
+                  const lo = cell.ciLow - span * 0.15;
+                  const width = span * 1.3;
+                  const pos = (v: number) => `${((v - lo) / width) * 100}%`;
+                  return (
+                    <Link
+                      key={cell.slug}
+                      href={`/${cell.slug}?from=/bills/${slug}`}
+                      className="grid grid-cols-[minmax(0,1fr)_240px] items-center gap-8 px-5 py-4 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline max-md:grid-cols-1 max-md:gap-3"
+                    >
+                      <div>
+                        <p className="m-0 text-[0.95rem] font-medium leading-[1.5]">
+                          {cell.title}
+                        </p>
+                        <p className="m-0 mt-1 max-w-[640px] text-[0.85rem] leading-[1.55] text-[var(--theme-text-muted)]">
+                          {cell.question}
+                        </p>
+                        <p className="m-0 mt-1.5 [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                          candidate metric in {from.join(" · ")}
+                        </p>
+                      </div>
+                      <div>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                            Current forecast
+                          </span>
+                          <span className="[font-family:var(--font-display)] text-[1.35rem] font-normal leading-none">
+                            {cell.pointLabel}
+                          </span>
+                        </div>
+                        <div className="relative mt-2 h-4">
+                          <div className="absolute inset-y-[7px] left-0 right-0 rounded-full bg-[var(--theme-border)] opacity-40" />
+                          <div
+                            className="absolute inset-y-[5px] rounded-full bg-[#4C9A74] opacity-45"
+                            style={{
+                              left: pos(cell.ciLow),
+                              width: `${(span / width) * 100}%`,
+                            }}
+                          />
+                          <div
+                            className="absolute top-1/2 h-[11px] w-[11px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--theme-surface)] bg-[#4C9A74]"
+                            style={{ left: pos(cell.point) }}
+                          />
+                        </div>
+                        <div className="mt-1.5 flex items-baseline justify-between gap-3">
+                          <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                            80% interval
+                          </span>
+                          <span className="[font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-muted)]">
+                            {cell.ciLabel}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-baseline justify-between gap-3">
+                          <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                            Resolves
+                          </span>
+                          <span className="[font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-muted)]">
+                            {cell.resolutionDate} →
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -336,7 +373,12 @@ export default async function BillDetailPage({
                         badgeClass: registryBadgeClass[status],
                         rationale: metric.rationale,
                         stances: metric.stances,
-                        forecast: liveCell ?? undefined,
+                        forecast: liveCell
+                          ? {
+                              ...liveCell,
+                              href: `/${liveCell.slug}?from=/bills/${slug}`,
+                            }
+                          : undefined,
                       };
                     })}
                     conditionals={provision.conditionals}
