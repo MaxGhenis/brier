@@ -79,6 +79,7 @@ function buildForecastViews(billSlug: string): BillForecastView[] {
         probability && pct !== undefined
           ? { pct, slug: probability.slug }
           : undefined,
+      eventShortLabel: group.eventShortLabel,
       enacted: {
         point: trueArm.pointEstimate,
         ciLow: trueArm.ciLow,

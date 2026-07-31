@@ -8,6 +8,8 @@ export interface ConditionalGroup {
   trueArmSlug: string;
   /** Absent for single-arm registrations (enacted-conditional only). */
   falseArmSlug?: string;
+  /** Short badge label for the true arm's condition; defaults to "event holds". */
+  eventShortLabel?: string;
   probabilitySlug?: string;
   unconditionalSlug?: string;
   gapNote?: string;
@@ -22,6 +24,7 @@ export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
     eventLabel:
       "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold for tax year 2027 \u2014 current law holds",
     trueArmSlug: "additional-child-tax-credit-total-claims-ty2027-current-law",
+    eventShortLabel: "current law holds",
     gapNote:
       "The enacted arm is in the pre-submit review loop \u2014 the rubric has rejected two drafts today for missing falsification phrasing. It publishes when it passes, not before.",
   },

@@ -21,6 +21,7 @@ export interface BillForecastView {
   gapLabel?: string;
   gapNote?: string;
   probability?: { pct: number; slug: string };
+  eventShortLabel?: string;
   enacted: BillForecastArmView;
   baseline?: BillForecastArmView;
   /** Single-arm groups: the unconditional cell shown as reference, never as a baseline claim. */
@@ -102,7 +103,7 @@ function IntervalStrip({ view }: { view: BillForecastView }) {
       : view.unconditionalRef
         ? [{ label: "Uncond.", arm: view.unconditionalRef, color: BASELINE.band }]
         : []),
-    { label: "Enacted", arm: view.enacted, color: ENACTED.band },
+    { label: view.eventShortLabel ?? "Event holds", arm: view.enacted, color: ENACTED.band },
   ];
 
   return (
@@ -236,7 +237,7 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
           />
         ) : null}
         <ArmCard
-          label="Conditional · bill enacted"
+          label={"Conditional · " + (view.eventShortLabel ?? "event holds")}
           palette={ENACTED}
           arm={view.enacted}
           weight={p}
