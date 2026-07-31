@@ -103,6 +103,17 @@ REPOSITORY_ERAS: tuple[tuple[str, str, str], ...] = (
 # Records commits that were pushed OUTSIDE the allowlisted workflows and
 # therefore have no attestation to verify. Each waiver is a permanent,
 # public admission, never a silent pass: the audit prints a WAIVED line.
+#
+# 2026-07-31 — on the remedy, because several entries below used to point
+# at one that is not coming. Branch protection on main was removed by
+# deliberate decision: nothing should depend on it, and the automation
+# loops push directly against the branch. So there is no preventive
+# ruleset blocking non-workflow pushes to records/**, and none is planned.
+# This verifier is the ONLY control on records provenance. Two consequences
+# worth stating plainly: a waiver here is the sole record that a push
+# escaped the attested path, and this script must stay green in the absence
+# of real violations — a detective control that fails every day teaches
+# everyone to ignore it, which is strictly worse than having none.
 # 2026-07-22: an operator session pushed the Next50 aging/broadband wave
 # from a local machine instead of through the workflow path; the cells'
 # content is covered by the witness chain, but their push provenance is
@@ -115,8 +126,9 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     "08aac46200a7745621fd64f828734c716dcf7a69": "Next50 wave local push",
     # 2026-07-22 late: the QCEW aircraft target completion was also pushed
     # locally, hours after the waiver list shipped — same operator-session
-    # pattern, admitted the same way. The preventive ruleset (blocking
-    # non-workflow pushes to records/**) is the actual fix.
+    # pattern, admitted the same way. (This entry once named a preventive
+    # ruleset as "the actual fix"; that is no longer the design — see the
+    # note above WAIVED_UNATTESTED_COMMITS.)
     "8ad16ab611ab89cacaff570f43e419e0552bdbaf": "QCEW completion local push",
     # 2026-07-24: the anchors-gate commit also carried the fourth rejected
     # broadband run's record directory — the failed trace whose vintage
@@ -128,8 +140,7 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     # 2026-07-24: the broadband-65+ vintage repair — the anchored
     # network-enabled rerun replacing the 5-year-corrupted published cell
     # before its 2026-09-10 resolution — was an operator-session local
-    # push, admitted the same way. Same fix remains: the preventive
-    # ruleset blocking non-workflow pushes to records/**.
+    # push, admitted the same way.
     "2c02b44382a0e88e0b5104ff82fb891367be64e8": (
         "Broadband vintage-repair local push"
     ),
@@ -480,10 +491,88 @@ def verify_commit(
             last_error = (completed.stderr or completed.stdout).strip()
             if attempt < attempts:
                 time.sleep(VERIFY_RETRY_DELAY_SECONDS)
+        detail = last_error.splitlines()[-1] if last_error else "no detail"
         raise ProvenanceError(
             f"{commit}: no valid attestation for its records push subject "
-            f"({last_error.splitlines()[-1] if last_error else 'no detail'})"
+            f"({detail})\n" + explain_missing_attestation(commit)
         )
+
+
+def explain_missing_attestation(commit: str) -> str:
+    """Spell out what this failure means and the only ways to clear it.
+
+    "no valid attestation" states a symptom. Without the allowlist and the
+    distinct situations in front of them, a reader cannot tell whether they
+    are looking at a lagging attestation, a local push, or a real attack --
+    and the fix that first suggests itself, adding the sha to
+    WAIVED_UNATTESTED_COMMITS, is wrong in all but one of those cases.
+    """
+
+    try:
+        subject_line = git_output("log", "-1", "--format=%s", commit)
+    except Exception:  # noqa: BLE001 - diagnostics must never mask the failure
+        subject_line = "<unreadable>"
+    try:
+        touched = git_output(
+            "show", "--name-only", "--format=", commit, "--", PROTECTED_PREFIX
+        ).splitlines()
+    except Exception:  # noqa: BLE001
+        touched = []
+    try:
+        parents = commit_parents(commit)
+    except Exception:  # noqa: BLE001
+        parents = []
+
+    workflows = "\n".join(f"      {name}" for name in sorted(ALLOWED_WORKFLOWS))
+    sample = "\n".join(f"      {path}" for path in touched[:5])
+    if len(touched) > 5:
+        sample += f"\n      ... and {len(touched) - 5} more"
+
+    lines = [
+        "",
+        f"  commit subject: {subject_line}",
+        f"  it changed {len(touched)} file(s) under {PROTECTED_PREFIX}:",
+        sample or "      (none resolved directly -- see the merge note below)",
+        "",
+        "  Records may only reach main via one of these workflows, each of",
+        f"  which attests the exact sha it pushes on {ALLOWED_REF}:",
+        workflows,
+        "",
+        "  So this commit is one of these, and they are NOT interchangeable:",
+        "",
+        "   1. An allowlisted workflow pushed it but the attestation has not",
+        "      propagated. Attestations can lag a push; this is already",
+        f"      retried automatically ({VERIFY_RETRIES} attempts,"
+        f" {VERIFY_RETRY_DELAY_SECONDS}s apart) before reaching here.",
+        "      Re-run the job before doing anything else.",
+        "",
+        "   2. Someone pushed records from a local machine. That is a real",
+        "      provenance gap: the content may be fine, but nothing proves",
+        "      which run produced it. Admit it by adding the sha to",
+        "      WAIVED_UNATTESTED_COMMITS with a comment saying what happened.",
+        "      That list is a permanent public admission and is shrink-only --",
+        "      it is not a way to silence this check.",
+    ]
+    if len(parents) > 1:
+        lines += [
+            "",
+            "   3. This is a MERGE commit, so it may be a no-op that merely",
+            "      carries one side's already-attested records forward. Those",
+            "      are unattestable by construction and should have been",
+            "      exempted by merge_is_records_noop() with a NOOP-MERGE line.",
+            "      Reaching here means records/** differs from EVERY post-epoch",
+            "      parent, i.e. the merge introduced records content of its own",
+            "      -- which is exactly what must not arrive through a PR. Find",
+            "      what it introduced and where that came from; do not waive it",
+            "      and do not loosen the no-op rule to make this go away.",
+        ]
+    lines += [
+        "",
+        "  Do not waive a commit for any case but 2. A waiver for a workflow",
+        "  push logs a confession that never happened and leaves the real",
+        "  fault in place.",
+    ]
+    return "\n".join(lines)
 
 
 def commit_in_scope(commit: str, epoch: str) -> bool:
