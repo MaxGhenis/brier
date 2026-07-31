@@ -219,7 +219,7 @@ export default async function BillDetailPage({
                   {provision.quote && (
                     <details className="mb-6">
                       <summary className="cursor-pointer list-none [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.1em] text-[var(--color-accent)] [&::-webkit-details-marker]:hidden">
-                        Bill text ▸
+                        Quoted from the bill ▸
                       </summary>
                       <blockquote className="mt-3 border-l-2 border-[var(--color-accent)] pl-4 text-[0.9rem] italic leading-[1.6] text-[var(--theme-text-muted)]">
                         {renderInline(provision.quote)}
