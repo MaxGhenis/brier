@@ -184,6 +184,35 @@ def build_policy_context(provisions: dict[str, str], level: str, magnitude: str)
             meta,
         )
 
+    # Amendment-2 levels (PREREG-AMENDMENT-2.md): decompose the P3 effect into
+    # named-statute recall / partial-document inference / pure preamble effect.
+    SYNTHETIC_EXPAND_PURPOSE = (
+        'SEC. 2. PURPOSES. Section 2 of the Food and Nutrition Act of 2008 '
+        '(7 U.S.C. 2011) is amended by adding at the end the following: '
+        '"That program includes as a purpose to improve access to nutrition '
+        'assistance and to increase participation among households eligible '
+        'for benefits, so that eligible low-income households more fully '
+        'obtain a nutritious diet through normal channels of trade.".'
+    )
+    COMPLETE_NOTE = (
+        "\n\nThe text above is the COMPLETE operative content of the bill. "
+        "It contains no other provisions."
+    )
+    if level == "purpose_unnamed":
+        return ("POLICY CONTEXT (verbatim text of an enacted federal statute):\n\n"
+                + provisions["sec313_purpose"], meta)
+    if level == "purpose_complete":
+        # SEC. 313 -> SEC. 2: the original number leaks "this bill has 300+
+        # sections", contradicting the complete-text framing. Renumbering is a
+        # recorded transformation (meta), not silent editing.
+        renumbered = provisions["sec313_purpose"].replace("SEC. 313.", "SEC. 2.", 1)
+        meta["renumbered"] = "sec313->sec2"
+        return ("POLICY CONTEXT (verbatim text of an enacted federal statute):\n\n"
+                + renumbered + COMPLETE_NOTE, meta)
+    if level == "purpose_synthetic_expand":
+        return ("POLICY CONTEXT (verbatim text of a bill):\n\n"
+                + SYNTHETIC_EXPAND_PURPOSE + COMPLETE_NOTE, meta)
+
     operative_keys = ["sec311_operative", "sec312_operative", "sec314_transparency"]
     purpose_keys = ["sec313_purpose"]
     if level == "operative_only":
