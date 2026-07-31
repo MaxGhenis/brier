@@ -801,6 +801,27 @@ export function targetRegistrationState(
   return target.registrationState ?? "published";
 }
 
+/**
+ * Is this preregistered target still legitimately awaiting its forecast?
+ *
+ * The deadline is the release window, not a fixed span. A preregistration is
+ * honest right up until the first print lands and dishonest one second after,
+ * so the window is the only bound that means anything -- and it is
+ * self-calibrating, where a flat timer is arbitrary in both directions. Both
+ * errors were real under the old flat 7 days: ons.vacancies was registered
+ * 2026-07-22 against an 2026-08-18 print and expired on 07-29 with twenty
+ * days of legitimate forecasting time left, while bls.ces was registered
+ * 2026-07-25 against a window that had closed on 07-09, where no amount of
+ * grace could ever have helped.
+ *
+ * This deliberately does not double as failure detection. A batch that never
+ * published is caught by the awaiting-forecast lane, which works the queue
+ * daily and alerts -- not by an expiry timer that only fires once the target
+ * is already beyond saving.
+ *
+ * TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS remains the fallback for entries
+ * with no recorded window (older registrations predate the field).
+ */
 export function isPreregisteredTargetWithinOrphanGrace(
   target: TargetRegisteredLedgerEntry,
   now: Date = new Date(),
@@ -809,8 +830,13 @@ export function isPreregisteredTargetWithinOrphanGrace(
   const registeredAt = Date.parse(target.registeredAt ?? "");
   if (!Number.isFinite(registeredAt)) return false;
   const age = now.getTime() - registeredAt;
-  return (
-    age >= 0 &&
-    age <= TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS * 24 * 60 * 60 * 1000
-  );
+  if (age < 0) return false;
+
+  const opensOn = target.sourceBinding?.expectedReleaseWindow?.start;
+  if (opensOn) {
+    const opensAt = Date.parse(`${opensOn}T00:00:00Z`);
+    if (Number.isFinite(opensAt)) return now.getTime() < opensAt;
+  }
+
+  return age <= TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS * 24 * 60 * 60 * 1000;
 }

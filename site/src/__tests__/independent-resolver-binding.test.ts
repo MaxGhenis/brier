@@ -44,7 +44,7 @@ describe("independent resolver binding", () => {
     expect(getObservationForId(`obs.${dataPointId}`, ledger)?.value).toBe(4.2);
   });
 
-  it("allows preregistered target orphans for exactly seven days", () => {
+  it("falls back to seven days when no release window is recorded", () => {
     const target = {
       registrationState: "preregistered",
       registeredAt: "2030-01-01T00:00:00Z",
@@ -63,5 +63,47 @@ describe("independent resolver binding", () => {
       ),
     ).toBe(false);
     expect(TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS).toBe(7);
+  });
+
+  it("awaits the forecast until the release window opens, not a flat span", () => {
+    const withWindow = (start: string) =>
+      ({
+        registrationState: "preregistered",
+        registeredAt: "2030-01-01T00:00:00Z",
+        sourceBinding: { expectedReleaseWindow: { start, end: start } },
+      }) as unknown as TargetRegisteredLedgerEntry;
+
+    // Long-dated: still awaiting at day 20, where a flat 7 days would have
+    // expired it with a fortnight of legitimate forecasting time left.
+    const longDated = withWindow("2030-02-01");
+    expect(
+      isPreregisteredTargetWithinOrphanGrace(
+        longDated,
+        new Date("2030-01-21T00:00:00Z"),
+      ),
+    ).toBe(true);
+
+    // Expires the instant the window opens, not before and not after.
+    expect(
+      isPreregisteredTargetWithinOrphanGrace(
+        longDated,
+        new Date("2030-01-31T23:59:59Z"),
+      ),
+    ).toBe(true);
+    expect(
+      isPreregisteredTargetWithinOrphanGrace(
+        longDated,
+        new Date("2030-02-01T00:00:00Z"),
+      ),
+    ).toBe(false);
+
+    // Short-dated: no grace beyond the window, even well inside seven days.
+    const shortDated = withWindow("2030-01-03");
+    expect(
+      isPreregisteredTargetWithinOrphanGrace(
+        shortDated,
+        new Date("2030-01-04T00:00:00Z"),
+      ),
+    ).toBe(false);
   });
 });
