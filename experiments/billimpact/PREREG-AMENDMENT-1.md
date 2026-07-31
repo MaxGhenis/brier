@@ -96,3 +96,16 @@ Temperature 1.0. Failed runs are quarantined, never silently cleaned.
    median |elasticity| ≈ 1.8%, near the output-granularity floor (median
    distinct-step ≈ 0.10% of level). Arms B and K above exist to separate
    granularity masking from genuine insensitivity.
+
+---
+
+## Amendment 6 (appended 2026-07-31 ~12:00 EDT, committed before its runs) — S.3596 envelope
+
+The registered S.3596 conditional deltas were produced under 2 configs. This
+arm measures their harness-sensitivity envelope: 4 context levels (full_bill /
+summary / parameter_only / named_only) × 2 elicitations (paired-scenario JSON /
+decomposed) × 2 models (opus-5, fable-5) × 3 reps on both registered targets.
+Measurand: the SPREAD of the conditional delta across configs. Registered
+predictions: (1) the poverty-delta's sign survives all 16 configs; (2) the
+uptake delta loses its sign under parameter_only; (3) tier moves the delta
+more than context. Nothing here is scored against outcomes.
