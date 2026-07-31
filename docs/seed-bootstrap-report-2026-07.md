@@ -51,7 +51,7 @@ ordinary cursor targets so a busy docket cannot defer them past release.
 
 ## Seed coverage
 
-`SEEDS.md` records every series, seed period, exact future release date, and
+`docs/seed-verifications.md` records every series, seed period, exact future release date, and
 official calendar URL. Coverage is complete for the 21 cursorless recurring
 entries:
 
@@ -108,7 +108,7 @@ The working tree now contains 31 draft series specifications: 28 monthly and
 series, a 79% expansion. The drafting sandbox could not reach the vintage transport, so rows were
 drafted `UNVERIFIED`; the integrating session then anchor-verified all 31
 through the resolver's own alfredgraph vintage transport (25 at first-print
-vintages, 6 with one flagged late-vintage anchor). See `ANCHORS.md`.
+vintages, 6 with one flagged late-vintage anchor). See `docs/anchor-verifications.md`.
 
 No forecasts were run, no `records/` files were changed, and no release date
 was guessed. The code changes are deliberately left uncommitted in the
@@ -293,7 +293,7 @@ native adapter names.
 ## Anchor summary
 
 The detailed expected-versus-got table and every official release link are in
-`ANCHORS.md`. All results below are reproduced by the parser from real,
+`docs/anchor-verifications.md`. All results below are reproduced by the parser from real,
 trimmed official response bytes whose original archive hashes are recorded in
 `tests/fixtures/international/README.md`.
 
