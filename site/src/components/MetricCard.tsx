@@ -110,18 +110,9 @@ export function MetricCard({
       {forecast && (
         <a
           href={`/${forecast.slug}`}
-          className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg border border-[#BFDEC7] bg-[#F4FAF6] px-3 py-2 no-underline hover:border-[#1F6B33]"
+          className="mt-2 inline-block [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[#1F6B33] no-underline hover:underline"
         >
-          <span className="[font-family:var(--font-display)] text-[1.15rem] font-normal leading-none text-[#1F6B33]">
-            {forecast.pointLabel}
-          </span>
-          <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)]">
-            80% {forecast.ciLabel}
-          </span>
-          <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-            resolves {forecast.resolutionDate}
-            {forecast.moreCount > 0 ? ` · +${forecast.moreCount} more` : ""} →
-          </span>
+          Live forecast {forecast.pointLabel} →
         </a>
       )}
       {rationale && (

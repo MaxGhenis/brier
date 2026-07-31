@@ -132,16 +132,23 @@ export default async function BillDetailPage({
   const forecastViews = buildForecastViews(slug);
   const rawMeta = loadBillMeta(slug);
   // Unconditional cells on the bill's candidate series — the series
-  // forecast regardless of this bill, deduped across provisions.
-  const unconditionalCells = [
-    ...new Map(
-      entry.provisions
-        .flatMap((p) => p.metrics)
-        .map((m) => resolveMetricCell(m.series_hint))
-        .filter((c): c is NonNullable<typeof c> => c !== null)
-        .map((c) => [c.slug, c]),
-    ).values(),
-  ];
+  // forecast regardless of this bill, deduped across provisions, each
+  // carrying which provision/metric makes the series a candidate.
+  const cellSources = new Map<
+    string,
+    { cell: NonNullable<ReturnType<typeof resolveMetricCell>>; from: string[] }
+  >();
+  for (const provision of entry.provisions) {
+    for (const metric of provision.metrics) {
+      const cell = resolveMetricCell(metric.series_hint);
+      if (!cell) continue;
+      const source = `${provision.title} · ${metric.kind}`;
+      const existing = cellSources.get(cell.slug) ?? { cell, from: [] };
+      if (!existing.from.includes(source)) existing.from.push(source);
+      cellSources.set(cell.slug, existing);
+    }
+  }
+  const unconditionalCells = [...cellSources.values()];
 
   return (
     <div>
@@ -212,24 +219,32 @@ export default async function BillDetailPage({
                 unconditional, bill or no bill
               </h3>
               <div className="divide-y divide-[var(--theme-border)] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]">
-                {unconditionalCells.map((cell) => (
+                {unconditionalCells.map(({ cell, from }) => (
                   <Link
                     key={cell.slug}
                     href={`/${cell.slug}`}
-                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
+                    className="block px-5 py-4 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
                   >
-                    <span className="min-w-[14rem] flex-1 text-[0.92rem] leading-[1.5]">
-                      {cell.title}
-                    </span>
-                    <span className="[font-family:var(--font-display)] text-[1.2rem] font-normal leading-none">
-                      {cell.pointLabel}
-                    </span>
-                    <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)]">
-                      80% {cell.ciLabel}
-                    </span>
-                    <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                      resolves {cell.resolutionDate} →
-                    </span>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                      <span className="min-w-[14rem] flex-1 text-[0.95rem] font-medium leading-[1.5]">
+                        {cell.title}
+                      </span>
+                      <span className="[font-family:var(--font-display)] text-[1.25rem] font-normal leading-none">
+                        {cell.pointLabel}
+                      </span>
+                      <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)]">
+                        80% {cell.ciLabel}
+                      </span>
+                      <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                        resolves {cell.resolutionDate} →
+                      </span>
+                    </div>
+                    <p className="m-0 mt-1 max-w-[760px] text-[0.85rem] leading-[1.55] text-[var(--theme-text-muted)]">
+                      {cell.question}
+                    </p>
+                    <p className="m-0 mt-1 [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                      candidate metric in {from.join(" · ")}
+                    </p>
                   </Link>
                 ))}
               </div>

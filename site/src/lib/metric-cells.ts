@@ -17,6 +17,7 @@ import {
 export interface MetricCellMatch {
   slug: string;
   title: string;
+  question: string;
   pointLabel: string;
   ciLabel: string;
   resolutionDate: string;
@@ -50,6 +51,7 @@ export function resolveMetricCell(
   return {
     slug: chosen.slug,
     title: chosen.title,
+    question: chosen.question,
     pointLabel: formatValue(chosen.pointEstimate, chosen.unit),
     ciLabel: `${formatValue(chosen.ciLow, chosen.unit)} – ${formatValue(
       chosen.ciHigh,
