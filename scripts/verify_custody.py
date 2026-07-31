@@ -290,7 +290,18 @@ def _manifest_relative(run_dir: Path, value: str, *, legacy: bool) -> str:
             if candidate.exists():
                 return _safe_relative(relative.as_posix()).as_posix()
         return _safe_relative(source.name).as_posix()
-    raise CustodyError(f"manifest artifact path does not resolve inside run: {value!r}")
+    raise CustodyError(
+        f"manifest artifact path does not resolve inside run: {value!r} did not "
+        f"land inside {run_dir} from any accepted base. v2 manifests may write "
+        "an artifact path relative to the run directory, to the repository "
+        "root, or to a records/ ancestor, and every form must resolve to a "
+        "file within this run - an artifact outside the run is not covered by "
+        f"the run's seal. Tried: {[str(candidate) for candidate in candidates]}. "
+        "Usual cause: a manifest copied between runs keeping the other run's "
+        "directory name, or a path built from an absolute working directory at "
+        "seal time. Re-seal from the real outputs; do not point the entry at a "
+        "file outside the run directory."
+    )
 
 
 def _self_hash_payload(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -312,7 +323,16 @@ def _regular_files(root: Path) -> set[str]:
         if stat.S_ISDIR(mode):
             continue
         if not stat.S_ISREG(mode) or path.is_symlink():
-            raise CustodyError(f"run contains a symlink or special file: {relative}")
+            raise CustodyError(
+                f"run contains a symlink or special file: {relative} under "
+                f"{root} is not a regular file. A sealed run must contain only "
+                "regular files, because a hash over a symlink commits to a "
+                "path rather than to bytes - the target can be repointed "
+                "afterwards and every digest still verifies. Benign shape: an "
+                "archive or checkout that preserved a link. Attack shape: "
+                "exactly the substitution just described. Replace the entry "
+                "with the real file content before re-verifying."
+            )
         discovered.add(relative)
     return discovered
 
@@ -501,9 +521,26 @@ def _verify_cells_activity(
     ]
     for index, cell in enumerate(cells):
         if not isinstance(cell, dict) or cell.get("activityLog") != expected:
+            actual = cell.get("activityLog") if isinstance(cell, dict) else None
+            actual_paths = (
+                [ref.get("path") for ref in actual if isinstance(ref, dict)]
+                if isinstance(actual, list)
+                else actual
+            )
             raise CustodyError(
                 f"cells.with_activity.json cell {index} does not expose the "
-                "complete rooted activity prefix"
+                "complete rooted activity prefix: its activityLog is "
+                f"{actual_paths}, but it must be exactly the manifest's "
+                "artifact references, in manifest order, minus the "
+                "cells_with_activity and manifest entries - "
+                f"{[ref.get('path') for ref in expected]}. Every published "
+                "cell carries the full sealed trace of the run that produced "
+                "it, so a reader can check the forecast against the artifacts "
+                "without trusting the site; a partial or reordered log makes "
+                "that trace unverifiable. Usual cause: the cell was written "
+                "before the last artifacts were sealed, or the log was "
+                "filtered/sorted downstream. Re-emit the cell from the sealed "
+                "manifest; do not trim the manifest to match the cell."
             )
     entry_paths = {str(entry["path"]) for entry in entries}
     if "cells.with_activity.json" not in entry_paths:
@@ -1134,7 +1171,22 @@ def _verify_ledger_witness_v2(
                     f"expected {jsonl_claim.get('lineCount')}, got {len(lines)}"
                 )
             if _sha256(raw) != jsonl_claim.get("sha256"):
-                raise CustodyError("ledger witness jsonl commitment hash mismatch")
+                raise CustodyError(
+                    "ledger witness jsonl commitment hash mismatch for "
+                    f"{relative}: the manifest's jsonl commitment claims "
+                    f"{jsonl_claim.get('sha256')}, the archived "
+                    f"{LEDGER_JSONL_PATH} bytes hash to {_sha256(raw)} "
+                    f"({len(raw)} bytes, {len(lines)} rows). The byte count "
+                    "and row count already matched, so the archive is the "
+                    "right length but not the right content - a same-size "
+                    "substitution, not a truncation or a re-fetch. The witness "
+                    "exists to prove which exact ledger bytes were live at "
+                    f"branch SHA {branch_sha}; if the archive and the "
+                    "commitment disagree, it proves nothing. Restore the "
+                    "run's committed bytes from git. Do NOT re-fetch the "
+                    "ledger and re-seal: that witnesses today's ledger while "
+                    "still claiming the old commit."
+                )
             seen_ids: set[str] = set()
             for number, line in enumerate(lines, start=1):
                 try:
@@ -1413,7 +1465,21 @@ def _verify_legacy_derived_without_root(
         or run_dir.parent.name != "2026-07-08"
         or run_dir.name not in LEGACY_DERIVED_DIRS
     ):
-        raise CustodyError(f"missing custody root: {run_dir / 'custody_root.json'}")
+        raise CustodyError(
+            f"missing custody root: {run_dir / 'custody_root.json'} does not "
+            "exist, and this run does not qualify for the one closed legacy "
+            "exemption. Exactly six median3 ensemble runs under "
+            "records/2026-07-08/ predate custody roots and are allow-listed by "
+            "name in LEGACY_DERIVED_DIRS; every other run must carry a custody "
+            "root. This run failed at least one exemption condition (dated "
+            f"{run_dir.parent.name!r}, named {run_dir.name!r}, manifest "
+            f"schema {manifest.get('schemaVersion')!r}, createdAt "
+            f"{manifest.get('createdAt')!r}, promptMode "
+            f"{manifest.get('promptMode')!r}). If this is a new run, seal it - "
+            "custody_root.json is produced by the sealer, never written by "
+            "hand. Do NOT widen LEGACY_DERIVED_DIRS: the list is frozen "
+            "history, and adding to it exempts a run from custody entirely."
+        )
     discovered = _regular_files(run_dir)
     expected_files = {"cells.with_activity.json", "distribution.json", "manifest.json"}
     if discovered != expected_files:
@@ -1568,19 +1634,46 @@ def verify_run(run_dir: Path) -> CustodyVerification:
         path = _safe_artifact_path(run_dir, relative)
         if not path.is_file() or path.is_symlink():
             raise CustodyError(
-                f"missing or non-regular artifact {artifact_type}: {relative}"
+                f"missing or non-regular artifact {artifact_type}: {relative} "
+                f"(looked in {run_dir}; "
+                f"{'it is a symlink' if path.is_symlink() else 'no such regular file'}"
+                "). Sealed artifacts must be regular files present in the run "
+                "directory: a symlink would let the sealed bytes be swapped by "
+                "retargeting the link, and a missing file means the run can no "
+                "longer show what it claims. Recover the file's committed "
+                "bytes from git, or replace the symlink with the real content. "
+                "Do NOT drop the entry from custody_root.json to make this "
+                "pass - that quietly shrinks what the run is accountable for."
             )
         raw = path.read_bytes()
         actual_sha = _sha256(raw)
         if actual_sha != entry.get("sha256"):
             raise CustodyError(
                 f"raw SHA-256 mismatch for {artifact_type} {relative}: "
-                f"expected {entry.get('sha256')}, got {actual_sha}"
+                f"custody_root.json commits to {entry.get('sha256')}, the file "
+                f"in {run_dir} hashes to {actual_sha} ({len(raw)} bytes). A "
+                "sealed run is a closed set of exact byte strings; this file "
+                "changed after the run was sealed, so the run no longer "
+                "describes what the agent actually produced. Benign shape: an "
+                "editor rewrote line endings or added a trailing newline, or a "
+                "tool reformatted a JSON artifact in place. Attack shape: run "
+                "output edited after the fact to change what a forecast said. "
+                "Restore the file's committed bytes from git. Do NOT re-seal "
+                "the run and do NOT paste the new digest into "
+                "custody_root.json: the seal is the only record of what the "
+                "run originally emitted, and rewriting it makes the tampering "
+                "unrecoverable."
             )
         if len(raw) != entry.get("bytes"):
             raise CustodyError(
                 f"byte-count mismatch for {artifact_type} {relative}: "
-                f"expected {entry.get('bytes')}, got {len(raw)}"
+                f"custody_root.json commits to {entry.get('bytes')} bytes, the "
+                f"file in {run_dir} is {len(raw)} bytes (its SHA-256 matched, "
+                "so the length field and the hash field disagree with each "
+                "other rather than with the file). That means custody_root.json "
+                "was hand-edited - a sealer writes both fields from the same "
+                "bytes. Restore it from git; do not correct the byte count in "
+                "place."
             )
         if not legacy and path.suffix == ".json" and "canonicalJsonSha256" not in entry:
             raise CustodyError(
@@ -1597,9 +1690,19 @@ def verify_run(run_dir: Path) -> CustodyVerification:
             if actual_canonical != entry["canonicalJsonSha256"]:
                 raise CustodyError(
                     "canonical JSON SHA-256 mismatch for "
-                    f"{artifact_type} {relative}: "
-                    f"expected {entry['canonicalJsonSha256']}, "
-                    f"got {actual_canonical}"
+                    f"{artifact_type} {relative}: custody_root.json commits to "
+                    f"{entry['canonicalJsonSha256']}, the parsed content "
+                    f"canonicalizes to {actual_canonical}. Note the raw "
+                    "SHA-256 already matched, so the file itself is exactly "
+                    "what was sealed - the two commitments disagree with each "
+                    "other. That points at the sealer, not at the artifact: "
+                    "the canonical digest was computed over different content, "
+                    "or with a different canonicalization than "
+                    "scripts/canonical_json.py implements (key order is UTF-16 "
+                    "code-unit order, numbers follow JSON.stringify). Do NOT "
+                    "update either digest to make them agree - establish which "
+                    "one is wrong first, since an artifact whose two "
+                    "commitments can be reconciled by editing is not sealed."
                 )
         normalized_entries.append(
             {**entry, "artifactType": artifact_type, "path": relative}
@@ -1639,8 +1742,40 @@ def verify_run(run_dir: Path) -> CustodyVerification:
                 f"referenced={sorted(referenced_without_manifest)}"
             )
     elif rooted_order != referenced_without_manifest:
+        first_difference = next(
+            (
+                index
+                for index in range(
+                    max(len(rooted_order), len(referenced_without_manifest))
+                )
+                if rooted_order[index : index + 1]
+                != referenced_without_manifest[index : index + 1]
+            ),
+            0,
+        )
+        rooted_at = rooted_order[first_difference : first_difference + 1] or "<end>"
+        manifest_at = (
+            referenced_without_manifest[first_difference : first_difference + 1]
+            or "<end>"
+        )
+        rooted_only = sorted(set(rooted_order) - set(referenced_without_manifest))
+        manifest_only = sorted(set(referenced_without_manifest) - set(rooted_order))
         raise CustodyError(
-            "v2 custody artifacts must match manifest artifacts one-to-one and in order"
+            "v2 custody artifacts must match manifest artifacts one-to-one and "
+            f"in order, but they diverge at position {first_difference}: "
+            f"custody_root.json has {rooted_at}, manifest.json has "
+            f"{manifest_at}"
+            f". Only in custody_root.json: {rooted_only or 'none'}. Only in "
+            f"manifest.json: {manifest_only or 'none'}. Entries are "
+            "(artifactType, path) pairs. The order is load-bearing, not "
+            "cosmetic: it is the rooted activity prefix each cell publishes as "
+            "its trace, so a reordering changes what the run claims it did and "
+            "when. If both 'only in' lists are empty the sets agree and this is "
+            "purely an ordering difference - likely a sealer that sorted or "
+            "regrouped artifacts, or a manifest edited by hand. Fix whichever "
+            "side is out of step so both list artifacts in emission order; do "
+            "not reorder to whatever silences this without checking which order "
+            "the run actually produced."
         )
     if not legacy:
         nonself_refs = [
@@ -1677,9 +1812,18 @@ def verify_run(run_dir: Path) -> CustodyVerification:
     actual_manifest_sha = canonical_sha256(manifest_without_root)
     if actual_manifest_sha != manifest_commitment.get("canonicalJsonSha256"):
         raise CustodyError(
-            "manifest-without-root canonical SHA-256 mismatch: expected "
-            f"{manifest_commitment.get('canonicalJsonSha256')}, "
-            f"got {actual_manifest_sha}"
+            f"manifest-without-root canonical SHA-256 mismatch in {run_dir}: "
+            "custody_root.json's manifestWithoutCustodyRoot commits to "
+            f"{manifest_commitment.get('canonicalJsonSha256')}, the manifest "
+            f"with custodyRootSha256 removed canonicalizes to "
+            f"{actual_manifest_sha}. The two control files commit to each "
+            "other, and the custodyRootSha256 field is excluded from this side "
+            "to break what would otherwise be a circular hash - that is why "
+            "the digest is 'without root' and why it is not the hash of "
+            "manifest.json as it sits on disk. A mismatch means manifest.json "
+            "changed in some field other than custodyRootSha256 after sealing. "
+            "Restore it from git; do not update the commitment to match the "
+            "edited manifest."
         )
     self_refs = [
         ref for ref in manifest_entries if ref.get("artifactType") == "manifest"
@@ -1698,19 +1842,45 @@ def verify_run(run_dir: Path) -> CustodyVerification:
     self_sha = _sha256(self_bytes)
     if self_sha != self_refs[0].get("sha256"):
         raise CustodyError(
-            "manifest self-entry SHA-256 mismatch: "
-            f"expected {self_refs[0].get('sha256')}, got {self_sha}"
+            f"manifest self-entry SHA-256 mismatch in {run_dir}: the manifest's "
+            f'own "manifest" artifact entry claims {self_refs[0].get("sha256")}'
+            f", the computed self-hash is {self_sha}. This digest is "
+            "deliberately NOT the hash of manifest.json on disk: it is taken "
+            "over the manifest with custodyRootSha256 removed and its own "
+            "manifest artifact entry dropped, because a file cannot contain "
+            "its own hash. So do not compare it against `sha256sum "
+            "manifest.json` - they are supposed to differ. A mismatch means "
+            "some other manifest field changed after sealing. Restore "
+            "manifest.json from git rather than editing the self-entry to "
+            "match."
         )
     if len(self_bytes) != self_refs[0].get("bytes"):
         raise CustodyError(
-            "manifest self-entry byte-count mismatch: "
-            f"expected {self_refs[0].get('bytes')}, got {len(self_bytes)}"
+            f"manifest self-entry byte-count mismatch in {run_dir}: the "
+            f"manifest's self entry claims {self_refs[0].get('bytes')} bytes, "
+            f"the canonical self-hash payload is {len(self_bytes)} bytes (its "
+            "SHA-256 matched, so the two fields of the same entry disagree). "
+            "Like the self-hash above, this counts the canonicalized payload, "
+            "not manifest.json on disk. A hand-edited entry is the usual "
+            "cause; restore manifest.json from git."
         )
     actual_root_sha = canonical_sha256(custody)
     if actual_root_sha != manifest.get("custodyRootSha256"):
         raise CustodyError(
-            "custody root SHA-256 mismatch: "
-            f"expected {manifest.get('custodyRootSha256')}, got {actual_root_sha}"
+            f"custody root SHA-256 mismatch in {run_dir}: manifest.json's "
+            f"custodyRootSha256 is {manifest.get('custodyRootSha256')}, but "
+            f"custody_root.json canonicalizes to {actual_root_sha}. This is "
+            "the top of the seal: the manifest names the custody root, the "
+            "custody root names every artifact, so one digest covers the whole "
+            "run. Every per-artifact hash above already passed, so the "
+            "artifacts are intact and the two control files disagree - "
+            "typically because custody_root.json or manifest.json was edited "
+            "after sealing (adding a field, reformatting, or fixing a path by "
+            "hand). Restore both from git and re-seal the run from its real "
+            "outputs if it must change. Do NOT paste "
+            f"{actual_root_sha} into manifest.json: that recomputes the seal "
+            "over whatever is on disk now, which is exactly the operation the "
+            "seal exists to make impossible."
         )
 
     if not legacy:
@@ -1718,9 +1888,20 @@ def verify_run(run_dir: Path) -> CustodyVerification:
         expected_files = {*manifest_paths, "custody_root.json"}
         if discovered != expected_files:
             raise CustodyError(
-                "v2 run directory inventory mismatch: "
+                f"v2 run directory inventory mismatch in {run_dir}: "
                 f"unreferenced={sorted(discovered - expected_files)}, "
-                f"missing={sorted(expected_files - discovered)}"
+                f"missing={sorted(expected_files - discovered)}. A v2 run "
+                "directory is closed-world - the files on disk must be exactly "
+                "the manifest's artifacts plus custody_root.json - so that "
+                "nothing can sit inside a sealed run without being covered by "
+                "the seal. 'unreferenced' files exist but are not sealed "
+                "(stray debug output, an editor .bak/.swp, a re-run writing "
+                "beside the original); 'missing' files were sealed but are now "
+                "gone. Move stray files out of the run directory rather than "
+                "adding them to the manifest, and recover missing ones from "
+                "git. Do NOT delete listed-but-missing entries from the "
+                "manifest to balance the two lists - the manifest is the "
+                "record of what the run produced."
             )
         if run_mode == "analyst":
             _verify_analyst_v2(run_dir, manifest, manifest_entries, normalized_entries)

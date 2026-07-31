@@ -614,7 +614,18 @@ def _compare_commits(base: str, head: str) -> list[dict[str, Any]]:
     if first.get("status") != "ahead" or merge_base_sha != base:
         raise PinError(
             f"ledger head {head[:12]} is not a strict descendant of pinned "
-            f"commit {base[:12]}; refusing rewritten Git history"
+            f"commit {base[:12]}; refusing rewritten Git history. GitHub "
+            f"reports status={first.get('status')!r} with merge base "
+            f"{str(merge_base_sha)[:12]}; only status 'ahead' with the pinned "
+            "commit as the merge base means the branch grew from what we "
+            "already pinned. Anything else means the pinned commit is no "
+            "longer an ancestor of the branch - a force-push, a reset, or a "
+            "rebase upstream. The pin advances only along history it can walk "
+            "commit by commit, because that walk is what proves no row was "
+            "rewritten in between. Get the branch restored to a descendant of "
+            f"{base[:12]} upstream. Do NOT reach for "
+            "--rebuild-from-history: it re-derives every acceptance time from "
+            "the new history and silently ratifies the rewrite."
         )
     total = first.get("total_commits")
     if not isinstance(total, int):
@@ -728,13 +739,32 @@ def _require_extension(
     previous: list[str], current: list[str], *, label: str
 ) -> None:
     if len(current) < len(previous):
-        raise PinError(f"{label} truncates the ledger: "
-                       f"{len(previous)} -> {len(current)} rows")
+        raise PinError(
+            f"{label} truncates the ledger: {len(previous)} -> "
+            f"{len(current)} rows. The observation ledger is append-only: "
+            "every published forecast is graded against a row that must still "
+            "be there, byte-identical, at every later commit. Rows were "
+            "removed instead. Attack shape: deleting an observation that "
+            "resolved a forecast badly. Find out who removed them upstream "
+            "before doing anything else. Do NOT run --rebuild-from-history to "
+            "get past this - it re-derives acceptance from the truncated "
+            "history and permanently loses the removed rows' provenance."
+        )
     for index, line in enumerate(previous):
         if current[index] != line:
             raise PinError(
                 f"{label} rewrites ledger line {index + 1} "
-                f"({_source_record_id(line, index)}); refusing to advance the pin"
+                f"({_source_record_id(line, index)}); refusing to advance the "
+                "pin. The ledger is append-only, so an already-accepted row's "
+                "bytes are frozen - forecasts already graded against this row "
+                "would silently re-grade if it changed. Benign shape: an "
+                "upstream correction applied in place instead of appended as a "
+                "revision. Attack shape: an outcome edited after forecasts "
+                "resolved against it. Have the change reissued upstream as a "
+                "new appended row. --rebuild-from-history will adopt this "
+                'rewrite (flagging the row "rewritten_in_place"); use it only '
+                "as a deliberate decision to accept the edit, never as a way "
+                "to make this error go away."
             )
 
 
@@ -1140,13 +1170,50 @@ def _write_outputs(
         else None
     )
     if canonical_bytes(derived_head) != canonical_bytes(release_state.release_head):
-        raise PinError("verified release state and releaseHead disagree")
+        raise PinError(
+            "verified release state and releaseHead disagree: the head derived "
+            f"from the freshly verified release chain is {derived_head}, but "
+            "the head about to be written into ledger-pin.json is "
+            f"{release_state.release_head}. These are computed at different "
+            "points and must agree before any output is written, so the pin "
+            "can never name a release head that was not just verified "
+            "end-to-end (manifests, producer signatures, and both RFC 3161 "
+            "receipts). A disagreement is an internal inconsistency in this "
+            "script's own flow, not upstream tampering - report it rather "
+            "than working around it. No files have been written."
+        )
     rows = _rows_with_release_windows(rows, release_state.verification)
     for index, (row, line) in enumerate(zip(rows, lines)):
         if row["acceptedSequence"] != index:
-            raise PinError(f"availability sequence gap at {index}")
+            raise PinError(
+                f"availability sequence gap at {index}: the row in this "
+                f"position declares acceptedSequence "
+                f"{row['acceptedSequence']} (sourceRecordId "
+                f"{row.get('sourceRecordId')!r}). acceptedSequence is the "
+                "row's position in the append-only ledger and must equal its "
+                "index exactly, with no gaps or reordering - it is what lets a "
+                "cutoff be expressed as 'the first N rows'. A gap means the "
+                "availability rows were reordered or a row was dropped while "
+                "carrying its old sequence. Regenerate availability with "
+                "--rebuild-from-history rather than renumbering rows by hand; "
+                "no output has been written yet."
+            )
         if row["lineSha256"] != sha256_hex(line.encode("utf-8")):
-            raise PinError(f"availability hash mismatch at line {index + 1}")
+            raise PinError(
+                f"availability hash mismatch at line {index + 1}: "
+                f"records/ledger/availability.json commits to "
+                f"{row['lineSha256']} for sourceRecordId "
+                f"{row.get('sourceRecordId')!r} accepted at "
+                f"{row.get('acceptedAtUtc')} in commit "
+                f"{row.get('acceptedCommit')}, but that line in the JSONL now "
+                f"hashes to {sha256_hex(line.encode('utf-8'))}. The "
+                "availability index records when each exact row entered the "
+                "ledger, so a row whose bytes changed no longer has a valid "
+                "acceptance time. This is normally caught upstream as a "
+                "rewrite; reaching it here means the derived index and the "
+                "ledger diverged. Nothing has been written yet - establish "
+                "which side changed before rebuilding."
+            )
     _strict_utc_datetime(pinned_at, "pinnedAtUtc")
     pin = {
         "schemaVersion": PIN_SCHEMA,
@@ -1357,7 +1424,22 @@ def refresh() -> None:
     old_raw = _jsonl_at(pin["sha"])
     if sha256_hex(old_raw) != pin["jsonlSha256"]:
         raise PinError(
-            "pinned bytes no longer match the pin — upstream history changed"
+            f"pinned bytes no longer match the pin: {LEDGER_JSONL_PATH} at the "
+            f"pinned commit {pin['sha']} now hashes to {sha256_hex(old_raw)} "
+            f"({len(old_raw)} bytes), but "
+            f"site/src/data/ledger-pin.json commits to {pin['jsonlSha256']} "
+            f"({pin['jsonlBytes']} bytes, {pin['lineCount']} rows). A commit "
+            "SHA names an immutable tree, so the same SHA cannot legitimately "
+            "serve different file bytes. There is no benign explanation on the "
+            "content side: either the pinned SHA was force-pushed away and "
+            "GitHub is now serving a different object, or the fetch was "
+            "corrupted/intercepted in transit. Re-fetch to rule out transport "
+            f"first (raw.githubusercontent.com/{LEDGER_REPO}/{pin['sha']}/"
+            f"{LEDGER_JSONL_PATH}). If the bytes really changed, treat the "
+            "upstream branch as compromised and investigate before pinning "
+            "anything. Do NOT run --rebuild-from-history to clear this: that "
+            "re-derives acceptance from whatever history now exists and "
+            "adopts the rewrite."
         )
     old_lines = _lines(old_raw)
     if head_sha == pin["sha"]:

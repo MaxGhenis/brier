@@ -138,7 +138,15 @@ def _activation_index(records: Path, ordered: list[Path]) -> int:
     activation_logical = producer_pins.ACTIVATION_SNAPSHOT
     if not isinstance(activation_logical, str) or not activation_logical:
         # producer_signing_active() should have rejected this configuration.
-        raise ProducerSigningError("producer signing pins are half-armed")
+        raise ProducerSigningError(
+            "producer signing pins are half-armed: producer_signing_active() "
+            "reported active, but ACTIVATION_SNAPSHOT in "
+            f"scripts/producer_signing_pins.py is {activation_logical!r}. "
+            "Arming requires both the activation snapshot (where signing "
+            "begins) and PRODUCER_SPKI_SHA256 (which key is authoritative); "
+            "half-armed pins would either sign without anyone verifying or "
+            "verify against nothing. Set both, or leave both unset."
+        )
     try:
         activation = physical_path(records, activation_logical)
     except ChainError as exc:
@@ -235,7 +243,13 @@ def _existing_signature_bytes(records: Path, signature: Path) -> bytes | None:
         ) from exc
     if len(signature_bytes) != 64:
         raise ProducerSigningError(
-            f"existing producer signature must contain exactly 64 raw bytes: {logical}"
+            "existing producer signature must contain exactly 64 raw bytes: "
+            f"{logical} holds {len(signature_bytes)}. Ed25519 signatures are "
+            "stored as raw bytes, not hex or base64 or PEM - 128 bytes usually "
+            "means hex, 88 means base64, and a much larger size means a text "
+            "wrapper. Re-encode from whatever produced it rather than "
+            "deleting the file: if a real signature is in there, the bytes "
+            "are recoverable."
         )
     return signature_bytes
 
@@ -243,9 +257,25 @@ def _existing_signature_bytes(records: Path, signature: Path) -> bytes | None:
 def _exclusive_write(path: Path, payload: bytes) -> None:
     try:
         descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    except FileExistsError as exc:
+        raise ProducerSigningError(
+            f"refusing to overwrite producer signature: {path} already exists. "
+            "Producer signatures are write-once - this signer only ever "
+            "creates them (O_EXCL), never replaces them - because a "
+            "replaceable signature proves nothing about when a snapshot was "
+            "signed. Reaching this means the file appeared between the "
+            "existing-signature scan earlier in this run and now, i.e. a "
+            "concurrent signer. Let the other run finish and re-verify; if you "
+            "believe the existing signature is wrong, investigate it in place. "
+            "Do NOT delete it and re-sign: the current key would silently "
+            "restate a claim the earlier signature may contradict."
+        ) from exc
     except OSError as exc:
         raise ProducerSigningError(
-            f"refusing to overwrite producer signature: {path}"
+            f"cannot create producer signature {path}: {exc}. This is a "
+            "filesystem failure (permissions, missing directory, read-only "
+            "checkout), not an integrity failure - no signature was written "
+            "and nothing is corrupt. Fix the filesystem condition and re-run."
         ) from exc
     try:
         with os.fdopen(descriptor, "wb") as stream:
@@ -337,7 +367,15 @@ def sign_record_snapshots(
     )
     spki_pin = producer_pins.PRODUCER_SPKI_SHA256
     if not isinstance(spki_pin, str) or not spki_pin:
-        raise ProducerSigningError("producer signing pins are half-armed")
+        raise ProducerSigningError(
+            "producer signing pins are half-armed: an activation snapshot is "
+            "set but PRODUCER_SPKI_SHA256 in "
+            f"scripts/producer_signing_pins.py is {spki_pin!r}, so there is no "
+            "pinned key to sign against. Signing without a pinned SPKI would "
+            "attest records with whatever key happens to be in the "
+            "environment. Set PRODUCER_SPKI_SHA256 to the SHA-256 of the "
+            f"producer public key's DER SPKI ({producer_pins.PUBLIC_KEY_RELPATH})."
+        )
     try:
         computed_spki = spki_sha256(public_key_pem)
     except sign_error as exc:
@@ -387,7 +425,18 @@ def sign_record_snapshots(
             )
         except sign_error as exc:
             raise ProducerSigningError(
-                f"{SIGNING_KEY_ENV} does not match the code-pinned producer public key"
+                f"{SIGNING_KEY_ENV} does not match the code-pinned producer "
+                f"public key: a self-check signature made with the private key "
+                f"in the environment did not verify under "
+                f"{producer_pins.PUBLIC_KEY_RELPATH} (pinned SPKI {spki_pin}): "
+                f"{exc}. This check runs before any snapshot is signed, so "
+                "nothing has been written and no record is corrupt - the "
+                "wrong private key was supplied, usually a stale or "
+                "rotated secret in the signing job. Load the private key "
+                "matching the pinned public key. Do NOT change "
+                "PRODUCER_SPKI_SHA256 or replace the committed public key to "
+                "match the secret you have: the pin is what makes the "
+                "signatures on existing records attributable."
             ) from exc
 
         existing: dict[Path, bytes] = {}
@@ -409,7 +458,20 @@ def sign_record_snapshots(
             except sign_error as exc:
                 raise ProducerSigningError(
                     "existing producer signature is invalid: "
-                    f"{logical_path(records, signature)}"
+                    f"{logical_path(records, signature)} does not verify over "
+                    f"{logical_path(records, snapshot)} under the code-pinned "
+                    f"producer key ({producer_pins.PUBLIC_KEY_RELPATH}, SPKI "
+                    f"{spki_pin}): {exc}. Signing refuses to add new "
+                    "signatures while any existing one is broken, so a bad "
+                    "signature cannot be buried under later good ones. Benign "
+                    "shape: the snapshot was re-serialized after signing, so "
+                    "the signed bytes no longer exist on disk. Attack shape: "
+                    "snapshot content swapped, or a signature written by a key "
+                    "that is not the pinned producer. Restore the snapshot's "
+                    "committed bytes from git and re-check. Do NOT delete the "
+                    "signature and re-sign the current bytes - that converts "
+                    "evidence of a mismatch into a fresh, valid-looking "
+                    "attestation of the altered content."
                 ) from exc
 
         pending: list[tuple[Path, bytes]] = []

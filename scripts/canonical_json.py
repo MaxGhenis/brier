@@ -48,7 +48,16 @@ def _serialize_string(value: str) -> str:
 
 def _serialize_float(value: float) -> str:
     if not math.isfinite(value):
-        raise ValueError(f"Canonical JSON cannot serialize non-finite number: {value}")
+        raise ValueError(
+            f"Canonical JSON cannot serialize non-finite number: {value}. JSON "
+            "has no NaN or Infinity literal, and this serializer must stay "
+            "byte-identical to canonicalStringify in "
+            "site/src/data/canonical-json.ts, which JavaScript would silently "
+            "render as null. Emitting null here would make two different "
+            "payloads hash the same, so the value is refused instead. Fix the "
+            "producer to emit a real number or null explicitly; do not coerce "
+            "it at the hashing layer."
+        )
     if value == 0:
         return "0"
 
@@ -67,6 +76,19 @@ def _serialize_float(value: float) -> str:
     exponent = int(exponent_text)
     sign = "+" if exponent >= 0 else ""
     return f"{mantissa}e{sign}{exponent}"
+
+
+def _describe(item: Any) -> str:
+    """Render a short, safe summary of an offending value for error text."""
+
+    if isinstance(item, dict):
+        keys = [repr(key) for key in list(item)[:8]]
+        suffix = ", ..." if len(item) > 8 else ""
+        return f"{len(item)} key(s): {', '.join(keys)}{suffix}"
+    if isinstance(item, list):
+        return f"list of {len(item)} item(s)"
+    text = repr(item)
+    return text if len(text) <= 200 else text[:200] + "..."
 
 
 def canonical_stringify(value: Any) -> str:
@@ -98,7 +120,18 @@ def canonical_stringify(value: Any) -> str:
         if isinstance(item, (list, dict)):
             identity = id(item)
             if identity in ancestors:
-                raise ValueError("Canonical JSON cannot serialize circular structures")
+                raise ValueError(
+                    "Canonical JSON cannot serialize circular structures: a "
+                    f"{type(item).__name__} contains itself "
+                    f"(keys/length: {_describe(item)}). Canonical bytes have "
+                    "to be finite and reproducible, so a self-referential "
+                    "object has no canonical form and cannot be hashed. This "
+                    "is nearly always an in-memory graph built by the caller "
+                    "(a payload appended to a list it already contains), not "
+                    "corrupt data on disk - JSON read from a file can never be "
+                    "circular. Deep-copy or rebuild the payload before "
+                    "hashing it."
+                )
             ancestors.add(identity)
             try:
                 if isinstance(item, list):
@@ -106,14 +139,30 @@ def canonical_stringify(value: Any) -> str:
                 entries = []
                 for key in sorted(item, key=utf16_sort_key):
                     if not isinstance(key, str):
-                        raise TypeError("Canonical JSON object keys must be strings")
+                        raise TypeError(
+                            "Canonical JSON object keys must be strings, found "
+                            f"{type(key).__name__} {key!r} in an object with "
+                            f"keys {_describe(item)}. Python allows int, bool, "
+                            "and None dict keys; JSON does not, and coercing "
+                            'them to text would make {1: "a"} and {"1": "a"} '
+                            "hash identically. Fix the producer to emit string "
+                            "keys."
+                        )
                     entries.append(f"{_serialize_string(key)}:{serialize(item[key])}")
                 return "{" + ",".join(entries) + "}"
             finally:
                 ancestors.remove(identity)
 
         raise TypeError(
-            f"Canonical JSON cannot serialize value of type {type(item).__name__}"
+            "Canonical JSON cannot serialize value of type "
+            f"{type(item).__name__}: {_describe(item)}. Only None, bool, int, "
+            "float, str, list, and dict have a canonical form; this serializer "
+            "refuses anything else rather than guessing, because the bytes it "
+            "produces are hashed into custody roots and record chains and must "
+            "match canonicalStringify in site/src/data/canonical-json.ts "
+            "exactly. Convert the value at the producer (datetime -> ISO-8601 "
+            "string, Decimal -> float or str, dataclass -> dict) so the "
+            "committed JSON and the hashed JSON are the same thing."
         )
 
     return serialize(value)
