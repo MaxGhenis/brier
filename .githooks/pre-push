@@ -15,58 +15,60 @@
 #   - merge_is_records_noop: a merge whose records tree is byte-identical to
 #     a parent publishes no new records content and is exempt — otherwise
 #     every update-with-main merge after a recorder push trips the guard.
-#     The audit only lets an IN-SCOPE (post-epoch) parent exempt; the local
-#     analogue is a parent already reachable from the trusted comparator,
-#     i.e. content main already published and the audit already covered.
-#     A merge resolving to records content matching no such parent — an
-#     evil merge, a stale-parent swap — still blocks.
+#     Only an IN-SCOPE parent may exempt, in the audit's exact sense: not a
+#     proven ancestor of the enforcement epoch (the commit that introduced
+#     the verifier, resolved here the same self-anchoring way), and, since
+#     the guard runs before the audit ever sees the commit, also already
+#     reachable from the comparator. An ancient records state resurrected
+#     through a pre-epoch parent is what the epoch test refuses.
 #   - enforce_range_content_closure: if nothing in the range needs
 #     attestation yet the endpoints disagree about records content, the
 #     change rode in through parent-order trickery or a rewind. Applied to
 #     main pushes, where the audit applies it (a branch legitimately lags
 #     main's records).
 #
-# The walked range depends on where the push lands:
+# The comparator is fetched from the push destination itself — the URL git
+# hands the hook — not from whatever "origin" happens to name. Nothing then
+# rests on remote naming or URL spelling: a fork, a mirror, a
+# remote.origin.pushurl, an https-fetch/ssh-push pair and a plain clone all
+# get measured against the main their own push is landing beside. The
+# walked range is:
 #   - refs/heads/main: remote..local — every commit published there is
 #     audited on arrival, so every one is checked here.
-#   - any other ref pushed to the trusted origin: the branch's own
-#     contribution against refs/remotes/origin/main. Tip-to-tip ranges
-#     false-positive here: a branch rebased onto a main that legitimately
-#     gained attested recorder commits showed main's records growth while
-#     pushing zero new records objects (hit 2026-07-31). The comparator
-#     must be trustworthy, so it is used only when the push URL is
-#     origin's own fetch URL (a remote.origin.pushurl sends elsewhere),
-#     the fetch pins it with an explicit refspec (a bare `fetch origin
-#     main` can succeed while updating only FETCH_HEAD), and the full ref
-#     name sidesteps a local branch literally named "origin/main".
-#   - anywhere else (a fork, a mirror, a differing push URL): the endpoint
-#     range — origin's main cannot vouch for what another remote receives.
-# A push with no trustworthy comparator, an unwalkable range, or a shallow
-# repository (whose walk can succeed while missing history) is refused.
-# Replacement refs and grafts are neutralized so local graph overlays
-# cannot dress up a records commit.
+#   - any other ref: destination-main..local — the branch's own
+#     contribution. Tip-to-tip ranges false-positive here: a branch rebased
+#     onto a main that legitimately gained attested recorder commits showed
+#     main's records growth while pushing zero new records objects (hit
+#     2026-07-31).
+# A push with no trustworthy comparator (a new ref whose destination has no
+# main), an unwalkable range, or a shallow repository — whose walk can
+# succeed while missing the history that matters — is refused. Replacement
+# refs and grafts are neutralized so local graph overlays cannot dress up a
+# records commit.
 #
 # Break glass, deliberately, when you truly mean it:
 #   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
 GIT_NO_REPLACE_OBJECTS=1
 GIT_GRAFT_FILE=/dev/null
 export GIT_NO_REPLACE_OBJECTS GIT_GRAFT_FILE
-remote_name=$1
-remote_url=$2
+destination=$2
+DEST_MAIN=refs/prepush-guard/destination-main
+VERIFIER=scripts/verify_records_attestations.py
 ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
 fetched=0
 fetch_ok=0
 
-# The branch-contribution comparator is origin's main, so it may only be
-# trusted when this push is going to origin itself — same name AND same
-# URL, since remote.origin.pushurl can point somewhere else entirely.
-trusted_origin=0
-if [ "$remote_name" = "origin" ] && [ -n "$remote_url" ] &&
-    [ "$remote_url" = "$(git remote get-url origin 2>/dev/null)" ]; then
-    trusted_origin=1
-fi
 shallow=$(git rev-parse --is-shallow-repository 2>/dev/null || echo unknown)
+
+# The enforcement epoch, resolved exactly as the audit resolves it: the
+# single commit that introduced the verifier. Empty when it cannot be
+# resolved unambiguously, which only relaxes the exemption to the
+# already-published test below — never widens what counts as a records
+# commit.
+epoch=$(git log --full-history --diff-filter=A --format=%H HEAD -- \
+    "$VERIFIER" 2>/dev/null)
+[ "$(printf '%s\n' "$epoch" | grep -c .)" = "1" ] || epoch=""
 
 refuse() { # refuse <ref> <reason>
     if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
@@ -86,17 +88,26 @@ records_tree() { # records_tree <commit-ish>
     git rev-parse --quiet --verify "$1:records" 2>/dev/null || echo none
 }
 
-pin_origin_main() {
+# Pin the comparator to the destination's own main, once per push.
+pin_destination_main() {
     if [ "$fetched" = "0" ]; then
         fetched=1
-        if GIT_TERMINAL_PROMPT=0 git fetch --quiet origin \
-            "+refs/heads/main:refs/remotes/origin/main" \
-            </dev/null >/dev/null 2>&1; then
+        [ -n "$destination" ] &&
+            GIT_TERMINAL_PROMPT=0 git fetch --quiet "$destination" \
+                "+refs/heads/main:$DEST_MAIN" </dev/null >/dev/null 2>&1 &&
             fetch_ok=1
-        fi
     fi
-    [ "$fetch_ok" = "1" ] &&
-        git rev-parse --quiet --verify refs/remotes/origin/main >/dev/null
+    [ "$fetch_ok" = "1" ] && git rev-parse --quiet --verify "$DEST_MAIN" >/dev/null
+}
+
+# A parent may vouch for a merge only if the audit would let it: in scope
+# (not a proven ancestor of the epoch) and already published.
+parent_may_exempt() { # parent_may_exempt <parent> <base>
+    if [ -n "$epoch" ] &&
+        git merge-base --is-ancestor "$1" "$epoch" 2>/dev/null; then
+        return 1
+    fi
+    git merge-base --is-ancestor "$1" "$2" 2>/dev/null
 }
 
 while read -r _local_ref local_sha remote_ref remote_sha; do
@@ -106,18 +117,17 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
         continue
     fi
     base=""
-    if [ "$trusted_origin" = "1" ] && [ "$remote_ref" != "refs/heads/main" ] &&
-        pin_origin_main; then
-        base="refs/remotes/origin/main"
+    if [ "$remote_ref" != "refs/heads/main" ] && pin_destination_main; then
+        base=$DEST_MAIN
     fi
     if [ -z "$base" ]; then
         if [ "$remote_sha" != "$ZERO" ]; then
             base="$remote_sha"
-        elif [ "$trusted_origin" = "1" ] &&
-            [ "$remote_ref" = "refs/heads/main" ] && pin_origin_main; then
-            base="refs/remotes/origin/main"
+        elif pin_destination_main; then
+            base=$DEST_MAIN
         else
-            refuse "$remote_ref" "new ref, no trusted comparator" || status=1
+            refuse "$remote_ref" "new ref, no comparator at the destination" ||
+                status=1
             continue
         fi
     fi
@@ -137,10 +147,7 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
         for p in $(git rev-parse "$c^@" 2>/dev/null); do
             nparent=$((nparent + 1))
             [ "$(records_tree "$p")" = "$ctree" ] || continue
-            # Only already-published history may exempt: an in-scope
-            # parent in the audit's sense.
-            git merge-base --is-ancestor "$p" "$base" 2>/dev/null &&
-                exempt=1
+            parent_may_exempt "$p" "$base" && exempt=1
         done
         if [ "$nparent" -ge 2 ] && [ "$exempt" = "1" ]; then
             continue

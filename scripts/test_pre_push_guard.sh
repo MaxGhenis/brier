@@ -7,9 +7,11 @@
 # CI runners this doubles as a dash/POSIX check. Covers the rebase
 # false-positive fix, commit-level walk semantics (add-then-delete),
 # main-endpoint discrimination, break-glass, fail-closed unverifiable
-# paths, and the 2026-07-31 adversarial-review attacks (forged/stale
-# comparator, origin/main ref shadowing, refspec-less fetch, fork-to-
-# upstream introduction, missing-tree walk errors, replacement refs).
+# paths, the audit's in-scope-parent and content-closure rules, and the
+# 2026-07-31 adversarial-review attacks (forged/stale comparator,
+# origin/main ref shadowing, refspec-less fetch, fork-to-upstream
+# introduction, missing-tree walk errors, replacement refs, grafts,
+# shallow clones, and equivalent fetch/push URL spellings).
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HOOK="$ROOT/.githooks/pre-push"
@@ -35,8 +37,8 @@ check() { # check <name> <expected_rc> <actual_rc> [stderr_file must_contain]
     fi
 }
 hook() { # hook <clone_dir> <remote_name> <line...> -> rc in $rc, stderr in $S/err
-    # $2 of a pre-push hook is the push URL; the guard only trusts the
-    # branch-contribution comparator when that URL is origin's own.
+    # $2 of a pre-push hook is the push destination URL; the guard pins its
+    # comparator by fetching main from exactly that destination.
     local d=$1 rn=$2; shift 2
     local url
     url=$(git -C "$d" remote get-url "$rn" 2>/dev/null || echo "other-url")
@@ -61,6 +63,10 @@ git -C "$S/origin.git" symbolic-ref HEAD refs/heads/main
 git clone -q "$S/origin.git" "$S/seed" 2>/dev/null
 commit_file "$S/seed" records/seed.txt r0 "init records"
 commit_file "$S/seed" src/a.txt a "init src"
+# the enforcement epoch is self-anchoring: the commit introducing the
+# verifier. Seeding it here keeps the in-scope-parent rule under test.
+commit_file "$S/seed" scripts/verify_records_attestations.py "# stub" \
+    "introduce the records verifier (epoch)"
 git -C "$S/seed" push -q origin HEAD:main
 INIT=$(git -C "$S/seed" rev-parse HEAD)
 
@@ -186,10 +192,14 @@ SN=$(git -C "$S/dev5" rev-parse sneak)
 git -C "$S/dev5" update-ref refs/remotes/origin/main "$SN"     # forge
 hook "$S/dev5" origin "refs/heads/sneak $SN refs/heads/sneak $ZERO40"
 check "19 refspec-less remote: fetch repins comparator, blocks" 1 $rc "$S/err" "records/refspec.txt"
-if [ "$(git -C "$S/dev5" rev-parse refs/remotes/origin/main)" = "$TIP" ]; then
-    echo "PASS 19b forged tracking ref overwritten by pinned fetch"; pass=$((pass+1))
+# the comparator is the guard's own ref, pinned to the destination's main;
+# the user's (here forged) tracking ref is neither trusted nor rewritten
+if [ "$(git -C "$S/dev5" rev-parse refs/prepush-guard/destination-main)" = "$TIP" ] &&
+    [ "$(git -C "$S/dev5" rev-parse refs/remotes/origin/main)" = "$SN" ]; then
+    echo "PASS 19b comparator pinned to the destination, tracking ref untouched"
+    pass=$((pass+1))
 else
-    echo "FAIL 19b tracking ref still forged"; fail=$((fail+1))
+    echo "FAIL 19b comparator not pinned to the destination's main"; fail=$((fail+1))
 fi
 
 # ---- 20-21: fork topology — origin cannot vouch for another remote
@@ -290,16 +300,17 @@ hook "$S/dev10" origin "refs/heads/main $SWAP refs/heads/main $MTIP"
 # blocked by the in-scope-parent rule before content closure is reached:
 # the stale parent was never published, so it cannot exempt the merge
 check "30 stale-parent swap merge on main blocks (unpublished parent)" 1 $rc "$S/err" "carrying the stale records tree"
-# two exempt merges: add then delete a record, endpoints agreeing
-git -C "$S/dev10" checkout -q -B carrier "$INIT"
-commit_file "$S/dev10" records/transient.txt t "carrier holds a record"
-CARRIER=$(git -C "$S/dev10" rev-parse carrier)
-ADD=$(git -C "$S/dev10" commit-tree "$CARRIER^{tree}" -p "$MTIP" -p "$CARRIER" \
-    -m "merge resurrecting a record from a stale line")
-DEL=$(git -C "$S/dev10" commit-tree "$MTIP^{tree}" -p "$ADD" -p "$MTIP" \
-    -m "merge removing it again")
-hook "$S/dev10" origin "refs/heads/main $DEL refs/heads/main $MTIP"
-check "31 two exempt merges smuggling a record block" 1 $rc "$S/err" "records/transient.txt"
+# two exempt merges: both vouched by ALREADY-PUBLISHED parents, adding
+# then removing a record so the endpoints agree (sol round-4 HIGH 1 — the
+# earlier fixture used an unpublished carrier and never exercised this)
+PUBPAY=$(git -C "$S/dev10" rev-parse "$MTIP")
+hook "$S/dev10" origin "refs/heads/main $MTIP refs/heads/main $INIT"
+ADD=$(git -C "$S/dev10" commit-tree "$PUBPAY^{tree}" -p "$INIT" -p "$PUBPAY" \
+    -m "merge resurrecting a published records state")
+DEL=$(git -C "$S/dev10" commit-tree "$INIT^{tree}" -p "$ADD" -p "$INIT" \
+    -m "merge restoring the base records state")
+hook "$S/dev10" origin "refs/heads/main $DEL refs/heads/main $INIT"
+check "31 two merges vouched by a pre-epoch parent block (in-scope rule)" 1 $rc "$S/err" "restoring the base records state"
 # the legitimate shape this exemption exists for still passes
 git -C "$S/dev10" checkout -qb legit "$INIT"
 commit_file "$S/dev10" src/k.txt k "src on legit"
@@ -366,6 +377,33 @@ git -C "$S/dev15" commit -qm "newest wide offender"
 hook "$S/dev15" origin \
     "refs/heads/wide $(git -C "$S/dev15" rev-parse wide) refs/heads/wide $MTIP"
 check "39 older offender still named beside a wide newest commit" 1 $rc "$S/err" "$OLDER"
+
+# ---- 40-41: a pre-epoch parent cannot vouch, on main or on a branch
+# (sol round-4 HIGH 1 / MEDIUM 2: "ancestor of the comparator" alone let a
+# merge resurrect an ancient records state the audit would still demand)
+git clone -q "$S/origin.git" "$S/dev16" 2>/dev/null
+PRE=$(git -C "$S/dev16" rev-parse "$INIT")
+ANCIENT=$(git -C "$S/dev16" commit-tree "$PRE^{tree}" -p "$MTIP" -p "$PRE" \
+    -m "merge resurrecting the pre-epoch records state")
+hook "$S/dev16" origin "refs/heads/main $ANCIENT refs/heads/main $MTIP"
+check "40 pre-epoch parent cannot exempt a merge on main" 1 $rc "$S/err" "resurrecting the pre-epoch records state"
+hook "$S/dev16" origin "refs/heads/topic $ANCIENT refs/heads/topic $ZERO40"
+check "41 pre-epoch parent cannot exempt a merge on a branch" 1 $rc "$S/err" "resurrecting the pre-epoch records state"
+
+# ---- 42-43: equivalent spellings of the same destination are not a
+# false positive (sol round-4 MEDIUM 3 — the comparator is fetched from
+# the destination, so no URL string comparison is involved)
+git clone -q "$S/origin.git" "$S/dev17" 2>/dev/null
+git -C "$S/dev17" checkout -qb equiv
+commit_file "$S/dev17" src/n.txt n "src on equiv"
+EQ=$(git -C "$S/dev17" rev-parse equiv)
+hook_url "$S/dev17" origin "file://$S/origin.git" \
+    "refs/heads/equiv $EQ refs/heads/equiv $ZERO40"
+check "42 file:// spelling of the same destination allowed" 0 $rc
+commit_file "$S/dev17" records/eq.txt e "records on equiv"
+hook_url "$S/dev17" origin "file://$S/origin.git" \
+    "refs/heads/equiv $(git -C "$S/dev17" rev-parse equiv) refs/heads/equiv $ZERO40"
+check "43 same destination still blocks a records commit" 1 $rc "$S/err" "records/eq.txt"
 
 echo
 echo "== $pass passed, $fail failed =="
