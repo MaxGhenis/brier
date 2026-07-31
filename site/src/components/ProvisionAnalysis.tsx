@@ -193,6 +193,17 @@ export function ProvisionAnalysis({
 
   return (
     <>
+      {compute.length > 0 && (
+        <div className="mb-6">
+          <SectionLabel>Computed impact — PolicyEngine</SectionLabel>
+          <div className="grid gap-3">
+            {compute.map((row, i) => (
+              <ComputeCard key={i} row={row} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {goals.length > 0 && (
         <div className="mb-6">
           <SectionLabel>Countersignable goals</SectionLabel>
@@ -265,17 +276,6 @@ export function ProvisionAnalysis({
                   {renderInline(effect.text)}
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {compute.length > 0 && (
-        <div className="mb-6">
-          <SectionLabel>Computed impact — PolicyEngine</SectionLabel>
-          <div className="grid gap-3">
-            {compute.map((row, i) => (
-              <ComputeCard key={i} row={row} />
             ))}
           </div>
         </div>
