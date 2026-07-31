@@ -86,7 +86,14 @@ def main() -> None:
         for line in OUT.read_text().splitlines():
             if line.strip():
                 try:
-                    done.add(json.loads(line)["cell_key"])
+                    rec = json.loads(line)
+                    # Only a SUCCESSFUL call is done: error records (e.g. the
+                    # 2026-07-31 workspace usage cap, HTTP 400) stay in the
+                    # file as evidence but are retried on the next invocation.
+                    # calibration_analysis.py dedupes by cell_key, preferring
+                    # the successful attempt.
+                    if rec["calls"][0]["ok"]:
+                        done.add(rec["cell_key"])
                 except Exception:  # noqa: BLE001
                     pass
     todo = [p for p in plan if f"Q5|{p[0]}|{p[1]}" not in done]

@@ -496,8 +496,17 @@ def exp1(units_b: dict, log: list[str]) -> dict:
     arms: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
 
     # -- new arm: model-authored CDF from 5 elicited quantiles ---------------
-    crosschecked = 0
+    # Dedupe by cell_key, preferring a successful attempt: the runner retries
+    # cells that failed on a workspace usage cap, so a refilled file carries
+    # both the error record (evidence) and the retry (data).
+    by_cell: dict[str, dict] = {}
     for r in q_rows:
+        prev = by_cell.get(r["cell_key"])
+        if prev is None or (not prev["calls"][0]["ok"] and r["calls"][0]["ok"]):
+            by_cell[r["cell_key"]] = r
+    gate["q5_attempts"] = len(q_rows)
+    crosschecked = 0
+    for r in by_cell.values():
         if not r["calls"][0]["ok"]:
             gate["q5_api_error"] += 1
             continue
@@ -915,22 +924,24 @@ def build_report(e1: dict, e2: dict, e3: dict, selftest_log: list[str],
         "from the raw run records on each invocation. Input files pinned by sha256 below.*")
     add("")
     d = p1.get("delta_ncrps", {})
-    fb = e2["pairs"][1]
+    d2 = e1["paired"].get("transform_p10p90", {}).get("delta_ncrps", {})
+    fb, sa, oa = e2["pairs"][1], e2["pairs"][2], e2["pairs"][3]
     add("**Summary for a demo audience.** "
         f"(1) Letting the model author its own forecast distribution — five elicited quantiles "
         f"instead of a point+interval pushed through the fixed interval_anchor transform — leaves mean "
-        f"normalized CRPS statistically unchanged ({d.get('point', float('nan')):+.3f} "
-        f"[{d.get('lo', float('nan')):+.3f}, {d.get('hi', float('nan')):+.3f}], {p1.get('n_units', 0)} matched units) "
-        f"but fixes the transform's shape distortion: central-interval coverage moves from "
-        f"{t1.get('cov50', {}).get('k', 0)}/{t1.get('cov50', {}).get('n', 0)} (50% nominal) and "
-        f"{t1.get('cov90', {}).get('k', 0)}/{t1.get('cov90', {}).get('n', 0)} (90% nominal) under the transform to "
-        f"{a1.get('cov50', {}).get('k', 0)}/{a1.get('cov50', {}).get('n', 0)} and "
-        f"{a1.get('cov90', {}).get('k', 0)}/{a1.get('cov90', {}).get('n', 0)} when the model authors the CDF. "
+        f"normalized CRPS statistically unchanged against the production arm ({d.get('point', float('nan')):+.3f} "
+        f"[{d.get('lo', float('nan')):+.3f}, {d.get('hi', float('nan')):+.3f}], {p1.get('n_units', 0)} matched units), "
+        f"beats the transform when both arms get quantiles ({d2.get('point', float('nan')):+.3f} "
+        f"[{d2.get('lo', float('nan')):+.3f}, {d2.get('hi', float('nan')):+.3f}]), and relocates the miscalibration: "
+        f"the transform's tails over-cover ({t1.get('cov90', {}).get('k', 0)}/{t1.get('cov90', {}).get('n', 0)} at 90% "
+        f"nominal, vs the model CDF's near-nominal {a1.get('cov90', {}).get('k', 0)}/{a1.get('cov90', {}).get('n', 0)}) "
+        f"while the model's own 50% interval runs tight ({a1.get('cov50', {}).get('k', 0)}/{a1.get('cov50', {}).get('n', 0)}). "
         f"(2) Across {orr['n']} cells the model's sampled answers spread far less than its stated intervals admit "
-        f"(median revealed/stated ratio {orr['median']:.2f}; {orr['frac_zero'] * 100:.0f}% of cells repeat one answer "
-        f"five times) — and handing the model the bill text changes the two sides differently by model: fable's "
-        f"sampling spread widens (p={fb['revealed']['p']:.3g}) while its stated width does not move (p={fb['stated']['p']:.2g}), "
-        f"the cleanest evidence in these data that bill text changes beliefs and reported confidence separately. "
+        f"(median revealed/stated ratio {orr['median']:.2f}; {orr['frac_zero'] * 100:.0f}% of cells return the identical "
+        f"point on every rep) — and the bill text produces a double dissociation: fable-B's sampling spread widens "
+        f"(p={fb['revealed']['p']:.3g}) with stated width flat (p={fb['stated']['p']:.2g}), while opus-A narrows its "
+        f"stated width (p={oa['stated']['p']:.3g}) with sampling spread flat (p={oa['revealed']['p']:.2g}) — the bill "
+        f"can change beliefs without reported confidence, and reported confidence without beliefs. "
         f"(3) A leave-one-unit-out interval rescaling fitted on resolved first prints by minimum Winkler score "
         f"repairs the under-covering model (fable: 80% coverage {f3['uncorrected']['cov80_k']}/{f3['uncorrected']['cov80_n']} "
         f"-> {f3['corrected']['cov80_k']}/{f3['corrected']['cov80_n']}) at no proper-score cost "
@@ -974,13 +985,19 @@ def build_report(e1: dict, e2: dict, e3: dict, selftest_log: list[str],
         "x 28 units.")
     add("")
     g = e1["gate"]
-    add(f"Gate (reject, never repair): {g.get('q5_scored', 0)} scored; "
-        f"{g.get('q5_nonmonotone_rejected', 0)} non-monotone rejected; "
-        f"{g.get('q5_parse_failure', 0)} parse failures; {g.get('q5_api_error', 0)} API errors "
-        "(the non-monotone gate is exercised by self-test, so a zero here is a measured zero, "
-        "not an untested one). Comparison arms from `runs_instr.jsonl`, same model, same "
+    add(f"Gate (reject, never repair): {g.get('q5_attempts', 0)} attempts; "
+        f"{g.get('q5_scored', 0)} scored; {g.get('q5_nonmonotone_rejected', 0)} non-monotone "
+        f"rejected; {g.get('q5_parse_failure', 0)} parse failures; {g.get('q5_api_error', 0)} "
+        "API errors (all a workspace usage cap, HTTP 400, resets 2026-08-01T00:00Z; the cap "
+        "fell on the tail of the unit-ordered dispatch — vetcola units — so missingness "
+        "follows dispatch order, not response content, and the matched-unit pairing below "
+        "absorbs it; `quantile_sweep.py` retries these cells on its next run). The "
+        "non-monotone gate is exercised by self-test, so a zero there is a measured zero, "
+        "not an untested one. Comparison arms from `runs_instr.jsonl`, same model, same "
         f"effort, same base prompt: {g.get('instr_plain_scored', 0)} `plain` (point+80% CI) "
-        f"runs and {g.get('instr_quantiles_scored', 0)} `quantiles` (p10/p50/p90) runs.")
+        f"runs scored ({g.get('instr_plain_unusable', 0)} unusable) and "
+        f"{g.get('instr_quantiles_scored', 0)} `quantiles` (p10/p50/p90) runs scored "
+        f"({g.get('instr_quantiles_unusable', 0)} unusable).")
     add("")
     add(f"**Matched-unit comparison ({n_matched} units present in all three arms):**")
     add("")
@@ -1021,18 +1038,34 @@ def build_report(e1: dict, e2: dict, e3: dict, selftest_log: list[str],
     add("")
     d50_m, d50_t = covdev(a1, "cov50", 0.5), covdev(t1, "cov50", 0.5)
     d90_m, d90_t = covdev(a1, "cov90", 0.9), covdev(t1, "cov90", 0.9)
-    beats_crps = d.get("point", float("nan")) < 0
+    ci_excl = d.get("lo", 0) > 0 or d.get("hi", 0) < 0
+    crps_txt = (
+        "beats the transform on mean nCRPS" if ci_excl and d.get("point", 0) < 0
+        else "loses to the transform on mean nCRPS" if ci_excl
+        else f"is statistically indistinguishable from the transform on mean nCRPS "
+             f"(point estimate {d.get('point', float('nan')):+.3f} "
+             f"{'mildly favours it' if d.get('point', 0) < 0 else 'mildly favours the transform'}, CI includes 0)")
+    cov_txt = ("both coverage criteria favour the model CDF" if d50_m < d50_t and d90_m < d90_t
+               else "neither coverage criterion favours the model CDF" if d50_m >= d50_t and d90_m >= d90_t
+               else "90% favours the model CDF, 50% favours the transform" if d90_m < d90_t
+               else "50% favours the model CDF, 90% favours the transform")
+    met = ci_excl and d.get("point", 0) < 0 and d50_m < d50_t and d90_m < d90_t
+    def rate(a: dict, lvl: str) -> float:
+        return a[lvl]["k"] / a[lvl]["n"]
+    d2ci = d2.get("lo", 0) > 0 or d2.get("hi", 0) < 0
     add(f"**Verdict on the pre-stated criterion** (beat the transform on mean nCRPS AND on "
-        f"|coverage-nominal| at both 50% and 90%): the model-authored CDF "
-        f"{'beats' if beats_crps else 'does not beat'} the transform on mean nCRPS "
-        f"({d.get('point', float('nan')):+.3f}, CI {'excludes' if (d.get('lo', 0) > 0 or d.get('hi', 0) < 0) else 'includes'} 0), "
-        f"and its coverage deviations are |{d50_m:.3f}| vs |{d50_t:.3f}| at 50% and "
-        f"|{d90_m:.3f}| vs |{d90_t:.3f}| at 90%. "
-        f"{'Both coverage criteria favour the model CDF' if (d50_m < d50_t and d90_m < d90_t) else 'Coverage: ' + ('50% favours the model CDF, 90% does not' if d50_m < d50_t <= d90_m or (d50_m < d50_t and d90_m >= d90_t) else '90% favours the model CDF, 50% does not' if d90_m < d90_t else 'neither level favours the model CDF')}. "
-        "Shape is where the transform loses: it pins only p10/p50/p90, and its implied 50% "
-        "interval is systematically wider than the model's own (the model's elicited p25-p75 "
-        "is narrower than the transform's interpolation), which the coverage rows above "
-        "measure directly.")
+        f"|coverage-nominal| at both 50% and 90%): **{'met' if met else 'not met'}**. "
+        f"The model-authored CDF {crps_txt}; coverage deviations are "
+        f"|{d50_m:.3f}| vs |{d50_t:.3f}| at 50% and |{d90_m:.3f}| vs |{d90_t:.3f}| at 90% — "
+        f"{cov_txt}. The two arms misfire in different places: the transform's 1.5-spread "
+        f"tails over-cover at 90% nominal ({rate(t1, 'cov90'):.3f} observed) where the model's "
+        f"own p5/p95 sit near nominal ({rate(a1, 'cov90'):.3f}), while the model's elicited "
+        f"p25-p75 core runs tight ({rate(a1, 'cov50'):.3f} at 50% nominal) where the "
+        f"transform's interpolated 50% band is closer ({rate(t1, 'cov50'):.3f}). "
+        f"The cleanest same-information comparison — the model states quantiles either way — "
+        f"is model CDF vs transform(p10/p50/p90): {d2.get('point', float('nan')):+.3f} "
+        f"[{d2.get('lo', float('nan')):+.3f}, {d2.get('hi', float('nan')):+.3f}], "
+        f"{'CI excludes 0: pushing model quantiles through the fixed transform is strictly worse than honouring them' if d2ci and d2.get('point', 0) < 0 else 'CI includes 0'}.")
     add("")
 
     # ----------------------------------------------------------------- EXP2
@@ -1077,9 +1110,11 @@ def build_report(e1: dict, e2: dict, e3: dict, selftest_log: list[str],
         f"corpus B rho={c['corpus_B']['rho']:.3f} (p={c['corpus_B']['p']:.2g}, n={c['corpus_B']['n']}). "
         f"Cells within a unit share a truth, so the clustering-robust check aggregates to unit "
         f"level first: rho={c['unit_aggregated']['rho']:.3f} (p={c['unit_aggregated']['p']:.2g}, "
-        f"n={c['unit_aggregated']['n']} units). Higher revealed-relative-to-stated spread goes "
-        "with more extreme PIT — cells that wobble more than they admit are also the cells "
-        "whose stated distributions the truth lands in the tails of.")
+        f"n={c['unit_aggregated']['n']} units). At cell level, higher revealed-relative-to-"
+        "stated spread goes with more extreme PIT — cells that wobble more than they admit "
+        "are also the cells whose stated distributions the truth lands in the tails of; the "
+        "unit-aggregated check carries the same sign but does not reach significance at "
+        "n=40, so the cell-level p-values should be read with the clustering in mind.")
     add("")
     add("**(b) Does the bill change beliefs, or only reported confidence?** Paired per unit, "
         "bill (`operative_only`) vs no-bill (`none`), point_ci_json arms. Primary test: "
@@ -1101,23 +1136,28 @@ def build_report(e1: dict, e2: dict, e3: dict, selftest_log: list[str],
     add(f"| pooled primary (B-opus + A-sonnet) | — | {pl['n_pairs']} | — | "
         f"{pl['stated']['p']:.3g} | — | {pl['revealed']['p']:.3g} | — |")
     add("")
-    add("Reading the decomposition: the two sides of the ratio move independently. "
-        "On corpus B, fable's revealed spread widens under the bill "
-        f"(median ratio {e2['pairs'][1]['revealed']['median_ratio']:.2f}, "
-        f"p={e2['pairs'][1]['revealed']['p']:.3g}) while its stated width does not move "
-        f"(p={e2['pairs'][1]['stated']['p']:.2g}) — the bill changes what the model *does*, "
-        "not what it *says*. On corpus A the small-model pattern inverts: sonnet and fable "
-        "narrow their *stated* intervals under the bill while several units' revealed spread "
-        "collapses to zero (sonnet: "
-        f"{e2['pairs'][2]['zero_revealed_none']} zero-revealed units without the bill -> "
-        f"{e2['pairs'][2]['zero_revealed_bill']} with it) — the bill text acts like an anchor "
-        "that synchronizes the sampled answers. The pooled 28+12-unit test, which averages "
-        "these opposite-signed effects, is null on both sides "
-        f"(stated p={pl['stated']['p']:.2g}, revealed p={pl['revealed']['p']:.2g}) — the "
-        "honest summary is heterogeneity by model, not a universal direction: 'the bill "
-        "changes beliefs' (fable-B) and 'the bill changes reported confidence' (sonnet/fable-A) "
-        "are both true, on different models, and only this stated/revealed decomposition can "
-        "tell them apart.")
+    fbP, saP, oaP, faP = e2["pairs"][1], e2["pairs"][2], e2["pairs"][3], e2["pairs"][4]
+    add("Reading the decomposition: the two sides move independently, and each of the three "
+        "possible patterns shows up in some model. "
+        f"**Beliefs without confidence** — fable-B's revealed spread widens under the bill "
+        f"(median ratio {fbP['revealed']['median_ratio']:.2f}, p={fbP['revealed']['p']:.3g}) while its "
+        f"stated width does not move (p={fbP['stated']['p']:.2g}): the bill changes what the model "
+        "*does*, not what it *says*. "
+        f"**Confidence without beliefs** — opus-A narrows its stated intervals "
+        f"(median ratio {oaP['stated']['median_ratio']:.3f}, p={oaP['stated']['p']:.3g}) with revealed "
+        f"spread flat (p={oaP['revealed']['p']:.2g}): the bill changes what the model *says*, not "
+        "what it *does*. "
+        f"**Both, downward** — sonnet-A narrows stated (median ratio {saP['stated']['median_ratio']:.2f}, "
+        f"p={saP['stated']['p']:.3g}) and collapses revealed (p={saP['revealed']['p']:.3g}; "
+        f"{saP['zero_revealed_none']} zero-revealed units without the bill -> "
+        f"{saP['zero_revealed_bill']} with it): the bill acts as an anchor that synchronizes the "
+        "sampled answers. (fable-A moves the other way on zeros — "
+        f"{faP['zero_revealed_none']} -> {faP['zero_revealed_bill']} — so the anchoring is not even "
+        "monotone across models.) The pooled 28+12-unit test, which averages opposite-signed "
+        f"effects, is null on both sides (stated p={pl['stated']['p']:.2g}, revealed "
+        f"p={pl['revealed']['p']:.2g}): the honest headline is heterogeneity by model, not a "
+        "universal direction — and only this stated/revealed decomposition can tell the three "
+        "patterns apart, because interval width alone cannot see the revealed side at all.")
     add("")
 
     # ----------------------------------------------------------------- EXP3

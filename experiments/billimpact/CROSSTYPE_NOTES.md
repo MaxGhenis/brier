@@ -122,9 +122,10 @@ series carries the advance-CTC pulse:
    a forecaster of the 2021-12 unit's successor months would need.
 2. **Event signature, first-print space.** At the 2021-09-01 vintage (the July
    observation's own first print): 2021-06 = 735.6 → 2021-07 = 907.1, a +171.5 step
-   ($B SAAR) landing exactly at the statutory window opening; the plateau holds through
-   2021-12 and decays (not cliffs — see 1. above) in 2022-01. Magnitude sense check, not
-   asserted as a measured identity: ~$15B/month of advance payments × 12 ≈ $180B SAAR.
+   landing exactly at the statutory window opening; the plateau holds through 2021-12 and
+   decays (not cliffs — see 1. above) in 2022-01. Nothing else in the statute book opens
+   on July 1, 2021 and closes on December 31, 2021 at this scale, and BEA's FAQ names the
+   payments and the category.
 3. **Same-series EIP signature.** 2021-03 = 4,734.5 at today's vintage vs 763.4 in
    2021-06 — the third Economic Impact Payment, ARPA §9601, paid March–April 2021. The
    provisions file records §9601's operative amount verbatim as
@@ -145,9 +146,13 @@ brief collapses to one answer.
 | `ctcadv.us.2021-12` | 2021-12 | **916.6** | 2022-02-01 | 907.5 | −9.1 | **11 mo** |
 
 Origin vintage 2021-03-01 (10 days before enactment); history 2016-02 … 2021-01, 60 months.
-The history the forecaster sees already contains the January-2021 EIP2 spike (2021-01 =
-2,336.9 at the origin vintage) — informative precedent for what a payment pulse looks like
-in this series, without leaking anything post-origin.
+The last visible observation is itself a payment spike: 2021-01 = 2,336.9 at the origin
+vintage, immediately following the $600-per-person additional 2020 recovery rebates enacted
+December 27, 2020 (CAA-2021, div. N, §272 — "``(1) $600 ( $1,200 in the case of eligible
+individuals filing a joint return), plus ``(2) an amount equal to the product of $600
+multiplied by the number of qualifying children", verified in the fetched
+`bills/CAA-2021-116publ260.txt`). Informative precedent for what a payment pulse looks
+like in this series, without leaking anything post-origin.
 
 Recall-anchoring note (IDEATION §1.3 called this "the maximal recall-anchoring stress
 test"): the advance CTC is probably the most-reported transfer of 2021 H2; the A5
@@ -164,7 +169,7 @@ effect is NOT a transfer to persons and has no persons-side series.
 note reads "Infrastructure Investments and Jobs Appropriations Act" — note the extra "s",
 verbatim in both places), tit. VIII (Transportation, Housing and Urban Development, and
 Related Agencies), Federal Highway Administration — highway infrastructure program heading,
-135 Stat. 1419–1420 (approved November 15, 2021 — "Approved November 15, 2021." on the face
+135 Stat. 1419–1421 (approved November 15, 2021 — "Approved November 15, 2021." on the face
 of the text). IDEATION's "(verify division/section)" resolves TRUE for div. J.
 **Source.** https://www.govinfo.gov/content/pkg/PLAW-117publ58/html/PLAW-117publ58.htm
 **Text file.** `bills/IIJA-2021-117publ58.txt` (fetched today, 3.84 MB HTML → stripped)
@@ -286,10 +291,11 @@ downstream consumer that iterates the corpus must respect `scoring_eligible` —
 `series_id` is deliberate so that feeding these rows to the fetcher fails loudly rather
 than fabricating a resolution.
 
-Empty-history note: the program §60502 creates is a conversion of the EBB (7 months old at
-enactment, differently parameterised at $50); ACP-as-such has no pre-origin series. The
-provisions file carries the pre-amendment §904(a)(7) definition so the dose arms can move
-a parameter against its true baseline.
+Empty-history note: the program §60502 creates is a conversion of the EBB, the
+differently-parameterised ($50) predecessor established by CAA-2021 div. N §904 (approved
+December 27, 2020); ACP-as-such has no pre-origin series. The provisions file carries the
+pre-amendment §904(a)(7) definition so the dose arms can move a parameter against its true
+baseline.
 
 ---
 
@@ -356,9 +362,9 @@ the choice.
 FRED metadata (blocked) — same standing caveat as CORPUS_EXTRA_NOTES §0. (ii) The EBB
 predecessor series (USAC EBB tracker) was not ingested; if a dose arm ever wants the
 $50-era baseline it needs the same direct-ingestion decision as ACP. (iii) The advance-CTC
-pulse in `W827RC1` is not isolatable from other "other"-component movements (e.g. state
-UI supplements ended mid-2021) — the unit forecasts the series level, as every corpus unit
-does; nothing here claims component attribution beyond BEA's own FAQ statement.
+pulse in `W827RC1` is not isolatable from whatever else moves the "other" component in
+those months — the unit forecasts the series level, as every corpus unit does; nothing
+here claims component attribution beyond BEA's own FAQ statement.
 
 ---
 
