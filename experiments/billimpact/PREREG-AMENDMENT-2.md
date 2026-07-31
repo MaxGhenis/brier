@@ -46,3 +46,15 @@ sign-test + bootstrap machinery as P3, N stated.
 All three levels indistinguishable from `none` ⇒ the original P3 effect was
 entirely named-statute recall (mechanism 1) — itself a reportable finding
 about backtest contamination.
+
+---
+
+## Amendment 7 (appended ~14:20 EDT, committed before its runs) — booking-profile elicitation
+
+Targets the diagnosed residual error class of the leading arm (series-booking
+timing: SAAR lump-sum months, outlay lag curves). One new elicitation adds an
+explicit step naming the series' booking convention and the booked contribution
+to the target month, composed by the harness. fable·bill·max, 36 units × 3
+reps, scored vs the leader on matched units. Registered prediction: improves
+ssfa/iijahwy-class units; no effect on ctcadv/fpuc-class. Null = paired CI
+spans zero.
