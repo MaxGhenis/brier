@@ -18,6 +18,18 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   "ons.retail_sales.volume_mom.june_2026.first_print",
   "statcan.lfs.employment_change.canada.june_2026.first_print",
   "statcan.lfs.unemployment_rate.canada.june_2026.first_print",
+  // 2026-07-22 prospect registrations (commit e6214345) whose analyst leg
+  // never produced a cell. The BEA first print (July 29) has passed. The
+  // JOLTS (Aug 3) and ONS vacancies (Aug 18) prints have not, but these end
+  // here for the same reason: each registration pins ledger 02b1747916 and
+  // an information set from July 22, and the docket no longer rolls them —
+  // bls.jolts.job_openings_total, bea.wages_and_salaries.level, and
+  // ons.vacancies.total_3m_sa are not the registry series/slugs the roll
+  // advances. Forecasting them now would record a run against a ten-day
+  // stale pin, which is the chronology the grace window exists to protect.
+  "bea.wages_and_salaries.level.june_2026.first_print",
+  "bls.jolts.job_openings_total.june_2026.first_print",
+  "ons.vacancies.total_3m_sa.2026_06.first_print",
 ] as const;
 
 export const EXPIRED_UNFORECAST_SET: ReadonlySet<string> = new Set(
