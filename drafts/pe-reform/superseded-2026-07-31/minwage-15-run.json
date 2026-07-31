@@ -1,0 +1,77 @@
+{
+ "reform": {
+  "parameter": "gov.dol.minimum_wage",
+  "value": 15.0,
+  "period": 2027
+ },
+ "metric": "medicaid_work_requirement_eligible",
+ "facts": {
+  "run_at": "2026-07-31T15:37:14Z",
+  "policyengine_version": "unknown",
+  "dataset_name": "populace_us_2024.h5",
+  "n_records": 160858,
+  "weighted_population": 336727805.22,
+  "baseline_wage": 7.25,
+  "reform_wage": 15.0,
+  "baseline_bar": 6960.0,
+  "reform_bar": 14400.0,
+  "in_band_weighted": 9148211.08,
+  "exposed": 4485949.0,
+  "sigma_sampling": 164454.8990825066,
+  "sigma_scope": 1121487.25,
+  "mechanism": {
+   "earnings": [
+    3000,
+    10000,
+    20000
+   ],
+   "baseline": {
+    "minimum_wage": 7.25,
+    "annual_bar": 6960.0,
+    "eligible": [
+     false,
+     true,
+     true
+    ]
+   },
+   "reform": {
+    "minimum_wage": 15.0,
+    "annual_bar": 14400.0,
+    "eligible": [
+     false,
+     false,
+     true
+    ]
+   },
+   "flipped": [
+    false,
+    true,
+    false
+   ]
+  },
+  "memory_trace": [
+   {
+    "stage": "start",
+    "commit_mb": 373.203125,
+    "free_mb": 1498.4453125
+   },
+   {
+    "stage": "mechanism checked",
+    "commit_mb": 2056.01953125,
+    "free_mb": 274.3046875
+   },
+   {
+    "stage": "microdata loaded",
+    "commit_mb": 2078.328125,
+    "free_mb": 272.83984375
+   },
+   {
+    "stage": "metric computed",
+    "commit_mb": 2078.328125,
+    "free_mb": 590.66015625
+   }
+  ],
+  "peak_commit_mb": 2078.328125,
+  "sigma_total": 1133480.950763973
+ }
+}

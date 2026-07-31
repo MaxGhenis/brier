@@ -1,0 +1,94 @@
+[
+ {
+  "slug": "us-adults-newly-exposed-medicaid-work-requirement-2027",
+  "country": "US",
+  "type": "policy",
+  "title": "US adults newly exposed to Medicaid work requirement, 2027, $15 minimum wage",
+  "question": "Under a counterfactual in which the federal minimum wage (gov.dol.minimum_wage) is $15.00 for 2027, how many US working-age adults have earnings in the band that newly fails the Medicaid community-engagement income route and cannot fall back on the 80-hour activity route, in millions?",
+  "unit": "millions",
+  "pointEstimate": 4.49,
+  "ciLow": 3.04,
+  "ciHigh": 5.94,
+  "confidence": 0.8,
+  "resolutionDate": "2027-01-04",
+  "resolutionSource": "PolicyEngine-US model recomputation",
+  "resolutionSourceUrl": "https://github.com/PolicyEngine/policyengine-us",
+  "resolutionRule": "Resolve by recomputation with the latest policyengine-us release available on the resolution date, using that release's default US microdata. Apply the single-parameter reform gov.dol.minimum_wage = 15.00 for 2027. Count weighted persons aged 19-64 whose employment plus self-employment income falls in [baseline bar, reform bar) where each bar is minimum_wage x 80 x 12, whose imputed monthly hours are under 80, and who are neither disabled nor full-time students. Report in millions to 2 decimals. The forecast is against the THEN-CURRENT release, not a pinned one: model and dataset drift are part of what is forecast. Baseline was policyengine-us unknown on populace_us_2024.h5.",
+  "dataPointId": "policyengine.us.medicaid_work_requirement_exposed.2027.reform_min_wage_15",
+  "conditionalOn": "PolicyEngine-US parameter gov.dol.minimum_wage set to $15.00 for 2027; all other parameters at released values.",
+  "historicalContext": [
+   {
+    "label": "2007-07-24 federal minimum wage",
+    "value": 5.85
+   },
+   {
+    "label": "2008-07-24 federal minimum wage",
+    "value": 6.55
+   },
+   {
+    "label": "2009-07-24 federal minimum wage",
+    "value": 7.25
+   }
+  ],
+  "drivers": [
+   "Minimum wage enters the model only as an 80-hour income threshold, never as a wage floor",
+   "Annual income bar rises from $6,960 to $14,400",
+   "Static model holds earnings fixed, so a higher floor strictly tightens the income route",
+   "OBBBA work requirement only switches on 2027-01-01",
+   "Unobservable exemptions make this an upper bound on newly exposed adults"
+  ],
+  "sourceContext": [
+   "https://github.com/PolicyEngine/policyengine-us",
+   "https://www.law.cornell.edu/uscode/text/29/206",
+   "https://www.congress.gov/bill/119th-congress/house-bill/1/text",
+   "https://www.medicaid.gov/federal-policy-guidance/downloads/cib12082025.pdf"
+  ],
+  "runAt": "2026-07-31T15:37:14Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "US adults newly exposed to the Medicaid work requirement in 2027 under a $15.00 federal minimum wage"
+   },
+   {
+    "kind": "text",
+    "text": "One-parameter counterfactual: gov.dol.minimum_wage moves from $7.25 to $15.00 for 2027; nothing else changes. PolicyEngine-US is a static model, so no earnings rise. The parameter reaches the outcome only as a threshold \u2014 monthly_income_threshold = minimum_wage x 80 hours inside medicaid_work_requirement_eligible \u2014 so raising the floor raises the bar for passing the requirement via the income route while earnings are held fixed. This is threshold indexation, not a labour-market effect."
+   },
+   {
+    "kind": "tool",
+    "tool": "policyengine.simulation",
+    "call": "Mechanism check: ran the real Reform through the real medicaid_work_requirement_eligible variable on 3 synthetic single-adult households with zero weekly hours.",
+    "result": "Annual income bar moves $6,960 -> $14,400. Earnings [3000, 10000, 20000] give baseline eligibility [False, True, True] and reform eligibility [False, False, True]; the $10,000 case flips, confirming the parameter propagates to the outcome variable."
+   },
+   {
+    "kind": "tool",
+    "tool": "policyengine.microdata",
+    "call": "Read 160,858 person records from populace_us_2024.h5 and applied the threshold rule.",
+    "result": "Weighted population 336.7 million; 9.15 million people have earnings in the newly exposed band $6,960-$14,400."
+   },
+   {
+    "kind": "tool",
+    "tool": "policyengine.microdata",
+    "call": "Filtered that band to working-age adults who cannot fall back on the 80-hour activity route and are not observably exempt.",
+    "result": "4,485,949 people (4.49 million) remain exposed, 49.0 percent of the raw band after the age, hours and exemption screens."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate for the interval: the federal minimum wage has moved only three times since 2007 (5.85, 6.55, 7.25) and has been frozen at $7.25 since 2009-07-24, so the historical range of the parameter itself is narrow and essentially all uncertainty here is survey and model uncertainty rather than parameter-path uncertainty."
+   },
+   {
+    "kind": "math",
+    "text": "Point = 4.49 million exposed. sigma_sampling = 0.164M from a 400-draw household-clustered bootstrap of the weighted count. sigma_scope = 1.121M, taken as a quarter of the exposed count, reflecting that unobservable exemptions can only reduce it and the hours proxy is imputed. Combining independently: sigma = sqrt(0.164^2 + 1.121^2) = 1.133M. 80% interval = 4.49 +/- 1.28 * 1.133 = [3.04, 5.94] million."
+   },
+   {
+    "kind": "text",
+    "text": "What would land outside the interval: this is an upper bound on newly exposed adults, because the real variable exempts pregnancy, caretakers of children 13 and under, the medically frail, AIAN members, veterans, former foster youth and Medicare enrollees, none of which these microdata columns identify. Downside risk therefore dominates \u2014 a full variable-graph run would land below this figure. Upside risk is narrower: it needs the hourly-wage imputation to overstate how many people clear the 80-hour route."
+   },
+   {
+    "kind": "forecast",
+    "point": 4.49,
+    "ciLow": 3.04,
+    "ciHigh": 5.94
+   }
+  ]
+ }
+]
