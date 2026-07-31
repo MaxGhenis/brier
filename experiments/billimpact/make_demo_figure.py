@@ -119,7 +119,7 @@ def main() -> None:
 
     fig.text(0.006, 0.006,
              "Flat = robust to the harness. Fanning = harness-sensitive. "
-             "No configuration is recommended; the spread is the result.",
+             "Every configuration is shown with its repeat variance.",
              fontsize=12.5, color="#444")
     fig.tight_layout(rect=(0, 0.028, 1, 0.965))
     for ext in ("png", "svg"):

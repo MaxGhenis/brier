@@ -34,10 +34,13 @@ experiment.
 
 1. Merge the branch (cells and runs are committed with runAt timestamps —
    claimed-time chronology from git history).
-2. Run the recorder: `gh workflow run record-forecasts.yml --ref main` — this
-   seals the records and produces the RFC-3161 witness for the
-   witness-verified tier (see `site/src/data/thesis-log.ts` chronology
-   classes).
+2. Run the recorder: `gh workflow run record-forecasts.yml --ref main`.
+   Chronology note, stated precisely: these JSONL runs carry no custody roots,
+   so their ceiling under `classifyPublicationProof` is
+   **claimed_time_verified** (git history attests the run time). Reaching the
+   witness-verified tier requires re-emitting the two conditionals as recorded
+   `thesis.analyst` runs through the runner before the 2028 resolutions —
+   OPERATIONALISATION.md item 7 has the exact path.
 
 Why this completes the backtest: every retrospective accuracy number in this
 study sits inside model training windows and is recall-contaminated by

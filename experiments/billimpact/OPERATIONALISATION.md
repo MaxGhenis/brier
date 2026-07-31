@@ -47,8 +47,10 @@ mechanical grounding table, none), and **transport/reps** (aggregation k;
 median3 currently encodes k only via the agent name).
 
 **The change:** extend `predictionRun` with `reasoningEffort`,
-`contextLevel`, and `aggregation` (`{k, algorithm}`), populated by the
-converter from `command.json` the way `promptMode` already is
+`contextLevel`, `aggregation` (`{k, algorithm}`), and `transport` (our runs
+record the API transport per-run for exactly the reason the repo records
+everything else: failures correlate with measured dimensions), populated by
+the converter from `command.json` the way `promptMode` already is
 (`spawned_cells_to_ts.py:347`). This is the exact pattern the repo already
 uses twice: `transformVersion` on every distribution
 (`site/src/data/prediction-distribution.ts:105-108`) and the
@@ -339,13 +341,13 @@ engine.
 **The change:** a second, orthogonal annotation from a static table keyed by
 provision type, in the mapper or as a doc table it references:
 
-| Provision type | Mechanical leg | Forecast leg |
+| Provision type | Mechanical leg (evidence, not capability) | Forecast leg |
 |---|---|---|
-| Eligibility restriction (SNAP-class) | no engine (not PE-modelled as parameters in our tests) | **validated, dense** (2,520-run grid) |
-| Flat dollar supplement (FPUC-class) | arithmetic identity | **validated, dense** (causal dose work) |
+| Eligibility restriction (SNAP-class) | untested by us (PE models the domain; our mechanical validation was CTC-only) | **validated, dense** (2,520-run grid) |
+| Flat dollar supplement (FPUC-class) | arithmetic identity (derivation-rescue confirmed) | **validated, dense** (causal dose work) |
 | Household tax / refundable credit (S.3596-class) | **validated to the dollar with tool** | thin — forward registrations only |
-| COLA / formula repeal / protection sunset | partial | thin (bake-off units only) |
-| Appropriations, program creation, regulatory mandate, business-side tax, reporting duty | **no engine** | **unvalidated** |
+| COLA / formula repeal / protection sunset | untested by us | thin (bake-off units only) |
+| Appropriations, program creation, regulatory mandate, business-side tax, reporting duty | **no engine exists** (IDEATION §1.3: the prescription is unactionable here) | **unvalidated** |
 
 Metrics on the last row promote with an explicit `unvalidated` marker in the
 `.mapped.json` (the mapper is proposal-only, so this is annotation, not
