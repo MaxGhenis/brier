@@ -324,6 +324,7 @@ def _source_binding_errors(value: Any) -> list[str]:
         "abs-release-page",
         "alfred-fred",
         "eurostat-api",
+        "fsa-crp-monthly-summary",
         "generic-url",
         "ons-timeseries",
         "statcan-wds",

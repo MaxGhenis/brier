@@ -17,6 +17,34 @@ The runtime gate (`qcew_anchor_mismatches`) re-fetches every anchor at
 resolution time and refuses the adapter on any mismatch, so these pins are
 self-checking, not trusted literals.
 
+## FSA CRP total enrolled acres (usda.fsa.crp.enrolled_acres_total)
+
+Status: **VERIFIED** (integrator, 2026-07-31). Three anchors read directly
+off the official FSA monthly summaries, live-fetched from the statistics
+landing page (landing URL and page-1 TOTAL CRP row layout observed as
+described below):
+
+- 2025-11: 26,317,011 acres — https://www.fsa.usda.gov/sites/default/files/2026-03/CRPMonthlyNovember2025WithPageNumbers.pdf
+- 2026-03: 26,203,615 acres — https://www.fsa.usda.gov/sites/default/files/2026-06/CRPMonthlyMarch2026WithPageNumbers.pdf
+- 2026-04: 26,182,019 acres — https://www.fsa.usda.gov/sites/default/files/2026-07/CRPMonthlyApril2026WithPageNumbers.pdf
+
+Protocol notes from the live check: anchor on the printed TOTAL CRP Acres
+cell, never derived sums (March cross-foots one acre under the printed
+total; FSA sums unrounded acreage). Publication lag is ~3 months (April's
+summary posted under /files/2026-07/), which the resolution calendar must
+respect. Landing page links dated per-month document pages that carry the
+PDF URL, as the selector assumes.
+Its `anchors` mapping contains three sentinel entries rather than asserted
+acreage values, and the admission test skips while that status remains in
+place.
+
+Before changing the status to `VERIFIED`, the integrating session must verify
+the FSA Conservation Reserve Program Statistics landing URL and Monthly
+Summary total-row layout, capture at least three official published monthly
+values, replace all three sentinels with `YYYY-MM`/numeric pairs, and record
+the sources here. Runtime resolution will then re-fetch and exactly reproduce
+every admitted anchor before it reads a target month.
+
 ## CPI-U annual average (bls.cpi.u.annual_pct_change)
 
 The lane pinned 2022=8.0, 2023=4.1, 2024=2.9, 2025=2.6 (annual-average
