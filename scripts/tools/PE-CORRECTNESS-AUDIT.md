@@ -238,11 +238,18 @@ the same evidence discipline the audit demands of everyone else:
    is recorded via `pe.EconomyRun -> pe._log_call` with the bill.json row
    emitted by `pe.compute_block`.
 
-**Consequence:** the previously committed S.3596 numbers (−$1.83B 2026 /
-−$17.1B 10-yr) were net-income-proxy figures and are re-running through the
-corrected federal aggregation on the certified stack as this section is
-written. They do not go on a slide until the corrected artifacts land and the
-drift guard verifies the page row against them.
+**Consequence — resolved:** the corrected federal re-runs landed 2026-07-31
+~14:35–15:00 ET. 2026: **−$1,826,050,568.80** federal (old proxy
+−$1,826,396,338.82; delta = the −$0.35M state spillover, now itemized).
+Ten-year: **−$17.069B** federal (old proxy −$17.073B; delta = $3.5M spillover
+across ten years, −$0.30M..−$0.43M/yr). `benefit_spending_impact` measured
+**0.0** in all ten years — previously assumed. Poverty/winners/Gini identical,
+as expected. Headline unchanged to rounding (−$1.83B / −$17.1B) — but now
+proven federal-only instead of assumed. Bonus catch: the wrapper's own emitted
+row initially REFUSED certification (`running model version unknown`) because
+the compute_block fix had silently rolled back in an aborted edit script — the
+fail-closed gate fired correctly at its own author on first real use; fixed
+with two regression tests (18 passing).
 
 ## 9. Verdict
 
