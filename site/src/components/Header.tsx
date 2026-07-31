@@ -10,6 +10,7 @@ export function Header({
     | "brier"
     | "paper"
     | "forecasts"
+    | "bills"
     | "briefings"
     | "log"
     | "calibration"
@@ -100,6 +101,21 @@ export function Header({
             }
           >
             Forecasts
+          </Link>
+          <Link
+            href="/bills"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "bills"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "bills"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Bills
           </Link>
           <Link
             href="/briefings"

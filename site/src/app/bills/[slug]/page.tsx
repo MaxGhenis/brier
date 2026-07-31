@@ -131,7 +131,7 @@ export default async function BillDetailPage({
 
   return (
     <div>
-      <Header />
+      <Header activePage="bills" />
       <main className="mx-auto max-w-[1100px] px-8 pb-32 pt-10 max-md:px-5">
         <nav className="mb-6 [font-family:var(--font-mono)] text-[0.7rem] uppercase tracking-[0.12em]">
           <Link
