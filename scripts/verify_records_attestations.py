@@ -85,6 +85,17 @@ REPOSITORY_ERAS: tuple[tuple[str, str, str], ...] = (
 # Records commits that were pushed OUTSIDE the allowlisted workflows and
 # therefore have no attestation to verify. Each waiver is a permanent,
 # public admission, never a silent pass: the audit prints a WAIVED line.
+#
+# 2026-07-31 — on the remedy, because several entries below used to point at
+# one that is not coming. Branch protection on main was removed by deliberate
+# decision: nothing should depend on it, and the automation loops push
+# directly against the branch. So there is no preventive ruleset blocking
+# non-workflow pushes to records/**, and none is planned. This verifier is
+# the ONLY control on records provenance. Two consequences worth stating
+# plainly: a waiver here is the sole record that a push escaped the attested
+# path, and this script must stay green in the absence of real violations —
+# a detective control that fails every day teaches everyone to ignore it,
+# which is strictly worse than having none.
 # 2026-07-22: an operator session pushed the Next50 aging/broadband wave
 # from a local machine instead of through the workflow path; the cells'
 # content is covered by the witness chain, but their push provenance is
@@ -97,8 +108,9 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     "08aac46200a7745621fd64f828734c716dcf7a69": "Next50 wave local push",
     # 2026-07-22 late: the QCEW aircraft target completion was also pushed
     # locally, hours after the waiver list shipped — same operator-session
-    # pattern, admitted the same way. The preventive ruleset (blocking
-    # non-workflow pushes to records/**) is the actual fix.
+    # pattern, admitted the same way. (This entry once named a preventive
+    # ruleset as "the actual fix"; that is no longer the design — see the
+    # note above WAIVED_UNATTESTED_COMMITS.)
     "8ad16ab611ab89cacaff570f43e419e0552bdbaf": "QCEW completion local push",
     # 2026-07-24: the anchors-gate commit also carried the fourth rejected
     # broadband run's record directory — the failed trace whose vintage
@@ -110,8 +122,7 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     # 2026-07-24: the broadband-65+ vintage repair — the anchored
     # network-enabled rerun replacing the 5-year-corrupted published cell
     # before its 2026-09-10 resolution — was an operator-session local
-    # push, admitted the same way. Same fix remains: the preventive
-    # ruleset blocking non-workflow pushes to records/**.
+    # push, admitted the same way.
     "2c02b44382a0e88e0b5104ff82fb891367be64e8": (
         "Broadband vintage-repair local push"
     ),
@@ -202,14 +213,47 @@ def enforcement_epoch() -> str:
     return commits[0]
 
 
+def introduces_records_change(commit: str) -> bool:
+    """False for a merge that carries records it did not introduce.
+
+    --full-history (below) is required so a records commit arriving on a side
+    branch is never simplified away, but it also disables merge simplification:
+    a merge is emitted when it differs from ANY parent under records/. A merge
+    that merely brings the other side's already-attested records forward is
+    therefore flagged, and it can never clear -- the allowlisted workflows
+    attest only the sha they themselves push, so a merge commit is unattestable
+    by construction. Keep the wide walk; just don't read "emitted" as
+    "introduced".
+
+    A merge TREESAME to some parent adds no records bytes that parent does not
+    already carry, and that parent's own records commits are in the same rev
+    range and verified individually. Only an evil merge -- differing from every
+    parent -- introduces records bytes of its own.
+    """
+    parents = git_output("rev-list", "--parents", "-n", "1", commit).split()[1:]
+    if len(parents) < 2:
+        return True
+    return all(
+        git_output("diff", "--name-only", parent, commit, "--", PROTECTED_PREFIX)
+        for parent in parents
+    )
+
+
 def records_commits(rev_range: str) -> list[str]:
     # --full-history: path simplification may otherwise drop a records
-    # commit that arrived on a side branch (Sol review P1-2).
+    # commit that arrived on a side branch (Sol review P1-2). It must be
+    # paired with the merge filter above -- see introduces_records_change --
+    # or every merge that lags an automation push fails permanently.
     output = git_output(
         "log", "--full-history", "--format=%H", rev_range,
         "--", PROTECTED_PREFIX,
     )
-    return output.splitlines() if output else []
+    if not output:
+        return []
+    return [
+        commit for commit in output.splitlines()
+        if introduces_records_change(commit)
+    ]
 
 
 def commit_age_seconds(commit: str) -> int:
