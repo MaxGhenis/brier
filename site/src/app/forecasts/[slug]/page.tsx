@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { BackToBill } from "@/components/BackToBill";
 import { Header } from "@/components/Header";
 import { ForecastRuntime } from "@/components/ForecastRuntime";
 import {
@@ -78,6 +80,9 @@ export default async function ForecastDetailPage({
           >
             ← all forecasts
           </Link>
+          <Suspense fallback={null}>
+            <BackToBill />
+          </Suspense>
         </nav>
 
         {/* Hero */}

@@ -1,0 +1,391 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T18:09:08Z",
+  "runStartedAt": "2026-07-31T18:09:08Z",
+  "series": "bls.jolts.hires_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "jolts-hires-rate-july-2026",
+    "country": "US",
+    "dataPointId": "bls.jolts.hires_rate.2026_07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-31T18:02:17Z",
+    "registeredAtUtc": "2026-07-31T18:02:17Z",
+    "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+    "registrationState": "preregistered",
+    "series": "bls.jolts.hires_rate",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-08",
+        "start": "2026-08-31"
+      },
+      "field": "JTSHIR",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "JTSHIR",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=JTSHIR",
+      "table": "JOLTS news release, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e671b0edb90aafc5fc73877f6a8d96e8c7fcb0a1580cbaa97f206d4e787cc5d8",
+    "targetRegistrationPath": "records/targets/2026-07-31-e671b0edb90aafc5fc73877f6a8d96e8c7fcb0a1580cbaa97f206d4e787cc5d8.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+  "targetContentHash": "e671b0edb90aafc5fc73877f6a8d96e8c7fcb0a1580cbaa97f206d4e787cc5d8",
+  "targetRegistrationPath": "records/targets/2026-07-31-e671b0edb90aafc5fc73877f6a8d96e8c7fcb0a1580cbaa97f206d4e787cc5d8.json",
+  "registeredAtUtc": "2026-07-31T18:02:17Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T18:09:08Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c9e262dbe541ea45cb5c0a364b776c72d37a4399fb7a68a4e6314505fbbfdc74"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "Resolution source fields do not match the canonical ledger binding: the draft uses a BLS timeseries URL while the target contract binds first-print resolution to ALFRED/FRED series JTSHIR at the ALFRED CSV URL.",
+        "actionRequested": "Set the resolver/source text and URL to the canonical ALFRED first-print binding for JTSHIR while preserving the explanation that it mirrors the BLS JOLTS Table 1 hires-rate first print."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval uses one-month change sigma even though the forecast horizon is effectively May-to-July with June still unknown.",
+        "actionRequested": "Either compute realized two-month changes for the historical sample or explicitly justify why the one-month sigma is adequate for a two-month-ahead rounded first-print target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the Prior/update/interval step, name the historical sample as 2024-01 through 2026-05 and clarify whether sigma is from one-month or target-horizon changes."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the BLS schedule evidence for the 2026-09-01 release date; it is coherent with the target."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSource and resolutionSourceUrl to the canonical ALFRED JTSHIR first-print binding while retaining BLS Table 1 as the underlying official series. Accepted the interval critique by restating sigma as a two-month target-horizon realized-change estimate for the 2024-01 through 2026-05 reference window; the rounded 80 percent bounds remain 3.1 to 3.5.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSource and resolutionSourceUrl to the canonical ALFRED JTSHIR first-print binding while retaining BLS Table 1 as the underlying official series. Accepted the interval critique by restating sigma as a two-month target-horizon realized-change estimate for the 2024-01 through 2026-05 reference window; the rounded 80 percent bounds remain 3.1 to 3.5.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSource and resolutionSourceUrl to the canonical ALFRED JTSHIR first-print binding while retaining BLS Table 1 as the underlying official series. Accepted the interval critique by restating sigma as a two-month target-horizon realized-change estimate for the 2024-01 through 2026-05 reference window; the rounded 80 percent bounds remain 3.1 to 3.5.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSource and resolutionSourceUrl to the canonical ALFRED JTSHIR first-print binding while retaining BLS Table 1 as the underlying official series. Accepted the interval critique by restating sigma as a two-month target-horizon realized-change estimate for the 2024-01 through 2026-05 reference window; the rounded 80 percent bounds remain 3.1 to 3.5.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after aligning the resolver/source fields to the canonical ALFRED first-print binding and tightening the interval method for the two-month horizon."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/prompt.md",
+      "sha256": "e0841093f1e320496e55204d40250d2ca1898b368f6beeac2fc1663cc2b58065",
+      "bytes": 8820,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_command.json",
+      "sha256": "8adb39e323814321803b5e124ec6add33995e88db5f27124b10cc7b7236702b7",
+      "bytes": 725,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c903d2921d10d640befbe017f5bd5435b9638207c444ae8940206a1e2dd3fec2",
+      "bytes": 11752,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "267c8294d148c6fe8d162903d9953bdea80af4711b09fd21bbec06c3a4d7c9ee",
+      "bytes": 233,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "265c7157c7d000434f29743b06ec75b93ddd424f8251d534723318619bbe62bf",
+      "bytes": 11752,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "1dd696be2fefcb2cb7437071e25e77e7b77334ca56bdb462db1658be576c31f4",
+      "bytes": 5986,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_codex_trace.json",
+      "sha256": "409d48742156e051c7a87097a5b79c884b96aaa22d3f2223eb7bfeff0cbffa6a",
+      "bytes": 534,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_stdout.txt",
+      "sha256": "1dd696be2fefcb2cb7437071e25e77e7b77334ca56bdb462db1658be576c31f4",
+      "bytes": 5986,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/draft_stderr.txt",
+      "sha256": "1456d319d9c4a8070d4bc6a08d92c6493d1f95d3945a43277f7025d96504124f",
+      "bytes": 248,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "fb18cae29c73d5aaaf86c007b95a3aa9c1341866d78692fc77b015286f706eab",
+      "bytes": 8959,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "dd5aac8688740a5f18169cd56b4443bceb14002f8f33aad1035f0bdf4c9d482c",
+      "bytes": 721,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "b8de50c239005f9480f623e199cdd8e31820d19067504721aab839274751b36d",
+      "bytes": 1834,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "36ce3d65857b510fe3905ccac3737482c7e352ddd0070f4d502cb6220901d0ea",
+      "bytes": 233,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "70bcf8729280d7a7a834f2bb23422a996c4592541b6f2b7adca76561a8eef834",
+      "bytes": 1856,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "1b6815f98a7c1955f83dae867deae23d0017292c0d93886b8a847b6f63378646",
+      "bytes": 1456,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "e3a94f53dd536d6c97222c0f7f973a417baea254daadd0d9758875205a069918",
+      "bytes": 527,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "1b6815f98a7c1955f83dae867deae23d0017292c0d93886b8a847b6f63378646",
+      "bytes": 1456,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "2703c47d09479f61ef865a6ab12027374b3e903307402e678ba0d7226784e9df",
+      "bytes": 248,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/revision_prompt.md",
+      "sha256": "abcba2dca1891df6d849dd2f36dac5d7fb4f3dd9d5a367bc73cf23131b1b2e5c",
+      "bytes": 17198,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/command.json",
+      "sha256": "7a84e5a39b189c42662a882583927e18b05dd1a9120d7ef86bcc3e968233bf25",
+      "bytes": 719,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "7540e8c46a1ca348dc5c137891f9f937672c95e6743d3314b3c8d2402612b236",
+      "bytes": 6993,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/codex_stderr.log",
+      "sha256": "416e8611542024222c948c5a2f4e62dfd55429d3fe81b3744dada1814fabd85f",
+      "bytes": 233,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/codex_events.jsonl",
+      "sha256": "76993d417f4e91c26c1dc9a0c43caaa2ca8ec86148b83ce629149a71b086c58f",
+      "bytes": 7015,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/codex_last_message.txt",
+      "sha256": "67ffd497b8169db4ef80190b2b60cf4e6008ba101a73af1772cf991f3f87872e",
+      "bytes": 6420,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/codex_trace.json",
+      "sha256": "4d6b9e24c0d61587c2050f1dc838d45f31fda2283c3b9a976c74bfa4c6f083e4",
+      "bytes": 527,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/stdout.txt",
+      "sha256": "67ffd497b8169db4ef80190b2b60cf4e6008ba101a73af1772cf991f3f87872e",
+      "bytes": 6420,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/stderr.txt",
+      "sha256": "06421dc50c20aa18fac86097f9e0e3522fd9791ce88c442e39ab4880b2f4cb62",
+      "bytes": 248,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/raw_response.txt",
+      "sha256": "67ffd497b8169db4ef80190b2b60cf4e6008ba101a73af1772cf991f3f87872e",
+      "bytes": 6420,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/parsed_cells.json",
+      "sha256": "48896b8f4de40114fb619d6f6c61652f4fd059cfed381d8f51976e1eb7c7449a",
+      "bytes": 7371,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/normalized_cells.json",
+      "sha256": "815552c4efd90b97e72094e13d2c1ac6727b2e1c4bd8d6d5297cdf6cc0760dae",
+      "bytes": 24493,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/distribution.json",
+      "sha256": "c980c932595989bbef7d2cc00b95448b27179a2df9bc4c938f07d80d2aa21464",
+      "bytes": 13338,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/validation.json",
+      "sha256": "abce9eb0746299bb7d6022f26fc17d32f28672f25092122b1786d91a6175e4c2",
+      "bytes": 127,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/cells.with_activity.json",
+      "sha256": "b5ec34b860d274cf555a014fb080891880ec44f2d808e30d94767592dc2c4c31",
+      "bytes": 40391,
+      "createdAt": "2026-07-31T18:09:08Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/manifest.json",
+      "sha256": "554eea51ebd79fd35482590990c618b1c2e032e1eee8358b24507d2f02907891",
+      "bytes": 15734,
+      "createdAt": "2026-07-31T18:09:08Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "jolts-hires-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "3ddd204da43d1109a3808f6b72045cd671bb8eefb0b5a3c0fe34dc5f5fbc8a45"
+}

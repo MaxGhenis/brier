@@ -11,12 +11,14 @@ import { getBillForecastGroups } from "@/data/bill-forecasts";
 import {
   REGISTRY_LABEL,
   getBill,
+  loadBillMeta,
   loadBills,
   metricRegistryStatus,
   type RegistryStatus,
 } from "@/data/bills";
 import { formatValue } from "@/data/forecast-cells";
 import { fullSectionText } from "@/lib/bill-text";
+import { resolveMetricCell } from "@/lib/metric-cells";
 import { renderInline, stripRegistryNote } from "@/lib/render-inline";
 
 export function generateStaticParams() {
@@ -128,10 +130,29 @@ export default async function BillDetailPage({
   const entry = getBill(slug);
   if (!entry) notFound();
   const forecastViews = buildForecastViews(slug);
+  const rawMeta = loadBillMeta(slug);
+  // Unconditional cells on the bill's candidate series — the series
+  // forecast regardless of this bill, deduped across provisions, each
+  // carrying which provision/metric makes the series a candidate.
+  const cellSources = new Map<
+    string,
+    { cell: NonNullable<ReturnType<typeof resolveMetricCell>>; from: string[] }
+  >();
+  for (const provision of entry.provisions) {
+    for (const metric of provision.metrics) {
+      const cell = resolveMetricCell(metric.series_hint);
+      if (!cell) continue;
+      const source = `${provision.title} · ${metric.kind}`;
+      const existing = cellSources.get(cell.slug) ?? { cell, from: [] };
+      if (!existing.from.includes(source)) existing.from.push(source);
+      cellSources.set(cell.slug, existing);
+    }
+  }
+  const unconditionalCells = [...cellSources.values()];
 
   return (
     <div>
-      <Header />
+      <Header activePage="bills" />
       <main className="mx-auto max-w-[1100px] px-8 pb-32 pt-10 max-md:px-5">
         <nav className="mb-6 [font-family:var(--font-mono)] text-[0.7rem] uppercase tracking-[0.12em]">
           <Link
@@ -149,18 +170,29 @@ export default async function BillDetailPage({
           <h1 className="[font-family:var(--font-display)] text-[clamp(1.7rem,3.5vw,2.4rem)] font-light leading-[1.2] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
             {entry.bill.name}
           </h1>
-          <p className="max-w-[820px] text-[0.95rem] leading-[1.65] text-[var(--theme-text-muted)]">
-            {entry.bill.analyzed} · {entry.bill.pages.toLocaleString()} pages ·
-            analyzed {entry.bill.analysisDate} ·{" "}
+          <div className="flex flex-wrap items-center gap-2">
             <a
               href={entry.bill.sourceUrl}
-              className="text-[var(--color-accent)]"
               target="_blank"
               rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface)] px-3 py-[5px] [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)] no-underline transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:no-underline"
             >
-              bill text
+              Bill text ↗
             </a>
-          </p>
+            {rawMeta?.axiomDashboardUrl && (
+              <a
+                href={rawMeta.axiomDashboardUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface)] px-3 py-[5px] [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)] no-underline transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:no-underline"
+              >
+                Axiom bills ↗
+              </a>
+            )}
+            <span className="ml-1 [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
+              analyzed {entry.bill.analysisDate}
+            </span>
+          </div>
         </header>
 
         <section className="mb-14">
@@ -173,11 +205,83 @@ export default async function BillDetailPage({
             <BillForecasts views={forecastViews} />
           ) : (
             <div className="rounded-xl border border-dashed border-[var(--theme-border)] px-6 py-5 text-[0.9rem] leading-[1.6] text-[var(--theme-text-muted)]">
-              No registered forecast pairs for this bill yet. The candidate
-              metrics below are the demand: when a pair is registered through
-              the privileged path, both arms — the outcome with the bill
-              enacted and the baseline without it — appear here and are scored
-              publicly either way.
+              No enacted-vs-baseline pairs for this bill yet. When a pair is
+              registered through the privileged path, both arms — the outcome
+              with the bill enacted and the baseline without it — appear here
+              and are scored publicly either way.
+            </div>
+          )}
+
+          {unconditionalCells.length > 0 && (
+            <div className="mt-5">
+              <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
+                Live forecasts on this bill&apos;s candidate series —
+                unconditional
+              </h3>
+              <div className="divide-y divide-[var(--theme-border)] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]">
+                {unconditionalCells.map(({ cell, from }) => {
+                  const span = cell.ciHigh - cell.ciLow || 1;
+                  const lo = cell.ciLow - span * 0.15;
+                  const width = span * 1.3;
+                  const pos = (v: number) => `${((v - lo) / width) * 100}%`;
+                  return (
+                    <Link
+                      key={cell.slug}
+                      href={`/${cell.slug}?from=/bills/${slug}`}
+                      className="grid grid-cols-[minmax(0,1fr)_240px] items-center gap-8 px-5 py-4 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline max-md:grid-cols-1 max-md:gap-3"
+                    >
+                      <div>
+                        <p className="m-0 text-[0.95rem] font-medium leading-[1.5]">
+                          {cell.title}
+                        </p>
+                        <p className="m-0 mt-1 max-w-[640px] text-[0.85rem] leading-[1.55] text-[var(--theme-text-muted)]">
+                          {cell.question}
+                        </p>
+                      </div>
+                      <div>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                            Current forecast
+                          </span>
+                          <span className="[font-family:var(--font-display)] text-[1.35rem] font-normal leading-none">
+                            {cell.pointLabel}
+                          </span>
+                        </div>
+                        <div className="relative mt-2 h-4">
+                          <div className="absolute inset-y-[7px] left-0 right-0 rounded-full bg-[var(--theme-border)] opacity-40" />
+                          <div
+                            className="absolute inset-y-[5px] rounded-full bg-[#4C9A74] opacity-45"
+                            style={{
+                              left: pos(cell.ciLow),
+                              width: `${(span / width) * 100}%`,
+                            }}
+                          />
+                          <div
+                            className="absolute top-1/2 h-[11px] w-[11px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--theme-surface)] bg-[#4C9A74]"
+                            style={{ left: pos(cell.point) }}
+                          />
+                        </div>
+                        <div className="mt-1.5 flex items-baseline justify-between gap-3">
+                          <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                            80% interval
+                          </span>
+                          <span className="[font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-muted)]">
+                            {cell.ciLabel}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-baseline justify-between gap-3">
+                          <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                            Resolves
+                          </span>
+                          <span className="[font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-muted)]">
+                            {cell.resolutionDate} →
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           )}
         </section>
@@ -252,7 +356,13 @@ export default async function BillDetailPage({
                     effects={provision.effects}
                     barriers={provision.barriers}
                     metrics={provision.metrics.map((metric) => {
-                      const { status } = metricRegistryStatus(metric);
+                      const liveCell = resolveMetricCell(metric.series_hint);
+                      // A registered cell on the series is the docket's
+                      // own answer: reachable — live join supersedes any
+                      // stored badge.
+                      const status = liveCell
+                        ? "reachable"
+                        : metricRegistryStatus(metric).status;
                       return {
                         kind: metric.kind,
                         text: stripRegistryNote(metric.text),
@@ -260,6 +370,12 @@ export default async function BillDetailPage({
                         badgeClass: registryBadgeClass[status],
                         rationale: metric.rationale,
                         stances: metric.stances,
+                        forecast: liveCell
+                          ? {
+                              ...liveCell,
+                              href: `/${liveCell.slug}?from=/bills/${slug}`,
+                            }
+                          : undefined,
                       };
                     })}
                     conditionals={provision.conditionals}

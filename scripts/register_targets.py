@@ -54,6 +54,7 @@ SOURCE_ADAPTERS = {
     "abs-release-page",
     "alfred-fred",
     "eurostat-api",
+    "fsa-crp-monthly-summary",
     "generic-url",
     "ons-timeseries",
     "statcan-wds",

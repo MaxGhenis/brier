@@ -1,0 +1,289 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-07-31T18:03:52Z",
+  "finishedAt": "2026-07-31T18:18:37Z",
+  "promptMode": "fast",
+  "timeoutSeconds": 540,
+  "targets": 6,
+  "ok": 3,
+  "failed": 3,
+  "results": [
+    {
+      "target": {
+        "catalogSlug": "us-total-business-inventories-may-2026",
+        "country": "US",
+        "dataPointId": "census.mtis.total_business_inventories_level.may_2026.first_print",
+        "period": "2026-05",
+        "registeredAt": "2026-07-31T18:02:17Z",
+        "registeredAtUtc": "2026-07-31T18:02:17Z",
+        "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+        "registrationState": "preregistered",
+        "series": "census.mtis.total_business_inventories_level",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-07-21",
+            "start": "2026-07-13"
+          },
+          "field": "BUSINV",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "BUSINV",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV",
+          "table": "Manufacturing and Trade Inventories and Sales",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "1ca2bf7bff1465285894c8aded9c645ff264ba74716a17112923e0cba4beba9f",
+        "targetRegistrationPath": "records/targets/2026-07-31-1ca2bf7bff1465285894c8aded9c645ff264ba74716a17112923e0cba4beba9f.json",
+        "targetUnit": "usd_billions",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-07-31T18:03:52Z",
+      "finishedAt": "2026-07-31T18:06:37Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-03-52z-census-mtis-total-business-inventories-level-2026-05/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-03-52z-census-mtis-total-business-inventories-level-2026-05/cells.with_activity.json",
+      "stdoutTail": "ds/thesis-analyst/2026-07-31/2026-07-31t18-03-52z-census-mtis-total-business-inventories-level-2026-05/distribution.json\",\n      \"sha256\": \"a79d78d32467ec053d8870255aca4bb6bd3a8bdd2381e890e3c870c84c0cd0fd\",\n      \"bytes\": 13829,\n      \"createdAt\": \"2026-07-31T18:03:52Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-03-52z-census-mtis-total-business-inventories-level-2026-05/validation.json\",\n      \"sha256\": \"e2eada7b6a7c01b2dc189f37ef282680705b373ad25e26268c26ae924502d427\",\n      \"bytes\": 256,\n      \"createdAt\": \"2026-07-31T18:03:52Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-03-52z-census-mtis-total-business-inventories-level-2026-05/cells.with_activity.json\",\n      \"sha256\": \"928f58e16573003ff5411e99b0f72aff98d478bf313f8a6e9f2cb504cf870765\",\n      \"bytes\": 42977,\n      \"createdAt\": \"2026-07-31T18:03:52Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-03-52z-census-mtis-total-business-inventories-level-2026-05/manifest.json\",\n      \"sha256\": \"6b4c8a8fd6b09dc81600f013039165a613475212d9d67e41e2ec6821f63d570e\",\n      \"bytes\": 18835,\n      \"createdAt\": \"2026-07-31T18:03:52Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"us-total-business-inventories-may-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionDate 2026-07-16 is not after runAt 2026-07-31 \\u2014 target already published (leakage)\"\n        ]\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"f43cc9158a6432b1e84da5f1929e6a3947f95e157c590208050ece501c8a2e68\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionDate 2026-07-16 is not after runAt 2026-07-31 \u2014 target already published (leakage)"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "average-hourly-earnings-mom-june-2026",
+        "country": "US",
+        "dataPointId": "bls.ces.average_hourly_earnings_private.june_2026.first_print",
+        "period": "2026-06",
+        "registeredAt": "2026-07-31T18:02:17Z",
+        "registeredAtUtc": "2026-07-31T18:02:17Z",
+        "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+        "registrationState": "preregistered",
+        "series": "bls.ces.average_hourly_earnings_private",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-07-09",
+            "start": "2026-07-01"
+          },
+          "field": "CES0500000003",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "CES0500000003",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CES0500000003",
+          "table": "Employment Situation, Table B-3",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "543e0fd96ab5add364bc0abb8231b2bf165f500d19ec8c50b1a56226c91be095",
+        "targetRegistrationPath": "records/targets/2026-07-31-543e0fd96ab5add364bc0abb8231b2bf165f500d19ec8c50b1a56226c91be095.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-31T18:06:37Z",
+      "finishedAt": "2026-07-31T18:09:08Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-06-37z-bls-ces-average-hourly-earnings-private-2026-06/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-06-37z-bls-ces-average-hourly-earnings-private-2026-06/cells.with_activity.json",
+      "stdoutTail": "n.json\",\n      \"sha256\": \"e0bdd5ae68065dc7166c114bf827297a8a2a32c86b8151e7ac1e5f6eb965648c\",\n      \"bytes\": 13700,\n      \"createdAt\": \"2026-07-31T18:06:37Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-06-37z-bls-ces-average-hourly-earnings-private-2026-06/validation.json\",\n      \"sha256\": \"b12fd4c11170606fcae8e876bc980da82c7bf6f98b31fd828ec31331e4c20a06\",\n      \"bytes\": 383,\n      \"createdAt\": \"2026-07-31T18:06:37Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-06-37z-bls-ces-average-hourly-earnings-private-2026-06/cells.with_activity.json\",\n      \"sha256\": \"bf33232f28ae766ea4690c1990fa5035284e4cf2c79b75854b0e27e037a26103\",\n      \"bytes\": 42300,\n      \"createdAt\": \"2026-07-31T18:06:37Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-06-37z-bls-ces-average-hourly-earnings-private-2026-06/manifest.json\",\n      \"sha256\": \"7291429459e29fe29daea3e21e3ffda3e79efbe3c7352ac133a486d7bd5e5530\",\n      \"bytes\": 17993,\n      \"createdAt\": \"2026-07-31T18:06:37Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"average-hourly-earnings-mom-june-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionDate 2026-07-02 is not after runAt 2026-07-31 \\u2014 target already published (leakage)\",\n          \"resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']\"\n        ]\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"58f6bc7618b090be355ffaf86676c922cf44034c6230dd76c11727b25b67b467\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionDate 2026-07-02 is not after runAt 2026-07-31 \u2014 target already published (leakage)",
+        "resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "jolts-hires-rate-july-2026",
+        "country": "US",
+        "dataPointId": "bls.jolts.hires_rate.2026_07.first_print",
+        "period": "2026-07",
+        "registeredAt": "2026-07-31T18:02:17Z",
+        "registeredAtUtc": "2026-07-31T18:02:17Z",
+        "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+        "registrationState": "preregistered",
+        "series": "bls.jolts.hires_rate",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-09-08",
+            "start": "2026-08-31"
+          },
+          "field": "JTSHIR",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "JTSHIR",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=JTSHIR",
+          "table": "JOLTS news release, Table 1",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "e671b0edb90aafc5fc73877f6a8d96e8c7fcb0a1580cbaa97f206d4e787cc5d8",
+        "targetRegistrationPath": "records/targets/2026-07-31-e671b0edb90aafc5fc73877f6a8d96e8c7fcb0a1580cbaa97f206d4e787cc5d8.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-31T18:09:08Z",
+      "finishedAt": "2026-07-31T18:11:41Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/cells.with_activity.json",
+      "stdoutTail": "son\",\n      \"sha256\": \"815552c4efd90b97e72094e13d2c1ac6727b2e1c4bd8d6d5297cdf6cc0760dae\",\n      \"bytes\": 24493,\n      \"createdAt\": \"2026-07-31T18:09:08Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/distribution.json\",\n      \"sha256\": \"c980c932595989bbef7d2cc00b95448b27179a2df9bc4c938f07d80d2aa21464\",\n      \"bytes\": 13338,\n      \"createdAt\": \"2026-07-31T18:09:08Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/validation.json\",\n      \"sha256\": \"abce9eb0746299bb7d6022f26fc17d32f28672f25092122b1786d91a6175e4c2\",\n      \"bytes\": 127,\n      \"createdAt\": \"2026-07-31T18:09:08Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/cells.with_activity.json\",\n      \"sha256\": \"b5ec34b860d274cf555a014fb080891880ec44f2d808e30d94767592dc2c4c31\",\n      \"bytes\": 40391,\n      \"createdAt\": \"2026-07-31T18:09:08Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-09-08z-bls-jolts-hires-rate-2026-07/manifest.json\",\n      \"sha256\": \"554eea51ebd79fd35482590990c618b1c2e032e1eee8358b24507d2f02907891\",\n      \"bytes\": 15734,\n      \"createdAt\": \"2026-07-31T18:09:08Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"jolts-hires-rate-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"3ddd204da43d1109a3808f6b72045cd671bb8eefb0b5a3c0fe34dc5f5fbc8a45\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "us-employment-cost-index-total-compensation-q3-2026",
+        "country": "US",
+        "dataPointId": "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print",
+        "period": "2026-Q3",
+        "registeredAt": "2026-07-31T18:02:17Z",
+        "registeredAtUtc": "2026-07-31T18:02:17Z",
+        "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+        "registrationState": "preregistered",
+        "series": "bls.eci.total_compensation_private_industry_qoq",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-11-07",
+            "start": "2026-10-24"
+          },
+          "field": "ECICOM",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "ECICOM",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECICOM",
+          "table": "Employment Cost Index, Table 1",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "4a183fd121384cff33480870471a51d149384f2c39f90614e3315aedc6910226",
+        "targetRegistrationPath": "records/targets/2026-07-31-4a183fd121384cff33480870471a51d149384f2c39f90614e3315aedc6910226.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-31T18:11:41Z",
+      "finishedAt": "2026-07-31T18:14:25Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-11-41z-bls-eci-total-compensation-private-industry-qoq-2026-q3/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-11-41z-bls-eci-total-compensation-private-industry-qoq-2026-q3/cells.with_activity.json",
+      "stdoutTail": "1-41z-bls-eci-total-compensation-private-industry-qoq-2026-q3/distribution.json\",\n      \"sha256\": \"6ac55a7164f8c32125502d48a0144aac4f831943af762f0d279e225f030cf460\",\n      \"bytes\": 14016,\n      \"createdAt\": \"2026-07-31T18:11:41Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-11-41z-bls-eci-total-compensation-private-industry-qoq-2026-q3/validation.json\",\n      \"sha256\": \"cac64d6a86d7c18c6120ce68fb9cecc8ec3a749fbee42a8689baf0bf011669ae\",\n      \"bytes\": 288,\n      \"createdAt\": \"2026-07-31T18:11:41Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-11-41z-bls-eci-total-compensation-private-industry-qoq-2026-q3/cells.with_activity.json\",\n      \"sha256\": \"4d7fddc40f25c54dc0d97c384dc7e138b3db374b1a8064c6593b28303ad24eb8\",\n      \"bytes\": 40782,\n      \"createdAt\": \"2026-07-31T18:11:41Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-11-41z-bls-eci-total-compensation-private-industry-qoq-2026-q3/manifest.json\",\n      \"sha256\": \"810934b887f21ccc6aada2c62b54261092842030d1b263ac1cc1cc2849bdae60\",\n      \"bytes\": 15695,\n      \"createdAt\": \"2026-07-31T18:11:41Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"us-employment-cost-index-total-compensation-q3-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']\"\n        ]\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"1f28e42e0f533788d943ba1861d06bac43c06246ea4c4668ecb09b47b3a1609b\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "us-eci-private-wages-salaries-q3-2026",
+        "country": "US",
+        "dataPointId": "bls.eci.private_wages_salaries_qoq.2026_q3.first_print",
+        "period": "2026-Q3",
+        "registeredAt": "2026-07-31T18:02:17Z",
+        "registeredAtUtc": "2026-07-31T18:02:17Z",
+        "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+        "registrationState": "preregistered",
+        "series": "bls.eci.private_wages_salaries_qoq",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-11-07",
+            "start": "2026-10-24"
+          },
+          "field": "ECIWAG",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "ECIWAG",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECIWAG",
+          "table": "Employment Cost Index, Table 2",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "2c36c5c31274178a05853fc5716e0ea00060cceeb591cc495a2f9dd286451d0c",
+        "targetRegistrationPath": "records/targets/2026-07-31-2c36c5c31274178a05853fc5716e0ea00060cceeb591cc495a2f9dd286451d0c.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-31T18:14:25Z",
+      "finishedAt": "2026-07-31T18:16:29Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/cells.with_activity.json",
+      "stdoutTail": "0bd0680951cb933b903c\",\n      \"bytes\": 24636,\n      \"createdAt\": \"2026-07-31T18:14:25Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/distribution.json\",\n      \"sha256\": \"4f25dd3cfc7cec1677c652c7235b5a2741abad2bfd960c27d874aacd925fb34c\",\n      \"bytes\": 13703,\n      \"createdAt\": \"2026-07-31T18:14:25Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/validation.json\",\n      \"sha256\": \"49887b43251d38e5c90f4f3933b956f93dee3bbcf49a16918a58444070a753c0\",\n      \"bytes\": 138,\n      \"createdAt\": \"2026-07-31T18:14:25Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/cells.with_activity.json\",\n      \"sha256\": \"2e7e5ec497412a1a2487310e279fb890a05c6eb6f1faa0e664123a0e30264818\",\n      \"bytes\": 40684,\n      \"createdAt\": \"2026-07-31T18:14:25Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-14-25z-bls-eci-private-wages-salaries-qoq-2026-q3/manifest.json\",\n      \"sha256\": \"010be96bb925ed058104f232d2694a6cdeafffc0ec523dcdf7e62a972459d69a\",\n      \"bytes\": 15988,\n      \"createdAt\": \"2026-07-31T18:14:25Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"us-eci-private-wages-salaries-q3-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"59980c6c0e88a5c413b87af5b0622f671889c820c20f495edf8f720c030a80d1\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "us-unit-labor-costs-q3-2026-prelim",
+        "country": "US",
+        "dataPointId": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim.2026_q3.first_print",
+        "period": "2026-Q3",
+        "registeredAt": "2026-07-31T18:02:17Z",
+        "registeredAtUtc": "2026-07-31T18:02:17Z",
+        "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+        "registrationState": "preregistered",
+        "series": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-11-13",
+            "start": "2026-10-30"
+          },
+          "field": "PRS85006112",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "PRS85006112",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PRS85006112",
+          "table": "Productivity and Costs, nonfarm business sector",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391",
+        "targetRegistrationPath": "records/targets/2026-07-31-5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-31T18:16:29Z",
+      "finishedAt": "2026-07-31T18:18:37Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/cells.with_activity.json",
+      "stdoutTail": "-07-31T18:16:29Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/distribution.json\",\n      \"sha256\": \"536b7914d521a5f1ec05bbb7b7f4c871aad4eee8fa1ab51e13be2230e0379243\",\n      \"bytes\": 13563,\n      \"createdAt\": \"2026-07-31T18:16:29Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/validation.json\",\n      \"sha256\": \"01d7c5a0830ae5a66fedf7a68b74f9b26c167722dd93dd32dbb263e0b045bfe5\",\n      \"bytes\": 135,\n      \"createdAt\": \"2026-07-31T18:16:29Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/cells.with_activity.json\",\n      \"sha256\": \"3f464405595b64f094e4472223872e4658e7e63e26fd0d233f4f85098693929f\",\n      \"bytes\": 40834,\n      \"createdAt\": \"2026-07-31T18:16:29Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/manifest.json\",\n      \"sha256\": \"a32c97b613690f778e9446ffa281273f62318429c0078263205e2dfe493e2778\",\n      \"bytes\": 15715,\n      \"createdAt\": \"2026-07-31T18:16:29Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"us-unit-labor-costs-q3-2026-prelim\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"8f1aa398a5bc17847aef42a43f9c77d5ea92f2a9669ebae2dd534a5b9685da06\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ]
+}

@@ -7,7 +7,10 @@
 
 export type ConditionStatus = "open" | "satisfied" | "failed";
 
-export interface ConditionDefinition {
+export const PROVISION_ENACTED_CHECK_SOURCE =
+  "govinfo enrolled bill text" as const;
+
+interface BaseConditionDefinition {
   conditionId: string;
   description: string;
   // The exact conditionalOn strings recorded on published cells. Cells
@@ -21,8 +24,113 @@ export interface ConditionDefinition {
   note?: string;
 }
 
+export interface RecordedStatusConditionDefinition extends BaseConditionDefinition {
+  type: "recorded_status";
+}
+
+export interface ProvisionEnactedConditionDefinition extends BaseConditionDefinition {
+  type: "provision_enacted";
+  provisionDescription: string;
+  statutoryTest: string;
+  checkSource: typeof PROVISION_ENACTED_CHECK_SOURCE;
+  deadline: string;
+}
+
+export type ConditionDefinition =
+  | RecordedStatusConditionDefinition
+  | ProvisionEnactedConditionDefinition;
+
+export interface ProvisionEnactmentEvidence {
+  kind: "enacted_public_law";
+  enactedOn: string;
+  checkSource: string;
+  statutoryTest: string;
+  satisfiesStatutoryTest: boolean;
+}
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+function isIsoDate(value: string): boolean {
+  if (!ISO_DATE.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === value
+  );
+}
+
+export function conditionValidationErrors(
+  condition: ConditionDefinition,
+): string[] {
+  const errors: string[] = [];
+  if (!condition.conditionId.trim()) errors.push("conditionId is required");
+  if (!condition.description.trim()) errors.push("description is required");
+  if (
+    condition.matchStrings.length === 0 ||
+    condition.matchStrings.some((text) => !text.trim())
+  ) {
+    errors.push("matchStrings must contain only non-empty strings");
+  }
+  if (!isIsoDate(condition.resolvesBy)) {
+    errors.push("resolvesBy must be an ISO date");
+  }
+
+  if (condition.type === "provision_enacted") {
+    if (!condition.provisionDescription.trim()) {
+      errors.push("provisionDescription is required");
+    }
+    if (!condition.statutoryTest.trim()) {
+      errors.push("statutoryTest is required");
+    }
+    if (condition.checkSource !== PROVISION_ENACTED_CHECK_SOURCE) {
+      errors.push(
+        `checkSource must be exactly "${PROVISION_ENACTED_CHECK_SOURCE}"`,
+      );
+    }
+    if (!isIsoDate(condition.deadline)) {
+      errors.push("deadline must be an ISO date");
+    }
+    if (condition.deadline !== condition.resolvesBy) {
+      errors.push("deadline must equal resolvesBy");
+    }
+  }
+
+  return errors;
+}
+
+export function resolveProvisionEnactedCondition(
+  condition: ProvisionEnactedConditionDefinition,
+  asOf: string,
+  evidence: readonly ProvisionEnactmentEvidence[],
+): ConditionStatus {
+  const definitionErrors = conditionValidationErrors(condition);
+  if (definitionErrors.length > 0) {
+    throw new Error(
+      `invalid provision_enacted condition ${condition.conditionId}: ` +
+        definitionErrors.join("; "),
+    );
+  }
+  if (!isIsoDate(asOf)) {
+    throw new Error("asOf must be an ISO date");
+  }
+
+  const satisfied = evidence.some(
+    (candidate) =>
+      candidate.kind === "enacted_public_law" &&
+      candidate.checkSource === condition.checkSource &&
+      candidate.statutoryTest === condition.statutoryTest &&
+      candidate.satisfiesStatutoryTest &&
+      isIsoDate(candidate.enactedOn) &&
+      candidate.enactedOn <= condition.deadline &&
+      candidate.enactedOn <= asOf,
+  );
+  if (satisfied) return "satisfied";
+  return asOf >= condition.deadline ? "failed" : "open";
+}
+
 export const CONDITIONS: ConditionDefinition[] = [
   {
+    type: "recorded_status",
     conditionId: "cond.medicaid-work-req-deadline.holds",
     description:
       "The 2025 reconciliation law's Medicaid community-engagement " +
@@ -37,6 +145,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     complementOf: "cond.medicaid-work-req-deadline.delayed",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.medicaid-work-req-deadline.delayed",
     description:
       "A federal statutory or regulatory delay of the Medicaid " +
@@ -51,6 +160,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     complementOf: "cond.medicaid-work-req-deadline.holds",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.ca-ex-parte-share-aug-2026.gte-80",
     description:
       "California ex parte renewal share at or above 80% in the August " +
@@ -62,6 +172,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     resolvesBy: "2026-12-31",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.snap-cost-share.in-effect",
     description:
       "SNAP state cost-share provision in effect (no repeal or delay " +
@@ -74,6 +185,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     complementOf: "cond.snap-cost-share.repealed",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.snap-cost-share.repealed",
     description:
       "SNAP state cost-share provision repealed or delayed by statute " +
@@ -86,6 +198,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     complementOf: "cond.snap-cost-share.in-effect",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.ctc-3000-refundable-ty2026.enacted",
     description:
       "A $3,000 fully refundable Child Tax Credit (or materially " +
@@ -102,6 +215,7 @@ export const CONDITIONS: ConditionDefinition[] = [
       "remains possible until the tax year closes, so the window stays open.",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.ctc-3000-refundable-ty2026.absent",
     description:
       "No materially equivalent $3,000 fully refundable Child Tax " +
@@ -114,6 +228,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     complementOf: "cond.ctc-3000-refundable-ty2026.enacted",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.tcja-extension-house-framework.enacted",
     description:
       "TCJA extension package matching the House framework enacted by " +
@@ -130,6 +245,7 @@ export const CONDITIONS: ConditionDefinition[] = [
       "2026-06-30 window closed.",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.aca-enhanced-ptc.expired-through-2028",
     description:
       "Enhanced ACA premium tax credits remain expired through the end " +
@@ -141,6 +257,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     resolvesBy: "2028-12-31",
   },
   {
+    type: "recorded_status",
     conditionId: "cond.salt-cap.eliminated-ty2026",
     description:
       "IRC §164(b)(6) SALT cap fully eliminated for TY2026 and later.",
@@ -152,6 +269,24 @@ export const CONDITIONS: ConditionDefinition[] = [
     note:
       "Enacted TY2026 law raises but does not eliminate the cap; the " +
       "window stays open until the tax year closes.",
+  },
+  {
+    type: "provision_enacted",
+    conditionId: "cond.crp-acreage-ceiling-fy2027-31.enacted",
+    description:
+      "A farm bill enacted on or before 2027-09-30 sets the CRP acreage " +
+      "ceiling at 27,000,000 acres for fiscal years 2027 through 2031.",
+    matchStrings: [
+      "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31",
+    ],
+    status: "open",
+    resolvesBy: "2027-09-30",
+    provisionDescription:
+      "CRP acreage ceiling for fiscal years 2027 through 2031",
+    statutoryTest:
+      "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31",
+    checkSource: PROVISION_ENACTED_CHECK_SOURCE,
+    deadline: "2027-09-30",
   },
 ];
 

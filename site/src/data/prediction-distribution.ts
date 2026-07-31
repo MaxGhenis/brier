@@ -3,6 +3,11 @@ export interface NumericCdfPoint {
   probability: number;
 }
 
+export interface NumericQuantilePoint {
+  probability: number;
+  value: number;
+}
+
 export type DistributionProvenance = "agent_reported" | "interval_seeded";
 
 export const INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1";
@@ -106,6 +111,103 @@ export function buildNumericCdfFromInterval({
       provenance === "interval_seeded"
         ? INTERVAL_ANCHOR_TRANSFORM_VERSION
         : AGENT_CDF_TRANSFORM_VERSION,
+  };
+}
+
+/**
+ * Materialize quantile knots with the same support rule and uniform 201-point
+ * grid as scripts/run_thesis_analyst.py ladder_distribution (agent_cdf_v1).
+ */
+export function buildNumericCdfFromQuantiles({
+  pointEstimate,
+  quantiles,
+}: {
+  pointEstimate: number;
+  quantiles: NumericQuantilePoint[];
+}): NumericCdfDistribution {
+  if (!Number.isFinite(pointEstimate) || quantiles.length < 3) {
+    throw new TypeError("Quantile CDF requires a finite point and 3+ quantiles");
+  }
+
+  for (const [index, quantile] of quantiles.entries()) {
+    const previous = quantiles[index - 1];
+    if (
+      !Number.isFinite(quantile.value) ||
+      !Number.isFinite(quantile.probability) ||
+      quantile.probability <= 0 ||
+      quantile.probability >= 1 ||
+      (previous &&
+        (quantile.value <= previous.value ||
+          quantile.probability <= previous.probability))
+    ) {
+      throw new TypeError(
+        "Quantile CDF values and probabilities must be finite and strictly increasing",
+      );
+    }
+  }
+
+  const quantileAt = (probability: number) => {
+    const match = quantiles.find(
+      (quantile) => Math.abs(quantile.probability - probability) < 1e-12,
+    );
+    if (!match) {
+      throw new TypeError(`Quantile CDF requires q${probability * 100}`);
+    }
+    return match.value;
+  };
+  const ciLow = quantileAt(0.1);
+  const median = quantileAt(0.5);
+  const ciHigh = quantileAt(0.9);
+  if (Math.abs(pointEstimate - median) > 1e-12) {
+    throw new TypeError("Quantile CDF point estimate must equal q50");
+  }
+
+  const lowerSpread = Math.max(Math.abs(median - ciLow), 1e-9);
+  const upperSpread = Math.max(Math.abs(ciHigh - median), 1e-9);
+  const supportLower = Math.min(
+    ciLow - lowerSpread * 1.5,
+    quantiles[0].value,
+  );
+  const supportUpper = Math.max(
+    ciHigh + upperSpread * 1.5,
+    quantiles.at(-1)!.value,
+  );
+  const knots = [
+    { value: supportLower, probability: 0 },
+    ...quantiles.map(({ probability, value }) => ({ probability, value })),
+    { value: supportUpper, probability: 1 },
+  ];
+  const pointCount = 201 as const;
+  const step = (supportUpper - supportLower) / (pointCount - 1);
+  const points = Array.from({ length: pointCount }, (_, index) => {
+    const value =
+      index === pointCount - 1 ? supportUpper : supportLower + step * index;
+    return {
+      value: roundDistributionNumber(value),
+      probability: roundDistributionNumber(
+        interpolateCdfProbability(value, knots),
+      ),
+    };
+  });
+
+  return {
+    format: "numeric_cdf_v1",
+    pointCount,
+    support: {
+      lower: roundDistributionNumber(supportLower),
+      upper: roundDistributionNumber(supportUpper),
+    },
+    points,
+    summary: {
+      pointEstimate: pointEstimate + 0,
+      median: median + 0,
+      interval80: {
+        lower: ciLow + 0,
+        upper: ciHigh + 0,
+      },
+    },
+    provenance: "agent_reported",
+    transformVersion: AGENT_CDF_TRANSFORM_VERSION,
   };
 }
 

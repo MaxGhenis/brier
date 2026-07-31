@@ -1,0 +1,1244 @@
+[
+  {
+    "slug": "us-unit-labor-costs-q3-2026-prelim",
+    "country": "US",
+    "type": "data",
+    "title": "US nonfarm unit labor costs Q3 2026 prelim",
+    "question": "What will BLS report as the first-print seasonally adjusted annualized quarter-over-quarter percent change in nonfarm business sector unit labor costs for 2026 Q3?",
+    "unit": "percent_growth",
+    "pointEstimate": 2.4,
+    "ciLow": -0.3,
+    "ciHigh": 5.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-11-05",
+    "resolutionSource": "ALFRED/FRED first-vintage mirror of the BLS Productivity and Costs nonfarm business unit labor costs series PRS85006112",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PRS85006112",
+    "resolutionRule": "Resolve to the first-print value for BLS series PRS85006112, nonfarm business sector unit labor costs, percent change from previous quarter at a seasonally adjusted annualized rate, for 2026 Q3 as captured by the canonical ALFRED first-vintage source binding. This corresponds to the BLS Productivity and Costs: Third Quarter 2026, Preliminary release scheduled for November 5, 2026. Use the value rounded to one decimal place as published in that first release or first ALFRED vintage; ignore later revised releases and database revisions.",
+    "dataPointId": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim.2026_q3.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-Q1 preliminary",
+        "value": 2.3
+      },
+      {
+        "label": "2025-Q4 preliminary",
+        "value": 2.8
+      },
+      {
+        "label": "2025-Q3 preliminary",
+        "value": -1.9
+      },
+      {
+        "label": "2025-Q2 preliminary",
+        "value": 1.6
+      },
+      {
+        "label": "2025-Q1 preliminary",
+        "value": 5.7
+      },
+      {
+        "label": "2024-Q4 preliminary",
+        "value": 3
+      },
+      {
+        "label": "2024-Q3 preliminary",
+        "value": 1.9
+      },
+      {
+        "label": "2024-Q2 preliminary",
+        "value": 0.9
+      }
+    ],
+    "drivers": [
+      "Recent first-print nonfarm ULC values average about 2.0 percent SAAR",
+      "Compensation growth remains the positive level anchor for ULC",
+      "Productivity gains can quickly push ULC below trend",
+      "First-print Q3 uses the preliminary BLS Productivity and Costs variant, with canonical resolution through ALFRED PRS85006112 first vintage"
+    ],
+    "sourceContext": [
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PRS85006112",
+      "https://www.bls.gov/productivity/schedule-releases.htm",
+      "https://www.bls.gov/news.release/archives/prod2_05072026.htm",
+      "https://www.bls.gov/news.release/archives/prod2_03052026.htm",
+      "https://www.bls.gov/news.release/archives/prod2_01082026.htm",
+      "https://www.bls.gov/news.release/archives/prod2_08072025.htm",
+      "https://www.bls.gov/news.release/archives/prod2_05082025.htm",
+      "https://www.bls.gov/news.release/archives/prod2_02062025.htm",
+      "https://www.bls.gov/news.release/archives/prod2_11072024.htm",
+      "https://www.bls.gov/news.release/archives/prod2_08012024.htm"
+    ],
+    "runAt": "2026-07-31T18:18:37Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US nonfarm business unit labor costs, 2026 Q3 preliminary"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the BLS Productivity and Costs nonfarm business sector unit labor costs series, quarterly percent change from the previous quarter at a seasonally adjusted annualized rate, first print for 2026 Q3. The release and all historical anchors below use the same preliminary-release variant rather than revised database values."
+      },
+      {
+        "kind": "text",
+        "text": "Resolver alignment: the official statistical release is the BLS Productivity and Costs preliminary release, while the canonical ledger sourceBinding resolves through ALFRED/FRED series PRS85006112 with releasePolicy first_print. I keep the canonical slug and dataPointId and set the resolution URL to the ledger ALFRED series while naming the underlying BLS release in the rule."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Productivity Program schedule of releases and revisions for Productivity and Costs.",
+        "result": "BLS lists initial release of Second Quarter 2026 data on August 6, 2026, revision of Second Quarter 2026 data on September 3, 2026, initial release of Third Quarter 2026 data on November 5, 2026, and revision of Third Quarter 2026 data on December 8, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS archived preliminary Productivity and Costs releases for recent nonfarm business unit labor cost first prints.",
+        "result": "Fetched first-print nonfarm business unit labor costs: 2026-Q1 was 2.3 percent, 2025-Q4 was 2.8 percent, and 2025-Q3 was -1.9 percent, all SAAR percent changes from previous quarter."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read additional BLS archived preliminary Productivity and Costs releases to build the reference class.",
+        "result": "Fetched first-print nonfarm business unit labor costs: 2025-Q2 was 1.6 percent, 2025-Q1 was 5.7 percent, 2024-Q4 was 3.0 percent, 2024-Q3 was 1.9 percent, and 2024-Q2 was 0.9 percent, all SAAR percent changes from previous quarter."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the eight most recent available same-variant preliminary nonfarm business ULC prints: 0.9, 1.9, 3.0, 5.7, 1.6, -1.9, 2.8, and 2.3 percent. Their mean is 2.04 percent; persistence from 2026-Q1 is 2.3 percent, so both point to a low-to-mid 2 percent forecast before current-quarter specifics."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 2.3 from the latest same-variant 2026-Q1 preliminary print; historical sample = the eight preliminary prints from 2024-Q2 through 2026-Q1 with mean 2.04. Adjustment components: +0.2 for compensation growth staying positive, +0.1 for uncertainty before the not-yet-released Q2 productivity print, and -0.2 for the tendency of stronger productivity to offset hourly compensation in this series, giving point = 2.4. For a change/flow series, sigma is computed from the values themselves: sample standard deviation of [0.9, 1.9, 3.0, 5.7, 1.6, -1.9, 2.8, 2.3] gives sigma = 2.14. The 80 percent normal half-width is 1.28*sigma = 1.28*2.14 = 2.74, rounded to 2.7, so bounds are 2.4 - 2.7 = -0.3 and 2.4 + 2.7 = 5.1."
+      },
+      {
+        "kind": "text",
+        "text": "Eight same-variant first prints are a short but clean reference class; using a longer revised database history would mix vintages and understate the exact first-print target noise. The interval is therefore tied to preliminary-print dispersion, and revision-prone tails remain the main residual risk."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a quarter with compensation growth near recent highs and weak productivity, which would land above the interval if ULC exceeds 5.1 percent. Downside risk is another productivity surge like 2025-Q3, which would push ULC below zero; a very large productivity surprise with subdued compensation would land below the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk."
+      },
+      {
+        "kind": "forecast",
+        "point": 2.4,
+        "ciLow": -0.3,
+        "ciHigh": 5.1
+      }
+    ],
+    "agentReportedRunAt": "2026-07-31T18:16:39Z",
+    "runStartedAt": "2026-07-31T18:16:29Z",
+    "promptMode": "fast",
+    "registrationCommit": "7ecbc85cc4110060218f856d50321ab93db3af3b",
+    "targetContentHash": "5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391",
+    "targetRegistrationPath": "records/targets/2026-07-31-5acb920aa1125b4d971bd7b22bdf4bd31f9a5ede261d0e7074400403a66e4391.json",
+    "registeredAtUtc": "2026-07-31T18:02:17Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -4.35,
+        "upper": 9.15
+      },
+      "points": [
+        {
+          "value": -4.35,
+          "probability": 0.0
+        },
+        {
+          "value": -4.2825,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -4.215,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -4.1475,
+          "probability": 0.005
+        },
+        {
+          "value": -4.08,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -4.0125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -3.945,
+          "probability": 0.01
+        },
+        {
+          "value": -3.8775,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -3.81,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -3.7425,
+          "probability": 0.015
+        },
+        {
+          "value": -3.675,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -3.6075,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -3.54,
+          "probability": 0.02
+        },
+        {
+          "value": -3.4725,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -3.405,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -3.3375,
+          "probability": 0.025
+        },
+        {
+          "value": -3.27,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -3.2025,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -3.135,
+          "probability": 0.03
+        },
+        {
+          "value": -3.0675,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -3.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -2.9325,
+          "probability": 0.035
+        },
+        {
+          "value": -2.865,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -2.7975,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -2.73,
+          "probability": 0.04
+        },
+        {
+          "value": -2.6625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -2.595,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -2.5275,
+          "probability": 0.045
+        },
+        {
+          "value": -2.46,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -2.3925,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -2.325,
+          "probability": 0.05
+        },
+        {
+          "value": -2.2575,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -2.19,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -2.1225,
+          "probability": 0.055
+        },
+        {
+          "value": -2.055,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -1.9875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -1.92,
+          "probability": 0.06
+        },
+        {
+          "value": -1.8525,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -1.785,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -1.7175,
+          "probability": 0.065
+        },
+        {
+          "value": -1.65,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -1.5825,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -1.515,
+          "probability": 0.07
+        },
+        {
+          "value": -1.4475,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -1.38,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -1.3125,
+          "probability": 0.075
+        },
+        {
+          "value": -1.245,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -1.1775,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -1.11,
+          "probability": 0.08
+        },
+        {
+          "value": -1.0425,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -0.975,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -0.9075,
+          "probability": 0.085
+        },
+        {
+          "value": -0.84,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -0.7725,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -0.705,
+          "probability": 0.09
+        },
+        {
+          "value": -0.6375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -0.57,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -0.5025,
+          "probability": 0.095
+        },
+        {
+          "value": -0.435,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -0.3675,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -0.3,
+          "probability": 0.1
+        },
+        {
+          "value": -0.2325,
+          "probability": 0.11
+        },
+        {
+          "value": -0.165,
+          "probability": 0.12
+        },
+        {
+          "value": -0.0975,
+          "probability": 0.13
+        },
+        {
+          "value": -0.03,
+          "probability": 0.14
+        },
+        {
+          "value": 0.0375,
+          "probability": 0.15
+        },
+        {
+          "value": 0.105,
+          "probability": 0.16
+        },
+        {
+          "value": 0.1725,
+          "probability": 0.17
+        },
+        {
+          "value": 0.24,
+          "probability": 0.18
+        },
+        {
+          "value": 0.3075,
+          "probability": 0.19
+        },
+        {
+          "value": 0.375,
+          "probability": 0.2
+        },
+        {
+          "value": 0.4425,
+          "probability": 0.21
+        },
+        {
+          "value": 0.51,
+          "probability": 0.22
+        },
+        {
+          "value": 0.5775,
+          "probability": 0.23
+        },
+        {
+          "value": 0.645,
+          "probability": 0.24
+        },
+        {
+          "value": 0.7125,
+          "probability": 0.25
+        },
+        {
+          "value": 0.78,
+          "probability": 0.26
+        },
+        {
+          "value": 0.8475,
+          "probability": 0.27
+        },
+        {
+          "value": 0.915,
+          "probability": 0.28
+        },
+        {
+          "value": 0.9825,
+          "probability": 0.29
+        },
+        {
+          "value": 1.05,
+          "probability": 0.3
+        },
+        {
+          "value": 1.1175,
+          "probability": 0.31
+        },
+        {
+          "value": 1.185,
+          "probability": 0.32
+        },
+        {
+          "value": 1.2525,
+          "probability": 0.33
+        },
+        {
+          "value": 1.32,
+          "probability": 0.34
+        },
+        {
+          "value": 1.3875,
+          "probability": 0.35
+        },
+        {
+          "value": 1.455,
+          "probability": 0.36
+        },
+        {
+          "value": 1.5225,
+          "probability": 0.37
+        },
+        {
+          "value": 1.59,
+          "probability": 0.38
+        },
+        {
+          "value": 1.6575,
+          "probability": 0.39
+        },
+        {
+          "value": 1.725,
+          "probability": 0.4
+        },
+        {
+          "value": 1.7925,
+          "probability": 0.41
+        },
+        {
+          "value": 1.86,
+          "probability": 0.42
+        },
+        {
+          "value": 1.9275,
+          "probability": 0.43
+        },
+        {
+          "value": 1.995,
+          "probability": 0.44
+        },
+        {
+          "value": 2.0625,
+          "probability": 0.45
+        },
+        {
+          "value": 2.13,
+          "probability": 0.46
+        },
+        {
+          "value": 2.1975,
+          "probability": 0.47
+        },
+        {
+          "value": 2.265,
+          "probability": 0.48
+        },
+        {
+          "value": 2.3325,
+          "probability": 0.49
+        },
+        {
+          "value": 2.4,
+          "probability": 0.5
+        },
+        {
+          "value": 2.4675,
+          "probability": 0.51
+        },
+        {
+          "value": 2.535,
+          "probability": 0.52
+        },
+        {
+          "value": 2.6025,
+          "probability": 0.53
+        },
+        {
+          "value": 2.67,
+          "probability": 0.54
+        },
+        {
+          "value": 2.7375,
+          "probability": 0.55
+        },
+        {
+          "value": 2.805,
+          "probability": 0.56
+        },
+        {
+          "value": 2.8725,
+          "probability": 0.57
+        },
+        {
+          "value": 2.94,
+          "probability": 0.58
+        },
+        {
+          "value": 3.0075,
+          "probability": 0.59
+        },
+        {
+          "value": 3.075,
+          "probability": 0.6
+        },
+        {
+          "value": 3.1425,
+          "probability": 0.61
+        },
+        {
+          "value": 3.21,
+          "probability": 0.62
+        },
+        {
+          "value": 3.2775,
+          "probability": 0.63
+        },
+        {
+          "value": 3.345,
+          "probability": 0.64
+        },
+        {
+          "value": 3.4125,
+          "probability": 0.65
+        },
+        {
+          "value": 3.48,
+          "probability": 0.66
+        },
+        {
+          "value": 3.5475,
+          "probability": 0.67
+        },
+        {
+          "value": 3.615,
+          "probability": 0.68
+        },
+        {
+          "value": 3.6825,
+          "probability": 0.69
+        },
+        {
+          "value": 3.75,
+          "probability": 0.7
+        },
+        {
+          "value": 3.8175,
+          "probability": 0.71
+        },
+        {
+          "value": 3.885,
+          "probability": 0.72
+        },
+        {
+          "value": 3.9525,
+          "probability": 0.73
+        },
+        {
+          "value": 4.02,
+          "probability": 0.74
+        },
+        {
+          "value": 4.0875,
+          "probability": 0.75
+        },
+        {
+          "value": 4.155,
+          "probability": 0.76
+        },
+        {
+          "value": 4.2225,
+          "probability": 0.77
+        },
+        {
+          "value": 4.29,
+          "probability": 0.78
+        },
+        {
+          "value": 4.3575,
+          "probability": 0.79
+        },
+        {
+          "value": 4.425,
+          "probability": 0.8
+        },
+        {
+          "value": 4.4925,
+          "probability": 0.81
+        },
+        {
+          "value": 4.56,
+          "probability": 0.82
+        },
+        {
+          "value": 4.6275,
+          "probability": 0.83
+        },
+        {
+          "value": 4.695,
+          "probability": 0.84
+        },
+        {
+          "value": 4.7625,
+          "probability": 0.85
+        },
+        {
+          "value": 4.83,
+          "probability": 0.86
+        },
+        {
+          "value": 4.8975,
+          "probability": 0.87
+        },
+        {
+          "value": 4.965,
+          "probability": 0.88
+        },
+        {
+          "value": 5.0325,
+          "probability": 0.89
+        },
+        {
+          "value": 5.1,
+          "probability": 0.9
+        },
+        {
+          "value": 5.1675,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 5.235,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 5.3025,
+          "probability": 0.905
+        },
+        {
+          "value": 5.37,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 5.4375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 5.505,
+          "probability": 0.91
+        },
+        {
+          "value": 5.5725,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 5.64,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 5.7075,
+          "probability": 0.915
+        },
+        {
+          "value": 5.775,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 5.8425,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 5.91,
+          "probability": 0.92
+        },
+        {
+          "value": 5.9775,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 6.045,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 6.1125,
+          "probability": 0.925
+        },
+        {
+          "value": 6.18,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 6.2475,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 6.315,
+          "probability": 0.93
+        },
+        {
+          "value": 6.3825,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 6.45,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 6.5175,
+          "probability": 0.935
+        },
+        {
+          "value": 6.585,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 6.6525,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 6.72,
+          "probability": 0.94
+        },
+        {
+          "value": 6.7875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 6.855,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 6.9225,
+          "probability": 0.945
+        },
+        {
+          "value": 6.99,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 7.0575,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 7.125,
+          "probability": 0.95
+        },
+        {
+          "value": 7.1925,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 7.26,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 7.3275,
+          "probability": 0.955
+        },
+        {
+          "value": 7.395,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 7.4625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 7.53,
+          "probability": 0.96
+        },
+        {
+          "value": 7.5975,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 7.665,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 7.7325,
+          "probability": 0.965
+        },
+        {
+          "value": 7.8,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 7.8675,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 7.935,
+          "probability": 0.97
+        },
+        {
+          "value": 8.0025,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 8.07,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 8.1375,
+          "probability": 0.975
+        },
+        {
+          "value": 8.205,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 8.2725,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 8.34,
+          "probability": 0.98
+        },
+        {
+          "value": 8.4075,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 8.475,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 8.5425,
+          "probability": 0.985
+        },
+        {
+          "value": 8.61,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 8.6775,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 8.745,
+          "probability": 0.99
+        },
+        {
+          "value": 8.8125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 8.88,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 8.9475,
+          "probability": 0.995
+        },
+        {
+          "value": 9.015,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 9.0825,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 9.15,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 2.4,
+        "median": 2.4,
+        "interval80": {
+          "lower": -0.3,
+          "upper": 5.1
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/prompt.md",
+        "sha256": "efc7582103fc37b4baa99a71963b7b3dce485180cc3e04846fea82136da1a24a",
+        "bytes": 8934,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_command.json",
+        "sha256": "72165ceef0e5e7498d31eef36ec9a4355c2dd75bf513e9de9b2b54f3a413abc2",
+        "bytes": 757,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_stdout.jsonl",
+        "sha256": "d42f3685b51cdd5761d8fcaf56b413cd6c945cc219a10a1e67c6ad4c4f1c26f0",
+        "bytes": 13815,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_stderr.log",
+        "sha256": "45a8c1b7555dd4849a91ef7beb876e97a549b502a191c973904489be86e12bca",
+        "bytes": 233,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_events.jsonl",
+        "sha256": "95a94e1f7a74367c23967c7060f541bcd545e848dbdb73ef47ef59ad8b012b91",
+        "bytes": 13802,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_last_message.txt",
+        "sha256": "54b567d10ca37949bf51edc09d1a175186a89a50b4804125f70d6b294cc8efe8",
+        "bytes": 5597,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_codex_trace.json",
+        "sha256": "6c97c5daab9cfc4df15a19721b8bebb4cfeee18af9bebffae0cb59f5c0d7c3bf",
+        "bytes": 534,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_stdout.txt",
+        "sha256": "54b567d10ca37949bf51edc09d1a175186a89a50b4804125f70d6b294cc8efe8",
+        "bytes": 5597,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_stderr.txt",
+        "sha256": "fea7b41f9ca100c4b23a3569823e1949df27019806036f7ffdaacce6e2e57fa5",
+        "bytes": 248,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_prompt.md",
+        "sha256": "4f031ac735791d400ffc8d7ba3d7ef074d517b6a103d8dadd96887e381c8663a",
+        "bytes": 8684,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_command.json",
+        "sha256": "fc0efd5244579185d058266c31955ffbcbcc8c2f7698e556cf2f45f137ad07c2",
+        "bytes": 753,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "9b603446eb4ae795a487cc735f78318e5d7022fd91dff414321a1ec1b32cb525",
+        "bytes": 1236,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_stderr.log",
+        "sha256": "fa985304d9af2270c70badadee485255d684de580be582eb6eeba64702c21d67",
+        "bytes": 233,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_events.jsonl",
+        "sha256": "8f6617cabdcc7d782c95be25b019160a48485ad03b198b32ea0247e11afefbfc",
+        "bytes": 1258,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_last_message.txt",
+        "sha256": "dbeadba6f4d45c7612e316fab18694c68c7f7a1c9fe6c5c13f596cfa3f3dac9d",
+        "bytes": 890,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_codex_trace.json",
+        "sha256": "f776bf963bee0db7877b74d756ae8e934564c0ca511389ea32d5f3da2353aeec",
+        "bytes": 531,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_stdout.txt",
+        "sha256": "dbeadba6f4d45c7612e316fab18694c68c7f7a1c9fe6c5c13f596cfa3f3dac9d",
+        "bytes": 890,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_stderr.txt",
+        "sha256": "db302e80db9bb6b001f76ca4ccccec41a8a39acd4e1ccc7acdd34c05f96cd381",
+        "bytes": 248,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/revision_prompt.md",
+        "sha256": "baf17fe4ee50a69207627b8bec8da4b816f433fa484b37df4c33bb9f98af7480",
+        "bytes": 16357,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/command.json",
+        "sha256": "020893cba7e60795e149c8a9689455c46ec0fa57d1df3c23ae7227ec08a62e9f",
+        "bytes": 751,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_stdout.jsonl",
+        "sha256": "907b3ba4f5f7a5798b6e0bf70cac2523d2c1eeee8f707ed4232aa657a5e090e7",
+        "bytes": 7542,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_stderr.log",
+        "sha256": "82a8bcfd9f4dacf9d77aeed42d78af54935b415e2c82a48b6f96773966311530",
+        "bytes": 233,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_events.jsonl",
+        "sha256": "d5736bbc1527a446047b1db7b500fe35c4df280cf10c829a497bfa93429156e1",
+        "bytes": 7564,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_last_message.txt",
+        "sha256": "0bb6b41bad911a7e1ae9cb59ee707f5ff8ff9218c5c36272a9ec5932b0f30114",
+        "bytes": 6965,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/codex_trace.json",
+        "sha256": "2ca7dd9ac7d5b85a1bb79ecbced273e4cd7f42f9cfce85eea9478e60fe55f16b",
+        "bytes": 527,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/stdout.txt",
+        "sha256": "0bb6b41bad911a7e1ae9cb59ee707f5ff8ff9218c5c36272a9ec5932b0f30114",
+        "bytes": 6965,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/stderr.txt",
+        "sha256": "0d00bd6ef35f460aa6f9fd45f521a763abf190353eaa62619eea436c40164f58",
+        "bytes": 248,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/raw_response.txt",
+        "sha256": "0bb6b41bad911a7e1ae9cb59ee707f5ff8ff9218c5c36272a9ec5932b0f30114",
+        "bytes": 6965,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/parsed_cells.json",
+        "sha256": "bdf15fcd3f5ea0fc97d5b5427c6199072792bfd29d7afc23b0e4c3dbad2945f4",
+        "bytes": 7972,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/normalized_cells.json",
+        "sha256": "341105721a1b7eca0dc1bf2dcf7bbf3506423fa3063cfbf7d388063e05d12f1f",
+        "bytes": 25319,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/distribution.json",
+        "sha256": "536b7914d521a5f1ec05bbb7b7f4c871aad4eee8fa1ab51e13be2230e0379243",
+        "bytes": 13563,
+        "createdAt": "2026-07-31T18:16:29Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/validation.json",
+        "sha256": "01d7c5a0830ae5a66fedf7a68b74f9b26c167722dd93dd32dbb263e0b045bfe5",
+        "bytes": 135,
+        "createdAt": "2026-07-31T18:16:29Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-31T18:16:29Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "221e63e852e8f17b659a1666f9af8e2d51bb8ba2ff67d0db50c69ff0eec1998b"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t18-16-29z-bls-productivity-nonfarm-unit-labor-costs-qoq-prelim-2026-q3/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft resolver names the BLS news release URL, while the canonical ledger sourceBinding specifies the ALFRED/FRED PRS85006112 first-print source URL and allowed host.",
+          "actionRequested": "Align the forecast's resolver/source fields with the canonical ledger contract, or explicitly state the ledger discrepancy in reasoning while keeping the target tied to the same slug and dataPointId."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify why the eight-print sample is sufficient for volatility rather than using a longer same-variant preliminary history."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The interval math is acceptable, but note that ULC is often revision-prone and first-print noise may widen tails."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule with the canonical ALFRED PRS85006112 first-print binding while preserving BLS as the underlying official release; accepted the optional clarification on short same-variant volatility and first-print tail risk.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly coherent, but it should reconcile the published resolver fields with the canonical ledger source binding before publication."
+    }
+  }
+]

@@ -127,6 +127,25 @@ export function getBill(slug: string): BillArtifact | undefined {
   return loadBills().find((bill) => bill.slug === slug);
 }
 
+export interface BillRawMeta {
+  resolved_via?: string;
+  source_url?: string;
+  version_label?: string;
+  axiomBillId?: string;
+  axiomDashboardUrl?: string;
+}
+
+/** Provenance sidecar written by the fetcher — optional by design. */
+export function loadBillMeta(slug: string): BillRawMeta | null {
+  const file = path.join(BILLS_DIR, "raw", `${slug}.meta.json`);
+  if (!fs.existsSync(file)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf-8")) as BillRawMeta;
+  } catch {
+    return null;
+  }
+}
+
 export type RegistryStatus = "reachable" | "not-yet" | "no-series" | "unknown";
 
 export const REGISTRY_LABEL: Record<RegistryStatus, string> = {

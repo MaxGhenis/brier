@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is broadly publication-ready, with one interval/rounding coherence warning to clean up before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is described as widened for one-decimal BLS rounding, but [0.73, 0.99] still excludes a reported 0.7 or 1.0 even though those are plausible rounded first-print outcomes in the stated historical sample.",
+      "actionRequested": "Either explain that the interval is on the latent unrounded percent-change scale, or adjust the bounds to be coherent with the one-decimal reported resolver and the stated rounding allowance."
+    }
+  ],
+  "optionalSuggestions": [
+    "Make the ledger-source discrepancy explicit in the final resolver text: ALFRED ECICOM is the registered adapter, while BLS Table 1 is the underlying official first-print source.",
+    "If keeping the compact last-nine-quarter prior, note that the Q2 2026 same-day release is pre-target information because the run occurred after the Q2 release."
+  ]
+}
