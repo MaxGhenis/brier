@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from canonical_json import canonical_sha256
+from ingest_challenge_submissions import ingest_challenge_submissions
 from thesis_log_client import load_thesis_log_from_directory
 from verify_custody import (
     RECORDER_REQUIRED_LIVE,
@@ -43,6 +44,14 @@ SURFACES = {
         "codex/thesis-ledger-facts",
     ),
 }
+
+MODEL_PREDICTION_FIELDS = (
+    "forecastSlug",
+    "pointEstimate",
+    "interval80",
+    "resolutionDate",
+    "recordedAt",
+)
 
 
 def sha256(data: bytes) -> str:
@@ -124,6 +133,18 @@ def current_artifact_commitments(records: Path) -> dict[str, list[dict[str, Any]
     }
 
 
+def build_snapshot_predictions(
+    recorded: list[dict[str, Any]],
+    challenge_predictions: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Project model log entries, then append adapter-owned challenge rows."""
+
+    model_predictions = [
+        {key: entry.get(key) for key in MODEL_PREDICTION_FIELDS} for entry in recorded
+    ]
+    return model_predictions + challenge_predictions
+
+
 def validate_deployment_identity(
     *,
     site_build: dict[str, Any],
@@ -168,8 +189,14 @@ def main() -> int:
     parser.add_argument("--api-deployment-url", required=True)
     parser.add_argument("--deployment-ancestry-distance", type=int, required=True)
     parser.add_argument("--expected-sha")
+    parser.add_argument("--challenge-inbox", type=Path)
+    parser.add_argument("--target-registrations", type=Path)
     args = parser.parse_args()
 
+    if (args.challenge_inbox is None) != (args.target_registrations is None):
+        raise SystemExit(
+            "--challenge-inbox and --target-registrations must be provided together"
+        )
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", args.run_id):
         raise SystemExit(
             "run-id may contain only letters, digits, dot, underscore, dash"
@@ -199,6 +226,16 @@ def main() -> int:
             f"missing={sorted(set(RECORDER_REQUIRED_LIVE) - live_names)}, "
             f"extra={sorted(live_names - set(RECORDER_REQUIRED_LIVE))}"
         )
+    repo_root = args.records.resolve().parent
+    challenge_predictions = (
+        ingest_challenge_submissions(
+            inbox_dir=args.challenge_inbox,
+            targets_dir=args.target_registrations,
+            repo_root=repo_root,
+        )
+        if args.challenge_inbox is not None and args.target_registrations is not None
+        else []
+    )
     verification = verify_chain(args.records)
     previous = verification.ordered[-1]
     day = args.recorded_at[:10]
@@ -208,7 +245,6 @@ def main() -> int:
     day_dir = args.records / day
     digest_path = day_dir / f"digest-{args.run_id}.json"
     body_dir = day_dir / f"bodies-{args.run_id}"
-    repo_root = args.records.parent.resolve()
     surface_records: dict[str, Any] = {}
     for name, (filename, url) in SURFACES.items():
         source = args.source_dir / filename
@@ -272,6 +308,7 @@ def main() -> int:
     resolved = [
         entry for entry in entries if entry.get("kind") == "prediction_resolved"
     ]
+    predictions = build_snapshot_predictions(recorded, challenge_predictions)
     payload = {
         "schemaVersion": "thesis_record_snapshot_v2",
         "snapshotKind": "recorder_run",
@@ -299,20 +336,8 @@ def main() -> int:
         "surfaces": surface_records,
         "logChunks": log_chunk_records,
         "liveForecasts": live_records,
-        "counts": {"recorded": len(recorded), "resolved": len(resolved)},
-        "predictions": [
-            {
-                key: entry.get(key)
-                for key in (
-                    "forecastSlug",
-                    "pointEstimate",
-                    "interval80",
-                    "resolutionDate",
-                    "recordedAt",
-                )
-            }
-            for entry in recorded
-        ],
+        "counts": {"recorded": len(predictions), "resolved": len(resolved)},
+        "predictions": predictions,
         "resolutions": resolved,
         "artifactCommitments": current_artifact_commitments(args.records),
     }

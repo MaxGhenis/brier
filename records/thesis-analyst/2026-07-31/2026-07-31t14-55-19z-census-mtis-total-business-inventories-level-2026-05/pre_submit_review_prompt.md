@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: census.mtis.total_business_inventories_level
+- period: 2026-05
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-total-business-inventories-may-2026"
+- country: "US"
+- targetUnit: "usd_billions"
+- dataPointId: "census.mtis.total_business_inventories_level.may_2026.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-07-21", "start": "2026-07-13"}, "field": "BUSINV", "releasePolicy": "first_print", "sourceSeriesId": "BUSINV", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV", "table": "Manufacturing and Trade Inventories and Sales", "transform": {"factor": 0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-31-228a5b8191e806d8977a4c27272da326dd25dea14eff18b7bacfe12ff661e58b.json"
+- targetContentHash: "228a5b8191e806d8977a4c27272da326dd25dea14eff18b7bacfe12ff661e58b"
+- registrationCommit: "0249a6f266d1d202c43782056e77403612358765"
+- registeredAtUtc: "2026-07-31T14:48:09Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+6d8f6212997f6ae94c0ed56da8191dd5dcaae8994a797d5964721af43f78f26e
+
+# Draft forecast response
+{"slug":"us-total-business-inventories-may-2026","country":"US","type":"data","title":"US Total Business Inventories, May 2026","question":"What will the first-print U.S. Census Bureau Manufacturing and Trade Inventories and Sales estimate of seasonally adjusted total business inventories be for May 2026, in billions of dollars?","unit":"usd_billions","pointEstimate":2736.158,"ciLow":2722.1,"ciHigh":2750.2,"confidence":0.8,"resolutionDate":"2026-07-16","resolutionSource":"ALFRED/FRED mirror of the U.S. Census Bureau Manufacturing and Trade Inventories and Sales BUSINV first print","resolutionSourceUrl":"https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV","resolutionRule":"Resolve to the first-published BUSINV observation for 2026-05 from the Manufacturing and Trade Inventories and Sales release, seasonally adjusted total business inventories, converted from millions of dollars to billions of dollars by multiplying by 0.001. Use the first print only; ignore later revisions.","dataPointId":"census.mtis.total_business_inventories_level.may_2026.first_print","historicalContext":[{"label":"May 2026 first print BUSINV, SA inventories","value":2736.158},{"label":"April 2026 revised in May release, SA inventories","value":2728.142},{"label":"March 2026 FRED/BUSINV latest history, SA inventories","value":2712.902},{"label":"February 2026 FRED/BUSINV latest history, SA inventories","value":2686.289},{"label":"January 2026 FRED/BUSINV latest history, SA inventories","value":2676.882}],"drivers":["May first print was already published before this run, so this is a post-release audited cell rather than a prospective forecast","Seasonally adjusted total business inventories rose 0.3 percent from April to May in the Census first print","Recent BUSINV levels had been rising through early 2026, with March 2712.902 and April 2728.142 billion dollars in the post-release history","The ledger resolver uses ALFRED/FRED BUSINV even though the primary agency release is Census MTIS; this cell keeps the ledger resolver and notes the Census source"],"sourceContext":["https://www.census.gov/mtis/current/index.html","https://www.census.gov/mtis/www/data/pdf/mtis_current.pdf","https://www.census.gov/mtis/release_schedule.html","https://fred.stlouisfed.org/graph/?id=BUSINV","https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV"],"runAt":"2026-07-31T14:55:43Z","reasoning":[{"kind":"heading","text":"US total business inventories May 2026 first print"},{"kind":"text","text":"Framing and exact resolver: the target is Census MTIS total business inventories, seasonally adjusted, end-of-month May 2026, first print, expressed in usd_billions. The ledger binds resolution to ALFRED/FRED BUSINV with a 0.001 transform from millions to billions; the official agency release is the Census MTIS May 2026 report."},{"kind":"tool","tool":"official.lookup","call":"Opened Census MTIS release schedule for the 2025/2026 Manufacturing and Trade Inventories and Sales release dates.","result":"Fetched release schedule shows May 2026 data were scheduled for July 16, 2026 at 10:00 a.m.; April 2026 was June 17, 2026 and June 2026 was August 14, 2026."},{"kind":"tool","tool":"official.lookup","call":"Opened the Census MTIS current May 2026 release page and PDF.","result":"Fetched May 2026 first-print inventories of $2,736.2 billion on the release page; PDF table reports total business adjusted inventories of 2,736,158 million for May 2026, 2,728,142 million for April 2026, and 2,654,351 million for May 2025."},{"kind":"tool","tool":"official.lookup","call":"Checked FRED/BUSINV series page for the same Census source series history and resolver identity.","result":"Fetched BUSINV values: May 2026 2,736,158 million, Apr 2026 2,728,142 million, Mar 2026 2,712,902 million, Feb 2026 2,686,289 million, Jan 2026 2,676,882 million; series units are millions of dollars, seasonally adjusted, monthly end of period."},{"kind":"tool","tool":"official.lookup","call":"Checked the earlier FRED/BUSINV April-vintage snippet for pre-May-release recent history used as a reference class.","result":"Fetched April-vintage values: Apr 2026 2,726,588 million, Mar 2026 2,712,902 million, Feb 2026 2,686,289 million, Jan 2026 2,676,882 million, Dec 2025 2,676,717 million."},{"kind":"text","text":"Reference class and base rate: for a prospective May estimate before the July 16 release, the natural base rate is recent monthly changes in seasonally adjusted BUSINV levels. The latest pre-release observations from Dec 2025 through Apr 2026 implied successive changes of +0.165, +9.407, +26.613, and +13.686 billion dollars, so a persistence-plus-recent-drift prior would have expected another positive but noisy inventory gain."},{"kind":"math","text":"Prior/update/interval: persistence prior = April first-print 2726.588 plus mean recent monthly change 12.468 = 2739.056 billion, using Dec 2025-Apr 2026 BUSINV history; adjustment components were level trend +12.468, no seasonal variant change because the target is consistently seasonally adjusted, and no policy mechanism adjustment. Realized monthly-change dispersion from +0.165, +9.407, +26.613, +13.686 gives sigma = 10.989 billion; 80% half-width = 1.28*sigma = 14.066 billion. Because this run occurs after the official first print, I update the point to the observed first-print 2736.158 and retain the audit interval 2736.158 +/- 14.066 = [2722.092, 2750.224], rounded to [2722.1, 2750.2]."},{"kind":"text","text":"Counter-consideration: upside risk before release would have come from another broad inventory build like March 2026, which would land above the interval if May exceeded roughly 2750.2 billion. Downside risk would have been a reversal in retail or wholesale inventories, which would land below the interval if May printed under roughly 2722.1 billion. The observed first print is inside the interval."},{"kind":"forecast","point":2736.158,"ciLow":2722.1,"ciHigh":2750.2}]}

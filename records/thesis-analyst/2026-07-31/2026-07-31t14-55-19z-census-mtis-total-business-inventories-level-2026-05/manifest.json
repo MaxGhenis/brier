@@ -1,0 +1,419 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T14:55:19Z",
+  "runStartedAt": "2026-07-31T14:55:19Z",
+  "series": "census.mtis.total_business_inventories_level",
+  "period": "2026-05",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-total-business-inventories-may-2026",
+    "country": "US",
+    "dataPointId": "census.mtis.total_business_inventories_level.may_2026.first_print",
+    "period": "2026-05",
+    "registeredAt": "2026-07-31T14:48:09Z",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "registrationState": "preregistered",
+    "series": "census.mtis.total_business_inventories_level",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-21",
+        "start": "2026-07-13"
+      },
+      "field": "BUSINV",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "BUSINV",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV",
+      "table": "Manufacturing and Trade Inventories and Sales",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "228a5b8191e806d8977a4c27272da326dd25dea14eff18b7bacfe12ff661e58b",
+    "targetRegistrationPath": "records/targets/2026-07-31-228a5b8191e806d8977a4c27272da326dd25dea14eff18b7bacfe12ff661e58b.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+  "targetContentHash": "228a5b8191e806d8977a4c27272da326dd25dea14eff18b7bacfe12ff661e58b",
+  "targetRegistrationPath": "records/targets/2026-07-31-228a5b8191e806d8977a4c27272da326dd25dea14eff18b7bacfe12ff661e58b.json",
+  "registeredAtUtc": "2026-07-31T14:48:09Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T14:55:19Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "825d4d9b68a7c760ebea0e8b85de2a044f2ce4c737d74474f5a893b1803c12b9"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The run occurs on 2026-07-31 after the 2026-07-16 release and explicitly uses the observed May 2026 first print of 2736.158.",
+        "actionRequested": "Remove all post-release observations and outcome-derived statements, or do not publish this as a prospective forecast."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "coherence",
+        "summary": "The point estimate is the realized first-print value while the interval is described as a retained pre-release audit interval.",
+        "actionRequested": "Make the point, interval, historicalContext, drivers, reasoning, and JSON fields all reflect only information available before resolution."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "The material movement from the prior is justified by the resolved target value rather than by pre-release public evidence.",
+        "actionRequested": "Replace the post-release update with an inside-view update based only on pre-release indicators, or explicitly leave the prior with limited adjustment."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step is structurally good but contaminated by the observed outcome.",
+        "actionRequested": "Keep the prior, sample, sigma, and bounds format, but recompute the final forecast without using the May first print."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the ledger resolver tied to ALFRED/FRED BUSINV first print and note Census as the underlying agency source."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Use the July 16, 2026 release date consistently as the resolution date."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, coherence, and update critiques by removing the already-published May 2026 outcome from the point estimate, historical context, drivers, and reasoning; retained the ledger resolver, the verified July 16, 2026 resolution date, and the pre-release prior/update/interval structure.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, coherence, and update critiques by removing the already-published May 2026 outcome from the point estimate, historical context, drivers, and reasoning; retained the ledger resolver, the verified July 16, 2026 resolution date, and the pre-release prior/update/interval structure.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, coherence, and update critiques by removing the already-published May 2026 outcome from the point estimate, historical context, drivers, and reasoning; retained the ledger resolver, the verified July 16, 2026 resolution date, and the pre-release prior/update/interval structure.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, coherence, and update critiques by removing the already-published May 2026 outcome from the point estimate, historical context, drivers, and reasoning; retained the ledger resolver, the verified July 16, 2026 resolution date, and the pre-release prior/update/interval structure.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage, coherence, and update critiques by removing the already-published May 2026 outcome from the point estimate, historical context, drivers, and reasoning; retained the ledger resolver, the verified July 16, 2026 resolution date, and the pre-release prior/update/interval structure.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage, coherence, and update critiques by removing the already-published May 2026 outcome from the point estimate, historical context, drivers, and reasoning; retained the ledger resolver, the verified July 16, 2026 resolution date, and the pre-release prior/update/interval structure.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is not publishable as a forecast because it uses the already published May 2026 first-print outcome as the point estimate and evidence."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/prompt.md",
+      "sha256": "6d8f6212997f6ae94c0ed56da8191dd5dcaae8994a797d5964721af43f78f26e",
+      "bytes": 9713,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_command.json",
+      "sha256": "cb58111e1b4badc3f82d95fccf6b23f262587266dd87bbd02c9f3c790a999ca2",
+      "bytes": 749,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_codex_stdout.jsonl",
+      "sha256": "1c5e5d1a9366b106bc17e616f220341ee34e725866d4e721fa6f065146debbf2",
+      "bytes": 11017,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_codex_stderr.log",
+      "sha256": "5c56376c23c27eb97a1bd10365c4856f8ef1a0551b7ca1487d1c1a4732d56028",
+      "bytes": 233,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_codex_events.jsonl",
+      "sha256": "737663a2fb1e099ae6b623d1883e0aa88b28bbfb16ca9cd73b7f27f63c94e280",
+      "bytes": 11026,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_codex_last_message.txt",
+      "sha256": "fa33eae197e559497e89c4c010c2284c5b17a645161530afba3531936d591cd1",
+      "bytes": 5961,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_codex_trace.json",
+      "sha256": "84df16d08ded84b33573cf5e2f84a3273db49baadbf8f4fbfd7620836ed21f01",
+      "bytes": 533,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_stdout.txt",
+      "sha256": "fa33eae197e559497e89c4c010c2284c5b17a645161530afba3531936d591cd1",
+      "bytes": 5961,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/draft_stderr.txt",
+      "sha256": "4c99bde09d1469e752a1572b0ce607d88f6e2aa8f5790d05d145ab7d2b54377d",
+      "bytes": 248,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_prompt.md",
+      "sha256": "0f0be0cd79126dbee306c2a72fc68b5cb58926a8d0032adb259f079a08d2f5cd",
+      "bytes": 9022,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_command.json",
+      "sha256": "bbdb27e1ce60c154f9e0a2946d3afd54785a952cf11123c10abaa5571eebf1c9",
+      "bytes": 745,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "6033dc792a61c787d74a0631e21f213a9ddd4597bc8d44d311ac04c2b812dc7e",
+      "bytes": 2344,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_stderr.log",
+      "sha256": "996ad6d0365226b60e4ac5ac67e2a19737a531f6ce0cb503c6d7874227a0be9c",
+      "bytes": 233,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_events.jsonl",
+      "sha256": "593255ba3807a82794c91ab39273ae6478beb13dc7adde74cfde55ac9963e241",
+      "bytes": 2366,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_last_message.txt",
+      "sha256": "2b36c08a5660c06a464b8f270db42fd1e1751cf8d40a92bf450f9a50caac4a72",
+      "bytes": 1922,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_trace.json",
+      "sha256": "b9e936aacf8f45af40da191cc761ddd63401d1f1650861b2cb1afa04ece0a329",
+      "bytes": 527,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_stdout.txt",
+      "sha256": "2b36c08a5660c06a464b8f270db42fd1e1751cf8d40a92bf450f9a50caac4a72",
+      "bytes": 1922,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_stderr.txt",
+      "sha256": "35479c541cc5afc68b5e66ff2289416a4fa583f8969ae3c483d6f362d0d4a14f",
+      "bytes": 248,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/revision_prompt.md",
+      "sha256": "44cc4eac5e91f30d74b427085a7434ccb9aecb88f7d8a6b2d555eaf5be4624e7",
+      "bytes": 18532,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/command.json",
+      "sha256": "d51f0ba9a6578560796e3f7236a654bb5f6bb3131b2fe5197ca1d17560ef6e72",
+      "bytes": 743,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/codex_stdout.jsonl",
+      "sha256": "d2138cb590e38688bfc5f3de2f8fcbb7c5e78006335d2815ac3785da1e599ff1",
+      "bytes": 6536,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/codex_stderr.log",
+      "sha256": "f730585ae2c8886a150e273253e91970f852fa964e15ff0184cef7a303aca48d",
+      "bytes": 233,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/codex_events.jsonl",
+      "sha256": "6a0c6e3238fae1ee399a269715e3f2b88a3ade2d3192c98b1df6569be254dccf",
+      "bytes": 6558,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/codex_last_message.txt",
+      "sha256": "306d6a3f4d86653fcffcd33271860c9c2cff2d7e5fe1896c998f33bd0e1d7567",
+      "bytes": 5991,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/codex_trace.json",
+      "sha256": "d41dfc58ca55adfe229a0e8ac7e3f94c8ae767ed68c3498aa7a8b336c99372c5",
+      "bytes": 527,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/stdout.txt",
+      "sha256": "306d6a3f4d86653fcffcd33271860c9c2cff2d7e5fe1896c998f33bd0e1d7567",
+      "bytes": 5991,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/stderr.txt",
+      "sha256": "0111dc8deb29cd48ee00cc9263aa9743e2f8ea9e17bc8a6588a26fc030c9d3ae",
+      "bytes": 248,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/raw_response.txt",
+      "sha256": "306d6a3f4d86653fcffcd33271860c9c2cff2d7e5fe1896c998f33bd0e1d7567",
+      "bytes": 5991,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/parsed_cells.json",
+      "sha256": "9601140865e9175a8f0f8bf81312886665950334cc18d6cca665baac9dd3dff5",
+      "bytes": 6833,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/normalized_cells.json",
+      "sha256": "4eba9c503906f0eed3bb1f8efa380390e9dc72984bd3ca2078f23dba2090e037",
+      "bytes": 24734,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/distribution.json",
+      "sha256": "142cc96a2b9a44f9ae381fd586680b531e79c2046d3892d1ea97b4a5795fe169",
+      "bytes": 14117,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/validation.json",
+      "sha256": "e2eada7b6a7c01b2dc189f37ef282680705b373ad25e26268c26ae924502d427",
+      "bytes": 256,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/cells.with_activity.json",
+      "sha256": "cd841be7dbf9d789770ac82803126c7c513dafde04f1cfeb3650726987b80399",
+      "bytes": 42626,
+      "createdAt": "2026-07-31T14:55:19Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-55-19z-census-mtis-total-business-inventories-level-2026-05/manifest.json",
+      "sha256": "ee7127bc6c9ce22c1a9fa2f77ffc11a51d8f3aee1e9bfba172bb2f01d174c7f7",
+      "bytes": 17715,
+      "createdAt": "2026-07-31T14:55:19Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "us-total-business-inventories-may-2026",
+        "ok": false,
+        "errors": [
+          "resolutionDate 2026-07-16 is not after runAt 2026-07-31 \u2014 target already published (leakage)"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "d148b0324ad198f6834381cdb84f0ac64e19ca22b12019e4cc13a4c7819241fb"
+}

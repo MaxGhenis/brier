@@ -179,6 +179,8 @@ jobs:
 
           snapshot_args=(uv run --locked --extra custody python scripts/record_forecast_snapshot.py \
             --records records \
+            --challenge-inbox challenge/inbox \
+            --target-registrations records/targets \
             --source-dir "$SOURCE_DIR" \
             --run-id "$RUN_ID" \
             --recorded-at "$RECORDED_AT" \
