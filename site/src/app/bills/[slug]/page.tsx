@@ -16,6 +16,7 @@ import {
   type RegistryStatus,
 } from "@/data/bills";
 import { formatValue } from "@/data/forecast-cells";
+import { fullSectionText } from "@/lib/bill-text";
 import { renderInline, stripRegistryNote } from "@/lib/render-inline";
 
 export function generateStaticParams() {
@@ -187,7 +188,13 @@ export default async function BillDetailPage({
           </h2>
 
           <div className="grid gap-3">
-            {entry.provisions.map((provision, index) => (
+            {entry.provisions.map((provision, index) => {
+              const sectionText = fullSectionText(
+                entry.slug,
+                provision.heading,
+                provision.title,
+              );
+              return (
               <details
                 key={index}
                 className="group rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]"
@@ -227,6 +234,17 @@ export default async function BillDetailPage({
                     </details>
                   )}
 
+                  {sectionText && (
+                    <details className="mb-6">
+                      <summary className="cursor-pointer list-none [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.1em] text-[var(--color-accent)] [&::-webkit-details-marker]:hidden">
+                        Full section text ▸
+                      </summary>
+                      <pre className="mt-3 max-h-[420px] overflow-auto whitespace-pre-wrap rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] p-4 [font-family:var(--font-mono)] text-[0.75rem] leading-[1.55] text-[var(--theme-text-muted)]">
+                        {sectionText}
+                      </pre>
+                    </details>
+                  )}
+
                   <ProvisionAnalysis
                     billSlug={slug}
                     provisionIndex={index}
@@ -248,7 +266,8 @@ export default async function BillDetailPage({
                   />
                 </div>
               </details>
-            ))}
+              );
+            })}
           </div>
         </section>
       </main>
