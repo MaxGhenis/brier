@@ -530,6 +530,15 @@ def test_noop_pr_merges_are_exempt_and_content_merges_are_not(
     # Non-merges never take the exemption path.
     assert provenance.merge_is_records_noop(workflow_push, epoch) is False
 
+    # The update-branch shape (live case cf9f6509, 2026-07-31): merging
+    # main INTO a lagging branch makes a commit whose records tree matches
+    # its SECOND parent (main). It reaches main history via the PR merge
+    # and must be exempt the same way.
+    _git(repo, "checkout", "-q", "-b", "pr-refresh", epoch)
+    _commit(repo, "site/other.tsx", "another site-only change")
+    update_merge = _merge(repo, "merge main into pr-refresh", "main")
+    assert provenance.merge_is_records_noop(update_merge, epoch) is True
+
 
 def test_rollback_shaped_merges_never_self_exempt(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
@@ -581,3 +590,17 @@ def test_range_closure_refuses_unattested_content_change(
     # Endpoints that agree pass, and any attestable commit short-circuits.
     provenance.enforce_range_content_closure(f"{stale}..{swap}", [])
     provenance.enforce_range_content_closure(f"{tip}..{swap}", [tip])
+
+    # Same trap with the parents reversed (records tree == stale SECOND
+    # parent), built with commit-tree because no merge strategy produces
+    # it honestly: exempt in isolation, refused by the range closure.
+    stale_tree = _git(repo, "rev-parse", f"{stale}^{{tree}}")
+    swap2 = _git(
+        repo, "commit-tree", stale_tree, "-p", tip, "-p", stale,
+        "-m", "reversed parent-swap",
+    )
+    assert provenance.merge_is_records_noop(swap2, epoch) is True
+    with pytest.raises(
+        provenance.ProvenanceError, match="no commit in .* requires"
+    ):
+        provenance.enforce_range_content_closure(f"{tip}..{swap2}", [])

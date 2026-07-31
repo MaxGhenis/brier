@@ -14,20 +14,21 @@ RFC 3161 witness chain (which proves when, not who). It inherits the standard
 SLSA caveats: an actor who can rewrite the workflows themselves on main, or
 who controls repository administration, is outside this control's reach.
 
-Merge commits: GitHub PR merges land on main outside the workflows (the
-2026-07-31 PR-only regime), and --full-history enumerates any merge that is
-not TREESAME to all parents — including merges that change nothing under
-records/** because their branch simply forked before a workflow's records
-push. Only such no-op merges are exempt: records/** byte-identical to a
-post-epoch FIRST parent, printed as a NOOP-MERGE line. A merge that
-introduces records content, or whose first parent predates the epoch, is
-treated as a records push and fails without workflow provenance. A range
-whose endpoints disagree about records content while nothing in it requires
-attestation fails closed (the parent-order-trickery shape lands there).
-Residual, stated honestly: a crafted direct-push merge onto a stale
-post-epoch first parent is caught by that range check on its own push
-event, but a later epoch..HEAD full audit alone would not re-flag it once
-attestable commits exist elsewhere in the range — the control stays
+Merge commits: GitHub PR merges (and the update-branch merges PRs carry)
+land on main outside the workflows under the 2026-07-31 PR-only regime, and
+--full-history enumerates any merge that is not TREESAME to all parents —
+including merges that change nothing under records/** because one side
+simply lags the other's workflow records pushes. Only such no-op merges are
+exempt: records/** byte-identical to at least one post-epoch parent,
+printed as a NOOP-MERGE line. A merge that introduces records content
+differing from every in-scope parent, or whose only TREESAME parents
+predate the epoch, is treated as a records push and fails without workflow
+provenance. A range whose endpoints disagree about records content while
+nothing in it requires attestation fails closed (the parent-order-trickery
+shape lands there). Residual, stated honestly: a crafted direct-push merge
+TREESAME to a stale post-epoch parent is caught by that range check on its
+own push event, but a later epoch..HEAD full audit alone would not re-flag
+it once attestable commits exist elsewhere in the range — the control stays
 detective, anchored at push time, with the witness chain covering content
 history independently.
 
@@ -262,24 +263,34 @@ def records_trees_identical(a: str, b: str) -> bool:
 def merge_is_records_noop(commit: str, epoch: str) -> bool:
     """True only for a merge that provably introduces no records content.
 
-    --full-history lists any merge not TREESAME to every parent, so a PR
-    forked before a workflow's records push is enumerated even though it
-    changes nothing under records/**. Exemption requires BOTH: records/**
-    byte-identical to the FIRST parent, and that first parent itself
-    post-epoch. A merge carrying records content stays required (records
-    changes never come through PRs), and a merge whose first-parent line
-    reaches behind the epoch stays required too — the ancient-rollback
-    shape must never self-exempt. The stale-post-epoch variant is closed
-    by enforce_range_content_closure instead.
+    --full-history lists any merge not TREESAME to every parent, so two
+    innocent everyday shapes are enumerated even though they change nothing
+    under records/**: a PR merge whose branch forked before a workflow's
+    records push (records tree == FIRST parent's), and an update-branch /
+    merge-main-into-branch commit later carried in by its PR (records tree
+    == the main-side SECOND parent's — live case cf9f6509, 2026-07-31).
+    Exemption therefore requires records/** byte-identical to at least one
+    IN-SCOPE (post-epoch) parent. The in-scope guard is what keeps the
+    ancient-rollback shape attestation-required forever: a pre-epoch
+    TREESAME parent never exempts, because that parent's history is itself
+    exempt from per-commit checks. For a post-epoch TREESAME parent the
+    induction holds instead — every commit on an in-scope line that changed
+    records against its own parents is enumerated and demanded, so ancient
+    or foreign content can only enter through a commit that differs from
+    all its in-scope parents, which is exactly what stays required. The
+    stale-post-epoch-parent swap is closed at push time by
+    enforce_range_content_closure.
     """
 
     parents = commit_parents(commit)
     if len(parents) < 2:
         return False
-    first_parent = parents[0]
-    if not commit_in_scope(first_parent, epoch):
-        return False
-    return records_trees_identical(first_parent, commit)
+    for parent in parents:
+        if commit_in_scope(parent, epoch) and records_trees_identical(
+            parent, commit
+        ):
+            return True
+    return False
 
 
 def enforce_range_content_closure(rev_range: str, required: list[str]) -> None:
@@ -530,8 +541,7 @@ def main() -> int:
             noop_merges.append(commit)
             print(
                 f"records provenance NOOP-MERGE: {commit} leaves records/** "
-                "byte-identical to its post-epoch first parent; not a "
-                "records push"
+                "byte-identical to a post-epoch parent; not a records push"
             )
         else:
             commits.append(commit)
