@@ -131,6 +131,17 @@ export default async function BillDetailPage({
   if (!entry) notFound();
   const forecastViews = buildForecastViews(slug);
   const rawMeta = loadBillMeta(slug);
+  // Unconditional cells on the bill's candidate series — the series
+  // forecast regardless of this bill, deduped across provisions.
+  const unconditionalCells = [
+    ...new Map(
+      entry.provisions
+        .flatMap((p) => p.metrics)
+        .map((m) => resolveMetricCell(m.series_hint))
+        .filter((c): c is NonNullable<typeof c> => c !== null)
+        .map((c) => [c.slug, c]),
+    ).values(),
+  ];
 
   return (
     <div>
@@ -187,11 +198,41 @@ export default async function BillDetailPage({
             <BillForecasts views={forecastViews} />
           ) : (
             <div className="rounded-xl border border-dashed border-[var(--theme-border)] px-6 py-5 text-[0.9rem] leading-[1.6] text-[var(--theme-text-muted)]">
-              No registered forecast pairs for this bill yet. The candidate
-              metrics below are the demand: when a pair is registered through
-              the privileged path, both arms — the outcome with the bill
-              enacted and the baseline without it — appear here and are scored
-              publicly either way.
+              No enacted-vs-baseline pairs for this bill yet. When a pair is
+              registered through the privileged path, both arms — the outcome
+              with the bill enacted and the baseline without it — appear here
+              and are scored publicly either way.
+            </div>
+          )}
+
+          {unconditionalCells.length > 0 && (
+            <div className="mt-5">
+              <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
+                Live forecasts on this bill&apos;s candidate series —
+                unconditional, bill or no bill
+              </h3>
+              <div className="divide-y divide-[var(--theme-border)] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]">
+                {unconditionalCells.map((cell) => (
+                  <Link
+                    key={cell.slug}
+                    href={`/${cell.slug}`}
+                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
+                  >
+                    <span className="min-w-[14rem] flex-1 text-[0.92rem] leading-[1.5]">
+                      {cell.title}
+                    </span>
+                    <span className="[font-family:var(--font-display)] text-[1.2rem] font-normal leading-none">
+                      {cell.pointLabel}
+                    </span>
+                    <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)]">
+                      80% {cell.ciLabel}
+                    </span>
+                    <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                      resolves {cell.resolutionDate} →
+                    </span>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </section>
