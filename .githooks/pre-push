@@ -15,7 +15,8 @@
 #     legitimately gained attested recorder commits shows main's records
 #     growth in the endpoint diff while the push adds zero new records
 #     objects (hit 2026-07-31). Falls back to tip-to-tip when origin/main
-#     cannot be resolved.
+#     cannot be resolved or shares no history with the branch (a three-dot
+#     diff has no merge base there and would fail open).
 #
 # Break glass, deliberately, when you truly mean it:
 #   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
@@ -31,7 +32,8 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
                 </dev/null >/dev/null 2>&1
             fetched=1
         fi
-        if git rev-parse --quiet --verify origin/main >/dev/null; then
+        if git rev-parse --quiet --verify origin/main >/dev/null &&
+            git merge-base origin/main "$local_sha" >/dev/null 2>&1; then
             range="origin/main...$local_sha"
         fi
     fi
