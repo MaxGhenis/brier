@@ -228,6 +228,20 @@ the new units' catastrophic mechanical baselines; the per-family table is in
 `results/final_multimetric.json`. New-type arms ran on a second API transport,
 recorded per run.
 
+**Amendment 7, falsified as registered.** A booking-profile elicitation (an
+explicit series-convention step: SAAR scaling, lump-sum month, outlay lag)
+targeted the leader's diagnosed residual error class. It lost overall
+(+0.076 [+0.038, +0.117], 12/36 wins vs the leader) and lost on the very
+class it targeted (+0.100 [+0.051, +0.151]), with coverage falling 0.77→0.59.
+On the single worst prior unit it worked exactly as designed (named the SAAR
+convention, booked 55 instead of the default-effort +125-class overshoot);
+everywhere else, mandating an explicit booked contribution manufactured
+adjustments the implicit max-effort path had correctly sized to about zero.
+Structure that changes what must pass through the answer fixes validity;
+structure that mandates a quantity the model would otherwise implicitly zero
+injects error. The diagnosis (booking-timing residuals) stands; this cure is
+ruled out.
+
 Composition (baseline + mechanical delta) cannot be validated on backtests —
 a recall-informed baseline already contains the enacted policy, so adding the
 mechanical delta double-counts it. Composition is scored only in the forward
