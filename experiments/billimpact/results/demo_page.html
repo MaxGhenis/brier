@@ -130,6 +130,51 @@
   }
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; scroll-behavior:auto !important} }
 </style>
+
+<style>
+/* product reskin — cascade override, structure untouched */
+:root{
+  --paper:#fbfcfe; --ink:#0e1320; --grey:#5b6472; --hair:#e3e7ee; --accent:#2740d4;
+  --serif:'Inter var',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+body{font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased}
+.measure{max-width:76ch}
+h1{font-size:2.35rem; letter-spacing:-0.022em; font-weight:750; line-height:1.12}
+h2{font-size:1.42rem; letter-spacing:-0.014em; font-weight:680}
+.secmark{color:var(--accent); font-weight:700; letter-spacing:.14em}
+.masthead{position:sticky; top:0; background:rgba(251,252,254,.88); backdrop-filter:saturate(1.4) blur(10px);
+  z-index:50; border-bottom:1px solid var(--hair); padding-top:10px; padding-bottom:10px}
+.contents a{color:var(--grey)} .contents a:hover{color:var(--accent)}
+a{color:var(--accent)}
+.toprule{display:none}
+.statline{font-family:var(--sans); background:#fff; border:1px solid var(--hair); border-radius:12px;
+  padding:14px 18px; box-shadow:0 1px 2px rgba(14,19,32,.04)}
+.hairbox{border:1px solid var(--hair); border-radius:12px; background:#fff;
+  box-shadow:0 1px 3px rgba(14,19,32,.05); padding:18px 20px}
+table{font-family:var(--sans); font-size:.92em}
+th{color:var(--grey); font-weight:600; letter-spacing:.06em}
+figure{border:1px solid var(--hair); border-radius:12px; background:#fff; padding:10px;
+  box-shadow:0 1px 3px rgba(14,19,32,.05)}
+figcaption{font-family:var(--sans); font-style:normal; color:var(--grey)}
+/* interactivity made visible */
+.ctl{font-family:var(--sans)}
+.seg{display:inline-block; border:1px solid var(--hair); border-radius:9px; padding:7px 14px; margin:3px 6px 3px 0;
+  cursor:pointer; background:#fff; color:var(--ink); text-decoration:none; font-weight:560;
+  transition:all .14s ease; box-shadow:0 1px 1.5px rgba(14,19,32,.05)}
+.seg:hover{border-color:var(--accent); color:var(--accent)}
+.seg.on{background:var(--accent); border-color:var(--accent); color:#fff; text-decoration:none}
+.seg[aria-disabled="true"],.seg.dim{opacity:.38; cursor:not-allowed; box-shadow:none}
+.dimlab{font-family:var(--sans); color:var(--grey); font-weight:640; letter-spacing:.10em}
+.readout{font-family:var(--sans)}
+.readout .num,.num{font-weight:720; letter-spacing:-0.015em}
+.cbar,.track,.band-track{border-radius:6px}
+.fill,.band-range{background:var(--accent); border-radius:6px}
+.band-dot,.dot{background:var(--accent)}
+.sig{color:var(--accent)}
+.codeblock{background:#f4f6fb; border:1px solid var(--hair); border-radius:10px}
+.fnhead{color:var(--grey)}
+</style>
 </head>
 <body>
 
