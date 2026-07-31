@@ -216,7 +216,7 @@ export default async function BillDetailPage({
             <div className="mt-5">
               <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
                 Live forecasts on this bill&apos;s candidate series —
-                unconditional, bill or no bill
+                unconditional
               </h3>
               <div className="divide-y divide-[var(--theme-border)] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]">
                 {unconditionalCells.map(({ cell, from }) => {
