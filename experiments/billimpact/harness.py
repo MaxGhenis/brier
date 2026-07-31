@@ -21,23 +21,24 @@ from pathlib import Path
 from typing import Any, Optional
 
 HERE = Path(__file__).parent
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
+TRANSPORT = "anthropic_api"
 
 # ---------------------------------------------------------------------------
 # transport
 # ---------------------------------------------------------------------------
 
 
-def _load_openrouter_key() -> str:
-    key = os.environ.get("OPENROUTER_API_KEY")
+def _load_anthropic_key() -> str:
+    key = os.environ.get("ANTHROPIC_API_KEY")
     if key:
         return key
     env = Path.home() / ".env"
     if env.exists():
         for line in env.read_text().splitlines():
-            if line.startswith("OPENROUTER_API_KEY"):
+            if line.startswith("ANTHROPIC_API_KEY"):
                 return line.split("=", 1)[1].strip().strip('"').strip("'")
-    raise RuntimeError("OPENROUTER_API_KEY not found in env or ~/.env")
+    raise RuntimeError("ANTHROPIC_API_KEY not found in env or ~/.env")
 
 
 _KEY: Optional[str] = None
@@ -48,7 +49,7 @@ def _key() -> str:
     global _KEY
     with _KEY_LOCK:
         if _KEY is None:
-            _KEY = _load_openrouter_key()
+            _KEY = _load_anthropic_key()
     return _KEY
 
 
@@ -70,7 +71,7 @@ def call_model(
     timeout: float = 180.0,
     retries: int = 4,
 ) -> CallResult:
-    """One chat completion through OpenRouter. Errors are returned, not raised."""
+    """One completion through the Anthropic Messages API. Errors returned, not raised."""
     body = json.dumps(
         {
             "model": model,
@@ -84,25 +85,25 @@ def call_model(
     for attempt in range(retries + 1):
         try:
             req = urllib.request.Request(
-                OPENROUTER_URL,
+                ANTHROPIC_URL,
                 data=body,
                 headers={
-                    "Authorization": f"Bearer {_key()}",
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "https://app.thesisinstitute.org",
-                    "X-Title": "thesis-billimpact-ablation",
+                    "x-api-key": _key(),
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
                 },
             )
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 payload = json.loads(r.read().decode())
-            text = payload["choices"][0]["message"]["content"] or ""
+            blocks = payload.get("content") or []
+            text = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
             usage = payload.get("usage") or {}
             return CallResult(
                 text=text,
                 ok=True,
                 duration_s=time.time() - start,
-                prompt_tokens=usage.get("prompt_tokens"),
-                completion_tokens=usage.get("completion_tokens"),
+                prompt_tokens=usage.get("input_tokens"),
+                completion_tokens=usage.get("output_tokens"),
             )
         except urllib.error.HTTPError as e:
             detail = ""
@@ -456,7 +457,10 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
         "calls": [],
     }
 
-    max_tokens = 2000 if config["elicitation"] != "cot_then_json" else 3000
+    # Caps raised 2026-07-31 14:05 EDT after 5/1753 runs truncated exactly at the
+    # cap and lost their JSON. Truncation correlated with elicitation verbosity —
+    # i.e. with a measured dimension — so it was a confound, not just data loss.
+    max_tokens = 6000 if config["elicitation"] == "cot_then_json" else 4000
     first = call_model(prompt, model, temperature=temp, max_tokens=max_tokens)
     record["calls"].append(
         {"role": "draft", "ok": first.ok, "duration_s": round(first.duration_s, 2),
@@ -476,7 +480,7 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     # debate
     critique = call_model(
         SKEPTIC_TEMPLATE.format(prompt=prompt, draft=first.text),
-        model, temperature=temp, max_tokens=1200,
+        model, temperature=temp, max_tokens=2500,
     )
     record["calls"].append({"role": "skeptic", "ok": critique.ok,
                             "duration_s": round(critique.duration_s, 2),
@@ -488,7 +492,7 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
 
     verification = call_model(
         VERIFIER_TEMPLATE.format(prompt=prompt, draft=first.text, critique=critique.text),
-        model, temperature=temp, max_tokens=1200,
+        model, temperature=temp, max_tokens=2500,
     )
     record["calls"].append({"role": "verifier", "ok": verification.ok,
                             "duration_s": round(verification.duration_s, 2),
@@ -501,7 +505,7 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     judged = call_model(
         JUDGE_TEMPLATE.format(prompt=prompt, draft=first.text,
                               critique=critique.text, verification=verification.text),
-        model, temperature=temp, max_tokens=1200,
+        model, temperature=temp, max_tokens=2500,
     )
     record["calls"].append({"role": "judge", "ok": judged.ok,
                             "duration_s": round(judged.duration_s, 2),
