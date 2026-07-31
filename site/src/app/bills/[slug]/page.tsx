@@ -6,6 +6,7 @@ import {
   BillForecasts,
   type BillForecastView,
 } from "@/components/BillForecasts";
+import { ComputeCard } from "@/components/ComputeCard";
 import { ProvisionAnalysis } from "@/components/ProvisionAnalysis";
 import { getBillForecastGroups } from "@/data/bill-forecasts";
 import {
@@ -149,6 +150,7 @@ export default async function BillDetailPage({
     }
   }
   const unconditionalCells = [...cellSources.values()];
+  const computeRows = entry.provisions.flatMap((p) => p.compute ?? []);
 
   return (
     <div>
@@ -284,6 +286,19 @@ export default async function BillDetailPage({
               </div>
             </div>
           )}
+
+          {computeRows.length > 0 && (
+            <div className="mt-5">
+              <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
+                Computed impact — PolicyEngine
+              </h3>
+              <div className="grid gap-3">
+                {computeRows.map((row, i) => (
+                  <ComputeCard key={i} row={row} />
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         <section>
@@ -379,7 +394,6 @@ export default async function BillDetailPage({
                       };
                     })}
                     conditionals={provision.conditionals}
-                    compute={provision.compute}
                   />
                 </div>
               </details>
