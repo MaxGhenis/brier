@@ -126,15 +126,19 @@ def call_model(
 
 MAGNITUDE_SUBSTITUTIONS = {
     "actual": [],
-    # Age caps pushed far DOWN: many more adults become subject to the work
-    # requirement, so participation should fall much harder.
+    # DIRECTION, corrected 2026-07-31 ~10:45 EDT (the original comment here had
+    # it BACKWARDS): sec. 6(o)(3) lists who is EXEMPT from the ABAWD time
+    # limit. Lowering the age cap ("over 31") EXPANDS the exemption -> more
+    # people exempt -> participation HIGHER. Raising it ("over 71") SHRINKS the
+    # exemption -> participation LOWER. Expected sign of (severe - inert) is
+    # therefore POSITIVE. Arm labels are frozen in the pre-registered grid;
+    # read "severe" as low_caps and "inert" as high_caps. Data unaffected —
+    # substitutions were applied and logged; only this label/comment was wrong.
     "severe": [
         ("over 51 years of age", "over 31 years of age"),
         ("over 53 years of age", "over 33 years of age"),
         ("over 55 years of age", "over 35 years of age"),
     ],
-    # Age caps pushed far UP: almost nobody is newly subject, so the provision
-    # should be close to inert.
     "inert": [
         ("over 51 years of age", "over 71 years of age"),
         ("over 53 years of age", "over 73 years of age"),
@@ -299,7 +303,23 @@ def build_prompt(unit: dict, provisions: dict, config: dict) -> tuple[str, dict]
 # ---------------------------------------------------------------------------
 
 
-def _first_json_object(text: str) -> Optional[dict]:
+PARSER_VERSION = "parse_forecast_v2"
+
+# Cap for the three debate roles; recorded on each call record.
+DEBATE_MAX_TOKENS = 2500
+
+# Prose-path scale band, as a multiple of the unit's last OBSERVED history value.
+# This is a SCALE filter, not an accuracy filter: it rejects "2023" against a
+# series in the millions and accepts any forecast within a factor of five in
+# either direction, so a model predicting a 3x collapse is still parsed and then
+# scored badly on merit. It is applied to the prose path ONLY — never to the
+# JSON path, because D5 (magnitude_elasticity) runs entirely at
+# elicitation=point_ci_json and a band on that path would mute the very signal
+# D5 exists to measure.
+PROSE_BAND_LO, PROSE_BAND_HI = 0.2, 5.0
+
+
+def _last_json_object(text: str) -> Optional[dict]:
     """Extract the last balanced top-level JSON object in the text."""
     candidates = []
     depth = 0
@@ -337,6 +357,182 @@ def _first_json_object(text: str) -> Optional[dict]:
 
 _NUM = r"[-+]?\$?\s*\d[\d,]*(?:\.\d+)?\s*(?:million|thousand|billion|m|k)?"
 
+# ---------------------------------------------------------------------------
+# prose extraction
+#
+# The v1 prose fallback filtered candidate numbers with `n > 1000` and returned
+# the FIRST 3-wide window satisfying an ordering test. Calendar years clear
+# 1000, and a prose forecast discusses the series history before it states an
+# answer, so the first matching window was routinely a run of years: a target
+# whose truth is ~5.3 million recipients parsed as point=2021, ci=[2020, 2023].
+# 214 of 2520 runs carried a point in [1900, 2100]; 9 carried no interval at all.
+# That fired only on prose, which is one LEVEL of a measured dimension (D2
+# elicitation), so it did not add noise — it manufactured a difference between
+# free_text and JSON that had nothing to do with elicitation format, which is
+# precisely the artefact this experiment exists to detect.
+#
+# v2 replaces the heuristic with four rules:
+#   1. reject year-shaped tokens (bare 4-digit integer in [1900, 2100] carrying
+#      no thousands separator, decimal point, or scale word);
+#   2. keep only candidates within PROSE_BAND of the unit's own last observed
+#      value (see the band note above);
+#   3. locate the interval from explicit interval LANGUAGE ("80% credible
+#      interval ... 4,650,000 to 5,150,000"), taking the LAST such statement,
+#      since prose reasons first and answers last;
+#   4. take the point from the cue-marked candidate nearest that interval,
+#      preferring one that falls inside it.
+#
+# The parser is strictly EXTRACTIVE. Where a response states an interval but no
+# point, or is truncated before it answers, the parse FAILS and is counted; it
+# is never repaired by imputing a midpoint the model did not write.
+# ---------------------------------------------------------------------------
+
+_MANTISSA = r"\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?"
+_SCALE = r"billions?|millions?|thousands?"
+SCALE_WORDS = {
+    "billion": 1e9, "billions": 1e9,
+    "million": 1e6, "millions": 1e6,
+    "thousand": 1e3, "thousands": 1e3,
+}
+
+_TOKEN_RE = re.compile(rf"(?<![\w.,])({_MANTISSA})\s*({_SCALE})?\b", re.I)
+_RANGE_RE = re.compile(
+    rf"(?<![\w.,])({_MANTISSA})\s*({_SCALE})?\s*(?:to|and|through|–|—|-)\s*"
+    rf"({_MANTISSA})\s*({_SCALE})?\b",
+    re.I,
+)
+_INTERVAL_CUE = re.compile(
+    r"(80\s*%|80\s*percent|credible\s+interval|confidence\s+interval|"
+    r"\binterval\b|\brange\b|\bbetween\b|\bfrom\b)",
+    re.I,
+)
+_POINT_CUE = re.compile(
+    r"(central\s+estimate|point\s+estimate|best\s+estimate|my\s+estimate|"
+    r"\bestimate\b|\bforecast\b|\bexpect\b|\bproject\b|\banticipate\b|"
+    r"approximately|roughly|around|about|\bwill\s+be\b)",
+    re.I,
+)
+_CUE_LOOKBACK = 160
+_POINT_LOOKBACK = 110
+
+# Numeric literal as it appears as a JSON *value*, for the key-scan recovery.
+_KEY_NUM = r"[-+]?\d[\d,]*(?:\.\d+)?(?:[eE][-+]?\d+)?"
+
+
+def _json_keyscan(text: str) -> Optional[dict]:
+    """Recover point/ci_low/ci_high from a trailing JSON object that will not parse.
+
+    A response truncated at max_tokens loses its closing brace, and a rationale
+    containing a doubled quote breaks `json.loads` outright — in both cases the
+    numbers themselves are intact and already written by the model. Reading them
+    by key is extraction, not reconstruction: all three keys are required, so a
+    partial object fails rather than being completed by inference.
+    """
+    out: dict[str, float] = {}
+    for key in ("point", "ci_low", "ci_high"):
+        matches = list(re.finditer(rf'"{key}"\s*:\s*"?({_KEY_NUM})"?', text))
+        if not matches:
+            return None
+        try:
+            out[key] = float(matches[-1].group(1).replace(",", ""))
+        except ValueError:
+            return None
+    return out
+
+
+def _token_value(mantissa: str, scale: Optional[str]) -> Optional[tuple[float, bool]]:
+    """Return (value, is_year_shaped), or None if the token is not numeric."""
+    try:
+        val = float(mantissa.replace(",", ""))
+    except ValueError:
+        return None
+    if scale:
+        return val * SCALE_WORDS[scale.lower()], False
+    year_shaped = "," not in mantissa and "." not in mantissa and 1900 <= val <= 2100
+    return val, year_shaped
+
+
+def _prose_candidates(text: str, anchor: Optional[float]) -> list[tuple[float, int, int]]:
+    lo = anchor * PROSE_BAND_LO if anchor else None
+    hi = anchor * PROSE_BAND_HI if anchor else None
+    out = []
+    for m in _TOKEN_RE.finditer(text):
+        parsed = _token_value(m.group(1), m.group(2))
+        if parsed is None or parsed[1]:
+            continue
+        if lo is not None and not (lo <= parsed[0] <= hi):
+            continue
+        out.append((parsed[0], m.start(), m.end()))
+    return out
+
+
+def _prose_ranges(text: str, anchor: Optional[float]) -> list[tuple[float, float, int, int]]:
+    """Numeric ranges preceded by explicit interval language."""
+    lo_b = anchor * PROSE_BAND_LO if anchor else None
+    hi_b = anchor * PROSE_BAND_HI if anchor else None
+    out = []
+    for m in _RANGE_RE.finditer(text):
+        a = _token_value(m.group(1), m.group(2))
+        b = _token_value(m.group(3), m.group(4))
+        if a is None or b is None:
+            continue
+        (av, a_year), (bv, b_year) = a, b
+        # "4.65 to 5.15 million": the low bound inherits the high bound's scale.
+        if not m.group(2) and m.group(4) and av < 1000:
+            av, a_year = av * SCALE_WORDS[m.group(4).lower()], False
+        if a_year or b_year or av == bv:
+            continue
+        if lo_b is not None and not (lo_b <= av <= hi_b and lo_b <= bv <= hi_b):
+            continue
+        if not _INTERVAL_CUE.search(text[max(0, m.start() - _CUE_LOOKBACK): m.start()]):
+            continue
+        out.append((min(av, bv), max(av, bv), m.start(), m.end()))
+    return out
+
+
+def parse_prose(text: str, anchor: Optional[float]) -> dict:
+    """Extract {point, ci_low, ci_high} from a prose forecast. Never imputes."""
+    flat = text.replace("\n", " ")
+    cands = _prose_candidates(flat, anchor)
+    ranges = _prose_ranges(flat, anchor)
+
+    if ranges:
+        lo, hi, r_start, r_end = ranges[-1]
+        pool = [c for c in cands if c[2] <= r_start or c[1] >= r_end]
+        if not pool:
+            return {"parse_error": "interval_without_point", "ci_low": lo,
+                    "ci_high": hi, "parse_mode": "failed"}
+
+        def rank(c: tuple[float, int, int]) -> tuple[bool, bool, int]:
+            cued = bool(_POINT_CUE.search(flat[max(0, c[1] - _POINT_LOOKBACK): c[1]]))
+            inside = lo <= c[0] <= hi
+            distance = r_start - c[2] if c[2] <= r_start else c[1] - r_end
+            return (not cued, not inside, distance)
+
+        best = min(pool, key=rank)
+        out = {"point": best[0], "ci_low": lo, "ci_high": hi, "parse_mode": "prose_cued"}
+        if not (lo <= best[0] <= hi):
+            out["point_outside_interval"] = True
+        return out
+
+    # No interval language: fall back to a bracketing triple, scanned from the
+    # TAIL so the answer wins over the reasoning that precedes it.
+    for i in range(len(cands) - 3, -1, -1):
+        a, b, c = cands[i][0], cands[i + 1][0], cands[i + 2][0]
+        if b < a < c or c < a < b:
+            return {"point": a, "ci_low": min(b, c), "ci_high": max(b, c),
+                    "parse_mode": "prose_bracketed"}
+        if a < b < c:
+            return {"point": b, "ci_low": a, "ci_high": c, "parse_mode": "prose_ordered"}
+
+    uniq = sorted({c[0] for c in cands})
+    if len(uniq) >= 2:
+        return {"parse_error": "no_interval_structure", "parse_mode": "failed"}
+    if uniq:
+        return {"parse_error": "single_value_no_interval", "point_candidate": uniq[0],
+                "parse_mode": "failed"}
+    return {"parse_error": "no_scale_candidates", "parse_mode": "failed"}
+
 
 def _to_float(raw: Any) -> Optional[float]:
     if isinstance(raw, (int, float)):
@@ -356,9 +552,15 @@ def _to_float(raw: Any) -> Optional[float]:
         return None
 
 
-def parse_forecast(text: str, elicitation: str) -> dict:
-    """Return {point, ci_low, ci_high, parse_mode} or {'parse_error': ...}."""
-    obj = _first_json_object(text)
+def parse_forecast(text: str, elicitation: str, anchor: Optional[float] = None) -> dict:
+    """Return {point, ci_low, ci_high, parse_mode} or {'parse_error': ...}.
+
+    `anchor` is the unit's last OBSERVED history value — the scale the answer
+    must be on. It gates the prose path only. Callers that cannot supply it get
+    year rejection and interval-language anchoring but no scale filter, which is
+    strictly weaker; `run_single` always supplies it.
+    """
+    obj = _last_json_object(text)
     if obj is not None:
         point = _to_float(obj.get("point"))
         lo = _to_float(obj.get("ci_low"))
@@ -371,24 +573,18 @@ def parse_forecast(text: str, elicitation: str) -> dict:
                 out["bin"] = obj.get("bin")
             return out
 
-    # free-text fallback: central estimate + interval
-    nums = [
-        _to_float(m.group(0))
-        for m in re.finditer(_NUM, text.replace("\n", " "), re.I)
-    ]
-    nums = [n for n in nums if n is not None and n > 1000]
-    if len(nums) >= 3:
-        # heuristic: an 80% interval brackets the point estimate
-        for i in range(len(nums) - 2):
-            a, b, c = nums[i], nums[i + 1], nums[i + 2]
-            if b <= a <= c or c <= a <= b:
-                lo, hi = sorted((b, c))
-                return {"point": a, "ci_low": lo, "ci_high": hi, "parse_mode": "prose_triple"}
-            if a <= b <= c:
-                return {"point": b, "ci_low": a, "ci_high": c, "parse_mode": "prose_ordered"}
-    if nums:
-        return {"parse_error": "no_interval", "point_candidate": nums[0], "parse_mode": "failed"}
-    return {"parse_error": "no_numbers", "parse_mode": "failed"}
+    # A trailing JSON object truncated at max_tokens or broken by a stray quote
+    # still carries the model's own numbers; read them by key before falling
+    # back to prose heuristics, which would otherwise mine the reasoning.
+    scanned = _json_keyscan(text)
+    if scanned is not None:
+        lo, hi = scanned["ci_low"], scanned["ci_high"]
+        if lo > hi:
+            lo, hi = hi, lo
+        return {"point": scanned["point"], "ci_low": lo, "ci_high": hi,
+                "parse_mode": "json_keyscan"}
+
+    return parse_prose(text, anchor)
 
 
 # ---------------------------------------------------------------------------
@@ -445,8 +641,20 @@ Produce the final forecast. Respond with ONLY a JSON object, no prose:
 where [ci_low, ci_high] is your 80% central credible interval."""
 
 
+def history_anchor(unit: dict) -> Optional[float]:
+    """Last OBSERVED value in the history the forecaster was shown.
+
+    This is the scale the answer has to be on. It is read from the supplied
+    history, never from the realised outcome, so it carries no information about
+    the truth the run is scored against.
+    """
+    history = unit.get("history") or []
+    return float(history[-1]["value"]) if history else None
+
+
 def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     prompt, ctx_meta = build_prompt(unit, provisions, config)
+    anchor = history_anchor(unit)
     model = config["model"]
     temp = config.get("temperature", 1.0)
     record: dict[str, Any] = {
@@ -460,12 +668,15 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     # Caps raised 2026-07-31 14:05 EDT after 5/1753 runs truncated exactly at the
     # cap and lost their JSON. Truncation correlated with elicitation verbosity —
     # i.e. with a measured dimension — so it was a confound, not just data loss.
+    # The cap is RECORDED on the call, not left for a reader to mirror. An
+    # analysis that hardcodes its own copy of these numbers silently mis-reports
+    # truncation the moment the caps move — which they already have once.
     max_tokens = 6000 if config["elicitation"] == "cot_then_json" else 4000
     first = call_model(prompt, model, temperature=temp, max_tokens=max_tokens)
     record["calls"].append(
         {"role": "draft", "ok": first.ok, "duration_s": round(first.duration_s, 2),
          "prompt_tokens": first.prompt_tokens, "completion_tokens": first.completion_tokens,
-         "error": first.error}
+         "max_tokens": max_tokens, "error": first.error}
     )
     if not first.ok:
         record["error"] = first.error
@@ -474,17 +685,19 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
 
     if config["pipeline"] == "single_pass":
         record["final_text"] = first.text
-        record["forecast"] = parse_forecast(first.text, config["elicitation"])
+        record["forecast"] = parse_forecast(first.text, config["elicitation"], anchor)
+        record["parser_version"] = PARSER_VERSION
         return record
 
     # debate
     critique = call_model(
         SKEPTIC_TEMPLATE.format(prompt=prompt, draft=first.text),
-        model, temperature=temp, max_tokens=2500,
+        model, temperature=temp, max_tokens=DEBATE_MAX_TOKENS,
     )
     record["calls"].append({"role": "skeptic", "ok": critique.ok,
                             "duration_s": round(critique.duration_s, 2),
                             "completion_tokens": critique.completion_tokens,
+                            "max_tokens": DEBATE_MAX_TOKENS,
                             "error": critique.error})
     if not critique.ok:
         record["error"] = f"skeptic: {critique.error}"
@@ -492,11 +705,12 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
 
     verification = call_model(
         VERIFIER_TEMPLATE.format(prompt=prompt, draft=first.text, critique=critique.text),
-        model, temperature=temp, max_tokens=2500,
+        model, temperature=temp, max_tokens=DEBATE_MAX_TOKENS,
     )
     record["calls"].append({"role": "verifier", "ok": verification.ok,
                             "duration_s": round(verification.duration_s, 2),
                             "completion_tokens": verification.completion_tokens,
+                            "max_tokens": DEBATE_MAX_TOKENS,
                             "error": verification.error})
     if not verification.ok:
         record["error"] = f"verifier: {verification.error}"
@@ -505,11 +719,12 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     judged = call_model(
         JUDGE_TEMPLATE.format(prompt=prompt, draft=first.text,
                               critique=critique.text, verification=verification.text),
-        model, temperature=temp, max_tokens=2500,
+        model, temperature=temp, max_tokens=DEBATE_MAX_TOKENS,
     )
     record["calls"].append({"role": "judge", "ok": judged.ok,
                             "duration_s": round(judged.duration_s, 2),
                             "completion_tokens": judged.completion_tokens,
+                            "max_tokens": DEBATE_MAX_TOKENS,
                             "error": judged.error})
     if not judged.ok:
         record["error"] = f"judge: {judged.error}"
@@ -518,5 +733,6 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     record["skeptic_text"] = critique.text
     record["verifier_text"] = verification.text
     record["final_text"] = judged.text
-    record["forecast"] = parse_forecast(judged.text, "point_ci_json")
+    record["forecast"] = parse_forecast(judged.text, "point_ci_json", anchor)
+    record["parser_version"] = PARSER_VERSION
     return record

@@ -148,8 +148,10 @@ Produce the final answer. {answer_format}""",
 
 
 def parse_ctc(text: str) -> dict:
-    obj = H._first_json_object(text.replace("delta_dollars", "point").replace('"point"', '"point"'))
-    # _first_json_object requires a "point" key; do a direct parse instead.
+    # The harness object-scanner keys on "point", which this schema does not
+    # carry, so parse the CTC blob directly. (Was a dead call to
+    # H._first_json_object whose result was never read; removed when that helper
+    # was renamed _last_json_object.)
     import re
 
     blobs = re.findall(r"\{[^{}]*\}", text, re.S)
@@ -203,7 +205,7 @@ def run_ctc_single(case: dict, config: dict) -> dict:
 
     if config["pipeline"] == "single_pass":
         if use_tools:
-            out = T.call_with_tools(prompt, config["model"], [T.POLICYENGINE_TOOL], {})
+            out = T.call_with_tools(prompt, config["model"], [T.POLICYENGINE_TOOL], {}, max_tokens=5000)
             if not out.get("ok"):
                 rec["error"] = out.get("error")
                 return rec
@@ -211,7 +213,7 @@ def run_ctc_single(case: dict, config: dict) -> dict:
             rec["tool_log"] = out.get("tool_log", [])
             rec["final_text"] = out.get("final_text", "")
         else:
-            res = H.call_model(prompt, config["model"], max_tokens=1500)
+            res = H.call_model(prompt, config["model"], max_tokens=6000)
             if not res.ok:
                 rec["error"] = res.error
                 return rec
@@ -224,9 +226,9 @@ def run_ctc_single(case: dict, config: dict) -> dict:
     tool_hint = TOOL_HINT if use_tools else ""
     steps: list[dict] = []
 
-    def step(name: str, prompt_text: str, allow_tools: bool, max_tokens: int = 1500) -> str | None:
+    def step(name: str, prompt_text: str, allow_tools: bool, max_tokens: int = 5000) -> str | None:
         if allow_tools and use_tools:
-            out = T.call_with_tools(prompt_text, config["model"], [T.POLICYENGINE_TOOL], {})
+            out = T.call_with_tools(prompt_text, config["model"], [T.POLICYENGINE_TOOL], {}, max_tokens=5000)
             if not out.get("ok"):
                 rec["error"] = f"{name}: {out.get('error')}"
                 return None

@@ -55,7 +55,17 @@ def main() -> None:
 
     with args.quarantine.open("a") as fh:
         for rec in dropped:
-            rec["_quarantined_reason"] = "max_tokens truncation; re-run with raised cap"
+            # Derive the reason from the record rather than asserting one. A
+            # hardcoded "max_tokens truncation" is a claim about every future
+            # quarantined run, and the quarantine file is the only place a
+            # dropped cell is ever explained.
+            calls = rec.get("calls") or [{}]
+            tokens = calls[-1].get("completion_tokens")
+            cause = rec.get("error") or (rec.get("forecast") or {}).get("parse_error")
+            rec["_quarantined_reason"] = (
+                f"{cause}; completion_tokens={tokens}; queued for re-execution"
+            )
+            rec["_quarantined_parser_version"] = rec.get("parser_version")
             fh.write(json.dumps(rec) + "\n")
     args.runs.write_text("\n".join(kept) + ("\n" if kept else ""))
     print(f"\nquarantined {len(dropped)} -> {args.quarantine}")
