@@ -101,7 +101,7 @@ def main() -> None:
                   labelpad=12)
     ax.grid(axis="y", alpha=0.28)
 
-    fig.suptitle("Changing scaffolding nobody reports changing moves a bill's forecast",
+    fig.suptitle("Forecast sensitivity to harness configuration, one dimension at a time",
                  fontsize=23, fontweight="bold", y=0.985)
     ax.set_title(
         f"Retrospective backtest, SNAP participation under Pub. L. 118-5 §§311–314.  "
