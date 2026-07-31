@@ -109,12 +109,14 @@ from that email to the `challenger: github:<login>` field. **The
 signature therefore never authenticates the `challenger` account** — it
 proves that the recorded certificate principal signed these exact bytes,
 nothing more. Account attribution is a separate leg that the publish
-adapter MUST enforce mechanically: `challenger` must equal
-`github:<PR opener>`, the inbox path's `<login>/` directory must match,
-and the published record must persist the PR number, opener, and merge
-SHA. The verifier records the certificate's subjects and OIDC issuer
-verbatim (`identityPolicy: recorded_not_enforced`) and refuses a
-certificate with no subject at all.
+adapter MUST enforce mechanically (tracked in #71 as a follow-up to the
+#69 adapter): `challenger` must equal `github:<PR opener>`, the inbox
+path's `<login>/` directory must match, and the published record must
+persist the PR number, opener, and merge SHA. Until #71 lands, that
+binding is covered by the human review every inbox PR gets before merge.
+The verifier records the certificate's subjects and OIDC issuer verbatim
+(`identityPolicy: recorded_not_enforced`) and refuses a certificate with
+no subject at all.
 
 Challengers who want account-bound certificates can sign from a GitHub
 Actions workflow in their own fork (ambient OIDC): the certificate subject
@@ -129,12 +131,15 @@ uv run --extra challenge python scripts/verify_challenge_signatures.py \
 
 ## What the published record stores
 
-The publish adapter (in progress; see #43/#49) copies each accepted
-submission into `records/` through the attested workflow path and already
-records the **merge SHA**. For signed submissions it additionally stores
-the verifier's `thesis_challenge_signature_v1` block verbatim
+The publish adapter (`scripts/ingest_challenge_submissions.py`, landed in
+#69; it already skips `*.sigstore.json` sidecars during discovery) copies
+each accepted submission into `records/` through the attested workflow
+path and records the **merge commit**. Wiring it to store the verifier's
+`thesis_challenge_signature_v1` block verbatim for signed submissions
 (`verify_challenge_signatures.py --json`, or
-`challenge_signing.signature_provenance_block()` from Python):
+`challenge_signing.signature_provenance_block()` from Python) is the
+integration step that follows this PR, alongside the opener-identity
+enforcement tracked in #71:
 
 | Field | Meaning |
 |---|---|
