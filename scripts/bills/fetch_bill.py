@@ -14,6 +14,13 @@ Three resolution paths, tried in order:
    drafts (e.g. Farm Bill 2.0) live on committee sites, not
    congress.gov, so this path skips resolution entirely.
 
+On an axiom miss the fetcher also dispatches axiom-bills' targeted
+backfill workflow (best-effort, async — needs gh auth with access to
+TheAxiomFoundation/axiom-bills), so the shared store learns every bill
+anyone analyzes; a later fetch resolves via axiom. --no-backfill skips
+the dispatch. Discussion drafts (--url mode) never backfill — axiom
+only indexes introduced bills.
+
 Every fetch writes three artifacts under bills/raw/:
   <slug>.txt        flat text (the contract surface for ingest)
   <slug>.meta.json  provenance: source path, URL, version, sha256, times
@@ -43,6 +50,7 @@ import io
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -238,6 +246,42 @@ def fetch_from_axiom(
     }
 
 
+def backfill_command(congress: int, bill_type: str, number: int) -> list[str]:
+    return [
+        "gh", "workflow", "run", "refresh-federal-bills.yml",
+        "-R", "TheAxiomFoundation/axiom-bills",
+        "-f", f"bills={bill_type}/{number}",
+        "-f", f"congress={congress}",
+    ]
+
+
+def trigger_axiom_backfill(congress: int, bill_type: str, number: int) -> bool:
+    """Dispatch axiom-bills' targeted backfill for a bill the store lacks.
+
+    Best-effort and async: the workflow scrapes the bill into the store
+    on its own time — we don't wait for it, so this run still resolves
+    via the Congress.gov fallback. Requires gh auth with access to
+    TheAxiomFoundation/axiom-bills; on any failure we print the manual
+    command and move on.
+    """
+    cmd = backfill_command(congress, bill_type, number)
+    try:
+        subprocess.run(cmd, check=True, capture_output=True, timeout=30)
+    except Exception:
+        print(
+            "  axiom: backfill dispatch failed; run manually:\n    "
+            + " ".join(cmd),
+            file=sys.stderr,
+        )
+        return False
+    print(
+        f"  axiom: dispatched targeted backfill for {bill_type}/{number} "
+        f"({congress}th) — store will self-heal",
+        file=sys.stderr,
+    )
+    return True
+
+
 def fetch_from_congress_api(
     client: httpx.Client, congress: int, bill_type: str, number: int
 ) -> dict | None:
@@ -378,6 +422,11 @@ def main() -> int:
     parser.add_argument(
         "--force", action="store_true", help="Refetch even if cached"
     )
+    parser.add_argument(
+        "--no-backfill",
+        action="store_true",
+        help="Don't dispatch axiom-bills' targeted backfill on a store miss",
+    )
     args = parser.parse_args()
 
     if not args.ref and not args.url:
@@ -405,6 +454,10 @@ def main() -> int:
                 return 0
             result = fetch_from_axiom(client, congress, bill_type, number)
             if result is None:
+                # Heal the shared store: only when we actually queried it
+                # (key present) and the caller didn't opt out.
+                if AXIOM_ANON_KEY and not args.no_backfill:
+                    trigger_axiom_backfill(congress, bill_type, number)
                 result = fetch_from_congress_api(client, congress, bill_type, number)
 
     if result is None:

@@ -106,6 +106,32 @@ class TestToText:
         assert fetch_bill.to_text("docx", b"whatever") is None
 
 
+class TestAxiomBackfill:
+    def test_command_targets_axiom_bills_workflow(self):
+        cmd = fetch_bill.backfill_command(119, "s", 3596)
+        assert cmd[:3] == ["gh", "workflow", "run"]
+        assert "TheAxiomFoundation/axiom-bills" in cmd
+        assert "bills=s/3596" in cmd
+        assert "congress=119" in cmd
+
+    def test_trigger_reports_success(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr(
+            fetch_bill.subprocess,
+            "run",
+            lambda cmd, **kw: calls.append(cmd),
+        )
+        assert fetch_bill.trigger_axiom_backfill(119, "hr", 818) is True
+        assert calls and "bills=hr/818" in calls[0]
+
+    def test_trigger_swallows_dispatch_failure(self, monkeypatch):
+        def boom(cmd, **kw):
+            raise RuntimeError("gh not authenticated")
+
+        monkeypatch.setattr(fetch_bill.subprocess, "run", boom)
+        assert fetch_bill.trigger_axiom_backfill(119, "hr", 818) is False
+
+
 class TestWriteArtifacts:
     def test_writes_text_meta_and_source_doc(self, tmp_path, monkeypatch):
         monkeypatch.setattr(fetch_bill, "RAW_DIR", tmp_path)
