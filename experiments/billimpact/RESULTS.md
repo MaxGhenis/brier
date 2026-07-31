@@ -101,7 +101,7 @@ forecasts under a 20-year-stricter and a 20-year-looser rewrite while being
 displaced from the unmodified statute — the models react to the *existence* of
 an amendment, not its *content*.
 
-### 3a · The causal test (Amendment 3): recall-anchoring, proven by moving the period
+### 3a · The causal test (Amendment 3, as corrected by review): recall-anchoring is keyed by statutory identity
 
 Same FPUC statute, same $100/$300/$900 doses, with the operative window moved
 to Sept–Dec 2026 — a period with no realized trajectory to recall (the future
@@ -119,6 +119,17 @@ three doses — 1:3:9), and composes it onto the baseline. On the memorized
 period the same models under default elicitation ignore the dose and return
 the remembered trajectory. A decomposed derivation format restores
 dose-sensitivity there too.
+
+**Correction from the #61 review (arms deconfounded).** The original arms
+differed in name-visibility as well as period; the reviewer's objection was
+registered as a new arm and the second branch fired: with the statute name
+redacted from the header (nothing else changed), the memorized-period doses go
+monotone in 4/4 cells (point+CI: 8.1×/3.0× noise; derivation 7.4×/9.6×) —
+where the named version was flat 0/3. The period claim is withdrawn. The
+unified account, matching §2: recall is triggered by statutory identity; hide
+the name and the model derives from the text even inside its training window;
+decomposed elicitation overrides the trigger; reasoning effort does not. A
+named-future cell was not run, so a residual period effect is not excluded.
 
 ### 3b · Compute does not substitute for structure (Amendment 4)
 

@@ -90,3 +90,14 @@ under point+CI (matching named-retro) and derivation still restores tracking;
 if the original flatness was name-driven, unnamed-retro shows dose-response
 and the period claim must be withdrawn in favor of a name claim. Either
 outcome is reported.
+
+**Deconfound arm result (~15:25 EDT).** The second registered branch fired.
+Unnamed-retro is monotone in dose in 4/4 (model × elicitation) cells —
+point+CI: fable 8.1×, opus 3.0× repeat noise; derivation 7.4×/9.6× — where
+named-retro under point+CI was flat 0/3. The period attribution in this
+amendment's original framing is withdrawn: name-redaction alone restores
+dose-response on the memorized period, matching the future arm. The
+parsimonious account, consistent with the §2 name decomposition, is that
+recall-anchoring is keyed by statutory identity. A named-future cell was not
+run, so a residual period contribution is not excluded; identity is
+demonstrated sufficient. (60 runs, 60 parsed, second transport.)
