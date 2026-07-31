@@ -1,5 +1,14 @@
 # RESULTS — Harness sensitivity of bill-conditioned forecasting
 
+> **STATUS (updated 12:05 EDT):** §§1–4 and the A3/A5 tables are final and
+> independently re-derived (`CHECK2.md`). §5's bake-off table is being
+> regenerated on the pinned canonical batch with the effort-max arm at full N;
+> instruction-style, structured-scaffold (scenario/auditor/persona), quantile-CDF,
+> and S.3596-envelope arms are filling and land here by early afternoon, plus
+> two cross-type corpus waves (appropriations, program-creation, tariffs,
+> subsidy-parameter, administrative-sunset). Numbers in flagged sections are
+> provisional until this banner says otherwise.
+
 **2026-07-31, Hacking the Think Tank II (FAI/IFP, Washington DC).** David Gringras.
 
 Design frozen in [`PREREGISTRATION.md`](PREREGISTRATION.md), committed 09:59 EDT
