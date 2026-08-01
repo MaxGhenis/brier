@@ -918,6 +918,109 @@ def test_refresh_rejects_catalog_not_bound_to_same_commit_observations(
     assert {path: path.read_bytes() for path in before} == before
 
 
+def _registry_bytes() -> bytes:
+    return (
+        json.dumps(
+            {
+                "concept": "test.series",
+                "geography": None,
+                "entity": None,
+                "uuid": "1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f",
+            },
+            separators=(",", ":"),
+        ).encode()
+        + b"\n"
+    )
+
+
+def _declare_registry(
+    repo: pathlib.Path,
+    *,
+    registry: bytes | None,
+    declared_digest: str | None,
+    message: str,
+) -> None:
+    """Commit a catalog/registry coupling state onto the release repo."""
+
+    if registry is not None:
+        (repo / pin_ledger.LEDGER_REGISTRY_PATH).write_bytes(registry)
+    catalog_path = repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    if declared_digest is None:
+        catalog.pop("uuid_registry_sha256", None)
+    else:
+        catalog["uuid_registry_sha256"] = declared_digest
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(repo, message)
+
+
+def test_refresh_binds_declared_uuid_registry(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    registry = _registry_bytes()
+    _declare_registry(
+        release_repo.repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="declare uuid registry",
+    )
+    head = _git(release_repo.repo, "rev-parse", "HEAD")
+    pin_path, _availability_path, _generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+
+    pin_ledger.refresh()
+
+    pin = json.loads(pin_path.read_text())
+    assert pin["sha"] == head
+    catalog_raw = _git_bytes(
+        release_repo.repo, "show", f"{head}:{pin_ledger.LEDGER_CATALOG_PATH}"
+    )
+    assert pin["catalogSha256"] == hashlib.sha256(catalog_raw).hexdigest()
+
+
+@pytest.mark.parametrize(
+    ("registry", "declared_digest", "match"),
+    [
+        # Declared digest, registry file absent from the commit.
+        (None, "a" * 64, "is missing"),
+        # Declared digest disagrees with the same-commit registry bytes.
+        (b'{"tampered": true}\n', "a" * 64, "does not match same-commit"),
+        # Registry file present while the catalog does not declare it.
+        (b'{"undeclared": true}\n', None, "does not declare"),
+    ],
+)
+def test_refresh_rejects_registry_coupling_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    registry: bytes | None,
+    declared_digest: str | None,
+    match: str,
+) -> None:
+    _declare_registry(
+        release_repo.repo,
+        registry=registry,
+        declared_digest=declared_digest,
+        message="break registry coupling",
+    )
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match=match):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in before} == before
+
+
 def test_catalog_bearing_pin_ratchets_against_later_removal(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,

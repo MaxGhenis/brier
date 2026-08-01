@@ -14,10 +14,20 @@ DOCKET_PATH = ROOT / "scripts" / "docket_series.json"
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "ledger_series_catalog.json"
 PIN_PATH = ROOT / "site" / "src" / "data" / "ledger-pin.json"
 CATALOG_PATH = "ledger/series_catalog.json"
+# Frozen on catalog generator v3: identity = (concept, geography
+# level/id/vintage, entity), uuid authority = the ledger's append-only
+# series_uuid_registry (digest embedded below), source labels demoted to
+# per-row source_concepts provenance. Any upstream shape drift must fail
+# here loudly.
 CATALOG_TOP_LEVEL_KEYS = {
     "generator_version",
     "observations_sha256",
     "observation_rows",
+    "docket_seed_sha256",
+    "uuid_registry_sha256",
+    "suspect_segments",
+    "stripped_segments",
+    "ambiguous_aliases",
     "series",
 }
 CATALOG_OPTIONAL_TOP_LEVEL_KEYS = {"comment"}
@@ -38,11 +48,40 @@ CATALOG_ROW_KEYS = {
     "entity",
     "sources",
     "aliases",
+    "source_concepts",
     "rid_patterns",
     "first_observed_period",
     "last_observed_period",
     "observation_count",
 }
+# Pure magnitude units and their scale relative to one unit. Kept in sync,
+# deliberately by duplication, with scripts/stamp_docket_ledger_refs.py:
+# this gate must not import the tool whose output it audits.
+UNIT_SCALE = {"units": 1.0, "thousands": 1e3, "millions": 1e6, "billions": 1e9}
+
+
+def _units_agree(
+    target_unit: object, catalog_unit: object, value_scale: object
+) -> bool:
+    """Whether a docket targetUnit is the catalog unit modulo valueScale.
+
+    Identical units always agree (valueScale describes the transform from
+    the publisher's raw feed, whose reference frame varies by entry).
+    Differing units agree only when both are pure magnitude units and the
+    declared valueScale converts catalog-unit values into target-unit
+    values: value_in_target = value_in_catalog * valueScale.
+    """
+    if target_unit is None or catalog_unit is None:
+        return True
+    if target_unit == catalog_unit:
+        return True
+    if type(value_scale) not in (int, float) or not value_scale:
+        return False
+    target_scale = UNIT_SCALE.get(target_unit)
+    catalog_scale = UNIT_SCALE.get(catalog_unit)
+    if target_scale is None or catalog_scale is None:
+        return False
+    return abs(target_scale - catalog_scale / value_scale) < 1e-9
 
 
 def _object(raw: bytes, label: str) -> dict[str, Any]:
@@ -81,20 +120,37 @@ def _assert_containment(
     assert type(catalog["generator_version"]) is int, (
         f"{label}.generator_version must be an integer"
     )
-    assert type(catalog["observations_sha256"]) is str and re.fullmatch(
-        r"[0-9a-f]{64}", catalog["observations_sha256"]
-    ), f"{label}.observations_sha256 must be a SHA-256 digest"
+    for digest_key in (
+        "observations_sha256",
+        "docket_seed_sha256",
+        "uuid_registry_sha256",
+    ):
+        assert type(catalog[digest_key]) is str and re.fullmatch(
+            r"[0-9a-f]{64}", catalog[digest_key]
+        ), f"{label}.{digest_key} must be a SHA-256 digest"
     assert (
         type(catalog["observation_rows"]) is int
         and catalog["observation_rows"] >= 0
     ), f"{label}.observation_rows must be a non-negative integer"
+    for list_key in ("suspect_segments", "ambiguous_aliases"):
+        assert type(catalog[list_key]) is list and all(
+            type(item) is str for item in catalog[list_key]
+        ), f"{label}.{list_key} must be a list of strings"
+    stripped = catalog["stripped_segments"]
+    assert type(stripped) is dict and all(
+        type(segment) is str
+        and type(concepts) is list
+        and concepts
+        and all(type(c) is str for c in concepts)
+        for segment, concepts in stripped.items()
+    ), f"{label}.stripped_segments must map spellings to concept lists"
     docket_rows = docket.get("series")
     catalog_rows = catalog.get("series")
     assert type(docket_rows) is list, "docket.series must be a list"
     assert type(catalog_rows) is list, f"{label}.series must be a list"
 
     malformed_catalog_rows: list[str] = []
-    by_concept: dict[str, dict[str, Any]] = {}
+    by_uuid: dict[str, dict[str, Any]] = {}
     for index, row in enumerate(catalog_rows):
         if type(row) is not dict:
             malformed_catalog_rows.append(f"row {index}: not an object")
@@ -110,10 +166,22 @@ def _assert_containment(
         if type(concept) is not str or not concept:
             malformed_catalog_rows.append(f"row {index}: invalid concept {concept!r}")
             continue
-        if concept in by_concept:
-            malformed_catalog_rows.append(f"duplicate concept {concept}")
+        uuid = row["uuid"]
+        if type(uuid) is not str or not re.fullmatch(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+            uuid,
+        ):
+            malformed_catalog_rows.append(
+                f"row {index} ({concept}): uuid {uuid!r} is not canonical UUIDv4"
+            )
             continue
-        by_concept[concept] = row
+        if uuid in by_uuid:
+            malformed_catalog_rows.append(
+                f"duplicate uuid {uuid} "
+                f"({by_uuid[uuid]['concept']}, {concept})"
+            )
+            continue
+        by_uuid[uuid] = row
     assert not malformed_catalog_rows, (
         f"{label} violates the frozen catalog row schema:\n- "
         + "\n- ".join(malformed_catalog_rows)
@@ -139,16 +207,20 @@ def _assert_containment(
             continue
 
         uuid_owners.setdefault(ledger["uuid"], []).append(series)
-        catalog_row = by_concept.get(ledger["concept"])
+        # Rows are addressed by uuid: catalog v3 concepts are not unique
+        # (state splits and entity-drift lineages share a concept), and the
+        # uuid is exactly the identity the registry promises never to
+        # re-mint.
+        catalog_row = by_uuid.get(ledger["uuid"])
         if catalog_row is None:
             mismatched_refs.append(
-                f"{series}: catalog has no concept {ledger['concept']!r}"
+                f"{series}: catalog has no row with uuid {ledger['uuid']}"
             )
             continue
-        if catalog_row["uuid"] != ledger["uuid"]:
+        if catalog_row["concept"] != ledger["concept"]:
             mismatched_refs.append(
-                f"{series}: docket uuid {ledger['uuid']} != "
-                f"catalog uuid {catalog_row['uuid']} for {ledger['concept']}"
+                f"{series}: docket concept {ledger['concept']!r} != catalog "
+                f"concept {catalog_row['concept']!r} for uuid {ledger['uuid']}"
             )
         aliases = catalog_row["aliases"]
         if series != catalog_row["concept"] and series not in aliases:
@@ -178,13 +250,13 @@ def _assert_containment(
 
         extras = entry.get("extras")
         target_unit = extras.get("targetUnit") if type(extras) is dict else None
-        catalog_unit = catalog_row["unit"]
-        if target_unit is not None and catalog_unit is not None:
-            if target_unit != catalog_unit:
-                unit_mismatches.append(
-                    f"{series}: docket targetUnit={target_unit!r}, "
-                    f"catalog unit={catalog_unit!r}"
-                )
+        value_scale = extras.get("valueScale") if type(extras) is dict else None
+        if not _units_agree(target_unit, catalog_row["unit"], value_scale):
+            unit_mismatches.append(
+                f"{series}: docket targetUnit={target_unit!r} does not agree "
+                f"with catalog unit={catalog_row['unit']!r} under declared "
+                f"valueScale={value_scale!r}"
+            )
 
     duplicate_uuids = {
         uuid: owners for uuid, owners in uuid_owners.items() if len(owners) > 1
@@ -213,6 +285,53 @@ def _assert_containment(
     assert not failures, f"docket is not contained in {label}:\n" + "\n".join(failures)
 
 
+def _catalog_shell(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "generator_version": 3,
+        "observations_sha256": "0" * 64,
+        "observation_rows": 1,
+        "docket_seed_sha256": "1" * 64,
+        "uuid_registry_sha256": "2" * 64,
+        "suspect_segments": [],
+        "stripped_segments": {},
+        "ambiguous_aliases": [],
+        "series": rows,
+    }
+
+
+def _catalog_row(**overrides: Any) -> dict[str, Any]:
+    row = {
+        "uuid": "00000000-0000-4000-8000-000000000001",
+        "concept": "unrelated.series",
+        "family_patterns": ["unrelated.series.{P}"],
+        "status": "observed",
+        "unit": None,
+        "cadence": "month",
+        "geography": {
+            "id": "0100000US",
+            "level": "country",
+            "vintage": "current",
+            "name": "United States",
+        },
+        "entity": {"name": "economy", "role": "aggregate"},
+        "sources": ["test"],
+        "aliases": [],
+        "source_concepts": [],
+        "rid_patterns": ["unrelated.series.{P}.first_print"],
+        "first_observed_period": "2029-12",
+        "last_observed_period": "2029-12",
+        "observation_count": 1,
+    }
+    row.update(overrides)
+    return row
+
+
+def _docket_file(tmp_path: pathlib.Path, entries: list[dict[str, Any]]):
+    docket_path = tmp_path / "docket.json"
+    docket_path.write_text(json.dumps({"series": entries}, indent=2) + "\n")
+    return docket_path
+
+
 def test_docket_is_contained_in_frozen_catalog_fixture() -> None:
     _assert_containment(_load(FIXTURE_PATH, "frozen catalog fixture"), "fixture")
 
@@ -220,52 +339,129 @@ def test_docket_is_contained_in_frozen_catalog_fixture() -> None:
 def test_containment_rejects_unrelated_catalog_reference(
     tmp_path: pathlib.Path,
 ) -> None:
-    docket_path = tmp_path / "docket.json"
-    docket_path.write_text(
-        json.dumps(
+    docket_path = _docket_file(
+        tmp_path,
+        [
             {
-                "series": [
-                    {
-                        "series": "docket.series",
-                        "cadence": "monthly",
-                        "slug": "docket-series-{month}-{year}",
-                        "ledger": {
-                            "uuid": "00000000-0000-4000-8000-000000000001",
-                            "concept": "unrelated.series",
-                        },
-                    }
-                ]
-            },
-            indent=2,
-        )
-        + "\n"
-    )
-    catalog = {
-        "generator_version": 1,
-        "observations_sha256": "0" * 64,
-        "observation_rows": 1,
-        "series": [
-            {
-                "uuid": "00000000-0000-4000-8000-000000000001",
-                "concept": "unrelated.series",
-                "family_patterns": ["unrelated.series.{P}"],
-                "status": "observed",
-                "unit": None,
-                "cadence": "month",
-                "geography": {"id": "US", "level": "country", "name": "US"},
-                "entity": {"name": "economy", "role": "aggregate"},
-                "sources": ["test"],
-                "aliases": [],
-                "rid_patterns": ["unrelated.series.{P}.first_print"],
-                "first_observed_period": "2029-12",
-                "last_observed_period": "2029-12",
-                "observation_count": 1,
+                "series": "docket.series",
+                "cadence": "monthly",
+                "slug": "docket-series-{month}-{year}",
+                "ledger": {
+                    "uuid": "00000000-0000-4000-8000-000000000001",
+                    "concept": "unrelated.series",
+                },
             }
-        ]
-    }
-
+        ],
+    )
+    catalog = _catalog_shell([_catalog_row()])
     with pytest.raises(AssertionError, match="neither canonical concept nor alias"):
         _assert_containment(catalog, "test catalog", docket_path=docket_path)
+
+
+def test_containment_resolves_duplicate_concepts_by_uuid(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Catalog v3: one concept, two identities (entity-drift lineages). The
+    # docket pin addresses the row by uuid, so containment must too.
+    lineage_a = _catalog_row(
+        uuid="00000000-0000-4000-8000-00000000000a",
+        concept="shared.concept",
+        entity={"name": "person", "role": "civilian_labor_force"},
+        first_observed_period="2029-11",
+    )
+    lineage_b = _catalog_row(
+        uuid="00000000-0000-4000-8000-00000000000b",
+        concept="shared.concept",
+        entity={"name": "economy", "role": "aggregate"},
+    )
+    docket_path = _docket_file(
+        tmp_path,
+        [
+            {
+                "series": "shared.concept",
+                "cadence": "monthly",
+                "slug": "shared-{month}",
+                "ledger": {
+                    "uuid": "00000000-0000-4000-8000-00000000000a",
+                    "concept": "shared.concept",
+                },
+            }
+        ],
+    )
+    _assert_containment(
+        _catalog_shell([lineage_a, lineage_b]),
+        "test catalog",
+        docket_path=docket_path,
+    )
+    with pytest.raises(AssertionError, match="duplicate uuid"):
+        _assert_containment(
+            _catalog_shell([lineage_a, dict(lineage_a)]),
+            "test catalog",
+            docket_path=docket_path,
+        )
+
+
+def test_containment_units_agree_modulo_declared_transform(
+    tmp_path: pathlib.Path,
+) -> None:
+    # The six bls.cps.employed_people_by_occupation docket entries target
+    # millions while the ledger records thousands with valueScale 0.001.
+    row = _catalog_row(
+        uuid="00000000-0000-4000-8000-00000000000c",
+        concept="occupation.series",
+        unit="thousands",
+    )
+
+    def entry(extras: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "series": "occupation.series",
+            "cadence": "monthly",
+            "slug": "occupation-{month}",
+            "extras": extras,
+            "ledger": {
+                "uuid": "00000000-0000-4000-8000-00000000000c",
+                "concept": "occupation.series",
+            },
+        }
+
+    good = _docket_file(
+        tmp_path, [entry({"targetUnit": "millions", "valueScale": 0.001})]
+    )
+    _assert_containment(_catalog_shell([row]), "test catalog", docket_path=good)
+
+    for bad_extras in (
+        {"targetUnit": "millions"},  # transform not declared
+        {"targetUnit": "millions", "valueScale": 0.01},  # wrong transform
+        {"targetUnit": "percent", "valueScale": 0.001},  # not a magnitude
+    ):
+        bad = _docket_file(tmp_path, [entry(bad_extras)])
+        with pytest.raises(AssertionError, match="unit mismatches"):
+            _assert_containment(
+                _catalog_shell([row]), "test catalog", docket_path=bad
+            )
+
+
+def test_containment_rejects_stale_uuid(tmp_path: pathlib.Path) -> None:
+    docket_path = _docket_file(
+        tmp_path,
+        [
+            {
+                "series": "unrelated.series",
+                "cadence": "monthly",
+                "slug": "unrelated-{month}",
+                "ledger": {
+                    "uuid": "99999999-9999-4999-8999-999999999999",
+                    "concept": "unrelated.series",
+                },
+            }
+        ],
+    )
+    with pytest.raises(AssertionError, match="no row with uuid"):
+        _assert_containment(
+            _catalog_shell([_catalog_row()]),
+            "test catalog",
+            docket_path=docket_path,
+        )
 
 
 def test_docket_is_contained_in_pinned_catalog() -> None:
