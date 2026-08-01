@@ -895,19 +895,23 @@ def require_conditional_docket_template(
     contract: dict[str, Any],
     template_matches: list[dict[str, Any]],
     registered_at_utc: str | None = None,
+    batch_target: dict[str, Any] | None = None,
 ) -> None:
     """Reauthenticate a conditional contract against the committed docket.
 
-    The binding step re-runs after every register/publish rebase, so the
-    committed registry at trusted HEAD — not the roll job's earlier
+    The binding and publication steps re-run after every rebase, so the
+    committed registry at the CURRENT trusted checkout — not any earlier
     computation — is the authority for which conditional arms exist. The
     check is total: the committed entry must REGENERATE the bound contract
     byte-for-byte (series, period, slug, dataPointId, conditional text,
     conditionId, deadline, unit, valueScale, and the full source binding
-    including its window), the sibling arm must still be present and
-    well-formed, and an unconditional contract must not claim a slug the
-    committed registry reserves for a conditional arm. Any committed-entry
-    drift after registration fails closed before forecasting.
+    including its window); with a batch target supplied, every other
+    committed target field (resolutionDate, anchors, …) must match it too;
+    the sibling arm must still be present and well-formed; and a series
+    whose committed entry carries a conditionalPair is conditional-only —
+    NO unconditional contract may register under it. Any committed-entry
+    drift after registration fails closed before forecasting or
+    publication.
     """
 
     label = (
@@ -921,14 +925,11 @@ def require_conditional_docket_template(
     )
     arms = pair.get("arms") if isinstance(pair, dict) else None
     if conditional is None:
-        for arm in arms if isinstance(arms, list) else []:
-            if isinstance(arm, dict) and arm.get("catalogSlug") == contract.get(
-                "catalogSlug"
-            ):
-                raise RegistrationError(
-                    "committed docket reserves this catalogSlug for a "
-                    f"conditional arm: {label}"
-                )
+        if pair is not None:
+            raise RegistrationError(
+                "committed docket makes this series conditional-only; an "
+                f"unconditional contract may not register under it: {label}"
+            )
         return
     if len(template_matches) != 1:
         raise RegistrationError(
@@ -1000,6 +1001,24 @@ def require_conditional_docket_template(
             "committed docket entry no longer regenerates the registered "
             f"conditional contract (drifted: {drifted}): {label}"
         )
+    if batch_target is not None:
+        # The contract equality above covers the registration projection;
+        # the remaining committed target fields (resolutionDate, anchors,
+        # and any other extras the analyst runs under) must also still
+        # match what the committed entry generates. sourceBinding is
+        # excluded here because the batch carries the DERIVED binding,
+        # already proven equal through the contract.
+        drifted = sorted(
+            key
+            for key, value in reconstructed_target.items()
+            if key != "sourceBinding"
+            and canonical_bytes(batch_target.get(key)) != canonical_bytes(value)
+        )
+        if drifted:
+            raise RegistrationError(
+                "committed docket entry no longer generates the batch "
+                f"target's run context (drifted: {drifted}): {label}"
+            )
 
 
 def require_native_docket_template(
@@ -1507,7 +1526,10 @@ def bind_registration_commits(
         require_native_docket_template(contract, template_matches)
         require_seed_docket_template(contract, template_matches)
         require_conditional_docket_template(
-            contract, template_matches, snapshot["registeredAtUtc"]
+            contract,
+            template_matches,
+            snapshot["registeredAtUtc"],
+            batch_target=target,
         )
         if len(template_matches) > 1:
             raise RegistrationError(

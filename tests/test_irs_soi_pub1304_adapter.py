@@ -526,28 +526,76 @@ def test_bind_reauthenticates_conditional_contracts_against_the_docket() -> None
             )
 
 
-def test_bind_blocks_unconditional_claims_on_reserved_pair_slugs() -> None:
+def test_bind_blocks_every_unconditional_claim_on_a_conditional_series() -> None:
     entry = docket_entry()
     arm = entry["conditionalPair"]["arms"][0]
-    target = {
-        "series": entry["series"],
-        "period": entry["period"],
-        "catalogSlug": arm["catalogSlug"],
-        "dataPointId": arm["dataPointId"],
-        **entry["extras"],
-    }
-    contract = register_targets.build_contract(
-        target, register_targets.dt.date(2026, 8, 1)
-    )
-    assert "conditional" not in contract
-    with pytest.raises(
-        register_targets.RegistrationError, match="reserves this catalogSlug"
+    # A series whose committed entry carries a conditionalPair is
+    # conditional-only: neither an arm's reserved slug NOR a fresh slug
+    # (even reusing a reserved dataPointId) may register unconditionally.
+    for slug, data_point_id in (
+        (arm["catalogSlug"], arm["dataPointId"]),
+        ("some-fresh-unconditional-slug", arm["dataPointId"]),
+        ("some-fresh-unconditional-slug", "irs.actc.total_claims.2027"),
     ):
-        register_targets.require_conditional_docket_template(contract, [entry])
+        target = {
+            "series": entry["series"],
+            "period": entry["period"],
+            "catalogSlug": slug,
+            "dataPointId": data_point_id,
+            **entry["extras"],
+        }
+        contract = register_targets.build_contract(
+            target, register_targets.dt.date(2026, 8, 1)
+        )
+        assert "conditional" not in contract
+        with pytest.raises(
+            register_targets.RegistrationError, match="conditional-only"
+        ):
+            register_targets.require_conditional_docket_template(
+                contract, [entry]
+            )
     # Unconditional contracts for ordinary series stay untouched.
     register_targets.require_conditional_docket_template(
         contract, [{"series": entry["series"], "extras": entry["extras"]}]
     )
+
+
+def test_bind_reauthenticates_the_full_batch_target_run_context() -> None:
+    entry = docket_entry()
+    arm = entry["conditionalPair"]["arms"][0]
+    batch_target = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": arm["catalogSlug"],
+        "dataPointId": arm["dataPointId"],
+        "conditional": arm["conditional"],
+        "conditionId": arm["conditionId"],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
+        **entry["extras"],
+        # Registration enrichment keys are ignored by the check.
+        "registrationState": "preregistered",
+        "targetContentHash": "0" * 64,
+    }
+    contract = bindable_arm_contract()
+    stamp = "2026-08-01T00:00:00Z"
+    register_targets.require_conditional_docket_template(
+        contract, [entry], stamp, batch_target=batch_target
+    )
+    # Committed drift in run-relevant extras OUTSIDE the contract
+    # (resolutionDate, anchors) must fail against the batch target.
+    for mutate in (
+        lambda e: e["extras"].update(resolutionDate="2030-12-31"),
+        lambda e: e["extras"]["anchors"].update({"2023": 99.9}),
+    ):
+        drifted = docket_entry()
+        mutate(drifted)
+        with pytest.raises(
+            register_targets.RegistrationError,
+            match="no longer generates the batch target",
+        ):
+            register_targets.require_conditional_docket_template(
+                contract, [drifted], stamp, batch_target=batch_target
+            )
 
 
 def test_contract_requires_condition_identity_and_deadline() -> None:

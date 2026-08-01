@@ -6941,12 +6941,15 @@ def main() -> int:
                 value = None
             # The workbook is a static per-tax-year print with no vintage
             # archive: the capture day is the source vintage. Lateness is
-            # judged on the ACTUAL retrieval date (not the loop's start-of-
-            # run date) so a run crossing midnight past the window end
-            # still discloses.
+            # judged on the retrieval stamp OR the present decision moment,
+            # whichever is later — the stamp precedes the response read, so
+            # a request straddling midnight past the window end must still
+            # disclose (over-disclosure is the safe direction).
             if raw is not None:
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
-                late_capture = retrieved_at[:10] > str(window["end"])
+                late_capture = (
+                    max(retrieved_at[:10], utc_now()[:10]) > str(window["end"])
+                )
                 if late_capture:
                     print(
                         f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "

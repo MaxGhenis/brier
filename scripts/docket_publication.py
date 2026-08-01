@@ -23,6 +23,7 @@ from register_targets import (
     RegistrationError,
     parse_utc_instant,
     registration_content_hash,
+    require_conditional_docket_template,
 )
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -688,6 +689,41 @@ def validate_target_registration(
             target,
             run_started_at,
         )
+        # The publisher revalidates after EVERY rebase (including the final
+        # push loop, which does not re-run the bind step), so the docket at
+        # THIS checkout must still authorize a conditional contract — the
+        # same total reauthentication the bind step performs. A concurrent
+        # docket change absorbed by a late rebase fails closed here instead
+        # of publishing under a registry that no longer generates the
+        # contract.
+        try:
+            docket_entries = json.loads(
+                (ROOT / "scripts" / "docket_series.json").read_text()
+            )["series"]
+        except FileNotFoundError:
+            # No registry in this checkout: conditional contracts then fail
+            # the exactly-one-committed-entry requirement below, and
+            # unconditional targets keep their pre-registry behavior.
+            docket_entries = []
+        except (OSError, json.JSONDecodeError, KeyError) as exc:
+            raise PublicationError(
+                f"cannot read the committed docket registry: {exc}"
+            ) from exc
+        template_matches = [
+            entry
+            for entry in docket_entries
+            if isinstance(entry, dict)
+            and entry.get("series") == contract.get("series")
+        ]
+        try:
+            require_conditional_docket_template(
+                contract,
+                template_matches,
+                snapshot["registeredAtUtc"],
+                batch_target=target,
+            )
+        except RegistrationError as exc:
+            raise PublicationError(str(exc)) from exc
         if pre_cutover_v2:
             require_pre_cutover_registration(
                 str(target.get("registrationCommit") or ""), relative
