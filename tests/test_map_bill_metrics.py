@@ -11,18 +11,49 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import map_bill_metrics  # noqa: E402
 
+REAL_CATALOG_FIXTURE = ROOT / "tests" / "fixtures" / "ledger" / "series_catalog.json"
+
 
 def write_json(path: pathlib.Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
-def test_maps_all_statuses_and_emits_only_not_yet_drafts(
+def catalog_row(concept: str, uuid: str, *, aliases: list[str] | None = None) -> dict:
+    """Return one complete row in the frozen Ledger catalog schema."""
+    return {
+        "uuid": uuid,
+        "concept": concept,
+        "family_patterns": [f"{concept}.{{P}}"],
+        "status": "observed",
+        "unit": "count",
+        "cadence": "month",
+        "geography": {
+            "id": "XX",
+            "level": "country",
+            "name": "Example",
+        },
+        "entity": {"name": "example", "role": "aggregate"},
+        "sources": ["example-agency"],
+        "aliases": aliases or [],
+        "rid_patterns": [f"{concept}.{{P}}.first_print"],
+        "first_observed_period": "2026-01",
+        "last_observed_period": "2026-01",
+        "observation_count": 1,
+    }
+
+
+def empty_catalog(path: pathlib.Path) -> None:
+    write_json(path, {"series": []})
+
+
+def test_maps_all_registry_states_and_writes_ingestion_request(
     tmp_path: pathlib.Path,
 ) -> None:
     bill_path = tmp_path / "bills" / "example-bill.json"
     docket_path = tmp_path / "scripts" / "docket_series.json"
-    drafts_dir = tmp_path / "drafts" / "ledger-entries"
+    catalog_path = tmp_path / "ledger" / "series_catalog.json"
+    drafts_dir = tmp_path / "drafts" / "ledger-ingestion"
     artifact = {
         "bill": {"slug": "example-bill", "name": "Example bill"},
         "provisions": [
@@ -30,61 +61,69 @@ def test_maps_all_statuses_and_emits_only_not_yet_drafts(
                 "heading": "Example provision",
                 "metrics": [
                     {
-                        "category": "operational",
-                        "kind": "Exact",
-                        "text": "Exact unemployment metric",
-                        "series_hint": "eurostat.unemployment_rate",
+                        "text": "Exact docket metric",
+                        "series_hint": "docket.exact",
                     },
                     {
-                        "category": "intended",
-                        "kind": "Prefix",
-                        "text": "JOLTS hiring metric",
-                        "series_hint": "bls.jolts",
+                        "text": "Docket descendant metric",
+                        "series_hint": "docket.family",
                     },
                     {
-                        "category": "intended",
-                        "kind": "Candidate",
-                        "text": "CRP active acres",
-                        "series_hint": "usda.fsa.crp.active_acres",
+                        "text": "Exact Ledger metric",
+                        "series_hint": "ledger.exact",
                     },
                     {
-                        "category": "unintended",
-                        "kind": "Human triage",
+                        "text": "Ledger alias metric",
+                        "series_hint": "LEDGER_ALIAS",
+                    },
+                    {
+                        "text": "Ledger descendant metric",
+                        "series_hint": "ledger.family",
+                    },
+                    {
+                        "text": "Unknown metric",
+                        "series_hint": "agency.unknown.metric",
+                        "matched_series": "stale.series",
+                        "ledger_uuid": "stale-uuid",
+                    },
+                    {
                         "text": "No series hint was supplied",
                         "series_hint": None,
                         "registry": "no-series",
+                        "matched_series": "stale.series",
+                        "ledger_uuid": "stale-uuid",
                     },
                 ],
             }
         ],
     }
     docket = {
-        "comment": "fixture",
         "series": [
-            {
-                "series": "eurostat.unemployment_rate.belgium",
-                "cadence": "monthly",
-                "slug": "belgium-unemployment-{month}-{year}",
-            },
-            {
-                "series": "eurostat.unemployment_rate",
-                "cadence": "monthly",
-                "slug": "euro-unemployment-{month}-{year}",
-            },
-            {
-                "series": "bls.jolts.hires_rate",
-                "cadence": "monthly",
-                "slug": "jolts-hires-rate-{month}-{year}",
-            },
-        ],
+            {"series": "docket.exact.child"},
+            {"series": "docket.exact"},
+            {"series": "docket.family.child"},
+        ]
+    }
+    catalog = {
+        "series": [
+            catalog_row("ledger.exact", "uuid-exact"),
+            catalog_row(
+                "ledger.alias.target",
+                "uuid-alias",
+                aliases=["LEDGER_ALIAS"],
+            ),
+            catalog_row("ledger.family.child", "uuid-descendant"),
+        ]
     }
     write_json(bill_path, artifact)
     write_json(docket_path, docket)
+    write_json(catalog_path, catalog)
     original_bill = bill_path.read_bytes()
     original_docket = docket_path.read_bytes()
+    original_catalog = catalog_path.read_bytes()
 
-    output_path, draft_paths = map_bill_metrics.map_bill_metrics(
-        bill_path, docket_path, drafts_dir=drafts_dir
+    output_path, request_paths = map_bill_metrics.map_bill_metrics(
+        bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
     )
 
     assert output_path == bill_path.with_suffix(".mapped.json")
@@ -93,31 +132,137 @@ def test_maps_all_statuses_and_emits_only_not_yet_drafts(
     assert [metric["registry"] for metric in metrics] == [
         "reachable",
         "reachable",
+        "ledger",
+        "ledger",
+        "ledger",
         "not-yet",
         "unmapped",
     ]
-    assert metrics[0]["matched_series"] == "eurostat.unemployment_rate"
-    assert metrics[1]["matched_series"] == "bls.jolts.hires_rate"
-    assert "matched_series" not in metrics[2]
-    assert "matched_series" not in metrics[3]
-    assert mapped["summary"] == {"reachable": 2, "notYet": 1, "unmapped": 1}
+    assert metrics[0]["matched_series"] == "docket.exact"
+    assert metrics[1]["matched_series"] == "docket.family.child"
+    assert "ledger_uuid" not in metrics[0]
+    assert "ledger_uuid" not in metrics[1]
+    assert (
+        metrics[2]["matched_series"],
+        metrics[2]["ledger_uuid"],
+    ) == ("ledger.exact", "uuid-exact")
+    assert (
+        metrics[3]["matched_series"],
+        metrics[3]["ledger_uuid"],
+    ) == ("ledger.alias.target", "uuid-alias")
+    assert (
+        metrics[4]["matched_series"],
+        metrics[4]["ledger_uuid"],
+    ) == ("ledger.family.child", "uuid-descendant")
+    for metric in metrics[5:]:
+        assert "matched_series" not in metric
+        assert "ledger_uuid" not in metric
+    assert mapped["summary"] == {
+        "reachable": 2,
+        "ledger": 3,
+        "notYet": 1,
+        "unmapped": 1,
+    }
 
-    expected_draft = drafts_dir / "usda-fsa-crp-active-acres.json"
-    assert draft_paths == [expected_draft]
-    assert json.loads(expected_draft.read_text(encoding="utf-8")) == {
-        "series": "usda.fsa.crp.active_acres",
+    expected_request = drafts_dir / "agency-unknown-metric.json"
+    assert request_paths == [expected_request]
+    assert json.loads(expected_request.read_text(encoding="utf-8")) == {
+        "proposed_concept": "agency.unknown.metric",
+        "status": "proposed",
+        "unit": None,
         "cadence": None,
-        "slug": None,
         "proposedFrom": "example-bill",
-        "metricText": "CRP active acres",
+        "metricText": "Unknown metric",
+        "note": (
+            "Proposed catalog row for PolicyEngine/ledger "
+            "series_catalog.json; verify identity, unit, cadence, and "
+            "official source before ingestion."
+        ),
     }
     assert bill_path.read_bytes() == original_bill
     assert docket_path.read_bytes() == original_docket
+    assert catalog_path.read_bytes() == original_catalog
+
+
+def test_docket_match_wins_over_catalog_match(tmp_path: pathlib.Path) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "precedence-bill"},
+            "provisions": [
+                {
+                    "metrics": [
+                        {
+                            "text": "Shared metric",
+                            "series_hint": "shared.series",
+                            "registry": "ledger",
+                            "matched_series": "old.catalog.series",
+                            "ledger_uuid": "old-uuid",
+                        }
+                    ]
+                }
+            ],
+        },
+    )
+    write_json(docket_path, {"series": [{"series": "shared.series"}]})
+    write_json(
+        catalog_path,
+        {"series": [catalog_row("shared.series", "catalog-uuid")]},
+    )
+
+    output_path, request_paths = map_bill_metrics.map_bill_metrics(
+        bill_path,
+        docket_path,
+        catalog_path,
+        drafts_dir=tmp_path / "drafts",
+    )
+
+    metric = json.loads(output_path.read_text(encoding="utf-8"))["provisions"][0][
+        "metrics"
+    ][0]
+    assert metric == {
+        "text": "Shared metric",
+        "series_hint": "shared.series",
+        "registry": "reachable",
+        "matched_series": "shared.series",
+    }
+    assert request_paths == []
+
+
+def test_catalog_exact_concept_wins_over_an_earlier_alias(
+    tmp_path: pathlib.Path,
+) -> None:
+    catalog_path = tmp_path / "catalog.json"
+    write_json(
+        catalog_path,
+        {
+            "series": [
+                catalog_row(
+                    "other.series",
+                    "alias-uuid",
+                    aliases=["exact.series"],
+                ),
+                catalog_row("exact.series", "exact-uuid"),
+            ]
+        },
+    )
+
+    catalog = map_bill_metrics.load_catalog_series(catalog_path)
+
+    assert map_bill_metrics.match_catalog_series("exact.series", catalog) == {
+        "concept": "exact.series",
+        "uuid": "exact-uuid",
+        "aliases": [],
+    }
 
 
 def test_prefix_matching_requires_a_dot_boundary(tmp_path: pathlib.Path) -> None:
     bill_path = tmp_path / "bill.json"
     docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
     drafts_dir = tmp_path / "drafts"
     write_json(
         bill_path,
@@ -127,8 +272,6 @@ def test_prefix_matching_requires_a_dot_boundary(tmp_path: pathlib.Path) -> None
                 {
                     "metrics": [
                         {
-                            "category": "operational",
-                            "kind": "Near prefix",
                             "text": "Should not match",
                             "series_hint": "bls.jolt",
                         }
@@ -139,32 +282,74 @@ def test_prefix_matching_requires_a_dot_boundary(tmp_path: pathlib.Path) -> None
     )
     write_json(
         docket_path,
-        {
-            "series": [
-                {
-                    "series": "bls.jolts.hires_rate",
-                    "cadence": "monthly",
-                    "slug": "unused",
-                }
-            ]
-        },
+        {"series": [{"series": "bls.jolts.hires_rate"}]},
+    )
+    write_json(
+        catalog_path,
+        {"series": [catalog_row("bls.jolts.openings", "openings-uuid")]},
     )
 
     output_path, _ = map_bill_metrics.map_bill_metrics(
-        bill_path, docket_path, drafts_dir=drafts_dir
+        bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
     )
 
-    mapped = json.loads(output_path.read_text(encoding="utf-8"))
-    metric = mapped["provisions"][0]["metrics"][0]
+    metric = json.loads(output_path.read_text(encoding="utf-8"))["provisions"][0][
+        "metrics"
+    ][0]
     assert metric["registry"] == "not-yet"
     assert "matched_series" not in metric
+    assert "ledger_uuid" not in metric
 
 
-def test_cli_uses_default_mapped_output_name(
+def test_real_catalog_fixture_propagates_alias_uuid(
+    tmp_path: pathlib.Path,
+) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "real-fixture-bill"},
+            "provisions": [
+                {
+                    "metrics": [
+                        {
+                            "text": "Core CPI",
+                            "series_hint": "CPILFESL",
+                        }
+                    ]
+                }
+            ],
+        },
+    )
+    write_json(docket_path, {"series": []})
+
+    output_path, request_paths = map_bill_metrics.map_bill_metrics(
+        bill_path,
+        docket_path,
+        REAL_CATALOG_FIXTURE,
+        drafts_dir=tmp_path / "drafts",
+    )
+
+    metric = json.loads(output_path.read_text(encoding="utf-8"))["provisions"][0][
+        "metrics"
+    ][0]
+    assert metric == {
+        "text": "Core CPI",
+        "series_hint": "CPILFESL",
+        "registry": "ledger",
+        "matched_series": "bls.cpi.u.core_mom",
+        "ledger_uuid": "23a58ec2-2d41-4f17-ae3d-8affeda44fc1",
+    }
+    assert request_paths == []
+
+
+def test_cli_requires_catalog_and_reports_v2_summary(
     tmp_path: pathlib.Path, capsys
 ) -> None:
     bill_path = tmp_path / "cli-bill.json"
     docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
     write_json(
         bill_path,
         {
@@ -173,8 +358,6 @@ def test_cli_uses_default_mapped_output_name(
                 {
                     "metrics": [
                         {
-                            "category": "unintended",
-                            "kind": "No hint",
                             "text": "Needs human triage",
                             "series_hint": "",
                         }
@@ -184,11 +367,114 @@ def test_cli_uses_default_mapped_output_name(
         },
     )
     write_json(docket_path, {"series": []})
+    empty_catalog(catalog_path)
 
-    assert map_bill_metrics.main([str(bill_path), "--docket", str(docket_path)]) == 0
+    with pytest.raises(SystemExit):
+        map_bill_metrics.parse_args([str(bill_path), "--docket", str(docket_path)])
+
+    assert (
+        map_bill_metrics.main(
+            [
+                str(bill_path),
+                "--docket",
+                str(docket_path),
+                "--catalog",
+                str(catalog_path),
+            ]
+        )
+        == 0
+    )
 
     assert bill_path.with_suffix(".mapped.json").exists()
-    assert "reachable=0, not-yet=0, unmapped=1, drafts=0" in capsys.readouterr().out
+    assert (
+        "reachable=0, ledger=0, not-yet=0, unmapped=1, ingestion-requests=0"
+    ) in capsys.readouterr().out
+
+
+def test_repeated_hint_and_rerun_are_idempotent(tmp_path: pathlib.Path) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
+    drafts_dir = tmp_path / "drafts" / "ledger-ingestion"
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "repeat-bill"},
+            "provisions": [
+                {
+                    "metrics": [
+                        {
+                            "text": "First mention",
+                            "series_hint": "agency.new.series",
+                        },
+                        {
+                            "text": "Second mention",
+                            "series_hint": "agency.new.series",
+                        },
+                    ]
+                }
+            ],
+        },
+    )
+    write_json(docket_path, {"series": []})
+    empty_catalog(catalog_path)
+
+    first_output, first_paths = map_bill_metrics.map_bill_metrics(
+        bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
+    )
+    request_path = drafts_dir / "agency-new-series.json"
+    first_request = request_path.read_bytes()
+    second_output, second_paths = map_bill_metrics.map_bill_metrics(
+        bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
+    )
+
+    assert first_output == second_output
+    assert first_paths == second_paths == [request_path]
+    assert request_path.read_bytes() == first_request
+    assert sorted(drafts_dir.glob("*.json")) == [request_path]
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    assert request["metricText"] == "First mention"
+    mapped = json.loads(second_output.read_text(encoding="utf-8"))
+    assert mapped["summary"]["notYet"] == 2
+
+
+def test_refuses_to_write_ingestion_requests_under_records(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
+    records_dir = tmp_path / "records"
+    monkeypatch.setattr(map_bill_metrics, "RECORDS_DIR", records_dir)
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "records-bill"},
+            "provisions": [
+                {
+                    "metrics": [
+                        {
+                            "text": "Unknown metric",
+                            "series_hint": "agency.unknown",
+                        }
+                    ]
+                }
+            ],
+        },
+    )
+    write_json(docket_path, {"series": []})
+    empty_catalog(catalog_path)
+
+    with pytest.raises(map_bill_metrics.MappingError, match="records/"):
+        map_bill_metrics.map_bill_metrics(
+            bill_path,
+            docket_path,
+            catalog_path,
+            drafts_dir=records_dir / "ledger-ingestion",
+        )
+
+    assert not records_dir.exists()
+    assert not bill_path.with_suffix(".mapped.json").exists()
 
 
 def test_json_writes_replace_symlinks_instead_of_following_them(
@@ -206,9 +492,12 @@ def test_json_writes_replace_symlinks_instead_of_following_them(
     assert json.loads(output_path.read_text(encoding="utf-8")) == {"proposal": True}
 
 
-def test_colliding_draft_slugs_fail_before_writing(tmp_path: pathlib.Path) -> None:
+def test_colliding_request_slugs_fail_before_writing(
+    tmp_path: pathlib.Path,
+) -> None:
     bill_path = tmp_path / "bill.json"
     docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
     drafts_dir = tmp_path / "drafts"
     write_json(
         bill_path,
@@ -218,14 +507,10 @@ def test_colliding_draft_slugs_fail_before_writing(tmp_path: pathlib.Path) -> No
                 {
                     "metrics": [
                         {
-                            "category": "operational",
-                            "kind": "First",
                             "text": "First metric",
                             "series_hint": "agency.foo_bar",
                         },
                         {
-                            "category": "intended",
-                            "kind": "Second",
                             "text": "Second metric",
                             "series_hint": "agency.foo.bar",
                         },
@@ -235,21 +520,23 @@ def test_colliding_draft_slugs_fail_before_writing(tmp_path: pathlib.Path) -> No
         },
     )
     write_json(docket_path, {"series": []})
+    empty_catalog(catalog_path)
 
     with pytest.raises(map_bill_metrics.MappingError, match="same draft filename"):
         map_bill_metrics.map_bill_metrics(
-            bill_path, docket_path, drafts_dir=drafts_dir
+            bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
         )
 
     assert not drafts_dir.exists()
     assert not bill_path.with_suffix(".mapped.json").exists()
 
 
-def test_existing_draft_for_colliding_hint_is_not_overwritten(
+def test_existing_request_for_colliding_concept_is_not_overwritten(
     tmp_path: pathlib.Path,
 ) -> None:
     bill_path = tmp_path / "bill.json"
     docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
     drafts_dir = tmp_path / "drafts"
     write_json(
         bill_path,
@@ -259,8 +546,6 @@ def test_existing_draft_for_colliding_hint_is_not_overwritten(
                 {
                     "metrics": [
                         {
-                            "category": "intended",
-                            "kind": "Collision",
                             "text": "A later metric",
                             "series_hint": "agency.foo.bar",
                         }
@@ -270,64 +555,30 @@ def test_existing_draft_for_colliding_hint_is_not_overwritten(
         },
     )
     write_json(docket_path, {"series": []})
+    empty_catalog(catalog_path)
     existing_path = drafts_dir / "agency-foo-bar.json"
     write_json(
         existing_path,
         {
-            "series": "agency.foo_bar",
+            "proposed_concept": "agency.foo_bar",
+            "status": "proposed",
+            "unit": None,
             "cadence": None,
-            "slug": None,
             "proposedFrom": "earlier-bill",
             "metricText": "An earlier metric",
+            "note": (
+                "Proposed catalog row for PolicyEngine/ledger "
+                "series_catalog.json; verify identity, unit, cadence, and "
+                "official source before ingestion."
+            ),
         },
     )
     existing_bytes = existing_path.read_bytes()
 
     with pytest.raises(map_bill_metrics.MappingError, match="already belongs"):
         map_bill_metrics.map_bill_metrics(
-            bill_path, docket_path, drafts_dir=drafts_dir
+            bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
         )
 
     assert existing_path.read_bytes() == existing_bytes
     assert not bill_path.with_suffix(".mapped.json").exists()
-
-
-def test_crp_series_is_registered_with_a_complete_binding() -> None:
-    docket = json.loads(
-        (ROOT / "scripts" / "docket_series.json").read_text(encoding="utf-8")
-    )
-    entries = [
-        entry
-        for entry in docket["series"]
-        if entry["series"] == "usda.fsa.crp.enrolled_acres_total"
-    ]
-    assert len(entries) == 1
-    entry = entries[0]
-
-    assert entry["cadence"] == "monthly"
-    assert entry["slug"] == "us-crp-enrolled-acres-{month}-{year}"
-    # Promotion strips the draft-lifecycle fields; registered entries carry
-    # only the shared shape.
-    assert "integrationStatus" not in entry
-    assert "integrationNote" not in entry
-    assert not (
-        ROOT
-        / "drafts"
-        / "ledger-entries"
-        / "usda-fsa-crp-enrolled-acres-total.json"
-    ).exists()
-
-    extras = entry["extras"]
-    assert extras["targetUnit"] == "count"
-    assert extras["valueScale"] == 1
-    assert "condition" not in extras
-    assert set(extras["sourceBinding"]) == {
-        "adapter",
-        "sourceUrl",
-        "sourceSeriesId",
-        "field",
-        "table",
-        "transform",
-        "releasePolicy",
-    }
-    assert extras["sourceBinding"]["adapter"] == "fsa-crp-monthly-summary"
