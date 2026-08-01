@@ -292,28 +292,32 @@ def test_existing_draft_for_colliding_hint_is_not_overwritten(
     assert not bill_path.with_suffix(".mapped.json").exists()
 
 
-def test_crp_draft_is_unregistered_and_has_a_complete_binding_template() -> None:
-    draft = json.loads(
-        (
-            ROOT
-            / "drafts"
-            / "ledger-entries"
-            / "usda-fsa-crp-enrolled-acres-total.json"
-        ).read_text(encoding="utf-8")
-    )
+def test_crp_series_is_registered_with_a_complete_binding() -> None:
     docket = json.loads(
         (ROOT / "scripts" / "docket_series.json").read_text(encoding="utf-8")
     )
+    entries = [
+        entry
+        for entry in docket["series"]
+        if entry["series"] == "usda.fsa.crp.enrolled_acres_total"
+    ]
+    assert len(entries) == 1
+    entry = entries[0]
 
-    assert draft["series"] == "usda.fsa.crp.enrolled_acres_total"
-    assert draft["cadence"] == "monthly"
-    assert draft["slug"] == "us-crp-enrolled-acres-{month}-{year}"
-    assert draft["integrationStatus"] == "ANCHOR_TBV"
-    assert draft["series"] not in {
-        entry["series"] for entry in docket["series"]
-    }
+    assert entry["cadence"] == "monthly"
+    assert entry["slug"] == "us-crp-enrolled-acres-{month}-{year}"
+    # Promotion strips the draft-lifecycle fields; registered entries carry
+    # only the shared shape.
+    assert "integrationStatus" not in entry
+    assert "integrationNote" not in entry
+    assert not (
+        ROOT
+        / "drafts"
+        / "ledger-entries"
+        / "usda-fsa-crp-enrolled-acres-total.json"
+    ).exists()
 
-    extras = draft["extras"]
+    extras = entry["extras"]
     assert extras["targetUnit"] == "count"
     assert extras["valueScale"] == 1
     assert "condition" not in extras
