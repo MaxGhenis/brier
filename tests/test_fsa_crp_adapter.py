@@ -22,16 +22,14 @@ SPEC = resolve_pending.FSA_CRP_ADAPTERS[SERIES]
 FIXTURE_ROOT = ROOT / "tests" / "fixtures" / "fsa_crp"
 
 
-def test_fsa_crp_adapter_and_draft_share_the_exact_seven_key_binding() -> None:
-    draft = json.loads(
-        (
-            ROOT
-            / "drafts"
-            / "ledger-entries"
-            / "usda-fsa-crp-enrolled-acres-total.json"
-        ).read_text()
+def test_fsa_crp_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
+    docket = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text()
     )
-    binding = draft["extras"]["sourceBinding"]
+    entry = next(
+        e for e in docket["series"] if e["series"] == SERIES
+    )
+    binding = entry["extras"]["sourceBinding"]
 
     assert "fsa-crp-monthly-summary" in register_targets.SOURCE_ADAPTERS
     assert prospect_targets._source_binding_errors(binding) == []

@@ -1430,6 +1430,28 @@
           }
         }
       }
+    },
+    {
+      "series": "usda.fsa.crp.enrolled_acres_total",
+      "cadence": "monthly",
+      "slug": "us-crp-enrolled-acres-{month}-{year}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "count",
+        "country": "US",
+        "sourceBinding": {
+          "adapter": "fsa-crp-monthly-summary",
+          "sourceUrl": "https://www.fsa.usda.gov/resources/programs/conservation-reserve-program/statistics",
+          "sourceSeriesId": "usda.fsa.crp.enrolled_acres_total",
+          "field": "enrolled_acres_total",
+          "table": "USDA FSA Conservation Reserve Program Statistics, CRP Monthly Summary, total row",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
     }
   ]
 }
