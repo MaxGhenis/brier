@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CONDITIONS,
@@ -300,5 +302,108 @@ describe("condition gate on scoring", () => {
     } else {
       expect(admitted.forecastSlug).toBe(conditionalCell.slug);
     }
+  });
+});
+
+describe("s3596 ACTC threshold conditional pair (thesis#106)", () => {
+  const enacted = CONDITIONS.find(
+    (condition) =>
+      condition.conditionId === "cond.s3596-actc-threshold.enacted",
+  );
+  const currentLaw = CONDITIONS.find(
+    (condition) =>
+      condition.conditionId === "cond.s3596-actc-threshold.current-law",
+  );
+
+  function requireEnacted(): ProvisionEnactedConditionDefinition {
+    if (!enacted || enacted.type !== "provision_enacted") {
+      throw new Error("S.3596 enacted provision condition is missing");
+    }
+    return enacted;
+  }
+
+  it("registers the enacted arm as a provision_enacted condition", () => {
+    const condition = requireEnacted();
+    expect(condition.statutoryTest).toBe(
+      "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) " +
+        "earned-income threshold no more than $1 for tax year 2027.",
+    );
+    expect(condition.matchStrings).toEqual([condition.statutoryTest]);
+    expect(condition.checkSource).toBe(PROVISION_ENACTED_CHECK_SOURCE);
+    expect(condition.deadline).toBe("2027-12-31");
+    expect(condition.resolvesBy).toBe("2027-12-31");
+    expect(condition.status).toBe("open");
+    expect(conditionForContract(condition.statutoryTest)).toBe(condition);
+  });
+
+  it("registers the current-law arm as the enacted arm's complement", () => {
+    expect(currentLaw?.type).toBe("recorded_status");
+    expect(currentLaw?.complementOf).toBe("cond.s3596-actc-threshold.enacted");
+    expect(enacted?.complementOf).toBe(
+      "cond.s3596-actc-threshold.current-law",
+    );
+    expect(currentLaw?.resolvesBy).toBe("2027-12-31");
+    expect(currentLaw?.status).toBe("open");
+  });
+
+  it("binds both preregistered docket conditionals to the registry", () => {
+    // The roll-docket loop registers each arm's `conditional` text into the
+    // immutable target contract, the analyst must repeat it verbatim, and
+    // published cells resolve conditions by exact string match. This test
+    // closes the loop BEFORE any roll: every conditional-pair arm committed
+    // in the docket registry must already resolve to the condition it
+    // names, so a preregistered rerun can never publish an unregistered
+    // conditional cell.
+    const docket = JSON.parse(
+      readFileSync(
+        join(__dirname, "../../../scripts/docket_series.json"),
+        "utf8",
+      ),
+    ) as { series: Array<Record<string, unknown>> };
+    const pairs = docket.series.filter(
+      (entry) => typeof entry.conditionalPair === "object",
+    );
+    expect(pairs.length).toBeGreaterThan(0);
+    for (const entry of pairs) {
+      const pair = entry.conditionalPair as {
+        arms: Array<{ conditional: string; conditionId: string }>;
+      };
+      expect(pair.arms).toHaveLength(2);
+      const conditionIds = new Set<string>();
+      for (const arm of pair.arms) {
+        const condition = conditionForContract(arm.conditional);
+        expect(condition, `${entry.series}: ${arm.conditionId}`).toBeDefined();
+        expect(condition?.conditionId).toBe(arm.conditionId);
+        conditionIds.add(arm.conditionId);
+      }
+      expect(conditionIds.size).toBe(2);
+      const [first, second] = pair.arms.map((arm) =>
+        CONDITIONS.find(
+          (condition) => condition.conditionId === arm.conditionId,
+        ),
+      );
+      expect(first?.complementOf).toBe(second?.conditionId);
+      expect(second?.complementOf).toBe(first?.conditionId);
+    }
+  });
+
+  it("resolves the enacted condition from enrolled-bill evidence", () => {
+    const condition = requireEnacted();
+    const qualifying: ProvisionEnactmentEvidence = {
+      kind: "enacted_public_law",
+      enactedOn: "2027-06-15",
+      checkSource: PROVISION_ENACTED_CHECK_SOURCE,
+      statutoryTest: condition.statutoryTest,
+      satisfiesStatutoryTest: true,
+    };
+    expect(
+      resolveProvisionEnactedCondition(condition, "2027-07-01", [qualifying]),
+    ).toBe("satisfied");
+    expect(resolveProvisionEnactedCondition(condition, "2027-07-01", [])).toBe(
+      "open",
+    );
+    expect(resolveProvisionEnactedCondition(condition, "2027-12-31", [])).toBe(
+      "failed",
+    );
   });
 });

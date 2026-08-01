@@ -42,6 +42,13 @@ challenge = [
     # like receipt: any bump must pass the full suite at the new pin first.
     "sigstore==4.5.0; python_version >= '3.11'",
 ]
+resolver = [
+    # IRS SOI Publication 1304 prints are legacy BIFF .xls workbooks; xlrd 2.x
+    # is the .xls-only parser (no xlsx, no formulas), exact-pinned like
+    # receipt/sigstore. resolve_pending.py imports it lazily and fails closed
+    # with an install hint when absent.
+    "xlrd==2.0.1",
+]
 experiments = [
     "numpy>=2.2.6",
     "scipy>=1.15.3",
@@ -65,6 +72,8 @@ dev = [
     "black>=26.3.1",
     "ruff>=0.15.7",
     "pyyaml>=6.0.2",
+    # The IRS SOI adapter fixtures parse real .xls workbooks in tests.
+    "xlrd==2.0.1",
 ]
 
 [tool.setuptools.packages.find]

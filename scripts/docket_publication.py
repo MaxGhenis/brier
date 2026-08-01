@@ -645,6 +645,10 @@ def validate_target_registration(
         "unit": target.get("targetUnit"),
         "valueScale": target.get("valueScale"),
         "sourceBinding": target.get("sourceBinding"),
+        # Conditional arms bake the legal-state text into the registered
+        # contract; a batch target must repeat it byte-for-byte (None for
+        # unconditional targets on both sides).
+        "conditional": target.get("conditional"),
     }
     for key, value in expected.items():
         if not canonical_equal(contract.get(key), value):

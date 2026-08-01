@@ -138,6 +138,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "pyyaml" },
     { name = "ruff" },
+    { name = "xlrd" },
 ]
 experiments = [
     { name = "anthropic" },
@@ -153,6 +154,9 @@ experiments = [
 ]
 mcp = [
     { name = "mcp", extra = ["cli"] },
+]
+resolver = [
+    { name = "xlrd" },
 ]
 
 [package.metadata]
@@ -175,8 +179,10 @@ requires-dist = [
     { name = "selectolax", marker = "extra == 'bills'", specifier = ">=0.3.21" },
     { name = "sigstore", marker = "python_full_version >= '3.11' and extra == 'challenge'", specifier = "==4.5.0" },
     { name = "statsmodels", marker = "extra == 'experiments'", specifier = ">=0.14.6" },
+    { name = "xlrd", marker = "extra == 'dev'", specifier = "==2.0.1" },
+    { name = "xlrd", marker = "extra == 'resolver'", specifier = "==2.0.1" },
 ]
-provides-extras = ["custody", "challenge", "experiments", "mcp", "bills", "dev"]
+provides-extras = ["custody", "challenge", "resolver", "experiments", "mcp", "bills", "dev"]
 
 [[package]]
 name = "certifi"
@@ -2907,4 +2913,13 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e3/ad/4a96c425be6fb67e0621e62d86c402b4a17ab2be7f7c055d9bd2f638b9e2/uvicorn-0.42.0.tar.gz", hash = "sha256:9b1f190ce15a2dd22e7758651d9b6d12df09a13d51ba5bf4fc33c383a48e1775", size = 85393, upload-time = "2026-03-16T06:19:50.077Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/89/f8827ccff89c1586027a105e5630ff6139a64da2515e24dafe860bd9ae4d/uvicorn-0.42.0-py3-none-any.whl", hash = "sha256:96c30f5c7abe6f74ae8900a70e92b85ad6613b745d4879eb9b16ccad15645359", size = 68830, upload-time = "2026-03-16T06:19:48.325Z" },
+]
+
+[[package]]
+name = "xlrd"
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/b3/19a2540d21dea5f908304375bd43f5ed7a4c28a370dc9122c565423e6b44/xlrd-2.0.1.tar.gz", hash = "sha256:f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88", size = 100259, upload-time = "2020-12-11T10:14:22.201Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a6/0c/c2a72d51fe56e08a08acc85d13013558a2d793028ae7385448a6ccdfae64/xlrd-2.0.1-py2.py3-none-any.whl", hash = "sha256:6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd", size = 96531, upload-time = "2020-12-11T10:14:20.877Z" },
 ]

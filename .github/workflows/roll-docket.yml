@@ -15,12 +15,33 @@ on:
       cadence:
         description: "weekly|monthly|quarterly|annual (empty = all)"
         default: ""
+      series:
+        description: "Roll only this exact registry series (empty = all)"
+        default: ""
       prompt_mode:
         description: "Analyst prompt mode: fast|full|ladder"
         default: "fast"
       codex_model:
         description: "Codex model for the analyst (empty = pipeline default)"
         default: ""
+      codex_reasoning_effort:
+        description: "Codex reasoning effort (empty = pipeline default)"
+        default: ""
+      codex_network:
+        description: >-
+          "true" runs the analyst in a workspace-write sandbox with network
+          access, for targets whose official endpoints the hosted web-search
+          tool cannot fetch
+        default: ""
+      review_codex_model:
+        description: "Pre-submit review model (empty = pipeline default)"
+        default: ""
+      review_codex_search:
+        description: '"true" gives the pre-submit reviewer hosted web search'
+        default: ""
+      timeout_seconds:
+        description: "Per-run analyst timeout in seconds"
+        default: "540"
 
 permissions:
   contents: read
@@ -61,6 +82,7 @@ jobs:
         id: targets
         env:
           CADENCE: ${{ github.event.inputs.cadence }}
+          SERIES: ${{ github.event.inputs.series }}
           MAX_TARGETS: ${{ github.event.inputs.max_targets || 10 }}
         run: |
           set -euo pipefail
@@ -71,6 +93,9 @@ jobs:
           )
           if [ -n "$CADENCE" ]; then
             args+=(--cadence "$CADENCE")
+          fi
+          if [ -n "$SERIES" ]; then
+            args+=(--series "$SERIES")
           fi
           "${args[@]}"
           COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/roll-targets.json'))['targets']))")
@@ -242,13 +267,33 @@ jobs:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
           PROMPT_MODE: ${{ github.event.inputs.prompt_mode || 'fast' }}
           THESIS_CODEX_MODEL: ${{ github.event.inputs.codex_model || '' }}
+          CODEX_REASONING_EFFORT: ${{ github.event.inputs.codex_reasoning_effort || '' }}
+          CODEX_NETWORK: ${{ github.event.inputs.codex_network || '' }}
+          REVIEW_CODEX_MODEL: ${{ github.event.inputs.review_codex_model || '' }}
+          REVIEW_CODEX_SEARCH: ${{ github.event.inputs.review_codex_search || '' }}
+          TIMEOUT_SECONDS: ${{ github.event.inputs.timeout_seconds || '540' }}
         run: |
           set -euo pipefail
-          python3 scripts/run_thesis_batch.py \
-            --targets-file /tmp/trusted-registration/roll-targets.json \
-            --prompt-mode "$PROMPT_MODE" \
-            --timeout-seconds 540 \
-            --out "$BATCH_MANIFEST" || true
+          args=(
+            python3 scripts/run_thesis_batch.py
+            --targets-file /tmp/trusted-registration/roll-targets.json
+            --prompt-mode "$PROMPT_MODE"
+            --timeout-seconds "$TIMEOUT_SECONDS"
+            --out "$BATCH_MANIFEST"
+          )
+          if [ -n "$CODEX_REASONING_EFFORT" ]; then
+            args+=(--codex-reasoning-effort "$CODEX_REASONING_EFFORT")
+          fi
+          if [ "$CODEX_NETWORK" = "true" ]; then
+            args+=(--codex-sandbox workspace-write --codex-network)
+          fi
+          if [ -n "$REVIEW_CODEX_MODEL" ]; then
+            args+=(--pre-submit-review-codex-model "$REVIEW_CODEX_MODEL")
+          fi
+          if [ "$REVIEW_CODEX_SEARCH" = "true" ]; then
+            args+=(--pre-submit-review-codex-search)
+          fi
+          "${args[@]}" || true
           # Failures remain immutable run records; partial success is allowed.
 
       - name: Stage data-only publication bundle

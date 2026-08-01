@@ -276,3 +276,35 @@ three captured first-print payloads.
 | Eurostat | Unemployment, industrial production, construction production, retail volume | No three-period captured first-print fixture set for the exact candidate |
 | ONS | CPI, claimant count, retail sales, public-sector net borrowing | No captured ONS JSON fixture set; current mutable series are insufficient for revision-prone first prints |
 | Statistics Bureau of Japan / e-Stat | Tokyo CPI, national LFS, household spending | The e-Stat JSON API requires an application ID per the [official API documentation](https://www.e-stat.go.jp/api/api/api/index.php/en/api-dev/how_to_use). Per the lane contract, no e-Stat adapter or release-artifact parser was added. |
+
+## IRS SOI Publication 1304 Table 3.3 ACTC claimant returns (irs.actc.total_claims)
+
+Status: **VERIFIED** (integrator, 2026-08-01). Four anchors read directly
+off the official Publication 1304 Table 3.3 workbooks, live-fetched from
+www.irs.gov and parsed at the "All returns, total" row's "Number of
+returns" column under the "Refundable child tax credit or additional child
+tax credit" header ("Additional child tax credit" in the TY2020 print —
+the same statistic under IRS's pre-ARPA label). Values are printed
+whole-return counts, never derived sums; the registered transform divides
+by 1,000,000 for the millions-unit cells.
+
+- TY2020: 19,119,249 returns — https://www.irs.gov/pub/irs-soi/20in33ar.xls
+- TY2021: 37,771,612 returns — https://www.irs.gov/pub/irs-soi/21in33ar.xls
+  (ARPA policy-anomaly year: fully refundable credit, no earned-income floor)
+- TY2022: 18,076,696 returns — https://www.irs.gov/pub/irs-soi/22in33ar.xls
+- TY2023: 17,626,084 returns — https://www.irs.gov/pub/irs-soi/23in33ar.xls
+
+The workbooks fetched on 2026-08-01 are frozen as parser fixtures under
+`tests/fixtures/irs_soi_pub1304/` (SHA-256):
+
+- `20in33ar.xls` 7abb8cf1f6f124e1ef481db562d622f46155effe98dad72bd82d0844996dabaa
+- `21in33ar.xls` b8e3e7ca7bc048dca2b554e78359e4944ce429b4a58c5ea9cbc7e39d71f7ea75
+- `22in33ar.xls` f04012c527c5bf40e412e112597038d70fd79c017d9476c07eebc3b59e3766a4
+- `23in33ar.xls` e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04
+
+The runtime gate (`irs_soi_pub1304_anchor_mismatches`) re-fetches every
+anchor workbook at resolution time and refuses the adapter on any
+mismatch, so these pins are self-checking, not trusted literals. The same
+counts (divided to millions) are pinned as `anchors` in the docket entry's
+target context, so a preregistered analyst run whose fetched base-rate
+history contradicts the official prints fails validation at spawn time.

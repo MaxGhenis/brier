@@ -56,6 +56,7 @@ SOURCE_ADAPTERS = {
     "eurostat-api",
     "fsa-crp-monthly-summary",
     "generic-url",
+    "irs-soi-pub1304",
     "ons-timeseries",
     "statcan-wds",
     "usaspending-api",
@@ -525,6 +526,19 @@ def build_contract(
         "valueScale": value_scale,
         "sourceBinding": binding,
     }
+    conditional = target.get("conditional")
+    if conditional is not None:
+        # A conditional arm's legal-state text is part of the immutable
+        # preregistered contract: the batch runner passes it to the analyst,
+        # the run manifest and cells must repeat it byte-for-byte, and the
+        # site's condition registry matches on the exact string. Baking it
+        # into the content-hashed snapshot makes the condition wording
+        # itself chronology-witnessed.
+        if not isinstance(conditional, str) or not conditional.strip():
+            raise RegistrationError(
+                "conditional must be a non-empty string when present"
+            )
+        contract["conditional"] = conditional
     seed_period = target.get("seedPeriod")
     if seed_period is not None:
         if not isinstance(seed_period, str) or seed_period != contract["period"]:
@@ -1349,6 +1363,7 @@ def bind_registration_commits(
             "valueScale": target.get("valueScale"),
             "sourceBinding": target.get("sourceBinding"),
             "seedPeriod": target.get("seedPeriod"),
+            "conditional": target.get("conditional"),
         }
         for key, value in expected.items():
             if canonical_bytes(contract.get(key)) != canonical_bytes(value):
