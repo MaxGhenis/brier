@@ -6655,7 +6655,12 @@ def main() -> int:
             print(f"  already recorded: {ref}")
             continue
         release_day = dt.date.fromisoformat(source_vintage)
-        if release_day > today:
+        # For the IRS SOI family the pending reference's date is the
+        # policy-derived RESOLVE-BY date (window end), not a release date:
+        # gating on it would skip the entire registered window and capture
+        # the print months late. That family's leg gates on the immutable
+        # expectedReleaseWindow instead.
+        if release_day > today and kind != "irs_soi_pub1304":
             print(f"  release {release_day} not reached: {ref}")
             continue
         unit = (forecast or {}).get("unit")
@@ -6874,7 +6879,6 @@ def main() -> int:
                     f"{window['start']}"
                 )
                 continue
-            late_capture = window_state == "missed"
             anchor_counts: dict[str, float | None] = {}
             anchor_fetch_failed = False
             anchor_env_failure = None
@@ -6936,9 +6940,13 @@ def main() -> int:
             else:
                 value = None
             # The workbook is a static per-tax-year print with no vintage
-            # archive: the capture day is the source vintage.
+            # archive: the capture day is the source vintage. Lateness is
+            # judged on the ACTUAL retrieval date (not the loop's start-of-
+            # run date) so a run crossing midnight past the window end
+            # still discloses.
             if raw is not None:
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
+                late_capture = retrieved_at[:10] > str(window["end"])
                 if late_capture:
                     print(
                         f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "

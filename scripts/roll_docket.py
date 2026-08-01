@@ -527,7 +527,15 @@ def conditional_pair_seed_targets(
     # The reviewed arm identity fields are authoritative; a registry extras
     # block must never be able to restate them (extras spread first, arm
     # fields last, and the reserved keys are rejected outright).
-    reserved = {"series", "period", "catalogSlug", "dataPointId", "conditional"}
+    reserved = {
+        "series",
+        "period",
+        "catalogSlug",
+        "dataPointId",
+        "conditional",
+        "conditionId",
+        "conditionDeadline",
+    }
     clashing = reserved & set(extras)
     if clashing:
         return skip(f"extras restate reserved target keys {sorted(clashing)}")
@@ -575,6 +583,8 @@ def conditional_pair_seed_targets(
                 "catalogSlug": slug,
                 "dataPointId": data_point_id,
                 "conditional": conditional,
+                "conditionId": condition_id,
+                "conditionDeadline": pair["conditionDeadline"],
             }
         )
     if len(seen_slugs) != 2 or len(seen_ids) != 2 or len(seen_conditionals) != 2:

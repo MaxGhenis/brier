@@ -528,17 +528,31 @@ def build_contract(
     }
     conditional = target.get("conditional")
     if conditional is not None:
-        # A conditional arm's legal-state text is part of the immutable
-        # preregistered contract: the batch runner passes it to the analyst,
-        # the run manifest and cells must repeat it byte-for-byte, and the
-        # site's condition registry matches on the exact string. Baking it
-        # into the content-hashed snapshot makes the condition wording
-        # itself chronology-witnessed.
+        # A conditional arm's legal-state text, condition identity, and
+        # deadline are part of the immutable preregistered contract: the
+        # batch runner passes the text to the analyst, the run manifest and
+        # cells must repeat it byte-for-byte, the site's condition registry
+        # matches on the exact string, and the bind step regenerates the
+        # whole contract from the committed docket. Baking all three into
+        # the content-hashed snapshot makes the condition itself
+        # chronology-witnessed.
         if not isinstance(conditional, str) or not conditional.strip():
             raise RegistrationError(
                 "conditional must be a non-empty string when present"
             )
+        condition_id = target.get("conditionId")
+        if not isinstance(condition_id, str) or not condition_id.strip():
+            raise RegistrationError(
+                "conditional target requires a non-empty conditionId"
+            )
+        deadline = _iso_date(str(target.get("conditionDeadline")))
+        if deadline.isoformat() >= binding["expectedReleaseWindow"]["start"]:
+            raise RegistrationError(
+                "conditionDeadline must precede the expected release window"
+            )
         contract["conditional"] = conditional
+        contract["conditionId"] = condition_id
+        contract["conditionDeadline"] = deadline.isoformat()
     seed_period = target.get("seedPeriod")
     if seed_period is not None:
         if not isinstance(seed_period, str) or seed_period != contract["period"]:
@@ -878,17 +892,22 @@ def require_seed_docket_template(
 
 
 def require_conditional_docket_template(
-    contract: dict[str, Any], template_matches: list[dict[str, Any]]
+    contract: dict[str, Any],
+    template_matches: list[dict[str, Any]],
+    registered_at_utc: str | None = None,
 ) -> None:
     """Reauthenticate a conditional contract against the committed docket.
 
     The binding step re-runs after every register/publish rebase, so the
     committed registry at trusted HEAD — not the roll job's earlier
-    computation — is the authority for which conditional arms exist. A
-    conditional contract whose committed entry was removed, whose arm
-    fields drifted, or whose deadline stopped parsing fails closed; a
-    contract registering a pair arm's slug WITHOUT its conditional (or
-    with its sibling's) fails too.
+    computation — is the authority for which conditional arms exist. The
+    check is total: the committed entry must REGENERATE the bound contract
+    byte-for-byte (series, period, slug, dataPointId, conditional text,
+    conditionId, deadline, unit, valueScale, and the full source binding
+    including its window), the sibling arm must still be present and
+    well-formed, and an unconditional contract must not claim a slug the
+    committed registry reserves for a conditional arm. Any committed-entry
+    drift after registration fails closed before forecasting.
     """
 
     label = (
@@ -902,8 +921,6 @@ def require_conditional_docket_template(
     )
     arms = pair.get("arms") if isinstance(pair, dict) else None
     if conditional is None:
-        # An unconditional contract must not claim a slug the committed
-        # registry reserves for a conditional arm.
         for arm in arms if isinstance(arms, list) else []:
             if isinstance(arm, dict) and arm.get("catalogSlug") == contract.get(
                 "catalogSlug"
@@ -919,27 +936,29 @@ def require_conditional_docket_template(
             f"entry: {label}"
         )
     entry = template_matches[0]
-    if not isinstance(arms, list):
+    extras = entry.get("extras")
+    if not isinstance(arms, list) or len(arms) != 2:
         raise RegistrationError(
-            f"committed docket entry has no conditionalPair arms: {label}"
+            "committed docket entry has no two-arm conditionalPair: "
+            f"{label}"
         )
-    if str(entry.get("period")) != str(contract.get("period")):
+    if not isinstance(extras, dict):
         raise RegistrationError(
-            "conditional target period disagrees with the committed docket "
-            f"entry: {label}"
+            f"committed conditional entry lacks extras: {label}"
         )
-    try:
-        deadline = _iso_date(str(pair.get("conditionDeadline")))
-    except RegistrationError as exc:
-        raise RegistrationError(
-            f"committed conditional pair has no valid deadline: {label}"
-        ) from exc
-    del deadline
+    for field in ("catalogSlug", "dataPointId", "conditional", "conditionId"):
+        values = [
+            arm.get(field) if isinstance(arm, dict) else None for arm in arms
+        ]
+        if len(set(map(str, values))) != 2 or not all(
+            isinstance(value, str) and value.strip() for value in values
+        ):
+            raise RegistrationError(
+                "committed conditional arms are malformed or "
+                f"non-distinct on {field}: {label}"
+            )
     matching = [
-        arm
-        for arm in arms
-        if isinstance(arm, dict)
-        and arm.get("catalogSlug") == contract.get("catalogSlug")
+        arm for arm in arms if arm.get("catalogSlug") == contract.get("catalogSlug")
     ]
     if len(matching) != 1:
         raise RegistrationError(
@@ -947,21 +966,39 @@ def require_conditional_docket_template(
             f"exactly once: {label}"
         )
     arm = matching[0]
-    for key, contract_key in (
-        ("dataPointId", "dataPointId"),
-        ("conditional", "conditional"),
-    ):
-        if canonical_bytes(arm.get(key)) != canonical_bytes(
-            contract.get(contract_key)
-        ):
-            raise RegistrationError(
-                f"conditional contract {contract_key} disagrees with the "
-                f"committed docket arm: {label}"
-            )
-    condition_id = arm.get("conditionId")
-    if not isinstance(condition_id, str) or not condition_id.strip():
+    reconstructed_target = {
+        **extras,
+        "series": entry.get("series"),
+        "period": entry.get("period"),
+        "catalogSlug": arm.get("catalogSlug"),
+        "dataPointId": arm.get("dataPointId"),
+        "conditional": arm.get("conditional"),
+        "conditionId": arm.get("conditionId"),
+        "conditionDeadline": pair.get("conditionDeadline"),
+    }
+    try:
+        registered_date = (
+            parse_utc_instant(registered_at_utc).date()
+            if registered_at_utc
+            else dt.date.today()
+        )
+        rebuilt = build_contract(reconstructed_target, registered_date)
+    except RegistrationError as exc:
         raise RegistrationError(
-            f"committed conditional arm lacks a conditionId: {label}"
+            "committed docket entry no longer regenerates a valid "
+            f"conditional contract: {label} ({exc})"
+        ) from exc
+    rebuilt = json.loads(canonical_bytes(rebuilt))
+    if canonical_bytes(rebuilt) != canonical_bytes(contract):
+        drifted = sorted(
+            key
+            for key in set(rebuilt) | set(contract)
+            if canonical_bytes(rebuilt.get(key))
+            != canonical_bytes(contract.get(key))
+        )
+        raise RegistrationError(
+            "committed docket entry no longer regenerates the registered "
+            f"conditional contract (drifted: {drifted}): {label}"
         )
 
 
@@ -1452,6 +1489,8 @@ def bind_registration_commits(
             "sourceBinding": target.get("sourceBinding"),
             "seedPeriod": target.get("seedPeriod"),
             "conditional": target.get("conditional"),
+            "conditionId": target.get("conditionId"),
+            "conditionDeadline": target.get("conditionDeadline"),
         }
         for key, value in expected.items():
             if canonical_bytes(contract.get(key)) != canonical_bytes(value):
@@ -1467,7 +1506,9 @@ def bind_registration_commits(
         ]
         require_native_docket_template(contract, template_matches)
         require_seed_docket_template(contract, template_matches)
-        require_conditional_docket_template(contract, template_matches)
+        require_conditional_docket_template(
+            contract, template_matches, snapshot["registeredAtUtc"]
+        )
         if len(template_matches) > 1:
             raise RegistrationError(
                 "ambiguous committed docket template for "

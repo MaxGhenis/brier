@@ -693,6 +693,8 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
         assert target["period"] == "2027"
         assert target["conditional"] == arm["conditional"]
         assert target["dataPointId"] == arm["dataPointId"]
+        assert target["conditionId"] == arm["conditionId"]
+        assert target["conditionDeadline"] == "2027-12-31"
         # Extras ride into the target context: binding template, window,
         # canonical resolution by-date, and spawn-time history anchors.
         assert target["sourceBinding"]["adapter"] == "irs-soi-pub1304"

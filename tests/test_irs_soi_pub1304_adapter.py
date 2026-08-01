@@ -87,6 +87,8 @@ def test_docket_pair_arms_bind_registrable_conditional_contracts() -> None:
             "catalogSlug": arm["catalogSlug"],
             "dataPointId": arm["dataPointId"],
             "conditional": arm["conditional"],
+            "conditionId": arm["conditionId"],
+            "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
             **entry["extras"],
         }
         contract = register_targets.build_contract(
@@ -130,6 +132,8 @@ def test_register_rejects_blank_conditional() -> None:
         "catalogSlug": arm["catalogSlug"],
         "dataPointId": arm["dataPointId"],
         "conditional": "   ",
+        "conditionId": arm["conditionId"],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
         **entry["extras"],
     }
     with pytest.raises(register_targets.RegistrationError, match="conditional"):
@@ -428,6 +432,8 @@ def bindable_arm_contract(arm_index: int = 0) -> dict:
         "catalogSlug": arm["catalogSlug"],
         "dataPointId": arm["dataPointId"],
         "conditional": arm["conditional"],
+        "conditionId": arm["conditionId"],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
         **entry["extras"],
     }
     return register_targets.build_contract(
@@ -438,54 +444,86 @@ def bindable_arm_contract(arm_index: int = 0) -> dict:
 def test_bind_reauthenticates_conditional_contracts_against_the_docket() -> None:
     contract = bindable_arm_contract()
     entry = docket_entry()
-    # The committed entry still authorizes the arm: passes.
-    register_targets.require_conditional_docket_template(contract, [entry])
+    stamp = "2026-08-01T00:00:00Z"
+    # The committed entry still regenerates the contract exactly: passes.
+    register_targets.require_conditional_docket_template(
+        contract, [entry], stamp
+    )
 
     with pytest.raises(
         register_targets.RegistrationError, match="exactly one committed"
     ):
-        register_targets.require_conditional_docket_template(contract, [])
+        register_targets.require_conditional_docket_template(contract, [], stamp)
 
     removed = docket_entry()
     del removed["conditionalPair"]
     with pytest.raises(
-        register_targets.RegistrationError, match="no conditionalPair arms"
-    ):
-        register_targets.require_conditional_docket_template(contract, [removed])
-
-    drifted = docket_entry()
-    drifted["conditionalPair"]["arms"][0]["conditional"] = "different premise"
-    with pytest.raises(
-        register_targets.RegistrationError, match="disagrees with the committed"
-    ):
-        register_targets.require_conditional_docket_template(contract, [drifted])
-
-    swapped = docket_entry()
-    arms = swapped["conditionalPair"]["arms"]
-    arms[0]["conditional"], arms[1]["conditional"] = (
-        arms[1]["conditional"],
-        arms[0]["conditional"],
-    )
-    with pytest.raises(
-        register_targets.RegistrationError, match="disagrees with the committed"
-    ):
-        register_targets.require_conditional_docket_template(contract, [swapped])
-
-    reperioded = docket_entry()
-    reperioded["period"] = "2028"
-    with pytest.raises(
-        register_targets.RegistrationError, match="period disagrees"
+        register_targets.RegistrationError, match="no two-arm conditionalPair"
     ):
         register_targets.require_conditional_docket_template(
-            contract, [reperioded]
+            contract, [removed], stamp
         )
 
-    dateless = docket_entry()
-    dateless["conditionalPair"]["conditionDeadline"] = "someday"
+    sibling_removed = docket_entry()
+    sibling_removed["conditionalPair"]["arms"].pop()
     with pytest.raises(
-        register_targets.RegistrationError, match="no valid deadline"
+        register_targets.RegistrationError, match="no two-arm conditionalPair"
     ):
-        register_targets.require_conditional_docket_template(contract, [dateless])
+        register_targets.require_conditional_docket_template(
+            contract, [sibling_removed], stamp
+        )
+
+    for mutate, pattern in (
+        (
+            lambda e: e["conditionalPair"]["arms"][0].update(
+                conditional="different premise"
+            ),
+            "no longer regenerates the registered",
+        ),
+        (
+            lambda e: e["conditionalPair"]["arms"][0].update(
+                conditionId="cond.other.id"
+            ),
+            "no longer regenerates the registered",
+        ),
+        (
+            lambda e: e["conditionalPair"].update(conditionDeadline="2027-06-30"),
+            "no longer regenerates the registered",
+        ),
+        (
+            lambda e: e["extras"].update(targetUnit="count"),
+            "no longer regenerates the registered",
+        ),
+        (
+            lambda e: e["extras"].update(
+                expectedReleaseWindow={"start": "2029-02-01", "end": "2029-12-31"}
+            ),
+            "no longer regenerates the registered",
+        ),
+        (
+            lambda e: e["extras"]["sourceBinding"].update(
+                sourceUrl="https://www.irs.gov/other"
+            ),
+            "no longer regenerates the registered",
+        ),
+        (lambda e: e.update(period="2028"), "no longer regenerates"),
+        (
+            lambda e: e["conditionalPair"].update(conditionDeadline="someday"),
+            "no longer regenerates a valid",
+        ),
+        (
+            lambda e: e["conditionalPair"]["arms"][0].update(
+                conditional=e["conditionalPair"]["arms"][1]["conditional"]
+            ),
+            "malformed or non-distinct",
+        ),
+    ):
+        drifted = docket_entry()
+        mutate(drifted)
+        with pytest.raises(register_targets.RegistrationError, match=pattern):
+            register_targets.require_conditional_docket_template(
+                contract, [drifted], stamp
+            )
 
 
 def test_bind_blocks_unconditional_claims_on_reserved_pair_slugs() -> None:
@@ -510,3 +548,38 @@ def test_bind_blocks_unconditional_claims_on_reserved_pair_slugs() -> None:
     register_targets.require_conditional_docket_template(
         contract, [{"series": entry["series"], "extras": entry["extras"]}]
     )
+
+
+def test_contract_requires_condition_identity_and_deadline() -> None:
+    entry = docket_entry()
+    arm = entry["conditionalPair"]["arms"][0]
+    base = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": arm["catalogSlug"],
+        "dataPointId": arm["dataPointId"],
+        "conditional": arm["conditional"],
+        "conditionId": arm["conditionId"],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
+        **entry["extras"],
+    }
+    contract = register_targets.build_contract(
+        base, register_targets.dt.date(2026, 8, 1)
+    )
+    assert contract["conditionId"] == arm["conditionId"]
+    assert contract["conditionDeadline"] == "2027-12-31"
+
+    for strip in ("conditionId", "conditionDeadline"):
+        broken = dict(base)
+        del broken[strip]
+        with pytest.raises(register_targets.RegistrationError):
+            register_targets.build_contract(
+                broken, register_targets.dt.date(2026, 8, 1)
+            )
+    late = dict(base, conditionDeadline="2029-06-01")
+    with pytest.raises(
+        register_targets.RegistrationError, match="precede the expected release"
+    ):
+        register_targets.build_contract(
+            late, register_targets.dt.date(2026, 8, 1)
+        )
