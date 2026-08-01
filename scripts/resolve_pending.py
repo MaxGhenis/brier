@@ -1218,9 +1218,9 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
             "credit claimant returns, read from the 'All returns, total' "
             "row's 'Number of returns' column in the official Publication "
             "1304 Table 3.3 workbook linked from {source_url}; the fetched "
-            "workbook bytes are archived. The recorded value is the "
-            "published whole-return count divided by 1,000,000 and rounded "
-            "to one decimal, per the registered transform."
+            "workbook bytes are archived. The recorded value is exactly the "
+            "registered transform of the published whole-return count "
+            "(multiplied by 1e-06), with no further rounding."
         ),
     },
 }
@@ -4541,6 +4541,39 @@ def irs_soi_pub1304_count_from_grid(
     return float(value), None
 
 
+def irs_soi_pub1304_identity_refusal(
+    grid: list[list[Any]], final_url: str, year: str
+) -> str | None:
+    """Refuse a workbook that is not THIS tax year's Table 3.3 print.
+
+    Headers, anchors, and integer checks cannot tell one year's workbook
+    from another's — a redirect or mirror serving the wrong file would
+    otherwise grade the wrong tax year. The printed title names the tax
+    year and the official filename encodes it; require both.
+    """
+
+    expected_name = f"{int(year) % 100:02d}in33ar.xls"
+    final_name = urllib.parse.urlparse(final_url).path.rsplit("/", 1)[-1]
+    if final_name != expected_name:
+        return (
+            f"fetched filename {final_name!r} is not the tax year's "
+            f"official {expected_name!r}"
+        )
+    title_cells = [
+        _irs_soi_normalized_text(cell)
+        for row in grid[:3]
+        for cell in row[:3]
+        if isinstance(cell, str) and cell.strip()
+    ]
+    token = f"tax year {year}"
+    if not any(token in cell for cell in title_cells):
+        return (
+            f"workbook title does not name {token!r}; wrong or relabeled "
+            "print"
+        )
+    return None
+
+
 def irs_soi_pub1304_fetch_year(
     spec: Mapping[str, Any], year: str
 ) -> tuple[float | None, bytes | None, str, str, str | None]:
@@ -4576,6 +4609,9 @@ def irs_soi_pub1304_fetch_year(
         )
     grid, refusal = irs_soi_pub1304_grid(raw, spec)
     if refusal or grid is None:
+        return None, raw, final_url, retrieved_at, refusal
+    refusal = irs_soi_pub1304_identity_refusal(grid, final_url, year)
+    if refusal:
         return None, raw, final_url, retrieved_at, refusal
     count, refusal = irs_soi_pub1304_count_from_grid(grid, spec)
     return count, raw, final_url, retrieved_at, refusal
@@ -6592,6 +6628,9 @@ def main() -> int:
         str,
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
+    # Missing-parser (or similar) environment failures must fail the run
+    # loudly instead of deferring forever behind green exits.
+    environment_failures: list[str] = []
     qcew_cache: dict[
         tuple[str, str],
         tuple[float | None, bytes | None, str, str, str | None],
@@ -6815,8 +6854,30 @@ def main() -> int:
                     f"registry drift?): {ref}"
                 )
                 continue
+            # The registered window is part of the immutable contract: defer
+            # before it opens; a capture after it closes still records the
+            # first print of the static workbook (the end is the aging-style
+            # policy by-date, not a publication guarantee) but the lateness
+            # is loud here and visible in the record's capture vintage.
+            window = binding.get("expectedReleaseWindow")
+            window_state = snapshot_window_state(
+                dt.date.fromisoformat(utc_now()[:10]), window
+            )
+            if window_state == "invalid":
+                print(
+                    f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}"
+                )
+                continue
+            if window_state == "pending":
+                print(
+                    f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
+                    f"{window['start']}"
+                )
+                continue
+            late_capture = window_state == "missed"
             anchor_counts: dict[str, float | None] = {}
             anchor_fetch_failed = False
+            anchor_env_failure = None
             for anchor_year in verified_anchors:
                 if anchor_year not in irs_soi_cache:
                     irs_soi_cache[anchor_year] = irs_soi_pub1304_fetch_year(
@@ -6827,7 +6888,19 @@ def main() -> int:
                 ]
                 if anchor_raw is None or anchor_refusal:
                     anchor_fetch_failed = True
+                if anchor_refusal and "xlrd is unavailable" in anchor_refusal:
+                    anchor_env_failure = anchor_refusal
                 anchor_counts[anchor_year] = anchor_count
+            if anchor_env_failure:
+                # A missing parser is an environment failure, not a data
+                # state: deferring quietly would leave every IRS target
+                # pending forever behind a green run.
+                print(
+                    f"  IRS SOI ENVIRONMENT FAILURE (fatal): {ref} — "
+                    f"{anchor_env_failure}"
+                )
+                environment_failures.append(f"{ref}: {anchor_env_failure}")
+                continue
             if anchor_fetch_failed:
                 print(f"  IRS SOI anchor fetch/parse failed (deferring): {ref}")
                 continue
@@ -6845,22 +6918,44 @@ def main() -> int:
             count, raw, fetched_url, retrieved_at, refusal = irs_soi_cache[
                 period
             ]
+            if refusal and "xlrd is unavailable" in refusal:
+                print(
+                    f"  IRS SOI ENVIRONMENT FAILURE (fatal): {ref} — {refusal}"
+                )
+                environment_failures.append(f"{ref}: {refusal}")
+                continue
             if refusal:
                 print(f"  IRS SOI PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
             if count is not None:
-                # The observation is the published whole-return count under
-                # the registered transform: divided by 1,000,000, one
-                # decimal, matching the preregistered resolution rule.
-                value = round(
-                    count * IRS_SOI_PUB1304_TRANSFORM["factor"], 1
-                )
+                # The observation is exactly the registered transform of the
+                # published whole-return count — multiply by 1e-06, nothing
+                # else. Any rounding convention lives in the cell's own
+                # resolution rule, never in the recorded observation.
+                value = count * IRS_SOI_PUB1304_TRANSFORM["factor"]
             else:
                 value = None
             # The workbook is a static per-tax-year print with no vintage
             # archive: the capture day is the source vintage.
             if raw is not None:
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
+                if late_capture:
+                    print(
+                        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
+                        f"captured {retrieved_at[:10]} after the registered "
+                        f"window closed {window['end']}"
+                    )
+                    spec = {
+                        **spec,
+                        "evidence_notes": (
+                            str(spec["evidence_notes"])
+                            + " Captured after the registered "
+                            + str(window["end"])
+                            + " window by-date; the workbook is a static "
+                            "per-tax-year print, so this capture is still "
+                            "its first print."
+                        ),
+                    }
             source_url = spec["source_url"]
             source_file = fetched_url
             series_id = spec["series_id"]
@@ -7259,6 +7354,14 @@ def main() -> int:
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
+    if environment_failures:
+        print(
+            "environment failures left admitted references unresolvable "
+            "(fix the runner, do not wait):"
+        )
+        for line in environment_failures:
+            print(f"  fatal: {line}")
+        return 1
     if not fetched_rows:
         print("nothing new to record")
         return 0

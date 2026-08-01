@@ -524,6 +524,13 @@ def conditional_pair_seed_targets(
     arms = pair.get("arms")
     if not isinstance(arms, list) or len(arms) != 2:
         return skip("requires exactly two arms")
+    # The reviewed arm identity fields are authoritative; a registry extras
+    # block must never be able to restate them (extras spread first, arm
+    # fields last, and the reserved keys are rejected outright).
+    reserved = {"series", "period", "catalogSlug", "dataPointId", "conditional"}
+    clashing = reserved & set(extras)
+    if clashing:
+        return skip(f"extras restate reserved target keys {sorted(clashing)}")
     seen_slugs: set[str] = set()
     seen_ids: set[str] = set()
     seen_conditionals: set[str] = set()
@@ -543,6 +550,18 @@ def conditional_pair_seed_targets(
                 "arms require catalogSlug, dataPointId, conditional, and "
                 "conditionId"
             )
+        # Every arm resolves against the series' first print for THIS
+        # period; a mislabeled id would route the resolver to a different
+        # tax year's workbook.
+        if not re.fullmatch(
+            rf"{re.escape(entry['series'])}\.{re.escape(period)}"
+            r"\.first_print\.[a-z0-9_]+",
+            data_point_id,
+        ):
+            return skip(
+                f"arm dataPointId {data_point_id!r} is not "
+                f"{entry['series']}.{period}.first_print.<condition_token>"
+            )
         seen_slugs.add(slug)
         seen_ids.add(data_point_id)
         seen_conditionals.add(conditional)
@@ -550,12 +569,12 @@ def conditional_pair_seed_targets(
             continue
         targets.append(
             {
+                **extras,
                 "series": entry["series"],
                 "period": period,
                 "catalogSlug": slug,
                 "dataPointId": data_point_id,
                 "conditional": conditional,
-                **extras,
             }
         )
     if len(seen_slugs) != 2 or len(seen_ids) != 2 or len(seen_conditionals) != 2:
@@ -777,6 +796,32 @@ def advance_past_released_native_periods(
         candidate = following
 
 
+def select_capped_targets(
+    candidates: list[tuple[int, str, dict | list[dict]]],
+    max_targets: int,
+) -> tuple[list[dict], int]:
+    """Admit whole candidate units in priority order under the cap.
+
+    A conditional pair's unpublished arms are one unit: selection stops at
+    the first unit that does not fit rather than splitting it (or skipping
+    ahead past it), so the cap can never register or forecast one arm of a
+    pair without its sibling.
+    """
+
+    ordered = sorted(candidates, key=lambda item: (item[0], item[1]))
+    targets: list[dict] = []
+    dropped = 0
+    capped = False
+    for _, _, unit in ordered:
+        group = unit if isinstance(unit, list) else [unit]
+        if capped or len(targets) + len(group) > max_targets:
+            capped = True
+            dropped += len(group)
+            continue
+        targets.extend(group)
+    return targets, dropped
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -819,9 +864,11 @@ def main() -> int:
                     "arm"
                 )
                 continue
+            # Unpublished arms of a pair are one atomic unit: registering
+            # or forecasting one arm ahead of its sibling would let the
+            # later arm run with extra information.
             deadline = entry["conditionalPair"]["conditionDeadline"]
-            for target in pair_targets:
-                candidates.append((2, deadline, target))
+            candidates.append((2, deadline, pair_targets))
             continue
         if entry["cadence"] == "annual":
             target = snapshot_seed_target(entry, existing, today)
@@ -906,9 +953,7 @@ def main() -> int:
         priority = 1 if entry["cadence"] == "weekly" else 3
         candidates.append((priority, nxt, target))
 
-    candidates.sort(key=lambda item: (item[0], item[1]))
-    targets = [target for _, _, target in candidates[: args.max_targets]]
-    dropped = len(candidates) - len(targets)
+    targets, dropped = select_capped_targets(candidates, args.max_targets)
     if dropped > 0:
         print(f"  capped: {dropped} further targets deferred to the next run")
 

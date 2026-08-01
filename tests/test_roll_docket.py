@@ -772,3 +772,61 @@ def test_conditional_pair_fails_closed_on_malformed_registry(mutate) -> None:
         )
         == []
     )
+
+
+def test_conditional_pair_rejects_extras_restating_arm_identity() -> None:
+    entry = conditional_pair_entry()
+    entry["extras"]["conditional"] = "override both arms"
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+    entry = conditional_pair_entry()
+    entry["extras"]["dataPointId"] = "irs.actc.total_claims.2028.first_print.x"
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+
+
+def test_conditional_pair_rejects_mislabeled_data_point_year() -> None:
+    entry = conditional_pair_entry()
+    entry["conditionalPair"]["arms"][0]["dataPointId"] = (
+        "irs.actc.total_claims.2028.first_print.threshold_one_dollar"
+    )
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+
+
+def test_capped_selection_never_splits_a_pair_unit() -> None:
+    pair = [{"catalogSlug": "arm-a"}, {"catalogSlug": "arm-b"}]
+    singles = [
+        (3, f"2026-0{n}", {"catalogSlug": f"single-{n}"}) for n in (1, 2, 3)
+    ]
+    candidates = [(2, "2027-12-31", pair), *singles]
+
+    # The pair fits: both arms selected together.
+    targets, dropped = roll_docket.select_capped_targets(candidates, 3)
+    assert [t["catalogSlug"] for t in targets] == ["arm-a", "arm-b", "single-1"]
+    assert dropped == 2
+
+    # The pair does not fit under the cap: selection stops rather than
+    # splitting it or skipping ahead past it.
+    targets, dropped = roll_docket.select_capped_targets(candidates, 1)
+    assert targets == []
+    assert dropped == 5
+
+    # A retry with one arm already published is a singleton unit.
+    targets, dropped = roll_docket.select_capped_targets(
+        [(2, "2027-12-31", [{"catalogSlug": "arm-b"}]), *singles], 1
+    )
+    assert [t["catalogSlug"] for t in targets] == ["arm-b"]
+    assert dropped == 3

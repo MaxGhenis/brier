@@ -336,12 +336,16 @@ describe("s3596 ACTC threshold conditional pair (thesis#106)", () => {
     expect(conditionForContract(condition.statutoryTest)).toBe(condition);
   });
 
-  it("registers the current-law arm as the enacted arm's complement", () => {
+  it("registers the current-law arm WITHOUT a complement declaration", () => {
+    // The pair is deliberately not a complement pair: legislation setting
+    // an intermediate TY2027 threshold (e.g. $500) falsifies BOTH
+    // premises, a state the complement invariant (open+open or
+    // failed+satisfied only) could not represent. Each condition resolves
+    // on its own literal text; in intermediate worlds both fail and
+    // neither arm scores.
     expect(currentLaw?.type).toBe("recorded_status");
-    expect(currentLaw?.complementOf).toBe("cond.s3596-actc-threshold.enacted");
-    expect(enacted?.complementOf).toBe(
-      "cond.s3596-actc-threshold.current-law",
-    );
+    expect(currentLaw?.complementOf).toBeUndefined();
+    expect(enacted?.complementOf).toBeUndefined();
     expect(currentLaw?.resolvesBy).toBe("2027-12-31");
     expect(currentLaw?.status).toBe("open");
   });
@@ -377,13 +381,6 @@ describe("s3596 ACTC threshold conditional pair (thesis#106)", () => {
         conditionIds.add(arm.conditionId);
       }
       expect(conditionIds.size).toBe(2);
-      const [first, second] = pair.arms.map((arm) =>
-        CONDITIONS.find(
-          (condition) => condition.conditionId === arm.conditionId,
-        ),
-      );
-      expect(first?.complementOf).toBe(second?.conditionId);
-      expect(second?.complementOf).toBe(first?.conditionId);
     }
   });
 

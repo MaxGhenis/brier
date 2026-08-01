@@ -363,3 +363,150 @@ def test_spec_builds_a_year_fact_in_millions() -> None:
     assert row["value"] == 17.6
     assert row["source"]["source_name"] == "irs_soi"
     assert "archived" in row["measure"]["concept_evidence_notes"]
+
+
+def test_fetch_year_refuses_wrong_year_workbook_and_redirects(
+    monkeypatch,
+) -> None:
+    # A mirror/redirect serving the wrong tax year's real workbook must be
+    # refused: headers, anchors, and integer checks are identical across
+    # years, so identity comes from the printed title and official filename.
+    def serve_2023_for_2027(url, *, allowed_hosts, timeout=120):
+        return fixture_bytes("2023"), "2029-09-01T00:00:00Z", url
+
+    monkeypatch.setattr(resolve_pending, "http_get", serve_2023_for_2027)
+    count, raw, _, _, refusal = resolve_pending.irs_soi_pub1304_fetch_year(
+        SPEC, "2027"
+    )
+    assert count is None and raw is not None
+    assert "does not name 'tax year 2027'" in refusal
+
+    def redirect_to_other_file(url, *, allowed_hosts, timeout=120):
+        return (
+            fixture_bytes("2023"),
+            "2026-08-01T00:00:00Z",
+            "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+        )
+
+    monkeypatch.setattr(resolve_pending, "http_get", redirect_to_other_file)
+    count, raw, _, _, refusal = resolve_pending.irs_soi_pub1304_fetch_year(
+        SPEC, "2022"
+    )
+    assert count is None
+    assert "is not the tax year's official '22in33ar.xls'" in refusal
+
+
+def test_identity_check_accepts_every_fixture_year() -> None:
+    for year in sorted(SPEC["anchors"]):
+        grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+            fixture_bytes(year), SPEC
+        )
+        assert refusal is None
+        url = f"https://www.irs.gov/pub/irs-soi/{int(year) % 100:02d}in33ar.xls"
+        assert (
+            resolve_pending.irs_soi_pub1304_identity_refusal(grid, url, year)
+            is None
+        )
+
+
+def test_registered_transform_is_exact_with_no_extra_rounding() -> None:
+    # The recorded observation is exactly count * 1e-06 — the operation the
+    # content-hashed transform names — never a further rounding step.
+    factor = resolve_pending.IRS_SOI_PUB1304_TRANSFORM["factor"]
+    assert 17650000 * factor == 17.65
+    assert 17626084 * factor == 17.626084
+    binding = docket_entry()["extras"]["sourceBinding"]
+    assert binding["transform"] == {"operation": "multiply", "factor": factor}
+
+
+def bindable_arm_contract(arm_index: int = 0) -> dict:
+    entry = docket_entry()
+    arm = entry["conditionalPair"]["arms"][arm_index]
+    target = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": arm["catalogSlug"],
+        "dataPointId": arm["dataPointId"],
+        "conditional": arm["conditional"],
+        **entry["extras"],
+    }
+    return register_targets.build_contract(
+        target, register_targets.dt.date(2026, 8, 1)
+    )
+
+
+def test_bind_reauthenticates_conditional_contracts_against_the_docket() -> None:
+    contract = bindable_arm_contract()
+    entry = docket_entry()
+    # The committed entry still authorizes the arm: passes.
+    register_targets.require_conditional_docket_template(contract, [entry])
+
+    with pytest.raises(
+        register_targets.RegistrationError, match="exactly one committed"
+    ):
+        register_targets.require_conditional_docket_template(contract, [])
+
+    removed = docket_entry()
+    del removed["conditionalPair"]
+    with pytest.raises(
+        register_targets.RegistrationError, match="no conditionalPair arms"
+    ):
+        register_targets.require_conditional_docket_template(contract, [removed])
+
+    drifted = docket_entry()
+    drifted["conditionalPair"]["arms"][0]["conditional"] = "different premise"
+    with pytest.raises(
+        register_targets.RegistrationError, match="disagrees with the committed"
+    ):
+        register_targets.require_conditional_docket_template(contract, [drifted])
+
+    swapped = docket_entry()
+    arms = swapped["conditionalPair"]["arms"]
+    arms[0]["conditional"], arms[1]["conditional"] = (
+        arms[1]["conditional"],
+        arms[0]["conditional"],
+    )
+    with pytest.raises(
+        register_targets.RegistrationError, match="disagrees with the committed"
+    ):
+        register_targets.require_conditional_docket_template(contract, [swapped])
+
+    reperioded = docket_entry()
+    reperioded["period"] = "2028"
+    with pytest.raises(
+        register_targets.RegistrationError, match="period disagrees"
+    ):
+        register_targets.require_conditional_docket_template(
+            contract, [reperioded]
+        )
+
+    dateless = docket_entry()
+    dateless["conditionalPair"]["conditionDeadline"] = "someday"
+    with pytest.raises(
+        register_targets.RegistrationError, match="no valid deadline"
+    ):
+        register_targets.require_conditional_docket_template(contract, [dateless])
+
+
+def test_bind_blocks_unconditional_claims_on_reserved_pair_slugs() -> None:
+    entry = docket_entry()
+    arm = entry["conditionalPair"]["arms"][0]
+    target = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": arm["catalogSlug"],
+        "dataPointId": arm["dataPointId"],
+        **entry["extras"],
+    }
+    contract = register_targets.build_contract(
+        target, register_targets.dt.date(2026, 8, 1)
+    )
+    assert "conditional" not in contract
+    with pytest.raises(
+        register_targets.RegistrationError, match="reserves this catalogSlug"
+    ):
+        register_targets.require_conditional_docket_template(contract, [entry])
+    # Unconditional contracts for ordinary series stay untouched.
+    register_targets.require_conditional_docket_template(
+        contract, [{"series": entry["series"], "extras": entry["extras"]}]
+    )
