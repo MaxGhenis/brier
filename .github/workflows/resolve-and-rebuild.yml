@@ -96,17 +96,22 @@ jobs:
           # the branch name. The pin advances only here, and only after the
           # refresh verifies every intermediate commit extended the previous
           # state line-for-line (a rewrite or truncation refuses the pin).
-          # The witness run archives the newly pinned bytes into the record
-          # chain so the state the site scored against stays reconstructable
-          # even if upstream history later changes.
-          python3 scripts/pin_ledger.py
+          # The witness run archives the newly pinned observation and catalog
+          # bytes into the record chain so the state the site scored against
+          # stays reconstructable even if upstream history later changes.
+          python3 scripts/pin_ledger.py --require-catalog
           PIN_SHA=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["sha"])')
           PIN_LINES=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["lineCount"])')
           PIN_JSONL_SHA256=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["jsonlSha256"])')
+          PIN_CATALOG_SHA256=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["catalogSha256"])')
+          PIN_CATALOG_BYTES=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["catalogBytes"])')
           WITNESS_MANIFEST=$(python3 scripts/witness_upstream_ledger.py \
             --ledger-sha "$PIN_SHA" \
             --expect-line-count "$PIN_LINES" \
-            --expect-jsonl-sha256 "$PIN_JSONL_SHA256")
+            --expect-jsonl-sha256 "$PIN_JSONL_SHA256" \
+            --require-catalog \
+            --expect-catalog-sha256 "$PIN_CATALOG_SHA256" \
+            --expect-catalog-bytes "$PIN_CATALOG_BYTES")
           test -f "$WITNESS_MANIFEST"
           echo "witness_manifest=$WITNESS_MANIFEST" >> "$GITHUB_OUTPUT"
 

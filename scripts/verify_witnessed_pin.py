@@ -51,6 +51,7 @@ PIN_KEYS = {
     "pinnedAtUtc",
     "releaseHead",
 }
+PIN_CATALOG_KEYS = {"catalogSha256", "catalogBytes"}
 
 
 class WitnessedPinError(ValueError):
@@ -274,11 +275,21 @@ def verify_witnessed_pin(
         )
     if pin.get("schemaVersion") != PIN_SCHEMA:
         raise WitnessedPinError(f"pin schema must be exactly {PIN_SCHEMA!r}")
-    if set(pin) != PIN_KEYS:
+    pin_keys = set(pin)
+    allowed_pin_keys = PIN_KEYS | PIN_CATALOG_KEYS
+    if not PIN_KEYS.issubset(pin_keys) or not pin_keys.issubset(
+        allowed_pin_keys
+    ):
         raise WitnessedPinError(
             "pin keys are not closed-world: "
-            f"missing={sorted(PIN_KEYS - set(pin))}, "
-            f"unknown={sorted(set(pin) - PIN_KEYS)}"
+            f"missing={sorted(PIN_KEYS - pin_keys)}, "
+            f"unknown={sorted(pin_keys - allowed_pin_keys)}"
+        )
+    catalog_pin_keys = pin_keys & PIN_CATALOG_KEYS
+    if catalog_pin_keys and catalog_pin_keys != PIN_CATALOG_KEYS:
+        raise WitnessedPinError(
+            "pin catalog commitment must contain catalogSha256 and "
+            "catalogBytes together"
         )
     if type(pin.get("repo")) is not str or type(pin.get("branch")) is not str:
         raise WitnessedPinError("pin repo and branch must be strings")
@@ -292,6 +303,17 @@ def verify_witnessed_pin(
     for key in ("jsonlBytes", "lineCount"):
         if type(pin.get(key)) is not int or pin[key] < 0:
             raise WitnessedPinError(f"pin {key} must be a non-negative integer")
+    catalog_pinned = catalog_pin_keys == PIN_CATALOG_KEYS
+    if catalog_pinned:
+        if (
+            type(pin.get("catalogSha256")) is not str
+            or SHA256_RE.fullmatch(pin["catalogSha256"]) is None
+        ):
+            raise WitnessedPinError("pin catalogSha256 must be a SHA-256 digest")
+        if type(pin.get("catalogBytes")) is not int or pin["catalogBytes"] < 0:
+            raise WitnessedPinError(
+                "pin catalogBytes must be a non-negative integer"
+            )
     _strict_utc(pin.get("pinnedAtUtc"), "pin pinnedAtUtc")
     expected_identity = {
         "ledgerRepo": pin.get("repo"),
@@ -321,6 +343,23 @@ def verify_witnessed_pin(
             jsonl.get("bytes"),
             pin.get("jsonlBytes"),
         )
+    catalog = manifest.get("catalog")
+    if catalog_pinned:
+        if type(catalog) is not dict:
+            mismatches["catalog"] = (catalog, "catalog commitment")
+        else:
+            if catalog.get("sha256") != pin.get("catalogSha256"):
+                mismatches["catalog.sha256"] = (
+                    catalog.get("sha256"),
+                    pin.get("catalogSha256"),
+                )
+            if catalog.get("bytes") != pin.get("catalogBytes"):
+                mismatches["catalog.bytes"] = (
+                    catalog.get("bytes"),
+                    pin.get("catalogBytes"),
+                )
+    elif catalog is not None:
+        mismatches["catalog"] = ("archived catalog commitment", None)
 
     release_archive = manifest.get("releaseArchive")
     if (

@@ -70,6 +70,21 @@ def _row_bytes(identity: str) -> bytes:
     ).encode() + b"\n"
 
 
+def _catalog_bytes(jsonl: bytes) -> bytes:
+    return (
+        json.dumps(
+            {
+                "generator_version": 1,
+                "observations_sha256": hashlib.sha256(jsonl).hexdigest(),
+                "observation_rows": len(jsonl.splitlines()),
+                "series": [],
+            },
+            separators=(",", ":"),
+        ).encode()
+        + b"\n"
+    )
+
+
 def _created_at() -> str:
     value = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=1)
     return value.isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -314,6 +329,9 @@ def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
     previous_manifest = manifest.read_bytes()
     previous_ledger = ledger.read_bytes()
     ledger.write_bytes(previous_ledger + _row_bytes("row-2"))
+    (repo / pin_ledger.LEDGER_CATALOG_PATH).write_bytes(
+        _catalog_bytes(ledger.read_bytes())
+    )
     _write_release(
         repo,
         tsa,
@@ -628,6 +646,24 @@ def _pin_binding() -> dict:
     }
 
 
+def _catalog_pin_binding() -> dict:
+    return {
+        **_pin_binding(),
+        "catalogSha256": "c" * 64,
+        "catalogBytes": 12345,
+    }
+
+
+def _site_pin() -> dict[str, Any]:
+    return {
+        "schemaVersion": pin_ledger.PIN_SCHEMA,
+        **_pin_binding(),
+        "jsonlBytes": 12345,
+        "pinnedAtUtc": "2030-01-01T00:00:00Z",
+        "releaseHead": None,
+    }
+
+
 def test_refresh_refuses_a_rewritten_ledger_line() -> None:
     previous = ['{"source_record_id":"a"}', '{"source_record_id":"b"}']
     rewritten = ['{"source_record_id":"a","value":9}', '{"source_record_id":"b"}']
@@ -724,9 +760,14 @@ def test_refresh_accepts_signed_four_sibling_chain_and_derives_three_release_win
         }
     pin = json.loads(pin_path.read_text())
     assert pin["sha"] == release_repo.head
+    catalog = (release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH).read_bytes()
+    assert pin["catalogSha256"] == hashlib.sha256(catalog).hexdigest()
+    assert pin["catalogBytes"] == len(catalog)
     assert pin["releaseHead"]["index"] == 2
     assert re.fullmatch(r"[0-9a-f]{64}", pin["releaseHead"]["manifestSha256"])
-    rows = json.loads(availability_path.read_text())["rows"]
+    availability = json.loads(availability_path.read_text())
+    assert availability["catalogSha256"] == pin["catalogSha256"]
+    rows = availability["rows"]
     assert [row["witnessedInReleaseIndex"] for row in rows] == [0, 1, 2]
     assert [row["lastExcludedReleaseIndex"] for row in rows] == [None, 0, 1]
     assert rows[0]["lastExcludedReleaseFreetsaGenTimeUtc"] is None
@@ -762,6 +803,144 @@ def test_refresh_accepts_signed_four_sibling_chain_and_derives_three_release_win
     generated = generated_path.read_text()
     assert "witnessedInReleaseIndex: number | null" in generated
     assert "lastExcludedReleaseIndex: number | null" in generated
+
+
+def test_local_catalog_read_allows_legacy_absence_and_requires_forward_presence(
+    release_repo: ReleaseRepo,
+) -> None:
+    assert (
+        pin_ledger._local_catalog_at_commit(
+            release_repo.repo,
+            release_repo.release_one,
+            required=False,
+        )
+        is None
+    )
+    with pytest.raises(pin_ledger.PinError, match="missing required"):
+        pin_ledger._local_catalog_at_commit(
+            release_repo.repo,
+            release_repo.release_one,
+            required=True,
+        )
+
+    assert pin_ledger._local_catalog_at_commit(
+        release_repo.repo,
+        release_repo.head,
+        required=True,
+    ) == (release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH).read_bytes()
+
+
+def test_refresh_required_catalog_rejects_legacy_head_before_writes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    _git(release_repo.repo, "checkout", "-q", release_repo.release_one)
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="missing required"):
+        pin_ledger.refresh(require_catalog=True)
+
+    assert pin_requests == []
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_rejects_catalog_bytes_outside_same_commit_tree(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    original_fetch = pin_ledger._fetch
+
+    def fetch(url: str) -> bytes:
+        raw = original_fetch(url)
+        if url.endswith(f"/{pin_ledger.LEDGER_CATALOG_PATH}"):
+            return raw + b"tampered"
+        return raw
+
+    monkeypatch.setattr(pin_ledger, "_fetch", fetch)
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(
+        pin_ledger.PinError,
+        match=r"same-commit blob bytes for ledger/series_catalog\.json",
+    ):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in before} == before
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("observations_sha256", "f" * 64),
+        ("observation_rows", 999),
+    ],
+)
+def test_refresh_rejects_catalog_not_bound_to_same_commit_observations(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    field: str,
+    value: Any,
+) -> None:
+    catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    catalog[field] = value
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(release_repo.repo, f"break catalog {field} binding")
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match=field):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_catalog_bearing_pin_ratchets_against_later_removal(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    pin_ledger.refresh()
+    assert "catalogSha256" in json.loads(pin_path.read_text())
+
+    (release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH).unlink()
+    _commit(release_repo.repo, "remove catalog after catalog-bearing pin")
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="missing required"):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in before} == before
 
 
 @pytest.mark.parametrize(
@@ -1306,6 +1485,8 @@ def test_refresh_allows_support_files_before_genesis(
     assert pin_requests == []
     pin = json.loads(pin_path.read_text())
     assert pin["sha"] == support_head
+    assert "catalogSha256" not in pin
+    assert "catalogBytes" not in pin
     assert pin["releaseHead"] is None
     row = json.loads(availability_path.read_text())["rows"][0]
     assert row["witnessedInReleaseIndex"] is None
@@ -1450,8 +1631,13 @@ def test_rebuild_writes_verified_release_head_and_windows(
     assert pin_requests == [True]
     pin = json.loads(pin_path.read_text())
     assert pin["sha"] == release_repo.head
+    catalog = (release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH).read_bytes()
+    assert pin["catalogSha256"] == hashlib.sha256(catalog).hexdigest()
+    assert pin["catalogBytes"] == len(catalog)
     assert pin["releaseHead"]["index"] == 2
-    rows = json.loads(availability_path.read_text())["rows"]
+    availability = json.loads(availability_path.read_text())
+    assert availability["catalogSha256"] == pin["catalogSha256"]
+    rows = availability["rows"]
     assert [row["witnessedInReleaseIndex"] for row in rows] == [0, 1, 2]
     assert [row["lastExcludedReleaseIndex"] for row in rows] == [None, 0, 1]
 
@@ -1494,8 +1680,13 @@ def test_v3_registration_hash_commits_to_the_ledger_pin() -> None:
         **snapshot,
         "ledgerPin": {**_pin_binding(), "lineCount": 108},
     }
+    catalog_bound_pin = {
+        **snapshot,
+        "ledgerPin": _catalog_pin_binding(),
+    }
 
     assert registration_content_hash(moved_pin) != baseline
+    assert registration_content_hash(catalog_bound_pin) != baseline
 
 
 def test_v3_registration_requires_the_ledger_pin() -> None:
@@ -1525,12 +1716,74 @@ def test_v2_registration_hashes_remain_stable() -> None:
 
 
 def test_pin_binding_validation_fails_closed() -> None:
+    assert validate_ledger_pin_binding(_pin_binding()) == _pin_binding()
+    assert (
+        validate_ledger_pin_binding(_catalog_pin_binding())
+        == _catalog_pin_binding()
+    )
     with pytest.raises(RegistrationError, match="bind exactly"):
         validate_ledger_pin_binding({**_pin_binding(), "extra": 1})
+    with pytest.raises(RegistrationError, match="bind exactly"):
+        validate_ledger_pin_binding({**_pin_binding(), "catalogSha256": "c" * 64})
+    with pytest.raises(RegistrationError, match="bind exactly"):
+        validate_ledger_pin_binding({**_pin_binding(), "catalogBytes": 12345})
     with pytest.raises(RegistrationError, match="commit SHA"):
         validate_ledger_pin_binding({**_pin_binding(), "sha": "main"})
     with pytest.raises(RegistrationError, match="lineCount"):
         validate_ledger_pin_binding({**_pin_binding(), "lineCount": -1})
+    with pytest.raises(RegistrationError, match="catalogSha256"):
+        validate_ledger_pin_binding(
+            {**_catalog_pin_binding(), "catalogSha256": "not-a-digest"}
+        )
+    with pytest.raises(RegistrationError, match="catalogSha256"):
+        validate_ledger_pin_binding(
+            {**_catalog_pin_binding(), "catalogSha256": int("1" * 64)}
+        )
+    with pytest.raises(RegistrationError, match="catalogBytes"):
+        validate_ledger_pin_binding(
+            {**_catalog_pin_binding(), "catalogBytes": True}
+        )
+
+
+@pytest.mark.parametrize(
+    "catalog_fields",
+    [
+        {"catalogSha256": "c" * 64},
+        {"catalogBytes": 123},
+    ],
+)
+def test_pin_schema_requires_catalog_commitment_pair(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    catalog_fields: dict[str, Any],
+) -> None:
+    pin_path = tmp_path / "ledger-pin.json"
+    pin_path.write_text(json.dumps({**_site_pin(), **catalog_fields}) + "\n")
+    monkeypatch.setattr(pin_ledger, "PIN_PATH", pin_path)
+
+    with pytest.raises(pin_ledger.PinError, match="must contain.*together"):
+        pin_ledger.load_pin()
+
+
+@pytest.mark.parametrize(
+    ("catalog_fields", "diagnostic"),
+    [
+        ({"catalogSha256": "not-a-digest", "catalogBytes": 123}, "SHA-256"),
+        ({"catalogSha256": "c" * 64, "catalogBytes": True}, "non-negative"),
+    ],
+)
+def test_pin_schema_validates_catalog_commitment_values(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    catalog_fields: dict[str, Any],
+    diagnostic: str,
+) -> None:
+    pin_path = tmp_path / "ledger-pin.json"
+    pin_path.write_text(json.dumps({**_site_pin(), **catalog_fields}) + "\n")
+    monkeypatch.setattr(pin_ledger, "PIN_PATH", pin_path)
+
+    with pytest.raises(pin_ledger.PinError, match=diagnostic):
+        pin_ledger.load_pin()
 
 
 def test_pin_schema_rejects_malformed_release_head(
@@ -1571,13 +1824,18 @@ def test_release_head_index_cannot_exceed_four_digit_manifest_namespace() -> Non
         pin_ledger._validate_release_head(release_head)
 
 
-def test_registration_reads_the_committed_pin(monkeypatch, tmp_path) -> None:
+@pytest.mark.parametrize(
+    "expected_binding", [_pin_binding(), _catalog_pin_binding()]
+)
+def test_registration_reads_the_committed_pin(
+    monkeypatch, tmp_path, expected_binding
+) -> None:
     pin_path = tmp_path / "ledger-pin.json"
     pin_path.write_text(
         json.dumps(
             {
                 "schemaVersion": "thesis_ledger_pin_v1",
-                **_pin_binding(),
+                **expected_binding,
                 "jsonlBytes": 12345,
                 "pinnedAtUtc": "2030-01-01T00:00:00Z",
                 "releaseHead": {
@@ -1591,9 +1849,29 @@ def test_registration_reads_the_committed_pin(monkeypatch, tmp_path) -> None:
     )
     monkeypatch.setattr(register_targets, "LEDGER_PIN_PATH", pin_path)
 
-    binding = register_targets.load_ledger_pin_binding()
+    actual_binding = register_targets.load_ledger_pin_binding()
 
-    assert binding == _pin_binding()
+    assert actual_binding == expected_binding
+
+
+@pytest.mark.parametrize(
+    "catalog_fields",
+    [
+        {"catalogSha256": "c" * 64},
+        {"catalogBytes": 12345},
+    ],
+)
+def test_registration_rejects_a_partial_catalog_pin_binding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    catalog_fields: dict[str, Any],
+) -> None:
+    pin_path = tmp_path / "ledger-pin.json"
+    pin_path.write_text(json.dumps({**_site_pin(), **catalog_fields}) + "\n")
+    monkeypatch.setattr(register_targets, "LEDGER_PIN_PATH", pin_path)
+
+    with pytest.raises(RegistrationError, match="bind exactly"):
+        register_targets.load_ledger_pin_binding()
 
 
 def test_registration_without_a_pin_file_fails_closed(

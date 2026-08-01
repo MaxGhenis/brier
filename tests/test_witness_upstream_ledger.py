@@ -27,6 +27,21 @@ def _jsonl_bytes(rows: list[dict]) -> bytes:
     )
 
 
+def _catalog_bytes(jsonl_raw: bytes) -> bytes:
+    return (
+        json.dumps(
+            {
+                "generator_version": 1,
+                "observations_sha256": hashlib.sha256(jsonl_raw).hexdigest(),
+                "observation_rows": len(jsonl_raw.splitlines()),
+                "series": [],
+            },
+            indent=2,
+        )
+        + "\n"
+    ).encode()
+
+
 def _git_blob_sha(raw: bytes) -> str:
     header = f"blob {len(raw)}\0".encode("ascii")
     return hashlib.sha1(header + raw, usedforsecurity=False).hexdigest()
@@ -262,6 +277,7 @@ def _v2_witness_run(
     monkeypatch,
     *,
     with_chain: bool = True,
+    with_catalog: bool = False,
     release_count: int = 1,
     with_producer_signatures: bool = True,
     skip_archive_names: set[str] | None = None,
@@ -275,6 +291,7 @@ def _v2_witness_run(
             {"source_record_id": "series.b.2030", "value": 2},
         ]
     )
+    catalog_raw = _catalog_bytes(jsonl_raw)
     branch_sha, branch_commit_raw, release_archive, release_inputs, source_files = (
         _release_inputs(
             tmp_path,
@@ -302,6 +319,19 @@ def _v2_witness_run(
             "official_observations_jsonl",
             f"https://raw.githubusercontent.com/{wul.LEDGER_REPO}/{branch_sha}/"
             f"{wul.LEDGER_JSONL_PATH}",
+        ),
+        *(
+            [
+                wul.ArchiveInput(
+                    "series-catalog.json",
+                    catalog_raw,
+                    "series_catalog_json",
+                    f"https://raw.githubusercontent.com/{wul.LEDGER_REPO}/"
+                    f"{branch_sha}/{wul.LEDGER_CATALOG_PATH}",
+                )
+            ]
+            if with_catalog
+            else []
         ),
         wul.ArchiveInput(
             "ledger-branch-commit.json",
@@ -339,6 +369,15 @@ def _v2_witness_run(
         "ledgerBranchSha": branch_sha,
         "ledgerMainSha": main_sha,
         "jsonl": wul._validate_jsonl(jsonl_raw),
+        **(
+            {
+                "catalog": wul._validate_catalog(
+                    catalog_raw, wul._validate_jsonl(jsonl_raw)
+                )
+            }
+            if with_catalog
+            else {}
+        ),
         "releaseArchive": release_archive,
         "upstream": upstream,
     }
@@ -463,6 +502,13 @@ def _pin_for_witness(tmp_path: pathlib.Path, run_dir: pathlib.Path) -> pathlib.P
             "digicertGenTimeUtc": receipt_times["digicert"],
         },
     }
+    if "catalog" in manifest:
+        pin.update(
+            {
+                "catalogSha256": manifest["catalog"]["sha256"],
+                "catalogBytes": manifest["catalog"]["bytes"],
+            }
+        )
     path = tmp_path / "ledger-pin.json"
     path.write_text(json.dumps(pin, indent=2) + "\n")
     return path
@@ -479,6 +525,40 @@ def test_witness_run_seals_and_verifies(tmp_path, monkeypatch) -> None:
     manifest = json.loads((run_dir / "manifest.json").read_text())
     assert manifest["jsonl"]["lineCount"] == 2
     assert manifest["jsonl"]["sourceRecordIdCount"] == 2
+
+
+def test_v2_witness_archives_and_verifies_series_catalog(tmp_path, monkeypatch) -> None:
+    run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch, with_catalog=True)
+
+    result = verify_run(run_dir)
+    manifest = json.loads((run_dir / "manifest.json").read_text())
+    catalog_record = next(
+        item for item in manifest["upstream"] if item["role"] == "series_catalog_json"
+    )
+    catalog_raw = gzip.decompress(
+        (tmp_path / catalog_record["archive"]["path"]).read_bytes()
+    )
+    catalog = json.loads(catalog_raw)
+
+    assert result.inventory_status == "complete"
+    assert catalog_record["name"] == "series-catalog.json"
+    assert catalog_record["url"] == (
+        f"https://raw.githubusercontent.com/{wul.LEDGER_REPO}/"
+        f"{manifest['ledgerBranchSha']}/{wul.LEDGER_CATALOG_PATH}"
+    )
+    assert manifest["catalog"] == {
+        "sha256": hashlib.sha256(catalog_raw).hexdigest(),
+        "bytes": len(catalog_raw),
+    }
+    assert catalog["observations_sha256"] == manifest["jsonl"]["sha256"]
+    assert catalog["observation_rows"] == manifest["jsonl"]["lineCount"]
+
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    pin = json.loads(pin_path.read_text())
+    assert pin["catalogSha256"] == manifest["catalog"]["sha256"]
+    assert pin["catalogBytes"] == manifest["catalog"]["bytes"]
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+    assert vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path) == run_dir
 
 
 def test_v2_witness_archives_complete_four_sibling_release(
@@ -584,6 +664,8 @@ def test_witnessed_pin_validator_binds_full_release_head(
     monkeypatch.setattr(vwp, "ROOT", tmp_path)
 
     assert vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path) == run_dir
+    assert "catalog" not in json.loads((run_dir / "manifest.json").read_text())
+    assert "catalogSha256" not in json.loads(pin_path.read_text())
 
     pin = json.loads(pin_path.read_text())
     pin["releaseHead"]["manifestSha256"] = "0" * 64
@@ -705,6 +787,53 @@ def test_witnessed_pin_validator_refuses_pin_mismatch(
 
 
 @pytest.mark.parametrize(
+    ("field", "value", "diagnostic"),
+    [
+        ("catalogSha256", "0" * 64, "catalog.sha256"),
+        ("catalogBytes", 999, "catalog.bytes"),
+    ],
+)
+def test_witnessed_pin_validator_refuses_catalog_pin_mismatch(
+    tmp_path, monkeypatch, field: str, value, diagnostic: str
+) -> None:
+    run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch, with_catalog=True)
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    pin = json.loads(pin_path.read_text())
+    pin[field] = value
+    pin_path.write_text(json.dumps(pin, indent=2) + "\n")
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+
+    with pytest.raises(vwp.WitnessedPinError, match=diagnostic):
+        vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
+
+
+def test_witnessed_pin_validator_requires_catalog_fields_together(
+    tmp_path, monkeypatch
+) -> None:
+    run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch, with_catalog=True)
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    pin = json.loads(pin_path.read_text())
+    pin.pop("catalogBytes")
+    pin_path.write_text(json.dumps(pin, indent=2) + "\n")
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+
+    with pytest.raises(vwp.WitnessedPinError, match="together"):
+        vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
+
+
+def test_catalog_bearing_pin_requires_catalog_witness(tmp_path, monkeypatch) -> None:
+    run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch)
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    pin = json.loads(pin_path.read_text())
+    pin.update({"catalogSha256": "0" * 64, "catalogBytes": 0})
+    pin_path.write_text(json.dumps(pin, indent=2) + "\n")
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+
+    with pytest.raises(vwp.WitnessedPinError, match="catalog"):
+        vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
+
+
+@pytest.mark.parametrize(
     ("mutation", "diagnostic"),
     [
         ("missing_pinned_at", "keys are not closed-world"),
@@ -797,6 +926,70 @@ def test_v2_witness_rejects_resealed_wrong_jsonl_byte_count(
         _v2_witness_run(tmp_path, monkeypatch, mutate_manifest=mutate)
 
 
+def test_v2_witness_rejects_resealed_wrong_catalog_byte_count(
+    tmp_path, monkeypatch
+) -> None:
+    def mutate(manifest: dict) -> None:
+        manifest["catalog"]["bytes"] += 1
+
+    with pytest.raises(CustodyError, match="catalog byte count mismatch"):
+        _v2_witness_run(
+            tmp_path,
+            monkeypatch,
+            with_catalog=True,
+            mutate_manifest=mutate,
+        )
+
+
+def test_v2_witness_requires_catalog_archive_for_catalog_commitment(
+    tmp_path, monkeypatch
+) -> None:
+    with pytest.raises(CustodyError, match="does not witness series_catalog"):
+        _v2_witness_run(
+            tmp_path,
+            monkeypatch,
+            with_catalog=True,
+            skip_archive_names={"series-catalog.json"},
+        )
+
+
+def test_v2_witness_refuses_catalog_archive_without_commitment(
+    tmp_path, monkeypatch
+) -> None:
+    def mutate(manifest: dict) -> None:
+        manifest.pop("catalog")
+
+    with pytest.raises(CustodyError, match="lacks a manifest commitment"):
+        _v2_witness_run(
+            tmp_path,
+            monkeypatch,
+            with_catalog=True,
+            mutate_manifest=mutate,
+        )
+
+
+def test_v2_witness_requires_exact_catalog_url(tmp_path, monkeypatch) -> None:
+    def mutate(manifest: dict) -> None:
+        record = next(
+            item
+            for item in manifest["upstream"]
+            if item["role"] == "series_catalog_json"
+        )
+        record["url"] = (
+            "https://attacker.invalid/"
+            + str(manifest["ledgerBranchSha"])
+            + "/series_catalog.json"
+        )
+
+    with pytest.raises(CustodyError, match="catalog URL is not the exact"):
+        _v2_witness_run(
+            tmp_path,
+            monkeypatch,
+            with_catalog=True,
+            mutate_manifest=mutate,
+        )
+
+
 def test_resolution_workflow_revalidates_custody_and_marks_deployed_commit() -> None:
     workflow = (ROOT / ".github/workflows/resolve-and-rebuild.yml").read_text()
     signing_key_env = (
@@ -809,6 +1002,9 @@ def test_resolution_workflow_revalidates_custody_and_marks_deployed_commit() -> 
 
     assert workflow.count("scripts/verify_witnessed_pin.py") == 2
     assert 'git show "${SITE_SHA}:site/src/data/ledger-pin.json"' in workflow
+    assert "scripts/pin_ledger.py --require-catalog" in workflow
+    assert '--expect-catalog-sha256 "$PIN_CATALOG_SHA256"' in workflow
+    assert '--expect-catalog-bytes "$PIN_CATALOG_BYTES"' in workflow
     assert workflow.count(signing_key_env) == 1
     assert signing_key_env in resolve_step
 
@@ -974,6 +1170,90 @@ def test_v2_witness_refuses_omitted_release_inventory(tmp_path, monkeypatch) -> 
         _v2_witness_run(tmp_path, monkeypatch, mutate_manifest=omit_inventory)
 
 
+@pytest.mark.parametrize("expectation", ["sha256", "bytes"])
+def test_main_refuses_catalog_expectation_mismatch_before_creating_run(
+    tmp_path, monkeypatch, expectation: str
+) -> None:
+    retrieved_at = "2030-01-01T00:00:00Z"
+    branch_sha = "b" * 40
+    main_sha = "c" * 40
+    jsonl_raw = _jsonl_bytes([{"source_record_id": "series.a.2030", "value": 1}])
+    catalog_raw = _catalog_bytes(jsonl_raw)
+    catalog_url = (
+        f"https://raw.githubusercontent.com/{wul.LEDGER_REPO}/{branch_sha}/"
+        f"{wul.LEDGER_CATALOG_PATH}"
+    )
+    branch_commit_raw = json.dumps({"sha": branch_sha}).encode()
+
+    monkeypatch.setattr(wul, "ROOT", tmp_path)
+    monkeypatch.setattr(wul, "utc_now", lambda: retrieved_at)
+    monkeypatch.setattr(
+        wul,
+        "_commit_api",
+        lambda ref: (
+            (branch_sha, branch_commit_raw)
+            if ref == wul.LEDGER_BRANCH
+            else (main_sha, json.dumps({"sha": main_sha}).encode())
+        ),
+    )
+    monkeypatch.setattr(wul, "_fetch", lambda _url: jsonl_raw)
+    monkeypatch.setattr(wul, "_catalog_at", lambda _sha: (catalog_raw, catalog_url))
+    expected_args = (
+        ["--expect-catalog-sha256", "0" * 64]
+        if expectation == "sha256"
+        else ["--expect-catalog-bytes", str(len(catalog_raw) + 1)]
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["witness_upstream_ledger.py", *expected_args],
+    )
+
+    with pytest.raises(SystemExit, match="catalog .* expected"):
+        wul.main()
+
+    run_dir = (
+        tmp_path / "records" / "2030-01-01" / "2030-01-01t00-00-00z-ledger-witness"
+    )
+    assert not run_dir.exists()
+
+
+def test_main_require_catalog_refuses_absent_catalog_before_creating_run(
+    tmp_path, monkeypatch
+) -> None:
+    retrieved_at = "2030-01-01T00:00:00Z"
+    branch_sha = "b" * 40
+    main_sha = "c" * 40
+    jsonl_raw = _jsonl_bytes([{"source_record_id": "series.a.2030", "value": 1}])
+
+    monkeypatch.setattr(wul, "ROOT", tmp_path)
+    monkeypatch.setattr(wul, "utc_now", lambda: retrieved_at)
+    monkeypatch.setattr(
+        wul,
+        "_commit_api",
+        lambda ref: (
+            (branch_sha, json.dumps({"sha": branch_sha}).encode())
+            if ref == wul.LEDGER_BRANCH
+            else (main_sha, json.dumps({"sha": main_sha}).encode())
+        ),
+    )
+    monkeypatch.setattr(wul, "_fetch", lambda _url: jsonl_raw)
+    monkeypatch.setattr(wul, "_catalog_at", lambda _sha: None)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["witness_upstream_ledger.py", "--require-catalog"],
+    )
+
+    with pytest.raises(SystemExit, match="required .*series_catalog.* absent"):
+        wul.main()
+
+    run_dir = (
+        tmp_path / "records" / "2030-01-01" / "2030-01-01t00-00-00z-ledger-witness"
+    )
+    assert not run_dir.exists()
+
+
 def test_main_fetch_failure_precedes_run_directory_creation(
     tmp_path, monkeypatch
 ) -> None:
@@ -1000,6 +1280,7 @@ def test_main_fetch_failure_precedes_run_directory_creation(
         ),
     )
     monkeypatch.setattr(wul, "_fetch", lambda _url: jsonl_raw)
+    monkeypatch.setattr(wul, "_catalog_at", lambda _sha: None)
     monkeypatch.setattr(
         wul,
         "_release_archive_inputs",
@@ -1049,6 +1330,7 @@ def test_main_removes_run_directory_if_sealing_fails(tmp_path, monkeypatch) -> N
         ),
     )
     monkeypatch.setattr(wul, "_fetch", lambda _url: jsonl_raw)
+    monkeypatch.setattr(wul, "_catalog_at", lambda _sha: None)
     monkeypatch.setattr(
         wul,
         "_release_archive_inputs",

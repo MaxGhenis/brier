@@ -75,6 +75,7 @@ LEDGER_RELEASE_ARCHIVE_V1 = "thesis_ledger_release_archive_v1"
 LEDGER_REPO = "PolicyEngine/ledger"
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
+LEDGER_CATALOG_PATH = "ledger/series_catalog.json"
 LEDGER_RELEASE_DIRECTORY = "releases/manifests"
 LEDGER_RELEASE_TREE_ROLES = {
     "commit": "ledger_commit_tree_api",
@@ -1021,8 +1022,25 @@ def _verify_ledger_witness_v2(
     jsonl_claim = manifest.get("jsonl")
     if not isinstance(jsonl_claim, dict):
         raise CustodyError("ledger witness manifest lacks a jsonl commitment")
+    catalog_declared = "catalog" in manifest
+    catalog_claim: dict[str, Any] | None = None
+    if catalog_declared:
+        catalog_claim = _exact_object(
+            manifest.get("catalog"),
+            {"sha256", "bytes"},
+            "ledger witness catalog commitment",
+        )
+        _sha256_value(
+            catalog_claim["sha256"],
+            "ledger witness catalog commitment SHA-256",
+        )
+        if type(catalog_claim["bytes"]) is not int or catalog_claim["bytes"] < 0:
+            raise CustodyError(
+                "ledger witness catalog bytes must be a non-negative integer"
+            )
     manifest_archives: set[str] = set()
     observations_witnessed = False
+    catalog_witnessed = False
     roles_seen: dict[str, int] = {}
     archives_by_name: dict[str, tuple[dict[str, Any], bytes, str]] = {}
     archives_by_role: dict[str, list[tuple[dict[str, Any], bytes, str]]] = {}
@@ -1116,6 +1134,26 @@ def _verify_ledger_witness_v2(
                     "ledger witness observations URL does not pin the branch "
                     f"SHA {branch_sha}: {url!r}"
                 )
+        elif role == "series_catalog_json":
+            url = str(record.get("url", ""))
+            expected_url = (
+                f"https://raw.githubusercontent.com/{LEDGER_REPO}/{branch_sha}/"
+                f"{LEDGER_CATALOG_PATH}"
+            )
+            if schema_version == LEDGER_WITNESS_V2 and url != expected_url:
+                raise CustodyError(
+                    "ledger witness catalog URL is not the exact immutable URL: "
+                    f"{url!r}"
+                )
+            if (
+                schema_version != LEDGER_WITNESS_V2
+                and branch_sha
+                and branch_sha not in url
+            ):
+                raise CustodyError(
+                    "ledger witness catalog URL does not pin the branch "
+                    f"SHA {branch_sha}: {url!r}"
+                )
         if record.get("role") == "official_observations_jsonl":
             observations_witnessed = True
             lines = [line for line in raw.decode("utf-8").splitlines() if line.strip()]
@@ -1157,20 +1195,55 @@ def _verify_ledger_witness_v2(
                     f"expected {jsonl_claim.get('sourceRecordIdCount')}, "
                     f"got {len(seen_ids)}"
                 )
+        elif record.get("role") == "series_catalog_json":
+            if catalog_claim is None:
+                raise CustodyError(
+                    "ledger witness catalog archive lacks a manifest commitment"
+                )
+            catalog_witnessed = True
+            if len(raw) != catalog_claim["bytes"]:
+                raise CustodyError(
+                    "ledger witness catalog byte count mismatch: "
+                    f"expected {catalog_claim['bytes']}, got {len(raw)}"
+                )
+            if _sha256(raw) != catalog_claim["sha256"]:
+                raise CustodyError("ledger witness catalog commitment hash mismatch")
+            catalog_payload = _json_bytes_object(raw, "ledger series catalog")
+            if not isinstance(catalog_payload.get("series"), list):
+                raise CustodyError("ledger series catalog lacks a series array")
+            if catalog_payload.get("observations_sha256") != jsonl_claim.get("sha256"):
+                raise CustodyError(
+                    "ledger series catalog observations_sha256 does not match "
+                    "the witnessed JSONL"
+                )
+            if (
+                type(catalog_payload.get("observation_rows")) is not int
+                or catalog_payload["observation_rows"]
+                != jsonl_claim.get("lineCount")
+            ):
+                raise CustodyError(
+                    "ledger series catalog observation_rows does not match "
+                    "the witnessed JSONL"
+                )
         manifest_archives.add(relative)
     if not observations_witnessed:
         raise CustodyError(
             "ledger witness run does not witness official_observations.jsonl"
         )
-    for required_role in (
-        "official_observations_jsonl",
-        "ledger_branch_commit_api",
-        "ledger_main_commit_api",
-    ):
-        if roles_seen.get(required_role) != 1:
+    if catalog_declared and not catalog_witnessed:
+        raise CustodyError("ledger witness run does not witness series_catalog.json")
+    expected_role_counts = {
+        "official_observations_jsonl": 1,
+        "ledger_branch_commit_api": 1,
+        "ledger_main_commit_api": 1,
+        "series_catalog_json": int(catalog_declared),
+    }
+    for required_role, expected_count in expected_role_counts.items():
+        if roles_seen.get(required_role, 0) != expected_count:
             raise CustodyError(
-                f"ledger witness must carry exactly one {required_role} "
-                f"archive, found {roles_seen.get(required_role, 0)}"
+                f"ledger witness must carry exactly {expected_count} "
+                f"{required_role} archive(s), found "
+                f"{roles_seen.get(required_role, 0)}"
             )
     if rooted_archives != manifest_archives:
         raise CustodyError(
