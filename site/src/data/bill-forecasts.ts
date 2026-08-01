@@ -29,7 +29,13 @@ export interface BillForecastLink {
   example?: boolean;
 }
 
-export const BILL_FORECAST_LINKS: BillForecastLink[] = [];
+export const BILL_FORECAST_LINKS: BillForecastLink[] = [
+  {
+    billSlug: "s3596-119",
+    metricLabel: "ACTC claims (TY2027)",
+    groupSlug: "s3596-actc-ty2027-threshold-one-dollar",
+  },
+];
 
 /**
  * Registered conditional questions whose runs have not produced a cell:
@@ -52,12 +58,6 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
       "Census SPM child poverty rate, CY2026 — conditional on the CTC phase-in provision (IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1) being enacted in substantially similar form by 2027-12-31.",
     status: "refused",
     note: "Runner refused under its resolution-date rule, verbatim: “No valid forecast cell can be produced yet because the Census Bureau has not published an official release date… Census announced on 2026-07-17 that its 2019–2024 SPM estimates will be revised, so the currently published history is not a stable calibration set.”",
-  },
-  {
-    billSlug: "s3596-119",
-    question:
-      "IRS Additional Child Tax Credit total claims, TY2027 — conditional on IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1 for TY2027, enacted by 2027-12-31.",
-    status: "pending",
   },
 ];
 
