@@ -925,7 +925,14 @@ def require_conditional_docket_template(
     )
     arms = pair.get("arms") if isinstance(pair, dict) else None
     if conditional is None:
-        if pair is not None:
+        # Checked across EVERY committed match, so a duplicate-series
+        # registry state can never launder an unconditional contract past
+        # the conditional-only rule.
+        if any(
+            isinstance(entry, dict)
+            and entry.get("conditionalPair") is not None
+            for entry in template_matches
+        ):
             raise RegistrationError(
                 "committed docket makes this series conditional-only; an "
                 f"unconditional contract may not register under it: {label}"
@@ -957,6 +964,34 @@ def require_conditional_docket_template(
             raise RegistrationError(
                 "committed conditional arms are malformed or "
                 f"non-distinct on {field}: {label}"
+            )
+    reserved = {
+        "series",
+        "period",
+        "catalogSlug",
+        "dataPointId",
+        "conditional",
+        "conditionId",
+        "conditionDeadline",
+    }
+    clashing = reserved & set(extras)
+    if clashing:
+        raise RegistrationError(
+            "committed conditional extras restate reserved target keys "
+            f"{sorted(clashing)}: {label}"
+        )
+    for sibling in arms:
+        if not re.fullmatch(
+            rf"{re.escape(str(entry.get('series')))}"
+            rf"\.{re.escape(str(entry.get('period')))}"
+            r"\.first_print\.[a-z0-9_]+",
+            str(sibling.get("dataPointId")),
+        ):
+            raise RegistrationError(
+                "committed conditional arm dataPointId "
+                f"{sibling.get('dataPointId')!r} is not "
+                "<series>.<period>.first_print.<condition_token>: "
+                f"{label}"
             )
     matching = [
         arm for arm in arms if arm.get("catalogSlug") == contract.get("catalogSlug")
@@ -1003,16 +1038,33 @@ def require_conditional_docket_template(
         )
     if batch_target is not None:
         # The contract equality above covers the registration projection;
-        # the remaining committed target fields (resolutionDate, anchors,
+        # every remaining committed target field (resolutionDate, anchors,
         # and any other extras the analyst runs under) must also still
-        # match what the committed entry generates. sourceBinding is
-        # excluded here because the batch carries the DERIVED binding,
-        # already proven equal through the contract.
+        # match what the committed entry generates — SYMMETRICALLY, so a
+        # committed-field deletion (the reconstruction losing a key the
+        # batch ran with) fails exactly like a value change, and presence
+        # is distinguished from an explicit null. sourceBinding is
+        # excluded because the batch carries the DERIVED binding, already
+        # proven equal through the contract; the registration-enrichment
+        # keys are the register step's own additions.
+        enrichment = {
+            "registrationState",
+            "registeredAt",
+            "registeredAtUtc",
+            "targetContentHash",
+            "targetRegistrationPath",
+            "registrationCommit",
+        }
+        keys = (
+            set(reconstructed_target) | set(batch_target)
+        ) - enrichment - {"sourceBinding"}
         drifted = sorted(
             key
-            for key, value in reconstructed_target.items()
-            if key != "sourceBinding"
-            and canonical_bytes(batch_target.get(key)) != canonical_bytes(value)
+            for key in keys
+            if canonical_bytes(
+                [key in reconstructed_target, reconstructed_target.get(key)]
+            )
+            != canonical_bytes([key in batch_target, batch_target.get(key)])
         )
         if drifted:
             raise RegistrationError(

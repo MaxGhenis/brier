@@ -506,7 +506,9 @@ def test_bind_reauthenticates_conditional_contracts_against_the_docket() -> None
             ),
             "no longer regenerates the registered",
         ),
-        (lambda e: e.update(period="2028"), "no longer regenerates"),
+        # Period drift now dies even earlier: the committed arms' ids stop
+        # matching <series>.<period>.first_print.<token>.
+        (lambda e: e.update(period="2028"), "first_print"),
         (
             lambda e: e["conditionalPair"].update(conditionDeadline="someday"),
             "no longer regenerates a valid",
@@ -630,4 +632,81 @@ def test_contract_requires_condition_identity_and_deadline() -> None:
     ):
         register_targets.build_contract(
             late, register_targets.dt.date(2026, 8, 1)
+        )
+
+
+def test_symmetric_run_context_catches_committed_field_deletion() -> None:
+    entry = docket_entry()
+    arm = entry["conditionalPair"]["arms"][0]
+    batch_target = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": arm["catalogSlug"],
+        "dataPointId": arm["dataPointId"],
+        "conditional": arm["conditional"],
+        "conditionId": arm["conditionId"],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
+        **entry["extras"],
+        "registrationState": "preregistered",
+        "registrationCommit": "0" * 40,
+    }
+    contract = bindable_arm_contract()
+    stamp = "2026-08-01T00:00:00Z"
+    # DELETING a committed run-context field (not just changing it) must
+    # fail: the registry no longer generates the context the run used.
+    for missing in ("resolutionDate", "anchors"):
+        drifted = docket_entry()
+        del drifted["extras"][missing]
+        with pytest.raises(
+            register_targets.RegistrationError, match=missing
+        ):
+            register_targets.require_conditional_docket_template(
+                contract, [drifted], stamp, batch_target=batch_target
+            )
+
+
+def test_conditional_only_rule_survives_duplicate_series_ambiguity() -> None:
+    entry = docket_entry()
+    plain = {"series": entry["series"], "cadence": "annual"}
+    target = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": "some-fresh-unconditional-slug",
+        "dataPointId": "irs.actc.total_claims.2027",
+        **entry["extras"],
+    }
+    contract = register_targets.build_contract(
+        target, register_targets.dt.date(2026, 8, 1)
+    )
+    # A duplicate-series registry state (however it arose) must not launder
+    # an unconditional contract past the conditional-only rule.
+    for matches in ([entry, plain], [plain, entry]):
+        with pytest.raises(
+            register_targets.RegistrationError, match="conditional-only"
+        ):
+            register_targets.require_conditional_docket_template(
+                contract, matches
+            )
+
+
+def test_reauthentication_rejects_committed_registry_malformations() -> None:
+    contract = bindable_arm_contract()
+    stamp = "2026-08-01T00:00:00Z"
+    restated = docket_entry()
+    restated["extras"]["conditional"] = "override"
+    with pytest.raises(
+        register_targets.RegistrationError, match="restate reserved"
+    ):
+        register_targets.require_conditional_docket_template(
+            contract, [restated], stamp
+        )
+    mislabeled = docket_entry()
+    mislabeled["conditionalPair"]["arms"][1]["dataPointId"] = (
+        "irs.actc.total_claims.2028.first_print.current_law"
+    )
+    with pytest.raises(
+        register_targets.RegistrationError, match="first_print"
+    ):
+        register_targets.require_conditional_docket_template(
+            contract, [mislabeled], stamp
         )

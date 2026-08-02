@@ -6947,20 +6947,24 @@ def main() -> int:
             # disclose (over-disclosure is the safe direction).
             if raw is not None:
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
-                late_capture = (
-                    max(retrieved_at[:10], utc_now()[:10]) > str(window["end"])
-                )
+                # The effective capture date is the later of the request
+                # stamp (taken before the response read) and the decision
+                # moment, so a straddle discloses with a coherent date.
+                effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
+                late_capture = effective_capture_date > str(window["end"])
                 if late_capture:
                     print(
                         f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
-                        f"captured {retrieved_at[:10]} after the registered "
-                        f"window closed {window['end']}"
+                        f"capture completed {effective_capture_date}, after "
+                        f"the registered window closed {window['end']}"
                     )
                     spec = {
                         **spec,
                         "evidence_notes": (
                             str(spec["evidence_notes"])
-                            + " Captured after the registered "
+                            + " Capture completed "
+                            + effective_capture_date
+                            + ", after the registered "
                             + str(window["end"])
                             + " window by-date; the workbook is a static "
                             "per-tax-year print, so this capture is still "
