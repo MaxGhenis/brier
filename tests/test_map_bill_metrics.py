@@ -19,7 +19,15 @@ def write_json(path: pathlib.Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
-def catalog_row(concept: str, uuid: str, *, aliases: list[str] | None = None) -> dict:
+def catalog_row(
+    concept: str,
+    uuid: str,
+    *,
+    aliases: list[str] | None = None,
+    source_concepts: list[str] | None = None,
+    geography: dict | None = None,
+    entity: dict | None = None,
+) -> dict:
     """Return one complete row in the frozen Ledger catalog schema."""
     return {
         "uuid": uuid,
@@ -28,14 +36,17 @@ def catalog_row(concept: str, uuid: str, *, aliases: list[str] | None = None) ->
         "status": "observed",
         "unit": "count",
         "cadence": "month",
-        "geography": {
-            "id": "XX",
+        "geography": geography
+        or {
+            "id": "0100000US",
             "level": "country",
-            "name": "Example",
+            "vintage": "current",
+            "name": "United States",
         },
-        "entity": {"name": "example", "role": "aggregate"},
+        "entity": entity or {"name": "example", "role": "aggregate"},
         "sources": ["example-agency"],
         "aliases": aliases or [],
+        "source_concepts": source_concepts or [],
         "rid_patterns": [f"{concept}.{{P}}.first_print"],
         "first_observed_period": "2026-01",
         "last_observed_period": "2026-01",
@@ -77,6 +88,10 @@ def test_maps_all_registry_states_and_writes_ingestion_request(
                         "series_hint": "LEDGER_ALIAS",
                     },
                     {
+                        "text": "Ledger source-concept metric",
+                        "series_hint": "PUBLISHER_CODE",
+                    },
+                    {
                         "text": "Ledger descendant metric",
                         "series_hint": "ledger.family",
                     },
@@ -112,6 +127,11 @@ def test_maps_all_registry_states_and_writes_ingestion_request(
                 "uuid-alias",
                 aliases=["LEDGER_ALIAS"],
             ),
+            catalog_row(
+                "ledger.source.target",
+                "uuid-source",
+                source_concepts=["PUBLISHER_CODE"],
+            ),
             catalog_row("ledger.family.child", "uuid-descendant"),
         ]
     }
@@ -135,6 +155,7 @@ def test_maps_all_registry_states_and_writes_ingestion_request(
         "ledger",
         "ledger",
         "ledger",
+        "ledger",
         "not-yet",
         "unmapped",
     ]
@@ -153,13 +174,17 @@ def test_maps_all_registry_states_and_writes_ingestion_request(
     assert (
         metrics[4]["matched_series"],
         metrics[4]["ledger_uuid"],
+    ) == ("ledger.source.target", "uuid-source")
+    assert (
+        metrics[5]["matched_series"],
+        metrics[5]["ledger_uuid"],
     ) == ("ledger.family.child", "uuid-descendant")
-    for metric in metrics[5:]:
+    for metric in metrics[6:]:
         assert "matched_series" not in metric
         assert "ledger_uuid" not in metric
     assert mapped["summary"] == {
         "reachable": 2,
-        "ledger": 3,
+        "ledger": 4,
         "notYet": 1,
         "unmapped": 1,
     }
@@ -256,6 +281,14 @@ def test_catalog_exact_concept_wins_over_an_earlier_alias(
         "concept": "exact.series",
         "uuid": "exact-uuid",
         "aliases": [],
+        "geography": {
+            "id": "0100000US",
+            "level": "country",
+            "vintage": "current",
+            "name": "United States",
+        },
+        "entity": {"name": "example", "role": "aggregate"},
+        "source_concepts": [],
     }
 
 
@@ -301,7 +334,7 @@ def test_prefix_matching_requires_a_dot_boundary(tmp_path: pathlib.Path) -> None
     assert "ledger_uuid" not in metric
 
 
-def test_real_catalog_fixture_propagates_alias_uuid(
+def test_real_catalog_fixture_reports_ambiguous_source_concept(
     tmp_path: pathlib.Path,
 ) -> None:
     bill_path = tmp_path / "bill.json"
@@ -323,6 +356,19 @@ def test_real_catalog_fixture_propagates_alias_uuid(
         },
     )
     write_json(docket_path, {"series": []})
+    fixture = json.loads(REAL_CATALOG_FIXTURE.read_text(encoding="utf-8"))
+    source_rows = [
+        row for row in fixture["series"] if "CPILFESL" in row["source_concepts"]
+    ]
+    assert len(source_rows) == 1
+    candidate_rows = [
+        row for row in fixture["series"] if row["concept"] == source_rows[0]["concept"]
+    ]
+    assert len(candidate_rows) == 2
+    assert all(
+        row["geography"]["level"] == "country" and row["geography"]["id"] == "0100000US"
+        for row in candidate_rows
+    )
 
     output_path, request_paths = map_bill_metrics.map_bill_metrics(
         bill_path,
@@ -337,14 +383,162 @@ def test_real_catalog_fixture_propagates_alias_uuid(
     assert metric == {
         "text": "Core CPI",
         "series_hint": "CPILFESL",
+        "registry": "not-yet",
+    }
+    assert request_paths == [tmp_path / "drafts" / "cpilfesl.json"]
+    request = json.loads(request_paths[0].read_text(encoding="utf-8"))
+    assert "Ambiguous Ledger catalog match" in request["note"]
+    for row in candidate_rows:
+        assert row["uuid"] in request["note"]
+
+
+def test_real_catalog_fixture_resolves_unique_source_concept(
+    tmp_path: pathlib.Path,
+) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "durable-goods-bill"},
+            "provisions": [
+                {
+                    "metrics": [
+                        {
+                            "text": "Durable goods orders",
+                            "series_hint": "DGORDER",
+                        }
+                    ]
+                }
+            ],
+        },
+    )
+    write_json(docket_path, {"series": []})
+    fixture = json.loads(REAL_CATALOG_FIXTURE.read_text(encoding="utf-8"))
+    expected_rows = [
+        row for row in fixture["series"] if "DGORDER" in row["source_concepts"]
+    ]
+    assert len(expected_rows) == 1
+    expected = expected_rows[0]
+    assert expected["concept"] == "census.m3.durable_goods_new_orders_mom"
+
+    output_path, request_paths = map_bill_metrics.map_bill_metrics(
+        bill_path,
+        docket_path,
+        REAL_CATALOG_FIXTURE,
+        drafts_dir=tmp_path / "drafts",
+    )
+
+    metric = json.loads(output_path.read_text(encoding="utf-8"))["provisions"][0][
+        "metrics"
+    ][0]
+    assert metric == {
+        "text": "Durable goods orders",
+        "series_hint": "DGORDER",
         "registry": "ledger",
-        "matched_series": "bls.cpi.u.core_mom",
-        "ledger_uuid": "23a58ec2-2d41-4f17-ae3d-8affeda44fc1",
+        "matched_series": expected["concept"],
+        "ledger_uuid": expected["uuid"],
     }
     assert request_paths == []
 
 
-def test_cli_requires_catalog_and_reports_v2_summary(
+def test_exact_concept_prefers_single_us_national_candidate(
+    tmp_path: pathlib.Path,
+) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    concept = "fns.snap.total_payment_error_rate"
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "snap-bill"},
+            "provisions": [
+                {"metrics": [{"text": "SNAP error rate", "series_hint": concept}]}
+            ],
+        },
+    )
+    write_json(docket_path, {"series": []})
+    fixture = json.loads(REAL_CATALOG_FIXTURE.read_text(encoding="utf-8"))
+    candidates = [row for row in fixture["series"] if row["concept"] == concept]
+    assert len(candidates) == 54
+    national = [
+        row
+        for row in candidates
+        if row["geography"]["level"] == "country"
+        and row["geography"]["id"] == "0100000US"
+    ]
+    assert len(national) == 1
+
+    output_path, request_paths = map_bill_metrics.map_bill_metrics(
+        bill_path,
+        docket_path,
+        REAL_CATALOG_FIXTURE,
+        drafts_dir=tmp_path / "drafts",
+    )
+
+    metric = json.loads(output_path.read_text(encoding="utf-8"))["provisions"][0][
+        "metrics"
+    ][0]
+    assert metric["registry"] == "ledger"
+    assert metric["matched_series"] == concept
+    assert metric["ledger_uuid"] == national[0]["uuid"]
+    assert request_paths == []
+
+
+def test_two_us_national_candidates_are_ambiguous(tmp_path: pathlib.Path) -> None:
+    bill_path = tmp_path / "bill.json"
+    docket_path = tmp_path / "docket.json"
+    catalog_path = tmp_path / "catalog.json"
+    drafts_dir = tmp_path / "drafts"
+    concept = "agency.duplicate"
+    write_json(
+        bill_path,
+        {
+            "bill": {"slug": "duplicate-bill"},
+            "provisions": [
+                {"metrics": [{"text": "Duplicate metric", "series_hint": concept}]}
+            ],
+        },
+    )
+    write_json(docket_path, {"series": []})
+    write_json(
+        catalog_path,
+        {
+            "series": [
+                catalog_row(
+                    concept,
+                    "national-economy-uuid",
+                    entity={"name": "economy", "role": "aggregate"},
+                ),
+                catalog_row(
+                    concept,
+                    "national-person-uuid",
+                    entity={"name": "person", "role": "population"},
+                ),
+            ]
+        },
+    )
+
+    output_path, request_paths = map_bill_metrics.map_bill_metrics(
+        bill_path, docket_path, catalog_path, drafts_dir=drafts_dir
+    )
+
+    metric = json.loads(output_path.read_text(encoding="utf-8"))["provisions"][0][
+        "metrics"
+    ][0]
+    assert metric == {
+        "text": "Duplicate metric",
+        "series_hint": concept,
+        "registry": "not-yet",
+    }
+    assert request_paths == [drafts_dir / "agency-duplicate.json"]
+    request = json.loads(request_paths[0].read_text(encoding="utf-8"))
+    assert "Ambiguous Ledger catalog match" in request["note"]
+    assert "national-economy-uuid" in request["note"]
+    assert "national-person-uuid" in request["note"]
+
+
+def test_cli_requires_catalog_and_reports_v3_summary(
     tmp_path: pathlib.Path, capsys
 ) -> None:
     bill_path = tmp_path / "cli-bill.json"

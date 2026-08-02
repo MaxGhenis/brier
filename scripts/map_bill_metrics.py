@@ -80,12 +80,33 @@ def load_catalog_series(catalog_path: pathlib.Path) -> list[dict]:
             raise MappingError(
                 f"catalog series entry {index} aliases must be an array of strings"
             )
+        geography = entry.get("geography")
+        if geography is not None and not isinstance(geography, dict):
+            raise MappingError(
+                f"catalog series entry {index} geography must be an object or null"
+            )
+        entity = entry.get("entity")
+        if entity is not None and not isinstance(entity, dict):
+            raise MappingError(
+                f"catalog series entry {index} entity must be an object or null"
+            )
+        source_concepts = entry.get("source_concepts")
+        if not isinstance(source_concepts, list) or not all(
+            isinstance(source_concept, str) for source_concept in source_concepts
+        ):
+            raise MappingError(
+                "catalog series entry "
+                f"{index} source_concepts must be an array of strings"
+            )
 
         series.append(
             {
                 "uuid": uuid.strip(),
                 "concept": concept.strip(),
                 "aliases": aliases,
+                "geography": geography,
+                "entity": entity,
+                "source_concepts": source_concepts,
             }
         )
     return series
@@ -103,21 +124,55 @@ def match_registered_series(hint: str, registered: Sequence[str]) -> str | None:
     return None
 
 
-def match_catalog_series(hint: str, catalog: Sequence[dict]) -> dict | None:
-    """Return an exact-concept, alias, or dot-descendant catalog match."""
-    for entry in catalog:
-        if entry["concept"] == hint:
-            return entry
-    for entry in catalog:
-        if hint in entry["aliases"]:
-            return entry
-
-    matched_concept = match_registered_series(
-        hint, [entry["concept"] for entry in catalog]
+def catalog_match_candidates(hint: str, catalog: Sequence[dict]) -> list[dict]:
+    """Return every candidate at the first catalog matching tier with hits."""
+    tiers = (
+        lambda entry: entry["concept"] == hint,
+        lambda entry: hint in entry["aliases"],
+        lambda entry: hint in entry["source_concepts"],
+        lambda entry: entry["concept"].startswith(f"{hint}."),
     )
-    if matched_concept is None:
-        return None
-    return next(entry for entry in catalog if entry["concept"] == matched_concept)
+    for tier_index, predicate in enumerate(tiers):
+        candidates = [entry for entry in catalog if predicate(entry)]
+        if not candidates:
+            continue
+
+        if tier_index == 2:
+            # source_concepts are publisher provenance, not row identities. A
+            # source-label hit identifies a concept, so retain every geography
+            # and entity identity carrying that concept for disambiguation.
+            concepts = {entry["concept"] for entry in candidates}
+            candidates = [entry for entry in catalog if entry["concept"] in concepts]
+        return candidates
+    return []
+
+
+def resolve_catalog_series(
+    hint: str, catalog: Sequence[dict]
+) -> tuple[dict | None, list[dict]]:
+    """Resolve a catalog hint and preserve ambiguous candidates for triage."""
+    candidates = catalog_match_candidates(hint, catalog)
+    if len(candidates) == 1:
+        return candidates[0], candidates
+    if not candidates:
+        return None, candidates
+
+    national = [
+        entry
+        for entry in candidates
+        if isinstance(entry["geography"], dict)
+        and entry["geography"].get("level") == "country"
+        and entry["geography"].get("id") == "0100000US"
+    ]
+    if len(national) == 1:
+        return national[0], candidates
+    return None, candidates
+
+
+def match_catalog_series(hint: str, catalog: Sequence[dict]) -> dict | None:
+    """Return the unambiguous catalog match for ``hint``, if one exists."""
+    match, _ = resolve_catalog_series(hint, catalog)
+    return match
 
 
 def slugify_hint(hint: str) -> str:
@@ -197,6 +252,9 @@ def map_artifact(
                 )
             hint = raw_hint.strip() if isinstance(raw_hint, str) else ""
             match = match_registered_series(hint, registered) if hint else None
+            catalog_match, catalog_candidates = (
+                resolve_catalog_series(hint, catalog) if hint else (None, [])
+            )
 
             metric.pop("matched_series", None)
             metric.pop("ledger_uuid", None)
@@ -204,7 +262,7 @@ def map_artifact(
                 metric["registry"] = "reachable"
                 metric["matched_series"] = match
                 summary["reachable"] += 1
-            elif hint and (catalog_match := match_catalog_series(hint, catalog)):
+            elif catalog_match is not None:
                 metric["registry"] = "ledger"
                 metric["matched_series"] = catalog_match["concept"]
                 metric["ledger_uuid"] = catalog_match["uuid"]
@@ -212,6 +270,21 @@ def map_artifact(
             elif hint:
                 metric["registry"] = "not-yet"
                 summary["notYet"] += 1
+                if catalog_candidates:
+                    candidate_uuids = ", ".join(
+                        entry["uuid"] for entry in catalog_candidates
+                    )
+                    note = (
+                        f"Ambiguous Ledger catalog match for {hint!r}; candidate "
+                        f"UUIDs: {candidate_uuids}. A curator must select or "
+                        "clarify the intended geography and entity identity."
+                    )
+                else:
+                    note = (
+                        "Proposed catalog row for PolicyEngine/ledger "
+                        "series_catalog.json; verify identity, unit, cadence, "
+                        "and official source before ingestion."
+                    )
                 requests_by_hint.setdefault(
                     hint,
                     {
@@ -221,11 +294,7 @@ def map_artifact(
                         "cadence": None,
                         "proposedFrom": proposed_from,
                         "metricText": metric.get("text"),
-                        "note": (
-                            "Proposed catalog row for PolicyEngine/ledger "
-                            "series_catalog.json; verify identity, unit, cadence, "
-                            "and official source before ingestion."
-                        ),
+                        "note": note,
                     },
                 )
             else:
