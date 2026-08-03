@@ -1,0 +1,17 @@
+{
+  "proposed_concept": "usaspending.dhs.title_vi.named_account_outlays",
+  "status": "proposed",
+  "unit": "usd",
+  "cadence": "annual",
+  "proposedFrom": "stress-119hr1eh",
+  "metricText": "DHS outlays for the specific Title VI accounts, separated from preexisting border funding.",
+  "note": "UNVERIFIED financial-account submission field and query identity; the current USAspending registered-query parser resolves award obligations, not outlays.",
+  "adapterFamily": "NONE-existing",
+  "billSlugs": [
+    "stress-119hr1eh"
+  ],
+  "publisher": "U.S. Department of the Treasury, USAspending",
+  "statisticalProduct": "USAspending API v2 agency financial-account submission outlay totals for named DHS Title VI accounts",
+  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/reporting/agencies/{toptier_code}/{fiscal_year}/{fiscal_period}/",
+  "verification": "UNVERIFIED: 1. Inspect the official financial-account reporting endpoints at https://api.usaspending.gov/docs/endpoints and prove that a printed outlay field is available for each authoritative Title VI Treasury account/program activity. 2. Fix the fiscal period, cumulative-versus-period amount, agency role, bill-fund isolation, revisions, and three first-print snapshots. 3. Build a distinct parser or reclassify this component no-series; do not treat obligations as outlays."
+}
