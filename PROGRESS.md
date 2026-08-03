@@ -22,3 +22,5 @@
 ## Per-file checks
 
 Results will be appended here in promotion order.
+
+1. **PASS — `stress-119hr1eh.json` → `one-big-beautiful-bill-hr1-119.json`.** JSON parsed; destination bytes identical (SHA-256 `d6860df7665fe48cb53b96ce0b80c53d4ca9666e3b5c7413125a16d5c17ee377`); all six required bill info fields present with exemplar-compatible types; 13 provisions and 36 metrics have the contract shapes; all stance goal indexes are in range; all 3 nonempty `series_hint` values occur in `scripts/docket_series.json`.
