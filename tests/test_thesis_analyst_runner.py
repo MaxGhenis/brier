@@ -1844,3 +1844,83 @@ def test_target_context_binds_the_preregistered_conditional_verbatim() -> None:
     assert len(missing) == 1 and "conditionalOn" in missing[0]
     # Unconditional targets are unaffected.
     assert analyst_runner.target_context_validation_errors(exact, {}) == []
+
+
+def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
+    tmp_path,
+) -> None:
+    # The 2026-08-03 auto-roll (run 30779511345): a draft cell lacking
+    # `reasoning` crashed normalize_spawn_json with a KeyError, so the batch
+    # recorded ok:false with EMPTY validationErrors. A schema-incomplete
+    # draft must instead exit nonzero with a line NAMING the cell and the
+    # missing key, so the failure record is diagnosable.
+    import subprocess
+
+    script = ROOT / "scripts" / "normalize_spawn_json.py"
+    src = tmp_path / "parsed.json"
+    dst = tmp_path / "normalized.json"
+
+    src.write_text(
+        json.dumps(
+            [
+                {
+                    "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+                    "historicalContext": [],
+                }
+            ]
+        )
+    )
+    result = subprocess.run(
+        [sys.executable, str(script), str(src), str(dst)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "REFUSING" in result.stderr
+    assert "irs.actc.total_claims.2027.first_print.current_law" in result.stderr
+    assert "reasoning" in result.stderr
+    assert not dst.exists()
+
+    # Wrong-typed fields refuse with the type named.
+    src.write_text(
+        json.dumps([{"reasoning": "prose", "historicalContext": []}])
+    )
+    result = subprocess.run(
+        [sys.executable, str(script), str(src), str(dst)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "reasoning is str, not a list" in result.stderr
+
+    # Non-list top level refuses.
+    src.write_text(json.dumps({"cells": []}))
+    result = subprocess.run(
+        [sys.executable, str(script), str(src), str(dst)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "not a list of cell objects" in result.stderr
+
+    # A complete cell still normalizes.
+    src.write_text(
+        json.dumps(
+            [
+                {
+                    "dataPointId": "x.y.2027.first_print",
+                    "reasoning": [{"kind": "text", "text": "base rate"}],
+                    "historicalContext": [{"label": "2023", "value": 17.6}],
+                }
+            ]
+        )
+    )
+    result = subprocess.run(
+        [sys.executable, str(script), str(src), str(dst)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(dst.read_text())[0]["historicalContext"] == [
+        {"label": "2023", "value": 17.6}
+    ]
