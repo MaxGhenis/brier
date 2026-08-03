@@ -97,3 +97,35 @@ rewrite or erase the earlier lane's record.
 | `flraa-medevac-s2075-119.json` | 3 | 1 | 2 | 0 | complete |
 | `sba-disaster-fairness-hr1021-119.json` | 8 | 5 | 6 | 0 | complete |
 | `flare-act-s1188-119.json` | 2 | 1 | 1 | 0 | complete |
+
+## Wave-1 admission gate
+
+**Result: zero new docket entries admitted.** This is a fail-closed outcome,
+not an omitted implementation step.
+
+- 51 request files say `adapterFamily: NONE-existing` because the current
+  resolver has no compatible parser/spec for the named official product.
+- Four ALFRED candidates (`bea.ita.personal_transfer_payments`, BEA private
+  nonresidential investment, BEA R&D investment, and EIA vented/flared gas)
+  have neither an exact current `ALFRED_ADAPTERS` stem nor an offline-verified
+  FRED ID/transform/first-print history.
+- Four USAspending candidates are not among the six reviewed
+  `USASPENDING_ADAPTERS` stems. Their agency/account/program filters are still
+  `UNVERIFIED`; the DoD parser must not be generalized by name similarity.
+- Five workbook candidates require new table-specific parsing. The current
+  IRS Publication 1304 executor is hard-coded to `irs.actc.total_claims` and
+  cannot parse other IRS tables or SBA workbooks today.
+- The current CMS executor covers only two Care Compare nursing-home datasets;
+  it cannot parse CMS-64, Medicaid Data API, PERM, or future statutory reports.
+- The H.R. 1 mappings to `usaspending.dod.prime_award_obligations`,
+  `usaspending.dod.unique_prime_contract_recipients`, and the child-credit
+  portion of `irs.actc.total_claims` are already admitted/executable, so no
+  duplicate entries were authored. `fns.snap.total_persons` is already in the
+  docket but remains bound to `generic-url` with no resolver executor; that is
+  an explicit integrator work item, not a claimed admission.
+
+Because no request cleared exact adapter identity, source verification, and
+anchor readiness, this phase makes no changes to `scripts/docket_series.json`,
+`docs/anchor-verifications.md`, or registry/prospect binding tests. There are
+no new rows for those surfaces to describe or validate, and no target may roll
+from this wave until a later reviewed admission supplies them.
