@@ -170,6 +170,28 @@ Resolution and scoring code should preserve these invariants:
 - training cannot see future official outcomes;
 - reward rows include provenance hashes and activity-artifact count.
 
+### Bills end to end — series ingestion is part of the pipeline
+
+Founder rule (2026-08-03): a bill metric whose official series is not yet
+admitted is a **worklist item, never a stopping point**. "End to end" for
+the bills lane means: extraction → metrics → series mapping → **if no
+admitted series, ingest it** — Ledger observation history with witnessed
+first prints, a resolvable adapter path in `resolve_pending.py`,
+integrator-verified anchors per `docs/anchor-verifications.md`, and docket
+admission — then preregister the pair and forecast. Never close a bills
+lane with "metric lacks an admitted series" as the end state.
+
+The division of labor is fixed:
+
+- `scripts/map_bill_metrics.py` (proposal-only) annotates bill artifacts
+  against the docket and the Ledger series catalog and writes ingestion
+  requests to `drafts/ledger-ingestion/`. It never changes the docket,
+  the catalog, or any record artifact.
+- Admission is a reviewed change: adapter (or reuse of an existing
+  family), anchors verified from official prints, docket entry, tests —
+  the same bar every existing adapter cleared. Requests without a
+  passable adapter stay open requests, visibly, not silent drops.
+
 ## Verification
 
 For Python runner changes:
