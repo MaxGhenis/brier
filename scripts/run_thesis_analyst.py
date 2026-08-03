@@ -512,7 +512,53 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         value = target_context.get(key)
         if value not in (None, ""):
             lines.append(f"- {key}: {json.dumps(value, sort_keys=True)}")
+    adapter = (target_context.get("sourceBinding") or {}).get("adapter")
+    fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
+    if fetch_command:
+        series = target_context.get("series")
+        if not series:
+            stem = str(target_context.get("dataPointId", "")).rsplit(
+                ".first_print", 1
+            )[0]
+            series = ".".join(stem.split(".")[:-1]) or stem
+        lines += [
+            "",
+            "# Resolution-grade base-rate fetch (run this — do not substitute)",
+            "The registered adapter's own parser is runnable in this "
+            "workspace, and its output IS the series this target resolves "
+            "against: history fetched any other way (summaries, bulletins, "
+            "line-item estimates, adjacent products) fails anchored "
+            "validation even when it is a real official series. For each of "
+            "the most recent published periods (fetch at least the latest "
+            "four), run:",
+            fetch_command.format(series=series),
+        ]
     return "\n".join(lines)
+
+
+# Per-adapter, copy-runnable base-rate fetch commands surfaced in the target
+# context. Five S.3596 waves (thesis#115) fetched IRS Pub 4801 line-item
+# estimates — a real official series for nearly the same concept — instead
+# of the registered Table 3.3 print, and prose pointing at the parser did
+# not change that; an explicit command does. PERIOD is chosen by the agent
+# (recent published periods); anchor values themselves are never injected.
+BASE_RATE_FETCH_COMMANDS = {
+    "irs-soi-pub1304": (
+        "  pip install --user xlrd==2.0.1 >/dev/null 2>&1; "
+        "python3 -c \"import sys; sys.path.insert(0, 'scripts'); "
+        "import resolve_pending as r; "
+        "print(r.irs_soi_pub1304_fetch_year("
+        "r.IRS_SOI_PUB1304_ADAPTERS['{series}'], 'PERIOD')[0])\""
+        "   # PERIOD = a tax year like 2023"
+    ),
+    "fsa-crp-monthly-summary": (
+        "  python3 -c \"import sys; sys.path.insert(0, 'scripts'); "
+        "import resolve_pending as r; "
+        "print(r.fsa_crp_fetch_period("
+        "r.FSA_CRP_ADAPTERS['{series}'], 'PERIOD')[0])\""
+        "   # PERIOD = a month like 2026-04"
+    ),
+}
 
 
 # Injected into agent prompts only when the runner grants sandbox network

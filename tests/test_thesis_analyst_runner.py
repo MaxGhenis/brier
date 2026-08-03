@@ -1993,3 +1993,37 @@ def test_full_prompt_carries_machine_checked_phrasings() -> None:
     assert "Base-rate provenance" in prompt
     assert "never a secondary summary" in prompt
     assert "irs_soi_pub1304_fetch_year" in prompt
+
+
+def test_target_context_surfaces_the_resolution_parser_command() -> None:
+    # Five waves fetched IRS Pub 4801 line-item estimates — a real official
+    # near-neighbor — instead of the registered Table 3.3 print; prose
+    # pointing at the parser did not change that (thesis#115). The target
+    # context now renders the adapter's own fetch as a copy-runnable
+    # command; anchor values are still never injected.
+    context = {
+        "series": "irs.actc.total_claims",
+        "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+        "sourceBinding": {"adapter": "irs-soi-pub1304"},
+    }
+    block = analyst_runner.format_target_context(context)
+    assert "Resolution-grade base-rate fetch" in block
+    assert "IRS_SOI_PUB1304_ADAPTERS['irs.actc.total_claims']" in block
+    assert "xlrd==2.0.1" in block
+    assert "PERIOD" in block
+    for anchor_value in ("19119249", "37771612", "18076696", "17626084"):
+        assert anchor_value not in block
+
+    crp = analyst_runner.format_target_context(
+        {
+            "series": "usda.fsa.crp.enrolled_acres_total",
+            "sourceBinding": {"adapter": "fsa-crp-monthly-summary"},
+        }
+    )
+    assert "FSA_CRP_ADAPTERS['usda.fsa.crp.enrolled_acres_total']" in crp
+    assert "fsa_crp_fetch_period" in crp
+
+    plain = analyst_runner.format_target_context(
+        {"series": "x.y", "sourceBinding": {"adapter": "alfred-fred"}}
+    )
+    assert "Resolution-grade base-rate fetch" not in plain
