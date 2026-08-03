@@ -61,6 +61,41 @@ step; one math derivation; one disconfirming consideration ("outside the
 interval if…"); final forecast step exactly matching the cell numbers;
 historicalContext >=3 real points; ciLow < point < ciHigh.
 
+Machine-checked requirements (CI-validated literally, not approximately;
+a trace missing any is rejected):
+
+- the base-rate step must use explicit reference-class wording — literally
+  say "base rate" or "reference class", or a trailing-N range/
+  distribution statement;
+- the falsification step must use one of the literal phrasings
+  "upside risk", "downside risk", "outside the interval", or
+  "would land above/below the interval";
+- one math step must begin "Prior/update/interval:" and SHOW the interval
+  arithmetic: compute sigma from the fetched history (successive changes
+  for level/rate series; the values themselves for change/flow series),
+  state it literally as "sigma = X", and derive the half-width as roughly
+  1.28*sigma — stating a regime or mechanism reason in the same step if
+  you widen or narrow beyond about 0.75x–1.75x of that;
+- confidence is 0.8 exactly; ciLow < pointEstimate < ciHigh;
+- every tool step's result string includes at least one fetched numeric
+  value; resolutionDate is verified from an official release calendar or
+  announcement this run, never inferred from cadence; runAt is the actual
+  UTC date command output from this run.
+
+Base-rate provenance: fetch `historicalContext` from the exact official
+artifact the resolution rule names — for workbook or file sources, the
+per-period files behind `sourceBinding.sourceUrl`, parsed at the exact
+table/row/column the rule cites — never a secondary summary, bulletin
+article, or adjacent series. Anchored targets fail validation whenever the
+fetched history contradicts the pinned official first-print values, so a
+near-miss series is a wasted run. The repository's resolver adapters in
+`scripts/resolve_pending.py` are runnable public references for exactly
+this parse (e.g. `irs_soi_pub1304_fetch_year` downloads and reads the
+official Table 3.3 workbook cell); with workspace access you may run them
+— installing a pinned parser like `xlrd==2.0.1` first if needed — and a
+base rate fetched through the resolution parser is, by construction, the
+series the target resolves against.
+
 `activityLog` is added by `scripts/run_thesis_analyst.py`, not by the model.
 It preserves the full run envelope behind the curated public trace: prompt,
 command metadata, stdout/stderr, raw response, parsed/normalized cells,
