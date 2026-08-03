@@ -3,12 +3,19 @@ import { GENERATED_FORECAST_TARGETS } from "./ledger-targets.generated";
 
 export const TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS = 7;
 
+// Mirrors scripts/register_targets.py SOURCE_ADAPTERS exactly: any adapter
+// python can register will appear in ledger-targets.generated.ts, so a
+// missing member here breaks the next site build AFTER a registration lands
+// (2026-08-03: "irs-soi-pub1304" registered by the S.3596 wave with no
+// union member — main went build-red until this line existed).
 export type TargetSourceAdapter =
   | "abs-data-api"
   | "abs-release-page"
   | "alfred-fred"
   | "eurostat-api"
+  | "fsa-crp-monthly-summary"
   | "generic-url"
+  | "irs-soi-pub1304"
   | "ons-timeseries"
   | "statcan-wds"
   | "usaspending-api";
