@@ -24,7 +24,7 @@ in a math step. Cells whose resolution source IS an official score must
 forecast the official score, not the raw microsim number.
 
 ## When to call it
-- `conditional_on` references a tax/benefit parameter: simulate both arms.
+- `conditionalOn` references a tax/benefit parameter: simulate both arms.
 - Forecasting program aggregates (CTC outlays, SNAP benefits): baseline run
   + trend adjustment.
 - Never for series PolicyEngine doesn't model (CPI, claims) — the trace
