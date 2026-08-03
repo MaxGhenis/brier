@@ -1,0 +1,235 @@
+[
+  {
+    "schemaVersion": "thesis_forecast_cell_v1",
+    "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-current-law",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+    "series": "irs.actc.total_claims",
+    "country": "US",
+    "period": "2027",
+    "question": "How many millions of individual income tax returns will claim the refundable child tax credit or additional child tax credit for tax year 2027, as first published by the IRS Statistics of Income Division in Publication 1304, Table 3.3, all returns total row, conditional on no legislation enacted by December 31, 2027 changing the $2,500 earned-income threshold operative under IRC \u00a724(h)(6)?",
+    "unit": "millions",
+    "pointEstimate": 15.3,
+    "ciLow": 13.4,
+    "ciHigh": 17.2,
+    "resolutionDate": "2029-12-31",
+    "resolutionPolicy": "first_print",
+    "resolutionSource": "IRS Statistics of Income, Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns. Multiply the published return count by 0.000001 and round to the published forecast precision. Resolve from the first IRS publication for tax year 2027; later corrections or revisions do not apply.",
+    "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "conditional_on": "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount.",
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "promptHash": "7ef119647b35",
+    "toolsHash": "50a06b62f9be",
+    "runAt": "2026-08-03T03:19:38Z",
+    "sourceContext": [
+      {
+        "title": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304)",
+        "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+        "usedFor": "Resolver identity, historical Publication 1304 tables, and confirmation that 2023 complete-report tables were released in March 2026."
+      },
+      {
+        "title": "IRS Publication 1304, tax year 2021 complete report",
+        "url": "https://www.irs.gov/pub/irs-prior/p1304--2024.pdf",
+        "usedFor": "Official 2017\u20132021 refundable child tax credit or additional child tax credit return counts."
+      },
+      {
+        "title": "IRS Publication 1304, tax year 2022 complete report",
+        "url": "https://www.irs.gov/pub/irs-pdf/p1304.pdf",
+        "usedFor": "Official 2022 refundable child tax credit or additional child tax credit total-return estimate."
+      },
+      {
+        "title": "IRS Publication 4801, 2023 Individual Income Tax Returns Line-Item Estimates",
+        "url": "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+        "usedFor": "Official 2023 Form 1040 line 28 Additional Child Tax Credit return count used as the latest-history proxy; final resolution remains the first Publication 1304 Table 3.3 value."
+      },
+      {
+        "title": "26 USC \u00a724, Child tax credit",
+        "url": "https://uscode.house.gov/view.xhtml?edition=prelim&num=0&req=granuleid%3AUSC-prelim-title26-section24",
+        "usedFor": "Current statutory text and the permanent \u00a724(h)(6) substitution of $2,500 for the underlying $3,000 threshold."
+      },
+      {
+        "title": "CRS, The Child Tax Credit: How It Works and Who Receives It",
+        "url": "https://www.congress.gov/crs-product/R41873",
+        "usedFor": "Confirmation that P.L. 119-21 made the $2,500 refundability threshold permanent."
+      },
+      {
+        "title": "Canonical Thesis target registration",
+        "url": "records/targets/2026-08-03-750dfdf6ca78138736340c8c49dc41d3810bd19e710ea3bd16f3a316b62a0bc2.json",
+        "usedFor": "Slug, unit, dataPointId, source binding, conditional, resolver, and registered resolution date."
+      }
+    ],
+    "historicalContext": [
+      {
+        "period": "2017",
+        "value": 18.341984,
+        "unit": "millions",
+        "note": "IRS Publication 1304 Table A; pre-TCJA threshold regime, retained as context but excluded from the selected current-law trend."
+      },
+      {
+        "period": "2018",
+        "value": 20.450468,
+        "unit": "millions",
+        "note": "IRS Publication 1304 Table A; first year of the $2,500 threshold regime."
+      },
+      {
+        "period": "2019",
+        "value": 19.867646,
+        "unit": "millions",
+        "note": "IRS Publication 1304 Table A."
+      },
+      {
+        "period": "2020",
+        "value": 19.119249,
+        "unit": "millions",
+        "note": "IRS Publication 1304 Table A."
+      },
+      {
+        "period": "2021",
+        "value": 37.771612,
+        "unit": "millions",
+        "note": "IRS Publication 1304 Table A; excluded from the current-law reference class because the American Rescue Plan temporarily made the child tax credit fully refundable and materially changed eligibility."
+      },
+      {
+        "period": "2022",
+        "value": 18.077,
+        "unit": "millions",
+        "note": "IRS Publication 1304 first estimate, reported to the nearest thousand returns."
+      },
+      {
+        "period": "2023",
+        "value": 17.626084,
+        "unit": "millions",
+        "note": "IRS Publication 4801, Form 1040 line 28 Additional Child Tax Credit return count; used as a proxy for recent history, not as the target resolver series."
+      }
+    ],
+    "modelCandidates": [
+      {
+        "schemaVersion": "thesis_model_candidate_v1",
+        "name": "last_print_persistence",
+        "point": 17.6,
+        "p10": 15.7,
+        "p50": 17.6,
+        "p90": 19.5,
+        "ci80Low": 15.7,
+        "ci80High": 19.5,
+        "ci90Low": 15.2,
+        "ci90High": 20.0,
+        "intervalMethod": "Central p10\u2013p90 interval from current-law empirical level dispersion, multiplied by 1.25 for the four-year horizon and policy-measurement uncertainty.",
+        "calibration_n": 5,
+        "trainCutoff": "2023",
+        "walkForwardScore": {
+          "metric": "MAE",
+          "value": 0.594,
+          "unit": "millions",
+          "note": "One-year persistence errors for comparable adjacent current-law observations."
+        }
+      },
+      {
+        "schemaVersion": "thesis_model_candidate_v1",
+        "name": "current_law_linear_trend",
+        "point": 15.3,
+        "p10": 13.4,
+        "p50": 15.3,
+        "p90": 17.2,
+        "ci80Low": 13.4,
+        "ci80High": 17.2,
+        "ci90Low": 12.8,
+        "ci90High": 17.7,
+        "intervalMethod": "OLS trend on 2018, 2019, 2020, 2022, and 2023, wrapped in the comparable-level standard deviation and widened 1.25; the 80% interval is the central p10\u2013p90 interval.",
+        "calibration_n": 5,
+        "trainCutoff": "2023",
+        "walkForwardScore": {
+          "metric": "MAE",
+          "value": 0.217,
+          "unit": "millions",
+          "note": "Expanding-window trend checks across the sparse current-law history; stronger than persistence but based on few observations."
+        }
+      }
+    ],
+    "drivers": [
+      {
+        "name": "Post-2018 claim-count trend",
+        "direction": "down",
+        "effect": -2.3,
+        "unit": "millions versus 2023 persistence",
+        "evidence": "Comparable current-law counts declined from 20.450 million in 2018 to 17.626 million in 2023; the fitted annual slope is approximately -0.569 million."
+      },
+      {
+        "name": "Permanent $2,500 threshold",
+        "direction": "neutral",
+        "effect": 0.0,
+        "unit": "millions",
+        "evidence": "P.L. 119-21 made the \u00a724(h)(6) $2,500 substitution permanent, so the forecast does not include the pre-2025-law reversion to $3,000."
+      },
+      {
+        "name": "Long-horizon demographic and filing uncertainty",
+        "direction": "uncertainty",
+        "effect": 1.25,
+        "unit": "interval-width multiplier",
+        "evidence": "The target is four tax years beyond the latest complete observation, while the official series is sample-estimated and sensitive to family composition, earnings, tax liability, and filing behavior."
+      }
+    ],
+    "reasoning": [
+      {
+        "type": "heading",
+        "content": "Tax year 2027 Additional Child Tax Credit total claims under current law"
+      },
+      {
+        "type": "text",
+        "content": "Framing: Resolve the first IRS SOI Publication 1304 Table 3.3 estimate for the number of all individual returns claiming the refundable child tax credit or additional child tax credit for tax year 2027. The unit is millions of returns. The forecast is conditional on the $2,500 earned-income threshold remaining operative through December 31, 2027. The registered resolutionDate is December 31, 2029, representing the end of the ledger's official first-release window rather than a specific scheduled publication day."
+      },
+      {
+        "type": "tool",
+        "name": "IRS Publication 1304 history fetch",
+        "result": "Official Table A counts, in millions of returns: 2017 18.341984; 2018 20.450468; 2019 19.867646; 2020 19.119249; 2021 37.771612. The 2021 observation is a temporary-law outlier because the credit was fully refundable that year."
+      },
+      {
+        "type": "tool",
+        "name": "IRS 2022 complete-report fetch",
+        "result": "IRS Publication 1304 reports 18.077 million refundable child tax credit or additional child tax credit returns for tax year 2022, restoring the pre-2021 structure."
+      },
+      {
+        "type": "tool",
+        "name": "IRS 2023 line-item fetch",
+        "result": "IRS Publication 4801 reports 17,626,084 Form 1040 returns with an Additional Child Tax Credit entry on line 28 for tax year 2023. Schedule 8812 applies a $2,500 earned-income threshold and a 15% phase-in. This line-item count is used as a recent-history proxy; the forecast still resolves exclusively from Publication 1304 Table 3.3."
+      },
+      {
+        "type": "tool",
+        "name": "Current-law verification",
+        "result": "The current 26 USC \u00a724 text records the 2025 amendments and \u00a724(h)(6)'s substitution of $2,500 for the underlying $3,000 amount. CRS states that P.L. 119-21 made this lower refundability threshold permanent."
+      },
+      {
+        "type": "text",
+        "content": "Base rate: Comparable current-law observations 2018, 2019, 2020, 2022, and 2023 are 20.450, 19.868, 19.119, 18.077, and 17.626 million. Mean = 19.028 million, sample standard deviation = 1.184 million, and range = 17.626\u201320.450 million. Annualized declines are -0.583, -0.748, -0.521, and -0.451 million, averaging -0.576 million per year. The 2021 temporary-law value is excluded."
+      },
+      {
+        "type": "text",
+        "content": "Benchmarks: Last-print persistence gives 17.6 million. A linear current-law trend gives 15.3 million for 2027. Sparse expanding-window checks produce approximate MAE of 0.594 million for persistence and 0.217 million for the trend, so the trend is selected while its interval is deliberately widened."
+      },
+      {
+        "type": "math",
+        "content": "OLS on (year, millions) = {(2018,20.450468),(2019,19.867646),(2020,19.119249),(2022,18.077),(2023,17.626084)} gives slope -0.569 million/year and 2027 point 15.27, rounded to 15.3. Historical comparable-level sigma = 1.184. Four-year/policy/sampling widening factor = 1.25. Central 80% p10\u2013p90 half-width = 1.28 \u00d7 1.184 \u00d7 1.25 = 1.89; bounds = 15.3 \u00b1 1.9 = 13.4\u201317.2 million. The corresponding central 90% half-width is 1.645 \u00d7 1.184 \u00d7 1.25 = 2.43, giving 12.8\u201317.7 million."
+      },
+      {
+        "type": "text",
+        "content": "Prior/update/interval: Prior = 17.6 million last-print persistence using the 2023 IRS proxy observation. Selected model = current-law linear trend over five comparable 2018\u20132023 prints, which moves the point -2.3 million from persistence because the declining pattern is repeated and outperforms persistence in sparse walk-forward checks. Policy update = 0.0 million because current law already permanently retains the $2,500 threshold. Interval method = central p10\u2013p90 interval from empirical comparable-level dispersion widened 1.25 for the four-year horizon, statutory-condition risk, sample estimation, and filing behavior; implied 80% bounds are 13.4\u201317.2 million."
+      },
+      {
+        "type": "text",
+        "content": "Counter-consideration: The trend sample is short, skips 2021 because of temporary law, and could overstate decline if the 2022\u20132023 reduction reflects transitory filing behavior. A stable qualifying-child population, stronger low-income employment, or more taxpayers exhausting the nonrefundable credit could keep claims near the 17.6 million persistence benchmark."
+      },
+      {
+        "type": "text",
+        "content": "Tail stress: Above 17.2 million would require a material reversal, such as unexpectedly strong growth in eligible low- and middle-income families, a shift from nonrefundable CTC to ACTC caused by lower tax liabilities, or administrative changes increasing claims without changing the statutory threshold. Below 13.4 million would require a substantially faster decline in qualifying-child returns, employment or earnings patterns moving families outside the refundable formula, stricter identification enforcement, or a large change in filing behavior."
+      },
+      {
+        "type": "text",
+        "content": "Review disposition: Accepted the clarifications that the 2023 Publication 4801 value is a historical proxy and that the 80% interval is central p10\u2013p90. Rejected the requested promptHash replacement because the supplied canonical run metadata explicitly identifies prompt 7ef119647b35, while the alternate hash material is not part of the provided target contract."
+      },
+      {
+        "type": "final",
+        "content": "Forecast: 15.3 million returns, with an 80% interval of 13.4 to 17.2 million."
+      }
+    ]
+  }
+]

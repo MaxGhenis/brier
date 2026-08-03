@@ -1,0 +1,140 @@
+[
+  {
+    "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+    "question": "Conditional on legislation enacted by December 31, 2027 making the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027, how many individual income tax returns will claim the refundable child tax credit or additional child tax credit for tax year 2027, as reported in the first IRS SOI Publication 1304 Table 3.3 release?",
+    "country": "US",
+    "period": "2027",
+    "unit": "millions",
+    "pointEstimate": 19.3,
+    "ciLow": 17.4,
+    "ciHigh": 21.2,
+    "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    "resolutionDate": "2029-12-31",
+    "resolutionPolicy": "first_print",
+    "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "resolutionRule": "Resolve from the first IRS Statistics of Income Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, published for tax year 2027. Use the all-returns total-row number of returns for \u201cRefundable child tax credit or additional child tax credit,\u201d multiply the reported return count by 0.000001, and report millions. Later revisions are irrelevant. The conditional is satisfied only if legislation enacted by December 31, 2027 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 and applies that threshold to tax year 2027; otherwise the cell remains unresolved.",
+    "sourceContext": [
+      {
+        "title": "IRS SOI Publication 1304 landing page and Table 3.3 files",
+        "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304"
+      },
+      {
+        "title": "IRS SOI Publication 1304, tax year 2022",
+        "url": "https://www.irs.gov/pub/irs-pdf/p1304.pdf"
+      },
+      {
+        "title": "IRS Data Book: returns filed, taxes collected and refunds issued",
+        "url": "https://www.irs.gov/statistics/returns-filed-taxes-collected-and-refunds-issued"
+      },
+      {
+        "title": "Congress.gov, S.3596, Stronger Start for Working Families Act",
+        "url": "https://www.congress.gov/bill/119th-congress/senate-bill/3596/text/is"
+      },
+      {
+        "title": "Canonical Thesis target registration",
+        "url": "https://github.com/ThesisInstitute/thesis/blob/966f199f95948a7544dae5ba2f4b7101643a311f/records/targets/2026-08-03-e1e24629b485515d803523111d9d5866c88fcbee6e13d0b33a3599e9c15011df.json"
+      }
+    ],
+    "historicalContext": [
+      {
+        "period": "2017",
+        "value": 18.341984,
+        "unit": "millions",
+        "note": "IRS SOI Publication 1304 total refundable/additional child tax credit returns."
+      },
+      {
+        "period": "2018",
+        "value": 20.450468,
+        "unit": "millions",
+        "note": "IRS SOI Publication 1304 total refundable/additional child tax credit returns."
+      },
+      {
+        "period": "2019",
+        "value": 19.867646,
+        "unit": "millions",
+        "note": "IRS SOI Publication 1304 total refundable/additional child tax credit returns."
+      },
+      {
+        "period": "2020",
+        "value": 19.119249,
+        "unit": "millions",
+        "note": "IRS SOI Publication 1304 total refundable/additional child tax credit returns."
+      },
+      {
+        "period": "2021",
+        "value": 37.771612,
+        "unit": "millions",
+        "note": "Excluded from the ordinary-law volatility sample because the American Rescue Plan made the 2021 credit fully refundable and materially changed eligibility."
+      },
+      {
+        "period": "2022",
+        "value": 18.076696,
+        "unit": "millions",
+        "note": "Latest directly inspected comparable IRS SOI Publication 1304 total."
+      }
+    ],
+    "reasoning": [
+      {
+        "type": "heading",
+        "content": "Tax year 2027 ACTC total claims under a $1 earned-income threshold"
+      },
+      {
+        "type": "text",
+        "content": "Framing: This resolves on the first tax-year-2027 IRS SOI Publication 1304 Table 3.3 all-returns total for refundable child tax credit or additional child tax credit claims. The ledger unit is millions of returns, the first-print policy excludes later revisions, and the conditional must be satisfied by enacted legislation applying to tax year 2027."
+      },
+      {
+        "type": "tool",
+        "tool": "IRS SOI Publication 1304 inspection",
+        "result": "The IRS history reports refundable child tax credit or additional child tax credit return counts of 18,341,984 in 2017, 20,450,468 in 2018, 19,867,646 in 2019, 19,119,249 in 2020, 37,771,612 in 2021, and 18,076,696 in 2022. Source: IRS SOI Publication 1304."
+      },
+      {
+        "type": "tool",
+        "tool": "IRS Data Book inspection",
+        "result": "The IRS reports that 14.0 million fiscal-year-2025 individual refunds included a refundable child tax credit. This is not the resolver or a directly comparable tax-year SOI total, but it supports treating an ordinary-law total near the high teens rather than the exceptional 2021 level as the operational reference class."
+      },
+      {
+        "type": "tool",
+        "tool": "Congress.gov legislation inspection",
+        "result": "S.3596, introduced January 8, 2026, would amend IRC \u00a724(d)(1)(B)(i) by replacing \u201c$3,000\u201d with \u201c$1\u201d for taxable years beginning after December 31, 2025. As inspected, its latest action was referral to the Senate Finance Committee; it was evidence of a concrete policy mechanism, not evidence that the forecast condition had already occurred."
+      },
+      {
+        "type": "text",
+        "content": "Base rate: Excluding structurally exceptional 2021, the five comparable IRS SOI totals for 2017\u20132020 and 2022 are 18.342, 20.450, 19.868, 19.119, and 18.077 million. Their mean is 19.171 million, sample standard deviation is approximately 1.001 million, and range is 18.077\u201320.450 million. Last-print persistence is 18.077 million and is the primary prior."
+      },
+      {
+        "type": "text",
+        "content": "Model candidate: A persistence candidate starts at 18.077 million. A five-observation ordinary-law mean candidate is 19.171 million. No PolicyEngine economy output or admissible walk-forward time-series artifact was available in the inspected evidence, and the 2021 regime break makes a fitted trend misleading; therefore the selected model is persistence plus an explicit conditional-policy claimant adjustment rather than a higher-order time-series fit."
+      },
+      {
+        "type": "math",
+        "content": "Conditional update: use the 2022 ACTC total of 18.077 million as the 80% anchor and the 2022 EITC-return total of 24.086 million as a loose upper proxy for the broader low-earnings tax-credit filing population. The proxy gap is 24.086 \u2212 18.077 = 6.009 million. Assign 20% of that gap to newly positive ACTC claims created by reducing the threshold to $1: 0.20 \u00d7 6.009 = 1.202 million. Point = 18.077 + 1.202 = 19.279, rounded to 19.3 million. For uncertainty, combine ordinary-law historical sigma of 1.001 million with 1.1 million of policy take-up and implementation uncertainty: sigma = sqrt(1.001\u00b2 + 1.1\u00b2) = 1.487 million. The normal 80% half-width is 1.28 \u00d7 1.487 = 1.903 million, giving 17.4\u201321.2 million after rounding. All five ordinary-law historical totals fall inside this interval."
+      },
+      {
+        "type": "text",
+        "content": "Prior/update/interval: Prior is 18.077 million last-print persistence, checked against the 19.171 million mean of the 2017\u20132020 and 2022 ordinary-law sample. The +1.202 million update represents new low-earnings returns with a positive refundable amount under the $1 threshold, partially offset by nonfiling, very small calculated credits, child-eligibility restrictions, and administrative take-up. The interval uses historical first-print dispersion combined with explicit policy take-up uncertainty, implying 17.4\u201321.2 million."
+      },
+      {
+        "type": "text",
+        "content": "Tail stress: Below 17.4 million could occur if low-income filing and take-up are weak, the enacted provision is implemented late or narrowly, employment among eligible parents falls, or SSN and qualifying-child rules exclude more returns than modeled. Above 21.2 million could occur if preparer software and IRS outreach produce near-universal take-up among families with any earnings, filing rises materially, or the enacted legislation also broadens refundability or qualifying-child eligibility beyond the threshold change."
+      },
+      {
+        "type": "text",
+        "content": "Counter-consideration: The 2017\u20132022 series mixes changes in credit size, refundability, child eligibility, earnings, and filing behavior. The 2018 increase cannot be attributed solely to its threshold change, and the EITC total includes filers who are not eligible for the child tax credit. Those limitations argue for only a partial proxy-gap adjustment and for an interval wider than historical ordinary-law volatility alone."
+      },
+      {
+        "type": "text",
+        "content": "Review disposition: Accepted the resolver, base-rate, model-prior, update, interval, compact prior/update/interval, tail-scenario, and coherence fixes. Rejected treating the failed draft as publishable. The unavailable PolicyEngine simulation is disclosed rather than fabricated, and the forecast uses a transparent scenario-adjusted persistence model."
+      },
+      {
+        "type": "forecast",
+        "content": "Final forecast: 19.3 million returns, with an 80% interval of 17.4 to 21.2 million."
+      }
+    ],
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "promptHash": "7ef119647b35",
+    "toolsHash": "50a06b62f9be",
+    "runAt": "2026-08-03T03:14:40Z"
+  }
+]
