@@ -1974,3 +1974,19 @@ def test_fast_prompt_names_conditional_on_exactly() -> None:
     )
     assert "conditionalOn: null" in unconditional
     assert '"conditionalOn"' not in unconditional
+
+
+def test_full_prompt_carries_machine_checked_phrasings() -> None:
+    # Attempt 5 (thesis#115): drafts finally spoke the schema but were
+    # refused for missing interval-falsification phrasing — a CI-regex
+    # requirement no prompt stated — and for base rates fetched from
+    # near-miss secondary series. Both requirements now live in the
+    # contract, which the full prompt embeds.
+    prompt, _ = analyst_runner.build_run_prompt(
+        "irs.actc.total_claims", "2027", None, "full"
+    )
+    assert "Machine-checked phrasings" in prompt
+    assert '"upside risk"' in prompt
+    assert '"outside the interval"' in prompt
+    assert "Base-rate provenance" in prompt
+    assert "never a secondary summary" in prompt

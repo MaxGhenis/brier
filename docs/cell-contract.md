@@ -61,6 +61,23 @@ step; one math derivation; one disconfirming consideration ("outside the
 interval if…"); final forecast step exactly matching the cell numbers;
 historicalContext >=3 real points; ciLow < point < ciHigh.
 
+Machine-checked phrasings (CI regex; a trace without them is rejected):
+
+- the base-rate step must use explicit reference-class wording — e.g. the
+  words "base rate" or "reference class", or a trailing-N range/
+  distribution statement;
+- the falsification step must use one of the literal phrasings
+  "upside risk", "downside risk", "outside the interval", or
+  "would land above/below the interval".
+
+Base-rate provenance: fetch `historicalContext` from the exact official
+artifact the resolution rule names — for workbook or file sources, the
+per-period files behind `sourceBinding.sourceUrl`, parsed at the exact
+table/row/column the rule cites — never a secondary summary, bulletin
+article, or adjacent series. Anchored targets fail validation whenever the
+fetched history contradicts the pinned official first-print values, so a
+near-miss series is a wasted run.
+
 `activityLog` is added by `scripts/run_thesis_analyst.py`, not by the model.
 It preserves the full run envelope behind the curated public trace: prompt,
 command metadata, stdout/stderr, raw response, parsed/normalized cells,
