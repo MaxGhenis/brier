@@ -96,3 +96,4 @@ rewrite or erase the earlier lane's record.
 | `future-networks-hr2449-119.json` | 2 | 0 | 2 | 0 | complete |
 | `flraa-medevac-s2075-119.json` | 3 | 1 | 2 | 0 | complete |
 | `sba-disaster-fairness-hr1021-119.json` | 8 | 5 | 6 | 0 | complete |
+| `flare-act-s1188-119.json` | 2 | 1 | 1 | 0 | complete |
