@@ -88,3 +88,4 @@ rewrite or erase the earlier lane's record.
 |---|---:|---:|---:|---:|---|
 | `one-big-beautiful-bill-hr1-119.json` | 36 | 43 | 6 | 4 (one lacks an executor) | complete |
 | `cover-act-hr608-119.json` | 9 | 4 | 7 | 0 | complete |
+| `remit-act-hr5595-119.json` | 3 | 1 | 2 | 0 | complete |
