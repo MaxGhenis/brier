@@ -493,11 +493,18 @@ def conditional_pair_seed_targets(
         )
         return []
 
-    if entry.get("cadence") != "annual":
-        return skip("requires annual cadence")
+    cadence = entry.get("cadence")
+    if cadence not in {"annual", "monthly"}:
+        return skip("requires annual or monthly cadence")
     period = entry.get("period")
-    if not isinstance(period, str) or not re.fullmatch(r"\d{4}", period):
-        return skip(f"requires an explicit YYYY period, got {period!r}")
+    period_pattern = (
+        r"\d{4}" if cadence == "annual" else r"\d{4}-(0[1-9]|1[0-2])"
+    )
+    period_shape = "YYYY" if cadence == "annual" else "YYYY-MM"
+    if not isinstance(period, str) or not re.fullmatch(period_pattern, period):
+        return skip(
+            f"requires an explicit {period_shape} period, got {period!r}"
+        )
     try:
         deadline = dt.date.fromisoformat(str(pair.get("conditionDeadline")))
     except (TypeError, ValueError):
@@ -543,6 +550,7 @@ def conditional_pair_seed_targets(
     seen_ids: set[str] = set()
     seen_conditionals: set[str] = set()
     targets: list[dict] = []
+    period_token = period.replace("-", "_")
     for arm in arms:
         if not isinstance(arm, dict):
             return skip("has a non-object arm")
@@ -562,7 +570,7 @@ def conditional_pair_seed_targets(
         # period; a mislabeled id would route the resolver to a different
         # tax year's workbook.
         if not re.fullmatch(
-            rf"{re.escape(entry['series'])}\.{re.escape(period)}"
+            rf"{re.escape(entry['series'])}\.{re.escape(period_token)}"
             r"\.first_print\.[a-z0-9_]+",
             data_point_id,
         ):

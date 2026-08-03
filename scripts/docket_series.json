@@ -1435,10 +1435,38 @@
       "series": "usda.fsa.crp.enrolled_acres_total",
       "cadence": "monthly",
       "slug": "us-crp-enrolled-acres-{month}-{year}",
+      "period": "2027-09",
+      "conditionalPair": {
+        "conditionDeadline": "2027-09-30",
+        "arms": [
+          {
+            "catalogSlug": "us-crp-enrolled-acres-september-2027-ceiling-27-million",
+            "dataPointId": "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.ceiling_27_million",
+            "conditionId": "cond.crp-acreage-ceiling-fy2027-31.enacted",
+            "conditional": "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31"
+          },
+          {
+            "catalogSlug": "us-crp-enrolled-acres-september-2027-no-fy2027-31-ceiling",
+            "dataPointId": "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.no_fy2027_31_ceiling",
+            "conditionId": "cond.crp-acreage-ceiling-fy2027-31.current-law",
+            "conditional": "No farm bill enacted by 2027-09-30 sets a CRP acreage ceiling for fiscal years 2027 through 2031; current law holds."
+          }
+        ]
+      },
       "extras": {
         "valueScale": 1,
         "targetUnit": "count",
         "country": "US",
+        "resolutionDate": "2027-12-31",
+        "expectedReleaseWindow": {
+          "start": "2027-12-01",
+          "end": "2027-12-31"
+        },
+        "anchors": {
+          "2025-11": 26317011,
+          "2026-03": 26203615,
+          "2026-04": 26182019
+        },
         "sourceBinding": {
           "adapter": "fsa-crp-monthly-summary",
           "sourceUrl": "https://www.fsa.usda.gov/resources/programs/conservation-reserve-program/statistics",

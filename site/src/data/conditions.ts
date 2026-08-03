@@ -288,6 +288,26 @@ export const CONDITIONS: ConditionDefinition[] = [
     checkSource: PROVISION_ENACTED_CHECK_SOURCE,
     deadline: "2027-09-30",
   },
+  // This is deliberately not complementOf the 27-million-acre condition.
+  // A farm bill could enact a different FY2027-31 ceiling, making both the
+  // exact proposal and the no-new-ceiling current-law premise false.
+  {
+    type: "recorded_status",
+    conditionId: "cond.crp-acreage-ceiling-fy2027-31.current-law",
+    description:
+      "No farm bill enacted on or before 2027-09-30 sets a CRP acreage " +
+      "ceiling for fiscal years 2027 through 2031; current law holds.",
+    matchStrings: [
+      "No farm bill enacted by 2027-09-30 sets a CRP acreage ceiling for fiscal years 2027 through 2031; current law holds.",
+    ],
+    status: "open",
+    resolvesBy: "2027-09-30",
+    note:
+      "Not the logical complement of the enacted condition: a farm bill " +
+      "setting a different FY2027-31 ceiling fails both premises and " +
+      "neither arm scores. Satisfied only if the deadline passes without " +
+      "an enacted FY2027-31 ceiling.",
+  },
   // The S.3596 ACTC threshold pair (thesis#106). The enacted condition is a
   // vehicle-independent legal state — any legislation producing the ≤ $1
   // threshold for TY2027 satisfies it, not only S.3596. The current-law

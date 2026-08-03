@@ -710,6 +710,41 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
     build_contract(targets[1], dt.date(2026, 8, 1))
 
 
+def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
+    docket = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text()
+    )
+    entry = next(
+        row
+        for row in docket["series"]
+        if row["series"] == "usda.fsa.crp.enrolled_acres_total"
+    )
+
+    targets = roll_docket.conditional_pair_seed_targets(
+        entry, set(), dt.date(2026, 8, 2)
+    )
+
+    assert len(targets) == 2
+    assert {target["period"] for target in targets} == {"2027-09"}
+    assert all(
+        target["dataPointId"].startswith(
+            "usda.fsa.crp.enrolled_acres_total.2027_09.first_print."
+        )
+        for target in targets
+    )
+    assert all(
+        target["expectedReleaseWindow"]
+        == {"start": "2027-12-01", "end": "2027-12-31"}
+        for target in targets
+    )
+    assert all(target["conditionDeadline"] == "2027-09-30" for target in targets)
+    contracts = [build_contract(target, dt.date(2026, 8, 2)) for target in targets]
+    assert all(
+        contract["sourceBinding"]["adapter"] == "fsa-crp-monthly-summary"
+        for contract in contracts
+    )
+
+
 def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
     entry = conditional_pair_entry()
     published = {

@@ -4980,15 +4980,29 @@ def pending_adapter_refs(
             None,
         )
         if fsa_crp_stem:
+            # Conditional-pair ids append a legal-state token after the
+            # release policy; both arms still resolve against one monthly
+            # FSA print.
+            arm = re.fullmatch(
+                rf"{re.escape(fsa_crp_stem)}\.(\d{{4}})[-_](\d{{2}})"
+                r"\.first_print(?:\.[a-z0-9_]+)?",
+                ref,
+            )
             parsed = parse_ref_period(ref, fsa_crp_stem)
-            if parsed and parsed[0] == "month":
+            if arm and 1 <= int(arm.group(2)) <= 12:
+                period = f"{arm.group(1)}-{arm.group(2)}"
+            elif parsed and parsed[0] == "month":
+                period = parsed[1]
+            else:
+                period = None
+            if period is not None:
                 out.append(
                     (
                         ref,
                         "fsa_crp",
                         FSA_CRP_ADAPTERS[fsa_crp_stem],
-                        parsed[0],
-                        parsed[1],
+                        "month",
+                        period,
                         release_date,
                         forecast,
                     )
