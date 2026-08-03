@@ -1,0 +1,17 @@
+{
+  "proposed_concept": "irs.actc.total_credit_amount",
+  "status": "proposed",
+  "unit": "usd_millions",
+  "cadence": "annual",
+  "proposedFrom": "stress-119hr1eh",
+  "metricText": "IRS SOI refundable child tax credit or additional child tax credit amount for a fixed tax year.",
+  "note": "UNVERIFIED amount-column identity and scale; the existing ACTC executor reads claimant-return counts only.",
+  "adapterFamily": "irs-soi-pub1304-style workbook parse",
+  "billSlugs": [
+    "stress-119hr1eh"
+  ],
+  "publisher": "Internal Revenue Service, Statistics of Income",
+  "statisticalProduct": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, refundable child tax credit or additional child tax credit amount",
+  "likelyUrlPattern": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.xls",
+  "verification": "UNVERIFIED: 1. Fetch three Table 3.3 workbooks from https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304 and confirm the amount column under the same refundable child tax credit or additional child tax credit header used by the count series. 2. Pin the all-returns row, tax year, printed scale, first-print date, revisions, and normalize only after the scale is proved. 3. Add a distinct amount-column parser and anchors; never reuse the claimant count as dollars."
+}
