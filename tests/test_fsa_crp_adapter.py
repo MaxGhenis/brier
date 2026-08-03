@@ -316,6 +316,39 @@ def test_fsa_crp_target_routes_and_is_armed() -> None:
     )
 
 
+def test_fsa_crp_conditional_pair_arms_route_to_one_monthly_print() -> None:
+    refs = [
+        f"{SERIES}.2027_09.first_print.ceiling_27_million",
+        f"{SERIES}.2027_09.first_print.no_fy2027_31_ceiling",
+    ]
+    log = {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": f"crp-arm-{index}",
+                "resolutionDate": "2027-12-31",
+                "unit": "count",
+            }
+            for index in range(2)
+        ],
+        "resolutionLinks": [
+            {
+                "status": "pending",
+                "forecastSlug": f"crp-arm-{index}",
+                "targetFactRef": ref,
+            }
+            for index, ref in enumerate(refs)
+        ],
+    }
+
+    todo = resolve_pending.pending_adapter_refs(log)
+
+    assert [row[0] for row in todo] == refs
+    assert {(row[1], row[3], row[4]) for row in todo} == {
+        ("fsa_crp", "month", "2027-09")
+    }
+
+
 def test_fsa_crp_spec_builds_a_level_fact_without_reusing_binding_transform() -> None:
     fact = resolve_pending.generic_fact(
         f"{SERIES}.june_2026.first_print",

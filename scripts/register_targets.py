@@ -981,9 +981,10 @@ def require_conditional_docket_template(
             f"{sorted(clashing)}: {label}"
         )
     for sibling in arms:
+        period_token = str(entry.get("period")).replace("-", "_")
         if not re.fullmatch(
             rf"{re.escape(str(entry.get('series')))}"
-            rf"\.{re.escape(str(entry.get('period')))}"
+            rf"\.{re.escape(period_token)}"
             r"\.first_print\.[a-z0-9_]+",
             str(sibling.get("dataPointId")),
         ):

@@ -89,6 +89,11 @@ describe("provision_enacted conditions", () => {
       condition.conditionId === "cond.crp-acreage-ceiling-fy2027-31.enacted" &&
       condition.type === "provision_enacted",
   );
+  const crpCurrentLaw = CONDITIONS.find(
+    (condition) =>
+      condition.conditionId ===
+      "cond.crp-acreage-ceiling-fy2027-31.current-law",
+  );
 
   function registeredCrpCondition(): ProvisionEnactedConditionDefinition {
     if (!crpCondition) throw new Error("CRP provision condition is missing");
@@ -124,6 +129,21 @@ describe("provision_enacted conditions", () => {
     });
     expect(condition.matchStrings).toEqual([condition.statutoryTest]);
     expect(conditionForContract(condition.statutoryTest)).toBe(condition);
+  });
+
+  it("registers the CRP current-law arm without a complement", () => {
+    // A different enacted FY2027-31 ceiling falsifies both exact premises,
+    // so complement machinery would incorrectly score one of the arms.
+    expect(crpCurrentLaw).toMatchObject({
+      type: "recorded_status",
+      status: "open",
+      resolvesBy: "2027-09-30",
+    });
+    expect(crpCurrentLaw?.complementOf).toBeUndefined();
+    expect(crpCondition?.complementOf).toBeUndefined();
+    expect(conditionForContract(crpCurrentLaw?.matchStrings[0])).toBe(
+      crpCurrentLaw,
+    );
   });
 
   it("requires complete provision metadata, ISO dates, and the exact source", () => {
