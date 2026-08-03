@@ -1,0 +1,45 @@
+{
+  "summary": "The draft is a useful failed-run record but is not publishable as a forecast cell because it contains no point forecast, interval, prior, update, or resolver-grounded final forecast step.",
+  "requiredFixes": [
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The response has status \"dropped\" and lacks the required forecast JSON fields for point, interval, probability distribution, and final forecast rationale.",
+      "actionRequested": "Do not publish this as a forecast; rerun or replace with a valid forecast cell while preserving this failed trace as run evidence."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "blocking",
+      "summary": "No base-rate or persistence prior is stated before updates; the draft explicitly says the official history could not be fetched.",
+      "actionRequested": "Add an official IRS first-print historical ACTC claims sample in millions and state the persistence/base-rate prior before any inside-view adjustment."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "blocking",
+      "summary": "No time-series or model prior is used or explicitly ruled out.",
+      "actionRequested": "Either fit a simple prior from historical IRS first-print claim counts or explicitly justify why a model prior is inappropriate."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "No forecast interval is provided, and interval width is not tied to realized volatility or an explicit uncertainty model.",
+      "actionRequested": "Provide an interval in millions with a stated method, such as historical year-over-year volatility, residual spread, or explicitly decomposed uncertainty."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The draft lacks the compact prior/update/interval step required by the review rubric.",
+      "actionRequested": "Add a concise step naming the prior, historical sample, adjustment components, interval method, and implied lower and upper bounds."
+    },
+    {
+      "rubricItem": "tails",
+      "severity": "blocking",
+      "summary": "No concrete upside or downside tail scenarios are tied to ACTC claim counts under the current-law conditional.",
+      "actionRequested": "Add target-specific tail scenarios, such as labor-market or filing-population shifts, while respecting the no-legislation conditional."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the cited failed fetch/tool limitation in the trace, but separate it from the publishable forecast cell.",
+    "When rerunning, confirm the resolver text names IRS SOI Publication 1304 Table 3.3, all returns total row, refundable/additional child tax credit returns, first print, resolving by 2029-12-31."
+  ]
+}

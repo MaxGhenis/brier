@@ -1,0 +1,27 @@
+{
+  "summary": "The draft is honest about failure but is not publishable because it emits no forecast cell, point estimate, interval, or required JSON fields.",
+  "requiredFixes": [
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "No forecast cell was emitted, so point, interval, run metadata, and JSON fields cannot be checked or published.",
+      "actionRequested": "Rerun or revise to produce a complete forecast cell, or mark this run as failed rather than submitting it for publication."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The draft contains no prior, historical sample, adjustment components, interval method, or implied bounds.",
+      "actionRequested": "If resubmitting as a forecast, include the compact prior/update/interval step required by the target rubric."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft references IRS Publication 1304 and Table 3.3 generally, but does not restate the target's first-print resolver, unit transform, dataPointId, or 2029-12-31 resolution date.",
+      "actionRequested": "Tie any resubmitted forecast explicitly to the canonical ledger target: first-print IRS SOI Publication 1304 Table 3.3 refundable/additional child tax credit return count, transformed to millions, resolving 2029-12-31."
+    }
+  ],
+  "optionalSuggestions": [
+    "Preserve this response as a failed trace if it came from an agent run.",
+    "A future rerun should fetch or otherwise cite the historical IRS Table 3.3 ACTC return-count series before estimating."
+  ]
+}

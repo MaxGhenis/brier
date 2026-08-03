@@ -1,0 +1,212 @@
+[
+  {
+    "cellVersion": "forecast_cell_v1",
+    "status": "forecast",
+    "agent": "thesis.analyst",
+    "agentVersion": "v2.4.0",
+    "promptHash": "7ef119647b35",
+    "toolsHash": "50a06b62f9be",
+    "runAt": "2026-08-03T02:50:12Z",
+    "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-current-law",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+    "country": "US",
+    "series": "irs.actc.total_claims",
+    "period": "2027",
+    "targetUnit": "millions",
+    "question": "Under the condition that no legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027, what will IRS SOI Publication 1304, Table 3.3, all returns total row, report as the first-print number of returns claiming the refundable child tax credit or additional child tax credit for tax year 2027, expressed in millions?",
+    "conditional_on": "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount.",
+    "resolutionDate": "2029-12-31",
+    "resolutionPolicy": "first_print",
+    "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "sourceBinding": {
+      "adapter": "irs-soi-pub1304",
+      "allowedHosts": [
+        "www.irs.gov"
+      ],
+      "expectedReleaseWindow": {
+        "start": "2029-01-01",
+        "end": "2029-12-31"
+      },
+      "field": "refundable_child_tax_credit_returns",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "irs.actc.total_claims",
+      "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+      "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns",
+      "transform": {
+        "operation": "multiply",
+        "factor": 1e-06
+      }
+    },
+    "pointEstimate": 17.8,
+    "ciLow": 16.6,
+    "ciHigh": 19.2,
+    "predictionInterval": {
+      "level": 0.8,
+      "low": 16.6,
+      "high": 19.2,
+      "unit": "millions"
+    },
+    "probabilityDistribution": {
+      "type": "split_normal",
+      "median": 17.8,
+      "p10": 16.6,
+      "p90": 19.2,
+      "unit": "millions"
+    },
+    "historicalContext": [
+      {
+        "period": "2022",
+        "value": 17.219508,
+        "unit": "millions",
+        "source": "IRS Publication 4801 Rev. 12-2024, 2022 Individual Income Tax Returns Line Item Estimates, Schedule 8812 line 27"
+      },
+      {
+        "period": "2023",
+        "value": 17.401584,
+        "unit": "millions",
+        "source": "IRS Publication 4801 Rev. 6-2026, 2023 Individual Income Tax Returns Line Item Estimates, Schedule 8812 line 27"
+      }
+    ],
+    "modelCandidates": [
+      {
+        "schema": "thesis_model_candidate_v1",
+        "name": "last_print_persistence",
+        "point": 17.4,
+        "p10": 16.4,
+        "p50": 17.4,
+        "p90": 18.4,
+        "interval80": [
+          16.4,
+          18.4
+        ],
+        "interval90": [
+          16.1,
+          18.7
+        ],
+        "intervalMethod": "sparse-history residual fallback around latest official first-print count, widened for four-year horizon",
+        "calibration_n": 2,
+        "trainCutoff": "2023",
+        "walkForwardScore": null
+      },
+      {
+        "schema": "thesis_model_candidate_v1",
+        "name": "two_point_drift",
+        "point": 18.1,
+        "p10": 16.8,
+        "p50": 18.1,
+        "p90": 19.4,
+        "interval80": [
+          16.8,
+          19.4
+        ],
+        "interval90": [
+          16.5,
+          19.7
+        ],
+        "intervalMethod": "2022-2023 drift extrapolated to 2027 with widened sparse-history uncertainty",
+        "calibration_n": 2,
+        "trainCutoff": "2023",
+        "walkForwardScore": null
+      }
+    ],
+    "sourceContext": [
+      {
+        "name": "IRS SOI Publication 1304 complete report page",
+        "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+        "usedFor": "Resolver page for IRS SOI Publication 1304 and confirmation that the Individual Complete Report contains complete individual income tax data."
+      },
+      {
+        "name": "IRS SOI Publication 1304 Basic Tables Part 3",
+        "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+        "usedFor": "Confirmed Table 3.3 all returns tax liability, tax credits, and tax payments XLS links, including the 2023 and 2022 files."
+      },
+      {
+        "name": "IRS Publication 4801 Rev. 6-2026",
+        "url": "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+        "usedFor": "Fetched 2023 Schedule 8812 line 27 number of returns, 17,401,584, and related 2023 filing context."
+      },
+      {
+        "name": "IRS Publication 4801 Rev. 12-2024",
+        "url": "https://www.irs.gov/pub/irs-prior/p4801--122024.pdf",
+        "usedFor": "Fetched 2022 Schedule 8812 line 27 number of returns, 17,219,508."
+      },
+      {
+        "name": "26 USC 24 current-law text via search excerpt",
+        "url": "https://uscode.house.gov/view.xhtml?edition=prelim&req=granuleid%3AUSC-prelim-title26-section24",
+        "usedFor": "Confirmed IRC section 24(h)(6) applies the $2,500 substitution for the $3,000 earned-income threshold in section 24(d)(1)(B)(i)."
+      },
+      {
+        "name": "IRS Child Tax Credit page",
+        "url": "https://www.irs.gov/credits-deductions/individuals/child-tax-credit",
+        "usedFor": "Confirmed current IRS public description: Child Tax Credit up to $2,200 per qualifying child, ACTC up to $1,700, and earned income of at least $2,500 required for ACTC."
+      }
+    ],
+    "reasoning": [
+      {
+        "type": "heading",
+        "text": "Forecast for IRS ACTC total claims, tax year 2027, current-law threshold conditional."
+      },
+      {
+        "type": "framing",
+        "text": "Resolution-grade target: IRS SOI Individual Income Tax Returns Complete Report, Publication 1304, Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns, tax year 2027, first print, transformed to millions. The ledger sets resolutionDate to 2029-12-31 because the expected release window is calendar year 2029."
+      },
+      {
+        "type": "tool",
+        "toolName": "web.open",
+        "result": "IRS Publication 1304 page states the Individual Complete Report contains complete individual income tax data and that the statistics are based on a sample of individual tax returns. Basic Tables Part 3 lists Table 3.3: All Returns: Tax Liability, Tax Credits, and Tax Payments, with 2023 XLS and 2022 XLS links."
+      },
+      {
+        "type": "tool",
+        "toolName": "web.open",
+        "result": "IRS Publication 4801 Rev. 6-2026 for 2023 line item estimates reports 160,602,107 total individual returns filed; Schedule 8812 total schedules filed = 47,815,267; Schedule 8812 line 27, 'This is your additional child tax credit,' number of returns = 17,401,584."
+      },
+      {
+        "type": "tool",
+        "toolName": "web.open",
+        "result": "IRS Publication 4801 Rev. 12-2024 for 2022 line item estimates reports 161,336,659 total individual returns filed; Schedule 8812 total schedules filed = 47,403,924; Schedule 8812 line 27, 'This is your additional child tax credit,' number of returns = 17,219,508."
+      },
+      {
+        "type": "tool",
+        "toolName": "web.search",
+        "result": "Current-law checks: 26 USC 24 excerpt says subsection 24(d)(1)(B)(i) uses 15 percent of earned income exceeding $3,000, and subsection 24(h)(6) substitutes '$2,500' for '$3,000'. IRS Child Tax Credit page says the Child Tax Credit is worth up to $2,200 per qualifying child, ACTC is up to $1,700 per qualifying child depending on income, and earned income of at least $2,500 is required for ACTC."
+      },
+      {
+        "type": "tool",
+        "toolName": "web.open",
+        "result": "Slug check attempted against https://app.thesisinstitute.org/specs.json returned a cache-miss fetch failure in the web tool; I retained the canonical ledger slug additional-child-tax-credit-total-claims-ty2027-current-law and dataPointId irs.actc.total_claims.2027.first_print.current_law."
+      },
+      {
+        "type": "base_rate",
+        "text": "Outside view: official echoed comparable first-print-like line-item sample is 2022 = 17.219508 million and 2023 = 17.401584 million Schedule 8812 ACTC line 27 returns, a +0.182076 million one-year change. Last-print persistence prior is 17.4 million; sparse two-point drift to 2027 gives 17.401584 + 4 * 0.182076 = 18.129888 million."
+      },
+      {
+        "type": "model_prior",
+        "text": "Model candidates: persistence is the strongest auditable benchmark because only two fully echoed comparable official values were available; a two-point drift model is admissible only as a weak directional candidate. I use a 75% persistence and 25% drift blend: 0.75 * 17.401584 + 0.25 * 18.129888 = 17.583660 million before current-law adjustment."
+      },
+      {
+        "type": "math",
+        "text": "Point math: benchmark blend 17.583660 million. Current-law mechanics add a modest +0.2 million because IRS now describes the CTC as up to $2,200 and ACTC up to $1,700 with the same $2,500 earnings threshold, which should weakly expand positive ACTC claims relative to the 2023 Schedule 8812 regime but is already limited by child counts, filing behavior, and tax liability. Rounded point = 17.8 million."
+      },
+      {
+        "type": "math",
+        "text": "Interval math: observed 2022-2023 movement is 0.182076 million, but the calibration sample is only two tax years and the target is four years ahead under a post-2025 law regime. I use an explicit sparse-history fallback: base four-year drift uncertainty 0.182076 * sqrt(4) = 0.364152 million, plus structural/policy implementation uncertainty 0.65 million; combined sigma = sqrt(0.364152^2 + 0.65^2) = 0.745 million. 80% normal half-width = 1.28 * 0.745 = 0.954 million, widened 1.35x for sparse history and IRS sampling/release uncertainty = 1.29 million. Around 17.8, rounded 80% interval = 16.6 to 19.2 million."
+      },
+      {
+        "type": "prior_update_interval",
+        "text": "Prior/update/interval: prior is last-print persistence at 17.4 million from 2023 IRS Schedule 8812 ACTC line 27, with a weak two-point drift candidate from the 2022-2023 official sample; update components are +0.18 million trend pull and +0.2 million current-law refundable-credit mechanics; interval method is sparse-history four-year uncertainty widened for structural and sampling risk, implying 16.6 to 19.2 million."
+      },
+      {
+        "type": "counter_consideration",
+        "text": "Downside tail outside 16.6 million: weaker low-income employment among families with qualifying children, fewer eligible children with required SSNs, or IRS filing/compliance changes reduce positive ACTC line 27 returns despite the threshold staying at $2,500. Upside tail outside 19.2 million: stronger employment and filing participation among lower-income families, more returns limited by tax liability after the larger CTC, or outreach/compliance changes produce broader ACTC claiming without a statutory threshold change."
+      },
+      {
+        "type": "review_disposition",
+        "text": "Review disposition: accepted the blocking critiques by replacing the dropped-run draft with a forecast cell, adding official IRS history, persistence and drift model candidates, an explicit base-rate prior, a realized-volatility fallback interval, target-specific tails, and a compact Prior/update/interval step; retained the failed specs.json and XLS-fetch limitations as trace context rather than evidence for the point."
+      },
+      {
+        "type": "final_forecast",
+        "text": "Final forecast: pointEstimate 17.8 million, ciLow 16.6 million, ciHigh 19.2 million."
+      }
+    ]
+  }
+]

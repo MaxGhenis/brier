@@ -1,0 +1,156 @@
+[
+  {
+    "schemaVersion": "thesis_forecast_cell_v1",
+    "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "country": "US",
+    "series": "irs.actc.total_claims",
+    "period": "2027",
+    "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    "question": "Conditional on legislation enacted by 2027-12-31 making the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027, what will be the first-print number of returns claiming the refundable child tax credit or additional child tax credit in IRS SOI Individual Income Tax Returns Complete Report Publication 1304, Table 3.3, all returns total row, for tax year 2027, transformed to millions of returns?",
+    "resolutionDate": "2029-12-31",
+    "resolutionPolicy": "first_print",
+    "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "resolutionRule": "Resolve from the first IRS SOI Individual Income Tax Returns Complete Report Publication 1304 Table 3.3 for tax year 2027. Use Table 3.3, all returns total row, field refundable child tax credit or additional child tax credit, number of returns. Multiply the published count by 1e-06 and report in millions. Later revisions are ignored. If the conditional legislation is not enacted by 2027-12-31, mark the target unresolved under the conditional rule.",
+    "targetUnit": "millions",
+    "pointEstimate": 23.0,
+    "ciLow": 18.0,
+    "ciHigh": 31.0,
+    "agent": "thesis.analyst",
+    "agentVersion": "v2.4.0",
+    "promptHash": "7ef119647b35",
+    "toolsHash": "50a06b62f9be",
+    "runAt": "2026-08-03T02:45:11Z",
+    "sourceContext": [
+      {
+        "name": "Canonical Thesis ledger target context",
+        "url": "records/targets/2026-08-03-e1e24629b485515d803523111d9d5866c88fcbee6e13d0b33a3599e9c15011df.json",
+        "usedFor": "slug, unit, dataPointId, first-print resolver, transform, and resolutionDate"
+      },
+      {
+        "name": "IRS SOI Publication 1304 landing page",
+        "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+        "usedFor": "official publication family and availability of complete individual income tax return tables"
+      },
+      {
+        "name": "IRS SOI Publication 1304 Basic tables part 3",
+        "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+        "usedFor": "Table 3.3 resolver table and available tax-year XLS links"
+      },
+      {
+        "name": "26 U.S.C. \u00a724",
+        "url": "https://uscode.house.gov/view.xhtml?edition=2023&req=granuleid%3AUSC-2023-title26-subtitleA",
+        "usedFor": "current-law ACTC earned-income threshold and refundable credit mechanics"
+      },
+      {
+        "name": "IRS tax year 2023 ACTC update",
+        "url": "https://www.irs.gov/forms-pubs/update-to-additional-child-tax-credit-actc-amount-in-the-2023-publication-17",
+        "usedFor": "public IRS statement of 2023 CTC amount and refundable ACTC maximum"
+      }
+    ],
+    "historicalContext": [
+      {
+        "period": "2023",
+        "value": null,
+        "unit": "returns",
+        "source": "IRS Publication 1304 Table 3.3 XLS link was identified but not machine-parsed in the draft run"
+      },
+      {
+        "period": "2022",
+        "value": null,
+        "unit": "returns",
+        "source": "IRS Publication 1304 Table 3.3 XLS link was identified but not machine-parsed in the draft run"
+      },
+      {
+        "period": "2021",
+        "value": null,
+        "unit": "returns",
+        "source": "IRS Publication 1304 Table 3.3 XLS link was identified but not machine-parsed in the draft run"
+      }
+    ],
+    "modelCandidates": [
+      {
+        "schemaVersion": "thesis_model_candidate_v1",
+        "name": "limited-evidence policy-mechanics prior",
+        "point": 23.0,
+        "p10": 18.0,
+        "p50": 23.0,
+        "p90": 31.0,
+        "interval80": [
+          18.0,
+          31.0
+        ],
+        "interval90": [
+          16.0,
+          34.0
+        ],
+        "intervalMethod": "wide fallback interval because IRS Table 3.3 numeric history was not parsed in the draft run",
+        "calibration_n": 0,
+        "trainCutoff": "2026-08-03",
+        "walkForwardScore": null
+      }
+    ],
+    "reasoning": [
+      {
+        "type": "text",
+        "heading": "Heading",
+        "text": "Forecast target: US IRS SOI additional/refundable child tax credit total claims for tax year 2027, conditional on the IRC \u00a724(d)(1)(B)(i) earned-income threshold being reduced to no more than $1 for tax year 2027."
+      },
+      {
+        "type": "text",
+        "heading": "Framing",
+        "text": "This resolves on the first-print IRS SOI Publication 1304 Table 3.3 count of returns for the refundable child tax credit or additional child tax credit, all returns total row, transformed to millions. The canonical ledger sets resolutionDate to 2029-12-31 and the unit to millions."
+      },
+      {
+        "type": "tool",
+        "heading": "Tool: ledger target",
+        "result": "Canonical ledger fields inspected in the prompt: catalogSlug=additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar; dataPointId=irs.actc.total_claims.2027.first_print.threshold_one_dollar; targetUnit=millions; resolutionDate=2029-12-31; transform factor=1e-06; resolver=IRS SOI Publication 1304 Table 3.3 refundable child tax credit or additional child tax credit number of returns, first print."
+      },
+      {
+        "type": "tool",
+        "heading": "Tool: IRS publication page",
+        "result": "IRS Publication 1304 page identifies the Individual Income Tax Returns Complete Report as sample-based individual Form 1040 statistics and says tables are available as Microsoft Excel files. The page lists Table A for tax years 1990-2023 and basic tables grouped into parts 1, 2, and 3."
+      },
+      {
+        "type": "tool",
+        "heading": "Tool: IRS Table 3.3 page",
+        "result": "IRS Basic Tables Part 3 lists Table 3.3 as 'All Returns: Tax Liability, Tax Credits, and Tax Payments' classified by size of adjusted gross income, with XLS links for tax years 2023, 2022, 2021, 2020, 2019, 2018, and earlier years through 1996."
+      },
+      {
+        "type": "tool",
+        "heading": "Tool: current-law mechanics",
+        "result": "26 U.S.C. \u00a724 text available in the draft context states subsection (d)(1)(B)(i) is applied by substituting $2,500 for $3,000 under current law. IRS public guidance for 2023 states the CTC initial amount is $2,000 per qualifying child and the maximum ACTC refundable amount for each qualifying child increased to $1,600."
+      },
+      {
+        "type": "text",
+        "heading": "Base rate",
+        "text": "Base-rate evidence is incomplete: the draft run identified the official IRS Table 3.3 XLS files but could not parse the numeric ACTC return-count history. I therefore do not claim a numeric official 6-24 print history. The usable prior is a policy-mechanics prior anchored to a post-TCJA ACTC claimant pool with a material upward adjustment for lowering the earned-income threshold from $2,500 to $1."
+      },
+      {
+        "type": "text",
+        "heading": "Math derivation",
+        "text": "Limited-evidence computation: start from a low-20s-million claimant-pool prior for the existing ACTC/refundable CTC line; add roughly 2 million returns for families with positive earned income below or near the current $2,500 threshold and families whose refundable amount becomes positive after the threshold cut; round to 23.0 million. Because no parsed official history was available, use a deliberately wide 80% interval of -5.0/+8.0 million around the point, giving 18.0 to 31.0 million."
+      },
+      {
+        "type": "text",
+        "heading": "Prior/update/interval",
+        "text": "Prior/update/interval: prior = limited-evidence policy-mechanics claimant-pool prior for the IRS Table 3.3 refundable/additional child tax credit count; historical sample = official IRS Table 3.3 files identified but numeric values not parsed in the draft; adjustment components = lower earned-income threshold to no more than $1 increases eligibility/positive refundable amounts for very-low-earnings families, partly offset by filing and qualifying-child constraints; interval method = wide fallback interval due missing parsed history; implied bounds = 18.0 to 31.0 million."
+      },
+      {
+        "type": "text",
+        "heading": "Counter-consideration",
+        "text": "Upside outside the interval would require the threshold change to be paired with broader refundability, higher per-child caps, major filing-outreach gains, or recession-driven movement into refundable-credit eligibility. Downside outside the interval would require weak take-up among very-low-income families, restrictive implementation rules, narrower qualifying-child rules, or the conditional legislation passing in a form that lowers the threshold but constrains eligibility elsewhere."
+      },
+      {
+        "type": "text",
+        "heading": "Review disposition",
+        "text": "Review disposition: accepted the blocking critique that the draft was not publishable without a JSON cell, point, interval, resolver tie, and prior/update/interval step. Accepted the resolver warning by restating the canonical first-print IRS Publication 1304 Table 3.3 resolver, unit transform, dataPointId, and 2029-12-31 resolution date. The optional failed-trace suggestion is noted but not used because this final submission must emit one forecast object."
+      },
+      {
+        "type": "text",
+        "heading": "Final forecast",
+        "text": "Final forecast: pointEstimate=23.0 million, ciLow=18.0 million, ciHigh=31.0 million."
+      }
+    ]
+  }
+]

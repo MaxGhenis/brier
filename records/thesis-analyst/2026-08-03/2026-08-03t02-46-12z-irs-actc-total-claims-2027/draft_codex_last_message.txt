@@ -1,0 +1,28 @@
+{
+  "status": "dropped",
+  "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+  "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-current-law",
+  "reason": "I could not honestly produce a forecast cell because the required official base-rate history could not be fetched and echoed this run. Local shell commands failed before execution with `bwrap: setting up uid map: Permission denied`, so I could not `curl` and parse the IRS XLS files. The web tool could inspect the IRS index/PDF pages, but the IRS Table 3.3 XLS files needed for 6-24 comparable first-print ACTC claim counts were unsupported as Excel content. I did fetch one official 2022 line-item excerpt showing Schedule 8812 ACTC line 27 count 17,219,508 and amount 32,036,369 thousand dollars, but that is not enough to size the required base-rate interval.",
+  "partialSourcesFetched": [
+    {
+      "name": "IRS SOI Publication 1304 Basic Tables Part 3 index",
+      "url": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+      "usedFor": "Confirmed Table 3.3 XLS links exist for 2023 back through earlier tax years."
+    },
+    {
+      "name": "IRS Publication 4801 Rev. 12-2024, 2022 Individual Income Tax Returns Line Item Estimates",
+      "url": "https://www.irs.gov/pub/irs-prior/p4801--122024.pdf",
+      "usedFor": "Fetched official 2022 Schedule 8812 ACTC line 27 count and amount excerpt."
+    },
+    {
+      "name": "26 USC 24 preliminary/current-law text",
+      "url": "https://uscode.house.gov/view.xhtml?edition=prelim&req=granuleid%3AUSC-prelim-title26-section24",
+      "usedFor": "Confirmed IRC section 24(h)(6) substitutes $2,500 for $3,000."
+    }
+  ],
+  "runAt": "2026-08-03T00:00:00Z",
+  "agent": "thesis.analyst",
+  "agentVersion": "v2.4.0",
+  "promptHash": "7ef119647b35",
+  "toolsHash": "50a06b62f9be"
+}
