@@ -4,7 +4,7 @@
 
 - Branch: `promote/stress-substantive` (from `origin/main`).
 - Input: `.lane-input/bills/` (untracked; must remain untracked).
-- Scope: validate and promote exactly the 11 requested substantive stress artifacts, in the requested order.
+- Scope complete: validated and promoted exactly the 11 requested substantive stress artifacts, in the requested order.
 - Artifact contents must remain byte-for-byte identical; only destination filenames change.
 
 ## Done
@@ -12,12 +12,12 @@
 - Confirmed `PROGRESS.md` did not previously exist.
 - Confirmed the worktree began clean apart from untracked `.lane-input/`.
 - Inspected the tracked contract exemplar `bills/farm-bill-2-0.json` and series registry `scripts/docket_series.json`.
+- Promoted all 11 requested artifacts after their checks passed, one artifact commit at a time.
+- Removed the temporary checker from `scratch/`; it was never tracked.
 
 ## Next
 
-- Build a temporary offline structural checker under `scratch/`.
-- For each requested artifact in order: copy byte-for-byte, run and record every required check, and commit it if all checks pass.
-- Delete the temporary checker, add a final landed/failed/integrator summary, and commit the completed ledger.
+- Integrator can review and merge the commits on this branch.
 
 ## Per-file checks
 
@@ -34,3 +34,10 @@ Results will be appended here in promotion order.
 9. **PASS — `stress-119s2075is.json` → `flraa-medevac-s2075-119.json`.** JSON parsed; destination bytes identical (SHA-256 `46938da4006e811a3557d4836357eaa8d785d405cb1bad4914f7ad8f45531cc8`); all six required bill info fields present with exemplar-compatible types; 1 provision and 3 metrics have the contract shapes; all stance goal indexes are in range; no nonempty `series_hint` values required registry lookup.
 10. **PASS — `stress-119hr1021ih.json` → `sba-disaster-fairness-hr1021-119.json`.** JSON parsed; destination bytes identical (SHA-256 `099bdc95b0d16138ea8266cadffca4c28142af82c3d27e839c9bf6002858c169`); all six required bill info fields present with exemplar-compatible types; 3 provisions and 8 metrics have the contract shapes; all stance goal indexes are in range; no nonempty `series_hint` values required registry lookup.
 11. **PASS — `stress-119s1188is.json` → `flare-act-s1188-119.json`.** JSON parsed; destination bytes identical (SHA-256 `05fc2b7fa2e835e7e9f3725186dde5f3825bc4c76aecee5e078f3d77dba8e7b2`); all six required bill info fields present with exemplar-compatible types; 1 provision and 2 metrics have the contract shapes; all stance goal indexes are in range; no nonempty `series_hint` values required registry lookup.
+
+## Final summary
+
+- **Landed (11/11):** `one-big-beautiful-bill-hr1-119.json`, `cover-act-hr608-119.json`, `remit-act-hr5595-119.json`, `safeguarding-medicaid-s1082-119.json`, `cdfi-fund-s2718-119.json`, `superior-national-forest-hr978-119.json`, `hidta-enhancement-s767-119.json`, `future-networks-hr2449-119.json`, `flraa-medevac-s2075-119.json`, `sba-disaster-fairness-hr1021-119.json`, and `flare-act-s1188-119.json`.
+- **Failed checks:** none.
+- **Integrator observation:** stress metrics contain a `series_hint` field (an empty string when no series is selected, and a registered series ID otherwise), while the current exemplar metrics use `registry` and do not contain `series_hint`. The artifacts were not altered. The H.R. 1 artifact's three nonempty hints are registered; the other artifacts contain only empty hints.
+- **Integrator observation:** some H.R. 1 provisions have an empty `metrics` array even though the artifact is substantive overall (36 metrics across 13 provisions). This preserves the stress corpus's honest per-provision coverage rather than inventing metrics.
