@@ -62,3 +62,28 @@ rationale and tests assert both `complementOf` fields are absent.
   `bun run test -- conditions.test.ts` cannot find `vitest` without a network
   install, which standing orders prohibit.
 - Final handoff: report the shipped/rejected set and verification limits.
+
+# Series-ingestion wave 1 progress
+
+The Wave-2 log above was inherited from the mapper branch and is retained
+verbatim. This is the fresh progress section for thesis#123; it does not
+rewrite or erase the earlier lane's record.
+
+## State
+
+- Branch: `feat/series-ingestion-wave1`, based on the mapper branch at
+  `3cca0795`.
+- Evidence boundary: repository artifacts only. Network access was not used.
+- Every proposed product, URL pattern, cadence, unit, field, and query that was
+  not already proved by repository material is marked `UNVERIFIED` with an
+  integrator procedure.
+- Adapter eligibility is exact-stem based. A parser for a different dataset
+  from the same publisher does not make a request admission-ready.
+- The inherited `PROGRESS.md` made a fresh root file impossible without
+  clobbering prior work, so this additive section is the task-owned log.
+
+## Worklist commits
+
+| Bill artifact | Metrics | Request files | No-series rows | Existing admitted mappings | State |
+|---|---:|---:|---:|---:|---|
+| `one-big-beautiful-bill-hr1-119.json` | 36 | 43 | 6 | 4 (one lacks an executor) | complete |

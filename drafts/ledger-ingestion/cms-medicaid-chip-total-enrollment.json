@@ -1,0 +1,15 @@
+{
+  "proposed_concept": "cms.medicaid_chip.total_enrollment",
+  "status": "proposed",
+  "unit": "count",
+  "cadence": "monthly",
+  "proposedFrom": "stress-119hr1eh",
+  "metricText": "CMS monthly Medicaid and CHIP total enrollment with a fixed reporting vintage.",
+  "note": "The repository records the official snapshot dataset, but the existing CMS resolver parses only two Care Compare nursing-home files and cannot serve this API.",
+  "adapterFamily": "NONE-existing",
+  "billSlugs": ["stress-119hr1eh"],
+  "publisher": "Centers for Medicare & Medicaid Services",
+  "statisticalProduct": "Medicaid and CHIP Eligibility Operations and Enrollment Snapshot",
+  "likelyUrlPattern": "https://data.medicaid.gov/api/1/datastore/query/6165f45b-ca93-5bb5-9d06-db29c692a360/0",
+  "verification": "UNVERIFIED for admission: 1. Fetch https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360 and its API schema. 2. Define national aggregation, Medicaid/CHIP fields, reporting_period, preliminary_or_updated vintage, missing-State policy, and three first-print anchors. 3. Implement a Medicaid datastore adapter; do not route through the incompatible Care Compare parser."
+}
