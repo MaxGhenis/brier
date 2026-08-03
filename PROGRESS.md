@@ -87,3 +87,4 @@ rewrite or erase the earlier lane's record.
 | Bill artifact | Metrics | Request files | No-series rows | Existing admitted mappings | State |
 |---|---:|---:|---:|---:|---|
 | `one-big-beautiful-bill-hr1-119.json` | 36 | 43 | 6 | 4 (one lacks an executor) | complete |
+| `cover-act-hr608-119.json` | 9 | 4 | 7 | 0 | complete |
