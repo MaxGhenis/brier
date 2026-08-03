@@ -1,0 +1,341 @@
+{
+  "bill": {
+    "slug": "stress-119s1082is",
+    "name": "Safeguarding Medicaid Act (S. 1082)",
+    "status": "Introduced in Senate · Barrasso et al. · read twice and referred to the Committee on Finance on March 14, 2025",
+    "pages": 8,
+    "analyzed": "Full introduced bill (Sections 1–4; three substantive provisions)",
+    "analysisDate": "2026-08-01",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/1082/text"
+  },
+  "sourceLimits": "The supplied 7,304-byte, 1,181-word raw source contains the full introduced bill but is flattened to one line, has no page boundaries or metadata sidecar, and does not reproduce the Social Security Act provisions that it amends or incorporates. The matching official introduced-version PDF establishes the eight-page count. The source supplies no fiscal score, baseline caseload or asset-check data, implementing rules, State plans, savings methodology, denial-reason field, implementation record, or fixed public release calendar. Section 4 would create future tracking and public State reports, but it does not define how savings are attributed, clearly specify every report field or denominator, require publication of the federal tracking system, or reconcile annual activity with triennial PERM reviews and its reference to information during ‘such month.’ Goals beyond the operative duties are therefore treated as inferences; no savings, enrollment, or coverage magnitude is claimed. Every series_hint is deliberately empty because no current registry series directly resolves these measures, and the conceptual metrics and enactment-relative conditionals below are not currently registry-ready.",
+  "provisions": [
+    {
+      "title": "Section 2 — Expanded Medicaid asset verification and phase-in",
+      "heading": "§2: Electronic integrated asset verification for all applicants and recipients",
+      "quote": "“During the 1-year period that begins on the date of enactment of this Act, the Secretary of Health and Human Services shall require States to submit and implement a plan for an electronic integrated asset verification program that meets the requirements of section 1940 of the Social Security Act (as amended by subsection (a)).”",
+      "context": "Section 2 strikes Social Security Act §1940(a)(4) and removes the words limiting §1940(b)(1)(A) to eligibility based on being aged, blind, or disabled. HHS must issue implementing rules, and States must submit and implement compliant electronic integrated asset-verification plans during the year after enactment. A State may start early or request an HHS-approved delay of no more than 365 days based on economic hardship limitations identified by its chief executive. This section expands verification; Section 3 separately supplies the resources-eligibility rule one year later on the default timeline. Source limits / honesty note: the raw bill does not reproduce §1940 or any implementation records, so this analysis describes the amendment's stated scope without claiming how many jurisdictions already comply or what eligibility consequence verified information would have during the timing gap.",
+      "goals": [
+        "Apply the electronic integrated asset-verification program to all Medicaid applicants and recipients in every State and territory, removing the aged, blind, or disabled limitation.",
+        "Have States submit and implement compliant programs during a one-year phase-in while permitting early implementation and an HHS-approved hardship delay of no more than 365 days."
+      ],
+      "effects": [
+        {
+          "mechanism": "Verification scope",
+          "text": "Deleting the territorial exception and the aged, blind, or disabled qualifier broadens the statutory asset-verification program to applicant and recipient groups that were outside those limitations."
+        },
+        {
+          "mechanism": "Plan and rulemaking duty",
+          "text": "HHS must promulgate implementing rules, while each State must submit and implement a plan meeting amended §1940 during the first year after enactment."
+        },
+        {
+          "mechanism": "State-specific timing",
+          "text": "Early implementation is allowed, and HHS may grant a requested hardship delay of up to 365 days, so the effective date can differ across States."
+        },
+        {
+          "mechanism": "Verification is not the eligibility test",
+          "text": "Section 2 expands electronic verification at enactment plus one year, but Section 3's resources-eligibility requirement starts at enactment plus two years; the text does not say what new eligibility consequence the verified information has during the intervening year."
+        }
+      ],
+      "barriers": [
+        {
+          "actor": "Department of Health and Human Services",
+          "text": "HHS must define and promulgate rules early enough for jurisdictions to plan, submit, and implement compliant systems during the one-year phase-in."
+        },
+        {
+          "actor": "State and territorial Medicaid agencies",
+          "text": "Agencies must integrate electronic asset verification into application and renewal workflows, while keeping the verification process distinct from the later resources-eligibility determination."
+        },
+        {
+          "actor": "State chief executives and HHS",
+          "text": "The bill does not define “ongoing economic hardship limitations” or criteria for approving a delay, leaving timing judgments and cross-State consistency to implementation."
+        },
+        {
+          "actor": "Federal and State program administrators",
+          "text": "The bill provides no express appropriation for rulemaking, systems work, data matching, training, or the administration of hardship requests."
+        }
+      ],
+      "metrics": [
+        {
+          "category": "operational",
+          "layer": "execution",
+          "kind": "State plan and program implementation",
+          "text": "HHS administrative evidence of the number and identity of States and territories that submitted and implemented §1940-compliant electronic integrated asset-verification programs by each jurisdiction's statutory or approved hardship-adjusted deadline. The bill does not require a public implementation roster or fixed release, so this is a conceptual metric rather than a currently resolvable series.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "serves"
+            },
+            {
+              "goal": 1,
+              "stance": "serves"
+            }
+          ]
+        },
+        {
+          "category": "operational",
+          "layer": "execution",
+          "kind": "Asset-check coverage",
+          "text": "The number of asset checks conducted among new Medicaid applications and eligibility renewals, using the future public State reports required by Section 4. The text does not yet establish a stable table, denominator, release schedule, or registry series.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "serves"
+            },
+            {
+              "goal": 1,
+              "stance": "orthogonal"
+            }
+          ]
+        }
+      ],
+      "conditionals": [
+        "P(number of States and territories operating a compliant electronic integrated asset-verification program at each statutory or approved hardship-adjusted deadline | §2 enacted); without enactment, this bill-created implementation observation is missing rather than zero.",
+        "P(asset checks conducted among new applications and eligibility renewals in each State's first applicable public report | §2 enacted); this is not resolution-ready until HHS defines and publishes stable fields and a release schedule."
+      ]
+    },
+    {
+      "title": "Section 3 — Medicaid resources-eligibility requirement",
+      "heading": "§3: Resource test alongside income eligibility, with continuous-eligibility safeguard",
+      "quote": "“A State resources eligibility test meets the requirement of this clause if the test precludes eligibility for any individual whose resources (as determined under section 1613 for purposes of the supplemental security income program) exceed the maximum amount of resources that an individual may have and obtain benefits under that program, or such amount as the State shall establish.”",
+      "context": "Section 3 replaces Social Security Act §1902(e)(14)(C) so that whenever a State determines income eligibility for Medicaid under its plan or a waiver, it must also apply a resources test. The test must preclude eligibility above the SSI resource maximum or an amount established by the State, using resources as determined under §1613. The bill also inserts “or resources” into §1902(e)(6), preserves the cited continuous-eligibility rules for pregnant and postpartum women and children under 19, and takes effect two years after enactment. The preservation clause protects continuous-eligibility periods; it is not a blanket exemption from an initial or renewal resource test. Source limits / honesty note: the raw source does not reproduce the incorporated resource definitions, exclusions, or existing continuous-eligibility provisions, and it leaves State-set thresholds open, so no universal dollar limit or caseload effect is inferred.",
+      "goals": [
+        "Require a resources-eligibility test whenever a Medicaid income-eligibility determination is required under a State plan or waiver.",
+        "Preclude eligibility when §1613-defined resources exceed the SSI maximum or the amount established by the State.",
+        "Preserve the cited continuous-eligibility requirements for pregnant and postpartum women and children under age 19."
+      ],
+      "effects": [
+        {
+          "mechanism": "Additional eligibility screen",
+          "text": "An individual who satisfies the applicable income test can still be found ineligible when countable resources exceed the applicable resource threshold."
+        },
+        {
+          "mechanism": "State policy variation",
+          "text": "Because a State may establish the relevant amount, enactment does not produce a single national resource ceiling or a uniform eligibility effect."
+        },
+        {
+          "mechanism": "Verification and resource determination",
+          "text": "Section 3 incorporates the SSI resource definition, while Section 2 concerns an electronic asset-verification program; the bill does not establish that an electronic asset check alone identifies or values every resource relevant to the eligibility test."
+        },
+        {
+          "mechanism": "Delayed eligibility consequence",
+          "text": "The resource test begins two years after enactment, one year after Section 2's default verification effective date, unless a State's approved Section 2 delay aligns the dates."
+        },
+        {
+          "mechanism": "Continuous-eligibility boundary",
+          "text": "The savings clause leaves the named continuous-eligibility rules in force, limiting how a new resource finding may affect covered people during a protected period without exempting them from all resource testing."
+        }
+      ],
+      "barriers": [
+        {
+          "actor": "HHS and State Medicaid agencies",
+          "text": "Administrators must translate the incorporated §1613 rules and any State-established threshold into eligibility policy even though the bill itself does not restate countable-resource definitions or exclusions."
+        },
+        {
+          "actor": "State eligibility-system operators",
+          "text": "Systems and staff must distinguish an electronic financial-record match from the complete resource determination, including any additional documentation, valuation, exclusion, notice, and review steps required by governing law."
+        },
+        {
+          "actor": "State Medicaid agencies",
+          "text": "Eligibility logic must apply the new test at the proper determination point without interrupting the continuous-eligibility periods that clause (iii) preserves."
+        },
+        {
+          "actor": "Federal and State program administrators",
+          "text": "The bill provides no express appropriation for eligibility-system changes, applicant assistance, staff training, or additional case processing."
+        }
+      ],
+      "metrics": [
+        {
+          "category": "operational",
+          "layer": "execution",
+          "kind": "Resource-test implementation",
+          "text": "State plan, waiver, rule, and guidance evidence identifying whether a resources test is in force and what State-established threshold applies after the two-year effective date. The bill does not require a recurring consolidated public table of these policy choices.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "serves"
+            },
+            {
+              "goal": 1,
+              "stance": "serves"
+            },
+            {
+              "goal": 2,
+              "stance": "orthogonal"
+            }
+          ]
+        },
+        {
+          "category": "operational",
+          "layer": "participation",
+          "kind": "Post-check application eligibility",
+          "text": "The number of new applicants determined eligible after asset checks, a field named for the future State reports in Section 4. That count does not isolate ineligibility caused by excess resources, and the text does not supply a stable denominator, table, or release cadence.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "serves"
+            },
+            {
+              "goal": 1,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 2,
+              "stance": "orthogonal"
+            }
+          ]
+        },
+        {
+          "category": "unintended",
+          "layer": "outcome",
+          "kind": "Honest access and safeguard gap",
+          "text": "No required recurring public field isolates resource-caused denials or closures, processing delays, appeals or reinstatements, erroneous matches, or resource-related interruptions among people in protected continuous-eligibility periods. No tracked series is claimed.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 1,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 2,
+              "stance": "orthogonal"
+            }
+          ]
+        }
+      ],
+      "conditionals": [
+        "P(number and share of applicants determined eligible after an asset check in the first full year after §3 takes effect | §3 in force); the report language is not yet resolution-grade.",
+        "P(resource-caused Medicaid ineligibility determinations in the first full effective year | §3 in force vs not in force); no required field currently resolves this contrast."
+      ]
+    },
+    {
+      "title": "Section 4 — Federal savings tracking, public State reports, and corrective action",
+      "heading": "§4: CMS tracking system, PERM-linked reporting, and compliance process",
+      "quote": "“Not later than 2 years after the date of the enactment of this Act, the Secretary of Health and Human Services, acting through the Centers for Medicare & Medicaid Services, shall create a Federal tracking system of the savings in Federal expenditures on the Medicaid program under title XIX of the Social Security Act (42 U.S.C. 1396 et seq.) that are associated with the asset verification program requirement added under section 2(a).”",
+      "context": "Section 4 directs CMS to create, within two years of enactment, a federal system tracking federal Medicaid expenditure savings associated with Section 2's expanded asset verification. Beginning with the first year that starts on or after enactment, each State must submit a publicly available report through its triennial PERM review on eligibility and renewal activity, including asset checks and renewal or application outcomes. HHS must adapt the reports for Puerto Rico, the Virgin Islands, Guam, the Northern Mariana Islands, and American Samoa. HHS may assess broader eligibility and PERM compliance and may require a corrective-action plan after finding noncompliance in the preceding 180 days; after written notice, the State faces successive 90-day submission, decision, and implementation deadlines. Source limits / honesty note: the text does not require the federal savings tracker, compliance notices, or corrective-action plans to be public; it gives no savings methodology; and its annual-report, triennial-review, “such month,” and list punctuation do not define a clean recurring dataset.",
+      "goals": [
+        "Create a CMS tracking system within two years for federal Medicaid expenditure savings associated with Section 2's expanded asset-verification requirement.",
+        "Make State and territory eligibility-renewal and asset-check activity publicly available through PERM-linked reports.",
+        "Identify noncompliance and use corrective-action plans with specified deadlines when HHS exercises its assessment and enforcement discretion."
+      ],
+      "effects": [
+        {
+          "mechanism": "Federal savings accounting",
+          "text": "CMS must create a new system for savings attributed to Section 2, but the bill does not specify a counterfactual, attribution method, treatment of administrative costs, reporting period, or public release."
+        },
+        {
+          "mechanism": "Policy-created public data",
+          "text": "The State reports would make specified application, renewal, and asset-check activity public only after enactment, so the non-enactment observation is missing rather than zero."
+        },
+        {
+          "mechanism": "Territory-specific reporting",
+          "text": "HHS must modify the reporting requirements to be similar to those for the States and District of Columbia but reasonable for each named territory, allowing differences that may reduce direct comparability."
+        },
+        {
+          "mechanism": "Discretionary enforcement",
+          "text": "HHS may assess compliance and may require a corrective-action plan, so enactment alone does not guarantee an assessment, notice, or plan; the 90-day duties attach after the relevant notice, submission, or approval."
+        },
+        {
+          "mechanism": "Reporting ambiguity",
+          "text": "The report covers activity during a year but is tied to each State's triennial PERM review, paragraph (C) refers to “such month,” and paragraph (A)'s punctuation does not unambiguously enumerate every count and denominator."
+        }
+      ],
+      "barriers": [
+        {
+          "actor": "Centers for Medicare & Medicaid Services",
+          "text": "CMS must construct a defensible baseline and attribution method for savings associated with Section 2 even though Section 3 separately creates the eligibility exclusion that could change expenditures."
+        },
+        {
+          "actor": "CMS and State reporting teams",
+          "text": "They must turn grammatically ambiguous fields and mixed annual, monthly, and triennial references into consistent definitions, denominators, reporting periods, and publication schedules."
+        },
+        {
+          "actor": "HHS and territorial Medicaid programs",
+          "text": "Territory-specific modifications must remain similar enough to support oversight while accounting for different circumstances, a balance the bill leaves to regulation."
+        },
+        {
+          "actor": "Researchers and public overseers",
+          "text": "The public-report requirement does not extend expressly to the savings tracker, compliance notices, or corrective-action plans, limiting independent verification of savings and enforcement."
+        }
+      ],
+      "metrics": [
+        {
+          "category": "intended",
+          "layer": "outcome",
+          "kind": "Bill-created federal savings estimate",
+          "text": "Federal Medicaid expenditure savings that CMS attributes to the expanded §1940 asset-verification requirement in its new tracking system. The bill neither requires that system's results to be public nor defines the estimate, period, revisions, or release schedule, so no resolvable series is claimed.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "serves"
+            },
+            {
+              "goal": 1,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 2,
+              "stance": "orthogonal"
+            }
+          ]
+        },
+        {
+          "category": "operational",
+          "layer": "execution",
+          "kind": "Public State eligibility-processing reports",
+          "text": "Public State and territory reports of renewals initiated, asset checks, total and ex parte renewals, application checks, and applicants found eligible after checks. Regulations must first resolve the text's field, denominator, period, rotation, and territory-comparability ambiguities before this can become a stable series.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 1,
+              "stance": "serves"
+            },
+            {
+              "goal": 2,
+              "stance": "orthogonal"
+            }
+          ]
+        },
+        {
+          "category": "operational",
+          "layer": "execution",
+          "kind": "Corrective-action implementation",
+          "text": "HHS notices and the number and timeliness of State corrective-action plan submissions, decisions, approvals, and implementation starts following noncompliance findings. The bill does not require these records to be public or establish a recurring release.",
+          "series_hint": "",
+          "stances": [
+            {
+              "goal": 0,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 1,
+              "stance": "orthogonal"
+            },
+            {
+              "goal": 2,
+              "stance": "serves"
+            }
+          ]
+        }
+      ],
+      "conditionals": [
+        "P(CMS has created the §4(a) federal savings tracking system by enactment plus two years | §4 enacted); public resolution is not guaranteed because publication is not required.",
+        "P(required State and territory eligibility-renewal and asset-check reports are publicly available with the enumerated fields in each jurisdiction's applicable PERM cycle | §4 enacted); the non-enactment observation is missing rather than zero.",
+        "P(HHS issues a noncompliance notice and the affected State meets the successive corrective-action deadlines | HHS exercises the §4(c) assessment and enforcement authorities); no required public series currently resolves the sequence."
+      ]
+    }
+  ]
+}
