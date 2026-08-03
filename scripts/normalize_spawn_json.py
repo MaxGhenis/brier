@@ -125,6 +125,36 @@ def scrub_signed_zeros(value):
 
 def main() -> int:
     cells = scrub_signed_zeros(json.load(open(sys.argv[1])))
+    if not isinstance(cells, list) or not all(isinstance(c, dict) for c in cells):
+        print(
+            "REFUSING: spawn output is not a list of cell objects "
+            f"(got {type(cells).__name__})",
+            file=sys.stderr,
+        )
+        return 1
+    # A schema-incomplete draft must become a diagnosable refusal, not a
+    # KeyError traceback: the 2026-08-03 auto-roll recorded ok:false with
+    # EMPTY validationErrors because a draft lacking `reasoning` crashed
+    # this script before any check could name the gap.
+    problems = []
+    for index, c in enumerate(cells):
+        missing = [key for key in ("reasoning", "historicalContext") if key not in c]
+        if missing:
+            problems.append(
+                f"cell {index} ({c.get('dataPointId', 'no dataPointId')}) "
+                f"missing required keys: {', '.join(missing)}"
+            )
+        else:
+            for key in ("reasoning", "historicalContext"):
+                if not isinstance(c[key], list):
+                    problems.append(
+                        f"cell {index} ({c.get('dataPointId', 'no dataPointId')}) "
+                        f"{key} is {type(c[key]).__name__}, not a list"
+                    )
+    if problems:
+        for line in problems:
+            print(f"REFUSING: {line}", file=sys.stderr)
+        return 1
     for c in cells:
         c["reasoning"] = norm_steps(c)
         c["sourceContext"] = [
