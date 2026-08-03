@@ -74,6 +74,10 @@ export type Unit =
   | "gbp_billions"
   | "usd"
   | "usd_billions"
+  // Non-canonical variant admitted by the 2026-08-03 auto-roll — registered
+  // snapshots are immutable, so the site tolerates it. Canonical is
+  // "usd_billions" and registration-side enum validation is the follow-up.
+  | "billions USD"
   | "usd_monthly"
   | "thousands"
   | "millions"

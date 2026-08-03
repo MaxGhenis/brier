@@ -1985,8 +1985,11 @@ def test_full_prompt_carries_machine_checked_phrasings() -> None:
     prompt, _ = analyst_runner.build_run_prompt(
         "irs.actc.total_claims", "2027", None, "full"
     )
-    assert "Machine-checked phrasings" in prompt
+    assert "Machine-checked requirements" in prompt
     assert '"upside risk"' in prompt
     assert '"outside the interval"' in prompt
+    assert '"sigma = X"' in prompt
+    assert "Prior/update/interval:" in prompt
     assert "Base-rate provenance" in prompt
     assert "never a secondary summary" in prompt
+    assert "irs_soi_pub1304_fetch_year" in prompt
