@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly publishable but needs resolver precision fixed and should tighten the evidentiary bridge from the Schedule 8812 pool to the +2.1M policy adjustment.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The resolutionRule adds 'round to 0.1 million,' but the canonical ledger target specifies only the first-print Publication 1304 value transformed by multiplying by 1e-6.",
+      "actionRequested": "Remove resolver-side rounding, or state that rounding applies only to displayed forecast fields and not to the resolved observation."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The +2.1M adjustment treats the TY2023 line 16a minus line 27 gap as a near-convertible threshold-blocked pool, but the draft does not explicitly justify the conversion rate from that pool into additional return counts.",
+      "actionRequested": "Add one sentence explaining why most, some, or a bounded share of the 2.117740M gap should become additional ACTC claim returns under a $1 threshold, and distinguish that from amount increases for already-claiming returns."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention that Publication 4801 is supporting evidence only and Publication 1304 Table 3.3 remains the sole resolver.",
+    "Keep the lower-tail scenario tied to return counts, not just lower ACTC dollars."
+  ]
+}

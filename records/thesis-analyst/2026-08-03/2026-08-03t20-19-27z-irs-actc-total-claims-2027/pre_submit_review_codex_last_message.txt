@@ -1,0 +1,28 @@
+{
+  "summary": "Draft is publishable in resolver/coherence terms but needs stronger historical grounding and a less arbitrary interval/update justification before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "base_rate",
+      "severity": "warning",
+      "summary": "Base-rate sample uses only TY2016, TY2017, and TY2020 even though the draft says IRS Table 3.3 files are available through TY2023.",
+      "actionRequested": "Either extract the latest available Table 3.3 ACTC/refundable CTC return counts through TY2023 or explicitly explain why each omitted year is unusable for this target."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The +0.2 million credit-parameter update is only loosely tied to claim counts; a higher refundable cap mainly affects dollars unless it moves returns from no refundable claim to a refundable claim.",
+      "actionRequested": "Clarify the mechanism for why the $2,200/$1,700 parameters raise the number of claiming returns, or reduce/qualify that adjustment."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 17.6-21.3 interval is described as widened from history, but the widening amounts are judgmental and asymmetric without a quantified volatility or uncertainty bridge.",
+      "actionRequested": "State a compact interval method using observed comparable-year dispersion, explicit scenario allowances, or both, and show how those imply the final lower and upper bounds."
+    }
+  ],
+  "optionalSuggestions": [
+    "Label TY2020 as a Table A proxy if it is not the exact Table 3.3 resolver field.",
+    "Keep the ledger resolutionDate and first-print rule exactly as drafted.",
+    "Make tail scenarios mention effects on return counts, not just ACTC amounts."
+  ]
+}
