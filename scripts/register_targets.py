@@ -1431,6 +1431,7 @@ def register(
         # analyst never runs an unregistered target) and are reported loudly
         # so their series get bindings.
         bindable: list[dict[str, Any]] = []
+        skipped_conditional_keys: set[tuple[str, str]] = set()
         for target in targets:
             try:
                 build_contract(target, registration_date)
@@ -1440,8 +1441,37 @@ def register(
                     f"{target.get('catalogSlug', target.get('series', '?'))}: {exc}",
                     file=sys.stderr,
                 )
+                if target.get("conditional") is not None:
+                    skipped_conditional_keys.add(
+                        (str(target.get("series")), str(target.get("period")))
+                    )
                 continue
             bindable.append(target)
+        if skipped_conditional_keys:
+            # Pair atomicity must survive pruning: selection admits a
+            # conditional pair only as one unit (a lone arm is emitted only
+            # when its sibling is already published), so if pruning removes
+            # a conditional arm HERE, registering the arms it shipped with
+            # would publish one premise alone and hand the pruned arm a
+            # later, better-informed wave. Drop the siblings too, loudly;
+            # the whole pair retries together on a later roll.
+            kept: list[dict[str, Any]] = []
+            for target in bindable:
+                key = (str(target.get("series")), str(target.get("period")))
+                if (
+                    target.get("conditional") is not None
+                    and key in skipped_conditional_keys
+                ):
+                    print(
+                        "skipping sibling conditional arm "
+                        f"{target.get('catalogSlug', '?')}: its pair-mate "
+                        "failed to bind; the pair retries together on a "
+                        "later roll",
+                        file=sys.stderr,
+                    )
+                    continue
+                kept.append(target)
+            bindable = kept
         if not bindable:
             raise RegistrationError("no bindable targets in this roll")
         targets = bindable
