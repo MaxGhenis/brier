@@ -10,14 +10,14 @@
 # forecast is attributable to an exact, reproducible agent.
 
 name: thesis.analyst
-version: 2.4.0
+version: 2.5.0
 model: claude-fable-5
 
 input:
   question_spec:
     series: Concept or series identifier (e.g. bls.cps.unemployment_rate, fns.snap.total_payment_error_rate)
     period: Target period (e.g. 2026-06, FY2025, week ending 2026-06-13)
-    conditional_on: Optional policy condition, ideally an Axiom provision reference (e.g. axiom:usc/42/1396w-9 or a reconciliation-act section); null for unconditional cells
+    conditionalOn: Optional policy condition, ideally an Axiom provision reference (e.g. axiom:usc/42/1396w-9 or a reconciliation-act section); null for unconditional cells
 
 output:
   contract: One JSON object per docs/cell-contract.md (the spawned-cell schema enforced by scripts/spawned_cells_to_ts.py and site/src/__tests__/trace-depth.test.ts)

@@ -563,6 +563,11 @@ def build_fast_prompt(
         "slug": "kebab-case-unique-vs-catalog",
         "country": "US|UK|CA|AU|EA|JP",
         "type": "conditional" if conditional else "data",
+        **(
+            {"conditionalOn": "the registered conditional text, byte-for-byte"}
+            if conditional
+            else {}
+        ),
         "title": "Short display title",
         "question": "Exact agency series, period, adjustment, first print",
         "unit": (
@@ -596,10 +601,17 @@ def build_fast_prompt(
         ],
     }
     domain_notes = "\n".join(f"- {line}" for line in fast_domain_notes(series))
+    # The label matches the cell field exactly: a snake_case conditional_on
+    # label taught models to emit a snake_case key, which the byte-exact
+    # conditionalOn validation then refused (thesis#115).
     conditional_line = (
-        f"- conditional_on: {conditional}\n"
+        (
+            f"- conditionalOn: {conditional}\n"
+            "  Your cell's `conditionalOn` field must repeat this text "
+            "byte-for-byte; the registry gates on the exact string.\n"
+        )
         if conditional
-        else "- conditional_on: null\n"
+        else "- conditionalOn: null\n"
     )
     target_context_block = format_target_context(target_context)
     target_context_text = f"{target_context_block}\n\n" if target_context_block else ""

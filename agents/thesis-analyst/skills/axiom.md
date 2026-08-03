@@ -7,7 +7,7 @@ condition is checkable, not a vibe about "the policy."
 
 ## Current integration (interim)
 Axiom's public query API is not yet wired into this pipeline. Until it is:
-- Reference provisions by citation in `conditional_on` (e.g. "the 2025
+- Reference provisions by citation in `conditionalOn` (e.g. "the 2025
   reconciliation law's Medicaid community-engagement compliance deadline,
   §71119; in effect = no enacted statutory delay and no nationwide stay by
   <date>").
@@ -22,6 +22,6 @@ Axiom's public query API is not yet wired into this pipeline. Until it is:
 ## When the API lands
 `axiom.query(<provision-ref>)` will return the encoded parameter values and
 effective dates; conditional cells should then carry the provision ref in
-`conditional_on` verbatim so resolution can evaluate the condition
+`conditionalOn` verbatim so resolution can evaluate the condition
 mechanically. Keep citations in the same format now so cells upgrade
 cleanly.

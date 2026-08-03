@@ -80,11 +80,31 @@ def build(series: str, period: str, conditional: str | None) -> str:
     ]
     for name in select_skills(series, conditional):
         parts.append(f"\n---\n{(ROOT / 'skills' / name).read_text()}")
+    # The cell contract is embedded verbatim, not referenced: four CI waves
+    # on 2026-08-03 produced substantively sound drafts with invented field
+    # names (catalogSlug, pointEstimate, a snake-case conditional key)
+    # because the schema lived behind a "per docs/cell-contract.md" pointer that only
+    # repo-reading local runs actually followed (thesis#115). The contract
+    # file stays the single source of truth; the prompt carries its text.
+    contract = (ROOT.parent.parent / "docs" / "cell-contract.md").read_text()
+    conditional_block = (
+        "- conditionalOn: null\n"
+        if not conditional
+        else (
+            f"- conditionalOn: {conditional}\n"
+            "  The published cell's `conditionalOn` field must repeat the\n"
+            "  text above byte-for-byte — the registry gates on the exact\n"
+            "  string, and any paraphrase fails validation.\n"
+        )
+    )
     parts.append(
+        "\n---\n# Cell contract (verbatim — your output must use exactly "
+        "these field names)\n"
+        f"{contract}\n"
         "\n---\n# Question spec\n"
         f"- series: {series}\n- period: {period}\n"
-        f"- conditional_on: {conditional or 'null'}\n\n"
-        "Produce one JSON cell per docs/cell-contract.md. "
+        f"{conditional_block}\n"
+        "Produce one JSON cell per the contract above. "
         f"(agent {meta['agent']} v{meta['agentVersion']}, "
         f"prompt {meta['promptHash'][:12]}, "
         f"tools {meta['toolPolicyHash'][:12]})\n"

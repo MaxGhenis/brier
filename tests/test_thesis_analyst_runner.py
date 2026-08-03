@@ -164,7 +164,8 @@ def test_print_prompt_contains_question_spec():
     assert "# Question spec" in result.stdout
     assert "- series: ons.labour.unemployment_rate" in result.stdout
     assert "- period: 2026-Q4" in result.stdout
-    assert "Produce one JSON cell per docs/cell-contract.md" in result.stdout
+    assert "Produce one JSON cell per the contract above" in result.stdout
+    assert "# Cell contract (verbatim" in result.stdout
     assert "Default promoted practices" in result.stdout
     assert "outside-view base rate before current-news adjustments" in result.stdout
 
@@ -1924,3 +1925,52 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
     assert json.loads(dst.read_text())[0]["historicalContext"] == [
         {"label": "2023", "value": 17.6}
     ]
+
+
+def test_full_prompt_embeds_the_cell_contract_verbatim() -> None:
+    # Four CI waves (thesis#115) produced sound drafts with invented field
+    # names because the schema lived behind a "per docs/cell-contract.md"
+    # pointer only repo-reading local runs followed. The full prompt must
+    # carry the contract text itself and the byte-echo rule for
+    # conditionals.
+    conditional = (
+        "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) "
+        "earned-income threshold no more than $1 for tax year 2027."
+    )
+    prompt, _meta = analyst_runner.build_run_prompt(
+        "irs.actc.total_claims", "2027", conditional, "full"
+    )
+    contract = (ROOT / "docs" / "cell-contract.md").read_text()
+    assert "Cell contract (verbatim" in prompt
+    assert contract in prompt
+    for field in ('"slug"', '"title"', '"confidence"', '"conditionalOn"'):
+        assert field in prompt
+    assert f"conditionalOn: {conditional}" in prompt
+    assert "byte-for-byte" in prompt
+    assert "conditional_on" not in prompt
+
+    unconditional, _ = analyst_runner.build_run_prompt(
+        "bls.cps.unemployment_rate", "2026-06", None, "full"
+    )
+    assert "conditionalOn: null" in unconditional
+    assert contract in unconditional
+
+
+def test_fast_prompt_names_conditional_on_exactly() -> None:
+    conditional = (
+        "No farm bill enacted by 2027-09-30 sets a CRP acreage ceiling for "
+        "fiscal years 2027 through 2031; current law holds."
+    )
+    prompt, _ = analyst_runner.build_run_prompt(
+        "usda.fsa.crp.enrolled_acres_total", "2027-09", conditional, "fast"
+    )
+    assert f"conditionalOn: {conditional}" in prompt
+    assert '"conditionalOn"' in prompt
+    assert "byte-for-byte" in prompt
+    assert "conditional_on" not in prompt
+
+    unconditional, _ = analyst_runner.build_run_prompt(
+        "bls.cps.unemployment_rate", "2026-06", None, "fast"
+    )
+    assert "conditionalOn: null" in unconditional
+    assert '"conditionalOn"' not in unconditional
