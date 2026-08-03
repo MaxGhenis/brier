@@ -6,30 +6,204 @@
 # permanently waived, unattested commits (2026-07-20/21 Next50 wave,
 # 2026-07-22 QCEW completion). The CI audit still catches what slips past.
 #
+# The check is commit-level, mirroring scripts/verify_records_attestations.py:
+# the push is refused when any commit it would publish touches records/**
+# (a git log --full-history walk — endpoint tree diffs miss add-then-delete
+# commits and depend on an arbitrary merge base under criss-cross histories;
+# the audit walks commits, so the guard walks the same way). Both halves of
+# the audit's merge rule are mirrored:
+#   - merge_is_records_noop: a merge whose records tree is byte-identical to
+#     a parent publishes no new records content and is exempt — otherwise
+#     every update-with-main merge after a recorder push trips the guard.
+#     Only an IN-SCOPE parent may exempt, in the audit's exact sense: not a
+#     proven ancestor of the enforcement epoch (the commit that introduced
+#     the verifier, resolved here the same self-anchoring way, from the
+#     graph BEING PUSHED rather than from ambient HEAD), and, since the
+#     guard runs before the audit ever sees the commit, also already
+#     reachable from the comparator. An ancient records state resurrected
+#     through a pre-epoch parent is what the epoch test refuses. No
+#     resolvable epoch means no exemption at all — never a weaker one.
+#   - enforce_range_content_closure: if nothing in the range needs
+#     attestation yet the endpoints disagree about records content, the
+#     change rode in through parent-order trickery or a rewind. Applied to
+#     main pushes, where the audit applies it (a branch legitimately lags
+#     main's records).
+#
+# The comparator is fetched from the push destination itself — the URL git
+# hands the hook, verified to survive git's own URL rewriting unchanged, so
+# a nested insteadOf cannot redirect the comparator to a different
+# repository than the one receiving the push — and resolved immediately to
+# an immutable object id, so concurrent pushes cannot swap it. Nothing
+# rests on remote naming or URL spelling: a fork, a mirror, a
+# remote.origin.pushurl, an https-fetch/ssh-push pair and a plain clone all
+# get measured against the main their own push is landing beside; anything
+# unverifiable falls back to the endpoint range. The walked range is:
+#   - refs/heads/main: remote..local — every commit published there is
+#     audited on arrival, so every one is checked here.
+#   - any other ref: destination-main..local — the branch's own
+#     contribution. Tip-to-tip ranges false-positive here: a branch rebased
+#     onto a main that legitimately gained attested recorder commits showed
+#     main's records growth while pushing zero new records objects (hit
+#     2026-07-31).
+# A push with no trustworthy comparator (a new ref whose destination has no
+# main), an unwalkable range, or a shallow repository — whose walk can
+# succeed while missing the history that matters — is refused. Replacement
+# refs and grafts are neutralized so local graph overlays cannot dress up a
+# records commit.
+#
 # Break glass, deliberately, when you truly mean it:
 #   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
+GIT_NO_REPLACE_OBJECTS=1
+GIT_GRAFT_FILE=/dev/null
+export GIT_NO_REPLACE_OBJECTS GIT_GRAFT_FILE
+destination=$2
+# Unique per invocation, including across linked worktrees: a shared ref
+# could be repointed by a concurrent push between fetch and walk.
+DEST_REF="refs/prepush-guard/tmp-$$"
+VERIFIER=scripts/verify_records_attestations.py
 ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
-while read -r _local_ref local_sha _remote_ref remote_sha; do
-    [ "$local_sha" = "$ZERO" ] && continue
-    if [ "$remote_sha" = "$ZERO" ]; then
-        range="origin/main..$local_sha"
-    else
-        range="$remote_sha..$local_sha"
+fetched=0
+dest_main=""
+
+cleanup() { git update-ref -d "$DEST_REF" 2>/dev/null; }
+trap cleanup EXIT HUP INT TERM
+
+shallow=$(git rev-parse --is-shallow-repository 2>/dev/null || echo unknown)
+
+refuse() { # refuse <ref> <reason>
+    if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
+        echo "pre-push: unverifiable $1 allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
+        return 0
     fi
-    touched=$(git diff --name-only "$range" -- records/ 2>/dev/null | head -5)
-    [ -z "$touched" ] && continue
+    echo "" >&2
+    echo "BLOCKED: cannot verify $1 against records/** ($2)." >&2
+    echo "Fetch or unshallow what is missing and retry, or set" >&2
+    echo "THESIS_ALLOW_RECORDS_PUSH=1 to push unverified — that still" >&2
+    echo "lands unattested and costs a permanent public waiver." >&2
+    echo "" >&2
+    return 1
+}
+
+records_tree() { # records_tree <commit-ish>
+    git rev-parse --quiet --verify "$1:records" 2>/dev/null || echo none
+}
+
+# Pin the comparator to the destination's own main, once per push, as an
+# immutable object id. Git already resolved the destination; if feeding it
+# back through fetch would rewrite it again (a nested insteadOf), the
+# fetched repository need not be the receiving one, so the comparator is
+# refused and the endpoint range is used instead.
+pin_destination_main() {
+    if [ "$fetched" = "0" ]; then
+        fetched=1
+        if [ -n "$destination" ] &&
+            [ "$(git ls-remote --get-url "$destination" 2>/dev/null)" \
+                = "$destination" ] &&
+            GIT_TERMINAL_PROMPT=0 git fetch --quiet --no-tags \
+                "$destination" "+refs/heads/main:$DEST_REF" \
+                </dev/null >/dev/null 2>&1; then
+            dest_main=$(git rev-parse --quiet --verify "$DEST_REF^{commit}" \
+                2>/dev/null)
+        fi
+        cleanup
+    fi
+    [ -n "$dest_main" ]
+}
+
+# The enforcement epoch, resolved exactly as the audit resolves it — the
+# single commit that introduced the verifier — but from the graph being
+# pushed, not from ambient HEAD. Unresolvable means no exemption at all.
+epoch_of() { # epoch_of <commit>
+    commits=$(git log --full-history --diff-filter=A --format=%H "$1" -- \
+        "$VERIFIER" 2>/dev/null)
+    [ "$(printf '%s\n' "$commits" | grep -c .)" = "1" ] || return 1
+    printf '%s\n' "$commits"
+}
+
+# A parent may vouch for a merge only if the audit would let it: in scope
+# (not a proven ancestor of the epoch) and already published.
+parent_may_exempt() { # parent_may_exempt <parent> <base> <epoch>
+    [ -n "$3" ] || return 1
+    git merge-base --is-ancestor "$1" "$3" 2>/dev/null && return 1
+    git merge-base --is-ancestor "$1" "$2" 2>/dev/null
+}
+
+while read -r _local_ref local_sha remote_ref remote_sha; do
+    [ "$local_sha" = "$ZERO" ] && continue
+    if [ "$shallow" != "false" ]; then
+        refuse "$remote_ref" "shallow or unreadable repository" || status=1
+        continue
+    fi
+    base=""
+    if [ "$remote_ref" != "refs/heads/main" ] && pin_destination_main; then
+        base=$dest_main
+    fi
+    if [ -z "$base" ]; then
+        if [ "$remote_sha" != "$ZERO" ]; then
+            base="$remote_sha"
+        elif pin_destination_main; then
+            base=$dest_main
+        else
+            refuse "$remote_ref" "new ref, no comparator at the destination" ||
+                status=1
+            continue
+        fi
+    fi
+    range="$base..$local_sha"
+    walked=$(git log --full-history --format=%H "$range" -- records/ \
+        2>/dev/null)
+    walk_rc=$?
+    if [ "$walk_rc" -ne 0 ]; then
+        refuse "$remote_ref" "range $range failed to walk" || status=1
+        continue
+    fi
+    epoch=$(epoch_of "$local_sha") || epoch=""
+    offenders=""
+    for c in $walked; do
+        ctree=$(records_tree "$c")
+        nparent=0
+        exempt=0
+        for p in $(git rev-parse "$c^@" 2>/dev/null); do
+            nparent=$((nparent + 1))
+            [ "$(records_tree "$p")" = "$ctree" ] || continue
+            parent_may_exempt "$p" "$base" "$epoch" && exempt=1
+        done
+        if [ "$nparent" -ge 2 ] && [ "$exempt" = "1" ]; then
+            continue
+        fi
+        offenders="$offenders $c"
+    done
+    if [ -z "$offenders" ]; then
+        # enforce_range_content_closure, for the ref the audit audits.
+        if [ "$remote_ref" = "refs/heads/main" ] &&
+            [ "$(records_tree "$base")" != "$(records_tree "$local_sha")" ]; then
+            refuse "$remote_ref" \
+                "records content differs across $range with no attestable commit" ||
+                status=1
+        fi
+        continue
+    fi
     if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
         echo "pre-push: records/** push allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
         continue
     fi
     echo "" >&2
-    echo "BLOCKED: this push changes records/** from a local clone." >&2
-    echo "$touched" | sed 's/^/  /' >&2
+    echo "BLOCKED: this push publishes commits that touch records/**." >&2
+    # shellcheck disable=SC2086
+    git log --no-walk=unsorted --format="  %h %s" $offenders >&2 2>/dev/null
+    # shellcheck disable=SC2086
+    paths=$(git log --no-walk --diff-merges=first-parent --format= \
+        --name-only $offenders -- records/ 2>/dev/null |
+        grep -v '^$' | sort -u)
+    if [ -n "$paths" ]; then
+        echo "  paths:" >&2
+        printf '%s\n' "$paths" | head -5 | sed 's/^/    /' >&2
+    fi
     echo "" >&2
     echo "records/** is written by the allowlisted workflows, which attest" >&2
     echo "each push. A local push lands unattested and can only be recorded" >&2
-    echo "as a permanent public waiver (six already exist)." >&2
+    echo "as a permanent public waiver (see WAIVED_UNATTESTED_COMMITS)." >&2
     echo "Use the workflow that owns this record, or set" >&2
     echo "THESIS_ALLOW_RECORDS_PUSH=1 if you genuinely mean to waive it." >&2
     echo "" >&2

@@ -98,11 +98,20 @@ jobs:
   # the only job with issues: write — the 2026-07-31 outage produced no
   # alarm because the default read-only github.token cannot create issues
   # ("Resource not accessible by integration").
+  hook-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Records-guard pre-push hook regression suite
+        run: bash scripts/test_pre_push_guard.sh
+
   alert-on-main-failure:
     runs-on: ubuntu-latest
     needs:
       [build-and-test, forecast-api, python-tests, wave-reproducibility,
-       packaged-smoke]
+       packaged-smoke, hook-guard]
     if: failure() && github.ref == 'refs/heads/main'
     permissions:
       issues: write

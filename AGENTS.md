@@ -224,11 +224,23 @@ committed pre-push hook. Activate it once per clone:
 git config core.hooksPath .githooks
 ```
 
-It refuses any local push that touches `records/**`, prints the offending
-paths, and can be overridden deliberately with
+It refuses any local push that would publish a commit touching
+`records/**` — the same commit-level walk the provenance audit runs, so
+the guard blocks exactly the pushes the audit would redden main for.
+Pushes to `main` are judged on every commit they publish; any other ref
+is judged on the branch's own contribution against the main of the
+destination that push is actually landing in — fetched at push time and
+pinned to an immutable id, so no remote name, URL spelling, or stale
+local ref decides it — and a branch rebased over main's attested
+recorder commits therefore does not trip it. Pushes the guard cannot
+verify (no comparator at the destination, unwalkable history, a shallow
+clone) fail closed.
+It prints the offending commits and can be overridden deliberately with
 `THESIS_ALLOW_RECORDS_PUSH=1` — an override that still lands unattested and
-still costs a permanent public waiver. Six such waivers already exist
+still costs a permanent public waiver. Nine such waivers already exist
 (`WAIVED_UNATTESTED_COMMITS`); each one is an admission, not an exemption.
+`scripts/test_pre_push_guard.sh` is the guard's regression suite, run by
+CI on every push and PR.
 
 Every workflow that pushes `records/**` to `main` attests a canonical
 subject naming the pushed commit (`scripts/attest_subject.py`, via the
@@ -275,7 +287,7 @@ under `--owner MaxGhenis`, not under the current repo; every acceptance
 additionally requires the certificate to name the immutable repository
 id 1113415529. A manual `gh attestation verify --repo
 ThesisInstitute/thesis` therefore works only for post-transfer commits,
-and five 2026-07-2x commits are permanently waived as unattested local
+and nine 2026-07-2x commits are permanently waived as unattested local
 pushes (`WAIVED_UNATTESTED_COMMITS` in the verifier — a public admission
 list, separate by design from `waivers.json`'s grandfather sets, which
 cover data-shape grandfathering rather than provenance misses).
