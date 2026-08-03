@@ -95,3 +95,4 @@ rewrite or erase the earlier lane's record.
 | `hidta-enhancement-s767-119.json` | 7 | 4 | 4 | 0 | complete |
 | `future-networks-hr2449-119.json` | 2 | 0 | 2 | 0 | complete |
 | `flraa-medevac-s2075-119.json` | 3 | 1 | 2 | 0 | complete |
+| `sba-disaster-fairness-hr1021-119.json` | 8 | 5 | 6 | 0 | complete |
