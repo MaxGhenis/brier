@@ -1,0 +1,478 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-03T20:56:55Z",
+  "runStartedAt": "2026-08-03T20:56:55Z",
+  "series": "irs.actc.total_claims",
+  "period": "2027",
+  "conditional": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+  "targetContext": {
+    "anchors": {
+      "2020": 19.119,
+      "2021": 37.772,
+      "2022": 18.077,
+      "2023": 17.626
+    },
+    "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+    "conditionDeadline": "2027-12-31",
+    "conditionId": "cond.s3596-actc-threshold.enacted",
+    "conditional": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    "country": "US",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "expectedReleaseWindow": {
+      "end": "2029-12-31",
+      "start": "2029-01-01"
+    },
+    "period": "2027",
+    "registeredAt": "2026-08-03T20:13:09Z",
+    "registeredAtUtc": "2026-08-03T20:13:09Z",
+    "registrationCommit": "a4f59c018641c8d772975263735424cb5d46bb25",
+    "registrationState": "preregistered",
+    "resolutionDate": "2029-12-31",
+    "series": "irs.actc.total_claims",
+    "sourceBinding": {
+      "adapter": "irs-soi-pub1304",
+      "allowedHosts": [
+        "www.irs.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2029-12-31",
+        "start": "2029-01-01"
+      },
+      "field": "refundable_child_tax_credit_returns",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "irs.actc.total_claims",
+      "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+      "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns",
+      "transform": {
+        "factor": 1e-06,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6",
+    "targetRegistrationPath": "records/targets/2026-08-03-6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6.json",
+    "targetUnit": "millions",
+    "valueScale": 1e-06
+  },
+  "registrationCommit": "a4f59c018641c8d772975263735424cb5d46bb25",
+  "targetContentHash": "6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6",
+  "targetRegistrationPath": "records/targets/2026-08-03-6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6.json",
+  "registeredAtUtc": "2026-08-03T20:13:09Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.2",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "221e29003e2ff77c6c20b6113ea472333c6d40a8c70d6eb3b4677546fdf4e195",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-03T20:56:55Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "a6eeb45971bf6bd29b6a53df8692372b83e8ff8b748f65e7ef179cf3f9dc4437"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "base_rate",
+        "summary": "No base-rate or persistence prior is stated because the draft stops at a tooling failure.",
+        "actionRequested": "Produce a forecast with a stated pre-update base-rate or persistence prior for IRS ACTC total claims under the conditional target."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "model_prior",
+        "summary": "No time-series/model prior is used or explicitly ruled out.",
+        "actionRequested": "Add a compact historical/model prior, or explicitly justify why no time-series prior is usable for this target."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "No current-evidence update is provided; the cited IRS/current-law pages are listed but not used to move from a prior.",
+        "actionRequested": "State what public evidence changes the prior, including the direction and size of each material adjustment."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "No interval is produced and no realized-volatility or explicit-uncertainty method is described.",
+        "actionRequested": "Provide an uncertainty method and the implied lower/upper bounds in millions."
+      },
+      {
+        "findingId": "review.finding.5",
+        "severity": "blocking",
+        "rubricItem": "prior_update_interval",
+        "summary": "The required compact Prior/update/interval step is absent.",
+        "actionRequested": "Add a step naming the prior, historical sample, adjustment components, interval method, and implied bounds."
+      },
+      {
+        "findingId": "review.finding.6",
+        "severity": "blocking",
+        "rubricItem": "tails",
+        "summary": "No concrete tail scenarios are tied to the ACTC claims target.",
+        "actionRequested": "Describe low- and high-tail cases, such as take-up, eligibility expansion, administrative frictions, or macro/labor-income conditions."
+      },
+      {
+        "findingId": "review.finding.7",
+        "severity": "blocking",
+        "rubricItem": "coherence",
+        "summary": "The response contains an error object rather than coherent point, interval, final forecast, and forecast JSON fields.",
+        "actionRequested": "Replace the failure response with a complete forecast object whose point, interval, reasoning, unit, slug, dataPointId, and conditional text are mutually consistent."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver tied to Publication 1304 Table 3.3 first print, units in millions, dataPointId as registered, and resolutionDate 2029-12-31."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If tooling prevents parsing IRS Excel files, use cited public evidence that can be inspected and state the limitation rather than ending without a forecast."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.5",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.6",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.7",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is not publishable because it explicitly failed to produce a forecast or the required prior/update/interval/JSON forecast fields."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/prompt.md",
+      "sha256": "457650e42ee8cdb944e48364dafd23585c4e828ce7fe49d1691908aa51b9b3c1",
+      "bytes": 32559,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_command.json",
+      "sha256": "9350dcd256ea3c260b68f50108f98fb0879c30c4a820c99070eb2108dcd6b781",
+      "bytes": 817,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_codex_stdout.jsonl",
+      "sha256": "feeea7138a511155cd688e5021e04673b34e427981c1eeba292dedca10a25dbc",
+      "bytes": 13252,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_codex_stderr.log",
+      "sha256": "ec8b67ba0fb62bfb1e7691da1e7a0d67501ae26684201ac195704d7d34999983",
+      "bytes": 233,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_codex_events.jsonl",
+      "sha256": "dd45da70dee9bc44a0e8d6c25a2421b07b6d13a5dbc2ed3e7a670dc6d958caa7",
+      "bytes": 13228,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_codex_last_message.txt",
+      "sha256": "70576e9e7087a6b31b79aa27bd035b28aa8a43992b78c02324e3ad55dbb5829b",
+      "bytes": 1352,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_codex_trace.json",
+      "sha256": "0d09be6142ab0a1729ad5525b13898b740931ed6c2f5d989e3a3475563846db2",
+      "bytes": 539,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_stdout.txt",
+      "sha256": "70576e9e7087a6b31b79aa27bd035b28aa8a43992b78c02324e3ad55dbb5829b",
+      "bytes": 1352,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/draft_stderr.txt",
+      "sha256": "28c9835ae87c136790170d56f2d11345f6047842bbf9b9ce2dc07ea647d39ad6",
+      "bytes": 248,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_prompt.md",
+      "sha256": "f5f208cdd041e4fd423229442ba78c5f1b7edf0d01812e29844062014c4e636d",
+      "bytes": 4926,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_command.json",
+      "sha256": "64518cd93fc8862edaef3966052e85d42fa8bae8cd9e5928977791fbd3471058",
+      "bytes": 829,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "23ef75e110d2e84ed13d13ba9727c41105624ad9239f7b99a250d2185c8b4c8d",
+      "bytes": 2951,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_codex_stderr.log",
+      "sha256": "6214808f4d15acdc959b3a3626ea6e0444ac33aaa6665715f0ed85131911cd1b",
+      "bytes": 233,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_codex_events.jsonl",
+      "sha256": "b84fa349d0de9d754074a381507d64c848ec808d0ec4b9bad8080b22a081a86a",
+      "bytes": 2973,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_codex_last_message.txt",
+      "sha256": "86a371fa3eab1d6210c3abd79d4f386d31ed9c3c8a884be5128ad2840a406a85",
+      "bytes": 2514,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_codex_trace.json",
+      "sha256": "a4d276688eda43b8c984b4b505146671d29a9156b80ac041f856d6f3a6087e5f",
+      "bytes": 530,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_stdout.txt",
+      "sha256": "86a371fa3eab1d6210c3abd79d4f386d31ed9c3c8a884be5128ad2840a406a85",
+      "bytes": 2514,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/pre_submit_review_stderr.txt",
+      "sha256": "59dd8a8e90fd317e6dac5861784c3c0c4de9cccedec98c2900f11bd1121f94eb",
+      "bytes": 248,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/revision_prompt.md",
+      "sha256": "20d273091626e9da2226f0789bf3660cb6e37f37f07c8e481a745e2880451480",
+      "bytes": 37361,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/command.json",
+      "sha256": "aa351182cccc107fde4bcc2a58a49ce7bc1d6097928ffdd7657e1b15c5d1d618",
+      "bytes": 811,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/codex_stdout.jsonl",
+      "sha256": "5bca32f1bb1247694a280731f86df114a828860c391504b6b7ba505ef6325a3e",
+      "bytes": 21213,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/codex_stderr.log",
+      "sha256": "fa90a00417d0d1ccbbe9a07ba6a784bb1f8a221ab42b9624765ad34c5e8f751f",
+      "bytes": 233,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/codex_events.jsonl",
+      "sha256": "3c6ef546778ab5d1450fb638b0d508d9734c88b801bd65d8f311dde380234f96",
+      "bytes": 21167,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/codex_last_message.txt",
+      "sha256": "73f89d501fb84e3e6644449391f60fc4e24e4a2c14b7f0fad2b798b275b080a2",
+      "bytes": 9195,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/codex_trace.json",
+      "sha256": "eb9267b245b8df38e0e54ab1448ca82e89ca1f143d692a8e3716c7177e3654c9",
+      "bytes": 539,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/stdout.txt",
+      "sha256": "73f89d501fb84e3e6644449391f60fc4e24e4a2c14b7f0fad2b798b275b080a2",
+      "bytes": 9195,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/stderr.txt",
+      "sha256": "ed823c28bee97a50907bbc23f0c970c97d6157dc953b2fcd2854c28112cd93d0",
+      "bytes": 248,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/raw_response.txt",
+      "sha256": "73f89d501fb84e3e6644449391f60fc4e24e4a2c14b7f0fad2b798b275b080a2",
+      "bytes": 9195,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/parsed_cells.json",
+      "sha256": "a49220ac342f9c8f2591feb55e6f83976a41c1b93ff553c24d03ad822e8038f6",
+      "bytes": 9449,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/normalized_cells.json",
+      "sha256": "6c52238e9a7a26d6b4117f3ea75dcc8f66082dfdcbc21bd0bfa77964074f4dca",
+      "bytes": 26646,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/distribution.json",
+      "sha256": "af16226e11d40810ce9b84b8fc36cb66ac1c83adc9a26105b07901125d8f9fb5",
+      "bytes": 13413,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/validation.json",
+      "sha256": "4807fbce7a3bdd9a36f705cb5b9b15d37f1a4d94ee44810b728053ec088723a9",
+      "bytes": 685,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/cells.with_activity.json",
+      "sha256": "98cf8a6a69f810d130e801471260e27671cc730f2b94370845c3884068fa62b5",
+      "bytes": 47912,
+      "createdAt": "2026-08-03T20:56:55Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-03/2026-08-03t20-56-55z-irs-actc-total-claims-2027/manifest.json",
+      "sha256": "9d211fab9320071fcac0d324bcc29bc2df467a8e1bf128a3bb472ce6a6784440",
+      "bytes": 21767,
+      "createdAt": "2026-08-03T20:56:55Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+        "ok": false,
+        "errors": [
+          "anchor '2021': history value(s) [37.249985] contradict the verified official value 37.772 (tolerance 0.18886) \u2014 wrong series, vintage, or source lineage",
+          "anchor '2022': history value(s) [17.219508] contradict the verified official value 18.077 (tolerance 0.090385) \u2014 wrong series, vintage, or source lineage",
+          "anchor '2023': history value(s) [17.401584] contradict the verified official value 17.626 (tolerance 0.08813) \u2014 wrong series, vintage, or source lineage"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "28648fc36517fdb87a2056559be084fdddc02b766a26cd93c9eeb2533b20a87b"
+}

@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+    "country": "US",
+    "type": "conditional",
+    "title": "ACTC claims, TY2027, $1 threshold",
+    "question": "Conditional on legislation enacted by 2027-12-31 making the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027, what will be the number of returns, in millions, on the IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns, for tax year 2027, first print?",
+    "unit": "millions",
+    "pointEstimate": 18.4,
+    "ciLow": 16.8,
+    "ciHigh": 20,
+    "confidence": 0.8,
+    "resolutionDate": "2029-12-31",
+    "resolutionSource": "IRS SOI, Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3",
+    "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "resolutionRule": "Resolve from the first IRS SOI Individual Income Tax Returns Complete Report (Publication 1304) release for tax year 2027, Table 3.3, All Returns: Tax Liability, Tax Credits, and Tax Payments, all returns total row, refundable child tax credit or additional child tax credit, number of returns. Convert returns to millions by multiplying by 0.000001 and round to one decimal million. Later revisions do not count. If the conditional legislation is not enacted by 2027-12-31, mark unresolved.",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    "historicalContext": [
+      {
+        "label": "TY2020 Schedule 8812 ACTC line 15 returns, IRS Pub. 4801",
+        "value": 19.096529
+      },
+      {
+        "label": "TY2022 Schedule 8812 ACTC line 27 returns, IRS Pub. 4801",
+        "value": 17.219508
+      },
+      {
+        "label": "TY2023 Schedule 8812 ACTC line 27 returns, IRS Pub. 4801",
+        "value": 17.401584
+      },
+      {
+        "label": "TY2021 refundable CTC/ACTC policy-year reference, IRS Pub. 4801 line 14i",
+        "value": 37.249985
+      }
+    ],
+    "drivers": [
+      "2023 ACTC persistence baseline near 17.4 million",
+      "$1 earned-income threshold adds part of the excess-CTC nonclaiming gap",
+      "2021 full-refundability year is an upper-bound policy analogue, not the base rate",
+      "Administrative take-up and filing frictions limit the threshold response",
+      "Child population and qualifying-child ID rules cap growth"
+    ],
+    "sourceContext": [
+      "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+      "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+      "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-line-item-estimates-publications-4801-and-5385",
+      "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+      "https://www.irs.gov/pub/irs-prior/p4801--122024.pdf",
+      "https://www.irs.gov/pub/irs-prior/p4801--2022.pdf",
+      "https://www.irs.gov/credits-deductions/individuals/refundable-tax-credits",
+      "https://www.irs.gov/irm/part21/irm_21-008-001r",
+      "https://www.congress.gov/crs-product/R41873"
+    ],
+    "runAt": "2026-08-03T20:59:44Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "IRS ACTC total claims under a $1 earned-income threshold"
+      },
+      {
+        "kind": "text",
+        "text": "The registered ledger target fixes the slug, unit, dataPointId, resolver text, and resolutionDate. I keep the resolver tied to Publication 1304 Table 3.3 even though the official IRS release calendar does not yet list the tax-year 2027 Publication 1304 date; the ledger uses 2029-12-31 as the end of the expected official release window."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs.page",
+        "call": "Open IRS Publication 1304 Basic Tables Part 3 page and inspect Table 3.3 links.",
+        "result": "IRS Basic Tables Part 3 lists Table 3.3, All Returns: Tax Liability, Tax Credits, and Tax Payments, with tax-year XLS links including 2023, 2022, 2021, 2020, and 2019; page last reviewed or updated 06-Apr-2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs.pdf",
+        "call": "Open IRS Publication 4801 2020 line-item PDF and inspect Schedule 8812 return counts.",
+        "result": "IRS Pub. 4801 2020 Schedule 8812 shows Total schedules filed = 19,305,957 and Part III line 15, This is your additional child tax credit, number of returns = 19,096,529."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs.pdf",
+        "call": "Open IRS Publication 4801 2022 line-item PDF and inspect Schedule 8812 return counts.",
+        "result": "IRS Pub. 4801 2022 Schedule 8812 shows Total schedules filed = 47,403,924; line 16a returns = 19,214,388; line 17 returns = 17,621,444; line 20 returns = 17,210,466; line 27, This is your additional child tax credit, returns = 17,219,508."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs.pdf",
+        "call": "Open IRS Publication 4801 2023 line-item PDF and inspect Schedule 8812 return counts.",
+        "result": "IRS Pub. 4801 2023 Schedule 8812 shows Total schedules filed = 47,815,267; line 16a returns = 19,519,324; line 17 returns = 17,774,237; line 20 returns = 17,395,471; line 27, This is your additional child tax credit, returns = 17,401,584."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs.policy",
+        "call": "Inspect IRS current-law ACTC parameter pages and CRS child tax credit summary.",
+        "result": "IRS/CRS current-law references state a refundable ACTC maximum of $1,700 for 2025/current law, a $2,500 earned-income threshold, a 15% refundability formula, and phaseout thresholds of $400,000 for married filing jointly and $200,000 for head of household, single, and married filing separately."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the comparable non-ARPA recent ACTC claim-count prints inspected this run are 19.096529 million in TY2020, 17.219508 million in TY2022, and 17.401584 million in TY2023. The 2021 fully refundable child credit year is not a base-rate print for this conditional because it removed more constraints than the specified $1 earned-income threshold, but its roughly 37.25 million refundable-CTC line is a high-side policy analogue."
+      },
+      {
+        "kind": "math",
+        "text": "Model candidate: persistence candidate uses TY2023 line 27 = 17.401584 million as point/p50; with comparable non-ARPA values [19.096529, 17.219508, 17.401584], sigma = 1.035 million, p10/p90 by normal approximation = 16.1/18.7, 80% interval = 16.1 to 18.7, 90% interval = 15.7 to 19.1, interval_method = recent-value residual sigma, calibration_n = 3, train_cutoff = TY2023. No richer time-series model is reliable because the inspected post-TCJA/non-ARPA comparable history has only 3 usable points."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior = TY2023 persistence at 17.4 million from IRS Pub. 4801 Schedule 8812 line 27; historical sample = TY2020, TY2022, TY2023 comparable ACTC prints; adjustment components = +0.9 million for lowering the earned-income threshold from $2,500 to no more than $1, using the 2023 gap between line 16a potential excess credit returns (19.519 million) and line 27 actual ACTC returns (17.402 million) as the upper-bound pool, plus +0.1 million for 2027 filing/take-up adaptation, partly offset by -0.0 to -0.2 million child-population/eligibility drift; interval method = recent-value sigma widened for policy take-up uncertainty. Values [19.096529, 17.219508, 17.401584] imply sigma = 1.035; 1.28*sigma = 1.32 million; widened to 1.6 million for threshold/take-up uncertainty, so point 18.4 gives 80% bounds 16.8 to 20.0 million."
+      },
+      {
+        "kind": "text",
+        "text": "The upside risk outside the interval is a rule that is implemented like near-full refundability in practice, aggressive IRS outreach, and very low-income working families filing at much higher rates, which would land above the interval. The downside risk outside the interval is that many returns in the 2023 line-16a-minus-line-27 gap have zero or administratively hard-to-document earned income, or that SSN/filing frictions and weak take-up keep the threshold change from adding many new positive ACTC claims, which would land below the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking critiques by replacing the failure object with a complete forecast, adding a base-rate prior, a persistence model candidate, explicit conditional update, sigma-based interval arithmetic, tail scenarios, and coherent resolver fields. I retain a trace note that the local command runner and exact Publication 1304 XLS parser were unavailable; the final uses IRS Publication 4801 line-item PDFs as public SOI evidence while keeping the registered Publication 1304 resolver."
+      },
+      {
+        "kind": "forecast",
+        "point": 18.4,
+        "ciLow": 16.8,
+        "ciHigh": 20
+      }
+    ]
+  }
+]

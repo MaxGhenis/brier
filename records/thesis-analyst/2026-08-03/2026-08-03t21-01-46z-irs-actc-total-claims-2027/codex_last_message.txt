@@ -1,0 +1,128 @@
+{
+  "slug": "additional-child-tax-credit-total-claims-ty2027-current-law",
+  "country": "US",
+  "type": "conditional",
+  "title": "ACTC total claims, TY2027 current law",
+  "question": "How many individual income tax returns will claim the IRS SOI Individual Income Tax Returns Complete Report, Publication 1304, Table 3.3, all returns total-row refundable child tax credit or additional child tax credit number of returns for tax year 2027, first print, in millions, conditional on current law holding for the IRC §24(d)(1)(B)(i) earned-income threshold?",
+  "unit": "millions",
+  "pointEstimate": 16.8,
+  "ciLow": 15.7,
+  "ciHigh": 17.9,
+  "confidence": 0.8,
+  "resolutionDate": "2029-12-31",
+  "resolutionSource": "IRS SOI, Individual Income Tax Returns Complete Report Publication 1304, Table 3.3",
+  "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+  "resolutionRule": "Resolve from the first IRS SOI Individual Income Tax Returns Complete Report Publication 1304 Table 3.3 release for tax year 2027, table 'All Returns: Tax Liability, Tax Credits, and Tax Payments', size of adjusted gross income, all returns total row, refundable child tax credit or additional child tax credit, number of returns. Convert returns to millions by multiplying by 1e-6. Forecast display fields are shown to one decimal million, but the canonical resolution value is the first-print transformed value. Later corrections or revised tables do not change the first-print resolution. If the conditionalOn condition fails, mark unresolved.",
+  "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+  "conditionalOn": "No legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 amount.",
+  "historicalContext": [
+    {
+      "label": "TY2018 ACTC line count, Schedule 8812 line 15, IRS Pub. 4801",
+      "value": 20.449462
+    },
+    {
+      "label": "TY2019 ACTC line count, Schedule 8812 line 15, IRS Pub. 4801",
+      "value": 19.853166
+    },
+    {
+      "label": "TY2020 ACTC line count, Schedule 8812 line 15, IRS Pub. 4801",
+      "value": 19.096529
+    },
+    {
+      "label": "TY2022 ACTC line count, Schedule 8812 line 27, IRS Pub. 4801",
+      "value": 17.219508
+    },
+    {
+      "label": "TY2023 ACTC line count, Schedule 8812 line 27, IRS Pub. 4801",
+      "value": 17.401584
+    }
+  ],
+  "drivers": [
+    "post-TCJA ACTC claims drift lower",
+    "last-print persistence at 17.4 million",
+    "2025 law raises CTC but keeps $2,500 earned-income gate",
+    "2021 ARPA refundable CTC excluded as outlier",
+    "four-year horizon widens interval"
+  ],
+  "sourceContext": [
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+    "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+    "https://www.irs.gov/pub/irs-prior/p4801--122024.pdf",
+    "https://www.irs.gov/pub/irs-prior/p4801--2022.pdf",
+    "https://www.irs.gov/pub/irs-prior/p4801--2021.pdf",
+    "https://www.irs.gov/pub/irs-prior/p4801--2020.pdf",
+    "https://www.irs.gov/statistics/soi-tax-stats-whats-new",
+    "https://www.irs.gov/irb/2025-45_IRB",
+    "https://uscode.house.gov/view.xhtml?edition=prelim&req=granuleid%3AUSC-prelim-title26-section24",
+    "https://www.irs.gov/credits-deductions/individuals/child-tax-credit"
+  ],
+  "runAt": "2026-08-03T21:04:12Z",
+  "activityLog": [],
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "ACTC total claims for tax year 2027 under current law"
+    },
+    {
+      "kind": "text",
+      "text": "Target identity follows the canonical ledger target: slug additional-child-tax-credit-total-claims-ty2027-current-law, unit millions, dataPointId irs.actc.total_claims.2027.first_print.current_law, and resolver IRS SOI Publication 1304 Table 3.3 all returns total row. The browser fetch of app.thesisinstitute.org/specs.json returned Cache miss at 2026-08-03 21:04 UTC, so I used the supplied registered ledger slug rather than inventing a new slug. The local shell was unavailable with bwrap uid-map failures, so the UTC timestamp is from the UTC time tool rather than a successful local date command."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub1304.catalog",
+      "call": "Opened IRS Publication 1304 complete-report page and Basic Tables Part 3 page.",
+      "result": "IRS Pub. 1304 page says the complete report is based on sampled Forms 1040/1040A/1040EZ and covers tax credits and tax payments; Basic Tables Part 3 lists Table 3.3 'All Returns: Tax Liability, Tax Credits, and Tax Payments' with 2023 XLS, 2022 XLS, 2021 XLS, 2020 XLS, 2019 XLS, and earlier files; IRS page last reviewed 2026-04-06 for Basic Tables Part 3 and 2026-07-22 for the main Pub. 1304 page."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub4801.latest",
+      "call": "Opened IRS Publication 4801 2023 line-item estimates PDF, Schedule 8812 page 2.",
+      "result": "IRS Pub. 4801 TY2023 Schedule 8812 line 27 states 'This is your additional child tax credit' and the extracted number-of-returns sequence ends with line 27 = 17,401,584 returns; total Schedule 8812 filed = 47,815,267; all individual returns filed = 160,602,107."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub4801.history",
+      "call": "Opened IRS prior Publication 4801 PDFs for TY2022, TY2020, TY2019, and TY2018 and read Schedule 8812 ACTC line counts.",
+      "result": "TY2022 Schedule 8812 line 27 additional child tax credit = 17,219,508 returns; TY2020 Schedule 8812 line 15 additional child tax credit = 19,096,529 returns; TY2019 Schedule 8812 line 15 = 19,853,166 returns; TY2018 Schedule 8812 line 15 = 20,449,462 returns."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.policy.current_law",
+      "call": "Opened IRS Child Tax Credit page, IRS IRB 2025-45, and 26 USC §24 text.",
+      "result": "IRS Child Tax Credit page says the 2025 CTC is worth up to $2,200 per qualifying child, ACTC is up to $1,700 per qualifying child, and earned income of at least $2,500 is required. IRS IRB 2025-45 says OBBBA makes §24(h) permanent, sets the 2025 CTC at $2,200, and gives the 2026 refundable amount as $1,700. 26 USC §24(h)(6) says subsection (d)(1)(B)(i) is applied by substituting '$2,500' for '$3,000'."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.release.timing",
+      "call": "Opened IRS SOI What's New page for recent Pub. 1304 release evidence.",
+      "result": "IRS What's New lists 2023 Individual Income Tax Returns Complete Report Publication 1304 tables as available in March 2026 and a March 26, 2026 release-date notice for TY2023 Pub. 1304 tables. The supplied ledger target gives expectedReleaseWindow 2029-01-01 to 2029-12-31 and resolutionDate 2029-12-31; I keep that registered date because no exact TY2027 IRS release date is yet posted."
+    },
+    {
+      "kind": "text",
+      "text": "Base rate / reference class: comparable current-law-ish ACTC claim counts, excluding the ARPA 2021 refundable CTC outlier, were 20.449 million in TY2018, 19.853 million in TY2019, 19.097 million in TY2020, 17.220 million in TY2022, and 17.402 million in TY2023. These Pub. 4801 Schedule 8812 line counts are a close official historical proxy for the Pub. 1304 Table 3.3 resolver field, not a replacement for the TY2027 Pub. 1304 first-print resolver. Last-print persistence is 17.402 million. The comparable annual changes are -0.596, -0.757, -0.939 annualized over 2020-2022, and +0.182 million, with a mean change of about -0.53 million."
+    },
+    {
+      "kind": "text",
+      "text": "Model candidates under thesis_model_candidate_v1: persistence candidate point 17.40, p10 16.77, p50 17.40, p90 18.03, 80% interval 16.77-18.03, 90% interval 16.59-18.21, interval_method residual_sigma_from_comparable_changes, calibration_n 4, train_cutoff TY2023. Trend candidate point 15.29, p10 14.66, p50 15.29, p90 15.92, same residual interval method, calibration_n 4. Selected candidate is a persistence/trend shrinkage blend because four-year extrapolation is real but the 2025 law makes a pure downward trend too aggressive."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: prior = last-print persistence 17.40 million; historical sample = TY2018, TY2019, TY2020, TY2022, TY2023 ACTC/refundable CTC line counts excluding TY2021 ARPA outlier; adjustment components = 30% weight on trend candidate 15.29 and 70% on persistence 17.40, so point = 0.70*17.40 + 0.30*15.29 = 16.77, rounded to 16.8 million. Comparable changes are -0.596, -0.757, -0.939, +0.182 million, so sigma = 0.49 million; normal 80% half-width = 1.28*sigma = 0.63 million. I widen to 1.10 million, about 1.74x the one-year half-width, for four-year horizon, Pub. 1304 sampling/filing-cycle noise, and 2025 CTC permanence. Final 80% interval = 16.8 +/- 1.1 = 15.7 to 17.9 million."
+    },
+    {
+      "kind": "text",
+      "text": "Counter-consideration: upside risk would land above the interval if the higher permanent CTC/ACTC parameters pull many near-threshold families into positive ACTC claims, if outreach or filing compliance rises materially, or if fertility/child-dependent counts among low-income filers stabilize faster than the 2018-2023 trend. Downside risk would land below the interval if child-dependent counts keep falling, IRS compliance filters reduce paid ACTC claims, or income growth shifts more families from refundable ACTC into nonrefundable CTC only."
+    },
+    {
+      "kind": "text",
+      "text": "Review disposition: accepted the resolver cleanup by removing resolver-side one-decimal rounding and stating that one-decimal values are display formatting, not the canonical transformed IRS count. Accepted the proxy clarification for Pub. 4801 Schedule 8812 history versus the Pub. 1304 Table 3.3 resolver. No critique item was rejected."
+    },
+    {
+      "kind": "forecast",
+      "point": 16.8,
+      "ciLow": 15.7,
+      "ciHigh": 17.9
+    }
+  ]
+}

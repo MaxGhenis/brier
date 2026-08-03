@@ -1,0 +1,15 @@
+{
+  "error": "forecast_not_produced",
+  "reason": "I could not honestly ground the base-rate history required for this cell. The local command runner failed before execution with `bwrap: setting up uid map: Permission denied`, so I could not run `date -u`, inspect the local resolver, download/parse the IRS XLS files, or echo raw `curl` responses as required. The web fetch tool reached the IRS Publication 1304 Table 3.3 index and current-law pages, but it cannot decode the official IRS Excel files that contain the target historical values. Under the supplied honesty rules, I must not substitute remembered or inferred Table 3.3 values.",
+  "target": {
+    "slug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "unit": "millions",
+    "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027."
+  },
+  "sources_reached": [
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+    "https://www.irs.gov/credits-deductions/individuals/child-tax-credit"
+  ]
+}
