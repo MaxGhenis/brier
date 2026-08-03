@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is mostly publication-ready, but it should align the resolver URL exactly to the registered source binding.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The JSON `resolutionSourceUrl` points to the Basic Tables Part 3 page, while the registered source binding's `sourceUrl` is the main IRS Publication 1304 complete report page.",
+      "actionRequested": "Set `resolutionSourceUrl` to the canonical ledger URL, or explicitly keep the Part 3 page only as supporting context while preserving the registered source URL in the resolver fields."
+    }
+  ],
+  "optionalSuggestions": [
+    "Make the historical sample less vague by either listing the pre-2021 post-TCJA values used for interval calibration or saying the interval is judgmental around the explicitly named TY2016/TY2022/TY2023 observations.",
+    "Clarify whether the conditional-failure handling maps to a null/unmet conditional outcome in the catalog rather than a numeric resolution."
+  ]
+}
