@@ -461,6 +461,137 @@ def snapshot_seed_target(
     }
 
 
+def conditional_pair_seed_targets(
+    entry: dict,
+    catalog_slugs: set[str],
+    today: dt.date,
+) -> list[dict]:
+    """Admit the reviewed one-shot conditional-pair arms still unpublished.
+
+    A conditional pair forecasts one official print under two mutually
+    exclusive legal-state conditions (a legislated provision holding vs
+    current law). Its forecasting window is bounded by the CONDITION
+    deadline, not by the release date: the arms must be preregistered and
+    published while the legislative outcome is open, even though the
+    official print that resolves them may be years away. The registry must
+    pin everything — the exact period, both arm slugs, distinct
+    dataPointIds, the byte-exact conditional texts, and an explicit
+    expectedReleaseWindow — so nothing here is inferred from cadence. An
+    arm whose catalog slug is already published is never re-emitted; a
+    failed arm keeps its slot and is retried on the next roll (F10).
+    """
+
+    pair = entry.get("conditionalPair")
+    if not isinstance(pair, dict):
+        return []
+    series = entry.get("series", "?")
+
+    def skip(reason: str) -> list[dict]:
+        print(
+            f"  warning: skip {series}: conditional pair {reason}",
+            file=sys.stderr,
+        )
+        return []
+
+    if entry.get("cadence") != "annual":
+        return skip("requires annual cadence")
+    period = entry.get("period")
+    if not isinstance(period, str) or not re.fullmatch(r"\d{4}", period):
+        return skip(f"requires an explicit YYYY period, got {period!r}")
+    try:
+        deadline = dt.date.fromisoformat(str(pair.get("conditionDeadline")))
+    except (TypeError, ValueError):
+        return skip("requires an ISO conditionDeadline")
+    if today >= deadline:
+        return skip(f"condition deadline {deadline} has passed")
+    extras = entry.get("extras")
+    if not isinstance(extras, dict) or not isinstance(
+        extras.get("sourceBinding"), dict
+    ):
+        return skip("requires committed extras with a sourceBinding template")
+    window = extras.get("expectedReleaseWindow")
+    if not isinstance(window, dict) or set(window) != {"start", "end"}:
+        return skip("requires an exact expectedReleaseWindow")
+    try:
+        start = dt.date.fromisoformat(str(window["start"]))
+        end = dt.date.fromisoformat(str(window["end"]))
+    except (TypeError, ValueError):
+        return skip("has a malformed expectedReleaseWindow")
+    if start > end:
+        return skip("window ends before it starts")
+    if start <= deadline:
+        return skip("release window must open after the condition deadline")
+    arms = pair.get("arms")
+    if not isinstance(arms, list) or len(arms) != 2:
+        return skip("requires exactly two arms")
+    # The reviewed arm identity fields are authoritative; a registry extras
+    # block must never be able to restate them (extras spread first, arm
+    # fields last, and the reserved keys are rejected outright).
+    reserved = {
+        "series",
+        "period",
+        "catalogSlug",
+        "dataPointId",
+        "conditional",
+        "conditionId",
+        "conditionDeadline",
+    }
+    clashing = reserved & set(extras)
+    if clashing:
+        return skip(f"extras restate reserved target keys {sorted(clashing)}")
+    seen_slugs: set[str] = set()
+    seen_ids: set[str] = set()
+    seen_conditionals: set[str] = set()
+    targets: list[dict] = []
+    for arm in arms:
+        if not isinstance(arm, dict):
+            return skip("has a non-object arm")
+        slug = arm.get("catalogSlug")
+        data_point_id = arm.get("dataPointId")
+        conditional = arm.get("conditional")
+        condition_id = arm.get("conditionId")
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (slug, data_point_id, conditional, condition_id)
+        ):
+            return skip(
+                "arms require catalogSlug, dataPointId, conditional, and "
+                "conditionId"
+            )
+        # Every arm resolves against the series' first print for THIS
+        # period; a mislabeled id would route the resolver to a different
+        # tax year's workbook.
+        if not re.fullmatch(
+            rf"{re.escape(entry['series'])}\.{re.escape(period)}"
+            r"\.first_print\.[a-z0-9_]+",
+            data_point_id,
+        ):
+            return skip(
+                f"arm dataPointId {data_point_id!r} is not "
+                f"{entry['series']}.{period}.first_print.<condition_token>"
+            )
+        seen_slugs.add(slug)
+        seen_ids.add(data_point_id)
+        seen_conditionals.add(conditional)
+        if slug in catalog_slugs:
+            continue
+        targets.append(
+            {
+                **extras,
+                "series": entry["series"],
+                "period": period,
+                "catalogSlug": slug,
+                "dataPointId": data_point_id,
+                "conditional": conditional,
+                "conditionId": condition_id,
+                "conditionDeadline": pair["conditionDeadline"],
+            }
+        )
+    if len(seen_slugs) != 2 or len(seen_ids) != 2 or len(seen_conditionals) != 2:
+        return skip("arms must have distinct slugs, ids, and conditionals")
+    return targets
+
+
 def recurring_seed_target(
     entry: dict,
     catalog_slugs: set[str],
@@ -675,10 +806,45 @@ def advance_past_released_native_periods(
         candidate = following
 
 
+def select_capped_targets(
+    candidates: list[tuple[int, str, dict | list[dict]]],
+    max_targets: int,
+) -> tuple[list[dict], int]:
+    """Admit whole candidate units in priority order under the cap.
+
+    A conditional pair's unpublished arms are one unit: selection stops at
+    the first unit that does not fit rather than splitting it (or skipping
+    ahead past it), so the cap can never register or forecast one arm of a
+    pair without its sibling.
+    """
+
+    ordered = sorted(candidates, key=lambda item: (item[0], item[1]))
+    targets: list[dict] = []
+    dropped = 0
+    capped = False
+    for _, _, unit in ordered:
+        group = unit if isinstance(unit, list) else [unit]
+        if capped or len(targets) + len(group) > max_targets:
+            capped = True
+            dropped += len(group)
+            continue
+        targets.extend(group)
+    return targets, dropped
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--cadence", choices=["weekly", "monthly", "quarterly", "annual"]
+    )
+    parser.add_argument(
+        "--series",
+        help=(
+            "Roll only this exact registry series. The dispatch-level "
+            "selector for one-shot targets (reviewed conditional pairs, "
+            "seeds) whose treatment must not drag the rest of the due "
+            "docket through the same prompt mode and model."
+        ),
     )
     parser.add_argument("--max-targets", type=int, default=12)
     parser.add_argument("--out")
@@ -686,12 +852,33 @@ def main() -> int:
     args = parser.parse_args()
 
     registry = json.loads(REGISTRY.read_text())["series"]
+    if args.series and not any(
+        entry.get("series") == args.series for entry in registry
+    ):
+        print(f"unknown registry series: {args.series}", file=sys.stderr)
+        return 1
     existing, published_forecasts, observed_slugs = live_catalog()
     today = dt.date.today()
 
     candidates: list[tuple[int, str, dict]] = []
     for entry in registry:
+        if args.series and entry.get("series") != args.series:
+            continue
         if args.cadence and entry["cadence"] != args.cadence:
+            continue
+        if isinstance(entry.get("conditionalPair"), dict):
+            pair_targets = conditional_pair_seed_targets(entry, existing, today)
+            if not pair_targets:
+                print(
+                    f"  skip {entry['series']}: no eligible conditional-pair "
+                    "arm"
+                )
+                continue
+            # Unpublished arms of a pair are one atomic unit: registering
+            # or forecasting one arm ahead of its sibling would let the
+            # later arm run with extra information.
+            deadline = entry["conditionalPair"]["conditionDeadline"]
+            candidates.append((2, deadline, pair_targets))
             continue
         if entry["cadence"] == "annual":
             target = snapshot_seed_target(entry, existing, today)
@@ -776,9 +963,7 @@ def main() -> int:
         priority = 1 if entry["cadence"] == "weekly" else 3
         candidates.append((priority, nxt, target))
 
-    candidates.sort(key=lambda item: (item[0], item[1]))
-    targets = [target for _, _, target in candidates[: args.max_targets]]
-    dropped = len(candidates) - len(targets)
+    targets, dropped = select_capped_targets(candidates, args.max_targets)
     if dropped > 0:
         print(f"  capped: {dropped} further targets deferred to the next run")
 

@@ -1822,3 +1822,25 @@ def test_history_anchor_gate_flows_through_target_context_validation() -> None:
         cell, {"anchors": {"2024": 88.2}}
     )
     assert any("anchor" in error for error in errors)
+
+
+def test_target_context_binds_the_preregistered_conditional_verbatim() -> None:
+    # A conditional arm's legal-state text is part of the registered
+    # contract; the model must repeat it byte-for-byte in conditionalOn or
+    # the site's exact-match condition registry could not gate the cell.
+    registered = (
+        "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) "
+        "earned-income threshold no more than $1 for tax year 2027."
+    )
+    exact = {"conditionalOn": registered}
+    drifted = {"conditionalOn": registered.replace("$1", "one dollar")}
+    context = {"conditional": registered}
+    assert (
+        analyst_runner.target_context_validation_errors(exact, context) == []
+    )
+    errors = analyst_runner.target_context_validation_errors(drifted, context)
+    assert len(errors) == 1 and "conditionalOn" in errors[0]
+    missing = analyst_runner.target_context_validation_errors({}, context)
+    assert len(missing) == 1 and "conditionalOn" in missing[0]
+    # Unconditional targets are unaffected.
+    assert analyst_runner.target_context_validation_errors(exact, {}) == []

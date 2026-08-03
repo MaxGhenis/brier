@@ -28,6 +28,13 @@ jobs:
           ref: main
           persist-credentials: false
 
+      - name: Install resolver parser dependencies
+        # The IRS SOI Publication 1304 adapter parses legacy BIFF .xls
+        # prints; without the pinned parser the resolver would defer every
+        # IRS target forever behind a green exit (resolve_pending treats
+        # the missing parser as a fatal environment failure).
+        run: pip install --user xlrd==2.0.1
+
       - name: Resolve pending cells against official prints
         id: resolve
         env:

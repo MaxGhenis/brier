@@ -664,3 +664,171 @@ def test_snapshot_seed_rejects_unreviewable_annual_entries(
         dt.date(2026, 8, 1),
     ) is None
     assert "warning: skip" in capsys.readouterr().err
+
+
+def conditional_pair_entry() -> dict:
+    docket = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text()
+    )
+    return copy.deepcopy(
+        next(
+            entry
+            for entry in docket["series"]
+            if entry["series"] == "irs.actc.total_claims"
+        )
+    )
+
+
+def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
+    entry = conditional_pair_entry()
+    targets = roll_docket.conditional_pair_seed_targets(
+        entry, set(), dt.date(2026, 8, 1)
+    )
+    assert [target["catalogSlug"] for target in targets] == [
+        "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+        "additional-child-tax-credit-total-claims-ty2027-current-law",
+    ]
+    for target, arm in zip(targets, entry["conditionalPair"]["arms"]):
+        assert target["series"] == "irs.actc.total_claims"
+        assert target["period"] == "2027"
+        assert target["conditional"] == arm["conditional"]
+        assert target["dataPointId"] == arm["dataPointId"]
+        assert target["conditionId"] == arm["conditionId"]
+        assert target["conditionDeadline"] == "2027-12-31"
+        # Extras ride into the target context: binding template, window,
+        # canonical resolution by-date, and spawn-time history anchors.
+        assert target["sourceBinding"]["adapter"] == "irs-soi-pub1304"
+        assert target["resolutionDate"] == "2029-12-31"
+        assert target["expectedReleaseWindow"] == {
+            "start": "2029-01-01",
+            "end": "2029-12-31",
+        }
+        assert target["anchors"]["2023"] == 17.626
+        assert target["targetUnit"] == "millions"
+    # Both arms register as one wave: distinct slugs and dataPointIds.
+    build_contract(targets[0], dt.date(2026, 8, 1))
+    build_contract(targets[1], dt.date(2026, 8, 1))
+
+
+def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
+    entry = conditional_pair_entry()
+    published = {
+        "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar"
+    }
+    targets = roll_docket.conditional_pair_seed_targets(
+        entry, published, dt.date(2026, 8, 1)
+    )
+    assert [target["catalogSlug"] for target in targets] == [
+        "additional-child-tax-credit-total-claims-ty2027-current-law"
+    ]
+
+    both = published | {
+        "additional-child-tax-credit-total-claims-ty2027-current-law"
+    }
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, both, dt.date(2026, 8, 1)
+        )
+        == []
+    )
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2027, 12, 31)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda entry: entry.update(cadence="monthly"),
+        lambda entry: entry.update(period="FY2027"),
+        lambda entry: entry["conditionalPair"].pop("conditionDeadline"),
+        lambda entry: entry["extras"].pop("expectedReleaseWindow"),
+        lambda entry: entry["extras"].update(
+            expectedReleaseWindow={"start": "2029-12-31", "end": "2029-01-01"}
+        ),
+        # The release window must open only after the condition deadline.
+        lambda entry: entry["extras"].update(
+            expectedReleaseWindow={"start": "2027-06-01", "end": "2029-12-31"}
+        ),
+        lambda entry: entry["conditionalPair"]["arms"].pop(),
+        lambda entry: entry["conditionalPair"]["arms"][0].pop("conditional"),
+        lambda entry: entry["conditionalPair"]["arms"][0].pop("conditionId"),
+        lambda entry: entry["conditionalPair"]["arms"][0].update(
+            dataPointId=entry["conditionalPair"]["arms"][1]["dataPointId"]
+        ),
+        lambda entry: entry["conditionalPair"]["arms"][0].update(
+            conditional=entry["conditionalPair"]["arms"][1]["conditional"]
+        ),
+        lambda entry: entry.pop("extras"),
+    ],
+)
+def test_conditional_pair_fails_closed_on_malformed_registry(mutate) -> None:
+    entry = conditional_pair_entry()
+    mutate(entry)
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+
+
+def test_conditional_pair_rejects_extras_restating_arm_identity() -> None:
+    entry = conditional_pair_entry()
+    entry["extras"]["conditional"] = "override both arms"
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+    entry = conditional_pair_entry()
+    entry["extras"]["dataPointId"] = "irs.actc.total_claims.2028.first_print.x"
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+
+
+def test_conditional_pair_rejects_mislabeled_data_point_year() -> None:
+    entry = conditional_pair_entry()
+    entry["conditionalPair"]["arms"][0]["dataPointId"] = (
+        "irs.actc.total_claims.2028.first_print.threshold_one_dollar"
+    )
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+
+
+def test_capped_selection_never_splits_a_pair_unit() -> None:
+    pair = [{"catalogSlug": "arm-a"}, {"catalogSlug": "arm-b"}]
+    singles = [
+        (3, f"2026-0{n}", {"catalogSlug": f"single-{n}"}) for n in (1, 2, 3)
+    ]
+    candidates = [(2, "2027-12-31", pair), *singles]
+
+    # The pair fits: both arms selected together.
+    targets, dropped = roll_docket.select_capped_targets(candidates, 3)
+    assert [t["catalogSlug"] for t in targets] == ["arm-a", "arm-b", "single-1"]
+    assert dropped == 2
+
+    # The pair does not fit under the cap: selection stops rather than
+    # splitting it or skipping ahead past it.
+    targets, dropped = roll_docket.select_capped_targets(candidates, 1)
+    assert targets == []
+    assert dropped == 5
+
+    # A retry with one arm already published is a singleton unit.
+    targets, dropped = roll_docket.select_capped_targets(
+        [(2, "2027-12-31", [{"catalogSlug": "arm-b"}]), *singles], 1
+    )
+    assert [t["catalogSlug"] for t in targets] == ["arm-b"]
+    assert dropped == 3

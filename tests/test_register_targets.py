@@ -2504,3 +2504,85 @@ def test_attack_register_supersede_retains_old_snapshot_and_one_block(
     assert reroll["path"].is_file()
     assert reroll["path"] != old_path
     assert generated.read_text().count("kind: \"target_registered\"") == 1
+
+
+def conditional_pair_targets() -> list[dict]:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        e for e in docket["series"] if e["series"] == "irs.actc.total_claims"
+    )
+    return [
+        {
+            "series": entry["series"],
+            "period": entry["period"],
+            "catalogSlug": arm["catalogSlug"],
+            "dataPointId": arm["dataPointId"],
+            "conditional": arm["conditional"],
+            "conditionId": arm["conditionId"],
+            "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
+            **entry["extras"],
+        }
+        for arm in entry["conditionalPair"]["arms"]
+    ]
+
+
+def test_skip_unbindable_never_registers_a_lone_conditional_arm(
+    tmp_path: pathlib.Path, monkeypatch, capsys
+) -> None:
+    # Selection admits a conditional pair only as one atomic unit, but the
+    # roll's register step prunes unbindable targets INDIVIDUALLY
+    # (--skip-unbindable). Without sibling pruning, one arm whose contract
+    # fails to bind would let the other register, forecast, and publish
+    # alone — and hand the pruned arm a later, better-informed wave.
+    configure_registration_root(tmp_path, monkeypatch)
+    registration_date = dt.date(2026, 8, 1)
+    registered_at_utc = "2026-08-01T00:00:00Z"
+
+    arms = conditional_pair_targets()
+    sabotaged = dict(arms[0], conditionId="   ")  # fails build_contract
+    plain = sample_target()
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(
+        json.dumps({"targets": [sabotaged, arms[1], plain]})
+    )
+
+    registrations = register_targets.register(
+        targets_path, registration_date, registered_at_utc, True
+    )
+    slugs = [
+        t["catalogSlug"]
+        for r in registrations
+        for t in r["snapshot"]["targets"]
+    ]
+    assert slugs == [plain["catalogSlug"]]
+    surviving = json.loads(targets_path.read_text())["targets"]
+    assert [t["catalogSlug"] for t in surviving] == [plain["catalogSlug"]]
+    err = capsys.readouterr().err
+    assert "skipping unbindable target" in err
+    assert "skipping sibling conditional arm" in err
+    assert arms[1]["catalogSlug"] in err
+
+    # Control: the intact pair registers both arms together.
+    targets_path.write_text(json.dumps({"targets": conditional_pair_targets()}))
+    registrations = register_targets.register(
+        targets_path, registration_date, registered_at_utc, True
+    )
+    slugs = [
+        t["catalogSlug"]
+        for r in registrations
+        for t in r["snapshot"]["targets"]
+    ]
+    assert sorted(slugs) == sorted(
+        arm["catalogSlug"] for arm in conditional_pair_targets()
+    )
+
+    # A pair wiped by pruning with nothing else in the wave fails loudly.
+    targets_path.write_text(
+        json.dumps({"targets": [sabotaged, conditional_pair_targets()[1]]})
+    )
+    with pytest.raises(
+        register_targets.RegistrationError, match="no bindable targets"
+    ):
+        register_targets.register(
+            targets_path, registration_date, registered_at_utc, True
+        )

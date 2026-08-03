@@ -1154,6 +1154,77 @@ FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
     },
 }
 
+# IRS SOI Individual Income Tax Returns Complete Report (Publication 1304)
+# Table 3.3 adapter (2026-08-01, thesis#106). Table 3.3 publishes one .xls
+# per tax year at https://www.irs.gov/pub/irs-soi/{yy}in33ar.xls roughly two
+# calendar years after the tax year; the file is a static print, so the
+# capture is the first print whenever the by-date resolver run fetches it.
+# The claimant-count concept is the "Number of returns" column under the
+# "Refundable child tax credit or additional child tax credit" header
+# ("Additional child tax credit" in TY2020 and earlier prints — the same
+# statistic under IRS's pre-ARPA label), at the "All returns, total" row.
+# Pending references are condition-suffixed conditional-arm ids
+# (irs.actc.total_claims.YYYY.first_print.<condition_token>); every arm of a
+# pair resolves to the same official print, and the site's condition
+# registry gates which arm is scored.
+IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
+    "irs.actc.total_claims": {
+        "anchor_status": "VERIFIED",
+        # Integrator-verified 2026-08-01 against the official Table 3.3
+        # workbooks (20in33ar.xls, 21in33ar.xls, 22in33ar.xls, 23in33ar.xls):
+        # the printed whole-return counts at the "All returns, total" row,
+        # "Number of returns" column of the refundable child tax credit /
+        # additional child tax credit concept — never derived sums. Values
+        # are whole-return counts; the recorded observation divides by
+        # 1,000,000 per the registered transform.
+        "anchors": {
+            "2020": 19119249,
+            "2021": 37771612,
+            "2022": 18076696,
+            "2023": 17626084,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.actc.total_claims",
+        "field": "refundable_child_tax_credit_returns",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, refundable "
+            "child tax credit or additional child tax credit, number of returns"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "refundable child tax credit or additional child tax credit",
+            "additional child tax credit",
+        ),
+        "subcolumn_label": "number of returns",
+        "unit": "millions",
+        "label": "US refundable child tax credit or ACTC claimant returns",
+        "measure_concept": "irs.actc.total_claims",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Refundable "
+            "child tax credit or additional child tax credit; Number of "
+            "returns"
+        ),
+        "evidence_notes": (
+            "TY{period} refundable child tax credit or additional child tax "
+            "credit claimant returns, read from the 'All returns, total' "
+            "row's 'Number of returns' column in the official Publication "
+            "1304 Table 3.3 workbook linked from {source_url}; the fetched "
+            "workbook bytes are archived. The recorded value is exactly the "
+            "registered transform of the published whole-return count "
+            "(multiplied by 1e-06), with no further rounding."
+        ),
+    },
+}
+
 # ---------------------------------------------------------------------------
 # CMS provider-data (Care Compare) adapters (2026-07-20). Each monthly
 # refresh REPLACES the published CSV in place, so the first print for a
@@ -4319,6 +4390,275 @@ def fsa_crp_fetch_period(
     return value, raw, final_url, retrieved_at, refusal
 
 
+IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+IRS_SOI_PUB1304_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+IRS_SOI_PUB1304_TRANSFORM = {"operation": "multiply", "factor": 1e-06}
+
+
+def irs_soi_pub1304_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "adapter": "irs-soi-pub1304",
+        "sourceUrl": spec["source_url"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": dict(IRS_SOI_PUB1304_TRANSFORM),
+        "releasePolicy": "first_print",
+    }
+
+
+def irs_soi_pub1304_binding_matches_spec(
+    binding: Mapping[str, Any], spec: Mapping[str, Any]
+) -> bool:
+    """Require the registered binding to be exactly the adapter's template."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - IRS_SOI_PUB1304_BINDING_DERIVED_KEYS
+        != IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    projected = {
+        key: binding[key] for key in IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS
+    }
+    return canonical_bytes(projected) == canonical_bytes(
+        irs_soi_pub1304_binding_template(spec)
+    )
+
+
+def _irs_soi_normalized_text(value: Any) -> str:
+    """Collapse whitespace, lowercase, and strip footnote markers."""
+
+    text = " ".join(str(value).split()).lower()
+    text = re.sub(r"\s*\[\d+\]\s*$", "", text)
+    return text.strip().rstrip(":").strip()
+
+
+def irs_soi_pub1304_grid(raw: bytes, spec: Mapping[str, Any]):
+    """Extract the Table 3.3 sheet as a row grid, failing closed.
+
+    Returns ``(grid, refusal)``. The workbook boundary is xlrd (the only
+    parser for IRS's legacy BIFF .xls prints); everything after the grid is
+    pure logic so tests can arm both real workbooks and synthetic grids.
+    """
+
+    try:
+        import xlrd  # noqa: PLC0415 - optional resolver dependency
+    except ImportError:
+        return None, (
+            "xlrd is unavailable; install the resolver extra "
+            "(xlrd==2.0.1) to parse IRS SOI .xls prints"
+        )
+    try:
+        book = xlrd.open_workbook(file_contents=raw)
+    except Exception as exc:  # noqa: BLE001 - any parse failure fails closed
+        return None, f"workbook parse failed: {exc}"
+    sheet_name = str(spec["sheet_name"])
+    if sheet_name not in book.sheet_names():
+        return None, (
+            f"sheet {sheet_name!r} not found (sheets: {book.sheet_names()!r}); "
+            "IRS changed the workbook layout — extend the adapter"
+        )
+    sheet = book.sheet_by_name(sheet_name)
+    grid = [
+        [sheet.cell_value(row, col) for col in range(sheet.ncols)]
+        for row in range(sheet.nrows)
+    ]
+    return grid, None
+
+
+def irs_soi_pub1304_count_from_grid(
+    grid: list[list[Any]], spec: Mapping[str, Any]
+) -> tuple[float | None, str | None]:
+    """Read the whole-return claimant count from an extracted grid.
+
+    Fails closed on ambiguity: the concept header, its number-of-returns
+    subheader, and the all-returns row must each match exactly once.
+    """
+
+    accepted = {
+        _irs_soi_normalized_text(label) for label in spec["column_labels"]
+    }
+    header_hits: list[tuple[int, int]] = []
+    for row_index, row in enumerate(grid[:12]):
+        for col_index, cell in enumerate(row):
+            if (
+                isinstance(cell, str)
+                and _irs_soi_normalized_text(cell) in accepted
+            ):
+                header_hits.append((row_index, col_index))
+    if len(header_hits) != 1:
+        return None, (
+            f"expected exactly one concept header cell, found "
+            f"{len(header_hits)} at {header_hits!r}"
+        )
+    header_row, column = header_hits[0]
+    subcolumn = _irs_soi_normalized_text(spec["subcolumn_label"])
+    if not any(
+        len(grid[row]) > column
+        and isinstance(grid[row][column], str)
+        and _irs_soi_normalized_text(grid[row][column]) == subcolumn
+        for row in range(header_row + 1, min(header_row + 5, len(grid)))
+    ):
+        return None, (
+            "concept header column has no 'Number of returns' subheader "
+            "within four rows; IRS changed the column layout"
+        )
+    row_label = _irs_soi_normalized_text(spec["row_label"])
+    row_hits = [
+        row_index
+        for row_index, row in enumerate(grid)
+        if row and _irs_soi_normalized_text(row[0]) == row_label
+    ]
+    if len(row_hits) != 1:
+        return None, (
+            f"expected exactly one {spec['row_label']!r} row, found "
+            f"{len(row_hits)}"
+        )
+    row_values = grid[row_hits[0]]
+    if len(row_values) <= column:
+        return None, "all-returns row is shorter than the concept column"
+    value = row_values[column]
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or float(value) <= 0
+        or not float(value).is_integer()
+    ):
+        return None, (
+            f"claimant count cell is not a positive whole number: {value!r}"
+        )
+    return float(value), None
+
+
+def irs_soi_pub1304_identity_refusal(
+    grid: list[list[Any]], final_url: str, year: str
+) -> str | None:
+    """Refuse a workbook that is not THIS tax year's Table 3.3 print.
+
+    Headers, anchors, and integer checks cannot tell one year's workbook
+    from another's — a redirect or mirror serving the wrong file would
+    otherwise grade the wrong tax year. The printed title names the tax
+    year and the official filename encodes it; require both.
+    """
+
+    expected_name = f"{int(year) % 100:02d}in33ar.xls"
+    final_name = urllib.parse.urlparse(final_url).path.rsplit("/", 1)[-1]
+    if final_name != expected_name:
+        return (
+            f"fetched filename {final_name!r} is not the tax year's "
+            f"official {expected_name!r}"
+        )
+    title_cells = [
+        _irs_soi_normalized_text(cell)
+        for row in grid[:3]
+        for cell in row[:3]
+        if isinstance(cell, str) and cell.strip()
+    ]
+    token = f"tax year {year}"
+    if not any(token in cell for cell in title_cells):
+        return (
+            f"workbook title does not name {token!r}; wrong or relabeled "
+            "print"
+        )
+    return None
+
+
+def irs_soi_pub1304_fetch_year(
+    spec: Mapping[str, Any], year: str
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch the tax year's Table 3.3 workbook and parse the claimant count.
+
+    Returns the WHOLE-RETURN COUNT (the anchor unit); callers apply the
+    registered transform. A missing .xls with no .xlsx sibling defers as
+    not-yet-published; a present .xlsx sibling refuses instead of guessing
+    at an unparsed format.
+    """
+
+    if not re.fullmatch(r"\d{4}", year):
+        return None, None, str(spec["source_url"]), utc_now(), (
+            f"tax year must be YYYY, got {year!r}"
+        )
+    template = str(spec["file_url_template"])
+    yy = int(year) % 100
+    xls_url = template.format(yy=f"{yy:02d}", ext="xls")
+    try:
+        raw, retrieved_at, final_url = http_get(
+            xls_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (OSError, ValueError):
+        xlsx_url = template.format(yy=f"{yy:02d}", ext="xlsx")
+        try:
+            http_get(xlsx_url, allowed_hosts=spec["allowed_hosts"])
+        except (OSError, ValueError):
+            # Neither format exists: the print is not yet published.
+            return None, None, xls_url, utc_now(), None
+        return None, None, xlsx_url, utc_now(), (
+            "IRS published Table 3.3 as .xlsx; extend the adapter before "
+            "resolving"
+        )
+    grid, refusal = irs_soi_pub1304_grid(raw, spec)
+    if refusal or grid is None:
+        return None, raw, final_url, retrieved_at, refusal
+    refusal = irs_soi_pub1304_identity_refusal(grid, final_url, year)
+    if refusal:
+        return None, raw, final_url, retrieved_at, refusal
+    count, refusal = irs_soi_pub1304_count_from_grid(grid, spec)
+    return count, raw, final_url, retrieved_at, refusal
+
+
+def irs_soi_pub1304_verified_anchors(
+    spec: Mapping[str, Any],
+) -> dict[str, float] | None:
+    """Return admitted positive-integer anchors or None while unarmed."""
+
+    anchors = spec.get("anchors")
+    if (
+        spec.get("anchor_status") != "VERIFIED"
+        or not isinstance(anchors, dict)
+        or len(anchors) < 3
+    ):
+        return None
+    verified: dict[str, float] = {}
+    for year, expected in anchors.items():
+        if not isinstance(year, str) or not re.fullmatch(r"\d{4}", year):
+            return None
+        if isinstance(expected, bool) or not isinstance(expected, (int, float)):
+            return None
+        value = float(expected)
+        if not math.isfinite(value) or value <= 0 or not value.is_integer():
+            return None
+        verified[year] = value
+    return verified
+
+
+def irs_soi_pub1304_anchor_mismatches(
+    values: Mapping[str, float | None], anchors: Mapping[str, float]
+) -> list[str]:
+    """Compare every live-retrieved Table 3.3 anchor exactly."""
+
+    if len(anchors) < 3:
+        return [f"only {len(anchors)} verified anchors; at least 3 required"]
+    problems = []
+    for year, expected in sorted(anchors.items()):
+        got = values.get(year)
+        if got is None:
+            problems.append(f"{year}=missing (official {expected})")
+        elif got != expected:
+            problems.append(f"{year}={got} (official {expected})")
+    return problems
+
+
 def qcew_api_url(spec: dict[str, Any], period: str) -> str:
     """Official QCEW industry-slice URL for canonical quarter ``YYYY-MM``."""
     if not re.fullmatch(r"\d{4}-(01|04|07|10)", period):
@@ -4649,6 +4989,36 @@ def pending_adapter_refs(
                         FSA_CRP_ADAPTERS[fsa_crp_stem],
                         parsed[0],
                         parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        irs_soi_stem = next(
+            (
+                stem
+                for stem in IRS_SOI_PUB1304_ADAPTERS
+                if ref.startswith(stem + ".")
+            ),
+            None,
+        )
+        if irs_soi_stem:
+            # Conditional-arm ids carry a condition token after the release
+            # policy (irs.actc.total_claims.2027.first_print.current_law);
+            # every arm of a pair resolves against the same tax-year print.
+            arm = re.fullmatch(
+                rf"{re.escape(irs_soi_stem)}\.(\d{{4}})\.first_print"
+                r"(?:\.[a-z0-9_]+)?",
+                ref,
+            )
+            if arm:
+                out.append(
+                    (
+                        ref,
+                        "irs_soi_pub1304",
+                        IRS_SOI_PUB1304_ADAPTERS[irs_soi_stem],
+                        "year",
+                        arm.group(1),
                         release_date,
                         forecast,
                     )
@@ -6075,6 +6445,7 @@ FAMILY_ADAPTERS = {
     "alfred": {"alfred-fred"},
     "bls_api": {"bls-api"},
     "fsa_crp": {"fsa-crp-monthly-summary"},
+    "irs_soi_pub1304": {"irs-soi-pub1304"},
     "qcew": {"bls-qcew"},
     "usaspending": {"usaspending-api"},
 }
@@ -6253,6 +6624,13 @@ def main() -> int:
         str,
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
+    irs_soi_cache: dict[
+        str,
+        tuple[float | None, bytes | None, str, str, str | None],
+    ] = {}
+    # Missing-parser (or similar) environment failures must fail the run
+    # loudly instead of deferring forever behind green exits.
+    environment_failures: list[str] = []
     qcew_cache: dict[
         tuple[str, str],
         tuple[float | None, bytes | None, str, str, str | None],
@@ -6277,7 +6655,12 @@ def main() -> int:
             print(f"  already recorded: {ref}")
             continue
         release_day = dt.date.fromisoformat(source_vintage)
-        if release_day > today:
+        # For the IRS SOI family the pending reference's date is the
+        # policy-derived RESOLVE-BY date (window end), not a release date:
+        # gating on it would skip the entire registered window and capture
+        # the print months late. That family's leg gates on the immutable
+        # expectedReleaseWindow instead.
+        if release_day > today and kind != "irs_soi_pub1304":
             print(f"  release {release_day} not reached: {ref}")
             continue
         unit = (forecast or {}).get("unit")
@@ -6460,6 +6843,138 @@ def main() -> int:
             source_file = fetched_url
             series_id = spec["series_id"]
             extension = "pdf"
+        elif kind == "irs_soi_pub1304":
+            verified_anchors = irs_soi_pub1304_verified_anchors(spec)
+            if verified_anchors is None:
+                print(
+                    f"  IRS SOI ADAPTER UNVERIFIED (refusing): {ref} — "
+                    "three live official-source anchors are required"
+                )
+                continue
+            registration = loop_contracts.get(ref) or {}
+            binding = (registration.get("contract") or {}).get("sourceBinding") or {}
+            if not irs_soi_pub1304_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
+                )
+                continue
+            # The registered window is part of the immutable contract: defer
+            # before it opens; a capture after it closes still records the
+            # first print of the static workbook (the end is the aging-style
+            # policy by-date, not a publication guarantee) but the lateness
+            # is loud here and visible in the record's capture vintage.
+            window = binding.get("expectedReleaseWindow")
+            window_state = snapshot_window_state(
+                dt.date.fromisoformat(utc_now()[:10]), window
+            )
+            if window_state == "invalid":
+                print(
+                    f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}"
+                )
+                continue
+            if window_state == "pending":
+                print(
+                    f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
+                    f"{window['start']}"
+                )
+                continue
+            anchor_counts: dict[str, float | None] = {}
+            anchor_fetch_failed = False
+            anchor_env_failure = None
+            for anchor_year in verified_anchors:
+                if anchor_year not in irs_soi_cache:
+                    irs_soi_cache[anchor_year] = irs_soi_pub1304_fetch_year(
+                        spec, anchor_year
+                    )
+                anchor_count, anchor_raw, _, _, anchor_refusal = irs_soi_cache[
+                    anchor_year
+                ]
+                if anchor_raw is None or anchor_refusal:
+                    anchor_fetch_failed = True
+                if anchor_refusal and "xlrd is unavailable" in anchor_refusal:
+                    anchor_env_failure = anchor_refusal
+                anchor_counts[anchor_year] = anchor_count
+            if anchor_env_failure:
+                # A missing parser is an environment failure, not a data
+                # state: deferring quietly would leave every IRS target
+                # pending forever behind a green run.
+                print(
+                    f"  IRS SOI ENVIRONMENT FAILURE (fatal): {ref} — "
+                    f"{anchor_env_failure}"
+                )
+                environment_failures.append(f"{ref}: {anchor_env_failure}")
+                continue
+            if anchor_fetch_failed:
+                print(f"  IRS SOI anchor fetch/parse failed (deferring): {ref}")
+                continue
+            mismatches = irs_soi_pub1304_anchor_mismatches(
+                anchor_counts, verified_anchors
+            )
+            if mismatches:
+                print(
+                    "  ANCHOR MISMATCH (refusing, wrong Table 3.3 "
+                    f"row/column?): {ref} — " + "; ".join(mismatches)
+                )
+                continue
+            if period not in irs_soi_cache:
+                irs_soi_cache[period] = irs_soi_pub1304_fetch_year(spec, period)
+            count, raw, fetched_url, retrieved_at, refusal = irs_soi_cache[
+                period
+            ]
+            if refusal and "xlrd is unavailable" in refusal:
+                print(
+                    f"  IRS SOI ENVIRONMENT FAILURE (fatal): {ref} — {refusal}"
+                )
+                environment_failures.append(f"{ref}: {refusal}")
+                continue
+            if refusal:
+                print(f"  IRS SOI PARSE REFUSAL (refusing): {ref} — {refusal}")
+                continue
+            if count is not None:
+                # The observation is exactly the registered transform of the
+                # published whole-return count — multiply by 1e-06, nothing
+                # else. Any rounding convention lives in the cell's own
+                # resolution rule, never in the recorded observation.
+                value = count * IRS_SOI_PUB1304_TRANSFORM["factor"]
+            else:
+                value = None
+            # The workbook is a static per-tax-year print with no vintage
+            # archive: the capture day is the source vintage. Lateness is
+            # judged on the retrieval stamp OR the present decision moment,
+            # whichever is later — the stamp precedes the response read, so
+            # a request straddling midnight past the window end must still
+            # disclose (over-disclosure is the safe direction).
+            if raw is not None:
+                release_day = dt.date.fromisoformat(retrieved_at[:10])
+                # The effective capture date is the later of the request
+                # stamp (taken before the response read) and the decision
+                # moment, so a straddle discloses with a coherent date.
+                effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
+                late_capture = effective_capture_date > str(window["end"])
+                if late_capture:
+                    print(
+                        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
+                        f"capture completed {effective_capture_date}, after "
+                        f"the registered window closed {window['end']}"
+                    )
+                    spec = {
+                        **spec,
+                        "evidence_notes": (
+                            str(spec["evidence_notes"])
+                            + " Capture completed "
+                            + effective_capture_date
+                            + ", after the registered "
+                            + str(window["end"])
+                            + " window by-date; the workbook is a static "
+                            "per-tax-year print, so this capture is still "
+                            "its first print."
+                        ),
+                    }
+            source_url = spec["source_url"]
+            source_file = fetched_url
+            series_id = spec["series_id"]
+            extension = "xls"
         elif kind == "qcew":
             if not qcew_adapter_verified(spec):
                 print(
@@ -6854,6 +7369,14 @@ def main() -> int:
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
+    if environment_failures:
+        print(
+            "environment failures left admitted references unresolvable "
+            "(fix the runner, do not wait):"
+        )
+        for line in environment_failures:
+            print(f"  fatal: {line}")
+        return 1
     if not fetched_rows:
         print("nothing new to record")
         return 0

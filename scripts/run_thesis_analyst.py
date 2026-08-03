@@ -2277,6 +2277,10 @@ def target_context_validation_errors(
         ("targetContentHash", "targetContentHash"),
         ("registrationCommit", "registrationCommit"),
         ("registeredAtUtc", "registeredAtUtc"),
+        # A preregistered conditional arm binds the exact legal-state text;
+        # the model must repeat it verbatim in conditionalOn, or the site's
+        # exact-match condition registry could not gate the published cell.
+        ("conditional", "conditionalOn"),
     ]
     errors = []
     for context_key, cell_key in checks:

@@ -322,6 +322,15 @@ def published_target(
     block = match.group(0)
     if block_value(block, "registrationState") != "published":
         raise StrategyTargetError(f"target is not published: {slug}")
+    if contract.get("conditional") is not None:
+        # Strategy suites elicit unconditional forecasts; selecting a
+        # conditional arm would run a prompt without its registered
+        # legal-state premise and the publisher would rightly reject the
+        # batch afterwards. Refuse at selection time instead.
+        raise StrategyTargetError(
+            f"conditional targets are not selectable for strategy "
+            f"comparisons: {slug}"
+        )
     expected_registration = {
         "dataPointId": contract["dataPointId"],
         "unit": contract["unit"],

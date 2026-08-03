@@ -288,6 +288,54 @@ export const CONDITIONS: ConditionDefinition[] = [
     checkSource: PROVISION_ENACTED_CHECK_SOURCE,
     deadline: "2027-09-30",
   },
+  // The S.3596 ACTC threshold pair (thesis#106). The enacted condition is a
+  // vehicle-independent legal state — any legislation producing the ≤ $1
+  // threshold for TY2027 satisfies it, not only S.3596. The current-law
+  // condition is deliberately NOT declared its complement: an intermediate
+  // world (legislation setting the TY2027 threshold to, say, $500)
+  // falsifies BOTH conditions, and in that world neither arm scores —
+  // each premise resolves on its own literal text. Both match strings are
+  // byte-identical to the `conditional` texts preregistered in
+  // scripts/docket_series.json; conditions.test.ts enforces that coupling.
+  {
+    type: "provision_enacted",
+    conditionId: "cond.s3596-actc-threshold.enacted",
+    description:
+      "Legislation enacted on or before 2027-12-31 makes the IRC " +
+      "§24(d)(1)(B)(i) earned-income threshold no more than $1 for tax " +
+      "year 2027 (S.3596's first-dollar phase-in, in any vehicle).",
+    matchStrings: [
+      "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    ],
+    status: "open",
+    resolvesBy: "2027-12-31",
+    provisionDescription:
+      "Refundable child tax credit earned-income threshold of no more " +
+      "than $1 for tax year 2027",
+    statutoryTest:
+      "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    checkSource: PROVISION_ENACTED_CHECK_SOURCE,
+    deadline: "2027-12-31",
+  },
+  {
+    type: "recorded_status",
+    conditionId: "cond.s3596-actc-threshold.current-law",
+    description:
+      "No legislation enacted by 2027-12-31 changes the IRC " +
+      "§24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year " +
+      "2027; current law holds.",
+    matchStrings: [
+      "No legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 amount.",
+    ],
+    status: "open",
+    resolvesBy: "2027-12-31",
+    note:
+      "Not the logical complement of the enacted condition: legislation " +
+      "setting an intermediate TY2027 threshold (neither ≤ $1 nor an " +
+      "unchanged $2,500) fails both conditions and neither arm scores. " +
+      "Satisfied only when the deadline passes with the $2,500 threshold " +
+      "unchanged; failed by any enacted change to it.",
+  },
 ];
 
 const BY_MATCH_STRING = new Map<string, ConditionDefinition>(
