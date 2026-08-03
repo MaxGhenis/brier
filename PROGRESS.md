@@ -2,8 +2,8 @@
 
 ## State
 
-CRP pair implemented and locally Python-verified; offline reachability sweep
-in progress.
+Implementation and offline reachability audit complete; final broad checks in
+progress.
 
 ## Done
 
@@ -20,7 +20,15 @@ in progress.
   route to accept the pair's condition-token suffix. No adapter definition or
   `ADAPTERS` registry was added or modified.
 - Added roll-docket, resolver-routing, condition-registry, and docket/registry
-  coupling coverage. `ruff` passes and 78 focused Python tests pass.
+  coupling coverage. `ruff` passes and 85 focused mapper, roll-docket, and FSA
+  adapter Python tests pass.
+- Swept all three branch bill artifacts and all 28 artifacts on the fetched
+  `origin/hack/stress-bills` branch with the merged mapper plus manual adapter
+  admission checks. Results and rejections are in `PAIRS-CANDIDATES.md`.
+- Rejected a second pair: S.3596 is already registered; H.R.1's two authorized
+  USAspending hits are enacted/unconditional; SNAP uses an unauthorized
+  `generic-url` binding; all remaining metrics lack an exact admitted series,
+  an open condition, or a symmetric observable outcome.
 
 ### CRP period and release-window decision
 
@@ -50,8 +58,7 @@ rationale and tests assert both `complementOf` fields are absent.
 
 ## Next
 
-- Sweep bill artifacts (and the offline stress branch if present) for other
-  adapter-reachable, still-open candidates; commit `PAIRS-CANDIDATES.md`.
-- Run broader available checks; site dependencies are currently absent, so
+- Ran the available broader Python checks. Site dependencies are currently absent, so
   `bun run test -- conditions.test.ts` cannot find `vitest` without a network
   install, which standing orders prohibit.
+- Final handoff: report the shipped/rejected set and verification limits.
