@@ -51,6 +51,7 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
     question:
       "USDA FSA total CRP enrolled acres in the September 2027 CRP Monthly Summary — conditional on enactment of a 27,000,000-acre FY2027–31 ceiling versus no enacted FY2027–31 ceiling by 2027-09-30.",
     status: "pending",
+    note: "Both arms were preregistered through the trusted docket on 2026-08-03 — chronology witnessed before any forecasting. The first wave's drafts were refused by validation (thesis#115); the registration and the refusal are immutable records, and the pair publishes when a draft passes.",
   },
   {
     billSlug: "s3596-119",
@@ -64,6 +65,7 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
     question:
       "IRS Additional Child Tax Credit total claims, TY2027 — conditional on IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1 for TY2027, enacted by 2027-12-31.",
     status: "pending",
+    note: "Both arms were preregistered through the trusted docket on 2026-08-03 (registration 966f199f) — chronology witnessed before any forecasting. Four CI waves since were refused by validation: schema-incomplete drafts, and wrong-series fetches caught by the anchor gate (thesis#115). The registration and every refusal are immutable records; the pair publishes when a draft passes, not before.",
   },
 ];
 

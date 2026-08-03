@@ -171,6 +171,11 @@ export default async function BillDetailPage({
   }
   const unconditionalCells = [...cellSources.values()];
   const computeRows = entry.provisions.flatMap((p) => p.compute ?? []);
+  // Honest empty-state inputs: how many candidate metrics the analysis
+  // found, and how many name an admitted series (series_hints are verified
+  // against the docket registry at promotion, so a hint means reachable).
+  const allMetrics = entry.provisions.flatMap((p) => p.metrics);
+  const hintedMetrics = allMetrics.filter((m) => m.series_hint);
 
   return (
     <div>
@@ -241,8 +246,8 @@ export default async function BillDetailPage({
                       }`}
                     >
                       {item.status === "refused"
-                        ? "Forecast refused — resolution-date rule"
-                        : "Forecast pending — run in flight"}
+                        ? "Forecast refused — fail-closed"
+                        : "Forecast pending"}
                     </span>
                   </div>
                   <p className="m-0 max-w-[820px] text-[0.95rem] leading-[1.6] text-[var(--theme-text)]">
@@ -260,10 +265,26 @@ export default async function BillDetailPage({
 
           {forecastViews.length === 0 && pendingConditionals.length === 0 && (
             <div className="rounded-xl border border-dashed border-[var(--theme-border)] px-6 py-5 text-[0.9rem] leading-[1.6] text-[var(--theme-text-muted)]">
-              No enacted-vs-baseline pairs for this bill yet. When a pair is
-              registered through the privileged path, both arms — the outcome
-              with the bill enacted and the baseline without it — appear here
-              and are scored publicly either way.
+              {hintedMetrics.length === 0 ? (
+                <>
+                  The analysis found {allMetrics.length} candidate outcome{" "}
+                  {allMetrics.length === 1 ? "metric" : "metrics"} for this
+                  bill; none maps to an admitted series in the docket registry
+                  yet, so no enacted-vs-baseline pair can be preregistered.
+                  When a metric&apos;s series is admitted and a pair is
+                  registered through the privileged path, both arms — enacted
+                  and baseline — appear here and are scored publicly either
+                  way.
+                </>
+              ) : (
+                <>
+                  {hintedMetrics.length} of {allMetrics.length} candidate{" "}
+                  metrics map to admitted series, but no enacted-vs-baseline
+                  pair is registered for this bill yet. Pairs are registered
+                  only through the privileged path; when one lands, both arms
+                  appear here and are scored publicly either way.
+                </>
+              )}
             </div>
           )}
 
