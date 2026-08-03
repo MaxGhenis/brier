@@ -90,3 +90,4 @@ rewrite or erase the earlier lane's record.
 | `cover-act-hr608-119.json` | 9 | 4 | 7 | 0 | complete |
 | `remit-act-hr5595-119.json` | 3 | 1 | 2 | 0 | complete |
 | `safeguarding-medicaid-s1082-119.json` | 8 | 5 | 5 | 0 | complete |
+| `cdfi-fund-s2718-119.json` | 3 | 0 | 3 | 0 | complete |
