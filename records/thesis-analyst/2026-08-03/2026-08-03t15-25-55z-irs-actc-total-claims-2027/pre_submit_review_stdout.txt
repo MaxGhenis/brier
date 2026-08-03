@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is publishable after tightening the historical proxy comparability that drives the prior and interval.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval relies on a three-point historical sample that mixes TY2020 Schedule 8812 total schedules filed with TY2022/TY2023 line 27 ACTC returns and the target's Pub1304 Table 3.3 refundable/ACTC returns field.",
+      "actionRequested": "Either verify and use the same Pub1304 Table 3.3 historical field for the sample, or explicitly state that TY2020 is a proxy with possible field mismatch and justify keeping it in the realized-dispersion calculation."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "warning",
+      "summary": "The base-rate paragraph labels the three historical values as comparable ACTC/RCTC claim-count evidence, but the TY2020 value is described elsewhere as total schedules filed rather than line 27 claims or the exact resolver field.",
+      "actionRequested": "Revise the base-rate wording so each historical observation is clearly tied to its exact IRS field, and avoid calling the full set fully comparable unless the field match is verified."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention whether Pub1304 Table 3.3 historical ACTC/RCTC counts were unavailable or intentionally not used.",
+    "Keep the current resolver, first-print rule, resolution date, unit, point, interval, and JSON fields; they are coherent with the ledger target."
+  ]
+}

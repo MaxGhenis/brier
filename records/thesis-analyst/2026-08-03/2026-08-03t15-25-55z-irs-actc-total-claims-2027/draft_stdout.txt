@@ -1,0 +1,101 @@
+{
+  "slug": "additional-child-tax-credit-total-claims-ty2027-current-law",
+  "country": "US",
+  "type": "conditional",
+  "title": "ACTC total claims, TY2027 current law",
+  "question": "What will be the number of returns, in millions, claiming the refundable child tax credit or additional child tax credit in IRS SOI Individual Income Tax Returns Complete Report Publication 1304, Table 3.3, all returns total row, for tax year 2027, first print, conditional on current law holding for the IRC §24(d)(1)(B)(i) earned-income threshold?",
+  "unit": "millions",
+  "pointEstimate": 17.4,
+  "ciLow": 15.9,
+  "ciHigh": 18.9,
+  "confidence": 0.8,
+  "resolutionDate": "2029-12-31",
+  "resolutionSource": "Internal Revenue Service, SOI Individual Income Tax Returns Complete Report Publication 1304",
+  "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+  "resolutionRule": "Resolve from IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns, tax year 2027, first print only. Convert returns to millions by multiplying by 0.000001 and round to one decimal million. If the conditionalOn condition is false, mark unresolved rather than resolving.",
+  "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+  "conditionalOn": "No legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 amount.",
+  "historicalContext": [
+    {
+      "label": "TY2020 Schedule 8812 ACTC schedules filed, IRS Publication 4801",
+      "value": 19.305957
+    },
+    {
+      "label": "TY2022 Schedule 8812 line 27 ACTC returns, IRS Publication 4801",
+      "value": 17.219508
+    },
+    {
+      "label": "TY2023 Schedule 8812 line 27 ACTC returns, IRS Publication 4801",
+      "value": 17.401584
+    }
+  ],
+  "drivers": [
+    "Last comparable IRS first print is 17.4 million",
+    "TY2022 and TY2023 ACTC claim counts were stable near 17.3 million",
+    "TY2021 omitted from the prior because temporary ARP refundable CTC rules made it non-comparable",
+    "No fetched current evidence justified moving materially away from persistence"
+  ],
+  "sourceContext": [
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+    "https://www.irs.gov/pub/irs-prior/p4801--122024.pdf",
+    "https://www.irs.gov/pub/irs-prior/p4801--2022.pdf"
+  ],
+  "runAt": "2026-08-03T15:27:57Z",
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "ACTC total claims, tax year 2027"
+    },
+    {
+      "kind": "text",
+      "text": "The ledger target fixes the slug, unit, dataPointId, resolver, and resolutionDate. The registered resolver is IRS SOI Publication 1304 Table 3.3, first print, with the first-print deadline carried as 2029-12-31 because the 2029 exact publication date is not yet posted in an IRS release calendar."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub4801_2023",
+      "call": "Opened IRS Publication 4801 Rev. 6-2026 for 2023 Line Item Estimates and read Schedule 8812 page 2, line 27.",
+      "result": "IRS Publication 4801 2023: Schedule 8812 line 27 'This is your additional child tax credit' shows 17,401,584 returns; Schedule 8812 total schedules filed shows 47,815,267."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub4801_2022",
+      "call": "Opened IRS prior Publication 4801 Rev. 12-2024 for 2022 Line Item Estimates and read Schedule 8812 page 2, line 27.",
+      "result": "IRS Publication 4801 2022: Schedule 8812 line 27 'This is your additional child tax credit' shows 17,219,508 returns; Schedule 8812 total schedules filed shows 47,403,924."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub4801_2020",
+      "call": "Opened IRS prior Publication 4801 Rev. 11-2022 for 2020 Line Item Estimates and read the Schedule 8812 total in the forms-and-schedules table.",
+      "result": "IRS Publication 4801 2020: Schedule 8812, Additional Child Tax Credit, total schedules filed shows 19,305,957; all individual returns filed shows 164,358,792."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub1304_catalog",
+      "call": "Opened the IRS SOI Publication 1304 page and Basic Tables Part 3 listing.",
+      "result": "IRS Publication 1304 page states the complete report contains tax credits and tax payments data; Basic Tables Part 3 lists Table 3.3 'All Returns: Tax Liability, Tax Credits, and Tax Payments' with tax years through 2023 XLS."
+    },
+    {
+      "kind": "text",
+      "text": "Base rate: comparable post-TCJA, non-ARP ACTC/RCTC claim-count evidence read this run is 19.306 million in TY2020, 17.220 million in TY2022, and 17.402 million in TY2023. Mean = 17.976 million, sample standard deviation = 1.156 million, range = 17.220 to 19.306 million. TY2021 is excluded because the one-year ARP refundable child tax credit and advance-payment reconciliation changed the target mechanics."
+    },
+    {
+      "kind": "text",
+      "text": "Model candidates under thesis_model_candidate_v1: persistence candidate uses TY2023 line 27 = 17.401584 million, p10 = 15.9, p50 = 17.4, p90 = 18.9, 80% interval = [15.9, 18.9], 90% interval = [15.5, 19.3], interval method = recent-comparable residual normal band, calibration_n = 3, train cutoff = TY2023, walk-forward score not estimated with only three comparable non-ARP observations. The sample-mean candidate is 18.0 million with the same interval width, but it is pulled up by TY2020 and is less appropriate than last-print persistence without direct current evidence."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: prior = last-print persistence from TY2023 IRS Publication 4801 Schedule 8812 line 27, 17.401584 million. Historical sample = TY2020 19.305957, TY2022 17.219508, TY2023 17.401584. Adjustment components = 0.0 million because no fetched current evidence clears the material-deviation test. Interval method = realized dispersion: sample std = 1.156 million; 80% normal half-width = 1.28 * 1.156 = 1.480 million. Final rounded point = 17.4; implied 80% bounds = 17.4 +/- 1.5 = [15.9, 18.9]."
+    },
+    {
+      "kind": "text",
+      "text": "Counter-consideration: outcome would be below 15.9 million if eligible-child filing drops materially, enforcement or documentation friction rises, or the Pub1304/Table 3.3 field excludes a group included in the line-item proxy. It would be above 18.9 million if late outreach, Puerto Rico filing behavior, labor-force gains among low-income parents, or resolver field treatment pushes ACTC claims back toward the TY2020 level."
+    },
+    {
+      "kind": "forecast",
+      "point": 17.4,
+      "ciLow": 15.9,
+      "ciHigh": 18.9
+    }
+  ]
+}

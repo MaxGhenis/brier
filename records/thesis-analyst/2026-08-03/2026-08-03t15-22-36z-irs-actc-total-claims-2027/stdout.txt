@@ -1,0 +1,115 @@
+{
+  "slug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+  "country": "US",
+  "type": "conditional",
+  "title": "TY2027 ACTC claims if earned-income threshold is $1",
+  "question": "If legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027, what will be the number of returns, in millions, claiming the refundable child tax credit or additional child tax credit for tax year 2027 as first published by IRS SOI in Publication 1304 Table 3.3, all returns total row?",
+  "unit": "millions",
+  "pointEstimate": 21,
+  "ciLow": 19,
+  "ciHigh": 23,
+  "confidence": 0.8,
+  "resolutionDate": "2029-12-31",
+  "resolutionSource": "IRS SOI, Individual Income Tax Returns Complete Report (Publication 1304)",
+  "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+  "resolutionRule": "Resolve from IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns, for tax year 2027, first print only. Convert the published number of returns to millions by multiplying by 1e-6. Later revisions are ignored. If the condition in conditionalOn is not satisfied, mark unresolved.",
+  "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+  "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+  "historicalContext": [
+    {
+      "label": "TY2018 ACTC total claims, IRS Pub. 1304 Figure D",
+      "value": 20.45
+    },
+    {
+      "label": "TY2019 ACTC total claims, IRS Pub. 1304 Figure D",
+      "value": 19.868
+    },
+    {
+      "label": "TY2020 ACTC/RCTC total claims, IRS Pub. 1304 Figure D",
+      "value": 19.119
+    },
+    {
+      "label": "TY2021 refundable CTC/ACTC total claims under ARPA, IRS Pub. 1304 Figure D",
+      "value": 37.772
+    }
+  ],
+  "drivers": [
+    "Normal-law ACTC claims near 19-20 million before ARPA",
+    "One-dollar earned-income threshold adds very-low-earnings child returns",
+    "Partial refundability limits the effect versus 2021 full refundability",
+    "Tax-year 2027 filing and take-up uncertainty",
+    "Child population and qualifying-child SSN rules constrain upside"
+  ],
+  "sourceContext": [
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-3",
+    "https://www.irs.gov/pub/irs-prior/p1304--2021.pdf",
+    "https://www.irs.gov/pub/irs-prior/p1304--2024.pdf",
+    "https://uscode.house.gov/view.xhtml?req=(title:26%20section:24%20edition:prelim)",
+    "https://www.irs.gov/instructions/i1040s8"
+  ],
+  "runAt": "2026-08-03T15:22:52Z",
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "Additional Child Tax Credit total claims, TY2027 conditional threshold"
+    },
+    {
+      "kind": "text",
+      "text": "Target is the ledger-registered conditional first print: IRS SOI Publication 1304 Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns, transformed to millions. The ledger gives the expected first-print resolution window ending 2029-12-31; I keep that resolutionDate rather than inferring a publication date. The historical Figure D values below are used only as comparable published history; the resolver remains Table 3.3 first print."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub1304.pdf.find",
+      "call": "Opened IRS prior-year Publication 1304 PDF for 2019 and searched Figure D for 'Additional child tax credit, total'.",
+      "result": "IRS Pub. 1304 2019 Figure D printed: Additional child tax credit, total 20,450 thousand returns and $36,235 million for TY2018; 19,868 thousand returns and $35,733 million for TY2019."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.pub1304.pdf.find",
+      "call": "Opened IRS prior-year Publication 1304 PDF for 2021 and searched Figure D for 'Refundable child tax credit or additional child tax credit, total'.",
+      "result": "IRS Pub. 1304 2021 Figure D printed: refundable child tax credit or additional child tax credit, total 19,119 thousand returns and $33,665 million for TY2020; 37,772 thousand returns and $115,869 million for TY2021."
+    },
+    {
+      "kind": "tool",
+      "tool": "uscode.house.gov.lookup",
+      "call": "Fetched 26 USC 24 text for current-law refundable child tax credit threshold context.",
+      "result": "26 USC 24(h)(6) says subsection (d)(1)(B)(i) is applied by substituting '$2,500' for '$3,000'; the conditional target changes that earned-income threshold to no more than $1 for TY2027."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs.schedule8812.instructions",
+      "call": "Fetched IRS Schedule 8812 instructions for current ACTC mechanics.",
+      "result": "IRS 2025 Schedule 8812 instructions state the maximum ACTC is $1,700 and line 18a uses earned income; they also state ACTC refunds cannot be issued before mid-February 2026. This supports using earned-income-threshold mechanics rather than treating the policy as full refundability."
+    },
+    {
+      "kind": "text",
+      "text": "Base rate: normal-law ACTC total claims in the comparable pre-ARPA prints were 20.450 million in TY2018, 19.868 million in TY2019, and 19.119 million in TY2020. Mean = 19.812 million, sample standard deviation = 0.667 million, and last-print persistence from the last comparable normal-law print is 19.119 million. TY2021 is not used as the prior because ARPA made the credit much more refundable, but its 37.772 million claim count is the observed high-side policy expansion bound."
+    },
+    {
+      "kind": "text",
+      "text": "Model candidates under thesis_model_candidate_v1: persistence candidate point 19.1, p10 18.3, p50 19.1, p90 20.0, 80% interval 18.3-20.0, 90% interval 18.0-20.2, interval_method normal-law residual sd 0.667 with 1.28 and 1.645 multipliers, calibration_n 3, train_cutoff TY2020, walk_forward_score unavailable due three comparable annual prints. Mean-reversion candidate point 19.8, p10 19.0, p50 19.8, p90 20.7, 80% interval 19.0-20.7, 90% interval 18.7-20.9, interval_method same residual wrapper, calibration_n 3, train_cutoff TY2020."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: prior = last comparable normal-law persistence 19.1 million, with mean-reversion reference 19.8 million from TY2018-TY2020. Adjustment components: +0.4 million for post-2020 credit/take-up normalization, +1.5 million for lowering the earned-income threshold from $2,500 to no more than $1. The quantitative bracket for the threshold effect is 0.5 to 3.0 million: above zero because Schedule 8812 earned-income mechanics make some returns with earnings below the current $2,500 threshold newly eligible for a positive ACTC amount; well below the 18.653 million TY2021 ARPA gap because this condition changes only the earned-income floor and does not make the credit fully refundable. Centering at +1.5 million puts the threshold-only effect at about 8% of the ARPA expansion in claims, a conservative partial-refundability adjustment rather than a full-refundability replay. Point = 19.1 + 0.4 + 1.5 = 21.0 million. Historical sigma = 0.667; normal 80% half-width = 1.28 * 0.667 = 0.85. Add policy-effect uncertainty of 1.6 million in quadrature; this 1.6 is judgmental policy-effect uncertainty, not realized historical volatility. sqrt(0.85^2 + 1.6^2) = 1.81, widened to 2.0 for first-print and take-up uncertainty. 80% interval = 21.0 +/- 2.0 = 19.0 to 23.0 million."
+    },
+    {
+      "kind": "text",
+      "text": "The interval would cover all three normal-law reference prints when centered on the adjusted forecast, but not the 2021 full-refundability outlier. A result below 19.0 million would likely require weak take-up among newly eligible low-earnings families, stricter filing/SSN enforcement, or fewer qualifying children than the pre-ARPA history implies. A result above 23.0 million would likely require the enacted legislation to pair the $1 threshold with broader refundability, outreach, simplified filing, or other eligibility changes beyond the stated threshold condition."
+    },
+    {
+      "kind": "text",
+      "text": "Operational note: local shell commands failed before execution with 'bwrap: setting up uid map: Permission denied', so I could not run a local JSON parse check or curl specs.json from the shell. A hosted fetch of app.thesisinstitute.org/specs.json returned a cache miss; I kept the slug exactly as supplied by the canonical ledger target context."
+    },
+    {
+      "kind": "text",
+      "text": "Review disposition: accepted the critique that the +1.5 million policy adjustment needed a clearer bridge, so the math step now states an explicit threshold-effect bracket anchored between current-law earned-income mechanics and the TY2021 ARPA expansion bound. Accepted the optional clarifications that Figure D is comparable history while Table 3.3 remains the resolver, and that the 1.6 million policy-effect uncertainty is judgmental rather than estimated from realized volatility."
+    },
+    {
+      "kind": "forecast",
+      "point": 21,
+      "ciLow": 19,
+      "ciHigh": 23
+    }
+  ]
+}
