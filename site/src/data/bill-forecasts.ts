@@ -29,7 +29,13 @@ export interface BillForecastLink {
   example?: boolean;
 }
 
-export const BILL_FORECAST_LINKS: BillForecastLink[] = [];
+export const BILL_FORECAST_LINKS: BillForecastLink[] = [
+  {
+    billSlug: "s3596-119",
+    metricLabel: "ACTC total claims (TY2027)",
+    groupSlug: "actc-claims-ty2027-threshold-one-dollar",
+  },
+];
 
 /**
  * Registered conditional questions whose runs have not produced a cell:
@@ -51,7 +57,7 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
     question:
       "USDA FSA total CRP enrolled acres in the September 2027 CRP Monthly Summary — conditional on enactment of a 27,000,000-acre FY2027–31 ceiling versus no enacted FY2027–31 ceiling by 2027-09-30.",
     status: "pending",
-    note: "Both arms were preregistered through the trusted docket on 2026-08-03 — chronology witnessed before any forecasting. The first wave's drafts were refused by validation (thesis#115); the registration and the refusal are immutable records, and the pair publishes when a draft passes.",
+    note: "Both arms were preregistered through the trusted docket on 2026-08-03 — chronology witnessed before any forecasting. A ticketed attested run on 2026-08-04 was refused by the runner's honesty rules when the FSA statistics site failed to serve the official summary (fetch timeout — no observations, no invented values); the refusal trace is retained and the pair retries under a superseding ticket when the source recovers.",
   },
   {
     billSlug: "s3596-119",
@@ -59,13 +65,6 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
       "Census SPM child poverty rate, CY2026 — conditional on the CTC phase-in provision (IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1) being enacted in substantially similar form by 2027-12-31.",
     status: "refused",
     note: "Runner refused under its resolution-date rule, verbatim: “No valid forecast cell can be produced yet because the Census Bureau has not published an official release date… Census announced on 2026-07-17 that its 2019–2024 SPM estimates will be revised, so the currently published history is not a stable calibration set.”",
-  },
-  {
-    billSlug: "s3596-119",
-    question:
-      "IRS Additional Child Tax Credit total claims, TY2027 — conditional on IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1 for TY2027, enacted by 2027-12-31.",
-    status: "pending",
-    note: "Both arms were preregistered through the trusted docket on 2026-08-03 (registration 966f199f) — chronology witnessed before any forecasting. Four CI waves since were refused by validation: schema-incomplete drafts, and wrong-series fetches caught by the anchor gate (thesis#115). The registration and every refusal are immutable records; the pair publishes when a draft passes, not before.",
   },
 ];
 
