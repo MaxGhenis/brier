@@ -18,6 +18,8 @@ export interface BillForecastView {
   example?: boolean;
   question: string;
   eventLabel: string;
+  /** Arms' conditions are not exhaustive — an intermediate outcome resolves neither. */
+  nonExhaustivePair?: boolean;
   gapLabel?: string;
   gapNote?: string;
   probability?: { pct: number; slug: string };
@@ -223,7 +225,11 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
       >
         {view.baseline ? (
           <ArmCard
-            label="Baseline · not enacted"
+            label={
+              view.nonExhaustivePair
+                ? "Baseline · current law holds"
+                : "Baseline · not enacted"
+            }
             palette={BASELINE}
             arm={view.baseline}
             weight={p !== undefined ? 1 - p : undefined}

@@ -65,6 +65,7 @@ function buildForecastViews(billSlug: string): BillForecastView[] {
       groupSlug: group.slug,
       question: group.question,
       eventLabel: group.eventLabel,
+      nonExhaustivePair: group.nonExhaustivePair === true,
       gapLabel: falseArm
         ? `${formatValue(trueArm.pointEstimate, trueArm.unit)} − ${formatValue(
             falseArm.pointEstimate,
