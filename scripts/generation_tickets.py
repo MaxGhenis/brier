@@ -95,28 +95,55 @@ def _parse_utc_instant(value: Any, field: str) -> dt.datetime:
 
 
 def earliest_resolution_boundary(targets: Any) -> str:
-    """Return the earliest target resolution day boundary as a UTC instant."""
+    """Return the earliest answer-knowable day boundary as a UTC instant."""
 
     if not isinstance(targets, list) or not targets:
         raise TicketError("ticket targets must be a nonempty object list")
     boundaries: list[dt.datetime] = []
     for index, target in enumerate(targets):
-        value = target.get("resolutionDate") if isinstance(target, dict) else None
-        if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        if not isinstance(target, dict):
+            raise TicketError(f"ticket target {index} must be an object")
+        slug = target.get("catalogSlug")
+        label = repr(slug) if isinstance(slug, str) and slug else str(index)
+        candidates: list[tuple[str, Any]] = []
+        for field in ("resolutionDate", "expectedReleaseDate"):
+            if field in target:
+                candidates.append((field, target[field]))
+        if "expectedReleaseWindow" in target:
+            window = target["expectedReleaseWindow"]
+            if not isinstance(window, dict) or "start" not in window:
+                raise TicketError(
+                    f"ticket target {label} expectedReleaseWindow.start must be "
+                    f"a valid YYYY-MM-DD date: {window!r}"
+                )
+            candidates.append(("expectedReleaseWindow.start", window["start"]))
+        if not candidates:
             raise TicketError(
-                f"ticket target {index} resolutionDate must be a valid YYYY-MM-DD "
-                f"date: {value!r}"
+                f"ticket target {label} has no answer-knowable date; expected "
+                "resolutionDate, expectedReleaseDate, or "
+                "expectedReleaseWindow.start"
             )
-        try:
-            resolution_day = dt.date.fromisoformat(value)
-        except ValueError as exc:
-            raise TicketError(
-                f"ticket target {index} resolutionDate must be a valid YYYY-MM-DD "
-                f"date: {value!r}"
-            ) from exc
+
+        target_days: list[dt.date] = []
+        for field, value in candidates:
+            if not isinstance(value, str) or not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}", value
+            ):
+                raise TicketError(
+                    f"ticket target {label} {field} must be a valid YYYY-MM-DD "
+                    f"date: {value!r}"
+                )
+            try:
+                target_days.append(dt.date.fromisoformat(value))
+            except ValueError as exc:
+                raise TicketError(
+                    f"ticket target {label} {field} must be a valid YYYY-MM-DD "
+                    f"date: {value!r}"
+                ) from exc
+        boundary_day = min(target_days)
         boundaries.append(
             dt.datetime.combine(
-                resolution_day,
+                boundary_day,
                 dt.time.min,
                 tzinfo=dt.timezone.utc,
             )

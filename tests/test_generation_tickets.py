@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import datetime as dt
 import json
 import pathlib
 import subprocess
@@ -13,6 +14,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import generation_tickets  # noqa: E402
+import roll_docket  # noqa: E402
 from generation_tickets import TicketError  # noqa: E402
 
 NONCE = "a" * 64
@@ -30,7 +32,7 @@ def sample_target() -> dict[str, Any]:
         "targetContentHash": "c" * 64,
         "targetRegistrationPath": f"records/targets/2030-01-10-{'c' * 64}.json",
         "registeredAtUtc": "2030-01-10T10:00:00Z",
-        "resolutionDate": "2030-01-20",
+        "expectedReleaseDate": "2030-01-20",
         "conditional": "Synthetic condition",
     }
 
@@ -213,6 +215,134 @@ def test_earliest_resolution_boundary_uses_utc_start_of_minimum_day() -> None:
     assert generation_tickets.earliest_resolution_boundary([later, earlier]) == (
         "2030-01-18T00:00:00Z"
     )
+
+
+def test_earliest_resolution_boundary_uses_minimum_present_target_field() -> None:
+    target = sample_target()
+    target.update(
+        {
+            "resolutionDate": "2030-01-19",
+            "expectedReleaseDate": "2030-01-18",
+            "expectedReleaseWindow": {
+                "start": "2030-01-17",
+                "end": "2030-01-25",
+            },
+        }
+    )
+
+    assert generation_tickets.earliest_resolution_boundary([target]) == (
+        "2030-01-17T00:00:00Z"
+    )
+
+
+def test_earliest_resolution_boundary_uses_window_start_not_end() -> None:
+    target = sample_target()
+    target.pop("expectedReleaseDate")
+    target["expectedReleaseWindow"] = {
+        "start": "2030-01-16",
+        "end": "2030-01-31",
+    }
+
+    assert generation_tickets.earliest_resolution_boundary([target]) == (
+        "2030-01-16T00:00:00Z"
+    )
+
+
+def test_earliest_resolution_boundary_refuses_target_without_date_and_names_slug(
+) -> None:
+    target = sample_target()
+    target.pop("expectedReleaseDate")
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.earliest_resolution_boundary([target])
+
+    assert str(error.value) == (
+        "ticket target 'synthetic-series-2030-q1' has no answer-knowable date; "
+        "expected resolutionDate, expectedReleaseDate, or "
+        "expectedReleaseWindow.start"
+    )
+
+
+def test_roll_shaped_targets_mint_validate_load_and_compute_boundary(
+    tmp_path: pathlib.Path,
+) -> None:
+    recurring = roll_docket.recurring_seed_target(
+        {
+            "series": "canary.recurring.series",
+            "cadence": "monthly",
+            "slug": "canary-{month}-{year}",
+            "seedPeriod": "2030-01",
+            "releaseDates": {"2030-01": "2030-01-18"},
+            "releaseCalendarUrl": "https://agency.example/releases",
+            "extras": {
+                "targetUnit": "percent",
+                "sourceBinding": {
+                    "adapter": "official-api",
+                    "releasePolicy": "first_print",
+                },
+            },
+        },
+        set(),
+        dt.date(2030, 1, 10),
+    )
+    snapshot = roll_docket.snapshot_seed_target(
+        {
+            "series": "canary.snapshot.series",
+            "cadence": "annual",
+            "slug": "canary-snapshot-{period}",
+            "period": "FY2030",
+            "extras": {
+                "targetUnit": "millions",
+                "expectedReleaseWindow": {
+                    "start": "2030-01-16",
+                    "end": "2030-01-25",
+                },
+                "sourceBinding": {
+                    "adapter": "official-api",
+                    "releasePolicy": "registered_query_snapshot",
+                },
+            },
+        },
+        set(),
+        dt.date(2030, 1, 10),
+    )
+    assert recurring is not None
+    assert snapshot is not None
+    targets = [recurring, snapshot]
+    for target, commit_character, hash_character in zip(
+        targets, ("b", "e"), ("c", "f"), strict=True
+    ):
+        content_hash = hash_character * 64
+        target.update(
+            {
+                "registrationCommit": commit_character * 40,
+                "targetContentHash": content_hash,
+                "targetRegistrationPath": (
+                    f"records/targets/2030-01-10-{content_hash}.json"
+                ),
+                "registeredAtUtc": "2030-01-10T10:00:00Z",
+            }
+        )
+        assert "resolutionDate" not in target
+
+    scratch_repo = tmp_path / "scratch-repo"
+    scratch_repo.mkdir()
+    targets_path, metadata_path = write_bound_inputs(scratch_repo, targets)
+    assert (
+        generation_tickets.main(
+            mint_cli_args(targets_path, metadata_path, scratch_repo)
+        )
+        == 0
+    )
+
+    ticket_id = f"2030-01-10-{NONCE}"
+    ticket_path = conventional_ticket_path(scratch_repo, {"ticketId": ticket_id})
+    loaded = generation_tickets.load_ticket(ticket_path)
+    assert generation_tickets.validate_ticket(loaded) == loaded
+    assert generation_tickets.earliest_resolution_boundary(loaded["targets"]) == (
+        "2030-01-16T00:00:00Z"
+    )
+    assert loaded["expiresAtUtc"] == "2030-01-16T00:00:00Z"
 
 
 def test_mint_clamps_expiry_to_earliest_resolution_boundary() -> None:
