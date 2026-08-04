@@ -106,7 +106,9 @@ export default async function ComparePage({
               Conditional comparison
             </span>
             <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
-              Same outcome · two policy states · exactly one arm resolves
+              {group.nonExhaustivePair
+                ? "Same outcome · two policy states · at most one arm resolves"
+                : "Same outcome · two policy states · exactly one arm resolves"}
             </span>
           </div>
           <h1 className="[font-family:var(--font-display)] text-[clamp(1.7rem,3.5vw,2.4rem)] font-light leading-[1.2] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
@@ -157,7 +159,11 @@ export default async function ComparePage({
             weight={p}
           />
           <ArmCard
-            label="Event fails · false"
+            label={
+              group.nonExhaustivePair
+                ? "Baseline condition holds · false arm"
+                : "Event fails · false"
+            }
             labelClass="border-[#F2CFC4] bg-[#FBEFEA] text-[#9A4A2D]"
             cell={falseArm}
             weight={p !== undefined ? 1 - p : undefined}
@@ -209,11 +215,16 @@ export default async function ComparePage({
         )}
 
         <p className="mt-8 max-w-[820px] text-[0.85rem] leading-[1.6] text-[var(--theme-text-dim)]">
-          Exactly one arm resolves, against the resolution rule on its cell
-          page. When the outcome publishes, the resolving arm
+          {group.nonExhaustivePair
+            ? "The arms' registered conditions are deliberately not " +
+              "exhaustive: at most one arm resolves, and an intermediate " +
+              "policy outcome resolves neither."
+            : "Exactly one arm resolves, against the resolution rule on " +
+              "its cell page."}{" "}
+          When the outcome publishes, scoring covers the resolving arm
           {unconditional ? ", the unconditional mixture," : ""}
-          {probability ? " and the policy-probability cell" : ""} are scored
-          together — one outcome, multiple calibration receipts. Disagree with
+          {probability ? " and the policy-probability cell" : ""} — one
+          outcome, multiple calibration receipts. Disagree with
           the headline? Say which cell you disagree with.
         </p>
       </main>
