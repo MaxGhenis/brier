@@ -1297,10 +1297,12 @@ def _check_commands(
 def _check_replay(
     state: TicketContext,
     bundle_repo: pathlib.Path,
+    batch: dict[str, Any],
     runs: list[RunEnvelope],
     prompt_evidence: dict[int, PromptEvidence],
 ) -> None:
     policy = state.ticket["policy"]
+    replayed_validations: list[dict[str, Any]] = []
     for run in runs:
         evidence = prompt_evidence[run.index]
         last_message = _replay_codex_stage(
@@ -1431,6 +1433,15 @@ def _check_replay(
                 f"run {run.index} validation.json differs from replayed "
                 "validation report",
             )
+        if not canonical_equal(
+            run.manifest.get("validation"), replayed_validation
+        ):
+            raise _fail(
+                "derivation replay",
+                f"run {run.index} manifest validation differs from replayed "
+                "validation report",
+            )
+        replayed_validations.append(replayed_validation)
         if not canonical_equal(run.result.get("ok"), replayed_validation["ok"]):
             raise _fail(
                 "derivation replay",
@@ -1540,6 +1551,18 @@ def _check_replay(
                 f"run {run.index} published cells differ from replayed cells",
             )
 
+    replayed_aggregates = {
+        "targets": len(replayed_validations),
+        "ok": sum(1 for report in replayed_validations if report["ok"]),
+        "failed": sum(1 for report in replayed_validations if not report["ok"]),
+    }
+    for field, expected in replayed_aggregates.items():
+        if not canonical_equal(batch.get(field), expected):
+            raise _fail(
+                "derivation replay",
+                f"batch {field} differs from replayed validation reports",
+            )
+
 
 def verify_attested_bundle(
     ticket_path: str | pathlib.Path,
@@ -1610,7 +1633,7 @@ def verify_attested_bundle(
     print(f"passed command shape check: {len(runs)} run(s)")
 
     with _phase_guard("derivation replay"):
-        _check_replay(state, bundle_repo, runs, prompt_evidence)
+        _check_replay(state, bundle_repo, batch, runs, prompt_evidence)
     print(f"passed derivation replay check: {len(runs)} run(s)")
 
 

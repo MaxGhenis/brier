@@ -1285,6 +1285,24 @@ def test_validation_report_replay_divergence_is_refused(
     )
 
 
+def test_manifest_validation_replay_divergence_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_run_manifest(
+        attested_bundle,
+        lambda manifest: manifest["validation"].__setitem__(
+            "ok", not manifest["validation"]["ok"]
+        ),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "derivation replay check failed: run 0 manifest validation differs from "
+        "replayed validation report"
+    )
+
+
 def test_batch_ok_replay_divergence_is_refused(
     attested_bundle: AttestedFixture,
 ) -> None:
@@ -1300,6 +1318,39 @@ def test_batch_ok_replay_divergence_is_refused(
     assert str(caught.value) == (
         "derivation replay check failed: run 0 batch result ok differs from "
         "replayed validation report"
+    )
+
+
+@pytest.mark.parametrize("field", ["ok", "failed"])
+def test_batch_aggregate_replay_divergence_is_refused(
+    attested_bundle: AttestedFixture,
+    field: str,
+) -> None:
+    rewrite_batch(
+        attested_bundle,
+        lambda batch: batch.__setitem__(field, batch[field] + 1),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        f"derivation replay check failed: batch {field} differs from replayed "
+        "validation reports"
+    )
+
+
+def test_batch_target_aggregate_divergence_is_refused_during_bundle_load(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_batch(
+        attested_bundle,
+        lambda batch: batch.__setitem__("targets", batch["targets"] + 1),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "bundle check failed: batch target count does not match result inventory"
     )
 
 
