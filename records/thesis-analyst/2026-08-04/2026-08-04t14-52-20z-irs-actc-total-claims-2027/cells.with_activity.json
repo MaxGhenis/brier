@@ -1,0 +1,1221 @@
+[
+  {
+    "slug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+    "country": "US",
+    "type": "conditional",
+    "title": "ACTC claims under a $1 earnings threshold, TY2027",
+    "question": "Conditional on the specified legislation being enacted, how many returns will claim the refundable child tax credit or additional child tax credit for tax year 2027 in the IRS SOI Individual Income Tax Returns Complete Report, Publication 1304, Table 3.3, all returns total row, number of returns, not seasonally adjusted, on its first print?",
+    "unit": "millions",
+    "pointEstimate": 27.2,
+    "ciLow": 14.7,
+    "ciHigh": 39.7,
+    "confidence": 0.8,
+    "resolutionDate": "2029-12-31",
+    "resolutionSource": "IRS Statistics of Income, Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3",
+    "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "resolutionRule": "If the condition in conditionalOn is satisfied, resolve from the first IRS publication of tax-year 2027 Publication 1304 Table 3.3: the 'All returns, total' row and 'Number of returns' subcolumn under 'Refundable child tax credit or additional child tax credit.' The series is annual and not seasonally adjusted. The adapter returns the published whole-return count; multiply it by 0.000001 to express it in millions. Later revisions are irrelevant. The registered official-source release window is 2029-01-01 through 2029-12-31, with resolutionDate set to its verified by-date endpoint, 2029-12-31. If the stated legislative condition is not satisfied by 2027-12-31, mark this conditional forecast unresolved.",
+    "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+    "historicalContext": [
+      {
+        "label": "TY2020 first-print Table 3.3 claimant returns, millions",
+        "value": 19.119249
+      },
+      {
+        "label": "TY2021 first-print Table 3.3 claimant returns, millions",
+        "value": 37.771612
+      },
+      {
+        "label": "TY2022 first-print Table 3.3 claimant returns, millions",
+        "value": 18.076696
+      },
+      {
+        "label": "TY2023 first-print Table 3.3 claimant returns, millions",
+        "value": 17.626084
+      }
+    ],
+    "drivers": [
+      "Last-print persistence at 17.626084 million",
+      "Near-elimination of the statutory earned-income threshold",
+      "Shrunk TY2021 policy-regime claimant-count precedent",
+      "Large observed policy-regime dispersion"
+    ],
+    "sourceContext": [
+      "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+      "https://www.irs.gov/pub/irs-soi/20in33ar.xls",
+      "https://www.irs.gov/pub/irs-soi/21in33ar.xls",
+      "https://www.irs.gov/pub/irs-soi/22in33ar.xls",
+      "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+      "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section24&num=0&edition=prelim",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-04T14:57:45Z",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/prompt.md",
+        "sha256": "78cc8c75e804903781493a42726fe8f454d96e12be4b34df831c41cf422d0f88",
+        "bytes": 35156,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_command.json",
+        "sha256": "7b17fb4ab2083467d1be145fb7ae7014a6b85f4ee70be146bbfcdf2076069e75",
+        "bytes": 1154,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_codex_stdout.jsonl",
+        "sha256": "77319b2e2f9400e8a23de048824e22559b2c869645942e49c5eabf4984d1992c",
+        "bytes": 99943,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_codex_events.jsonl",
+        "sha256": "ceec642e34197bb89c7b1e38cb994dbd6f0fc70c27b21ceb9e3335656ea2059b",
+        "bytes": 100301,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_codex_last_message.txt",
+        "sha256": "8afc3eba296a4f491409997166df73aa1c510adc353bcb3ef5dc35363a297d68",
+        "bytes": 8803,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_codex_trace.json",
+        "sha256": "486c7bc34d3f141cf97f2fa9f204da09ad47fc0a07693a24fefdafdd69f9d668",
+        "bytes": 571,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_stdout.txt",
+        "sha256": "8afc3eba296a4f491409997166df73aa1c510adc353bcb3ef5dc35363a297d68",
+        "bytes": 8803,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_prompt.md",
+        "sha256": "1ef01c87db54b2b71a926ce5c4519a057e8d9687a0770df8ef04a1fb67623f76",
+        "bytes": 13087,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_command.json",
+        "sha256": "acb42efd852e0d7d258814b464c67883a80a351e017fec0b0ab078977fce2d82",
+        "bytes": 1146,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "6ad68197aad8df000e6ea71421d564012cd08a51fa6d1b01a958a71a00716497",
+        "bytes": 19855,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_codex_events.jsonl",
+        "sha256": "e0d3a71f8c7c3395522bc5f5ce8e0eabd3eda6c396827b1c9f8346ab36bfeb22",
+        "bytes": 20389,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_codex_last_message.txt",
+        "sha256": "4ba488b294b67aacce5b2c8c63a35cc6b081ac57a2322dff0632b06ec58427f8",
+        "bytes": 550,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_codex_trace.json",
+        "sha256": "a250f00dbf2202d20466b9ce27b34670bef8d199fd4110cf58ec80830b5f6e8c",
+        "bytes": 567,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_stdout.txt",
+        "sha256": "4ba488b294b67aacce5b2c8c63a35cc6b081ac57a2322dff0632b06ec58427f8",
+        "bytes": 550,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/revision_prompt.md",
+        "sha256": "93c3b4a2deaf86da82b5e0cc875d7904704cca52fdacca381c78fb1b93bc40da",
+        "bytes": 45445,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/command.json",
+        "sha256": "a6e4967ea329537207cdb9179f37c755a75e9ef4bfc48c781417276ad4e8331c",
+        "bytes": 1148,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/codex_stdout.jsonl",
+        "sha256": "cd39b817b585fb3809c7287c47671a7a61b05168c053b3ab1e798bee12aa3247",
+        "bytes": 10009,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/codex_events.jsonl",
+        "sha256": "f6398f2dad0b2e089fe99029a9d0fcd10f1be15306a09817619fc543d78d5d02",
+        "bytes": 10053,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/codex_last_message.txt",
+        "sha256": "48a73f449e0a996c98d8c86883456765199fd1f803bcc1769d6236482dfb97a6",
+        "bytes": 9312,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/codex_trace.json",
+        "sha256": "c380cd2e171eadfd0f9ed66ff53f6a608e2897d6973444b3feb0005f903afa74",
+        "bytes": 565,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/stdout.txt",
+        "sha256": "48a73f449e0a996c98d8c86883456765199fd1f803bcc1769d6236482dfb97a6",
+        "bytes": 9312,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/raw_response.txt",
+        "sha256": "48a73f449e0a996c98d8c86883456765199fd1f803bcc1769d6236482dfb97a6",
+        "bytes": 9312,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/parsed_cells.json",
+        "sha256": "413eaa4fe0921706fda29d4dade16c4eb535218d1949e543f6296d046bc557f8",
+        "bytes": 9576,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/normalized_cells.json",
+        "sha256": "b2ada7ab68e6106292ba662cd0c66ce482a013972086fa41d34080cd2de566f4",
+        "bytes": 27011,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/distribution.json",
+        "sha256": "ea0f2e427bb4d1884bb98c9f8cb2ba667fb6eefe100cf1c8ea5bb5678b5f49f2",
+        "bytes": 13651,
+        "createdAt": "2026-08-04T14:52:20Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/validation.json",
+        "sha256": "4931bc3b0d0c0c97fb0928fcd3b03541b05a85214bbc736819ae5d9168776918",
+        "bytes": 169,
+        "createdAt": "2026-08-04T14:52:20Z"
+      }
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "ACTC total claimant-return forecast for tax year 2027 under the registered $1-threshold condition"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the target is the first IRS SOI Publication 1304 Table 3.3 print for TY2027, all returns total, refundable child tax credit or additional child tax credit, number of returns. It is an annual, not-seasonally-adjusted flow count. The registered IRS-source window is 2029-01-01 through 2029-12-31 and fixes the by-date resolutionDate at 2029-12-31. The condition is evaluated on 2027-12-31; a failed condition leaves this arm unresolved."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs_soi_pub1304_fetch_year",
+        "call": "Fetch and parse official IRS workbooks 20in33ar.xls and 21in33ar.xls through the registered irs-soi-pub1304 adapter.",
+        "result": "Official Table 3.3 whole-return counts fetched 2026-08-04: TY2020 = 19,119,249, transformed by 1e-6 to 19.119249 million (103,424-byte workbook), and TY2021 = 37,771,612, transformed by 1e-6 to 37.771612 million (113,664-byte workbook)."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs_soi_pub1304_fetch_year",
+        "call": "Fetch and parse official IRS workbooks 22in33ar.xls and 23in33ar.xls through the registered irs-soi-pub1304 adapter.",
+        "result": "Official Table 3.3 whole-return counts fetched 2026-08-04: TY2022 = 18,076,696, transformed by 1e-6 to 18.076696 million (104,960-byte workbook), and TY2023 = 17,626,084, transformed by 1e-6 to 17.626084 million (105,472-byte workbook)."
+      },
+      {
+        "kind": "tool",
+        "tool": "irs_soi_pub1304_fetch_year",
+        "call": "Probe the registered official TY2024 workbook location.",
+        "result": "TY2024 returned no published workbook and therefore no value as of 2026-08-04: value = null and fetched bytes = 0. TY2023 remains the latest available official print."
+      },
+      {
+        "kind": "tool",
+        "tool": "uscode.fetch",
+        "call": "Fetch 26 U.S.C. \u00a724 from the official House U.S. Code site and inspect subsection (d)(1)(B)(i) and the earned-income-threshold provision.",
+        "result": "The fetched statutory text applies a 15 percent refundable-credit formula to earned income exceeding $3,000, while the threshold provision substitutes $2,500 for $3,000. The condition's threshold of no more than $1 therefore removes essentially all $2,499 of the current statutory threshold."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis_model_candidate_v1",
+        "call": "Generate a persistence candidate from the four live-parsed IRS observations, using empirical flow-level dispersion for intervals.",
+        "result": "Candidate persistence: point = 17.626084 million; p10 = 5.121972, p50 = 17.626084, p90 = 30.130196; 80% interval = [5.121972, 30.130196]; 90% interval = [1.556347, 33.695821]; interval_method = empirical-level-sigma normal wrapper; calibration_n = 4; train_cutoff = TY2023; walk_forward_MAE = 12.932630 million. The candidate is the unconditional benchmark but is overridden because the question conditions on a material statutory change."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the four most recent available exact-series first prints are 19.119249, 37.771612, 18.076696, and 17.626084 million. Their mean is 23.148410 million, median 18.597972 million, range 17.626084\u201337.771612 million, and last-print persistence benchmark is 17.626084 million. The 2021 observation is a policy-regime precedent rather than a clean estimate of the $1-threshold effect."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 17.626084 million using TY2020\u2013TY2023 official first prints. The TY2021 excess over the mean of TY2020 and TY2022 is 37.771612 - (19.119249 + 18.076696)/2 = 19.173640 million. Because that precedent bundles other policy differences, apply a judgmental 50% shrinkage assumption rather than a fitted estimate: policy update = 0.50 \u00d7 19.173640 = 9.586820 million; momentum update = 0; one-off update = 0. Point = 17.626084 + 9.586820 = 27.212904, rounded to 27.2 million. For this annual flow series, the sample standard deviation of the four observed levels is sigma = 9.768837 million. The empirical-level interval method gives 80% half-width = 1.28*sigma = 12.504112 million, so implied bounds are 27.212904 \u00b1 12.504112 = [14.708792, 39.717015], rounded to [14.7, 39.7]. This interval would contain all four fetched prints, including the high-policy-regime TY2021 observation."
+      },
+      {
+        "kind": "text",
+        "text": "Mechanism and counter-consideration: lowering the threshold makes low-earned-income returns eligible for some refundable credit, increasing claimant counts, but the amount and take-up depend on earnings, qualifying children, filing behavior, and other TY2027 credit parameters. Upside risk would land above the interval if near-universal filing and take-up among newly eligible families produces an expansion larger than the fetched TY2021 claimant-count precedent. Downside risk would land below the interval if the enacted provision is paired with restrictive eligibility rules or unusually weak filing take-up, leaving claims below 14.7 million."
+      },
+      {
+        "kind": "text",
+        "text": "Slug check: the public specs endpoint was requested this run but returned an empty/non-JSON response to the command-line fetch and could not be opened by the hosted fetcher. The public repository catalog and registered-target artifacts were inspected instead; the supplied slug is the exact registered catalogSlug and was not changed."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted both optional suggestions by clarifying that the registered adapter returns whole-return counts before the 1e-6 conversion to millions and labeling the 50% TY2021 shrinkage as a judgmental assumption rather than a fitted estimate. No required fixes were identified."
+      },
+      {
+        "kind": "forecast",
+        "point": 27.2,
+        "ciLow": 14.7,
+        "ciHigh": 39.7
+      }
+    ],
+    "agentReportedRunAt": "2026-08-04T14:53:52Z",
+    "runStartedAt": "2026-08-04T14:52:20Z",
+    "promptMode": "full",
+    "registrationCommit": "a4f59c018641c8d772975263735424cb5d46bb25",
+    "targetContentHash": "6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6",
+    "targetRegistrationPath": "records/targets/2026-08-03-6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6.json",
+    "registeredAtUtc": "2026-08-03T20:13:09Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -4.05,
+        "upper": 58.45
+      },
+      "points": [
+        {
+          "value": -4.05,
+          "probability": 0.0
+        },
+        {
+          "value": -3.7375,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -3.425,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -3.1125,
+          "probability": 0.005
+        },
+        {
+          "value": -2.8,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -2.4875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -2.175,
+          "probability": 0.01
+        },
+        {
+          "value": -1.8625,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -1.55,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -1.2375,
+          "probability": 0.015
+        },
+        {
+          "value": -0.925,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -0.6125,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -0.3,
+          "probability": 0.02
+        },
+        {
+          "value": 0.0125,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 0.325,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 0.6375,
+          "probability": 0.025
+        },
+        {
+          "value": 0.95,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 1.2625,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 1.575,
+          "probability": 0.03
+        },
+        {
+          "value": 1.8875,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 2.2,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 2.5125,
+          "probability": 0.035
+        },
+        {
+          "value": 2.825,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 3.1375,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 3.45,
+          "probability": 0.04
+        },
+        {
+          "value": 3.7625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 4.075,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 4.3875,
+          "probability": 0.045
+        },
+        {
+          "value": 4.7,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 5.0125,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 5.325,
+          "probability": 0.05
+        },
+        {
+          "value": 5.6375,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 5.95,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 6.2625,
+          "probability": 0.055
+        },
+        {
+          "value": 6.575,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 6.8875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 7.2,
+          "probability": 0.06
+        },
+        {
+          "value": 7.5125,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 7.825,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 8.1375,
+          "probability": 0.065
+        },
+        {
+          "value": 8.45,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 8.7625,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 9.075,
+          "probability": 0.07
+        },
+        {
+          "value": 9.3875,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 9.7,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 10.0125,
+          "probability": 0.075
+        },
+        {
+          "value": 10.325,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 10.6375,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 10.95,
+          "probability": 0.08
+        },
+        {
+          "value": 11.2625,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 11.575,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 11.8875,
+          "probability": 0.085
+        },
+        {
+          "value": 12.2,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 12.5125,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 12.825,
+          "probability": 0.09
+        },
+        {
+          "value": 13.1375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 13.45,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 13.7625,
+          "probability": 0.095
+        },
+        {
+          "value": 14.075,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 14.3875,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 14.7,
+          "probability": 0.1
+        },
+        {
+          "value": 15.0125,
+          "probability": 0.11
+        },
+        {
+          "value": 15.325,
+          "probability": 0.12
+        },
+        {
+          "value": 15.6375,
+          "probability": 0.13
+        },
+        {
+          "value": 15.95,
+          "probability": 0.14
+        },
+        {
+          "value": 16.2625,
+          "probability": 0.15
+        },
+        {
+          "value": 16.575,
+          "probability": 0.16
+        },
+        {
+          "value": 16.8875,
+          "probability": 0.17
+        },
+        {
+          "value": 17.2,
+          "probability": 0.18
+        },
+        {
+          "value": 17.5125,
+          "probability": 0.19
+        },
+        {
+          "value": 17.825,
+          "probability": 0.2
+        },
+        {
+          "value": 18.1375,
+          "probability": 0.21
+        },
+        {
+          "value": 18.45,
+          "probability": 0.22
+        },
+        {
+          "value": 18.7625,
+          "probability": 0.23
+        },
+        {
+          "value": 19.075,
+          "probability": 0.24
+        },
+        {
+          "value": 19.3875,
+          "probability": 0.25
+        },
+        {
+          "value": 19.7,
+          "probability": 0.26
+        },
+        {
+          "value": 20.0125,
+          "probability": 0.27
+        },
+        {
+          "value": 20.325,
+          "probability": 0.28
+        },
+        {
+          "value": 20.6375,
+          "probability": 0.29
+        },
+        {
+          "value": 20.95,
+          "probability": 0.3
+        },
+        {
+          "value": 21.2625,
+          "probability": 0.31
+        },
+        {
+          "value": 21.575,
+          "probability": 0.32
+        },
+        {
+          "value": 21.8875,
+          "probability": 0.33
+        },
+        {
+          "value": 22.2,
+          "probability": 0.34
+        },
+        {
+          "value": 22.5125,
+          "probability": 0.35
+        },
+        {
+          "value": 22.825,
+          "probability": 0.36
+        },
+        {
+          "value": 23.1375,
+          "probability": 0.37
+        },
+        {
+          "value": 23.45,
+          "probability": 0.38
+        },
+        {
+          "value": 23.7625,
+          "probability": 0.39
+        },
+        {
+          "value": 24.075,
+          "probability": 0.4
+        },
+        {
+          "value": 24.3875,
+          "probability": 0.41
+        },
+        {
+          "value": 24.7,
+          "probability": 0.42
+        },
+        {
+          "value": 25.0125,
+          "probability": 0.43
+        },
+        {
+          "value": 25.325,
+          "probability": 0.44
+        },
+        {
+          "value": 25.6375,
+          "probability": 0.45
+        },
+        {
+          "value": 25.95,
+          "probability": 0.46
+        },
+        {
+          "value": 26.2625,
+          "probability": 0.47
+        },
+        {
+          "value": 26.575,
+          "probability": 0.48
+        },
+        {
+          "value": 26.8875,
+          "probability": 0.49
+        },
+        {
+          "value": 27.2,
+          "probability": 0.5
+        },
+        {
+          "value": 27.5125,
+          "probability": 0.51
+        },
+        {
+          "value": 27.825,
+          "probability": 0.52
+        },
+        {
+          "value": 28.1375,
+          "probability": 0.53
+        },
+        {
+          "value": 28.45,
+          "probability": 0.54
+        },
+        {
+          "value": 28.7625,
+          "probability": 0.55
+        },
+        {
+          "value": 29.075,
+          "probability": 0.56
+        },
+        {
+          "value": 29.3875,
+          "probability": 0.57
+        },
+        {
+          "value": 29.7,
+          "probability": 0.58
+        },
+        {
+          "value": 30.0125,
+          "probability": 0.59
+        },
+        {
+          "value": 30.325,
+          "probability": 0.6
+        },
+        {
+          "value": 30.6375,
+          "probability": 0.61
+        },
+        {
+          "value": 30.95,
+          "probability": 0.62
+        },
+        {
+          "value": 31.2625,
+          "probability": 0.63
+        },
+        {
+          "value": 31.575,
+          "probability": 0.64
+        },
+        {
+          "value": 31.8875,
+          "probability": 0.65
+        },
+        {
+          "value": 32.2,
+          "probability": 0.66
+        },
+        {
+          "value": 32.5125,
+          "probability": 0.67
+        },
+        {
+          "value": 32.825,
+          "probability": 0.68
+        },
+        {
+          "value": 33.1375,
+          "probability": 0.69
+        },
+        {
+          "value": 33.45,
+          "probability": 0.7
+        },
+        {
+          "value": 33.7625,
+          "probability": 0.71
+        },
+        {
+          "value": 34.075,
+          "probability": 0.72
+        },
+        {
+          "value": 34.3875,
+          "probability": 0.73
+        },
+        {
+          "value": 34.7,
+          "probability": 0.74
+        },
+        {
+          "value": 35.0125,
+          "probability": 0.75
+        },
+        {
+          "value": 35.325,
+          "probability": 0.76
+        },
+        {
+          "value": 35.6375,
+          "probability": 0.77
+        },
+        {
+          "value": 35.95,
+          "probability": 0.78
+        },
+        {
+          "value": 36.2625,
+          "probability": 0.79
+        },
+        {
+          "value": 36.575,
+          "probability": 0.8
+        },
+        {
+          "value": 36.8875,
+          "probability": 0.81
+        },
+        {
+          "value": 37.2,
+          "probability": 0.82
+        },
+        {
+          "value": 37.5125,
+          "probability": 0.83
+        },
+        {
+          "value": 37.825,
+          "probability": 0.84
+        },
+        {
+          "value": 38.1375,
+          "probability": 0.85
+        },
+        {
+          "value": 38.45,
+          "probability": 0.86
+        },
+        {
+          "value": 38.7625,
+          "probability": 0.87
+        },
+        {
+          "value": 39.075,
+          "probability": 0.88
+        },
+        {
+          "value": 39.3875,
+          "probability": 0.89
+        },
+        {
+          "value": 39.7,
+          "probability": 0.9
+        },
+        {
+          "value": 40.0125,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 40.325,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 40.6375,
+          "probability": 0.905
+        },
+        {
+          "value": 40.95,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 41.2625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 41.575,
+          "probability": 0.91
+        },
+        {
+          "value": 41.8875,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 42.2,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 42.5125,
+          "probability": 0.915
+        },
+        {
+          "value": 42.825,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 43.1375,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 43.45,
+          "probability": 0.92
+        },
+        {
+          "value": 43.7625,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 44.075,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 44.3875,
+          "probability": 0.925
+        },
+        {
+          "value": 44.7,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 45.0125,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 45.325,
+          "probability": 0.93
+        },
+        {
+          "value": 45.6375,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 45.95,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 46.2625,
+          "probability": 0.935
+        },
+        {
+          "value": 46.575,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 46.8875,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 47.2,
+          "probability": 0.94
+        },
+        {
+          "value": 47.5125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 47.825,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 48.1375,
+          "probability": 0.945
+        },
+        {
+          "value": 48.45,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 48.7625,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 49.075,
+          "probability": 0.95
+        },
+        {
+          "value": 49.3875,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 49.7,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 50.0125,
+          "probability": 0.955
+        },
+        {
+          "value": 50.325,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 50.6375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 50.95,
+          "probability": 0.96
+        },
+        {
+          "value": 51.2625,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 51.575,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 51.8875,
+          "probability": 0.965
+        },
+        {
+          "value": 52.2,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 52.5125,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 52.825,
+          "probability": 0.97
+        },
+        {
+          "value": 53.1375,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 53.45,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 53.7625,
+          "probability": 0.975
+        },
+        {
+          "value": 54.075,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 54.3875,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 54.7,
+          "probability": 0.98
+        },
+        {
+          "value": 55.0125,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 55.325,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 55.6375,
+          "probability": 0.985
+        },
+        {
+          "value": 55.95,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 56.2625,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 56.575,
+          "probability": 0.99
+        },
+        {
+          "value": 56.8875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 57.2,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 57.5125,
+          "probability": 0.995
+        },
+        {
+          "value": 57.825,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 58.1375,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 58.45,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 27.2,
+        "median": 27.2,
+        "interval80": {
+          "lower": 14.7,
+          "upper": 39.7
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.6-sol",
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-04T14:52:20Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "56389ef90b72bc1d28ab525c4ae81b2e566d24867059670e5d561406ac5ca131"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Mention that the adapter returns whole-return counts before the 1e-6 transform, to make the unit conversion audit trail clearer."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The 50% shrinkage on the TY2021 policy precedent is explicit but judgmental; briefly label it as a judgmental shrinkage assumption rather than a fitted estimate."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted both optional suggestions by clarifying that the registered adapter returns whole-return counts before the 1e-6 conversion to millions and labeling the 50% TY2021 shrinkage as a judgmental assumption rather than a fitted estimate. No required fixes were identified.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted both optional suggestions by clarifying that the registered adapter returns whole-return counts before the 1e-6 conversion to millions and labeling the 50% TY2021 shrinkage as a judgmental assumption rather than a fitted estimate. No required fixes were identified.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publication-ready: the resolver contract matches the ledger, the adapter-verified latest four base-rate values match the draft, and the prior/update/interval logic is explicit and coherent."
+    }
+  }
+]

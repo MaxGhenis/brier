@@ -1,0 +1,115 @@
+{
+  "slug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+  "country": "US",
+  "type": "conditional",
+  "title": "ACTC claims under a $1 earnings threshold, TY2027",
+  "question": "Conditional on the specified legislation being enacted, how many returns will claim the refundable child tax credit or additional child tax credit for tax year 2027 in the IRS SOI Individual Income Tax Returns Complete Report, Publication 1304, Table 3.3, all returns total row, number of returns, not seasonally adjusted, on its first print?",
+  "unit": "millions",
+  "pointEstimate": 27.2,
+  "ciLow": 14.7,
+  "ciHigh": 39.7,
+  "confidence": 0.8,
+  "resolutionDate": "2029-12-31",
+  "resolutionSource": "IRS Statistics of Income, Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3",
+  "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+  "resolutionRule": "If the condition in conditionalOn is satisfied, resolve from the first IRS publication of tax-year 2027 Publication 1304 Table 3.3: the 'All returns, total' row and 'Number of returns' subcolumn under 'Refundable child tax credit or additional child tax credit.' The series is annual and not seasonally adjusted. Multiply the published whole-return count by 0.000001 to express it in millions; later revisions are irrelevant. The registered official-source release window is 2029-01-01 through 2029-12-31, with resolutionDate set to its verified by-date endpoint, 2029-12-31. If the stated legislative condition is not satisfied by 2027-12-31, mark this conditional forecast unresolved.",
+  "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+  "conditionalOn": "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+  "historicalContext": [
+    {
+      "label": "TY2020 first-print Table 3.3 claimant returns, millions",
+      "value": 19.119249
+    },
+    {
+      "label": "TY2021 first-print Table 3.3 claimant returns, millions",
+      "value": 37.771612
+    },
+    {
+      "label": "TY2022 first-print Table 3.3 claimant returns, millions",
+      "value": 18.076696
+    },
+    {
+      "label": "TY2023 first-print Table 3.3 claimant returns, millions",
+      "value": 17.626084
+    }
+  ],
+  "drivers": [
+    "Last-print persistence at 17.626084 million",
+    "Near-elimination of the statutory earned-income threshold",
+    "Shrunk TY2021 policy-regime claimant-count precedent",
+    "Large observed policy-regime dispersion"
+  ],
+  "sourceContext": [
+    "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "https://www.irs.gov/pub/irs-soi/20in33ar.xls",
+    "https://www.irs.gov/pub/irs-soi/21in33ar.xls",
+    "https://www.irs.gov/pub/irs-soi/22in33ar.xls",
+    "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+    "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section24&num=0&edition=prelim",
+    "https://app.thesisinstitute.org/specs.json"
+  ],
+  "runAt": "2026-08-04T14:53:52Z",
+  "activityLog": [],
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "ACTC total claimant-return forecast for tax year 2027 under the registered $1-threshold condition"
+    },
+    {
+      "kind": "text",
+      "text": "Framing: the target is the first IRS SOI Publication 1304 Table 3.3 print for TY2027, all returns total, refundable child tax credit or additional child tax credit, number of returns. It is an annual, not-seasonally-adjusted flow count. The registered IRS-source window is 2029-01-01 through 2029-12-31 and fixes the by-date resolutionDate at 2029-12-31. The condition is evaluated on 2027-12-31; a failed condition leaves this arm unresolved."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs_soi_pub1304_fetch_year",
+      "call": "Fetch and parse official IRS workbooks 20in33ar.xls and 21in33ar.xls through the registered irs-soi-pub1304 adapter.",
+      "result": "Official Table 3.3 whole-return counts fetched 2026-08-04: TY2020 = 19,119,249 (19.119249 million; 103,424-byte workbook) and TY2021 = 37,771,612 (37.771612 million; 113,664-byte workbook)."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs_soi_pub1304_fetch_year",
+      "call": "Fetch and parse official IRS workbooks 22in33ar.xls and 23in33ar.xls through the registered irs-soi-pub1304 adapter.",
+      "result": "Official Table 3.3 whole-return counts fetched 2026-08-04: TY2022 = 18,076,696 (18.076696 million; 104,960-byte workbook) and TY2023 = 17,626,084 (17.626084 million; 105,472-byte workbook)."
+    },
+    {
+      "kind": "tool",
+      "tool": "irs_soi_pub1304_fetch_year",
+      "call": "Probe the registered official TY2024 workbook location.",
+      "result": "TY2024 returned no published workbook and therefore no value as of 2026-08-04: value = null and fetched bytes = 0. TY2023 remains the latest available official print."
+    },
+    {
+      "kind": "tool",
+      "tool": "uscode.fetch",
+      "call": "Fetch 26 U.S.C. §24 from the official House U.S. Code site and inspect subsection (d)(1)(B)(i) and the earned-income-threshold provision.",
+      "result": "The fetched statutory text applies a 15 percent refundable-credit formula to earned income exceeding $3,000, while the threshold provision substitutes $2,500 for $3,000. The condition's threshold of no more than $1 therefore removes essentially all $2,499 of the current statutory threshold."
+    },
+    {
+      "kind": "tool",
+      "tool": "thesis_model_candidate_v1",
+      "call": "Generate a persistence candidate from the four live-parsed IRS observations, using empirical flow-level dispersion for intervals.",
+      "result": "Candidate persistence: point = 17.626084 million; p10 = 5.121972, p50 = 17.626084, p90 = 30.130196; 80% interval = [5.121972, 30.130196]; 90% interval = [1.556347, 33.695821]; interval_method = empirical-level-sigma normal wrapper; calibration_n = 4; train_cutoff = TY2023; walk_forward_MAE = 12.932630 million. The candidate is the unconditional benchmark but is overridden because the question conditions on a material statutory change."
+    },
+    {
+      "kind": "text",
+      "text": "Base rate/reference class: the four most recent available exact-series first prints are 19.119249, 37.771612, 18.076696, and 17.626084 million. Their mean is 23.148410 million, median 18.597972 million, range 17.626084–37.771612 million, and last-print persistence benchmark is 17.626084 million. The 2021 observation is a policy-regime precedent rather than a clean estimate of the $1-threshold effect."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: persistence prior = 17.626084 million using TY2020–TY2023 official first prints. The TY2021 excess over the mean of TY2020 and TY2022 is 37.771612 - (19.119249 + 18.076696)/2 = 19.173640 million. Because that precedent bundles other policy differences, apply a 50% shrinkage weight: policy update = 0.50 × 19.173640 = 9.586820 million; momentum update = 0; one-off update = 0. Point = 17.626084 + 9.586820 = 27.212904, rounded to 27.2 million. For this annual flow series, the sample standard deviation of the four observed levels is sigma = 9.768837 million. The empirical-level interval method gives 80% half-width = 1.28*sigma = 12.504112 million, so implied bounds are 27.212904 ± 12.504112 = [14.708792, 39.717015], rounded to [14.7, 39.7]. This interval would contain all four fetched prints, including the high-policy-regime TY2021 observation."
+    },
+    {
+      "kind": "text",
+      "text": "Mechanism and counter-consideration: lowering the threshold makes low-earned-income returns eligible for some refundable credit, increasing claimant counts, but the amount and take-up depend on earnings, qualifying children, filing behavior, and other TY2027 credit parameters. Upside risk would land above the interval if near-universal filing and take-up among newly eligible families produces an expansion larger than the fetched TY2021 claimant-count precedent. Downside risk would land below the interval if the enacted provision is paired with restrictive eligibility rules or unusually weak filing take-up, leaving claims below 14.7 million."
+    },
+    {
+      "kind": "text",
+      "text": "Slug check: the public specs endpoint was requested this run but returned an empty/non-JSON response to the command-line fetch and could not be opened by the hosted fetcher. The public repository catalog and registered-target artifacts were inspected instead; the supplied slug is the exact registered catalogSlug and was not changed."
+    },
+    {
+      "kind": "forecast",
+      "point": 27.2,
+      "ciLow": 14.7,
+      "ciHigh": 39.7
+    }
+  ]
+}

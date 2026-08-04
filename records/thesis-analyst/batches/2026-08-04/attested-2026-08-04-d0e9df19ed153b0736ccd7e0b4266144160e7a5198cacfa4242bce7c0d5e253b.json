@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-08-04T14:52:20Z",
+  "finishedAt": "2026-08-04T15:02:49Z",
+  "promptMode": "full",
+  "timeoutSeconds": 1800,
+  "targets": 2,
+  "ok": 2,
+  "failed": 0,
+  "results": [
+    {
+      "target": {
+        "anchors": {
+          "2020": 19.119,
+          "2021": 37.772,
+          "2022": 18.077,
+          "2023": 17.626
+        },
+        "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+        "conditionDeadline": "2027-12-31",
+        "conditionId": "cond.s3596-actc-threshold.enacted",
+        "conditional": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+        "country": "US",
+        "dataPointId": "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+        "expectedReleaseWindow": {
+          "end": "2029-12-31",
+          "start": "2029-01-01"
+        },
+        "period": "2027",
+        "registeredAt": "2026-08-03T20:13:09Z",
+        "registeredAtUtc": "2026-08-03T20:13:09Z",
+        "registrationCommit": "a4f59c018641c8d772975263735424cb5d46bb25",
+        "registrationState": "preregistered",
+        "resolutionDate": "2029-12-31",
+        "series": "irs.actc.total_claims",
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "allowedHosts": [
+            "www.irs.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2029-12-31",
+            "start": "2029-01-01"
+          },
+          "field": "refundable_child_tax_credit_returns",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "irs.actc.total_claims",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns",
+          "transform": {
+            "factor": 1e-06,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6",
+        "targetRegistrationPath": "records/targets/2026-08-03-6978365a2924b850a9516b49451ed3e07b2bb14321ea908344ce17744296f5e6.json",
+        "targetUnit": "millions",
+        "valueScale": 1e-06
+      },
+      "startedAt": "2026-08-04T14:52:20Z",
+      "finishedAt": "2026-08-04T14:57:45Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/cells.with_activity.json",
+      "stdoutTail": "    \"createdAt\": \"2026-08-04T14:52:20Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/validation.json\",\n      \"sha256\": \"4931bc3b0d0c0c97fb0928fcd3b03541b05a85214bbc736819ae5d9168776918\",\n      \"bytes\": 169,\n      \"createdAt\": \"2026-08-04T14:52:20Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/cells.with_activity.json\",\n      \"sha256\": \"1a27220066e51b259827a8876b19d73a63e946a3bfb69b71c24b9ffca6db17ac\",\n      \"bytes\": 40396,\n      \"createdAt\": \"2026-08-04T14:52:20Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-04/2026-08-04t14-52-20z-irs-actc-total-claims-2027/manifest.json\",\n      \"sha256\": \"3d8b8195f6a677c75dca55329b791fbf687ed18ae1ddb8f6b35cb00439181b72\",\n      \"bytes\": 14848,\n      \"createdAt\": \"2026-08-04T14:52:20Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"41f352ce18bb49e4ec64dac77952cfe96a195916\",\n  \"generationTicket\": {\n    \"ticketId\": \"2026-08-04-d0e9df19ed153b0736ccd7e0b4266144160e7a5198cacfa4242bce7c0d5e253b\",\n    \"ticketPath\": \"records/tickets/2026-08-04/2026-08-04-d0e9df19ed153b0736ccd7e0b4266144160e7a5198cacfa4242bce7c0d5e253b.json\",\n    \"nonceSha256\": \"aded98e22055deda274456167d5dcd95ba7b641290833dbfb015d2ecddc99106\"\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"614f9191015ee083947b2f26d79909507c843a36075101e51625b44791fd4bd9\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "anchors": {
+          "2020": 19.119,
+          "2021": 37.772,
+          "2022": 18.077,
+          "2023": 17.626
+        },
+        "catalogSlug": "additional-child-tax-credit-total-claims-ty2027-current-law",
+        "conditionDeadline": "2027-12-31",
+        "conditionId": "cond.s3596-actc-threshold.current-law",
+        "conditional": "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount.",
+        "country": "US",
+        "dataPointId": "irs.actc.total_claims.2027.first_print.current_law",
+        "expectedReleaseWindow": {
+          "end": "2029-12-31",
+          "start": "2029-01-01"
+        },
+        "period": "2027",
+        "registeredAt": "2026-08-03T20:13:09Z",
+        "registeredAtUtc": "2026-08-03T20:13:09Z",
+        "registrationCommit": "a4f59c018641c8d772975263735424cb5d46bb25",
+        "registrationState": "preregistered",
+        "resolutionDate": "2029-12-31",
+        "series": "irs.actc.total_claims",
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "allowedHosts": [
+            "www.irs.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2029-12-31",
+            "start": "2029-01-01"
+          },
+          "field": "refundable_child_tax_credit_returns",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "irs.actc.total_claims",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns",
+          "transform": {
+            "factor": 1e-06,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "b92e9752beaf38a9e2e735c5066e7c741e29436546e7fab2c8d0568f05355909",
+        "targetRegistrationPath": "records/targets/2026-08-03-b92e9752beaf38a9e2e735c5066e7c741e29436546e7fab2c8d0568f05355909.json",
+        "targetUnit": "millions",
+        "valueScale": 1e-06
+      },
+      "startedAt": "2026-08-04T14:57:45Z",
+      "finishedAt": "2026-08-04T15:02:49Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-57-45z-irs-actc-total-claims-2027/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-04/2026-08-04t14-57-45z-irs-actc-total-claims-2027/cells.with_activity.json",
+      "stdoutTail": "14420,\n      \"createdAt\": \"2026-08-04T14:57:45Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-04/2026-08-04t14-57-45z-irs-actc-total-claims-2027/validation.json\",\n      \"sha256\": \"2de368c0849ffd7a3a6ab797875267a0e2a511f58af85de18a3e6c05962778c6\",\n      \"bytes\": 160,\n      \"createdAt\": \"2026-08-04T14:57:45Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-04/2026-08-04t14-57-45z-irs-actc-total-claims-2027/cells.with_activity.json\",\n      \"sha256\": \"00525b80246cd33a5c26a86484781433de9bcaeacbdff0a66908f0f9a69bea6c\",\n      \"bytes\": 40899,\n      \"createdAt\": \"2026-08-04T14:57:45Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-04/2026-08-04t14-57-45z-irs-actc-total-claims-2027/manifest.json\",\n      \"sha256\": \"f06c57e95dc3e77a35f78b847611eaa7a603bcf0eb08317ff4fa7b19bd9e2c46\",\n      \"bytes\": 15044,\n      \"createdAt\": \"2026-08-04T14:57:45Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"additional-child-tax-credit-total-claims-ty2027-current-law\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"41f352ce18bb49e4ec64dac77952cfe96a195916\",\n  \"generationTicket\": {\n    \"ticketId\": \"2026-08-04-d0e9df19ed153b0736ccd7e0b4266144160e7a5198cacfa4242bce7c0d5e253b\",\n    \"ticketPath\": \"records/tickets/2026-08-04/2026-08-04-d0e9df19ed153b0736ccd7e0b4266144160e7a5198cacfa4242bce7c0d5e253b.json\",\n    \"nonceSha256\": \"aded98e22055deda274456167d5dcd95ba7b641290833dbfb015d2ecddc99106\"\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"64303f6a02e5b6f15d2beb7b0215cf42b7271c26bf8ac17cbd28d3f8ef693494\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ],
+  "codexModel": "gpt-5.6-sol",
+  "codexReasoningEffort": "high",
+  "codexSandbox": "workspace-write",
+  "codexNetwork": true,
+  "reviewCodexModel": "gpt-5.5",
+  "reviewCodexSearch": false,
+  "generationTicket": {
+    "ticketId": "2026-08-04-d0e9df19ed153b0736ccd7e0b4266144160e7a5198cacfa4242bce7c0d5e253b",
+    "ticketPath": "records/tickets/2026-08-04/2026-08-04-d0e9df19ed153b0736ccd7e0b4266144160e7a5198cacfa4242bce7c0d5e253b.json",
+    "nonceSha256": "aded98e22055deda274456167d5dcd95ba7b641290833dbfb015d2ecddc99106"
+  },
+  "checkoutSha": "41f352ce18bb49e4ec64dac77952cfe96a195916"
+}
