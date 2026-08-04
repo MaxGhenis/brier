@@ -772,6 +772,36 @@ def test_checkout_sha_mismatch_is_refused(attested_bundle: AttestedFixture) -> N
     )
 
 
+def test_batch_started_before_mint_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_batch(
+        attested_bundle,
+        lambda batch: batch.__setitem__("startedAt", "2030-01-10T10:30:00Z"),
+    )
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "binding check failed: batch startedAt predates ticket mint: "
+        "2030-01-10T10:30:00Z < 2030-01-10T11:00:00Z"
+    )
+
+
+def test_run_started_before_mint_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    def mutate(manifest: dict[str, Any]) -> None:
+        manifest["runStartedAt"] = "2030-01-10T10:30:00Z"
+
+    rewrite_run_manifest(attested_bundle, mutate)
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "binding check failed: run 0 runStartedAt predates ticket mint: "
+        "2030-01-10T10:30:00Z < 2030-01-10T11:00:00Z"
+    )
+
+
 def test_prompt_hash_mismatch_is_refused(attested_bundle: AttestedFixture) -> None:
     def mutate(manifest: dict[str, Any]) -> None:
         prompt_ref = next(

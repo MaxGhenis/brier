@@ -440,11 +440,36 @@ def _check_bindings(
             f"batch checkoutSha does not match ticket introducing commit: "
             f"{batch.get('checkoutSha')!r} != {introducing}",
         )
+    # The nonce already proves the transcript postdates the mint; these checks
+    # additionally refuse records whose CLAIMED clocks contradict that proof.
+    minted = _parse_utc(
+        state.ticket["mintedAtUtc"], phase="binding", label="ticket mintedAtUtc"
+    )
+    batch_started = _parse_utc(
+        batch.get("startedAt"), phase="binding", label="batch startedAt"
+    )
+    if batch_started < minted:
+        raise _fail(
+            "binding",
+            "batch startedAt predates ticket mint: "
+            f"{batch.get('startedAt')} < {state.ticket['mintedAtUtc']}",
+        )
     for run in runs:
         manifest = run.manifest
         if manifest.get("schemaVersion") != "thesis_analyst_run_manifest_v1":
             raise _fail(
                 "binding", f"run {run.index} has an unsupported manifest schema"
+            )
+        run_started = _parse_utc(
+            manifest.get("runStartedAt"),
+            phase="binding",
+            label=f"run {run.index} runStartedAt",
+        )
+        if run_started < minted:
+            raise _fail(
+                "binding",
+                f"run {run.index} runStartedAt predates ticket mint: "
+                f"{manifest.get('runStartedAt')} < {state.ticket['mintedAtUtc']}",
             )
         if not canonical_equal(
             manifest.get("generationTicket"), state.manifest_binding
