@@ -1019,6 +1019,26 @@ def _check_commands(
         ("command.json", policy["codexModel"], True),
     )
     for run in runs:
+        minted = _parse_utc(
+            state.ticket["mintedAtUtc"],
+            phase="command shape",
+            label="ticket mintedAtUtc",
+        )
+        sealed = _parse_utc(
+            run.manifest.get("sealedAt"),
+            phase="command shape",
+            label=f"run {run.index} sealedAt",
+        )
+        result_started = _parse_utc(
+            run.result.get("startedAt"),
+            phase="command shape",
+            label=f"run {run.index} batch result startedAt",
+        )
+        result_finished = _parse_utc(
+            run.result.get("finishedAt"),
+            phase="command shape",
+            label=f"run {run.index} batch result finishedAt",
+        )
         review = run.manifest.get("preSubmitReview")
         if not isinstance(review, dict) or review.get("status") != "completed":
             raise _fail(
@@ -1045,6 +1065,9 @@ def _check_commands(
                 f"run {run.index} command artifact inventory differs from the "
                 f"ticket runner: {actual_commands} != {expected_commands}",
             )
+        stage_times: dict[
+            str, tuple[dt.datetime, dt.datetime, Any, Any]
+        ] = {}
         for filename, model, search in stages:
             command = _json_artifact(
                 bundle_repo,
@@ -1058,6 +1081,22 @@ def _check_commands(
                     "command shape",
                     f"run {run.index} {filename} must be a JSON object",
                 )
+            started = _parse_utc(
+                command.get("startedAt"),
+                phase="command shape",
+                label=f"run {run.index} {filename} startedAt",
+            )
+            finished = _parse_utc(
+                command.get("finishedAt"),
+                phase="command shape",
+                label=f"run {run.index} {filename} finishedAt",
+            )
+            stage_times[filename] = (
+                started,
+                finished,
+                command.get("startedAt"),
+                command.get("finishedAt"),
+            )
             if command.get("backend") != "codex":
                 raise _fail(
                     "command shape",
@@ -1164,6 +1203,74 @@ def _check_commands(
                 model=model,
                 search=search,
                 policy=policy,
+            )
+        draft_started, draft_finished, draft_started_raw, draft_finished_raw = (
+            stage_times["draft_command.json"]
+        )
+        review_started, review_finished, review_started_raw, review_finished_raw = (
+            stage_times["pre_submit_review_command.json"]
+        )
+        final_started, final_finished, final_started_raw, final_finished_raw = (
+            stage_times["command.json"]
+        )
+        if draft_started < minted:
+            raise _fail(
+                "command shape",
+                f"run {run.index} draft_command.json startedAt predates ticket "
+                f"mint: {draft_started_raw} < {state.ticket['mintedAtUtc']}",
+            )
+        if draft_finished < draft_started:
+            raise _fail(
+                "command shape",
+                f"run {run.index} draft_command.json finishedAt predates its "
+                f"startedAt: {draft_finished_raw} < {draft_started_raw}",
+            )
+        if review_started < draft_finished:
+            raise _fail(
+                "command shape",
+                f"run {run.index} pre_submit_review_command.json startedAt "
+                f"predates draft_command.json finishedAt: {review_started_raw} < "
+                f"{draft_finished_raw}",
+            )
+        if review_finished < review_started:
+            raise _fail(
+                "command shape",
+                f"run {run.index} pre_submit_review_command.json finishedAt "
+                f"predates its startedAt: {review_finished_raw} < "
+                f"{review_started_raw}",
+            )
+        if final_started < review_finished:
+            raise _fail(
+                "command shape",
+                f"run {run.index} command.json startedAt predates "
+                f"pre_submit_review_command.json finishedAt: {final_started_raw} "
+                f"< {review_finished_raw}",
+            )
+        if final_finished < final_started:
+            raise _fail(
+                "command shape",
+                f"run {run.index} command.json finishedAt predates its startedAt: "
+                f"{final_finished_raw} < {final_started_raw}",
+            )
+        if final_finished > sealed:
+            raise _fail(
+                "command shape",
+                f"run {run.index} command.json finishedAt postdates run sealedAt: "
+                f"{final_finished_raw} > {run.manifest.get('sealedAt')}",
+            )
+        if draft_started < result_started:
+            raise _fail(
+                "command shape",
+                f"run {run.index} draft_command.json startedAt predates batch "
+                f"result startedAt: {draft_started_raw} < "
+                f"{run.result.get('startedAt')}",
+            )
+        if final_finished > result_finished:
+            raise _fail(
+                "command shape",
+                f"run {run.index} command.json finishedAt postdates batch result "
+                f"finishedAt: {final_finished_raw} > "
+                f"{run.result.get('finishedAt')}",
             )
         expected_hygiene = (
             {"guarded": True, "mutations": []}

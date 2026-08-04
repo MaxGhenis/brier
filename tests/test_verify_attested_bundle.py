@@ -32,6 +32,12 @@ RUN_RELATIVE = pathlib.PurePosixPath(
     "2030-01-10t12-00-00z-agency-test-rate"
 )
 RUN_STARTED_AT = "2030-01-10T12:00:00Z"
+DRAFT_STARTED_AT = "2030-01-10T12:00:01Z"
+DRAFT_FINISHED_AT = "2030-01-10T12:00:10Z"
+REVIEW_STARTED_AT = "2030-01-10T12:00:11Z"
+REVIEW_FINISHED_AT = "2030-01-10T12:00:20Z"
+FINAL_STARTED_AT = "2030-01-10T12:00:21Z"
+FINAL_FINISHED_AT = "2030-01-10T12:00:30Z"
 SEALED_AT = "2030-01-10T12:01:00Z"
 NOW_UTC = dt.datetime(2030, 1, 10, 13, tzinfo=dt.timezone.utc)
 
@@ -413,6 +419,8 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         search: bool,
         response: str,
         stdout_artifact_type: str,
+        started_at: str,
+        finished_at: str,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         argv = command_argv(fixture, prefix=prefix, model=model, search=search)
         command = {
@@ -426,8 +434,8 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
             "timedOut": False,
             "timeoutReason": None,
             "terminatedAfterOutput": False,
-            "startedAt": RUN_STARTED_AT,
-            "finishedAt": SEALED_AT,
+            "startedAt": started_at,
+            "finishedAt": finished_at,
         }
         artifact(
             f"{prefix}command.json",
@@ -486,6 +494,8 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         search=True,
         response=draft_response,
         stdout_artifact_type="draft_forecast",
+        started_at=DRAFT_STARTED_AT,
+        finished_at=DRAFT_FINISHED_AT,
     )
     review_prompt = analyst.build_pre_submit_review_prompt(
         series=target["series"],
@@ -504,6 +514,8 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         search=policy["reviewCodexSearch"],
         response=review_response,
         stdout_artifact_type="pre_submit_review",
+        started_at=REVIEW_STARTED_AT,
+        finished_at=REVIEW_FINISHED_AT,
     )
     revision_prompt = analyst.build_revision_prompt(
         original_prompt=prompt,
@@ -519,6 +531,8 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         search=True,
         response=last_message,
         stdout_artifact_type="stdout",
+        started_at=FINAL_STARTED_AT,
+        finished_at=FINAL_FINISHED_AT,
     )
     artifact("raw_response.txt", "raw_response", last_message)
     artifact("parsed_cells.json", "parsed_cell", json.dumps(parsed_cells, indent=2))
@@ -920,6 +934,112 @@ def test_forbidden_argv_flag_is_refused(attested_bundle: AttestedFixture) -> Non
         "command shape check failed: run 0 command.json contains forbidden option "
         "--response-file"
     )
+
+
+@pytest.mark.parametrize(
+    ("filename", "field", "value", "message"),
+    [
+        (
+            "draft_command.json",
+            "startedAt",
+            "2030-01-10T10:59:59Z",
+            "command shape check failed: run 0 draft_command.json startedAt "
+            "predates ticket mint: 2030-01-10T10:59:59Z < "
+            "2030-01-10T11:00:00Z",
+        ),
+        (
+            "draft_command.json",
+            "finishedAt",
+            "2030-01-10T12:00:00Z",
+            "command shape check failed: run 0 draft_command.json finishedAt "
+            "predates its startedAt: 2030-01-10T12:00:00Z < "
+            "2030-01-10T12:00:01Z",
+        ),
+        (
+            "pre_submit_review_command.json",
+            "startedAt",
+            "2030-01-10T12:00:09Z",
+            "command shape check failed: run 0 "
+            "pre_submit_review_command.json startedAt predates "
+            "draft_command.json finishedAt: 2030-01-10T12:00:09Z < "
+            "2030-01-10T12:00:10Z",
+        ),
+        (
+            "pre_submit_review_command.json",
+            "finishedAt",
+            "2030-01-10T12:00:10Z",
+            "command shape check failed: run 0 "
+            "pre_submit_review_command.json finishedAt predates its startedAt: "
+            "2030-01-10T12:00:10Z < 2030-01-10T12:00:11Z",
+        ),
+        (
+            "command.json",
+            "startedAt",
+            "2030-01-10T12:00:19Z",
+            "command shape check failed: run 0 command.json startedAt predates "
+            "pre_submit_review_command.json finishedAt: "
+            "2030-01-10T12:00:19Z < 2030-01-10T12:00:20Z",
+        ),
+        (
+            "command.json",
+            "finishedAt",
+            "2030-01-10T12:00:20Z",
+            "command shape check failed: run 0 command.json finishedAt predates "
+            "its startedAt: 2030-01-10T12:00:20Z < "
+            "2030-01-10T12:00:21Z",
+        ),
+        (
+            "command.json",
+            "finishedAt",
+            "2030-01-10T12:01:01Z",
+            "command shape check failed: run 0 command.json finishedAt postdates "
+            "run sealedAt: 2030-01-10T12:01:01Z > "
+            "2030-01-10T12:01:00Z",
+        ),
+        (
+            "batch_result",
+            "startedAt",
+            "2030-01-10T12:00:02Z",
+            "command shape check failed: run 0 draft_command.json startedAt "
+            "predates batch result startedAt: 2030-01-10T12:00:01Z < "
+            "2030-01-10T12:00:02Z",
+        ),
+        (
+            "batch_result",
+            "finishedAt",
+            "2030-01-10T12:00:29Z",
+            "command shape check failed: run 0 command.json finishedAt postdates "
+            "batch result finishedAt: 2030-01-10T12:00:30Z > "
+            "2030-01-10T12:00:29Z",
+        ),
+    ],
+)
+def test_command_timestamp_envelope_refusals_are_literal(
+    attested_bundle: AttestedFixture,
+    filename: str,
+    field: str,
+    value: str,
+    message: str,
+) -> None:
+    if filename == "batch_result":
+        rewrite_batch(
+            attested_bundle,
+            lambda batch: batch["results"][0].__setitem__(field, value),
+        )
+    else:
+        path = run_path(attested_bundle, filename)
+        command = json.loads(path.read_text())
+        command[field] = value
+        rewrite_run_artifact(
+            attested_bundle,
+            filename,
+            json.dumps(command, indent=2).encode(),
+        )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+
+    assert str(caught.value) == message
 
 
 def test_command_timeout_policy_mismatch_is_refused(
