@@ -164,6 +164,10 @@ jobs:
             echo "expires_hours must be a positive integer" >&2
             exit 1
           fi
+          if [ "$EXPIRES_HOURS" -gt 336 ]; then
+            echo "expires_hours must not exceed 336" >&2
+            exit 1
+          fi
           case "$TIMEOUT_SECONDS" in
             ''|*[!0-9]*) echo "timeout_seconds must be a positive integer" >&2; exit 1 ;;
           esac
@@ -185,12 +189,29 @@ jobs:
           fi
 
           MINTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          EXPIRES_AT=$(python3 - "$MINTED_AT" "$EXPIRES_HOURS" <<'PY'
+          EXPIRES_AT=$(python3 - "$MINTED_AT" "$EXPIRES_HOURS" /tmp/ticket-targets.json <<'PY'
           import datetime as dt
+          import json
           import sys
 
-          minted = dt.datetime.strptime(sys.argv[1], "%Y-%m-%dT%H:%M:%SZ")
-          expires = minted + dt.timedelta(hours=int(sys.argv[2]))
+          sys.path.insert(0, "scripts")
+          from generation_tickets import earliest_resolution_boundary
+
+          minted = dt.datetime.strptime(
+              sys.argv[1], "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          targets = json.load(open(sys.argv[3]))["targets"]
+          boundary = dt.datetime.strptime(
+              earliest_resolution_boundary(targets), "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          if minted >= boundary:
+              raise SystemExit(
+                  "targets are already at or past their resolution boundary"
+              )
+          expires = min(
+              minted + dt.timedelta(hours=int(sys.argv[2])),
+              boundary,
+          )
           print(expires.strftime("%Y-%m-%dT%H:%M:%SZ"))
           PY
           )
@@ -206,6 +227,7 @@ jobs:
             echo "attempt=$ATTEMPT"
             echo "minted_at=$MINTED_AT"
             echo "expires_at=$EXPIRES_AT"
+            echo "expires_hours=$EXPIRES_HOURS"
           } >> "$GITHUB_OUTPUT"
 
       - name: Reuse and bind immutable registrations at HEAD
@@ -241,7 +263,7 @@ jobs:
         id: ticket
         env:
           MINTED_AT: ${{ steps.policy.outputs.minted_at }}
-          EXPIRES_AT: ${{ steps.policy.outputs.expires_at }}
+          EXPIRES_HOURS: ${{ steps.policy.outputs.expires_hours }}
           ATTEMPT: ${{ steps.policy.outputs.attempt }}
           SUPERSEDES_TICKET_ID: ${{ inputs.supersedes_ticket_id }}
           SUPERSEDED_OUTCOME: ${{ inputs.superseded_outcome }}
@@ -265,7 +287,7 @@ jobs:
             --registration-metadata /tmp/ticket-registration.json
             --nonce "$NONCE"
             --minted-at-utc "$MINTED_AT"
-            --expires-at-utc "$EXPIRES_AT"
+            --expires-hours "$EXPIRES_HOURS"
             --attempt "$ATTEMPT"
             --prompt-mode "$PROMPT_MODE"
             --codex-model "$CODEX_MODEL"

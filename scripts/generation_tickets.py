@@ -58,6 +58,7 @@ POLICY_KEYS = {
 SUPERSEDED_OUTCOMES = {"failed", "expired", "abandoned"}
 PROMPT_MODES = {"full", "fast", "ladder", "ladder_v2"}
 CODEX_SANDBOXES = {"read-only", "workspace-write"}
+MAX_EXPIRES_HOURS = 336
 
 TICKET_ID_RE = re.compile(r"^(?P<day>\d{4}-\d{2}-\d{2})-(?P<opaque>[0-9a-f]+)$")
 TARGET_REGISTRATION_RE = re.compile(
@@ -89,6 +90,36 @@ def _parse_utc_instant(value: Any, field: str) -> dt.datetime:
         raise TicketError(
             f"ticket {field} is not a valid UTC instant: {value!r}"
         ) from exc
+
+
+def earliest_resolution_boundary(targets: Any) -> str:
+    """Return the earliest target resolution day boundary as a UTC instant."""
+
+    if not isinstance(targets, list) or not targets:
+        raise TicketError("ticket targets must be a nonempty object list")
+    boundaries: list[dt.datetime] = []
+    for index, target in enumerate(targets):
+        value = target.get("resolutionDate") if isinstance(target, dict) else None
+        if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+            raise TicketError(
+                f"ticket target {index} resolutionDate must be a valid YYYY-MM-DD "
+                f"date: {value!r}"
+            )
+        try:
+            resolution_day = dt.date.fromisoformat(value)
+        except ValueError as exc:
+            raise TicketError(
+                f"ticket target {index} resolutionDate must be a valid YYYY-MM-DD "
+                f"date: {value!r}"
+            ) from exc
+        boundaries.append(
+            dt.datetime.combine(
+                resolution_day,
+                dt.time.min,
+                tzinfo=dt.timezone.utc,
+            )
+        )
+    return min(boundaries).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _parse_ticket_id(value: Any, field: str = "ticketId") -> tuple[str, str]:
@@ -268,6 +299,13 @@ def validate_ticket(ticket: Any) -> dict[str, Any]:
         raise TicketError("ticket targets must be a nonempty object list")
     for index, target in enumerate(targets):
         _validate_target(target, index)
+    boundary = earliest_resolution_boundary(targets)
+    boundary_instant = _parse_utc_instant(boundary, "resolution boundary")
+    if expires > boundary_instant:
+        raise TicketError(
+            "ticket expiry crosses the earliest resolution boundary: "
+            f"{ticket['expiresAtUtc']} > {boundary}"
+        )
 
     registration_set_hash = ticket["registrationSetHash"]
     if not isinstance(registration_set_hash, str) or not re.fullmatch(
@@ -288,7 +326,7 @@ def mint_ticket(
     *,
     nonce: str,
     minted_at_utc: str,
-    expires_at_utc: str,
+    expires_hours: int,
     attempt: int,
     supersedes: str | None = None,
     superseded_outcome: dict[str, str] | None = None,
@@ -302,6 +340,24 @@ def mint_ticket(
     _require_json_value(targets, "ticket targets")
     _require_json_value(policy, "ticket policy")
     _require_json_value(superseded_outcome, "ticket supersededOutcome")
+    boundary = earliest_resolution_boundary(targets)
+    boundary_instant = _parse_utc_instant(boundary, "resolution boundary")
+    if minted >= boundary_instant:
+        raise TicketError("targets are already at or past their resolution boundary")
+    if (
+        type(expires_hours) is not int
+        or expires_hours < 1
+        or expires_hours > MAX_EXPIRES_HOURS
+    ):
+        raise TicketError(
+            f"ticket expires_hours must be an integer from 1 through "
+            f"{MAX_EXPIRES_HOURS}"
+        )
+    expires = min(
+        minted + dt.timedelta(hours=expires_hours),
+        boundary_instant,
+    )
+    expires_at_utc = expires.strftime("%Y-%m-%dT%H:%M:%SZ")
     ticket = {
         "schemaVersion": TICKET_SCHEMA,
         "ticketId": f"{minted.date().isoformat()}-{nonce}",
@@ -791,7 +847,7 @@ def _mint_command(args: argparse.Namespace) -> dict[str, Any]:
         },
         nonce=args.nonce,
         minted_at_utc=args.minted_at_utc,
-        expires_at_utc=args.expires_at_utc,
+        expires_hours=args.expires_hours,
         attempt=args.attempt,
         supersedes=args.supersedes_ticket_id,
         superseded_outcome=outcome,
@@ -824,7 +880,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     mint.add_argument("--registration-metadata", type=pathlib.Path, required=True)
     mint.add_argument("--nonce", required=True)
     mint.add_argument("--minted-at-utc", required=True)
-    mint.add_argument("--expires-at-utc", required=True)
+    mint.add_argument("--expires-hours", type=int, required=True)
     mint.add_argument("--attempt", type=int, required=True)
     mint.add_argument("--supersedes-ticket-id")
     mint.add_argument("--superseded-outcome", choices=sorted(SUPERSEDED_OUTCOMES))

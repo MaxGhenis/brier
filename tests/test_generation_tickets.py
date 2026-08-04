@@ -18,6 +18,7 @@ from generation_tickets import TicketError  # noqa: E402
 NONCE = "a" * 64
 MINTED_AT = "2030-01-10T12:00:00Z"
 EXPIRES_AT = "2030-01-17T12:00:00Z"
+EXPIRES_HOURS = 168
 
 
 def sample_target() -> dict[str, Any]:
@@ -29,6 +30,7 @@ def sample_target() -> dict[str, Any]:
         "targetContentHash": "c" * 64,
         "targetRegistrationPath": f"records/targets/2030-01-10-{'c' * 64}.json",
         "registeredAtUtc": "2030-01-10T10:00:00Z",
+        "resolutionDate": "2030-01-20",
         "conditional": "Synthetic condition",
     }
 
@@ -52,7 +54,7 @@ def sample_ticket(**overrides: Any) -> dict[str, Any]:
         sample_policy(),
         nonce=NONCE,
         minted_at_utc=MINTED_AT,
-        expires_at_utc=EXPIRES_AT,
+        expires_hours=EXPIRES_HOURS,
         attempt=1,
         registration_set_hash="d" * 64,
     )
@@ -123,8 +125,8 @@ def mint_cli_args(
         NONCE,
         "--minted-at-utc",
         MINTED_AT,
-        "--expires-at-utc",
-        EXPIRES_AT,
+        "--expires-hours",
+        str(EXPIRES_HOURS),
         "--attempt",
         str(attempt),
         "--prompt-mode",
@@ -178,7 +180,7 @@ def test_mint_and_load_ticket_round_trip(tmp_path: pathlib.Path) -> None:
         policy,
         nonce=NONCE,
         minted_at_utc=MINTED_AT,
-        expires_at_utc=EXPIRES_AT,
+        expires_hours=EXPIRES_HOURS,
         attempt=1,
         registration_set_hash="d" * 64,
     )
@@ -203,6 +205,96 @@ def test_mint_and_load_ticket_round_trip(tmp_path: pathlib.Path) -> None:
     assert generation_tickets.load_ticket(path) == ticket
 
 
+def test_earliest_resolution_boundary_uses_utc_start_of_minimum_day() -> None:
+    later = sample_target()
+    later["resolutionDate"] = "2030-01-22"
+    earlier = {**sample_target(), "resolutionDate": "2030-01-18"}
+
+    assert generation_tickets.earliest_resolution_boundary([later, earlier]) == (
+        "2030-01-18T00:00:00Z"
+    )
+
+
+def test_mint_clamps_expiry_to_earliest_resolution_boundary() -> None:
+    target = sample_target()
+    target["resolutionDate"] = "2030-01-12"
+
+    ticket = generation_tickets.mint_ticket(
+        [target],
+        sample_policy(),
+        nonce=NONCE,
+        minted_at_utc=MINTED_AT,
+        expires_hours=EXPIRES_HOURS,
+        attempt=1,
+        registration_set_hash="d" * 64,
+    )
+
+    assert ticket["expiresAtUtc"] == "2030-01-12T00:00:00Z"
+
+
+@pytest.mark.parametrize(
+    "minted_at_utc",
+    ["2030-01-10T00:00:00Z", "2030-01-10T00:00:01Z"],
+)
+def test_mint_refuses_at_or_past_resolution_boundary_literally(
+    minted_at_utc: str,
+) -> None:
+    target = sample_target()
+    target["resolutionDate"] = "2030-01-10"
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.mint_ticket(
+            [target],
+            sample_policy(),
+            nonce=NONCE,
+            minted_at_utc=minted_at_utc,
+            expires_hours=1,
+            attempt=1,
+            registration_set_hash="d" * 64,
+        )
+
+    assert str(error.value) == (
+        "targets are already at or past their resolution boundary"
+    )
+
+
+def test_load_ticket_refuses_expiry_crossing_boundary_literally(
+    tmp_path: pathlib.Path,
+) -> None:
+    ticket = sample_ticket()
+    ticket["expiresAtUtc"] = "2030-01-20T00:00:01Z"
+    path = tmp_path / "ticket.json"
+    write_ticket(path, ticket)
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.load_ticket(path)
+
+    assert str(error.value) == (
+        "ticket expiry crosses the earliest resolution boundary: "
+        "2030-01-20T00:00:01Z > 2030-01-20T00:00:00Z"
+    )
+
+
+@pytest.mark.parametrize("expires_hours", [0, 337, True])
+def test_mint_refuses_expiry_hours_outside_cap_literally(
+    expires_hours: Any,
+) -> None:
+    with pytest.raises(TicketError) as error:
+        generation_tickets.mint_ticket(
+            [sample_target()],
+            sample_policy(),
+            nonce=NONCE,
+            minted_at_utc=MINTED_AT,
+            expires_hours=expires_hours,
+            attempt=1,
+            registration_set_hash="d" * 64,
+        )
+
+    assert str(error.value) == (
+        "ticket expires_hours must be an integer from 1 through 336"
+    )
+
+
 def test_mint_refuses_non_json_target_before_copy() -> None:
     class CopyProbe:
         copied = False
@@ -221,7 +313,7 @@ def test_mint_refuses_non_json_target_before_copy() -> None:
             sample_policy(),
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=1,
             registration_set_hash="d" * 64,
         )
@@ -312,7 +404,7 @@ def test_mint_refuses_invalid_attempt_literally(attempt: Any) -> None:
             sample_policy(),
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=attempt,
             registration_set_hash="d" * 64,
         )
@@ -329,7 +421,7 @@ def test_mint_refuses_supersedes_without_outcome_literally() -> None:
             sample_policy(),
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=2,
             supersedes=f"2030-01-09-{'e' * 64}",
             registration_set_hash="d" * 64,
@@ -345,7 +437,7 @@ def test_mint_refuses_outcome_without_supersedes_literally() -> None:
             sample_policy(),
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=2,
             superseded_outcome={"outcome": "failed", "reason": "bad run"},
             registration_set_hash="d" * 64,
@@ -382,7 +474,7 @@ def test_mint_refuses_invalid_superseded_outcome_literally(
             sample_policy(),
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=2,
             supersedes=f"2030-01-09-{'e' * 64}",
             superseded_outcome=outcome,
@@ -402,7 +494,7 @@ def test_policy_refuses_unknown_key_literally() -> None:
             policy,
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=1,
             registration_set_hash="d" * 64,
         )
@@ -451,7 +543,7 @@ def test_policy_refuses_unknown_modes_literally(
             policy,
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=1,
             registration_set_hash="d" * 64,
         )
@@ -469,7 +561,7 @@ def test_policy_refuses_network_under_read_only_sandbox_literally() -> None:
             policy,
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=1,
             registration_set_hash="d" * 64,
         )
@@ -490,7 +582,7 @@ def test_target_refuses_each_missing_required_field_literally(missing: str) -> N
             sample_policy(),
             nonce=NONCE,
             minted_at_utc=MINTED_AT,
-            expires_at_utc=EXPIRES_AT,
+            expires_hours=EXPIRES_HOURS,
             attempt=1,
             registration_set_hash="d" * 64,
         )
@@ -603,7 +695,7 @@ def test_find_ticket_successor_scans_ticket_records(tmp_path: pathlib.Path) -> N
         sample_policy(),
         nonce="e" * 64,
         minted_at_utc="2030-01-11T12:00:00Z",
-        expires_at_utc="2030-01-18T12:00:00Z",
+        expires_hours=EXPIRES_HOURS,
         attempt=2,
         supersedes=predecessor["ticketId"],
         superseded_outcome={"outcome": "failed", "reason": "agent failed"},
@@ -633,7 +725,7 @@ def test_valid_superseding_ticket_round_trip(tmp_path: pathlib.Path) -> None:
         copy.deepcopy(sample_policy()),
         nonce="f" * 64,
         minted_at_utc="2030-01-11T12:00:00Z",
-        expires_at_utc="2030-01-18T12:00:00Z",
+        expires_hours=EXPIRES_HOURS,
         attempt=2,
         supersedes=predecessor["ticketId"],
         superseded_outcome={"outcome": "expired", "reason": "window elapsed"},
@@ -844,7 +936,7 @@ def test_validate_supersession_allows_only_exact_current_successor(
         sample_policy(),
         nonce="e" * 64,
         minted_at_utc="2030-01-11T12:00:00Z",
-        expires_at_utc="2030-01-18T12:00:00Z",
+        expires_hours=EXPIRES_HOURS,
         attempt=2,
         supersedes=predecessor["ticketId"],
         superseded_outcome={"outcome": "failed", "reason": "agent failed"},

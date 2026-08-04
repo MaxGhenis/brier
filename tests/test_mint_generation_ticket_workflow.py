@@ -72,6 +72,11 @@ def test_mint_workflow_reuses_registration_and_commits_only_ticket() -> None:
     assert "--head HEAD" in source
     assert "openssl rand -hex 32" in source
     assert "scripts/generation_tickets.py mint" in source
+    assert "expires_hours must not exceed 336" in source
+    assert "earliest_resolution_boundary" in source
+    assert 'min(' in source
+    assert '--expires-hours "$EXPIRES_HOURS"' in source
+    assert "--expires-at-utc" not in source
     assert "scripts/generation_tickets.py check-supersession" in source
     assert "find_ticket_consumption" not in source  # kept in the tested helper
     assert 'git add -- "$TICKET_PATH"' in source

@@ -641,6 +641,26 @@ def test_expired_ticket_is_refused(attested_bundle: AttestedFixture) -> None:
     )
 
 
+def test_resolution_boundary_is_refused_literally(
+    attested_bundle: AttestedFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    legacy_ticket = copy.deepcopy(attested_bundle.ticket)
+    legacy_ticket["expiresAtUtc"] = "2030-02-02T00:00:00Z"
+    monkeypatch.setattr(verifier, "load_ticket", lambda _path: legacy_ticket)
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(
+            attested_bundle,
+            now_utc=dt.datetime(2030, 2, 1, tzinfo=dt.timezone.utc),
+        )
+
+    assert str(caught.value) == (
+        "ticket check failed: verification time is at or past the targets' "
+        "resolution boundary"
+    )
+
+
 def test_consumed_ticket_is_refused(attested_bundle: AttestedFixture) -> None:
     consumed = attested_bundle.repo.joinpath(*attested_bundle.batch_relative.parts)
     write_payload(consumed, {"already": "published"})

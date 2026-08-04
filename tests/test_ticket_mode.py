@@ -18,7 +18,6 @@ import run_thesis_batch as batch_runner  # noqa: E402
 
 NONCE = "a" * 64
 MINTED_AT = "2030-01-10T12:00:00Z"
-EXPIRES_AT = "2030-01-17T12:00:00Z"
 RUN_NOW = datetime(2030, 1, 11, 12, 0, tzinfo=timezone.utc)
 
 
@@ -74,6 +73,7 @@ def sample_target(
         "targetContentHash": digest,
         "targetRegistrationPath": f"records/targets/2030-01-10-{digest}.json",
         "registeredAtUtc": "2030-01-10T10:00:00Z",
+        "resolutionDate": "2030-02-01",
         "conditional": f"Synthetic condition {suffix}.",
     }
 
@@ -81,7 +81,7 @@ def sample_target(
 def build_ticket_repo(
     root: pathlib.Path,
     *,
-    expires_at: str = EXPIRES_AT,
+    expires_hours: int = 168,
     targets_count: int = 1,
 ) -> dict[str, Any]:
     repo = root / "repo"
@@ -98,7 +98,7 @@ def build_ticket_repo(
         sample_policy(),
         nonce=NONCE,
         minted_at_utc=MINTED_AT,
-        expires_at_utc=expires_at,
+        expires_hours=expires_hours,
         attempt=1,
         registration_set_hash="d" * 64,
     )
@@ -200,7 +200,7 @@ def test_prepare_ticket_mode_returns_exact_context(tmp_path: pathlib.Path) -> No
 
 
 def test_ticket_mode_refuses_expired_ticket_literally(tmp_path: pathlib.Path) -> None:
-    fixture = build_ticket_repo(tmp_path, expires_at="2030-01-11T12:00:00Z")
+    fixture = build_ticket_repo(tmp_path, expires_hours=24)
 
     with pytest.raises(batch_runner.BatchRunError) as error:
         batch_runner.prepare_ticket_mode(
@@ -255,7 +255,7 @@ def test_ticket_mode_refuses_superseded_before_checkout_mismatch(
         sample_policy(),
         nonce="e" * 64,
         minted_at_utc="2030-01-11T11:00:00Z",
-        expires_at_utc="2030-01-18T11:00:00Z",
+        expires_hours=168,
         attempt=2,
         supersedes=fixture["ticket"]["ticketId"],
         superseded_outcome={"outcome": "failed", "reason": "agent failed"},

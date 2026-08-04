@@ -37,6 +37,7 @@ from docket_publication import (
 )
 from generation_tickets import (
     TicketError,
+    earliest_resolution_boundary,
     find_ticket_consumption,
     find_ticket_successor,
     load_ticket,
@@ -199,6 +200,16 @@ def _load_ticket_context(
             "ticket",
             f"generation ticket {ticket['ticketId']} expired at "
             f"{ticket['expiresAtUtc']}",
+        )
+    boundary = _parse_utc(
+        earliest_resolution_boundary(ticket["targets"]),
+        phase="ticket",
+        label="targets' resolution boundary",
+    )
+    if now >= boundary:
+        raise _fail(
+            "ticket",
+            "verification time is at or past the targets' resolution boundary",
         )
     try:
         consumption = find_ticket_consumption(ticket["ticketId"], repo_root)

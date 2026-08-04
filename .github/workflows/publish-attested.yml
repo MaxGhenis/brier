@@ -477,6 +477,32 @@ jobs:
               exit 1
             fi
             LOCAL=$(git rev-parse HEAD)
+            python3 - "$TICKET_PATH" <<'PY'
+          import datetime as dt
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from generation_tickets import earliest_resolution_boundary, load_ticket
+
+          ticket = load_ticket(sys.argv[1])
+          now = dt.datetime.now(dt.timezone.utc)
+          expires = dt.datetime.strptime(
+              ticket["expiresAtUtc"], "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          if now >= expires:
+              raise SystemExit(
+                  f"generation ticket {ticket['ticketId']} expired at "
+                  f"{ticket['expiresAtUtc']}"
+              )
+          boundary_value = earliest_resolution_boundary(ticket["targets"])
+          boundary = dt.datetime.strptime(
+              boundary_value, "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          if now >= boundary:
+              raise SystemExit(
+                  "verification time is at or past the targets' resolution boundary"
+              )
+          PY
             if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
               # A zero-exit push is the attestation boundary. Never put a
               # second network call between this success and attest_commit:

@@ -114,6 +114,12 @@ def test_publish_attested_reverifies_every_push_candidate() -> None:
     assert "Never put a" in loop
     push_success = loop[loop.index("push origin main") : loop.index("sleep 2")]
     assert push_success.index("pushed=1") < push_success.index("break")
+    late_gate = loop.rindex('python3 - "$TICKET_PATH"')
+    push = loop.index("push origin main")
+    assert loop.index("bun run build") < late_gate < push
+    assert "dt.datetime.now(dt.timezone.utc)" in loop[late_gate:push]
+    assert "now >= expires" in loop[late_gate:push]
+    assert "now >= boundary" in loop[late_gate:push]
 
 
 def test_publish_attested_copies_the_existing_trusted_publish_tail() -> None:
