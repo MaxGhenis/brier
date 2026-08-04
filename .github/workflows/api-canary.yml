@@ -1,0 +1,412 @@
+name: Thesis analyst API canary
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - model: gpt-5.5
+            effort: high
+          - model: gpt-5.6
+            effort: high
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install codex CLI
+        run: bun add -g @openai/codex@0.144.0
+
+      - name: Authenticate codex
+        run: printenv OPENAI_API_KEY | codex login --with-api-key
+
+      - name: Run fixed canary battery
+        env:
+          CODEX_MODEL: ${{ matrix.model }}
+          CODEX_REASONING_EFFORT: ${{ matrix.effort }}
+          CANARY_CAPTURE: ${{ runner.temp }}/thesis-api-canary-capture/${{ matrix.model }}-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$CANARY_CAPTURE/runs" "$CANARY_CAPTURE/status"
+          RUN_CHECKOUT=
+          cleanup_checkout() {
+            if [ -n "$RUN_CHECKOUT" ]; then
+              git worktree remove --force "$RUN_CHECKOUT" >/dev/null 2>&1 || true
+              RUN_CHECKOUT=
+            fi
+          }
+          trap cleanup_checkout EXIT
+          while IFS= read -r item; do
+            ID=$(jq -r '.id' <<< "$item")
+            if [[ ! "$ID" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+              echo "refusing unsafe canary id: $ID" >&2
+              exit 1
+            fi
+            SERIES=$(jq -r '.series' <<< "$item")
+            PERIOD=$(jq -r '.period' <<< "$item")
+            CONDITIONAL=$(jq -r '.conditional // empty' <<< "$item")
+            TARGET_CONTEXT=$(jq -c '.targetContext' <<< "$item")
+            RUN_PARENT=$(mktemp -d "/tmp/thesis-api-canary-$ID.XXXXXX")
+            RUN_CHECKOUT="$RUN_PARENT/checkout"
+            OUT_DIR="$RUN_CHECKOUT/runs/$ID"
+            git worktree add --detach "$RUN_CHECKOUT" HEAD
+            args=(
+              python3 "$RUN_CHECKOUT/scripts/run_thesis_analyst.py"
+              --series "$SERIES"
+              --period "$PERIOD"
+              --target-context-json "$TARGET_CONTEXT"
+              --prompt-mode fast
+              --out-dir "$OUT_DIR"
+              --codex-model "$CODEX_MODEL"
+              --codex-reasoning-effort "$CODEX_REASONING_EFFORT"
+              --codex-sandbox workspace-write
+              --codex-network
+              --pre-submit-review-codex-model gpt-5.5
+              --timeout-seconds 540
+            )
+            if [ -n "$CONDITIONAL" ]; then
+              args+=(--conditional "$CONDITIONAL")
+            fi
+            (
+              cd "$RUN_CHECKOUT"
+              "${args[@]}"
+            ) >/dev/null 2>&1 || true
+
+            ITEM_ID="$ID" OUT_DIR="$OUT_DIR" \
+              RUN_CHECKOUT="$RUN_CHECKOUT" python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import shutil
+          import stat
+          import sys
+
+          root = pathlib.Path.cwd()
+          sys.path.insert(0, str(root / "scripts"))
+          from verify_custody import verify_run
+
+          item_id = os.environ["ITEM_ID"]
+          out_dir = pathlib.Path(os.environ["OUT_DIR"])
+          checkout = pathlib.Path(os.environ["RUN_CHECKOUT"])
+          capture = pathlib.Path(os.environ["CANARY_CAPTURE"])
+          destination = capture / "runs" / item_id
+          candidate_root = capture.parent / f"{capture.name}.{item_id}.candidate"
+          candidate = candidate_root / "runs" / item_id
+          status_path = capture / "status" / f"{item_id}.json"
+          status = {"itemId": item_id, "captured": False, "errorType": None}
+
+          def require_directory(path):
+              if path.is_symlink() or not path.is_dir():
+                  raise RuntimeError(f"expected ordinary directory: {path}")
+
+          def verify_from(base, run_dir):
+              previous = pathlib.Path.cwd()
+              try:
+                  os.chdir(base)
+                  verify_run(run_dir)
+              finally:
+                  os.chdir(previous)
+
+          try:
+              for path in (destination, candidate_root, status_path):
+                  if os.path.lexists(path):
+                      raise RuntimeError(f"refusing existing capture path: {path}")
+              require_directory(checkout)
+              require_directory(out_dir)
+              if out_dir.resolve().relative_to(checkout.resolve()) != pathlib.Path(
+                  "runs", item_id
+              ):
+                  raise RuntimeError("canary out-dir does not match its portable path")
+              for path in out_dir.rglob("*"):
+                  mode = path.lstat().st_mode
+                  if not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)):
+                      raise RuntimeError(
+                          f"non-regular entry in canary run: {path.name}"
+                      )
+              verify_from(checkout, out_dir)
+              (candidate_root / "runs").mkdir(parents=True)
+              shutil.copytree(out_dir, candidate)
+              verify_from(candidate_root, candidate)
+              candidate.rename(destination)
+              (candidate_root / "runs").rmdir()
+              candidate_root.rmdir()
+              verify_from(capture, destination)
+              status["captured"] = True
+          except Exception as exc:
+              status["errorType"] = type(exc).__name__
+              if destination.is_dir() and not destination.is_symlink():
+                  shutil.rmtree(destination)
+              if candidate_root.is_dir() and not candidate_root.is_symlink():
+                  shutil.rmtree(candidate_root)
+          status_path.write_text(json.dumps(status, separators=(",", ":")) + "\n")
+          PY
+            cleanup_checkout
+          done < <(jq -c '.items[]' agents/thesis-analyst/canary/battery.json)
+
+      - name: Stage verified canary artifact
+        if: always()
+        env:
+          CODEX_MODEL: ${{ matrix.model }}
+          CODEX_REASONING_EFFORT: ${{ matrix.effort }}
+          CANARY_CAPTURE: ${{ runner.temp }}/thesis-api-canary-capture/${{ matrix.model }}-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
+          CANARY_STAGE: ${{ runner.temp }}/thesis-api-canary-stage/${{ matrix.model }}-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import shutil
+          import stat
+          import sys
+
+          root = pathlib.Path.cwd()
+          sys.path.insert(0, str(root / "scripts"))
+          from run_thesis_analyst import validate_cells
+          from verify_custody import verify_run
+
+          capture = pathlib.Path(os.environ["CANARY_CAPTURE"])
+          final = pathlib.Path(os.environ["CANARY_STAGE"])
+          candidate = final.with_name(final.name + ".candidate")
+          for path in (candidate, final):
+              if os.path.lexists(path):
+                  raise RuntimeError(f"refusing existing canary stage path: {path}")
+          candidate.parent.mkdir(parents=True, exist_ok=True)
+
+          def require_directory(path):
+              if path.is_symlink() or not path.is_dir():
+                  raise RuntimeError(f"expected ordinary directory: {path}")
+
+          def require_regular(path):
+              try:
+                  mode = path.lstat().st_mode
+              except FileNotFoundError as exc:
+                  raise RuntimeError(f"missing expected capture file: {path}") from exc
+              if not stat.S_ISREG(mode):
+                  raise RuntimeError(f"expected regular capture file: {path}")
+
+          def verify_from(base, run_dir):
+              previous = pathlib.Path.cwd()
+              try:
+                  os.chdir(base)
+                  verify_run(run_dir)
+              finally:
+                  os.chdir(previous)
+
+          require_directory(capture)
+          capture_names = {path.name for path in capture.iterdir()}
+          if capture_names != {"runs", "status"}:
+              raise RuntimeError(
+                  f"unexpected canary capture inventory: {sorted(capture_names)}"
+              )
+          captured_runs = capture / "runs"
+          capture_status = capture / "status"
+          require_directory(captured_runs)
+          require_directory(capture_status)
+
+          battery = json.loads(
+              (root / "agents/thesis-analyst/canary/battery.json").read_text()
+          )
+          items = battery["items"]
+          ids = [item["id"] for item in items]
+          expected_status_names = {f"{item_id}.json" for item_id in ids}
+          status_names = {path.name for path in capture_status.iterdir()}
+          if status_names != expected_status_names:
+              raise RuntimeError(
+                  f"unexpected canary capture status inventory: {sorted(status_names)}"
+              )
+          statuses = {}
+          for item_id in ids:
+              status_path = capture_status / f"{item_id}.json"
+              require_regular(status_path)
+              status = json.loads(status_path.read_text())
+              if set(status) != {"itemId", "captured", "errorType"}:
+                  raise RuntimeError(f"invalid capture status shape for {item_id}")
+              if status["itemId"] != item_id or type(status["captured"]) is not bool:
+                  raise RuntimeError(f"invalid capture status identity for {item_id}")
+              if status["errorType"] is not None and not isinstance(
+                  status["errorType"], str
+              ):
+                  raise RuntimeError(f"invalid capture error type for {item_id}")
+              statuses[item_id] = status
+          captured_ids = {
+              item_id for item_id, status in statuses.items() if status["captured"]
+          }
+          run_names = {path.name for path in captured_runs.iterdir()}
+          if run_names != captured_ids:
+              raise RuntimeError(
+                  f"unexpected captured canary run inventory: {sorted(run_names)}"
+              )
+
+          candidate.mkdir()
+          staged_runs = candidate / "runs"
+          staged_reports = candidate / "reports"
+          staged_runs.mkdir()
+          staged_reports.mkdir()
+          result_rows = []
+          for item in items:
+              item_id = item["id"]
+              run_dir = captured_runs / item_id
+              run_destination = staged_runs / item_id
+              result = {
+                  "id": item_id,
+                  "model": os.environ["CODEX_MODEL"],
+                  "effort": os.environ["CODEX_REASONING_EFFORT"],
+                  "runOk": False,
+                  "custodyOk": False,
+                  "cellCountOk": False,
+                  "validatorOk": False,
+                  "status": "FAIL",
+                  "detail": "run artifacts failed trusted verification",
+              }
+              validation = None
+              if not statuses[item_id]["captured"]:
+                  error_type = statuses[item_id]["errorType"] or "unknown error"
+                  result["detail"] = f"immediate capture failed: {error_type}"
+              else:
+                  try:
+                      require_directory(run_dir)
+                      for path in run_dir.rglob("*"):
+                          mode = path.lstat().st_mode
+                          if not (stat.S_ISDIR(mode) or stat.S_ISREG(mode)):
+                              raise RuntimeError(
+                                  f"non-regular entry in canary run: {path.name}"
+                              )
+                      verify_from(capture, run_dir)
+                      shutil.copytree(run_dir, run_destination)
+                      verify_from(candidate, run_destination)
+                      result["custodyOk"] = True
+                      manifest = json.loads(
+                          (run_destination / "manifest.json").read_text()
+                      )
+                      result["runOk"] = manifest.get("ok") is True
+                      if result["runOk"]:
+                          cells = json.loads(
+                              (run_destination / "normalized_cells.json").read_text()
+                          )
+                          result["cellCountOk"] = (
+                              isinstance(cells, list) and len(cells) == 1
+                          )
+                          validation = validate_cells(
+                              cells,
+                              target_context=item["targetContext"],
+                              prompt_mode=battery["promptMode"],
+                          )
+                          result["validatorOk"] = validation.get("ok") is True
+                          result["status"] = (
+                              "PASS"
+                              if result["cellCountOk"] and result["validatorOk"]
+                              else "FAIL"
+                          )
+                          if result["status"] == "PASS":
+                              result["detail"] = (
+                                  "runner and shared validator passed"
+                              )
+                          elif not result["cellCountOk"]:
+                              result["detail"] = (
+                                  "expected exactly one normalized forecast cell"
+                              )
+                          else:
+                              result["detail"] = "shared validator failed"
+                      else:
+                          result["detail"] = (
+                              "runner failed; inspect verified manifest"
+                          )
+                  except Exception as exc:
+                      result["detail"] = (
+                          f"{type(exc).__name__} while verifying run artifacts"
+                      )
+                      if (
+                          not result["custodyOk"]
+                          and run_destination.is_dir()
+                          and not run_destination.is_symlink()
+                      ):
+                          shutil.rmtree(run_destination)
+              result_rows.append(result)
+              payload = {"result": result, "validation": validation}
+              (staged_reports / f"{item_id}.validation.json").write_text(
+                  json.dumps(payload, indent=2) + "\n"
+              )
+              (staged_reports / f"{item_id}.result.json").write_text(
+                  json.dumps(result, separators=(",", ":")) + "\n"
+              )
+          (staged_reports / "results.ndjson").write_text(
+              "".join(
+                  json.dumps(row, separators=(",", ":")) + "\n"
+                  for row in result_rows
+              )
+          )
+          candidate.rename(final)
+          PY
+
+      - name: Write canary summary
+        if: always()
+        env:
+          CODEX_MODEL: ${{ matrix.model }}
+          CODEX_REASONING_EFFORT: ${{ matrix.effort }}
+          CANARY_STAGE: ${{ runner.temp }}/thesis-api-canary-stage/${{ matrix.model }}-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+
+          results_path = (
+              pathlib.Path(os.environ["CANARY_STAGE"]) / "reports" / "results.ndjson"
+          )
+          rows = []
+          if results_path.is_file():
+              rows = [json.loads(line) for line in results_path.read_text().splitlines()]
+          with pathlib.Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
+              summary.write(
+                  "## Thesis analyst API canary — "
+                  f"{os.environ['CODEX_MODEL']} / {os.environ['CODEX_REASONING_EFFORT']}\n\n"
+              )
+              summary.write(
+                  "| Target | Run | Custody | One cell | Shared validator | Result | Detail |\n"
+              )
+              summary.write("|---|---:|---:|---:|---:|---:|---|\n")
+              if not rows:
+                  summary.write("| battery | — | — | — | — | FAIL | no result rows |\n")
+              for row in rows:
+                  detail = str(row["detail"])
+                  for unsafe in ("\\", "|", "<", ">", "`", "[", "]", "\r", "\n"):
+                      detail = detail.replace(unsafe, " ")
+                  detail = " ".join(detail.split())[:240] or "no detail"
+                  summary.write(
+                      f"| {row['id']} | {'PASS' if row['runOk'] else 'FAIL'} "
+                      f"| {'PASS' if row['custodyOk'] else 'FAIL'} "
+                      f"| {'PASS' if row['cellCountOk'] else 'FAIL'} "
+                      f"| {'PASS' if row['validatorOk'] else 'FAIL'} "
+                      f"| {row['status']} | {detail} |\n"
+                  )
+          PY
+
+      - name: Upload canary traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: thesis-api-canary-${{ matrix.model }}-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/thesis-api-canary-stage/${{ matrix.model }}-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: warn
+          retention-days: 14

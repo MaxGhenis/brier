@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "thesis_api_canary_battery_v1",
+  "preregistrationBasis": "introducing_git_commit",
+  "promptMode": "fast",
+  "items": [
+    {
+      "id": "actc-threshold-arm",
+      "pairId": "canary.actc-threshold",
+      "series": "irs.actc.total_claims",
+      "period": "2028",
+      "conditional": "A synthetic test statute enacted by 2028-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2028.",
+      "targetContext": {
+        "series": "irs.actc.total_claims",
+        "period": "2028",
+        "catalogSlug": "canary-actc-total-claims-2028-threshold-arm",
+        "country": "US",
+        "targetUnit": "millions",
+        "dataPointId": "canary.irs.actc.total_claims.2028.first_print.threshold_one_dollar",
+        "resolutionDate": "2030-12-31",
+        "resolutionSource": "Canary synthetic (not a real target)",
+        "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+        "resolutionRule": "Synthetic canary only. Resolve to the first value printed for tax year 2028 in the official IRS Publication 1304 Table 3.3 workbook at the all returns total row, refundable child tax credit or additional child tax credit number-of-returns column, multiplied by 0.000001; ignore all later revisions. Score this arm only under its paired synthetic condition; both arms resolve to the same print.",
+        "resolutionPolicy": "first_print",
+        "conditional": "A synthetic test statute enacted by 2028-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2028.",
+        "anchors": {
+          "2020": 19.119,
+          "2021": 37.772,
+          "2022": 18.077,
+          "2023": 17.626
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "allowedHosts": [
+            "www.irs.gov"
+          ],
+          "expectedReleaseWindow": {
+            "start": "2030-01-01",
+            "end": "2030-12-31"
+          },
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.actc.total_claims",
+          "field": "refundable_child_tax_credit_returns",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.000001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "id": "actc-current-law-arm",
+      "pairId": "canary.actc-threshold",
+      "series": "irs.actc.total_claims",
+      "period": "2028",
+      "conditional": "No synthetic test statute enacted by 2028-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold for tax year 2028; the test baseline holds.",
+      "targetContext": {
+        "series": "irs.actc.total_claims",
+        "period": "2028",
+        "catalogSlug": "canary-actc-total-claims-2028-current-law-arm",
+        "country": "US",
+        "targetUnit": "millions",
+        "dataPointId": "canary.irs.actc.total_claims.2028.first_print.current_law",
+        "resolutionDate": "2030-12-31",
+        "resolutionSource": "Canary synthetic (not a real target)",
+        "resolutionSourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+        "resolutionRule": "Synthetic canary only. Resolve to the first value printed for tax year 2028 in the official IRS Publication 1304 Table 3.3 workbook at the all returns total row, refundable child tax credit or additional child tax credit number-of-returns column, multiplied by 0.000001; ignore all later revisions. Score this arm only under its paired synthetic condition; both arms resolve to the same print.",
+        "resolutionPolicy": "first_print",
+        "conditional": "No synthetic test statute enacted by 2028-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold for tax year 2028; the test baseline holds.",
+        "anchors": {
+          "2020": 19.119,
+          "2021": 37.772,
+          "2022": 18.077,
+          "2023": 17.626
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "allowedHosts": [
+            "www.irs.gov"
+          ],
+          "expectedReleaseWindow": {
+            "start": "2030-01-01",
+            "end": "2030-12-31"
+          },
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.actc.total_claims",
+          "field": "refundable_child_tax_credit_returns",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, number of returns",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.000001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "id": "crp-ceiling-arm",
+      "pairId": "canary.crp-acreage-ceiling",
+      "series": "usda.fsa.crp.enrolled_acres_total",
+      "period": "2028-09",
+      "conditional": "A synthetic test farm bill enacted by 2028-09-30 sets the CRP acreage ceiling at 27,000,000 acres for fiscal years 2028 through 2032.",
+      "targetContext": {
+        "series": "usda.fsa.crp.enrolled_acres_total",
+        "period": "2028-09",
+        "catalogSlug": "canary-crp-enrolled-acres-september-2028-ceiling-arm",
+        "country": "US",
+        "targetUnit": "count",
+        "dataPointId": "canary.usda.fsa.crp.enrolled_acres_total.2028_09.first_print.ceiling_27_million",
+        "resolutionDate": "2028-12-31",
+        "resolutionSource": "Canary synthetic (not a real target)",
+        "resolutionSourceUrl": "https://www.fsa.usda.gov/resources/programs/conservation-reserve-program/statistics",
+        "resolutionRule": "Synthetic canary only. Resolve to the enrolled-acres total row in the first USDA FSA CRP Monthly Summary that reports September 2028; use the printed count and ignore later revisions or corrected reposts. Score this arm only under its paired synthetic condition; both arms resolve to the same print.",
+        "resolutionPolicy": "first_print",
+        "conditional": "A synthetic test farm bill enacted by 2028-09-30 sets the CRP acreage ceiling at 27,000,000 acres for fiscal years 2028 through 2032.",
+        "anchors": {
+          "2025-11": 26317011,
+          "2026-03": 26203615,
+          "2026-04": 26182019
+        },
+        "sourceBinding": {
+          "adapter": "fsa-crp-monthly-summary",
+          "allowedHosts": [
+            "www.fsa.usda.gov"
+          ],
+          "expectedReleaseWindow": {
+            "start": "2028-12-01",
+            "end": "2028-12-31"
+          },
+          "sourceUrl": "https://www.fsa.usda.gov/resources/programs/conservation-reserve-program/statistics",
+          "sourceSeriesId": "usda.fsa.crp.enrolled_acres_total",
+          "field": "enrolled_acres_total",
+          "table": "USDA FSA Conservation Reserve Program Statistics, CRP Monthly Summary, total row",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "id": "crp-baseline-arm",
+      "pairId": "canary.crp-acreage-ceiling",
+      "series": "usda.fsa.crp.enrolled_acres_total",
+      "period": "2028-09",
+      "conditional": "No synthetic test farm bill enacted by 2028-09-30 sets a CRP acreage ceiling for fiscal years 2028 through 2032; the test baseline holds.",
+      "targetContext": {
+        "series": "usda.fsa.crp.enrolled_acres_total",
+        "period": "2028-09",
+        "catalogSlug": "canary-crp-enrolled-acres-september-2028-baseline-arm",
+        "country": "US",
+        "targetUnit": "count",
+        "dataPointId": "canary.usda.fsa.crp.enrolled_acres_total.2028_09.first_print.baseline",
+        "resolutionDate": "2028-12-31",
+        "resolutionSource": "Canary synthetic (not a real target)",
+        "resolutionSourceUrl": "https://www.fsa.usda.gov/resources/programs/conservation-reserve-program/statistics",
+        "resolutionRule": "Synthetic canary only. Resolve to the enrolled-acres total row in the first USDA FSA CRP Monthly Summary that reports September 2028; use the printed count and ignore later revisions or corrected reposts. Score this arm only under its paired synthetic condition; both arms resolve to the same print.",
+        "resolutionPolicy": "first_print",
+        "conditional": "No synthetic test farm bill enacted by 2028-09-30 sets a CRP acreage ceiling for fiscal years 2028 through 2032; the test baseline holds.",
+        "anchors": {
+          "2025-11": 26317011,
+          "2026-03": 26203615,
+          "2026-04": 26182019
+        },
+        "sourceBinding": {
+          "adapter": "fsa-crp-monthly-summary",
+          "allowedHosts": [
+            "www.fsa.usda.gov"
+          ],
+          "expectedReleaseWindow": {
+            "start": "2028-12-01",
+            "end": "2028-12-31"
+          },
+          "sourceUrl": "https://www.fsa.usda.gov/resources/programs/conservation-reserve-program/statistics",
+          "sourceSeriesId": "usda.fsa.crp.enrolled_acres_total",
+          "field": "enrolled_acres_total",
+          "table": "USDA FSA Conservation Reserve Program Statistics, CRP Monthly Summary, total row",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    }
+  ]
+}
