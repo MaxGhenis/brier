@@ -197,6 +197,186 @@ def test_registration_retry_reuses_immutable_snapshot_and_generated_target(
     ).as_posix()
 
 
+def test_reuse_existing_only_hydrates_without_rewriting_registration(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    raw_targets = json.dumps({"targets": [sample_target()]})
+    targets_path.write_text(raw_targets)
+
+    [original] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 10),
+        "2030-01-10T14:32:05Z",
+    )
+    snapshot_bytes = original["path"].read_bytes()
+    generated_bytes = generated.read_bytes()
+
+    targets_path.write_text(raw_targets)
+    [reused] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 11),
+        "2030-01-11T09:08:07Z",
+        reuse_existing_only=True,
+    )
+
+    assert reused["existing"] is True
+    assert reused["path"] == original["path"]
+    assert reused["path"].read_bytes() == snapshot_bytes
+    assert generated.read_bytes() == generated_bytes
+    [hydrated] = json.loads(targets_path.read_text())["targets"]
+    assert hydrated["registeredAtUtc"] == "2030-01-10T14:32:05Z"
+    assert hydrated["targetContentHash"] == original["targetContentHash"]
+    assert hydrated["targetRegistrationPath"] == original["path"].relative_to(
+        tmp_path
+    ).as_posix()
+
+
+def test_reuse_existing_only_refuses_generated_rewrite_before_any_write(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    raw_targets = json.dumps({"targets": [sample_target()]})
+    targets_path.write_text(raw_targets)
+    [original] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 10),
+        "2030-01-10T14:32:05Z",
+    )
+    snapshot_bytes = original["path"].read_bytes()
+    generated_bytes = generated.read_bytes()
+    targets_path.write_text(raw_targets)
+
+    monkeypatch.setattr(
+        register_targets,
+        "render_generated_targets",
+        lambda *_args, **_kwargs: generated.read_text() + "// forbidden rewrite\n",
+    )
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match=(
+            r"^--reuse-existing-only refused because generated targets "
+            r"would be rewritten$"
+        ),
+    ):
+        register_targets.register(
+            targets_path,
+            dt.date(2030, 1, 11),
+            "2030-01-11T09:08:07Z",
+            reuse_existing_only=True,
+        )
+
+    assert original["path"].read_bytes() == snapshot_bytes
+    assert generated.read_bytes() == generated_bytes
+    assert targets_path.read_text() == raw_targets
+
+
+def test_reuse_existing_only_refuses_whole_set_before_any_write(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(json.dumps({"targets": [sample_target()]}))
+    [original] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 10),
+        "2030-01-10T14:32:05Z",
+    )
+
+    unregistered = sample_target()
+    unregistered.update(
+        {
+            "period": "2030-02",
+            "catalogSlug": "agency-test-rate-february-2030",
+        }
+    )
+    raw_targets = json.dumps({"targets": [sample_target(), unregistered]})
+    targets_path.write_text(raw_targets)
+    before_records = {
+        path.relative_to(tmp_path).as_posix(): path.read_bytes()
+        for path in (tmp_path / "records").rglob("*")
+        if path.is_file()
+    }
+    generated_bytes = generated.read_bytes()
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match=(
+            r"^--reuse-existing-only refused target\(s\) without an existing "
+            r"immutable registration: agency-test-rate-february-2030$"
+        ),
+    ):
+        register_targets.register(
+            targets_path,
+            dt.date(2030, 1, 11),
+            "2030-01-11T09:08:07Z",
+            reuse_existing_only=True,
+        )
+
+    after_records = {
+        path.relative_to(tmp_path).as_posix(): path.read_bytes()
+        for path in (tmp_path / "records").rglob("*")
+        if path.is_file()
+    }
+    assert after_records == before_records
+    assert original["path"].is_file()
+    assert generated.read_bytes() == generated_bytes
+    assert targets_path.read_text() == raw_targets
+
+
+@pytest.mark.parametrize(
+    ("incompatible_flag", "reason"),
+    [
+        (
+            "--bind-registration-commits",
+            "--reuse-existing-only cannot be combined with "
+            "--bind-registration-commits",
+        ),
+        (
+            "--skip-unbindable",
+            "--reuse-existing-only cannot be combined with --skip-unbindable",
+        ),
+    ],
+)
+def test_reuse_existing_only_cli_combinations_refuse_before_writing(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+    capsys,
+    incompatible_flag: str,
+    reason: str,
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text('{"targets": []}\n')
+    targets_bytes = targets_path.read_bytes()
+    generated_bytes = generated.read_bytes()
+    metadata_path = tmp_path / "metadata.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "register_targets.py",
+            "--targets-file",
+            str(targets_path),
+            "--reuse-existing-only",
+            incompatible_flag,
+            "--metadata-out",
+            str(metadata_path),
+        ],
+    )
+
+    assert register_targets.main() == 1
+
+    assert capsys.readouterr().err == f"target registration failed: {reason}\n"
+    assert targets_path.read_bytes() == targets_bytes
+    assert generated.read_bytes() == generated_bytes
+    assert not metadata_path.exists()
+    assert not (tmp_path / "records").exists()
+
+
 def test_registration_retry_fails_closed_on_generated_target_mismatch(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
@@ -259,7 +439,7 @@ def test_empty_registration_is_a_byte_identical_no_op(
     assert not (tmp_path / "records" / "targets").exists()
 
 
-def test_bind_registration_commits_uses_snapshot_introducing_commit(
+def test_reuse_existing_only_then_bind_uses_snapshot_introducing_commit(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
@@ -283,7 +463,8 @@ def test_bind_registration_commits_uses_snapshot_introducing_commit(
         [*commit_args, "-m", "base"], cwd=tmp_path, check=True, capture_output=True
     )
     targets_path = tmp_path / "targets.json"
-    targets_path.write_text(json.dumps({"targets": [sample_target()]}))
+    raw_targets = json.dumps({"targets": [sample_target()]})
+    targets_path.write_text(raw_targets)
     register_targets.register(
         targets_path,
         dt.date(2030, 1, 10),
@@ -305,9 +486,17 @@ def test_bind_registration_commits_uses_snapshot_introducing_commit(
         ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
     ).strip()
 
+    targets_path.write_text(raw_targets)
+    [reused] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 11),
+        "2030-01-11T09:08:07Z",
+        reuse_existing_only=True,
+    )
     metadata = register_targets.bind_registration_commits(targets_path, head)
 
     target = json.loads(targets_path.read_text())["targets"][0]
+    assert reused["existing"] is True
     assert target["registrationCommit"] == head
     assert metadata["sourceCommit"] == head
     assert metadata["registrationCommits"] == [head]
@@ -349,6 +538,201 @@ def test_wave_install_is_append_only(
     with pytest.raises(ValueError, match="refusing to overwrite"):
         register_wave.install_wave_candidate(candidate, module)
     assert module.read_text() == "trusted candidate\n"
+
+
+def provenance_replay_cell() -> dict:
+    return {
+        "slug": "register-wave-provenance-probe",
+        "country": "US",
+        "type": "data",
+        "title": "Register-wave provenance probe",
+        "question": "What will the synthetic agency test rate be?",
+        "unit": "percent",
+        "pointEstimate": 1.0,
+        "ciLow": 0.5,
+        "ciHigh": 1.5,
+        "confidence": 0.8,
+        "resolutionDate": "2030-02-01",
+        "resolutionSource": "Synthetic agency release",
+        "resolutionSourceUrl": "https://agency.example/releases",
+        "resolutionRule": "Use the first published synthetic agency value.",
+        "dataPointId": "agency.synthetic.rate.2030_01.first_print",
+        "historicalContext": [
+            {"label": "2029-11", "value": 0.9},
+            {"label": "2029-12", "value": 1.1},
+        ],
+        "drivers": ["recent level", "release volatility"],
+        "sourceContext": [
+            "https://agency.example/history",
+            "https://agency.example/calendar",
+        ],
+        "runAt": "2026-07-01T12:00:00Z",
+        "reasoning": [
+            {"kind": "heading", "text": "Synthetic agency rate"},
+            {
+                "kind": "tool",
+                "tool": "agency.history",
+                "call": "fetch 2029-11",
+                "result": "2029-11 value: 0.9 percent",
+            },
+            {
+                "kind": "tool",
+                "tool": "agency.history",
+                "call": "fetch 2029-12",
+                "result": "2029-12 value: 1.1 percent",
+            },
+            {
+                "kind": "text",
+                "text": "The base rate across the last 2 releases centers on 1.0.",
+            },
+            {
+                "kind": "math",
+                "text": "The historical range is 0.9 to 1.1; widen to 0.5 to 1.5.",
+            },
+            {
+                "kind": "text",
+                "text": "An upside risk surprise would land outside the interval.",
+            },
+            {"kind": "forecast", "point": 1.0, "ciLow": 0.5, "ciHigh": 1.5},
+        ],
+    }
+
+
+def convert_provenance_replay_candidate(
+    tmp_path: pathlib.Path,
+    module: pathlib.Path,
+    candidate_name: str,
+    provenance: str | None,
+) -> pathlib.Path:
+    cells_path = tmp_path / "cells.json"
+    cells_path.write_text(json.dumps([provenance_replay_cell()]) + "\n")
+    batch_path = tmp_path / "batch.json"
+    batch_path.write_text("{}\n")
+    candidate = tmp_path / candidate_name
+    subprocess.run(
+        register_wave.converter_command(
+            candidate,
+            "PROVENANCE_REPLAY_WAVE",
+            [str(cells_path)],
+            [str(batch_path)],
+            module,
+            provenance,
+        ),
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return candidate
+
+
+def test_register_wave_derives_explicit_provenance_from_validated_batches() -> None:
+    ordinary = {"results": []}
+    attested = {
+        "results": [],
+        "generationTicket": {
+            "ticketId": "2030-01-11-deadbeef",
+            "ticketPath": (
+                "records/tickets/2030-01-11/2030-01-11-deadbeef.json"
+            ),
+            "nonceSha256": "a" * 64,
+        },
+    }
+
+    assert register_wave.derive_batch_provenance([ordinary]) == "ci"
+    assert register_wave.derive_batch_provenance([attested]) == (
+        "local_operator_attested"
+    )
+    with pytest.raises(
+        ValueError,
+        match="batch manifests mix ticketed and ordinary publication provenance",
+    ):
+        register_wave.derive_batch_provenance([ordinary, attested])
+    command = register_wave.converter_command(
+        pathlib.Path("candidate.ts"),
+        "TEST_WAVE",
+        ["cells.json"],
+        ["batch.json"],
+        pathlib.Path("module.ts"),
+        "ci",
+    )
+    assert command[-2:] == ["--provenance", "ci"]
+    unlabeled_command = register_wave.converter_command(
+        pathlib.Path("candidate.ts"),
+        "TEST_WAVE",
+        ["cells.json"],
+        ["batch.json"],
+        pathlib.Path("module.ts"),
+        None,
+    )
+    assert "--provenance" not in unlabeled_command
+
+
+def test_register_wave_new_module_uses_derived_provenance(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "new-wave.ts"
+
+    assert register_wave.replay_provenance_for_module(module, "ci") == "ci"
+
+
+def test_register_wave_unlabeled_legacy_replay_is_byte_identical(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "legacy-wave.ts"
+    initial = convert_provenance_replay_candidate(
+        tmp_path, module, "initial-legacy.ts", None
+    )
+    register_wave.install_wave_candidate(initial, module)
+
+    replay_provenance = register_wave.replay_provenance_for_module(module, "ci")
+    assert replay_provenance is None
+    replay = convert_provenance_replay_candidate(
+        tmp_path, module, "replayed-legacy.ts", replay_provenance
+    )
+
+    assert replay.read_bytes() == module.read_bytes()
+    register_wave.install_wave_candidate(replay, module)
+
+
+def test_register_wave_labeled_replay_preserves_matching_label(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "labeled-wave.ts"
+    initial = convert_provenance_replay_candidate(
+        tmp_path, module, "initial-labeled.ts", "ci"
+    )
+    register_wave.install_wave_candidate(initial, module)
+
+    replay_provenance = register_wave.replay_provenance_for_module(module, "ci")
+    assert replay_provenance == "ci"
+    replay = convert_provenance_replay_candidate(
+        tmp_path, module, "replayed-labeled.ts", replay_provenance
+    )
+
+    assert replay.read_bytes() == module.read_bytes()
+    register_wave.install_wave_candidate(replay, module)
+
+
+def test_register_wave_refuses_existing_provenance_mismatch(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "mismatched-wave.ts"
+    labeled = convert_provenance_replay_candidate(
+        tmp_path, module, "mismatched-labeled.ts", "ci"
+    )
+    register_wave.install_wave_candidate(labeled, module)
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "existing wave predictionRun provenance differs from derived batch "
+            "provenance: ci != local_operator_attested"
+        ),
+    ):
+        register_wave.replay_provenance_for_module(
+            module, "local_operator_attested"
+        )
 
 
 def test_published_target_is_exactly_regenerated_and_retry_safe(

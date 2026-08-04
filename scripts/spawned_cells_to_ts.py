@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CUSTODY_ENFORCEMENT_DATE = "2026-07-10"
+PROVENANCE_VALUES = {"ci", "local_operator_attested"}
 
 ALLOWED_UNITS = {
     "count",
@@ -268,6 +269,10 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
 # manifest) alongside the cell, so the published stamp names the agent that
 # actually produced the forecast.
 SEALED_AGENT_KEY = "_sealedAgentMeta"
+# Private carrier for the public ticket identity sealed into a run manifest.
+# The nonce hash remains in the records manifest; the site only needs the
+# ticket record link that explains which trusted local-generation lane ran.
+SEALED_GENERATION_TICKET_KEY = "_sealedGenerationTicket"
 
 
 def agent_stamp() -> dict:
@@ -304,7 +309,81 @@ def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
     return meta if all(meta.get(key) for key in required) else None
 
 
-def to_forecast_cell(cell: dict) -> dict:
+def sealed_generation_ticket(run_dir: pathlib.Path) -> dict | None:
+    """Return the publishable ticket identity sealed into a run manifest."""
+
+    manifest_path = run_dir / "manifest.json"
+    if not manifest_path.exists():
+        return None
+    ticket = json.loads(manifest_path.read_text()).get("generationTicket")
+    if ticket is None:
+        return None
+    if not isinstance(ticket, dict) or not all(
+        isinstance(ticket.get(key), str) and ticket[key]
+        for key in ("ticketId", "ticketPath", "nonceSha256")
+    ):
+        raise ValueError(
+            f"manifest generationTicket is incomplete or invalid: {manifest_path}"
+        )
+    if not re.fullmatch(r"[0-9a-f]{64}", ticket["nonceSha256"]):
+        raise ValueError(
+            f"manifest generationTicket nonceSha256 is invalid: {manifest_path}"
+        )
+    return {"ticketId": ticket["ticketId"], "ticketPath": ticket["ticketPath"]}
+
+
+def carry_sealed_run_metadata(
+    cells: list[dict],
+    run_dir: pathlib.Path,
+    *,
+    provenance: str | None = None,
+) -> None:
+    """Replace any input claims with metadata read from the run manifest."""
+
+    if provenance is not None and provenance not in PROVENANCE_VALUES:
+        raise ValueError(f"unsupported prediction-run provenance: {provenance!r}")
+    for cell in cells:
+        cell.pop(SEALED_AGENT_KEY, None)
+        cell.pop(SEALED_GENERATION_TICKET_KEY, None)
+    sealed_agent = sealed_agent_meta(run_dir)
+    manifest_path = run_dir / "manifest.json"
+    manifest = (
+        json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    )
+    has_ticket = manifest.get("generationTicket") is not None
+    if provenance == "ci" and has_ticket:
+        raise ValueError(
+            "ticketed runs must be converted with --provenance "
+            "local_operator_attested"
+        )
+    sealed_ticket = None
+    if provenance == "local_operator_attested":
+        try:
+            sealed_ticket = sealed_generation_ticket(run_dir)
+        except ValueError as exc:
+            raise ValueError(
+                "--provenance local_operator_attested requires a valid "
+                f"generationTicket in {manifest_path}"
+            ) from exc
+        if sealed_ticket is None:
+            raise ValueError(
+                "--provenance local_operator_attested requires a valid "
+                f"generationTicket in {manifest_path}"
+            )
+    for cell in cells:
+        if sealed_agent:
+            cell[SEALED_AGENT_KEY] = sealed_agent
+        if sealed_ticket:
+            cell[SEALED_GENERATION_TICKET_KEY] = sealed_ticket
+
+
+def to_forecast_cell(
+    cell: dict,
+    *,
+    provenance: str | None = None,
+) -> dict:
+    if provenance is not None and provenance not in PROVENANCE_VALUES:
+        raise ValueError(f"unsupported prediction-run provenance: {provenance!r}")
     out = {
         k: cell[k]
         for k in (
@@ -343,6 +422,28 @@ def to_forecast_cell(cell: dict) -> dict:
         "toolPolicyHash": stamp["toolPolicyHash"],
         "sourceContext": cell["sourceContext"],
     }
+    ticket = cell.get(SEALED_GENERATION_TICKET_KEY)
+    if provenance == "ci":
+        if ticket is not None:
+            raise ValueError(
+                "ticketed runs must be converted with --provenance "
+                "local_operator_attested"
+            )
+        out["predictionRun"]["provenance"] = "ci"
+    elif provenance == "local_operator_attested":
+        if not isinstance(ticket, dict) or not all(
+            isinstance(ticket.get(key), str) and ticket[key]
+            for key in ("ticketId", "ticketPath")
+        ):
+            raise ValueError(
+                "--provenance local_operator_attested requires a valid "
+                "generationTicket"
+            )
+        out["predictionRun"]["provenance"] = "local_operator_attested"
+        out["predictionRun"]["generationTicket"] = {
+            "ticketId": ticket["ticketId"],
+            "ticketPath": ticket["ticketPath"],
+        }
     if cell.get("promptMode"):
         out["predictionRun"]["promptMode"] = cell["promptMode"]
     if cell.get("activityLog"):
@@ -355,16 +456,17 @@ def to_forecast_cell(cell: dict) -> dict:
     return out
 
 
-def load_cells(path: pathlib.Path) -> list[dict]:
+def load_cells(
+    path: pathlib.Path,
+    *,
+    provenance: str | None = None,
+) -> list[dict]:
     from normalize_spawn_json import scrub_signed_zeros
 
     cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
-    sealed_agent = sealed_agent_meta(path.parent)
-    if sealed_agent:
-        for cell in cells:
-            cell[SEALED_AGENT_KEY] = sealed_agent
+    carry_sealed_run_metadata(cells, path.parent, provenance=provenance)
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
     if custody_path.exists():
@@ -405,6 +507,7 @@ def main() -> int:
     parser.add_argument("inputs", nargs="+")
     parser.add_argument("--batch-manifest", action="append", default=[])
     parser.add_argument("--replace-module")
+    parser.add_argument("--provenance", choices=sorted(PROVENANCE_VALUES))
     args = parser.parse_args()
     out_ts = args.out_ts
     const_name = args.const_name
@@ -415,13 +518,13 @@ def main() -> int:
     cells, failed = [], []
     seen = set()
     for path in inputs:
-        for cell in load_cells(pathlib.Path(path)):
+        for cell in load_cells(pathlib.Path(path), provenance=args.provenance):
             errs = validate(cell, taken | seen)
             if errs:
                 failed.append((cell.get("slug", "?"), errs))
             else:
                 seen.add(cell["slug"])
-                cells.append(to_forecast_cell(cell))
+                cells.append(to_forecast_cell(cell, provenance=args.provenance))
     cells.sort(key=lambda c: c["resolutionDate"])
 
     body = ",\n".join(

@@ -225,6 +225,26 @@ def test_load_bundle_blocks_different_byte_overwrite(
         docket_publication.load_bundle(bundle, BATCH.as_posix())
 
 
+def test_load_bundle_repo_root_override_controls_append_only_checkout(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    checkout_a = initialize_checkout(
+        tmp_path / "checkout-a", {BATCH: b'{"different": true}\n'}
+    )
+    checkout_b = initialize_checkout(tmp_path / "checkout-b")
+    monkeypatch.setattr(docket_publication, "ROOT", checkout_a)
+    bundle = write_bundle(tmp_path, batch=batch_payload())
+
+    with pytest.raises(PublicationError, match="may not overwrite HEAD path"):
+        docket_publication.load_bundle(bundle, BATCH.as_posix())
+
+    docket_publication.load_bundle(
+        bundle,
+        BATCH.as_posix(),
+        repo_root=checkout_b,
+    )
+
+
 def test_load_bundle_blocks_chain_genesis(tmp_path: pathlib.Path) -> None:
     forbidden = pathlib.PurePosixPath("CHAIN_GENESIS.json")
     bundle = write_bundle(tmp_path, {forbidden: b"{}\n"})

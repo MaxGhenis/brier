@@ -18,6 +18,7 @@ import re
 import sys
 
 SPEC_FIELDS = ["slug", "question", "unit", "type", "resolutionDate", "conditionalOn"]
+RUN_PROVENANCES = {"ci", "local_operator_attested"}
 
 
 def find_cell_block(src: str, slug: str) -> tuple[int, int]:
@@ -52,28 +53,70 @@ def find_cell_block(src: str, slug: str) -> tuple[int, int]:
     raise SystemExit(f"unbalanced braces hunting {slug}")
 
 
+def existing_run_provenance(cell_block: str) -> str | None:
+    """Read the existing predictionRun label without inferring a new one."""
+
+    match = re.search(r'"?predictionRun"?\s*:\s*\{', cell_block)
+    if match is None:
+        return None
+    start = cell_block.find("{", match.start())
+    depth = 0
+    in_string = False
+    escaped = False
+    end = None
+    for index in range(start, len(cell_block)):
+        char = cell_block[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                end = index + 1
+                break
+    if end is None:
+        raise SystemExit("unbalanced predictionRun block in existing cell")
+    run_block = cell_block[start:end]
+    matches = re.findall(r'"?provenance"?\s*:\s*"([^"]+)"', run_block)
+    if not matches:
+        return None
+    if len(matches) != 1 or matches[0] not in RUN_PROVENANCES:
+        raise SystemExit(
+            f"existing predictionRun has invalid provenance labels: {matches}"
+        )
+    return matches[0]
+
+
 def main() -> int:
     target, upgrades_path = sys.argv[1], sys.argv[2]
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from spawned_cells_to_ts import (
-        SEALED_AGENT_KEY,
-        sealed_agent_meta,
+        carry_sealed_run_metadata,
         to_forecast_cell,
         validate,
     )
 
     src = pathlib.Path(target).read_text()
     upgrades = json.load(open(upgrades_path))
-    # Stamp the agent that actually produced this run, not whatever the
-    # working tree happens to define now.
-    sealed_agent = sealed_agent_meta(pathlib.Path(upgrades_path).resolve().parent)
-    if sealed_agent:
-        for cell in upgrades:
-            cell[SEALED_AGENT_KEY] = sealed_agent
+    run_dir = pathlib.Path(upgrades_path).resolve().parent
     for cell in upgrades:
         slug = cell["slug"]
         start, end = find_cell_block(src, slug)
         old = src[start:end]
+        provenance = existing_run_provenance(old)
+        # Stamp only metadata sealed by the run manifest, never claims copied
+        # from the upgrade cell payload itself. Preserve the existing public
+        # label exactly; replacement is not a provenance-granting boundary.
+        carry_sealed_run_metadata([cell], run_dir, provenance=provenance)
         for f in SPEC_FIELDS:
             old_val = re.search(rf'"?{f}"?:\s*"((?:[^"\\]|\\.)*)"', old)
             if f in cell and not old_val:
@@ -118,7 +161,7 @@ def main() -> int:
         ]
         if errs:
             raise SystemExit(f"{slug}: upgrade fails contract: {'; '.join(errs)}")
-        new = to_forecast_cell(cell)
+        new = to_forecast_cell(cell, provenance=provenance)
         # carry forward fields the upgrade may not restate
         for f in ("dataPointId", "policyParameter"):
             kept = re.search(rf'"?{f}"?:\s*"((?:[^"\\]|\\.)*)"', old)

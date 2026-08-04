@@ -59,11 +59,13 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SELF_RELPATH = "scripts/verify_records_attestations.py"
 PROTECTED_PREFIX = "records/"
 ALLOWED_WORKFLOWS = {
-    ".github/workflows/roll-docket.yml",
-    ".github/workflows/strategy-docket.yml",
+    ".github/workflows/mint-generation-ticket.yml",
     ".github/workflows/prospect-docket.yml",
+    ".github/workflows/publish-attested.yml",
     ".github/workflows/record-forecasts.yml",
     ".github/workflows/resolve-and-rebuild.yml",
+    ".github/workflows/roll-docket.yml",
+    ".github/workflows/strategy-docket.yml",
 }
 ALLOWED_REF = "refs/heads/main"
 SIGNER_RE = re.compile(

@@ -73,6 +73,113 @@ After a successful run:
 4. Verify the detail page, log page, and Brier reward export if the run is
    wired into the UI.
 
+### Attested local generation lane
+
+Use this lane for registered hard targets that the CI generation lane cannot
+serve. A trusted workflow first mints an expiring, single-publication ticket
+that seals the target set, nonce, and complete Codex policy. The runner binds
+that ticket to its clean introducing checkout, and the operator uploads only a
+data bundle; `publish-attested.yml` reconstructs and replays the run before CI
+commits and attests any `records/**` changes. Never commit or push the locally
+generated record files.
+
+Ticket expiry is clamped to the targets' earliest answer-knowable day
+(`resolutionDate`, `expectedReleaseDate`, or `expectedReleaseWindow.start`),
+so a ticket dies before the earliest instant its answers could be public. A
+registry series that carries none of those fields refuses to mint — by
+design, fail closed: without a stated boundary the clamp cannot hold, and
+such series belong to the scheduled CI lane. Enriching every rolled target
+with a knowable date so the lane could serve them is tracked in #130.
+
+A transcript binding the nonce cannot predate mint, so the nonce proves the
+published artifact set was assembled after mint; it does not prove the
+forecasting work occurred then. A ticket permits one publication, not one
+execution: parallel clean checkouts can run the ticket, select one result
+offline, and discard the others without detection. The lane also cannot prove
+model authorship or trust the operator's wall clock, and its git-status
+cleanliness checks do not see gitignored local inputs. These residual risks are
+why published cells carry `local_operator_attested`. The label is disclosure,
+not a scoring adjustment; the cells score identically to CI cells.
+
+Mint against exactly one registry series or an exact slug set:
+
+```bash
+gh workflow run mint-generation-ticket.yml --ref main \
+  -f slugs=hard-target-slug \
+  -f prompt_mode=fast \
+  -f codex_model=gpt-5.5 \
+  -f codex_reasoning_effort=high \
+  -f codex_network=true \
+  -f attempt=1
+```
+
+After the workflow commits the ticket to `main`, use a dedicated clean
+worktree at the commit that introduced it. Set `TICKET_PATH` to the path shown
+by the mint workflow:
+
+```bash
+set -euo pipefail
+git fetch origin main
+TICKET_PATH='records/tickets/YYYY-MM-DD/YYYY-MM-DD-LOWERCASE_HEX.json'
+TICKET_COMMIT=$(git log --full-history --diff-filter=A --format=%H \
+  origin/main -- "$TICKET_PATH")
+RUN_ROOT=$(mktemp -d)
+git worktree add --detach "$RUN_ROOT/checkout" "$TICKET_COMMIT"
+cd "$RUN_ROOT/checkout"
+
+WORK_DIR=$(mktemp -d)
+uv run python scripts/run_thesis_batch.py --ticket "$TICKET_PATH" \
+  | tee "$WORK_DIR/run.log"
+BATCH_ABS=$(sed -n 's/^batch manifest: //p' "$WORK_DIR/run.log")
+test -n "$BATCH_ABS" && test -f "$BATCH_ABS"
+BATCH_PATH=$(BATCH_ABS="$BATCH_ABS" uv run python - <<'PY'
+import os
+import pathlib
+
+root = pathlib.Path.cwd().resolve()
+batch = pathlib.Path(os.environ["BATCH_ABS"]).resolve()
+try:
+    print(batch.relative_to(root).as_posix())
+except ValueError as exc:
+    raise SystemExit(f"batch manifest is outside checkout: {batch}") from exc
+PY
+)
+jq '{targets: .targets}' "$TICKET_PATH" > "$WORK_DIR/trusted-targets.json"
+uv run python scripts/docket_publication.py stage \
+  --bundle-dir "$WORK_DIR/bundle" \
+  --batch "$BATCH_PATH" \
+  --trusted-targets "$WORK_DIR/trusted-targets.json"
+```
+
+Package the staged bundle, then create and push an orphan transport commit
+whose root contains exactly `bundle.tar.zst` and `bundle.sha256`. Git plumbing
+keeps the dirty local record files out of that commit:
+
+```bash
+set -euo pipefail
+TICKET_ID=$(jq -r .ticketId "$TICKET_PATH")
+tar -C "$WORK_DIR/bundle" -cf "$WORK_DIR/bundle.tar" bundle_manifest.json repo
+zstd -q -f "$WORK_DIR/bundle.tar" -o "$WORK_DIR/bundle.tar.zst"
+shasum -a 256 "$WORK_DIR/bundle.tar.zst" \
+  | awk '{print $1 "  bundle.tar.zst"}' > "$WORK_DIR/bundle.sha256"
+
+HASH_BLOB=$(git hash-object -w "$WORK_DIR/bundle.sha256")
+TAR_BLOB=$(git hash-object -w "$WORK_DIR/bundle.tar.zst")
+TREE_SHA=$(printf '100644 blob %s\tbundle.sha256\n100644 blob %s\tbundle.tar.zst\n' \
+  "$HASH_BLOB" "$TAR_BLOB" | git mktree)
+BUNDLE_SHA=$(printf 'Attested generation bundle %s\n' "$TICKET_ID" \
+  | git commit-tree "$TREE_SHA")
+git push origin "$BUNDLE_SHA:refs/heads/attested/$TICKET_ID"
+
+gh workflow run publish-attested.yml --ref main \
+  -f ticket_path="$TICKET_PATH" \
+  -f bundle_sha="$BUNDLE_SHA"
+```
+
+A failed, expired, or abandoned attempt remains public evidence. Retry only by
+minting the next attempt with `supersedes_ticket_id`, `superseded_outcome`, and
+a nonempty `superseded_reason`; a consumed ticket cannot be superseded.
+
 ### Add comparison runs
 
 Strategy comparisons are published only through the dispatch-only strategy

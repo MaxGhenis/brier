@@ -269,10 +269,15 @@ def changed_paths(
     return paths
 
 
-def head_bytes(relative: pathlib.PurePosixPath) -> bytes | None:
+def head_bytes(
+    relative: pathlib.PurePosixPath,
+    *,
+    repo_root: str | pathlib.Path | None = None,
+) -> bytes | None:
+    checkout = pathlib.Path(repo_root).resolve() if repo_root is not None else ROOT
     exists = subprocess.run(
         ["git", "cat-file", "-e", f"HEAD:{relative.as_posix()}"],
-        cwd=ROOT,
+        cwd=checkout,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -280,7 +285,7 @@ def head_bytes(relative: pathlib.PurePosixPath) -> bytes | None:
     if exists.returncode != 0:
         return None
     return subprocess.check_output(
-        ["git", "show", f"HEAD:{relative.as_posix()}"], cwd=ROOT
+        ["git", "show", f"HEAD:{relative.as_posix()}"], cwd=checkout
     )
 
 
@@ -309,14 +314,17 @@ def published_wave_collision_exclusion(
 def assert_append_only(
     relative: pathlib.PurePosixPath,
     source: pathlib.Path,
+    *,
+    repo_root: str | pathlib.Path | None = None,
 ) -> None:
-    committed = head_bytes(relative)
+    checkout = pathlib.Path(repo_root).resolve() if repo_root is not None else ROOT
+    committed = head_bytes(relative, repo_root=checkout)
     source_bytes = source.read_bytes()
     if committed is not None and committed != source_bytes:
         raise PublicationError(
             f"append-only publication may not overwrite HEAD path: {relative}"
         )
-    destination = safe_join(ROOT, relative)
+    destination = safe_join(checkout, relative)
     if source.resolve() == destination.resolve():
         return
     if destination.exists() or destination.is_symlink():
@@ -395,7 +403,10 @@ def load_bundle(
     bundle: pathlib.Path,
     batch: str,
     trusted_targets: str | None = None,
+    *,
+    repo_root: str | pathlib.Path | None = None,
 ) -> tuple[pathlib.Path, dict[str, Any]]:
+    checkout = pathlib.Path(repo_root).resolve() if repo_root is not None else ROOT
     bundle = bundle.resolve()
     repo = bundle / "repo"
     manifest_path = bundle / "bundle_manifest.json"
@@ -472,7 +483,11 @@ def load_bundle(
             raise PublicationError(
                 f"path is outside this invocation's publication scope: {relative}"
             )
-        assert_append_only(relative, safe_join(repo, relative))
+        assert_append_only(
+            relative,
+            safe_join(repo, relative),
+            repo_root=checkout,
+        )
     return repo, manifest
 
 

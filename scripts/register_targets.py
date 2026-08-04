@@ -1416,7 +1416,13 @@ def register(
     registration_date: dt.date,
     registered_at_utc: str | None = None,
     skip_unbindable: bool = False,
+    *,
+    reuse_existing_only: bool = False,
 ) -> list[dict[str, Any]]:
+    if reuse_existing_only and skip_unbindable:
+        raise RegistrationError(
+            "--reuse-existing-only cannot be combined with --skip-unbindable"
+        )
     payload = json.loads(targets_path.read_text())
     targets = payload.get("targets") if isinstance(payload, dict) else None
     if not isinstance(targets, list) or not all(
@@ -1497,9 +1503,24 @@ def register(
         _plan_registration(contract, registration_date, registered_at_utc, ledger_pin)
         for contract in contracts
     ]
-    generated_source = render_generated_targets(
-        registrations, allow_published=True, allow_supersede=True
-    )
+    if reuse_existing_only:
+        unregistered = sorted(
+            registration["contract"]["catalogSlug"]
+            for registration in registrations
+            if not registration["existing"]
+        )
+        if unregistered:
+            raise RegistrationError(
+                "--reuse-existing-only refused target(s) without an existing "
+                "immutable registration: " + ", ".join(unregistered)
+            )
+        generated_source = render_generated_targets(
+            registrations, allow_published=True
+        )
+    else:
+        generated_source = render_generated_targets(
+            registrations, allow_published=True, allow_supersede=True
+        )
 
     for registration in registrations:
         if not registration["existing"]:
@@ -1507,6 +1528,11 @@ def register(
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(canonical_bytes(registration["snapshot"]) + b"\n")
     if generated_source != GENERATED_TARGETS.read_text():
+        if reuse_existing_only:
+            raise RegistrationError(
+                "--reuse-existing-only refused because generated targets "
+                "would be rewritten"
+            )
         GENERATED_TARGETS.write_text(generated_source)
 
     by_slug = {
@@ -1846,8 +1872,14 @@ def main() -> int:
     parser.add_argument("--head", default="HEAD")
     parser.add_argument("--metadata-out", type=pathlib.Path)
     parser.add_argument("--skip-unbindable", action="store_true")
+    parser.add_argument("--reuse-existing-only", action="store_true")
     args = parser.parse_args()
     try:
+        if args.reuse_existing_only and args.bind_registration_commits:
+            raise RegistrationError(
+                "--reuse-existing-only cannot be combined with "
+                "--bind-registration-commits"
+            )
         if args.bind_registration_commits:
             metadata = bind_registration_commits(args.targets_file, args.head)
             count = len(metadata["targets"])
@@ -1861,13 +1893,18 @@ def main() -> int:
                 _iso_date(args.date),
                 args.registered_at_utc,
                 args.skip_unbindable,
+                reuse_existing_only=args.reuse_existing_only,
             )
             metadata = registration_metadata(registrations)
             count = len(registrations)
             reused = sum(1 for row in registrations if row["existing"])
-            message = (
-                f"preregistered {count} target(s) ({reused} immutable restatement(s))"
-            )
+            if args.reuse_existing_only:
+                message = f"verified {count} already-registered target(s)"
+            else:
+                message = (
+                    f"preregistered {count} target(s) "
+                    f"({reused} immutable restatement(s))"
+                )
         if args.metadata_out:
             args.metadata_out.parent.mkdir(parents=True, exist_ok=True)
             args.metadata_out.write_text(json.dumps(metadata, indent=2) + "\n")

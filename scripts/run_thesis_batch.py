@@ -17,9 +17,45 @@ import sys
 from datetime import datetime, timezone
 from typing import Any
 
+from generation_tickets import (
+    TicketError,
+    find_ticket_consumption,
+    find_ticket_successor,
+    load_ticket,
+    ticket_batch_filename,
+    ticket_introducing_commit,
+    ticket_manifest_binding,
+    ticket_record_path,
+)
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "run_thesis_analyst.py"
 DEFAULT_CODEX_MODEL = "gpt-5.5"
+
+TICKET_CONFLICT_FLAGS = (
+    "--target",
+    "--targets-file",
+    "--max-targets",
+    "--skip",
+    "--max-failures",
+    "--command",
+    "--codex-model",
+    "--codex-reasoning-effort",
+    "--no-codex-search",
+    "--codex-sandbox",
+    "--codex-network",
+    "--prompt-mode",
+    "--pre-submit-review-codex-model",
+    "--no-pre-submit-review",
+    "--pre-submit-review-codex-search",
+    "--timeout-seconds",
+    "--out",
+)
+
+
+class BatchRunError(ValueError):
+    """A batch invocation was refused before any forecast could run."""
+
 
 DEFAULT_TARGETS: list[dict[str, Any]] = [
     {
@@ -171,6 +207,146 @@ def parse_target(value: str) -> dict[str, str]:
     return target
 
 
+def _argv_has_option(argv: list[str], option: str) -> bool:
+    return any(value == option or value.startswith(f"{option}=") for value in argv)
+
+
+def refuse_ticket_conflicts(argv: list[str]) -> None:
+    """Reject every argument that could override a ticket's sealed scope."""
+
+    if not _argv_has_option(argv, "--ticket"):
+        return
+    for option in TICKET_CONFLICT_FLAGS:
+        if _argv_has_option(argv, option):
+            raise BatchRunError(
+                f"ticket mode refuses {option}: generation policy and target "
+                "scope come from the ticket"
+            )
+
+
+def _git_output(repo_root: pathlib.Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or f"git exited {completed.returncode}"
+        raise BatchRunError(f"ticket mode git {' '.join(args)} failed: {detail}")
+    return completed.stdout.strip()
+
+
+def _ticket_path_and_payload(
+    ticket_path: str | pathlib.Path, repo_root: pathlib.Path
+) -> tuple[pathlib.PurePosixPath, dict[str, Any]]:
+    root = repo_root.resolve()
+    candidate = pathlib.Path(ticket_path)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    try:
+        relative = candidate.resolve().relative_to(root)
+    except ValueError as exc:
+        raise BatchRunError(
+            f"ticket mode refuses a ticket path outside the checkout: {ticket_path}"
+        ) from exc
+    relative_posix = pathlib.PurePosixPath(relative.as_posix())
+    ticket = load_ticket(candidate)
+    expected = pathlib.PurePosixPath(ticket_record_path(ticket["ticketId"]))
+    if relative_posix != expected:
+        raise BatchRunError(
+            "ticket mode requires the conventional ticket path: "
+            f"{relative_posix} != {expected}"
+        )
+    return relative_posix, ticket
+
+
+def _parse_ticket_time(value: str) -> datetime:
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+
+
+def prepare_ticket_mode(
+    ticket_path: str | pathlib.Path,
+    *,
+    repo_root: pathlib.Path,
+    now_utc: datetime | None = None,
+) -> tuple[dict[str, Any], dict[str, str], str]:
+    """Validate one-use ticket state and its exact clean checkout."""
+
+    root = repo_root.resolve()
+    relative, ticket = _ticket_path_and_payload(ticket_path, root)
+    now = now_utc or datetime.now(timezone.utc)
+    if now.tzinfo is None or now.utcoffset() != timezone.utc.utcoffset(now):
+        raise BatchRunError("ticket mode now_utc must be timezone-aware UTC")
+    if now >= _parse_ticket_time(ticket["expiresAtUtc"]):
+        raise BatchRunError(
+            f"generation ticket {ticket['ticketId']} expired at "
+            f"{ticket['expiresAtUtc']}"
+        )
+
+    consumption = find_ticket_consumption(ticket["ticketId"], root)
+    if consumption is not None:
+        raise BatchRunError(
+            f"generation ticket {ticket['ticketId']} was already consumed by "
+            f"{consumption}"
+        )
+    successor = find_ticket_successor(ticket["ticketId"], root)
+    if successor is not None:
+        raise BatchRunError(
+            f"generation ticket {ticket['ticketId']} was superseded by {successor}"
+        )
+
+    status = _git_output(root, "status", "--porcelain=v1", "-uall")
+    if status:
+        raise BatchRunError(
+            "ticket mode requires a clean checkout; git status begins: "
+            f"{status.splitlines()[0]}"
+        )
+    introducing = ticket_introducing_commit(relative, root)
+    head = _git_output(root, "rev-parse", "HEAD")
+    if head != introducing:
+        raise BatchRunError(
+            f"ticket checkout mismatch: HEAD {head} != ticket introducing "
+            f"commit {introducing}"
+        )
+    context = {
+        "ticketId": ticket["ticketId"],
+        "ticketPath": relative.as_posix(),
+        "nonce": ticket["nonce"],
+    }
+    return ticket, context, head
+
+
+def apply_ticket_policy(args: argparse.Namespace, ticket: dict[str, Any]) -> None:
+    """Replace every effective batch setting with its ticket-sealed value."""
+
+    policy = ticket["policy"]
+    args.prompt_mode = policy["promptMode"]
+    args.codex_model = policy["codexModel"]
+    args.codex_reasoning_effort = policy["codexReasoningEffort"]
+    args.codex_sandbox = policy["codexSandbox"]
+    args.codex_network = policy["codexNetwork"]
+    args.no_codex_search = False
+    args.command = None
+    args.pre_submit_review_codex_model = policy["reviewCodexModel"]
+    args.pre_submit_review_codex_search = policy["reviewCodexSearch"]
+    args.no_pre_submit_review = False
+    args.timeout_seconds = policy["timeoutSeconds"]
+
+
+def ticket_batch_path(
+    repo_root: pathlib.Path, started_at: str, ticket: dict[str, Any]
+) -> pathlib.Path:
+    return (
+        repo_root
+        / "records"
+        / "thesis-analyst"
+        / "batches"
+        / started_at[:10]
+        / ticket_batch_filename(ticket)
+    )
+
+
 def load_targets(args: argparse.Namespace) -> list[dict[str, Any]]:
     if args.targets_file:
         data = json.loads(pathlib.Path(args.targets_file).read_text())
@@ -189,12 +365,21 @@ def load_targets(args: argparse.Namespace) -> list[dict[str, Any]]:
 def run_one(
     target: dict[str, Any],
     args: argparse.Namespace,
+    ticket_context: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    command = args.command or os.environ.get("THESIS_AGENT_COMMAND")
+    command = (
+        None
+        if ticket_context is not None
+        else args.command or os.environ.get("THESIS_AGENT_COMMAND")
+    )
     codex_model = (
         args.codex_model
-        or os.environ.get("THESIS_CODEX_MODEL")
-        or DEFAULT_CODEX_MODEL
+        if ticket_context is not None
+        else (
+            args.codex_model
+            or os.environ.get("THESIS_CODEX_MODEL")
+            or DEFAULT_CODEX_MODEL
+        )
     )
     argv = [
         sys.executable,
@@ -211,6 +396,17 @@ def run_one(
         "--target-context-json",
         json.dumps(target, sort_keys=True),
     ]
+    if ticket_context is not None:
+        argv.extend(
+            [
+                "--ticket-id",
+                ticket_context["ticketId"],
+                "--ticket-path",
+                ticket_context["ticketPath"],
+                "--ticket-nonce",
+                ticket_context["nonce"],
+            ]
+        )
     if target.get("conditional"):
         argv.extend(["--conditional", target["conditional"]])
     if command:
@@ -281,6 +477,8 @@ def write_batch_manifest(
     finished_at: str,
     args: argparse.Namespace,
     results: list[dict[str, Any]],
+    ticket_context: dict[str, str] | None = None,
+    checkout_sha: str | None = None,
 ) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     manifest = {
@@ -294,11 +492,27 @@ def write_batch_manifest(
         "failed": sum(1 for result in results if not result["ok"]),
         "results": results,
     }
-    out_path.write_text(json.dumps(manifest, indent=2))
+    if ticket_context is not None:
+        if checkout_sha is None:
+            raise BatchRunError("ticket batch manifest requires checkoutSha")
+        manifest.update(
+            {
+                "codexModel": args.codex_model,
+                "codexReasoningEffort": args.codex_reasoning_effort,
+                "codexSandbox": args.codex_sandbox,
+                "codexNetwork": args.codex_network,
+                "reviewCodexModel": args.pre_submit_review_codex_model,
+                "reviewCodexSearch": args.pre_submit_review_codex_search,
+                "generationTicket": ticket_manifest_binding(ticket_context),
+                "checkoutSha": checkout_sha,
+            }
+        )
+    out_path.write_text(json.dumps(manifest, indent=2) + "\n")
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(allow_abbrev=False)
+    parser.add_argument("--ticket")
     parser.add_argument("--target", action="append", type=parse_target)
     parser.add_argument("--targets-file")
     parser.add_argument("--max-targets", type=int)
@@ -332,22 +546,48 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-pre-submit-review", action="store_true")
     parser.add_argument("--pre-submit-review-codex-search", action="store_true")
     parser.add_argument("--out")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> int:
-    args = parse_args()
-    targets = load_targets(args)
-    started_at = utc_now()
-    out = (
-        pathlib.Path(args.out)
-        if args.out
-        else ROOT
-        / "records"
-        / "thesis-analyst"
-        / "batches"
-        / f"{slug_time(started_at)}.json"
-    )
+def main(
+    argv: list[str] | None = None,
+    *,
+    repo_root: pathlib.Path = ROOT,
+    now_utc: datetime | None = None,
+) -> int:
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
+    try:
+        refuse_ticket_conflicts(raw_argv)
+        args = parse_args(raw_argv)
+        ticket: dict[str, Any] | None = None
+        ticket_context: dict[str, str] | None = None
+        checkout_sha: str | None = None
+        if args.ticket:
+            ticket, ticket_context, checkout_sha = prepare_ticket_mode(
+                args.ticket,
+                repo_root=repo_root,
+                now_utc=now_utc,
+            )
+            apply_ticket_policy(args, ticket)
+            targets = ticket["targets"]
+        else:
+            targets = load_targets(args)
+        started_at = utc_now()
+        out = (
+            ticket_batch_path(repo_root, started_at, ticket)
+            if ticket is not None
+            else pathlib.Path(args.out)
+            if args.out
+            else repo_root
+            / "records"
+            / "thesis-analyst"
+            / "batches"
+            / f"{slug_time(started_at)}.json"
+        )
+    except (BatchRunError, TicketError, OSError) as exc:
+        print(f"batch run refused: {exc}", file=sys.stderr)
+        return 1
+
     results = []
     failures = 0
     for index, target in enumerate(targets, start=1):
@@ -355,7 +595,7 @@ def main() -> int:
             f"[{index}/{len(targets)}] {target['series']} {target['period']}",
             flush=True,
         )
-        result = run_one(target, args)
+        result = run_one(target, args, ticket_context)
         results.append(result)
         print(
             json.dumps(
@@ -367,12 +607,28 @@ def main() -> int:
             ),
             flush=True,
         )
-        write_batch_manifest(out, started_at, utc_now(), args, results)
+        write_batch_manifest(
+            out,
+            started_at,
+            utc_now(),
+            args,
+            results,
+            ticket_context,
+            checkout_sha,
+        )
         if not result["ok"]:
             failures += 1
-            if failures >= args.max_failures:
+            if ticket_context is None and failures >= args.max_failures:
                 break
-    write_batch_manifest(out, started_at, utc_now(), args, results)
+    write_batch_manifest(
+        out,
+        started_at,
+        utc_now(),
+        args,
+        results,
+        ticket_context,
+        checkout_sha,
+    )
     print(f"batch manifest: {out}")
     return 0 if all(result["ok"] for result in results) else 1
 
