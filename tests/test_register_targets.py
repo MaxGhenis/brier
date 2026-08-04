@@ -540,6 +540,39 @@ def test_wave_install_is_append_only(
     assert module.read_text() == "trusted candidate\n"
 
 
+def test_register_wave_derives_explicit_provenance_from_validated_batches() -> None:
+    ordinary = {"results": []}
+    attested = {
+        "results": [],
+        "generationTicket": {
+            "ticketId": "2030-01-11-deadbeef",
+            "ticketPath": (
+                "records/tickets/2030-01-11/2030-01-11-deadbeef.json"
+            ),
+            "nonceSha256": "a" * 64,
+        },
+    }
+
+    assert register_wave.derive_batch_provenance([ordinary]) == "ci"
+    assert register_wave.derive_batch_provenance([attested]) == (
+        "local_operator_attested"
+    )
+    with pytest.raises(
+        ValueError,
+        match="batch manifests mix ticketed and ordinary publication provenance",
+    ):
+        register_wave.derive_batch_provenance([ordinary, attested])
+    command = register_wave.converter_command(
+        pathlib.Path("candidate.ts"),
+        "TEST_WAVE",
+        ["cells.json"],
+        ["batch.json"],
+        pathlib.Path("module.ts"),
+        "ci",
+    )
+    assert command[-2:] == ["--provenance", "ci"]
+
+
 def test_published_target_is_exactly_regenerated_and_retry_safe(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

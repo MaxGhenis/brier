@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CUSTODY_ENFORCEMENT_DATE = "2026-07-10"
+PROVENANCE_VALUES = {"ci", "local_operator_attested"}
 
 ALLOWED_UNITS = {
     "count",
@@ -331,14 +332,44 @@ def sealed_generation_ticket(run_dir: pathlib.Path) -> dict | None:
     return {"ticketId": ticket["ticketId"], "ticketPath": ticket["ticketPath"]}
 
 
-def carry_sealed_run_metadata(cells: list[dict], run_dir: pathlib.Path) -> None:
+def carry_sealed_run_metadata(
+    cells: list[dict],
+    run_dir: pathlib.Path,
+    *,
+    provenance: str | None = None,
+) -> None:
     """Replace any input claims with metadata read from the run manifest."""
 
+    if provenance is not None and provenance not in PROVENANCE_VALUES:
+        raise ValueError(f"unsupported prediction-run provenance: {provenance!r}")
     for cell in cells:
         cell.pop(SEALED_AGENT_KEY, None)
         cell.pop(SEALED_GENERATION_TICKET_KEY, None)
     sealed_agent = sealed_agent_meta(run_dir)
-    sealed_ticket = sealed_generation_ticket(run_dir)
+    manifest_path = run_dir / "manifest.json"
+    manifest = (
+        json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    )
+    has_ticket = manifest.get("generationTicket") is not None
+    if provenance == "ci" and has_ticket:
+        raise ValueError(
+            "ticketed runs must be converted with --provenance "
+            "local_operator_attested"
+        )
+    sealed_ticket = None
+    if provenance == "local_operator_attested":
+        try:
+            sealed_ticket = sealed_generation_ticket(run_dir)
+        except ValueError as exc:
+            raise ValueError(
+                "--provenance local_operator_attested requires a valid "
+                f"generationTicket in {manifest_path}"
+            ) from exc
+        if sealed_ticket is None:
+            raise ValueError(
+                "--provenance local_operator_attested requires a valid "
+                f"generationTicket in {manifest_path}"
+            )
     for cell in cells:
         if sealed_agent:
             cell[SEALED_AGENT_KEY] = sealed_agent
@@ -346,7 +377,13 @@ def carry_sealed_run_metadata(cells: list[dict], run_dir: pathlib.Path) -> None:
             cell[SEALED_GENERATION_TICKET_KEY] = sealed_ticket
 
 
-def to_forecast_cell(cell: dict, *, include_provenance: bool = True) -> dict:
+def to_forecast_cell(
+    cell: dict,
+    *,
+    provenance: str | None = None,
+) -> dict:
+    if provenance is not None and provenance not in PROVENANCE_VALUES:
+        raise ValueError(f"unsupported prediction-run provenance: {provenance!r}")
     out = {
         k: cell[k]
         for k in (
@@ -385,16 +422,28 @@ def to_forecast_cell(cell: dict, *, include_provenance: bool = True) -> dict:
         "toolPolicyHash": stamp["toolPolicyHash"],
         "sourceContext": cell["sourceContext"],
     }
-    if include_provenance:
-        ticket = cell.get(SEALED_GENERATION_TICKET_KEY)
-        if ticket:
-            out["predictionRun"]["provenance"] = "local_operator_attested"
-            out["predictionRun"]["generationTicket"] = {
-                "ticketId": ticket["ticketId"],
-                "ticketPath": ticket["ticketPath"],
-            }
-        else:
-            out["predictionRun"]["provenance"] = "ci"
+    ticket = cell.get(SEALED_GENERATION_TICKET_KEY)
+    if provenance == "ci":
+        if ticket is not None:
+            raise ValueError(
+                "ticketed runs must be converted with --provenance "
+                "local_operator_attested"
+            )
+        out["predictionRun"]["provenance"] = "ci"
+    elif provenance == "local_operator_attested":
+        if not isinstance(ticket, dict) or not all(
+            isinstance(ticket.get(key), str) and ticket[key]
+            for key in ("ticketId", "ticketPath")
+        ):
+            raise ValueError(
+                "--provenance local_operator_attested requires a valid "
+                "generationTicket"
+            )
+        out["predictionRun"]["provenance"] = "local_operator_attested"
+        out["predictionRun"]["generationTicket"] = {
+            "ticketId": ticket["ticketId"],
+            "ticketPath": ticket["ticketPath"],
+        }
     if cell.get("promptMode"):
         out["predictionRun"]["promptMode"] = cell["promptMode"]
     if cell.get("activityLog"):
@@ -407,13 +456,17 @@ def to_forecast_cell(cell: dict, *, include_provenance: bool = True) -> dict:
     return out
 
 
-def load_cells(path: pathlib.Path) -> list[dict]:
+def load_cells(
+    path: pathlib.Path,
+    *,
+    provenance: str | None = None,
+) -> list[dict]:
     from normalize_spawn_json import scrub_signed_zeros
 
     cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
-    carry_sealed_run_metadata(cells, path.parent)
+    carry_sealed_run_metadata(cells, path.parent, provenance=provenance)
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
     if custody_path.exists():
@@ -447,28 +500,6 @@ def repo_path(path: pathlib.Path) -> str:
         return str(path)
 
 
-def replacement_has_run_provenance(path: str | None) -> bool:
-    """Whether an existing generated module already uses the new run stamp.
-
-    ``--replace-module`` is also the collision-exclusion input used by the
-    byte-for-byte wave reproducibility check. Historical generated modules
-    predate this field and must remain reproducible without editing them.
-    Newly generated modules always carry a stamp, and future replays preserve
-    it because either allowed value is present in the committed module.
-    """
-
-    if not path:
-        return True
-    module = pathlib.Path(path)
-    if not module.is_file():
-        return True
-    source = module.read_text()
-    return any(
-        f'"provenance": "{value}"' in source
-        for value in ("ci", "local_operator_attested")
-    )
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("out_ts")
@@ -476,26 +507,24 @@ def main() -> int:
     parser.add_argument("inputs", nargs="+")
     parser.add_argument("--batch-manifest", action="append", default=[])
     parser.add_argument("--replace-module")
+    parser.add_argument("--provenance", choices=sorted(PROVENANCE_VALUES))
     args = parser.parse_args()
     out_ts = args.out_ts
     const_name = args.const_name
     inputs = args.inputs
     site_data = ROOT / "site/src/data"
     collision_exclusion = pathlib.Path(args.replace_module or out_ts)
-    include_provenance = replacement_has_run_provenance(args.replace_module)
     taken = existing_slugs(site_data, collision_exclusion)
     cells, failed = [], []
     seen = set()
     for path in inputs:
-        for cell in load_cells(pathlib.Path(path)):
+        for cell in load_cells(pathlib.Path(path), provenance=args.provenance):
             errs = validate(cell, taken | seen)
             if errs:
                 failed.append((cell.get("slug", "?"), errs))
             else:
                 seen.add(cell["slug"])
-                cells.append(
-                    to_forecast_cell(cell, include_provenance=include_provenance)
-                )
+                cells.append(to_forecast_cell(cell, provenance=args.provenance))
     cells.sort(key=lambda c: c["resolutionDate"])
 
     body = ",\n".join(

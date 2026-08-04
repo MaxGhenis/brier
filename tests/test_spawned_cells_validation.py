@@ -17,7 +17,9 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import replace_cells_in_place  # noqa: E402
 import spawned_cells_to_ts  # noqa: E402
+import verify_wave_reproducibility  # noqa: E402
 
 
 def probe_cell(resolution_date: str) -> dict:
@@ -186,7 +188,17 @@ def test_stamp_falls_back_to_live_agent_when_run_sealed_none() -> None:
 
     run = spawned_cells_to_ts.to_forecast_cell(stampable_cell())["predictionRun"]
     assert run["agentVersion"] == spawned_cells_to_ts.agent_stamp()["agentVersion"]
+    assert "provenance" not in run
+    assert "generationTicket" not in run
+
+
+def test_explicit_ci_stamp_is_not_inferred() -> None:
+    run = spawned_cells_to_ts.to_forecast_cell(
+        stampable_cell(), provenance="ci"
+    )["predictionRun"]
+
     assert run["provenance"] == "ci"
+    assert "generationTicket" not in run
 
 
 def test_attested_stamp_carries_public_ticket_identity() -> None:
@@ -196,7 +208,9 @@ def test_attested_stamp_carries_public_ticket_identity() -> None:
         "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
     }
 
-    run = spawned_cells_to_ts.to_forecast_cell(cell)["predictionRun"]
+    run = spawned_cells_to_ts.to_forecast_cell(
+        cell, provenance="local_operator_attested"
+    )["predictionRun"]
 
     assert run["provenance"] == "local_operator_attested"
     assert run["generationTicket"] == {
@@ -214,7 +228,7 @@ def test_unsealed_cell_cannot_self_claim_attested_provenance() -> None:
 
     run = spawned_cells_to_ts.to_forecast_cell(cell)["predictionRun"]
 
-    assert run["provenance"] == "ci"
+    assert "provenance" not in run
     assert "generationTicket" not in run
 
 
@@ -241,7 +255,7 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     loaded = spawned_cells_to_ts.load_cells(cells_path)[0]
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
 
-    assert run["provenance"] == "ci"
+    assert "provenance" not in run
     assert "generationTicket" not in run
     assert run["agent"] != "spoofed.agent"
 
@@ -290,8 +304,19 @@ def test_loaded_manifest_ticket_reaches_published_prediction_run(
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    loaded = spawned_cells_to_ts.load_cells(cells_path)[0]
-    run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
+    unlabeled = spawned_cells_to_ts.load_cells(cells_path)[0]
+    unlabeled_run = spawned_cells_to_ts.to_forecast_cell(unlabeled)[
+        "predictionRun"
+    ]
+    assert "provenance" not in unlabeled_run
+    assert "generationTicket" not in unlabeled_run
+
+    loaded = spawned_cells_to_ts.load_cells(
+        cells_path, provenance="local_operator_attested"
+    )[0]
+    run = spawned_cells_to_ts.to_forecast_cell(
+        loaded, provenance="local_operator_attested"
+    )["predictionRun"]
 
     assert run["agentVersion"] == "3.0.0"
     assert run["provenance"] == "local_operator_attested"
@@ -322,22 +347,91 @@ def test_sealed_generation_ticket_refuses_invalid_manifest_identity(
         spawned_cells_to_ts.sealed_generation_ticket(tmp_path)
 
 
-def test_legacy_replacement_module_omits_only_new_provenance_stamp(
+def test_ci_conversion_refuses_ticketed_manifest_literally(
     tmp_path: pathlib.Path,
 ) -> None:
-    legacy = tmp_path / "legacy.ts"
-    legacy.write_text('"predictionDistribution": {"provenance": "interval_seeded"}')
-    current = tmp_path / "current.ts"
-    current.write_text('"predictionRun": {"provenance": "ci"}')
+    import json
 
-    assert not spawned_cells_to_ts.replacement_has_run_provenance(str(legacy))
-    assert spawned_cells_to_ts.replacement_has_run_provenance(str(current))
-    assert spawned_cells_to_ts.replacement_has_run_provenance(None)
-    legacy_run = spawned_cells_to_ts.to_forecast_cell(
-        stampable_cell(), include_provenance=False
-    )["predictionRun"]
-    assert "provenance" not in legacy_run
-    assert "generationTicket" not in legacy_run
+    (tmp_path / "manifest.json").write_text(
+        json.dumps({"generationTicket": {"untrusted": "shape"}})
+    )
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T00:00:00Z"
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    with pytest.raises(ValueError) as error:
+        spawned_cells_to_ts.load_cells(cells_path, provenance="ci")
+
+    assert str(error.value) == (
+        "ticketed runs must be converted with --provenance "
+        "local_operator_attested"
+    )
+
+
+def test_local_attested_conversion_requires_valid_manifest_ticket_literally(
+    tmp_path: pathlib.Path,
+) -> None:
+    import json
+
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T00:00:00Z"
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    with pytest.raises(ValueError) as error:
+        spawned_cells_to_ts.load_cells(
+            cells_path,
+            provenance="local_operator_attested",
+        )
+
+    assert str(error.value) == (
+        "--provenance local_operator_attested requires a valid "
+        f"generationTicket in {tmp_path / 'manifest.json'}"
+    )
+
+
+def test_replacement_and_replay_preserve_existing_run_label() -> None:
+    labeled = """
+    {
+      "predictionDistribution": {"provenance": "interval_seeded"},
+      "predictionRun": {"kind": "recorded-agent-run", "provenance": "ci"}
+    }
+    """
+    legacy = '{"predictionRun": {"kind": "recorded-agent-run"}}'
+
+    assert replace_cells_in_place.existing_run_provenance(labeled) == "ci"
+    assert replace_cells_in_place.existing_run_provenance(legacy) is None
+    assert verify_wave_reproducibility.committed_run_provenance(labeled) == "ci"
+    assert verify_wave_reproducibility.committed_run_provenance(legacy) is None
+    assert verify_wave_reproducibility.trusted_replay_provenance(
+        labeled, [{"results": []}]
+    ) == "ci"
+    assert (
+        verify_wave_reproducibility.trusted_replay_provenance(
+            legacy, [{"results": []}]
+        )
+        is None
+    )
+
+    mixed = labeled + "\n" + legacy
+    with pytest.raises(
+        ValueError,
+        match="generated wave mixes predictionRun provenance labels",
+    ):
+        verify_wave_reproducibility.committed_run_provenance(mixed)
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "generated wave predictionRun provenance differs from its batch "
+            "provenance: ci != local_operator_attested"
+        ),
+    ):
+        verify_wave_reproducibility.trusted_replay_provenance(
+            labeled,
+            [{"results": [], "generationTicket": {"ticketId": "ticket"}}],
+        )
 
 
 def test_sealed_agent_meta_rejects_incomplete_manifest_identity(

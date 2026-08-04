@@ -19,6 +19,39 @@ EXAMPLES = ROOT / "site" / "src" / "data" / "forecast-examples"
 WAVE_REPRODUCIBILITY_MARKER_DATE = "2026-07-10"
 
 
+def committed_run_provenance(source: str) -> str | None:
+    """Return the single explicit predictionRun label a module preserves."""
+
+    from replace_cells_in_place import existing_run_provenance
+
+    values = {
+        existing_run_provenance(source[match.start() :])
+        for match in re.finditer(r'"predictionRun"\s*:', source)
+    }
+    if not values:
+        return None
+    if len(values) > 1:
+        raise ValueError("generated wave mixes predictionRun provenance labels")
+    return values.pop()
+
+
+def trusted_replay_provenance(source: str, batches: list[dict]) -> str | None:
+    """Derive labeled replay provenance from batches; grandfather unlabeled waves."""
+
+    committed = committed_run_provenance(source)
+    if committed is None:
+        return None
+    from register_wave import derive_batch_provenance
+
+    derived = derive_batch_provenance(batches)
+    if committed != derived:
+        raise ValueError(
+            "generated wave predictionRun provenance differs from its batch "
+            f"provenance: {committed} != {derived}"
+        )
+    return derived
+
+
 def dated_generated_modules() -> list[tuple[str, pathlib.Path]]:
     modules = []
     for path in EXAMPLES.glob("*.ts"):
@@ -86,6 +119,14 @@ def main() -> int:
         return 1
 
     inputs = batch_inputs(batch_paths)
+    try:
+        provenance = trusted_replay_provenance(
+            committed,
+            [json.loads(path.read_text()) for path in batch_paths],
+        )
+    except ValueError as exc:
+        print(f"wave reproducibility: {exc}", file=sys.stderr)
+        return 1
     with tempfile.TemporaryDirectory() as temporary:
         regenerated = pathlib.Path(temporary) / module.name
         command = [
@@ -98,6 +139,8 @@ def main() -> int:
             "--replace-module",
             str(module),
         ]
+        if provenance is not None:
+            command.extend(["--provenance", provenance])
         completed = subprocess.run(
             command, cwd=ROOT, capture_output=True, text=True, check=False
         )

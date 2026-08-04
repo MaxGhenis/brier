@@ -33,6 +33,48 @@ CELLS_TS = ROOT / "site" / "src" / "data" / "forecast-cells.ts"
 EXAMPLES = ROOT / "site" / "src" / "data" / "forecast-examples"
 
 
+def derive_batch_provenance(batches: list[dict]) -> str:
+    """Return the explicit converter provenance shared by validated batches."""
+
+    provenances = {
+        (
+            "local_operator_attested"
+            if batch.get("generationTicket") is not None
+            else "ci"
+        )
+        for batch in batches
+    }
+    if len(provenances) != 1:
+        raise ValueError(
+            "batch manifests mix ticketed and ordinary publication provenance"
+        )
+    return provenances.pop()
+
+
+def converter_command(
+    candidate: pathlib.Path,
+    const: str,
+    run_files: list[str],
+    batch_paths: list[str],
+    module: pathlib.Path,
+    provenance: str,
+) -> list[str]:
+    """Build the trusted converter invocation with explicit provenance."""
+
+    return [
+        sys.executable,
+        str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
+        str(candidate),
+        const,
+        *run_files,
+        *sum((["--batch-manifest", path] for path in batch_paths), start=[]),
+        "--replace-module",
+        str(module),
+        "--provenance",
+        provenance,
+    ]
+
+
 def install_wave_candidate(candidate: pathlib.Path, module: pathlib.Path) -> None:
     """Install a generated wave without ever rewriting a prior module."""
 
@@ -57,11 +99,12 @@ def main() -> int:
     parser.add_argument("--allow-missing", action="store_true")
     args = parser.parse_args()
 
+    batch_payloads = [json.loads(pathlib.Path(path).read_text()) for path in args.batch]
+    provenance = derive_batch_provenance(batch_payloads)
     winners: dict[str, str] = {}
     wanted: set[str] = set()
     registration_paths: set[pathlib.Path] = set()
-    for path in args.batch:
-        batch = json.loads(pathlib.Path(path).read_text())
+    for batch in batch_payloads:
         for result in batch["results"]:
             slug = result["target"]["catalogSlug"]
             wanted.add(slug)
@@ -91,16 +134,14 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="thesis-wave-") as temp_dir:
         candidate = pathlib.Path(temp_dir) / module.name
         subprocess.run(
-            [
-                sys.executable,
-                str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
-                str(candidate),
+            converter_command(
+                candidate,
                 const,
-                *run_files,
-                *sum((["--batch-manifest", path] for path in args.batch), start=[]),
-                "--replace-module",
-                str(module),
-            ],
+                run_files,
+                args.batch,
+                module,
+                provenance,
+            ),
             check=True,
         )
         install_wave_candidate(candidate, module)
