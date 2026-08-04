@@ -100,6 +100,8 @@ def test_docket_pair_arms_bind_registrable_conditional_contracts() -> None:
             "start": "2029-01-01",
             "end": "2029-12-31",
         }
+        assert contract["resolutionDateBasis"] == "resolve-by-bound"
+        assert contract["resolutionDate"] == "2029-12-31"
         assert contract["unit"] == "millions"
         contracts.append(contract)
     assert contracts[0]["dataPointId"] != contracts[1]["dataPointId"]
@@ -121,6 +123,236 @@ def test_docket_pair_arms_bind_registrable_conditional_contracts() -> None:
     stripped = copy.deepcopy(snapshot)
     del stripped["targets"][0]["conditional"]
     assert register_targets.registration_content_hash(stripped) != baseline
+
+
+def test_legacy_irs_contract_reauthenticates_under_declared_bounded_basis() -> None:
+    contract = bindable_arm_contract()
+    contract.pop("resolutionDateBasis")
+    contract.pop("resolutionDate")
+
+    target = {
+        "resolutionDateBasis": "resolve-by-bound",
+        "resolutionDate": "2029-12-31",
+        "sourceBinding": contract["sourceBinding"],
+    }
+    register_targets.validate_target_resolution_projection(
+        contract, target, label=contract["dataPointId"]
+    )
+
+    register_targets.require_conditional_docket_template(
+        contract, [docket_entry()], "2026-08-01T00:00:00Z"
+    )
+
+
+def test_legacy_bounded_compatibility_is_scoped_to_the_known_irs_ids() -> None:
+    entry = docket_entry()
+    entry["series"] = "agency.legacy.rate"
+    entry["conditionalPair"]["arms"][0]["dataPointId"] = (
+        "agency.legacy.rate.2027.first_print.enacted"
+    )
+    entry["conditionalPair"]["arms"][1]["dataPointId"] = (
+        "agency.legacy.rate.2027.first_print.current_law"
+    )
+    entry["extras"]["sourceBinding"]["adapter"] = "generic-url"
+    arm = entry["conditionalPair"]["arms"][0]
+    target = {
+        "series": entry["series"],
+        "period": entry["period"],
+        "catalogSlug": arm["catalogSlug"],
+        "dataPointId": arm["dataPointId"],
+        "conditional": arm["conditional"],
+        "conditionId": arm["conditionId"],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
+        **entry["extras"],
+    }
+    legacy = register_targets.build_contract(
+        target, register_targets.dt.date(2026, 8, 1)
+    )
+    legacy.pop("resolutionDateBasis")
+    legacy.pop("resolutionDate")
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="no longer regenerates the registered",
+    ):
+        register_targets.require_conditional_docket_template(
+            legacy, [entry], "2026-08-01T00:00:00Z"
+        )
+
+
+def test_irs_resolution_basis_keeps_legacy_and_future_gating_identical() -> None:
+    legacy = {"contract": {}}
+    future = {
+        "contract": {"resolutionDateBasis": "resolve-by-bound"}
+    }
+
+    assert resolve_pending.effective_resolution_date_basis(legacy, SPEC) == (
+        "resolve-by-bound",
+        None,
+    )
+    assert resolve_pending.effective_resolution_date_basis(future, SPEC) == (
+        "resolve-by-bound",
+        None,
+    )
+    assert resolve_pending.effective_resolution_date_basis(None, {}) == (
+        "release-calendar",
+        None,
+    )
+    basis, refusal = resolve_pending.effective_resolution_date_basis(
+        {"contract": {"resolutionDateBasis": "release-calendar"}}, SPEC
+    )
+    assert basis is None
+    assert "disagrees" in str(refusal)
+    basis, refusal = resolve_pending.effective_resolution_date_basis(
+        {"contract": {"resolutionDateBasis": ["resolve-by-bound"]}}, {}
+    )
+    assert basis is None
+    assert "unsupported registered basis" in str(refusal)
+
+
+def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
+    ref = "irs.actc.total_claims.2027.first_print.current_law"
+    window = {"start": "2029-01-01", "end": "2029-12-31"}
+
+    assert resolve_pending.bounded_resolution_window_gate(
+        ref, resolve_pending.dt.date(2028, 12, 31), window
+    ) == (
+        "pending",
+        f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens 2029-01-01",
+    )
+    assert resolve_pending.bounded_resolution_window_gate(
+        ref, resolve_pending.dt.date(2029, 1, 1), window
+    ) == ("open", None)
+    assert resolve_pending.bounded_resolution_window_gate(
+        ref, resolve_pending.dt.date(2030, 1, 1), window
+    ) == ("missed", None)
+    assert resolve_pending.bounded_resolution_window_gate(
+        ref, resolve_pending.dt.date(2029, 1, 1), None
+    ) == (
+        "invalid",
+        f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}",
+    )
+
+
+def run_main_preflight(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    *,
+    spec: dict,
+    registration: dict,
+) -> str:
+    ref = "irs.actc.total_claims.2027.first_print.current_law"
+    forecast = {"resolutionDate": "2029-12-31", "unit": "millions"}
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "irs_soi_pub1304",
+                spec,
+                "year",
+                "2027",
+                "2029-12-31",
+                forecast,
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "a" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: {ref: registration}
+    )
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: "2028-12-31T23:59:59Z")
+
+    def unexpected_fetch(*_args, **_kwargs):
+        raise AssertionError("IRS adapter fetched before preflight completed")
+
+    monkeypatch.setattr(resolve_pending, "irs_soi_pub1304_fetch_year", unexpected_fetch)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+    assert resolve_pending.main() == 0
+    return capsys.readouterr().out
+
+
+def test_irs_binding_drift_refuses_before_pending_window(monkeypatch, capsys) -> None:
+    binding = {
+        **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
+        "allowedHosts": ["www.irs.gov"],
+        "expectedReleaseWindow": {
+            "start": "2029-01-01",
+            "end": "2029-12-31",
+        },
+    }
+    binding["field"] = "drifted_field"
+    output = run_main_preflight(
+        monkeypatch,
+        capsys,
+        spec=SPEC,
+        registration={"contract": {"sourceBinding": binding}},
+    )
+    assert (
+        "BINDING/ADAPTER MISMATCH (refusing, full seven-key registry drift?)" in output
+    )
+    assert "RELEASE WINDOW NOT OPEN" not in output
+
+
+def test_irs_unverified_adapter_refuses_before_pending_window(
+    monkeypatch, capsys
+) -> None:
+    spec = {**SPEC, "anchor_status": "PENDING"}
+    binding = {
+        **resolve_pending.irs_soi_pub1304_binding_template(spec),
+        "allowedHosts": ["www.irs.gov"],
+        "expectedReleaseWindow": {
+            "start": "2029-01-01",
+            "end": "2029-12-31",
+        },
+    }
+    output = run_main_preflight(
+        monkeypatch,
+        capsys,
+        spec=spec,
+        registration={"contract": {"sourceBinding": binding}},
+    )
+    assert "IRS SOI ADAPTER UNVERIFIED (refusing)" in output
+    assert "RELEASE WINDOW NOT OPEN" not in output
+
+
+@pytest.mark.parametrize("explicit_basis", [False, True])
+def test_irs_valid_legacy_and_explicit_basis_keep_pending_verdict(
+    monkeypatch, capsys, explicit_basis
+) -> None:
+    binding = {
+        **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
+        "allowedHosts": ["www.irs.gov"],
+        "expectedReleaseWindow": {
+            "start": "2029-01-01",
+            "end": "2029-12-31",
+        },
+    }
+    contract = {"sourceBinding": binding}
+    if explicit_basis:
+        contract["resolutionDateBasis"] = "resolve-by-bound"
+    output = run_main_preflight(
+        monkeypatch,
+        capsys,
+        spec=SPEC,
+        registration={"contract": contract},
+    )
+    assert (
+        "  RELEASE WINDOW NOT OPEN (deferring): "
+        "irs.actc.total_claims.2027.first_print.current_law — opens 2029-01-01"
+        in output
+    )
 
 
 def test_register_rejects_blank_conditional() -> None:

@@ -526,7 +526,20 @@ def conditional_pair_seed_targets(
         return skip("has a malformed expectedReleaseWindow")
     if start > end:
         return skip("window ends before it starts")
-    if start <= deadline:
+    basis = extras.get("resolutionDateBasis", "release-calendar")
+    if not isinstance(basis, str) or basis not in {
+        "release-calendar",
+        "resolve-by-bound",
+    }:
+        return skip(f"has unsupported resolutionDateBasis {basis!r}")
+    if basis == "resolve-by-bound":
+        if extras.get("resolutionDate") != window["end"]:
+            return skip(
+                "resolve-by-bound requires resolutionDate to equal window end"
+            )
+    if start <= deadline and not (
+        basis == "resolve-by-bound" and deadline.isoformat() == window["end"]
+    ):
         return skip("release window must open after the condition deadline")
     arms = pair.get("arms")
     if not isinstance(arms, list) or len(arms) != 2:

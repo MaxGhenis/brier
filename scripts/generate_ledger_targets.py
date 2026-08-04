@@ -67,6 +67,7 @@ def entry_for(cell: dict, registration: dict | None = None) -> dict:
                     "catalogSlug",
                     "valueScale",
                     "sourceBinding",
+                    "resolutionDateBasis",
                     # The pinned ledger state must survive publication, or the
                     # site's N5 backfill gate (which fires only when
                     # ledgerPinLineCount is a number) silently skips the
@@ -129,6 +130,7 @@ def preregistration_for(
             "catalogSlug",
             "valueScale",
             "sourceBinding",
+            "resolutionDateBasis",
         )
         return match, {key: block_value(block, key) for key in keys}
     return None

@@ -159,6 +159,168 @@ def test_registration_snapshot_round_trip_and_hash_stability(
     )
 
 
+def test_resolution_date_basis_defaults_without_churning_legacy_contracts() -> None:
+    target = sample_target()
+
+    assert register_targets.resolution_date_basis(target) == "release-calendar"
+    contract = register_targets.build_contract(target, dt.date(2030, 1, 10))
+    assert "resolutionDateBasis" not in contract
+
+    explicit = {**target, "resolutionDateBasis": "release-calendar"}
+    assert register_targets.build_contract(
+        explicit, dt.date(2030, 1, 10)
+    )["resolutionDateBasis"] == "release-calendar"
+
+
+def test_bounded_contract_requires_exact_window_and_matching_bound() -> None:
+    target = {
+        **sample_target(),
+        "resolutionDateBasis": "resolve-by-bound",
+        "resolutionDate": "2030-03-31",
+        "expectedReleaseWindow": {
+            "start": "2030-02-01",
+            "end": "2030-03-31",
+        },
+    }
+
+    contract = register_targets.build_contract(target, dt.date(2030, 1, 10))
+    assert contract["resolutionDateBasis"] == "resolve-by-bound"
+    assert contract["resolutionDate"] == "2030-03-31"
+    assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+        "start": "2030-02-01",
+        "end": "2030-03-31",
+    }
+    entry = register_targets._entry_for(
+        contract,
+        "a" * 64,
+        "2030-01-10T00:00:00Z",
+        _pin("0" * 40, 0),
+    )
+    assert entry["resolutionDateBasis"] == "resolve-by-bound"
+    assert entry["resolutionDate"] == "2030-03-31"
+    match, registration = generate_ledger_targets.preregistration_for(
+        register_targets.ts_literal(entry), contract["dataPointId"]
+    ) or (None, None)
+    assert match is not None
+    assert registration["resolutionDateBasis"] == "resolve-by-bound"
+    published = generate_ledger_targets.entry_for(
+        {
+            "dataPointId": contract["dataPointId"],
+            "country": "US",
+            "unit": "percent",
+            "resolutionDate": "2030-03-31",
+            "resolutionSource": "Agency table A",
+            "resolutionSourceUrl": contract["sourceBinding"]["sourceUrl"],
+            "resolutionRule": "First published bounded value.",
+            "title": "Agency test rate",
+        },
+        registration,
+    )
+    assert published["resolutionDateBasis"] == "resolve-by-bound"
+
+    invalid_targets = [
+        {**target, "resolutionDateBasis": "deadline-ish"},
+        {**target, "resolutionDateBasis": None},
+        {key: value for key, value in target.items() if key != "expectedReleaseWindow"},
+        {
+            **target,
+            "expectedReleaseWindow": {
+                "start": "2030-02-01",
+                "end": "2030-03-31",
+                "timezone": "UTC",
+            },
+        },
+        {
+            **target,
+            "expectedReleaseWindow": {"start": None, "end": None},
+        },
+        {
+            **target,
+            "expectedReleaseWindow": {"start": "", "end": ""},
+        },
+        {
+            **target,
+            "expectedReleaseWindow": {
+                "start": "2030-04-01",
+                "end": "2030-03-31",
+            },
+        },
+        {key: value for key, value in target.items() if key != "resolutionDate"},
+        {**target, "resolutionDate": "2030-03-30"},
+    ]
+    for invalid in invalid_targets:
+        with pytest.raises(register_targets.RegistrationError):
+            register_targets.build_contract(invalid, dt.date(2030, 1, 10))
+
+
+def test_registration_hash_revalidates_bounded_snapshot_semantics() -> None:
+    target = {
+        **sample_target(),
+        "resolutionDateBasis": "resolve-by-bound",
+        "resolutionDate": "2030-03-31",
+        "expectedReleaseWindow": {
+            "start": "2030-02-01",
+            "end": "2030-03-31",
+        },
+    }
+    snapshot = register_targets.build_snapshot(
+        [target],
+        dt.date(2030, 1, 10),
+        "2030-01-10T00:00:00Z",
+        _pin("0" * 40, 0),
+    )
+    assert register_targets.registration_content_hash(snapshot)
+
+    invalid_snapshots = []
+    for mutate in (
+        lambda contract: contract["sourceBinding"].pop("expectedReleaseWindow"),
+        lambda contract: contract["sourceBinding"].update(
+            expectedReleaseWindow={
+                "start": "2030-02-01",
+                "end": "2030-03-31",
+                "timezone": "UTC",
+            }
+        ),
+        lambda contract: contract.update(resolutionDate="2030-03-30"),
+        lambda contract: contract.update(resolutionDateBasis="deadline-ish"),
+    ):
+        invalid = json.loads(json.dumps(snapshot))
+        mutate(invalid["targets"][0])
+        invalid_snapshots.append(invalid)
+
+    for invalid in invalid_snapshots:
+        with pytest.raises(register_targets.RegistrationError):
+            register_targets.registration_content_hash(invalid)
+
+
+def test_resolution_projection_compares_effective_basis_symmetrically() -> None:
+    contract = register_targets.build_contract(
+        sample_target(), dt.date(2030, 1, 10)
+    )
+    target = {
+        "resolutionDateBasis": "release-calendar",
+        "sourceBinding": contract["sourceBinding"],
+    }
+    register_targets.validate_target_resolution_projection(
+        contract, target, label="explicit-default"
+    )
+
+    window = contract["sourceBinding"]["expectedReleaseWindow"]
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="contract mismatch for resolutionDateBasis",
+    ):
+        register_targets.validate_target_resolution_projection(
+            contract,
+            {
+                **target,
+                "resolutionDateBasis": "resolve-by-bound",
+                "resolutionDate": window["end"],
+            },
+            label="unrelated-legacy-contract",
+        )
+
+
 def test_registration_retry_reuses_immutable_snapshot_and_generated_target(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:

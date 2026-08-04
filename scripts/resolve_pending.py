@@ -1169,6 +1169,10 @@ FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
 # registry gates which arm is scored.
 IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
     "irs.actc.total_claims": {
+        # Published IRS target snapshots predate the contract property. This
+        # reviewed adapter declaration is their legacy fallback; new snapshots
+        # carry the same value explicitly and disagreement fails closed.
+        "resolution_date_basis": "resolve-by-bound",
         "anchor_status": "VERIFIED",
         # Integrator-verified 2026-08-01 against the official Table 3.3
         # workbooks (20in33ar.xls, 21in33ar.xls, 22in33ar.xls, 23in33ar.xls):
@@ -2917,6 +2921,56 @@ def snapshot_window_state(today: dt.date, window: Any) -> str:
     if today > end:
         return "missed"
     return "open"
+
+
+RESOLUTION_DATE_BASES = {"release-calendar", "resolve-by-bound"}
+DEFAULT_RESOLUTION_DATE_BASIS = "release-calendar"
+
+
+def effective_resolution_date_basis(
+    registration: Mapping[str, Any] | None,
+    spec: Mapping[str, Any],
+) -> tuple[str | None, str | None]:
+    """Authenticate release-day versus resolve-by gating semantics.
+
+    The content-hashed registration wins. A reviewed adapter declaration is
+    accepted only as a compatibility fallback for immutable registrations
+    minted before ``resolutionDateBasis`` existed. When both declarations are
+    present they must agree.
+    """
+
+    contract = (registration or {}).get("contract") or {}
+    registered = contract.get("resolutionDateBasis")
+    declared = spec.get("resolution_date_basis")
+    for label, value in (("registered", registered), ("adapter", declared)):
+        if value is not None and (
+            not isinstance(value, str) or value not in RESOLUTION_DATE_BASES
+        ):
+            return None, f"unsupported {label} basis {value!r}"
+    if registered is not None and declared is not None and registered != declared:
+        return None, (
+            f"registered basis {registered!r} disagrees with adapter basis "
+            f"{declared!r}"
+        )
+    return str(registered or declared or DEFAULT_RESOLUTION_DATE_BASIS), None
+
+
+def bounded_resolution_window_gate(
+    ref: str, today: dt.date, window: Any
+) -> tuple[str, str | None]:
+    """Return the shared resolve-by window state and legacy-stable verdict."""
+
+    state = snapshot_window_state(today, window)
+    if state == "invalid":
+        return state, f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}"
+    if state == "pending":
+        return state, (
+            f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
+            f"{window['start']}"
+        )
+    # A static first print can still be captured after the outer bound. The
+    # family branch records that lateness loudly once it has artifact bytes.
+    return state, None
 
 
 INTL_ADAPTER_CANDIDATES: dict[str, dict[str, Any]] = {
@@ -6669,12 +6723,22 @@ def main() -> int:
             print(f"  already recorded: {ref}")
             continue
         release_day = dt.date.fromisoformat(source_vintage)
-        # For the IRS SOI family the pending reference's date is the
-        # policy-derived RESOLVE-BY date (window end), not a release date:
-        # gating on it would skip the entire registered window and capture
-        # the print months late. That family's leg gates on the immutable
-        # expectedReleaseWindow instead.
-        if release_day > today and kind != "irs_soi_pub1304":
+        registration = loop_contracts.get(ref)
+        resolution_date_basis, basis_refusal = effective_resolution_date_basis(
+            registration, spec
+        )
+        if basis_refusal:
+            print(
+                f"  RESOLUTION-DATE BASIS MISMATCH (refusing): {ref} — "
+                f"{basis_refusal}"
+            )
+            continue
+        # A resolve-by date is an outer bound, not a claimed release day. Its
+        # family leg gates on the immutable expectedReleaseWindow instead.
+        if (
+            release_day > today
+            and resolution_date_basis == DEFAULT_RESOLUTION_DATE_BASIS
+        ):
             print(f"  release {release_day} not reached: {ref}")
             continue
         unit = (forecast or {}).get("unit")
@@ -6691,6 +6755,44 @@ def main() -> int:
                 f"adapter={mismatched!r} is not a {kind} family): {ref}"
             )
             continue
+        irs_verified_anchors: dict[str, float] | None = None
+        if kind == "irs_soi_pub1304":
+            # Preserve the pre-generalization refusal order byte-for-byte:
+            # authenticate the reviewed adapter and all seven binding keys
+            # before a still-pending window can defer the target.
+            irs_verified_anchors = irs_soi_pub1304_verified_anchors(spec)
+            if irs_verified_anchors is None:
+                print(
+                    f"  IRS SOI ADAPTER UNVERIFIED (refusing): {ref} — "
+                    "three live official-source anchors are required"
+                )
+                continue
+            registered_contract = (registration or {}).get("contract") or {}
+            binding = registered_contract.get("sourceBinding") or {}
+            if not irs_soi_pub1304_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
+                )
+                continue
+        bounded_window = None
+        if resolution_date_basis == "resolve-by-bound":
+            contract = (registration or {}).get("contract") or {}
+            binding = contract.get("sourceBinding") or {}
+            bounded_window = binding.get("expectedReleaseWindow")
+            # This is the generalized form of the former IRS-family carveout:
+            # every bounded target defers until its immutable window opens,
+            # regardless of which adapter will eventually fetch the artifact.
+            # Use the UTC decision day to preserve the IRS leg's established
+            # boundary behavior around midnight.
+            _window_state, window_verdict = bounded_resolution_window_gate(
+                ref,
+                dt.date.fromisoformat(utc_now()[:10]),
+                bounded_window,
+            )
+            if window_verdict:
+                print(window_verdict)
+                continue
         if kind == "intl":
             registration = target_contracts.get(ref)
             if registration:
@@ -6712,10 +6814,11 @@ def main() -> int:
                         f"{release_window!r}"
                     )
                     continue
-                window_state = snapshot_window_state(
-                    today, release_window
-                )
-                if window_state != "open":
+                window_state = snapshot_window_state(today, release_window)
+                if window_state != "open" and not (
+                    resolution_date_basis == "resolve-by-bound"
+                    and window_state == "missed"
+                ):
                     print(
                         f"  FIRST-PRINT WINDOW {window_state.upper()} "
                         f"(refusing): {ref}"
@@ -6858,41 +6961,13 @@ def main() -> int:
             series_id = spec["series_id"]
             extension = "pdf"
         elif kind == "irs_soi_pub1304":
-            verified_anchors = irs_soi_pub1304_verified_anchors(spec)
-            if verified_anchors is None:
-                print(
-                    f"  IRS SOI ADAPTER UNVERIFIED (refusing): {ref} — "
-                    "three live official-source anchors are required"
-                )
-                continue
-            registration = loop_contracts.get(ref) or {}
+            verified_anchors = irs_verified_anchors or {}
+            registration = registration or {}
             binding = (registration.get("contract") or {}).get("sourceBinding") or {}
-            if not irs_soi_pub1304_binding_matches_spec(binding, spec):
-                print(
-                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
-                    f"registry drift?): {ref}"
-                )
-                continue
-            # The registered window is part of the immutable contract: defer
-            # before it opens; a capture after it closes still records the
-            # first print of the static workbook (the end is the aging-style
-            # policy by-date, not a publication guarantee) but the lateness
-            # is loud here and visible in the record's capture vintage.
-            window = binding.get("expectedReleaseWindow")
-            window_state = snapshot_window_state(
-                dt.date.fromisoformat(utc_now()[:10]), window
-            )
-            if window_state == "invalid":
-                print(
-                    f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}"
-                )
-                continue
-            if window_state == "pending":
-                print(
-                    f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
-                    f"{window['start']}"
-                )
-                continue
+            # The generalized basis gate above already deferred until this
+            # immutable window opened. A capture after it closes still records
+            # the static workbook's first print, with loud lateness disclosure.
+            window = bounded_window
             anchor_counts: dict[str, float | None] = {}
             anchor_fetch_failed = False
             anchor_env_failure = None

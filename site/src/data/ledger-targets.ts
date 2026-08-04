@@ -50,6 +50,8 @@ export interface TargetRegisteredLedgerEntry {
   periodLabel: string;
   unit: Unit;
   resolutionDate: string;
+  /** How resolutionDate was established; absent means release-calendar. */
+  resolutionDateBasis?: "release-calendar" | "resolve-by-bound";
   resolutionSource: string;
   resolutionSourceUrl?: string;
   resolutionRule: string;

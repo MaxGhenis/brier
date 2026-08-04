@@ -699,6 +699,7 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
         # canonical resolution by-date, and spawn-time history anchors.
         assert target["sourceBinding"]["adapter"] == "irs-soi-pub1304"
         assert target["resolutionDate"] == "2029-12-31"
+        assert target["resolutionDateBasis"] == "resolve-by-bound"
         assert target["expectedReleaseWindow"] == {
             "start": "2029-01-01",
             "end": "2029-12-31",
@@ -788,6 +789,11 @@ def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
         lambda entry: entry["extras"].update(
             expectedReleaseWindow={"start": "2027-06-01", "end": "2029-12-31"}
         ),
+        lambda entry: entry["extras"].update(
+            resolutionDateBasis="not-a-real-basis"
+        ),
+        lambda entry: entry["extras"].update(resolutionDateBasis=["resolve-by-bound"]),
+        lambda entry: entry["extras"].update(resolutionDate="2029-12-30"),
         lambda entry: entry["conditionalPair"]["arms"].pop(),
         lambda entry: entry["conditionalPair"]["arms"][0].pop("conditional"),
         lambda entry: entry["conditionalPair"]["arms"][0].pop("conditionId"),

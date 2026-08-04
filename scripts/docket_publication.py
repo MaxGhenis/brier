@@ -24,6 +24,7 @@ from register_targets import (
     parse_utc_instant,
     registration_content_hash,
     require_conditional_docket_template,
+    validate_target_resolution_projection,
 )
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -669,6 +670,12 @@ def validate_target_registration(
         "conditionId": target.get("conditionId"),
         "conditionDeadline": target.get("conditionDeadline"),
     }
+    try:
+        validate_target_resolution_projection(
+            contract, target, label=relative.as_posix()
+        )
+    except RegistrationError as exc:
+        raise PublicationError(str(exc)) from exc
     for key, value in expected.items():
         if not canonical_equal(contract.get(key), value):
             raise PublicationError(
