@@ -389,6 +389,17 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         prompt_mode=policy["promptMode"],
         target_context=target,
     )
+    validation = analyst.validate_cells(
+        normalized_cells,
+        True,
+        target,
+        policy["promptMode"],
+    )
+    validation_errors = [
+        error
+        for cell_validation in validation["cells"]
+        for error in cell_validation["errors"]
+    ]
 
     refs: list[dict[str, Any]] = []
 
@@ -549,7 +560,7 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
     artifact(
         "validation.json",
         "validation_report",
-        json.dumps({"ok": True, "errors": []}, indent=2),
+        json.dumps(validation, indent=2),
     )
     runtime_meta = analyst.stamp_runtime_invocation(prompt_meta, final_command)
     pre_submit_review = analyst.build_pre_submit_review_metadata(
@@ -589,9 +600,10 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         "promptMode": policy["promptMode"],
         "agent": runtime_meta,
         "preSubmitReview": pre_submit_review,
-        "ok": True,
+        "ok": validation["ok"],
         "cellsPath": cells_relative.as_posix(),
         "artifacts": refs,
+        "validation": validation,
         "generationTicket": binding,
         "checkoutSha": ticket_sha,
     }
@@ -610,18 +622,18 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         "reviewCodexSearch": policy["reviewCodexSearch"],
         "timeoutSeconds": policy["timeoutSeconds"],
         "targets": 1,
-        "ok": 1,
-        "failed": 0,
+        "ok": int(validation["ok"]),
+        "failed": int(not validation["ok"]),
         "results": [
             {
                 "target": target,
                 "startedAt": RUN_STARTED_AT,
                 "finishedAt": "2030-01-10T12:02:00Z",
-                "returnCode": 0,
-                "ok": True,
+                "returnCode": int(not validation["ok"]),
+                "ok": validation["ok"],
                 "manifestPath": (RUN_RELATIVE / "manifest.json").as_posix(),
                 "cellsPath": cells_relative.as_posix(),
-                "validationErrors": [],
+                "validationErrors": validation_errors,
             }
         ],
         "generationTicket": binding,
@@ -1250,6 +1262,62 @@ def test_published_cells_replay_divergence_is_refused(
     assert str(caught.value) == (
         "derivation replay check failed: run 0 published cells differ from "
         "replayed cells"
+    )
+
+
+def test_validation_report_replay_divergence_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    path = run_path(attested_bundle, "validation.json")
+    validation = json.loads(path.read_text())
+    validation["ok"] = not validation["ok"]
+    rewrite_run_artifact(
+        attested_bundle,
+        path.name,
+        json.dumps(validation, indent=2).encode(),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "derivation replay check failed: run 0 validation.json differs from "
+        "replayed validation report"
+    )
+
+
+def test_batch_ok_replay_divergence_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_batch(
+        attested_bundle,
+        lambda batch: batch["results"][0].__setitem__(
+            "ok", not batch["results"][0]["ok"]
+        ),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "derivation replay check failed: run 0 batch result ok differs from "
+        "replayed validation report"
+    )
+
+
+def test_batch_validation_errors_replay_divergence_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_batch(
+        attested_bundle,
+        lambda batch: batch["results"][0]["validationErrors"].append(
+            "tampered validation error"
+        ),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "derivation replay check failed: run 0 batch result validationErrors "
+        "differs from replayed validation report"
     )
 
 

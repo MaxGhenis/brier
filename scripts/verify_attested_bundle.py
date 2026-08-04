@@ -59,6 +59,7 @@ from run_thesis_analyst import (
     parse_review_payload,
     seal_normalized_cells,
     stamp_runtime_invocation,
+    validate_cells,
 )
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -1404,6 +1405,44 @@ def _check_replay(
             raise _fail(
                 "derivation replay",
                 f"run {run.index} distribution differs from replay",
+            )
+        replayed_validation = validate_cells(
+            replayed_normalized,
+            True,
+            run.target,
+            policy["promptMode"],
+        )
+        recorded_validation = _json_artifact(
+            bundle_repo,
+            run,
+            filename="validation.json",
+            artifact_type="validation_report",
+            phase="derivation replay",
+        )
+        if not canonical_equal(replayed_validation, recorded_validation):
+            raise _fail(
+                "derivation replay",
+                f"run {run.index} validation.json differs from replayed "
+                "validation report",
+            )
+        if not canonical_equal(run.result.get("ok"), replayed_validation["ok"]):
+            raise _fail(
+                "derivation replay",
+                f"run {run.index} batch result ok differs from replayed "
+                "validation report",
+            )
+        replayed_errors = [
+            error
+            for cell in replayed_validation["cells"]
+            for error in cell["errors"]
+        ]
+        if not canonical_equal(
+            run.result.get("validationErrors"), replayed_errors
+        ):
+            raise _fail(
+                "derivation replay",
+                f"run {run.index} batch result validationErrors differs from "
+                "replayed validation report",
             )
         review_command = _json_artifact(
             bundle_repo,
