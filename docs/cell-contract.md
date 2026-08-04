@@ -106,14 +106,33 @@ stdout JSONL, raw stderr log, normalized event JSONL, last assistant message,
 and trace summary. The allowed artifact types include `model_candidates` for
 outputs from `scripts/run_time_series_models.py`.
 
+Ticketed local runs add this deterministic block immediately after the target
+context in every prompt mode:
+
+<pre><code>&#35; Generation ticket
+ticket: &lt;ticketId&gt;
+nonce: &lt;64-character lowercase-hex nonce&gt;</code></pre>
+
+The runner and attested-bundle verifier both render the block through
+`format_generation_ticket`; its exact bytes are covered by the prompt artifact
+hash. Run and batch manifests bind the ticket id and path plus the nonce's
+SHA-256 digest rather than repeating the nonce.
+
 The converter stamps `predictionRun` from `agents/thesis-analyst/`:
 `{kind: "recorded-agent-run", runAt, agent: "thesis.analyst", model,
-agentVersion, promptHash, toolPolicyHash, sourceContext, activityLog}` — promptHash =
-sha256(system.md), toolPolicyHash = sha256(skills/\*.md sorted by filename),
-version from agent.yaml. The recorded model is the actual runtime model when
-the command names one with `-m`, `--model`, or `--model=...`; otherwise it
-falls back to the agent.yaml default. Bump the version when any agent file
-changes.
+agentVersion, promptHash, toolPolicyHash, sourceContext, activityLog,
+provenance}` — promptHash = sha256(system.md), toolPolicyHash =
+sha256(skills/\*.md sorted by filename), version from agent.yaml. The recorded
+model is the actual runtime model when the command names one with `-m`,
+`--model`, or `--model=...`; otherwise it falls back to the agent.yaml default.
+Bump the version when any agent file changes.
+
+New ordinary workflow output has `predictionRun.provenance = "ci"`. A run
+whose manifest carries a verified generation ticket instead has
+`provenance = "local_operator_attested"` and
+`generationTicket: {ticketId, ticketPath}`. The label is granted only by the
+trusted publish workflow after attested-bundle verification; a cell cannot
+claim it itself.
 
 New runs also stamp `predictionRun.custodyRootSha256`. The converter verifies
 the sibling `custody_root.json` before carrying that root into the catalog,
