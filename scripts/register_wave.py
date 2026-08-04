@@ -57,11 +57,11 @@ def converter_command(
     run_files: list[str],
     batch_paths: list[str],
     module: pathlib.Path,
-    provenance: str,
+    provenance: str | None,
 ) -> list[str]:
-    """Build the trusted converter invocation with explicit provenance."""
+    """Build the trusted converter invocation with preserved provenance."""
 
-    return [
+    command = [
         sys.executable,
         str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
         str(candidate),
@@ -70,9 +70,35 @@ def converter_command(
         *sum((["--batch-manifest", path] for path in batch_paths), start=[]),
         "--replace-module",
         str(module),
-        "--provenance",
-        provenance,
     ]
+    if provenance is not None:
+        command.extend(["--provenance", provenance])
+    return command
+
+
+def replay_provenance_for_module(
+    module: pathlib.Path, derived_provenance: str
+) -> str | None:
+    """Preserve an existing module's explicit or legacy-unlabeled state."""
+
+    if module.is_symlink():
+        raise ValueError(f"wave destination is not a regular file: {module}")
+    if not module.exists():
+        return derived_provenance
+    if not module.is_file():
+        raise ValueError(f"wave destination is not a regular file: {module}")
+
+    from verify_wave_reproducibility import committed_run_provenance
+
+    committed_provenance = committed_run_provenance(module.read_text())
+    if committed_provenance is None:
+        return None
+    if committed_provenance != derived_provenance:
+        raise ValueError(
+            "existing wave predictionRun provenance differs from derived batch "
+            f"provenance: {committed_provenance} != {derived_provenance}"
+        )
+    return committed_provenance
 
 
 def install_wave_candidate(candidate: pathlib.Path, module: pathlib.Path) -> None:
@@ -100,7 +126,7 @@ def main() -> int:
     args = parser.parse_args()
 
     batch_payloads = [json.loads(pathlib.Path(path).read_text()) for path in args.batch]
-    provenance = derive_batch_provenance(batch_payloads)
+    derived_provenance = derive_batch_provenance(batch_payloads)
     winners: dict[str, str] = {}
     wanted: set[str] = set()
     registration_paths: set[pathlib.Path] = set()
@@ -130,6 +156,7 @@ def main() -> int:
     const = re.sub(r"[^A-Z0-9]+", "_", args.name.upper()).strip("_") + "_WAVE"
     module = EXAMPLES / f"{args.name}.ts"
     run_files = sorted(set(winners.values()))
+    provenance = replay_provenance_for_module(module, derived_provenance)
 
     with tempfile.TemporaryDirectory(prefix="thesis-wave-") as temp_dir:
         candidate = pathlib.Path(temp_dir) / module.name

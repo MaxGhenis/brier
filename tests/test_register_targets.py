@@ -540,6 +540,92 @@ def test_wave_install_is_append_only(
     assert module.read_text() == "trusted candidate\n"
 
 
+def provenance_replay_cell() -> dict:
+    return {
+        "slug": "register-wave-provenance-probe",
+        "country": "US",
+        "type": "data",
+        "title": "Register-wave provenance probe",
+        "question": "What will the synthetic agency test rate be?",
+        "unit": "percent",
+        "pointEstimate": 1.0,
+        "ciLow": 0.5,
+        "ciHigh": 1.5,
+        "confidence": 0.8,
+        "resolutionDate": "2030-02-01",
+        "resolutionSource": "Synthetic agency release",
+        "resolutionSourceUrl": "https://agency.example/releases",
+        "resolutionRule": "Use the first published synthetic agency value.",
+        "dataPointId": "agency.synthetic.rate.2030_01.first_print",
+        "historicalContext": [
+            {"label": "2029-11", "value": 0.9},
+            {"label": "2029-12", "value": 1.1},
+        ],
+        "drivers": ["recent level", "release volatility"],
+        "sourceContext": [
+            "https://agency.example/history",
+            "https://agency.example/calendar",
+        ],
+        "runAt": "2026-07-01T12:00:00Z",
+        "reasoning": [
+            {"kind": "heading", "text": "Synthetic agency rate"},
+            {
+                "kind": "tool",
+                "tool": "agency.history",
+                "call": "fetch 2029-11",
+                "result": "2029-11 value: 0.9 percent",
+            },
+            {
+                "kind": "tool",
+                "tool": "agency.history",
+                "call": "fetch 2029-12",
+                "result": "2029-12 value: 1.1 percent",
+            },
+            {
+                "kind": "text",
+                "text": "The base rate across the last 2 releases centers on 1.0.",
+            },
+            {
+                "kind": "math",
+                "text": "The historical range is 0.9 to 1.1; widen to 0.5 to 1.5.",
+            },
+            {
+                "kind": "text",
+                "text": "An upside risk surprise would land outside the interval.",
+            },
+            {"kind": "forecast", "point": 1.0, "ciLow": 0.5, "ciHigh": 1.5},
+        ],
+    }
+
+
+def convert_provenance_replay_candidate(
+    tmp_path: pathlib.Path,
+    module: pathlib.Path,
+    candidate_name: str,
+    provenance: str | None,
+) -> pathlib.Path:
+    cells_path = tmp_path / "cells.json"
+    cells_path.write_text(json.dumps([provenance_replay_cell()]) + "\n")
+    batch_path = tmp_path / "batch.json"
+    batch_path.write_text("{}\n")
+    candidate = tmp_path / candidate_name
+    subprocess.run(
+        register_wave.converter_command(
+            candidate,
+            "PROVENANCE_REPLAY_WAVE",
+            [str(cells_path)],
+            [str(batch_path)],
+            module,
+            provenance,
+        ),
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return candidate
+
+
 def test_register_wave_derives_explicit_provenance_from_validated_batches() -> None:
     ordinary = {"results": []}
     attested = {
@@ -571,6 +657,82 @@ def test_register_wave_derives_explicit_provenance_from_validated_batches() -> N
         "ci",
     )
     assert command[-2:] == ["--provenance", "ci"]
+    unlabeled_command = register_wave.converter_command(
+        pathlib.Path("candidate.ts"),
+        "TEST_WAVE",
+        ["cells.json"],
+        ["batch.json"],
+        pathlib.Path("module.ts"),
+        None,
+    )
+    assert "--provenance" not in unlabeled_command
+
+
+def test_register_wave_new_module_uses_derived_provenance(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "new-wave.ts"
+
+    assert register_wave.replay_provenance_for_module(module, "ci") == "ci"
+
+
+def test_register_wave_unlabeled_legacy_replay_is_byte_identical(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "legacy-wave.ts"
+    initial = convert_provenance_replay_candidate(
+        tmp_path, module, "initial-legacy.ts", None
+    )
+    register_wave.install_wave_candidate(initial, module)
+
+    replay_provenance = register_wave.replay_provenance_for_module(module, "ci")
+    assert replay_provenance is None
+    replay = convert_provenance_replay_candidate(
+        tmp_path, module, "replayed-legacy.ts", replay_provenance
+    )
+
+    assert replay.read_bytes() == module.read_bytes()
+    register_wave.install_wave_candidate(replay, module)
+
+
+def test_register_wave_labeled_replay_preserves_matching_label(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "labeled-wave.ts"
+    initial = convert_provenance_replay_candidate(
+        tmp_path, module, "initial-labeled.ts", "ci"
+    )
+    register_wave.install_wave_candidate(initial, module)
+
+    replay_provenance = register_wave.replay_provenance_for_module(module, "ci")
+    assert replay_provenance == "ci"
+    replay = convert_provenance_replay_candidate(
+        tmp_path, module, "replayed-labeled.ts", replay_provenance
+    )
+
+    assert replay.read_bytes() == module.read_bytes()
+    register_wave.install_wave_candidate(replay, module)
+
+
+def test_register_wave_refuses_existing_provenance_mismatch(
+    tmp_path: pathlib.Path,
+) -> None:
+    module = tmp_path / "mismatched-wave.ts"
+    labeled = convert_provenance_replay_candidate(
+        tmp_path, module, "mismatched-labeled.ts", "ci"
+    )
+    register_wave.install_wave_candidate(labeled, module)
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "existing wave predictionRun provenance differs from derived batch "
+            "provenance: ci != local_operator_attested"
+        ),
+    ):
+        register_wave.replay_provenance_for_module(
+            module, "local_operator_attested"
+        )
 
 
 def test_published_target_is_exactly_regenerated_and_retry_safe(
