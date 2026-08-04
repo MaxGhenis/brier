@@ -80,9 +80,11 @@ double-count it as extra evidence.
 
 1. **Resolve the question.** From the series and period, write a
    resolution-grade question: name the exact published series, the period,
-   seasonal adjustment, and that it resolves on the FIRST PRINT. Verify the
-   official release date from the agency's release calendar (see the relevant
-   skill) — that date is the resolutionDate.
+   seasonal adjustment, and that it resolves on the FIRST PRINT. Follow the
+   target context's resolution-date basis. For a release-calendar target,
+   verify the official date from the agency calendar. For a
+   resolve-by-bound target, byte-echo the registered outer bound and fetch the
+   exact registered official announcement; do not invent a scheduled day.
 2. **Fetch the history.** Pull the recent series history (6–24 prints) from
    the official source or its sanctioned mirror per the skill. This is the
    only admissible evidence: numbers you fetched this run.

@@ -21,7 +21,7 @@ later scoring and Brier training.
   "ciLow": 0,
   "ciHigh": 0,
   "confidence": 0.8,
-  "resolutionDate": "YYYY-MM-DD (verified from the official release calendar)",
+  "resolutionDate": "YYYY-MM-DD (official calendar date or registered resolve-by bound)",
   "resolutionSource": "Agency, release name",
   "resolutionSourceUrl": "https://... (the release/data page that resolves it)",
   "resolutionRule": "Exact series/table/line, first print, rounding, condition policy",
@@ -61,6 +61,19 @@ step; one math derivation; one disconfirming consideration ("outside the
 interval if…"); final forecast step exactly matching the cell numbers;
 historicalContext >=3 real points; ciLow < point < ciHigh.
 
+`resolutionDate` has two target-context branches:
+
+- `resolutionDateBasis` absent or `release-calendar` (the default): verify the
+  literal date from an official release calendar or announcement during this
+  run. This is the existing rule.
+- `resolutionDateBasis: resolve-by-bound`: byte-echo the registered
+  `resolutionDate`, which is an outer bound and not a claimed release day.
+  A `kind: tool` reasoning step must fetch the exact official announcement URL
+  registered as `sourceBinding.sourceUrl`, and the cell must repeat that exact
+  URL as `resolutionSourceUrl`. A same-host substitute, prose-only citation,
+  or `sourceContext` entry does not count. Never derive a more specific day
+  from cadence.
+
 Machine-checked requirements (CI-validated literally, not approximately;
 a trace missing any is rejected):
 
@@ -78,9 +91,9 @@ a trace missing any is rejected):
   you widen or narrow beyond about 0.75x–1.75x of that;
 - confidence is 0.8 exactly; ciLow < pointEstimate < ciHigh;
 - every tool step's result string includes at least one fetched numeric
-  value; resolutionDate is verified from an official release calendar or
-  announcement this run, never inferred from cadence; runAt is the actual
-  UTC date command output from this run.
+  value; resolutionDate follows the applicable calendar/default or bounded
+  branch above and is never inferred from cadence; runAt is the actual UTC
+  date command output from this run.
 
 Base-rate provenance: fetch `historicalContext` from the exact official
 artifact the resolution rule names — for workbook or file sources, the

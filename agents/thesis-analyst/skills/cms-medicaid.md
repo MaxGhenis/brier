@@ -14,8 +14,9 @@ shares, procedural disenrollment shares.
 - National figures are VOLUME-WEIGHTED across reporting jurisdictions
   (weight each state's average wait by its call volume, latest submission
   per jurisdiction) — say so in the rule and compute it that way.
-- Reporting lags ~3-4 months; the resolutionDate for a period is when CMS
-  first publishes that period, not the period itself.
+- Reporting lags ~3-4 months; for release-calendar targets the resolutionDate
+  is when CMS first publishes that period, not the period itself. A bounded
+  target instead uses its registered outer bound.
 
 ## Reference classes for policy effects
 - Arkansas 2018 work requirements: Sommers et al. (NEJM 2019/2020) —

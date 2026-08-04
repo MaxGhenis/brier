@@ -504,6 +504,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "targetUnit",
         "dataPointId",
         "resolutionDate",
+        "resolutionDateBasis",
         "resolutionSource",
         "resolutionSourceUrl",
         "resolutionRule",
@@ -527,6 +528,24 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         value = target_context.get(key)
         if value not in (None, ""):
             lines.append(f"- {key}: {json.dumps(value, sort_keys=True)}")
+    if target_context.get("resolutionDateBasis") == "resolve-by-bound":
+        bound = target_context.get("resolutionDate")
+        announcement_url = (target_context.get("sourceBinding") or {}).get(
+            "sourceUrl"
+        )
+        lines += [
+            "",
+            "# Resolve-by-bound date evidence (machine checked)",
+            f"- registeredResolveByBound: {json.dumps(bound)}",
+            f"- officialAnnouncementUrl: {json.dumps(announcement_url)}",
+            "This is the registered outer bound, not a scheduled release day. "
+            "resolutionDate must byte-echo the registered resolve-by bound; "
+            "never infer a more specific day from cadence.",
+            "resolutionSourceUrl must byte-echo officialAnnouncementUrl. "
+            "Fetch that exact URL in a tool call (kind=\"tool\"). A same-host "
+            "page, a prose-only citation, or sourceContext alone does not "
+            "satisfy this requirement.",
+        ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
     if fetch_command:
@@ -693,6 +712,35 @@ def build_fast_prompt(
     target_context_text = f"{target_context_block}\n\n" if target_context_block else ""
     ticket_block = format_generation_ticket(ticket)
     ticket_text = f"{ticket_block}\n" if ticket_block else ""
+    bounded_target = (
+        (target_context or {}).get("resolutionDateBasis") == "resolve-by-bound"
+    )
+    if bounded_target:
+        resolution_source_rule = (
+            "- resolutionSourceUrl must byte-echo the registered official "
+            "announcement URL shown in the bounded target context. Fetch "
+            "that exact URL in a tool call; put any separately fetched "
+            "resolving table or data-artifact URL in sourceContext.\n"
+        )
+        resolution_date_rule = (
+            "- resolutionDate must byte-echo the registered resolve-by bound "
+            "shown in the target context. It is an outer bound, not a "
+            "scheduled release day; do not infer a more specific date from "
+            "cadence.\n"
+        )
+    else:
+        resolution_source_rule = (
+            "- resolutionSourceUrl must be the most specific stable page for "
+            "the exact series (release page, table, or databrowser query "
+            "with the series code), never a portal or theme landing page; "
+            "state the series code or table id in a text step when one "
+            "exists.\n"
+        )
+        resolution_date_rule = (
+            "- resolutionDate must be verified from an official release "
+            "calendar or announcement schedule this run. Do not infer it "
+            "from cadence.\n"
+        )
     return (
         "# Thesis analyst fast public-release run\n\n"
         "Return exactly one JSON object and no Markdown. Do not wrap it in a "
@@ -771,10 +819,7 @@ def build_fast_prompt(
         "NSA, flash vs final), the resolution rule must name the variant and "
         "every anchor and historical value must come from that same variant; "
         "say so once in a text step.\n"
-        "- resolutionSourceUrl must be the most specific stable page for the "
-        "exact series (release page, table, or databrowser query with the "
-        "series code), never a portal or theme landing page; state the "
-        "series code or table id in a text step when one exists.\n"
+        f"{resolution_source_rule}"
         "- Name concrete upside, downside, and outside-the-interval scenarios, "
         'using the literal phrases "upside risk", "downside risk", and '
         '"outside the interval" (or "would land above/below the interval") so '
@@ -805,8 +850,7 @@ def build_fast_prompt(
         "qualitative source notes. Numbers may come from official public "
         "sources or inspected local run/model artifacts, but the provenance "
         "must be clear.\n"
-        "- resolutionDate must be verified from an official release calendar "
-        "or announcement schedule this run. Do not infer it from cadence.\n"
+        f"{resolution_date_rule}"
         "- Do not use existing local catalog point estimates or intervals as "
         "forecast evidence. If inspected, treat them only as non-authoritative "
         "prior strategy context and keep them out of tool-result evidence.\n"
@@ -2482,6 +2526,14 @@ def target_context_validation_errors(
     ]
     errors = []
     for context_key, cell_key in checks:
+        if (
+            context_key == "resolutionDate"
+            and target_context.get("resolutionDateBasis") == "resolve-by-bound"
+        ):
+            # The bounded branch below owns the required, canonical bound and
+            # its byte equality. Calendar/default targets keep this literal
+            # target-context comparison unchanged.
+            continue
         expected = target_context.get(context_key)
         if expected in (None, ""):
             continue
@@ -2512,7 +2564,82 @@ def target_context_validation_errors(
                 f"binding hosts {sorted(allowed)!r}"
             )
     errors.extend(first_print_resolution_rule_errors(cell, target_context))
+    errors.extend(bounded_announcement_errors(cell, target_context))
     errors.extend(history_anchor_errors(cell, target_context))
+    return errors
+
+
+def bounded_announcement_errors(
+    cell: dict[str, Any],
+    target_context: dict[str, Any],
+) -> list[str]:
+    """Require the exact registered announcement for a resolve-by bound."""
+
+    basis = target_context.get("resolutionDateBasis", "release-calendar")
+    if basis == "release-calendar":
+        return []
+    if basis != "resolve-by-bound":
+        return [f"unsupported target resolutionDateBasis {basis!r}"]
+    errors = []
+    registered_bound = target_context.get("resolutionDate")
+    canonical_bound = False
+    if isinstance(registered_bound, str) and re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}", registered_bound
+    ):
+        try:
+            canonical_bound = (
+                datetime.strptime(registered_bound, "%Y-%m-%d")
+                .date()
+                .isoformat()
+                == registered_bound
+            )
+        except ValueError:
+            canonical_bound = False
+    if not canonical_bound:
+        errors.append(
+            "resolve-by-bound target has no canonical registered "
+            "resolutionDate bound"
+        )
+    elif cell.get("resolutionDate") != registered_bound:
+        errors.append(
+            "resolutionDate must byte-echo the registered resolve-by bound "
+            f"{registered_bound!r}"
+        )
+    binding = target_context.get("sourceBinding")
+    announcement_url = (
+        binding.get("sourceUrl") if isinstance(binding, dict) else None
+    )
+    if not isinstance(announcement_url, str) or not announcement_url:
+        errors.append(
+            "resolve-by-bound target has no registered official announcement "
+            "URL in sourceBinding.sourceUrl"
+        )
+        return errors
+
+    if cell.get("resolutionSourceUrl") != announcement_url:
+        errors.append(
+            "resolutionSourceUrl must byte-echo the resolve-by-bound official "
+            f"announcement URL {announcement_url!r}"
+        )
+
+    fetched_urls: set[str] = set()
+    for step in cell.get("reasoning") or []:
+        if not isinstance(step, dict) or step.get("kind") != "tool":
+            continue
+        # A search result that merely mentions the announcement is not a
+        # fetch. Bind the evidence to the requested URL in the tool CALL;
+        # result-only URLs remain useful discovery context but cannot satisfy
+        # the machine-checked announcement requirement.
+        trace = str(step.get("call") or "")
+        fetched_urls.update(
+            match.rstrip(".,);]}")
+            for match in re.findall(r"https?://[^\s\"'<>]+", trace)
+        )
+    if announcement_url not in fetched_urls:
+        errors.append(
+            "resolve-by-bound trace must contain a tool step fetching the "
+            f"exact official announcement URL {announcement_url!r}"
+        )
     return errors
 
 
