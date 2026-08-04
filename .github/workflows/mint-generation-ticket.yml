@@ -1,0 +1,398 @@
+name: Mint generation ticket
+
+# Trusted authorization only: this workflow selects targets that already have
+# immutable registrations and commits one ticket record. It never registers a
+# target and never runs the analyst.
+on:
+  workflow_dispatch:
+    inputs:
+      series:
+        description: "Exact docket registry series (leave empty when using slugs)"
+        default: ""
+      slugs:
+        description: "Comma/newline-separated catalog slugs (requires empty series)"
+        default: ""
+      prompt_mode:
+        description: "Analyst prompt mode: fast|full|ladder|ladder_v2"
+        default: "fast"
+      codex_model:
+        description: "Codex model (empty = gpt-5.5)"
+        default: ""
+      codex_reasoning_effort:
+        description: "Codex reasoning effort (empty = low)"
+        default: ""
+      codex_network:
+        description: '"true" enables network in a workspace-write sandbox'
+        default: "false"
+      review_codex_model:
+        description: "Pre-submit review model (empty = gpt-5.5)"
+        default: ""
+      review_codex_search:
+        description: '"true" gives the pre-submit reviewer hosted web search'
+        default: "false"
+      timeout_seconds:
+        description: "Per-run analyst timeout in seconds"
+        default: "540"
+      attempt:
+        description: "Public attempt number (first ticket is 1)"
+        default: "1"
+      supersedes_ticket_id:
+        description: "Predecessor ticket id for a retry"
+        default: ""
+      superseded_outcome:
+        description: "failed|expired|abandoned (required with predecessor)"
+        default: ""
+      superseded_reason:
+        description: "Nonempty public reason for superseding the predecessor"
+        default: ""
+      expires_hours:
+        description: "Hours until the ticket expires"
+        default: "168"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docket-writers
+  cancel-in-progress: false
+
+jobs:
+  mint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select already-registered docket targets
+        env:
+          SERIES: ${{ inputs.series }}
+          SLUGS: ${{ inputs.slugs }}
+        run: |
+          set -euo pipefail
+          args=(
+            python3 scripts/roll_docket.py
+            --max-targets 10000
+            --out /tmp/ticket-candidates.json
+          )
+          if [ -n "$SERIES" ]; then
+            args+=(--series "$SERIES")
+          fi
+          "${args[@]}"
+
+          select_args=(
+            python3 scripts/generation_tickets.py select
+            --targets-file /tmp/ticket-candidates.json
+            --out /tmp/ticket-targets.json
+          )
+          if [ -n "$SERIES" ]; then
+            select_args+=(--series "$SERIES")
+          fi
+          if [ -n "$SLUGS" ]; then
+            select_args+=(--slugs "$SLUGS")
+          fi
+          "${select_args[@]}"
+
+      - name: Resolve the sealed policy and clock
+        id: policy
+        env:
+          PROMPT_MODE: ${{ inputs.prompt_mode }}
+          CODEX_MODEL: ${{ inputs.codex_model }}
+          CODEX_REASONING_EFFORT: ${{ inputs.codex_reasoning_effort }}
+          CODEX_NETWORK: ${{ inputs.codex_network }}
+          REVIEW_CODEX_MODEL: ${{ inputs.review_codex_model }}
+          REVIEW_CODEX_SEARCH: ${{ inputs.review_codex_search }}
+          TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
+          ATTEMPT: ${{ inputs.attempt }}
+          SUPERSEDES_TICKET_ID: ${{ inputs.supersedes_ticket_id }}
+          SUPERSEDED_OUTCOME: ${{ inputs.superseded_outcome }}
+          SUPERSEDED_REASON: ${{ inputs.superseded_reason }}
+          EXPIRES_HOURS: ${{ inputs.expires_hours }}
+        run: |
+          set -euo pipefail
+          CODEX_MODEL=${CODEX_MODEL:-gpt-5.5}
+          CODEX_REASONING_EFFORT=${CODEX_REASONING_EFFORT:-low}
+          REVIEW_CODEX_MODEL=${REVIEW_CODEX_MODEL:-gpt-5.5}
+          CODEX_NETWORK=${CODEX_NETWORK:-false}
+          REVIEW_CODEX_SEARCH=${REVIEW_CODEX_SEARCH:-false}
+          TIMEOUT_SECONDS=${TIMEOUT_SECONDS:-540}
+          ATTEMPT=${ATTEMPT:-1}
+          EXPIRES_HOURS=${EXPIRES_HOURS:-168}
+          CODEX_SANDBOX=read-only
+          case "${PROMPT_MODE:-fast}" in
+            fast|full|ladder|ladder_v2) ;;
+            *) echo "prompt_mode is not supported" >&2; exit 1 ;;
+          esac
+          case "$CODEX_MODEL" in
+            ''|*[!A-Za-z0-9._-]*) echo "codex_model is not a safe model id" >&2; exit 1 ;;
+          esac
+          case "$REVIEW_CODEX_MODEL" in
+            ''|*[!A-Za-z0-9._-]*) echo "review_codex_model is not a safe model id" >&2; exit 1 ;;
+          esac
+          case "$CODEX_REASONING_EFFORT" in
+            ''|*[!a-z0-9_-]*) echo "codex_reasoning_effort is not a safe value" >&2; exit 1 ;;
+          esac
+          if [ "$CODEX_NETWORK" = "true" ]; then
+            CODEX_SANDBOX=workspace-write
+          elif [ "$CODEX_NETWORK" != "false" ]; then
+            echo "codex_network must be true or false" >&2
+            exit 1
+          fi
+          if [ "$REVIEW_CODEX_SEARCH" != "true" ] && [ "$REVIEW_CODEX_SEARCH" != "false" ]; then
+            echo "review_codex_search must be true or false" >&2
+            exit 1
+          fi
+          case "$ATTEMPT" in
+            ''|*[!0-9]*) echo "attempt must be a positive integer" >&2; exit 1 ;;
+          esac
+          if [ "$ATTEMPT" -lt 1 ]; then
+            echo "attempt must be a positive integer" >&2
+            exit 1
+          fi
+          case "$EXPIRES_HOURS" in
+            ''|*[!0-9]*) echo "expires_hours must be a positive integer" >&2; exit 1 ;;
+          esac
+          if [ "$EXPIRES_HOURS" -lt 1 ]; then
+            echo "expires_hours must be a positive integer" >&2
+            exit 1
+          fi
+          case "$TIMEOUT_SECONDS" in
+            ''|*[!0-9]*) echo "timeout_seconds must be a positive integer" >&2; exit 1 ;;
+          esac
+          if [ "$TIMEOUT_SECONDS" -lt 1 ]; then
+            echo "timeout_seconds must be a positive integer" >&2
+            exit 1
+          fi
+          if [ -n "$SUPERSEDES_TICKET_ID" ]; then
+            if [ -z "$SUPERSEDED_OUTCOME" ] || [ -z "$SUPERSEDED_REASON" ]; then
+              echo "supersedes_ticket_id requires superseded_outcome and superseded_reason" >&2
+              exit 1
+            fi
+          elif [ -n "$SUPERSEDED_OUTCOME" ] || [ -n "$SUPERSEDED_REASON" ]; then
+            echo "superseded_outcome and superseded_reason require supersedes_ticket_id" >&2
+            exit 1
+          elif [ "$ATTEMPT" != "1" ]; then
+            echo "a first generation ticket must have attempt 1" >&2
+            exit 1
+          fi
+
+          MINTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          EXPIRES_AT=$(python3 - "$MINTED_AT" "$EXPIRES_HOURS" <<'PY'
+          import datetime as dt
+          import sys
+
+          minted = dt.datetime.strptime(sys.argv[1], "%Y-%m-%dT%H:%M:%SZ")
+          expires = minted + dt.timedelta(hours=int(sys.argv[2]))
+          print(expires.strftime("%Y-%m-%dT%H:%M:%SZ"))
+          PY
+          )
+          {
+            echo "prompt_mode=${PROMPT_MODE:-fast}"
+            echo "codex_model=$CODEX_MODEL"
+            echo "codex_reasoning_effort=$CODEX_REASONING_EFFORT"
+            echo "codex_sandbox=$CODEX_SANDBOX"
+            echo "codex_network=$CODEX_NETWORK"
+            echo "review_codex_model=$REVIEW_CODEX_MODEL"
+            echo "review_codex_search=$REVIEW_CODEX_SEARCH"
+            echo "timeout_seconds=$TIMEOUT_SECONDS"
+            echo "attempt=$ATTEMPT"
+            echo "minted_at=$MINTED_AT"
+            echo "expires_at=$EXPIRES_AT"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Reuse and bind immutable registrations at HEAD
+        env:
+          MINTED_AT: ${{ steps.policy.outputs.minted_at }}
+        run: |
+          set -euo pipefail
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/ticket-targets.json \
+            --date "${MINTED_AT%%T*}" \
+            --registered-at-utc "$MINTED_AT" \
+            --reuse-existing-only
+          git diff --exit-code
+          git diff --cached --exit-code
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/ticket-targets.json \
+            --bind-registration-commits \
+            --head HEAD \
+            --metadata-out /tmp/ticket-registration.json
+
+      - name: Verify a superseded ticket remains eligible
+        if: inputs.supersedes_ticket_id != ''
+        env:
+          SUPERSEDES_TICKET_ID: ${{ inputs.supersedes_ticket_id }}
+          ATTEMPT: ${{ steps.policy.outputs.attempt }}
+        run: |
+          python3 scripts/generation_tickets.py check-supersession \
+            --ticket-id "$SUPERSEDES_TICKET_ID" \
+            --attempt "$ATTEMPT" \
+            --repo-root .
+
+      - name: Mint the ticket record
+        id: ticket
+        env:
+          MINTED_AT: ${{ steps.policy.outputs.minted_at }}
+          EXPIRES_AT: ${{ steps.policy.outputs.expires_at }}
+          ATTEMPT: ${{ steps.policy.outputs.attempt }}
+          SUPERSEDES_TICKET_ID: ${{ inputs.supersedes_ticket_id }}
+          SUPERSEDED_OUTCOME: ${{ inputs.superseded_outcome }}
+          SUPERSEDED_REASON: ${{ inputs.superseded_reason }}
+          PROMPT_MODE: ${{ steps.policy.outputs.prompt_mode }}
+          CODEX_MODEL: ${{ steps.policy.outputs.codex_model }}
+          CODEX_REASONING_EFFORT: ${{ steps.policy.outputs.codex_reasoning_effort }}
+          CODEX_SANDBOX: ${{ steps.policy.outputs.codex_sandbox }}
+          CODEX_NETWORK: ${{ steps.policy.outputs.codex_network }}
+          REVIEW_CODEX_MODEL: ${{ steps.policy.outputs.review_codex_model }}
+          REVIEW_CODEX_SEARCH: ${{ steps.policy.outputs.review_codex_search }}
+          TIMEOUT_SECONDS: ${{ steps.policy.outputs.timeout_seconds }}
+        run: |
+          set -euo pipefail
+          NONCE=$(openssl rand -hex 32)
+          TICKET_ID="${MINTED_AT%%T*}-$NONCE"
+          TICKET_PATH="records/tickets/${MINTED_AT%%T*}/$TICKET_ID.json"
+          args=(
+            python3 scripts/generation_tickets.py mint
+            --targets-file /tmp/ticket-targets.json
+            --registration-metadata /tmp/ticket-registration.json
+            --nonce "$NONCE"
+            --minted-at-utc "$MINTED_AT"
+            --expires-at-utc "$EXPIRES_AT"
+            --attempt "$ATTEMPT"
+            --prompt-mode "$PROMPT_MODE"
+            --codex-model "$CODEX_MODEL"
+            --codex-reasoning-effort "$CODEX_REASONING_EFFORT"
+            --codex-sandbox "$CODEX_SANDBOX"
+            --review-codex-model "$REVIEW_CODEX_MODEL"
+            --timeout-seconds "$TIMEOUT_SECONDS"
+            --repo-root .
+          )
+          if [ "$CODEX_NETWORK" = "true" ]; then
+            args+=(--codex-network)
+          fi
+          if [ "$REVIEW_CODEX_SEARCH" = "true" ]; then
+            args+=(--review-codex-search)
+          fi
+          if [ -n "$SUPERSEDES_TICKET_ID" ]; then
+            args+=(
+              --supersedes-ticket-id "$SUPERSEDES_TICKET_ID"
+              --superseded-outcome "$SUPERSEDED_OUTCOME"
+              --superseded-reason "$SUPERSEDED_REASON"
+            )
+          fi
+          "${args[@]}"
+          {
+            echo "ticket_id=$TICKET_ID"
+            echo "ticket_path=$TICKET_PATH"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit only the generation ticket
+        env:
+          TICKET_ID: ${{ steps.ticket.outputs.ticket_id }}
+          TICKET_PATH: ${{ steps.ticket.outputs.ticket_path }}
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-ticket-minter"
+          git config user.email "recorder@thesisinstitute.org"
+          git add -- "$TICKET_PATH"
+          STAGED=$(git diff --cached --name-only)
+          if [ "$STAGED" != "$TICKET_PATH" ]; then
+            echo "generation ticket commit refused unexpected staged paths: $STAGED" >&2
+            exit 1
+          fi
+          git diff --quiet
+          test -z "$(git ls-files --others --exclude-standard)"
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Mint generation ticket $TICKET_ID"
+
+      - name: Synchronize, reverify, and push the ticket
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TICKET_PATH: ${{ steps.ticket.outputs.ticket_path }}
+          SUPERSEDES_TICKET_ID: ${{ inputs.supersedes_ticket_id }}
+          ATTEMPT: ${{ steps.policy.outputs.attempt }}
+        run: |
+          set -euo pipefail
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          pushed=0
+          for attempt in 1 2 3; do
+            echo "generation ticket push attempt $attempt"
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "generation ticket tree is dirty before rebase" >&2
+              exit 1
+            fi
+            git pull --rebase origin main
+            uv run --locked --extra custody python scripts/verify_record_chain.py records
+            while IFS= read -r -d '' root; do
+              python3 scripts/verify_custody.py "$(dirname "$root")"
+            done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+
+            python3 - "$TICKET_PATH" <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from generation_tickets import load_ticket
+
+          ticket = load_ticket(sys.argv[1])
+          pathlib.Path("/tmp/ticket-rebound-targets.json").write_text(
+              json.dumps({"targets": ticket["targets"]}, indent=2, sort_keys=True)
+              + "\n"
+          )
+          pathlib.Path("/tmp/ticket-expected-set-hash").write_text(
+              ticket["registrationSetHash"] + "\n"
+          )
+          PY
+            python3 scripts/register_targets.py \
+              --targets-file /tmp/ticket-rebound-targets.json \
+              --bind-registration-commits \
+              --head HEAD \
+              --metadata-out /tmp/ticket-rebound-registration.json
+            EXPECTED_SET_HASH=$(tr -d '\n' < /tmp/ticket-expected-set-hash)
+            ACTUAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/ticket-rebound-registration.json'))['registrationSetHash'])")
+            test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
+
+            INTRODUCING=$(PYTHONPATH=scripts python3 -c "from generation_tickets import ticket_introducing_commit; print(ticket_introducing_commit('$TICKET_PATH', '.'))")
+            LOCAL=$(git rev-parse HEAD)
+            test "$INTRODUCING" = "$LOCAL"
+            CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD)
+            test "$CHANGED" = "$TICKET_PATH"
+            git diff --exit-code
+            git diff --cached --exit-code
+            if [ -n "$SUPERSEDES_TICKET_ID" ]; then
+              python3 scripts/generation_tickets.py check-supersession \
+                --ticket-id "$SUPERSEDES_TICKET_ID" \
+                --attempt "$ATTEMPT" \
+                --repo-root . \
+                --allow-successor-path "$TICKET_PATH"
+            fi
+
+            if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
+              REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+              if [ "$REMOTE" = "$LOCAL" ]; then
+                pushed=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "generation ticket push did not converge after 3 attempts" >&2
+            exit 1
+          fi
+          echo "pushed_sha=$LOCAL" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the ticket push
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.sync.outputs.pushed_sha }}

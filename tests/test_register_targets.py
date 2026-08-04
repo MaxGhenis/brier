@@ -197,6 +197,186 @@ def test_registration_retry_reuses_immutable_snapshot_and_generated_target(
     ).as_posix()
 
 
+def test_reuse_existing_only_hydrates_without_rewriting_registration(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    raw_targets = json.dumps({"targets": [sample_target()]})
+    targets_path.write_text(raw_targets)
+
+    [original] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 10),
+        "2030-01-10T14:32:05Z",
+    )
+    snapshot_bytes = original["path"].read_bytes()
+    generated_bytes = generated.read_bytes()
+
+    targets_path.write_text(raw_targets)
+    [reused] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 11),
+        "2030-01-11T09:08:07Z",
+        reuse_existing_only=True,
+    )
+
+    assert reused["existing"] is True
+    assert reused["path"] == original["path"]
+    assert reused["path"].read_bytes() == snapshot_bytes
+    assert generated.read_bytes() == generated_bytes
+    [hydrated] = json.loads(targets_path.read_text())["targets"]
+    assert hydrated["registeredAtUtc"] == "2030-01-10T14:32:05Z"
+    assert hydrated["targetContentHash"] == original["targetContentHash"]
+    assert hydrated["targetRegistrationPath"] == original["path"].relative_to(
+        tmp_path
+    ).as_posix()
+
+
+def test_reuse_existing_only_refuses_generated_rewrite_before_any_write(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    raw_targets = json.dumps({"targets": [sample_target()]})
+    targets_path.write_text(raw_targets)
+    [original] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 10),
+        "2030-01-10T14:32:05Z",
+    )
+    snapshot_bytes = original["path"].read_bytes()
+    generated_bytes = generated.read_bytes()
+    targets_path.write_text(raw_targets)
+
+    monkeypatch.setattr(
+        register_targets,
+        "render_generated_targets",
+        lambda *_args, **_kwargs: generated.read_text() + "// forbidden rewrite\n",
+    )
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match=(
+            r"^--reuse-existing-only refused because generated targets "
+            r"would be rewritten$"
+        ),
+    ):
+        register_targets.register(
+            targets_path,
+            dt.date(2030, 1, 11),
+            "2030-01-11T09:08:07Z",
+            reuse_existing_only=True,
+        )
+
+    assert original["path"].read_bytes() == snapshot_bytes
+    assert generated.read_bytes() == generated_bytes
+    assert targets_path.read_text() == raw_targets
+
+
+def test_reuse_existing_only_refuses_whole_set_before_any_write(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(json.dumps({"targets": [sample_target()]}))
+    [original] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 10),
+        "2030-01-10T14:32:05Z",
+    )
+
+    unregistered = sample_target()
+    unregistered.update(
+        {
+            "period": "2030-02",
+            "catalogSlug": "agency-test-rate-february-2030",
+        }
+    )
+    raw_targets = json.dumps({"targets": [sample_target(), unregistered]})
+    targets_path.write_text(raw_targets)
+    before_records = {
+        path.relative_to(tmp_path).as_posix(): path.read_bytes()
+        for path in (tmp_path / "records").rglob("*")
+        if path.is_file()
+    }
+    generated_bytes = generated.read_bytes()
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match=(
+            r"^--reuse-existing-only refused target\(s\) without an existing "
+            r"immutable registration: agency-test-rate-february-2030$"
+        ),
+    ):
+        register_targets.register(
+            targets_path,
+            dt.date(2030, 1, 11),
+            "2030-01-11T09:08:07Z",
+            reuse_existing_only=True,
+        )
+
+    after_records = {
+        path.relative_to(tmp_path).as_posix(): path.read_bytes()
+        for path in (tmp_path / "records").rglob("*")
+        if path.is_file()
+    }
+    assert after_records == before_records
+    assert original["path"].is_file()
+    assert generated.read_bytes() == generated_bytes
+    assert targets_path.read_text() == raw_targets
+
+
+@pytest.mark.parametrize(
+    ("incompatible_flag", "reason"),
+    [
+        (
+            "--bind-registration-commits",
+            "--reuse-existing-only cannot be combined with "
+            "--bind-registration-commits",
+        ),
+        (
+            "--skip-unbindable",
+            "--reuse-existing-only cannot be combined with --skip-unbindable",
+        ),
+    ],
+)
+def test_reuse_existing_only_cli_combinations_refuse_before_writing(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+    capsys,
+    incompatible_flag: str,
+    reason: str,
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text('{"targets": []}\n')
+    targets_bytes = targets_path.read_bytes()
+    generated_bytes = generated.read_bytes()
+    metadata_path = tmp_path / "metadata.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "register_targets.py",
+            "--targets-file",
+            str(targets_path),
+            "--reuse-existing-only",
+            incompatible_flag,
+            "--metadata-out",
+            str(metadata_path),
+        ],
+    )
+
+    assert register_targets.main() == 1
+
+    assert capsys.readouterr().err == f"target registration failed: {reason}\n"
+    assert targets_path.read_bytes() == targets_bytes
+    assert generated.read_bytes() == generated_bytes
+    assert not metadata_path.exists()
+    assert not (tmp_path / "records").exists()
+
+
 def test_registration_retry_fails_closed_on_generated_target_mismatch(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
@@ -259,7 +439,7 @@ def test_empty_registration_is_a_byte_identical_no_op(
     assert not (tmp_path / "records" / "targets").exists()
 
 
-def test_bind_registration_commits_uses_snapshot_introducing_commit(
+def test_reuse_existing_only_then_bind_uses_snapshot_introducing_commit(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
@@ -283,7 +463,8 @@ def test_bind_registration_commits_uses_snapshot_introducing_commit(
         [*commit_args, "-m", "base"], cwd=tmp_path, check=True, capture_output=True
     )
     targets_path = tmp_path / "targets.json"
-    targets_path.write_text(json.dumps({"targets": [sample_target()]}))
+    raw_targets = json.dumps({"targets": [sample_target()]})
+    targets_path.write_text(raw_targets)
     register_targets.register(
         targets_path,
         dt.date(2030, 1, 10),
@@ -305,9 +486,17 @@ def test_bind_registration_commits_uses_snapshot_introducing_commit(
         ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
     ).strip()
 
+    targets_path.write_text(raw_targets)
+    [reused] = register_targets.register(
+        targets_path,
+        dt.date(2030, 1, 11),
+        "2030-01-11T09:08:07Z",
+        reuse_existing_only=True,
+    )
     metadata = register_targets.bind_registration_commits(targets_path, head)
 
     target = json.loads(targets_path.read_text())["targets"][0]
+    assert reused["existing"] is True
     assert target["registrationCommit"] == head
     assert metadata["sourceCommit"] == head
     assert metadata["registrationCommits"] == [head]
