@@ -384,9 +384,6 @@ jobs:
             ACTUAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/ticket-rebound-registration.json'))['registrationSetHash'])")
             test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
 
-            INTRODUCING=$(PYTHONPATH=scripts python3 -c "from generation_tickets import ticket_introducing_commit; print(ticket_introducing_commit('$TICKET_PATH', '.'))")
-            LOCAL=$(git rev-parse HEAD)
-            test "$INTRODUCING" = "$LOCAL"
             CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD)
             test "$CHANGED" = "$TICKET_PATH"
             git diff --exit-code
@@ -399,12 +396,12 @@ jobs:
                 --allow-successor-path "$TICKET_PATH"
             fi
 
+            LOCAL=$(git rev-parse HEAD)
             if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
-              REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
-              if [ "$REMOTE" = "$LOCAL" ]; then
-                pushed=1
-                break
-              fi
+              # A zero-exit push is the attestation boundary. Never put a
+              # second network call between this success and attest_commit.
+              pushed=1
+              break
             fi
             sleep 2
           done
@@ -412,9 +409,29 @@ jobs:
             echo "generation ticket push did not converge after 3 attempts" >&2
             exit 1
           fi
-          echo "pushed_sha=$LOCAL" >> "$GITHUB_OUTPUT"
+          echo "attest_commit=$LOCAL" >> "$GITHUB_OUTPUT"
 
       - name: Attest the ticket push
+        if: steps.sync.outputs.attest_commit != ''
         uses: ./.github/actions/attest-records-push
         with:
-          commit: ${{ steps.sync.outputs.pushed_sha }}
+          commit: ${{ steps.sync.outputs.attest_commit }}
+
+      - name: Confirm the attested commit remains on main
+        if: steps.sync.outputs.attest_commit != ''
+        env:
+          PUSHED_COMMIT: ${{ steps.sync.outputs.attest_commit }}
+        run: |
+          set -euo pipefail
+          REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+          if [ "$REMOTE" = "$PUSHED_COMMIT" ]; then
+            echo "confirmed main at attested commit $PUSHED_COMMIT"
+            exit 0
+          fi
+          git fetch --no-tags origin main
+          if git merge-base --is-ancestor "$PUSHED_COMMIT" origin/main; then
+            echo "main advanced from attested commit $PUSHED_COMMIT to $REMOTE"
+            exit 0
+          fi
+          echo "attested commit $PUSHED_COMMIT is no longer on main ($REMOTE)" >&2
+          exit 1

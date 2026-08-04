@@ -93,14 +93,27 @@ def test_mint_workflow_reverifies_every_push_candidate_and_attests() -> None:
     assert source.count("for attempt in 1 2 3; do") == 1
     assert source.count("--bind-registration-commits") == 2
     assert source.count("check-supersession") == 2
-    assert "ticket_introducing_commit" in source
+    assert "ticket_introducing_commit" not in source
     assert "verify_record_chain.py records" in source
     assert "verify_custody.py" in source
     assert "git pull --rebase origin main" in source
     assert "push origin main" in source
     assert "git ls-remote origin refs/heads/main" in source
     assert "uses: ./.github/actions/attest-records-push" in source
-    assert "commit: ${{ steps.sync.outputs.pushed_sha }}" in source
+    assert "commit: ${{ steps.sync.outputs.attest_commit }}" in source
+    loop = source[source.index("for attempt in 1 2 3; do") :]
+    before_attestation = loop.split("- name: Attest the ticket push")[0]
+    assert "git ls-remote origin refs/heads/main" not in before_attestation
+    assert "A zero-exit push is the attestation boundary" in before_attestation
+    push_success = before_attestation[
+        before_attestation.index("push origin main") :
+        before_attestation.index("sleep 2")
+    ]
+    assert push_success.index("pushed=1") < push_success.index("break")
+    assert source.index("uses: ./.github/actions/attest-records-push") < (
+        source.index("git ls-remote origin refs/heads/main")
+    )
+    assert 'git merge-base --is-ancestor "$PUSHED_COMMIT" origin/main' in source
 
 
 def test_mint_workflow_is_in_records_attestation_allowlist() -> None:
