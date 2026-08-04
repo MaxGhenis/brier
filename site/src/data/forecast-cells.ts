@@ -260,6 +260,11 @@ export interface PredictionRunMetadata {
   agentVersion?: string;
   promptHash?: string;
   toolPolicyHash?: string;
+  provenance?: "ci" | "local_operator_attested";
+  generationTicket?: {
+    ticketId: string;
+    ticketPath: string;
+  };
   custodyRootSha256?: string;
   promptMode?: string;
   inputBundleHash?: string;

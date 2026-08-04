@@ -268,6 +268,10 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
 # manifest) alongside the cell, so the published stamp names the agent that
 # actually produced the forecast.
 SEALED_AGENT_KEY = "_sealedAgentMeta"
+# Private carrier for the public ticket identity sealed into a run manifest.
+# The nonce hash remains in the records manifest; the site only needs the
+# ticket record link that explains which trusted local-generation lane ran.
+SEALED_GENERATION_TICKET_KEY = "_sealedGenerationTicket"
 
 
 def agent_stamp() -> dict:
@@ -304,7 +308,45 @@ def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
     return meta if all(meta.get(key) for key in required) else None
 
 
-def to_forecast_cell(cell: dict) -> dict:
+def sealed_generation_ticket(run_dir: pathlib.Path) -> dict | None:
+    """Return the publishable ticket identity sealed into a run manifest."""
+
+    manifest_path = run_dir / "manifest.json"
+    if not manifest_path.exists():
+        return None
+    ticket = json.loads(manifest_path.read_text()).get("generationTicket")
+    if ticket is None:
+        return None
+    if not isinstance(ticket, dict) or not all(
+        isinstance(ticket.get(key), str) and ticket[key]
+        for key in ("ticketId", "ticketPath", "nonceSha256")
+    ):
+        raise ValueError(
+            f"manifest generationTicket is incomplete or invalid: {manifest_path}"
+        )
+    if not re.fullmatch(r"[0-9a-f]{64}", ticket["nonceSha256"]):
+        raise ValueError(
+            f"manifest generationTicket nonceSha256 is invalid: {manifest_path}"
+        )
+    return {"ticketId": ticket["ticketId"], "ticketPath": ticket["ticketPath"]}
+
+
+def carry_sealed_run_metadata(cells: list[dict], run_dir: pathlib.Path) -> None:
+    """Replace any input claims with metadata read from the run manifest."""
+
+    for cell in cells:
+        cell.pop(SEALED_AGENT_KEY, None)
+        cell.pop(SEALED_GENERATION_TICKET_KEY, None)
+    sealed_agent = sealed_agent_meta(run_dir)
+    sealed_ticket = sealed_generation_ticket(run_dir)
+    for cell in cells:
+        if sealed_agent:
+            cell[SEALED_AGENT_KEY] = sealed_agent
+        if sealed_ticket:
+            cell[SEALED_GENERATION_TICKET_KEY] = sealed_ticket
+
+
+def to_forecast_cell(cell: dict, *, include_provenance: bool = True) -> dict:
     out = {
         k: cell[k]
         for k in (
@@ -343,6 +385,16 @@ def to_forecast_cell(cell: dict) -> dict:
         "toolPolicyHash": stamp["toolPolicyHash"],
         "sourceContext": cell["sourceContext"],
     }
+    if include_provenance:
+        ticket = cell.get(SEALED_GENERATION_TICKET_KEY)
+        if ticket:
+            out["predictionRun"]["provenance"] = "local_operator_attested"
+            out["predictionRun"]["generationTicket"] = {
+                "ticketId": ticket["ticketId"],
+                "ticketPath": ticket["ticketPath"],
+            }
+        else:
+            out["predictionRun"]["provenance"] = "ci"
     if cell.get("promptMode"):
         out["predictionRun"]["promptMode"] = cell["promptMode"]
     if cell.get("activityLog"):
@@ -361,10 +413,7 @@ def load_cells(path: pathlib.Path) -> list[dict]:
     cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
-    sealed_agent = sealed_agent_meta(path.parent)
-    if sealed_agent:
-        for cell in cells:
-            cell[SEALED_AGENT_KEY] = sealed_agent
+    carry_sealed_run_metadata(cells, path.parent)
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
     if custody_path.exists():
@@ -398,6 +447,28 @@ def repo_path(path: pathlib.Path) -> str:
         return str(path)
 
 
+def replacement_has_run_provenance(path: str | None) -> bool:
+    """Whether an existing generated module already uses the new run stamp.
+
+    ``--replace-module`` is also the collision-exclusion input used by the
+    byte-for-byte wave reproducibility check. Historical generated modules
+    predate this field and must remain reproducible without editing them.
+    Newly generated modules always carry a stamp, and future replays preserve
+    it because either allowed value is present in the committed module.
+    """
+
+    if not path:
+        return True
+    module = pathlib.Path(path)
+    if not module.is_file():
+        return True
+    source = module.read_text()
+    return any(
+        f'"provenance": "{value}"' in source
+        for value in ("ci", "local_operator_attested")
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("out_ts")
@@ -411,6 +482,7 @@ def main() -> int:
     inputs = args.inputs
     site_data = ROOT / "site/src/data"
     collision_exclusion = pathlib.Path(args.replace_module or out_ts)
+    include_provenance = replacement_has_run_provenance(args.replace_module)
     taken = existing_slugs(site_data, collision_exclusion)
     cells, failed = [], []
     seen = set()
@@ -421,7 +493,9 @@ def main() -> int:
                 failed.append((cell.get("slug", "?"), errs))
             else:
                 seen.add(cell["slug"])
-                cells.append(to_forecast_cell(cell))
+                cells.append(
+                    to_forecast_cell(cell, include_provenance=include_provenance)
+                )
     cells.sort(key=lambda c: c["resolutionDate"])
 
     body = ",\n".join(

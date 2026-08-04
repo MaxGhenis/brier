@@ -56,20 +56,18 @@ def main() -> int:
     target, upgrades_path = sys.argv[1], sys.argv[2]
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from spawned_cells_to_ts import (
-        SEALED_AGENT_KEY,
-        sealed_agent_meta,
+        carry_sealed_run_metadata,
         to_forecast_cell,
         validate,
     )
 
     src = pathlib.Path(target).read_text()
     upgrades = json.load(open(upgrades_path))
-    # Stamp the agent that actually produced this run, not whatever the
-    # working tree happens to define now.
-    sealed_agent = sealed_agent_meta(pathlib.Path(upgrades_path).resolve().parent)
-    if sealed_agent:
-        for cell in upgrades:
-            cell[SEALED_AGENT_KEY] = sealed_agent
+    # Stamp only metadata sealed by the run manifest, never claims copied
+    # from the upgrade cell payload itself.
+    carry_sealed_run_metadata(
+        upgrades, pathlib.Path(upgrades_path).resolve().parent
+    )
     for cell in upgrades:
         slug = cell["slug"]
         start, end = find_cell_block(src, slug)

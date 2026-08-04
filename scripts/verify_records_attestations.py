@@ -61,6 +61,7 @@ PROTECTED_PREFIX = "records/"
 ALLOWED_WORKFLOWS = {
     ".github/workflows/mint-generation-ticket.yml",
     ".github/workflows/prospect-docket.yml",
+    ".github/workflows/publish-attested.yml",
     ".github/workflows/record-forecasts.yml",
     ".github/workflows/resolve-and-rebuild.yml",
     ".github/workflows/roll-docket.yml",
