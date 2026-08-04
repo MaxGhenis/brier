@@ -690,6 +690,7 @@ def test_find_ticket_consumption_scans_batch_days(tmp_path: pathlib.Path) -> Non
 
 def test_find_ticket_successor_scans_ticket_records(tmp_path: pathlib.Path) -> None:
     predecessor = sample_ticket()
+    write_ticket(conventional_ticket_path(tmp_path, predecessor), predecessor)
     successor = generation_tickets.mint_ticket(
         [sample_target()],
         sample_policy(),
@@ -700,6 +701,7 @@ def test_find_ticket_successor_scans_ticket_records(tmp_path: pathlib.Path) -> N
         supersedes=predecessor["ticketId"],
         superseded_outcome={"outcome": "failed", "reason": "agent failed"},
         registration_set_hash="d" * 64,
+        predecessor_ticket=predecessor,
     )
 
     assert (
@@ -720,9 +722,11 @@ def test_find_ticket_successor_scans_ticket_records(tmp_path: pathlib.Path) -> N
 
 def test_valid_superseding_ticket_round_trip(tmp_path: pathlib.Path) -> None:
     predecessor = sample_ticket()
+    changed_policy = sample_policy()
+    changed_policy["codexReasoningEffort"] = "high"
     successor = generation_tickets.mint_ticket(
         [copy.deepcopy(sample_target())],
-        copy.deepcopy(sample_policy()),
+        changed_policy,
         nonce="f" * 64,
         minted_at_utc="2030-01-11T12:00:00Z",
         expires_hours=EXPIRES_HOURS,
@@ -730,11 +734,69 @@ def test_valid_superseding_ticket_round_trip(tmp_path: pathlib.Path) -> None:
         supersedes=predecessor["ticketId"],
         superseded_outcome={"outcome": "expired", "reason": "window elapsed"},
         registration_set_hash="d" * 64,
+        predecessor_ticket=predecessor,
     )
     path = tmp_path / "successor.json"
     write_ticket(path, successor)
 
     assert generation_tickets.load_ticket(path) == successor
+    assert successor["policy"] != predecessor["policy"]
+
+
+def test_mint_refuses_supersession_with_mismatched_targets_literally() -> None:
+    predecessor = sample_ticket()
+    changed_target = sample_target()
+    changed_target["catalogSlug"] = "different-target-2030-q1"
+    candidate_id = f"2030-01-11-{'f' * 64}"
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.mint_ticket(
+            [changed_target],
+            sample_policy(),
+            nonce="f" * 64,
+            minted_at_utc="2030-01-11T12:00:00Z",
+            expires_hours=EXPIRES_HOURS,
+            attempt=2,
+            supersedes=predecessor["ticketId"],
+            superseded_outcome={"outcome": "failed", "reason": "agent failed"},
+            registration_set_hash=predecessor["registrationSetHash"],
+            predecessor_ticket=predecessor,
+        )
+
+    assert str(error.value) == (
+        f"generation ticket {candidate_id} cannot supersede "
+        f"{predecessor['ticketId']}: registrationSetHash and targets must be "
+        "identical"
+    )
+
+
+def test_find_ticket_successor_refuses_corrupt_retry_accounting_literally(
+    tmp_path: pathlib.Path,
+) -> None:
+    predecessor = sample_ticket()
+    write_ticket(conventional_ticket_path(tmp_path, predecessor), predecessor)
+    successor = generation_tickets.mint_ticket(
+        [sample_target()],
+        sample_policy(),
+        nonce="e" * 64,
+        minted_at_utc="2030-01-11T12:00:00Z",
+        expires_hours=EXPIRES_HOURS,
+        attempt=2,
+        supersedes=predecessor["ticketId"],
+        superseded_outcome={"outcome": "failed", "reason": "agent failed"},
+        registration_set_hash=predecessor["registrationSetHash"],
+        predecessor_ticket=predecessor,
+    )
+    successor["registrationSetHash"] = "e" * 64
+    write_ticket(conventional_ticket_path(tmp_path, successor), successor)
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.find_ticket_successor(predecessor["ticketId"], tmp_path)
+
+    assert str(error.value) == (
+        f"generation ticket {successor['ticketId']} has corrupt retry accounting "
+        f"for {predecessor['ticketId']}: registrationSetHash differs"
+    )
 
 
 def test_select_targets_by_exact_series_and_slugs() -> None:
@@ -941,6 +1003,7 @@ def test_validate_supersession_allows_only_exact_current_successor(
         supersedes=predecessor["ticketId"],
         superseded_outcome={"outcome": "failed", "reason": "agent failed"},
         registration_set_hash="d" * 64,
+        predecessor_ticket=predecessor,
     )
     successor_path = conventional_ticket_path(tmp_path, successor)
     write_ticket(successor_path, successor)
@@ -1027,3 +1090,46 @@ def test_mint_cli_requires_complete_supersession_fields(
         "--superseded-outcome, and --superseded-reason must be provided together\n"
     )
     assert not (tmp_path / "records").exists()
+
+
+def test_mint_cli_refuses_mismatched_supersession_targets(
+    tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    predecessor_target = sample_target()
+    predecessor_target["catalogSlug"] = "predecessor-only-target"
+    predecessor = generation_tickets.mint_ticket(
+        [predecessor_target],
+        sample_policy(),
+        nonce="e" * 64,
+        minted_at_utc=MINTED_AT,
+        expires_hours=EXPIRES_HOURS,
+        attempt=1,
+        registration_set_hash="d" * 64,
+    )
+    write_ticket(conventional_ticket_path(tmp_path, predecessor), predecessor)
+    targets_path, metadata_path = write_bound_inputs(tmp_path)
+    argv = mint_cli_args(targets_path, metadata_path, tmp_path, attempt=2)
+    argv[argv.index("--nonce") + 1] = "f" * 64
+    argv[argv.index("--minted-at-utc") + 1] = "2030-01-11T12:00:00Z"
+    argv.extend(
+        [
+            "--supersedes-ticket-id",
+            predecessor["ticketId"],
+            "--superseded-outcome",
+            "failed",
+            "--superseded-reason",
+            "agent failed",
+        ]
+    )
+
+    assert generation_tickets.main(argv) == 1
+
+    candidate_id = f"2030-01-11-{'f' * 64}"
+    assert capsys.readouterr().err == (
+        f"generation ticket failed: generation ticket {candidate_id} cannot "
+        f"supersede {predecessor['ticketId']}: registrationSetHash and targets "
+        "must be identical\n"
+    )
+    assert not conventional_ticket_path(
+        tmp_path, {"ticketId": candidate_id}
+    ).exists()

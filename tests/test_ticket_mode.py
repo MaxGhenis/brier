@@ -260,6 +260,7 @@ def test_ticket_mode_refuses_superseded_before_checkout_mismatch(
         supersedes=fixture["ticket"]["ticketId"],
         superseded_outcome={"outcome": "failed", "reason": "agent failed"},
         registration_set_hash="d" * 64,
+        predecessor_ticket=fixture["ticket"],
     )
     relative = generation_tickets.ticket_record_path(successor["ticketId"])
     successor_path = fixture["repo"].joinpath(*relative.parts)

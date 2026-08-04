@@ -20,6 +20,8 @@ import subprocess
 import sys
 from typing import Any
 
+from canonical_json import canonical_bytes
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TICKET_SCHEMA = "generation_ticket_v1"
 
@@ -331,6 +333,7 @@ def mint_ticket(
     supersedes: str | None = None,
     superseded_outcome: dict[str, str] | None = None,
     registration_set_hash: str,
+    predecessor_ticket: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a validated ticket from trusted registration and policy inputs."""
 
@@ -371,7 +374,37 @@ def mint_ticket(
         "registrationSetHash": registration_set_hash,
         "policy": copy.deepcopy(policy),
     }
-    return validate_ticket(ticket)
+    validated = validate_ticket(ticket)
+    if supersedes is not None:
+        if predecessor_ticket is None:
+            raise TicketError(
+                f"generation ticket {validated['ticketId']} cannot supersede "
+                f"{supersedes}: predecessor ticket was not validated"
+            )
+        predecessor = validate_ticket(predecessor_ticket)
+        if predecessor["ticketId"] != supersedes:
+            raise TicketError(
+                f"generation ticket {validated['ticketId']} cannot supersede "
+                f"{supersedes}: validated predecessor is "
+                f"{predecessor['ticketId']}"
+            )
+        if (
+            validated["registrationSetHash"]
+            != predecessor["registrationSetHash"]
+            or canonical_bytes(validated["targets"])
+            != canonical_bytes(predecessor["targets"])
+        ):
+            raise TicketError(
+                f"generation ticket {validated['ticketId']} cannot supersede "
+                f"{predecessor['ticketId']}: registrationSetHash and targets "
+                "must be identical"
+            )
+    elif predecessor_ticket is not None:
+        raise TicketError(
+            f"generation ticket {validated['ticketId']} has a predecessor ticket "
+            "without supersedesTicketId"
+        )
+    return validated
 
 
 def load_ticket(path: str | pathlib.Path) -> dict[str, Any]:
@@ -491,6 +524,33 @@ def find_ticket_successor(ticket_id: str, repo_root: str | pathlib.Path) -> str 
                 f"{_relative_match(path, root)} != {_relative_match(expected, root)}"
             )
         if ticket["supersedesTicketId"] == ticket_id:
+            predecessor_path = root.joinpath(*ticket_record_path(ticket_id).parts)
+            if not predecessor_path.is_file():
+                raise TicketError(
+                    f"generation ticket {ticket['ticketId']} has corrupt retry "
+                    f"accounting for {ticket_id}: predecessor does not exist"
+                )
+            predecessor = load_ticket(predecessor_path)
+            if predecessor["ticketId"] != ticket_id:
+                raise TicketError(
+                    f"generation ticket {ticket['ticketId']} has corrupt retry "
+                    f"accounting for {ticket_id}: predecessor identity differs"
+                )
+            if (
+                ticket["registrationSetHash"]
+                != predecessor["registrationSetHash"]
+            ):
+                raise TicketError(
+                    f"generation ticket {ticket['ticketId']} has corrupt retry "
+                    f"accounting for {ticket_id}: registrationSetHash differs"
+                )
+            if canonical_bytes(ticket["targets"]) != canonical_bytes(
+                predecessor["targets"]
+            ):
+                raise TicketError(
+                    f"generation ticket {ticket['ticketId']} has corrupt retry "
+                    f"accounting for {ticket_id}: targets differ"
+                )
             matches.append(path)
     if not matches:
         return None
@@ -821,8 +881,9 @@ def _mint_command(args: argparse.Namespace) -> dict[str, Any]:
     registration_set_hash = load_registration_binding(
         targets, args.registration_metadata
     )
+    predecessor = None
     if args.supersedes_ticket_id is not None:
-        validate_ticket_supersession(
+        predecessor = validate_ticket_supersession(
             args.supersedes_ticket_id,
             args.repo_root,
             attempt=args.attempt,
@@ -852,6 +913,7 @@ def _mint_command(args: argparse.Namespace) -> dict[str, Any]:
         supersedes=args.supersedes_ticket_id,
         superseded_outcome=outcome,
         registration_set_hash=registration_set_hash,
+        predecessor_ticket=predecessor,
     )
     ticket_path = write_minted_ticket(ticket, args.repo_root)
     return {"ticketId": ticket["ticketId"], "ticketPath": ticket_path}
