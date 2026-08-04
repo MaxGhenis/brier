@@ -116,7 +116,18 @@ nonce: &lt;64-character lowercase-hex nonce&gt;</code></pre>
 The runner and attested-bundle verifier both render the block through
 `format_generation_ticket`; its exact bytes are covered by the prompt artifact
 hash. Run and batch manifests bind the ticket id and path plus the nonce's
-SHA-256 digest rather than repeating the nonce.
+SHA-256 digest rather than repeating the nonce. A transcript binding the nonce
+cannot predate mint, so this proves that the published artifact set was
+assembled after mint. It does not prove that the forecasting work occurred
+after mint.
+
+A ticket permits one publication, not one execution. Parallel clean checkouts
+can execute the same ticket, select one result offline, and discard the other
+runs without detection. The lane also cannot prove model authorship or trust
+the operator's wall clock, and its git-status cleanliness checks do not see
+gitignored local inputs. These residual risks are why the published cells carry
+`local_operator_attested`. The label is disclosure, not a scoring adjustment;
+these cells score identically to CI cells.
 
 The converter stamps `predictionRun` from `agents/thesis-analyst/`:
 `{kind: "recorded-agent-run", runAt, agent: "thesis.analyst", model,
@@ -132,7 +143,8 @@ whose manifest carries a verified generation ticket instead has
 `provenance = "local_operator_attested"` and
 `generationTicket: {ticketId, ticketPath}`. The label is granted only by the
 trusted publish workflow after attested-bundle verification; a cell cannot
-claim it itself.
+claim it itself. It identifies this internally consistent, single-publication
+path rather than proving the underlying execution's authorship or uniqueness.
 
 New runs also stamp `predictionRun.custodyRootSha256`. The converter verifies
 the sibling `custody_root.json` before carrying that root into the catalog,

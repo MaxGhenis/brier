@@ -552,7 +552,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
 
 
 def format_generation_ticket(ticket: dict[str, str] | None) -> str:
-    """Render the sole prompt block binding a run to its public nonce."""
+    """Render the nonce block binding post-mint assembly of public artifacts."""
 
     if ticket is None:
         return ""

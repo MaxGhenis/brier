@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify a locally generated bundle against its trusted generation ticket.
+"""Verify a locally assembled bundle against its trusted generation ticket.
 
 This verifier is deliberately conservative about prompt reconstruction.  It
 uses the trusted code in the current checkout, not code supplied by the
@@ -8,7 +8,11 @@ bundle unverifiable unless the reconstructed bytes remain identical.
 
 The ordinary docket publication battery remains a separate workflow step.
 This module checks only the additional ticket, command, and derivation claims
-made by the attested local generation lane.
+made by the attested local generation lane. Passing proves post-mint assembly
+and internal consistency of the published artifact set, plus eligibility for
+one publication. It does not prove one execution, model authorship, trusted
+local wall time, or the absence of inputs hidden from git status by ignore
+rules.
 """
 
 from __future__ import annotations
@@ -452,8 +456,10 @@ def _check_bindings(
             f"batch checkoutSha does not match ticket introducing commit: "
             f"{batch.get('checkoutSha')!r} != {introducing}",
         )
-    # The nonce already proves the transcript postdates the mint; these checks
-    # additionally refuse records whose CLAIMED clocks contradict that proof.
+    # A transcript binding the nonce cannot predate mint, so the nonce proves
+    # the published artifact set was assembled after mint. It does not prove
+    # the forecasting work occurred then; these checks refuse CLAIMED clocks
+    # that contradict the assembly boundary.
     minted = _parse_utc(
         state.ticket["mintedAtUtc"], phase="binding", label="ticket mintedAtUtc"
     )
@@ -1542,7 +1548,7 @@ def verify_attested_bundle(
     repo_root: str | pathlib.Path,
     now_utc: dt.datetime,
 ) -> None:
-    """Verify the seven attested-lane checks, failing on the first mismatch."""
+    """Verify ticket-bound assembly and replay, not execution provenance."""
 
     with _phase_guard("ticket"):
         checkout = pathlib.Path(repo_root).resolve()

@@ -76,12 +76,22 @@ After a successful run:
 ### Attested local generation lane
 
 Use this lane for registered hard targets that the CI generation lane cannot
-serve. A trusted workflow first mints a one-use, expiring ticket that seals the
-target set, nonce, and complete Codex policy. The runner binds that ticket to
-its clean introducing checkout, and the operator uploads only a data bundle;
-`publish-attested.yml` reconstructs and replays the run before CI commits and
-attests any `records/**` changes. Never commit or push the locally generated
-record files.
+serve. A trusted workflow first mints an expiring, single-publication ticket
+that seals the target set, nonce, and complete Codex policy. The runner binds
+that ticket to its clean introducing checkout, and the operator uploads only a
+data bundle; `publish-attested.yml` reconstructs and replays the run before CI
+commits and attests any `records/**` changes. Never commit or push the locally
+generated record files.
+
+A transcript binding the nonce cannot predate mint, so the nonce proves the
+published artifact set was assembled after mint; it does not prove the
+forecasting work occurred then. A ticket permits one publication, not one
+execution: parallel clean checkouts can run the ticket, select one result
+offline, and discard the others without detection. The lane also cannot prove
+model authorship or trust the operator's wall clock, and its git-status
+cleanliness checks do not see gitignored local inputs. These residual risks are
+why published cells carry `local_operator_attested`. The label is disclosure,
+not a scoring adjustment; the cells score identically to CI cells.
 
 Mint against exactly one registry series or an exact slug set:
 
