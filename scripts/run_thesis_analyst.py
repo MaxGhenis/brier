@@ -51,6 +51,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
+from generation_tickets import TicketError, ticket_manifest_binding
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENT_ROOT = ROOT / "agents" / "thesis-analyst"
@@ -378,9 +379,16 @@ def finalize_manifest(
     run_at: str,
     manifest: dict[str, Any],
     refs: list[dict[str, Any]],
+    *,
+    checkout_sha: str | None = None,
+    generation_ticket: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Write custody_root.json, then perform the one final manifest write."""
 
+    if checkout_sha is not None:
+        manifest["checkoutSha"] = checkout_sha
+    if generation_ticket is not None:
+        manifest["generationTicket"] = ticket_manifest_binding(generation_ticket)
     manifest["custodyInventoryVersion"] = CUSTODY_INVENTORY_VERSION
     manifest["runMode"] = "analyst"
     manifest["manifestHashSemantics"] = MANIFEST_HASH_MODE
@@ -426,13 +434,17 @@ def build_run_prompt(
     conditional: str | None,
     mode: str,
     target_context: dict[str, Any] | None = None,
+    ticket: dict[str, str] | None = None,
     network_tools: bool = False,
 ) -> tuple[str, dict]:
     prompt, meta = build_prompt(series, period, conditional)
     target_context_block = format_target_context(target_context)
+    ticket_block = format_generation_ticket(ticket)
     if mode == "full":
         if target_context_block:
             prompt = f"{prompt}\n\n{target_context_block}"
+        if ticket_block:
+            prompt = f"{prompt}\n\n{ticket_block}"
         if network_tools:
             prompt = f"{prompt}\n\n# Network access\n{NETWORK_TOOLS_NOTE.strip()}\n"
         return prompt, meta
@@ -444,6 +456,7 @@ def build_run_prompt(
                 conditional,
                 meta,
                 target_context,
+                ticket,
                 network_tools=network_tools,
             ),
             meta,
@@ -459,6 +472,7 @@ def build_run_prompt(
                 conditional,
                 meta,
                 target_context,
+                ticket,
             ),
             ladder_meta,
         )
@@ -474,6 +488,7 @@ def build_run_prompt(
                 conditional,
                 meta,
                 target_context,
+                ticket,
             ),
             ladder_meta,
         )
@@ -536,6 +551,20 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
     return "\n".join(lines)
 
 
+def format_generation_ticket(ticket: dict[str, str] | None) -> str:
+    """Render the sole prompt block binding a run to its public nonce."""
+
+    if ticket is None:
+        return ""
+    # The exact context shape, canonical path, and nonce are validated before
+    # prompt construction. Calling the manifest projection here keeps prompt
+    # reconstruction and manifest stamping on one validation contract.
+    ticket_manifest_binding(ticket)
+    return (
+        f"# Generation ticket\nticket: {ticket['ticketId']}\nnonce: {ticket['nonce']}\n"
+    )
+
+
 # Per-adapter, copy-runnable base-rate fetch commands surfaced in the target
 # context. Five S.3596 waves (thesis#115) fetched IRS Pub 4801 line-item
 # estimates — a real official series for nearly the same concept — instead
@@ -589,6 +618,7 @@ def build_fast_prompt(
     conditional: str | None,
     meta: dict[str, Any],
     target_context: dict[str, Any] | None = None,
+    ticket: dict[str, str] | None = None,
     width_discipline: str = "sigma",
     mode_label: str = "fast",
     network_tools: bool = False,
@@ -661,6 +691,8 @@ def build_fast_prompt(
     )
     target_context_block = format_target_context(target_context)
     target_context_text = f"{target_context_block}\n\n" if target_context_block else ""
+    ticket_block = format_generation_ticket(ticket)
+    ticket_text = f"{ticket_block}\n" if ticket_block else ""
     return (
         "# Thesis analyst fast public-release run\n\n"
         "Return exactly one JSON object and no Markdown. Do not wrap it in a "
@@ -699,6 +731,7 @@ def build_fast_prompt(
         f"- period: {period}\n"
         f"{conditional_line}\n"
         f"{target_context_text}"
+        f"{ticket_text}"
         "# Source hints\n"
         f"{domain_notes}\n\n"
         "# Default promoted forecasting practices\n"
@@ -794,6 +827,7 @@ def build_ladder_prompt(
     conditional: str | None,
     meta: dict[str, Any],
     target_context: dict[str, Any] | None = None,
+    ticket: dict[str, str] | None = None,
 ) -> str:
     """Fast prompt plus threshold-ladder elicitation.
 
@@ -804,7 +838,7 @@ def build_ladder_prompt(
     else — research discipline, sigma disclosure, risk steps — is the same
     contract as fast mode.
     """
-    base = build_fast_prompt(series, period, conditional, meta, target_context)
+    base = build_fast_prompt(series, period, conditional, meta, target_context, ticket)
     ladder_schema = {
         "thresholds": ["strictly increasing numeric rungs"],
         "cumulativeProbabilities": ["non-decreasing, within [0.01, 0.99]"],
@@ -845,6 +879,7 @@ def build_ladder_v2_prompt(
     conditional: str | None,
     meta: dict[str, Any],
     target_context: dict[str, Any] | None = None,
+    ticket: dict[str, str] | None = None,
 ) -> str:
     """Ladder elicitation with a quantile-native derivation contract.
 
@@ -865,6 +900,7 @@ def build_ladder_v2_prompt(
         conditional,
         meta,
         target_context,
+        ticket,
         width_discipline="ladder_quantiles",
         mode_label="ladder_v2",
     )
@@ -1483,6 +1519,9 @@ def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
         "events": events,
         "eventsJsonl": events_jsonl,
         "assistantText": "\n".join(assistant_messages).strip(),
+        "lastAssistantText": (
+            assistant_messages[-1].strip() if assistant_messages else ""
+        ),
         "usage": usage_payload,
         "lastError": last_error,
         "nonJsonStderr": "\n".join(non_json_lines),
@@ -1727,7 +1766,7 @@ def run_codex_agent_command(
 
     finished_at = utc_now()
     parsed = parse_codex_jsonl(stdout_text, stderr_text)
-    final_text = parsed["assistantText"]
+    final_text = parsed["lastAssistantText"] or parsed["assistantText"]
     last_message_text = ""
     if last_message_file.exists():
         stripped_last_message = last_message_file.read_text().strip()
@@ -1805,7 +1844,15 @@ def append_command_artifacts(
     command_result: dict[str, Any],
     created_at: str,
     stdout_artifact_type: str = "stdout",
+    generation_ticket: dict[str, str] | None = None,
 ) -> dict[str, Any]:
+    command_ticket = None
+    if generation_ticket is not None:
+        binding = ticket_manifest_binding(generation_ticket)
+        command_ticket = {
+            "ticketId": binding["ticketId"],
+            "ticketPath": binding["ticketPath"],
+        }
     refs.append(
         write_artifact(
             out_dir,
@@ -1815,6 +1862,11 @@ def append_command_artifacts(
                 {
                     "backend": command_result["backend"],
                     "argv": [redact_text(str(arg)) for arg in command_result["argv"]],
+                    **(
+                        {"generationTicket": command_ticket}
+                        if command_ticket is not None
+                        else {}
+                    ),
                     **(
                         {"networkAccess": command_result["networkAccess"]}
                         if "networkAccess" in command_result
@@ -2199,6 +2251,9 @@ def write_failure_manifest(
     message: str,
     command_result: dict[str, Any] | None,
     target_context: dict[str, Any] | None = None,
+    *,
+    checkout_sha: str | None = None,
+    generation_ticket: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     error = {
         "phase": phase,
@@ -2238,7 +2293,14 @@ def write_failure_manifest(
         "validation": None,
         "error": error,
     }
-    return finalize_manifest(out_dir, run_at, manifest, refs)
+    return finalize_manifest(
+        out_dir,
+        run_at,
+        manifest,
+        refs,
+        checkout_sha=checkout_sha,
+        generation_ticket=generation_ticket,
+    )
 
 
 def extract_json_payload(text: str) -> list[dict]:
@@ -2281,6 +2343,33 @@ def normalize_cells(parsed_path: pathlib.Path, normalized_path: pathlib.Path) ->
             "normalize_spawn_json.py failed:\n"
             f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
         )
+
+
+def seal_normalized_cells(
+    cells: list[dict[str, Any]],
+    *,
+    conditional: str | None,
+    run_started_at: str,
+    sealed_at: str,
+    prompt_mode: str,
+    target_context: dict[str, Any] | None,
+) -> dict[str, Any] | list[dict[str, Any]]:
+    """Apply every trusted post-normalization stamp and materialize CDFs."""
+
+    if conditional:
+        for cell in cells:
+            cell["type"] = "conditional"
+    binding = registration_binding(target_context)
+    for cell in cells:
+        agent_run_at = cell.get("runAt")
+        if agent_run_at and agent_run_at != sealed_at:
+            cell["agentReportedRunAt"] = agent_run_at
+        cell["runStartedAt"] = run_started_at
+        cell["runAt"] = sealed_at
+        cell["promptMode"] = prompt_mode
+        cell.update(binding)
+        pin_comparison_contract(cell, target_context)
+    return materialize_run_distributions(cells)
 
 
 def validate_cells(
@@ -2604,11 +2693,14 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("--series", required=True)
     parser.add_argument("--period", required=True)
     parser.add_argument("--conditional")
     parser.add_argument("--target-context-json")
+    parser.add_argument("--ticket-id")
+    parser.add_argument("--ticket-path")
+    parser.add_argument("--ticket-nonce")
     parser.add_argument(
         "--prompt-mode", choices=["full", "fast", "ladder", "ladder_v2"], default="full"
     )
@@ -2643,6 +2735,60 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--write-ts")
     parser.add_argument("--const-name", default="SPAWNED_FORECAST_CELLS")
     return parser.parse_args()
+
+
+def parse_generation_ticket_context(
+    args: argparse.Namespace,
+) -> dict[str, str] | None:
+    values = (args.ticket_id, args.ticket_path, args.ticket_nonce)
+    present = [value is not None for value in values]
+    if any(present) and not all(present):
+        raise SystemExit(
+            "ticket mode requires --ticket-id, --ticket-path, and "
+            "--ticket-nonce together"
+        )
+    if not any(present):
+        return None
+    if args.response_file is not None:
+        raise SystemExit("ticket mode refuses --response-file")
+    if args.mock_cell:
+        raise SystemExit("ticket mode refuses --mock-cell")
+    if args.command is not None:
+        raise SystemExit("ticket mode refuses --command")
+    if args.pre_submit_review_command is not None:
+        raise SystemExit("ticket mode refuses --pre-submit-review-command")
+    if not args.codex_model and not args.print_prompt:
+        raise SystemExit("ticket mode requires --codex-model")
+    context = {
+        "ticketId": args.ticket_id,
+        "ticketPath": args.ticket_path,
+        "nonce": args.ticket_nonce,
+    }
+    try:
+        ticket_manifest_binding(context)
+    except TicketError as exc:
+        raise SystemExit(f"invalid generation ticket context: {exc}") from exc
+    return context
+
+
+def workspace_checkout_sha() -> str:
+    """Return the immutable checkout commit recorded at harness start."""
+
+    try:
+        sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.PIPE,
+        ).strip()
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or "").strip()
+        raise RuntimeError(
+            "cannot record workspace checkout SHA" + (f": {detail}" if detail else "")
+        ) from exc
+    if not re.fullmatch(r"[0-9a-f]{40}", sha):
+        raise RuntimeError(f"workspace checkout SHA is not a commit: {sha!r}")
+    return sha
 
 
 def parse_target_context(value: str | None) -> dict[str, Any] | None:
@@ -2714,6 +2860,7 @@ def run_pre_submit_reviewer(
 
 def main() -> int:
     args = parse_args()
+    generation_ticket = parse_generation_ticket_context(args)
     if args.codex_network:
         if args.codex_sandbox == "read-only":
             raise SystemExit(
@@ -2729,6 +2876,7 @@ def main() -> int:
                 "--command agents run unsandboxed and already have network"
             )
     run_at = utc_now()
+    checkout_sha = workspace_checkout_sha()
     target_context = parse_target_context(args.target_context_json)
     prompt, meta = build_run_prompt(
         args.series,
@@ -2736,6 +2884,7 @@ def main() -> int:
         args.conditional,
         args.prompt_mode,
         target_context,
+        ticket=generation_ticket,
         network_tools=bool(args.codex_network),
     )
     if args.print_prompt:
@@ -2817,6 +2966,7 @@ def main() -> int:
                 command_result=draft_result,
                 created_at=run_at,
                 stdout_artifact_type="draft_forecast",
+                generation_ticket=generation_ticket,
             )
             if draft_result["returnCode"] != 0:
                 review_status = "draft_failed"
@@ -2855,6 +3005,7 @@ def main() -> int:
                     command_result=review_result,
                     created_at=run_at,
                     stdout_artifact_type="pre_submit_review",
+                    generation_ticket=generation_ticket,
                 )
                 review_payload = parse_review_payload(review_result["stdout"])
                 if review_result["returnCode"] != 0:
@@ -2890,6 +3041,7 @@ def main() -> int:
                         prefix="",
                         command_result=command_result,
                         created_at=run_at,
+                        generation_ticket=generation_ticket,
                     )
                     raw_response = command_result["stdout"]
                     review_status = (
@@ -2913,6 +3065,7 @@ def main() -> int:
                 prefix="",
                 command_result=command_result,
                 created_at=run_at,
+                generation_ticket=generation_ticket,
             )
             raw_response = command_result["stdout"]
         if command_result["returnCode"] != 0:
@@ -2978,6 +3131,8 @@ def main() -> int:
             str(exc),
             command_result,
             target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
         )
         print(json.dumps(manifest, indent=2))
         return 1
@@ -2995,12 +3150,6 @@ def main() -> int:
     normalized_path = out_dir / "normalized_cells.json"
     normalize_cells(parsed_path, normalized_path)
     normalized_cells = json.loads(normalized_path.read_text())
-    # A run with a conditional gate is a conditional cell regardless of what
-    # the model wrote — the type drives the site's badge and resolver
-    # semantics, and the fast-prompt template previously hardcoded "data".
-    if args.conditional:
-        for cell in normalized_cells:
-            cell["type"] = "conditional"
     # The published runAt is the harness's SEAL time — captured here,
     # after the agent finished — never the agent's claim and never the
     # harness start time. Chronology verification requires the seal to
@@ -3010,19 +3159,14 @@ def main() -> int:
     # Start time and any differing agent claim are kept for audit.
     sealed_at = utc_now()
     binding = registration_binding(target_context)
-    for cell in normalized_cells:
-        agent_run_at = cell.get("runAt")
-        if agent_run_at and agent_run_at != sealed_at:
-            cell["agentReportedRunAt"] = agent_run_at
-        cell["runStartedAt"] = run_at
-        cell["runAt"] = sealed_at
-        # Harness-stamped, never the agent's claim: derivation-contract
-        # gates (sigma vs ladder-quantile) key off the mode downstream in
-        # both the python validator and trace-depth.test.ts.
-        cell["promptMode"] = args.prompt_mode
-        cell.update(binding)
-        pin_comparison_contract(cell, target_context)
-    materialized_distributions = materialize_run_distributions(normalized_cells)
+    materialized_distributions = seal_normalized_cells(
+        normalized_cells,
+        conditional=args.conditional,
+        run_started_at=run_at,
+        sealed_at=sealed_at,
+        prompt_mode=args.prompt_mode,
+        target_context=target_context,
+    )
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
         {
@@ -3100,6 +3244,7 @@ def main() -> int:
         "schemaVersion": "thesis_analyst_run_manifest_v1",
         "createdAt": run_at,
         "runStartedAt": run_at,
+        "sealedAt": sealed_at,
         "series": args.series,
         "period": args.period,
         "conditional": args.conditional,
@@ -3125,7 +3270,14 @@ def main() -> int:
         "artifacts": refs,
         "validation": validation,
     }
-    manifest = finalize_manifest(out_dir, run_at, manifest, refs)
+    manifest = finalize_manifest(
+        out_dir,
+        run_at,
+        manifest,
+        refs,
+        checkout_sha=checkout_sha,
+        generation_ticket=generation_ticket,
+    )
 
     if args.write_ts:
         write_ts_module(cells_path, pathlib.Path(args.write_ts), args.const_name)

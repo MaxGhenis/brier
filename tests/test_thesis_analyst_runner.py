@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shlex
@@ -13,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "run_thesis_analyst.py"
 COMPARISON_GENERATOR = ROOT / "scripts" / "thesis_records_to_comparisons.py"
 sys.path.insert(0, str(ROOT / "scripts"))
+import generation_tickets  # noqa: E402
 import median_rollout_ensemble as median_ensemble  # noqa: E402
 import run_thesis_analyst as analyst_runner  # noqa: E402
 from run_thesis_analyst import (  # noqa: E402
@@ -26,6 +28,15 @@ from strategy_comparisons import (  # noqa: E402
 )
 from thesis_records_to_comparisons import comparison_run  # noqa: E402
 from verify_custody import verify_run  # noqa: E402
+
+
+def generation_ticket_context() -> dict[str, str]:
+    ticket_id = f"2030-01-10-{'a' * 64}"
+    return {
+        "ticketId": ticket_id,
+        "ticketPath": f"records/tickets/2030-01-10/{ticket_id}.json",
+        "nonce": "b" * 64,
+    }
 
 
 def test_interval_distribution_matches_typescript_fixture():
@@ -242,6 +253,160 @@ def test_fast_prompt_includes_target_context():
     assert '- resolutionDate: "2030-02-15"' in result.stdout
 
 
+@pytest.mark.parametrize("mode", ["full", "fast", "ladder", "ladder_v2"])
+def test_generation_ticket_block_follows_target_context_in_every_prompt_mode(
+    mode: str,
+) -> None:
+    target_context = {
+        "catalogSlug": "canonical-ledger-slug",
+        "targetUnit": "percent",
+    }
+    ticket = generation_ticket_context()
+
+    prompt, _ = analyst_runner.build_run_prompt(
+        "test.ledger_series",
+        "2030-01",
+        None,
+        mode,
+        target_context,
+        ticket=ticket,
+        network_tools=mode == "full",
+    )
+
+    context_block = analyst_runner.format_target_context(target_context)
+    ticket_block = analyst_runner.format_generation_ticket(ticket)
+    assert f"{context_block}\n\n{ticket_block}" in prompt
+    assert prompt.count("# Generation ticket") == 1
+    assert (
+        ticket_block == "# Generation ticket\n"
+        f"ticket: {ticket['ticketId']}\n"
+        f"nonce: {ticket['nonce']}\n"
+    )
+    if mode == "full":
+        assert prompt.index("# Generation ticket") < prompt.index("# Network access")
+    else:
+        assert prompt.index("# Generation ticket") < prompt.index("# Source hints")
+
+
+def test_generation_ticket_internal_flags_are_all_or_none() -> None:
+    ticket = generation_ticket_context()
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ticket",
+            "--period",
+            "2030-01",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--codex-model",
+            "gpt-5.5",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert completed.stderr.strip() == (
+        "ticket mode requires --ticket-id, --ticket-path, and --ticket-nonce together"
+    )
+
+
+@pytest.mark.parametrize(
+    ("backend_args", "message"),
+    [
+        (
+            ["--response-file", "/tmp/not-read.json"],
+            "ticket mode refuses --response-file",
+        ),
+        (["--mock-cell"], "ticket mode refuses --mock-cell"),
+        (["--command", "ignored"], "ticket mode refuses --command"),
+        (
+            ["--pre-submit-review-command", "ignored"],
+            "ticket mode refuses --pre-submit-review-command",
+        ),
+    ],
+)
+def test_generation_ticket_refuses_non_codex_backends(
+    backend_args: list[str], message: str
+) -> None:
+    ticket = generation_ticket_context()
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ticket",
+            "--period",
+            "2030-01",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--ticket-path",
+            ticket["ticketPath"],
+            "--ticket-nonce",
+            ticket["nonce"],
+            "--codex-model",
+            "gpt-5.5",
+            *backend_args,
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert completed.stderr.strip() == message
+
+
+def test_generation_ticket_requires_native_codex() -> None:
+    ticket = generation_ticket_context()
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ticket",
+            "--period",
+            "2030-01",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--ticket-path",
+            ticket["ticketPath"],
+            "--ticket-nonce",
+            ticket["nonce"],
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert completed.stderr.strip() == "ticket mode requires --codex-model"
+
+
+def test_ticket_manifest_binding_requires_exact_canonical_context() -> None:
+    ticket = generation_ticket_context()
+    assert generation_tickets.ticket_record_path(ticket["ticketId"]).as_posix() == (
+        ticket["ticketPath"]
+    )
+    assert generation_tickets.ticket_manifest_binding(ticket) == {
+        "ticketId": ticket["ticketId"],
+        "ticketPath": ticket["ticketPath"],
+        "nonceSha256": hashlib.sha256(ticket["nonce"].encode()).hexdigest(),
+    }
+
+    with pytest.raises(
+        generation_tickets.TicketError,
+        match="generation ticket context must contain exactly",
+    ):
+        generation_tickets.ticket_manifest_binding({**ticket, "extra": True})
+
+
 def test_mock_run_writes_activity_artifacts(tmp_path):
     out_dir = tmp_path / "run"
     generated_ts = tmp_path / "generated.ts"
@@ -276,6 +441,7 @@ def test_mock_run_writes_activity_artifacts(tmp_path):
     assert manifest["series"] == "test.synthetic_rate"
     assert manifest["period"] == "2030-01"
     assert manifest["promptMode"] == "full"
+    assert len(manifest["checkoutSha"]) == 40
 
     artifact_types = {artifact["artifactType"] for artifact in manifest["artifacts"]}
     assert {
@@ -300,6 +466,7 @@ def test_mock_run_writes_activity_artifacts(tmp_path):
     cells = json.loads((out_dir / "cells.with_activity.json").read_text())
     assert len(cells) == 1
     cell = cells[0]
+    assert manifest["sealedAt"] == cell["runAt"]
     assert cell["slug"] == "test-synthetic-rate-2030-01"
     assert cell["predictionDistribution"] == json.loads(
         (out_dir / "distribution.json").read_text()
@@ -854,6 +1021,197 @@ def write_fake_codex(
     path.chmod(0o755)
 
 
+def test_generation_ticket_codex_run_stamps_prompt_command_and_manifest(
+    tmp_path: Path,
+) -> None:
+    out_dir = tmp_path / "ticket-run"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "fake_codex.py"
+    final_cell = review_test_cell(
+        point=5.2,
+        ci_low=4.6,
+        ci_high=5.9,
+        review_disposition=(
+            "Review disposition: accepted the request to name the interval "
+            "source and widened the upper tail by 0.1."
+        ),
+    )
+    review_payload = {
+        "summary": "Clarify the interval source before publication.",
+        "requiredFixes": [
+            {
+                "rubricItem": "interval",
+                "severity": "warning",
+                "summary": "The interval source should be explicit.",
+                "actionRequested": "Name realized release volatility.",
+            }
+        ],
+        "optionalSuggestions": [],
+    }
+    write_fake_codex(
+        fake_codex,
+        review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+        extra_lines=[
+            "model = args[args.index('-m') + 1]",
+            "prompt = args[-1]",
+            f"review_text = {json.dumps(json.dumps(review_payload))}",
+            f"final_text = {json.dumps(json.dumps(final_cell))}",
+            "if model == 'gpt-ticket-review':",
+            "    text = review_text",
+            "elif 'Pre-submit review loop' in prompt:",
+            "    text = final_text",
+        ],
+    )
+    ticket = generation_ticket_context()
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--pre-submit-review-codex-model",
+            "gpt-ticket-review",
+            "--pre-submit-review-codex-search",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--ticket-path",
+            ticket["ticketPath"],
+            "--ticket-nonce",
+            ticket["nonce"],
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    commands = [
+        json.loads((out_dir / name).read_text())
+        for name in (
+            "draft_command.json",
+            "pre_submit_review_command.json",
+            "command.json",
+        )
+    ]
+    [cell] = json.loads((out_dir / "cells.with_activity.json").read_text())
+    checkout_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+    ).strip()
+    expected_binding = {
+        "ticketId": ticket["ticketId"],
+        "ticketPath": ticket["ticketPath"],
+        "nonceSha256": hashlib.sha256(ticket["nonce"].encode()).hexdigest(),
+    }
+
+    assert manifest["generationTicket"] == expected_binding
+    assert manifest["checkoutSha"] == checkout_sha
+    assert manifest["sealedAt"] == cell["runAt"]
+    assert manifest["preSubmitReview"]["status"] == "completed"
+    assert cell["pointEstimate"] == 5.2
+    for command in commands:
+        assert command["generationTicket"] == {
+            "ticketId": ticket["ticketId"],
+            "ticketPath": ticket["ticketPath"],
+        }
+    assert (
+        analyst_runner.format_generation_ticket(ticket)
+        in (out_dir / "prompt.md").read_text()
+    )
+
+
+def test_generation_ticket_parse_failure_keeps_ticket_and_checkout_binding(
+    tmp_path: Path,
+) -> None:
+    out_dir = tmp_path / "ticket-failure"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "fake_codex.py"
+    fake_codex.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "import json, pathlib, sys",
+                "args = sys.argv[1:]",
+                "last_message = pathlib.Path(args[args.index('-o') + 1])",
+                "text = 'not a JSON forecast'",
+                "last_message.write_text(text)",
+                "print(json.dumps({",
+                "  'type': 'item.completed',",
+                "  'item': {'type': 'agent_message', 'text': text}",
+                "}))",
+            ]
+        )
+    )
+    fake_codex.chmod(0o755)
+    ticket = generation_ticket_context()
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--ticket-path",
+            ticket["ticketPath"],
+            "--ticket-nonce",
+            ticket["nonce"],
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    command = json.loads((out_dir / "command.json").read_text())
+    verification = verify_run(out_dir)
+    assert completed.returncode == 1
+    assert manifest["error"]["phase"] == "parse"
+    assert manifest["generationTicket"] == {
+        "ticketId": ticket["ticketId"],
+        "ticketPath": ticket["ticketPath"],
+        "nonceSha256": hashlib.sha256(ticket["nonce"].encode()).hexdigest(),
+    }
+    assert len(manifest["checkoutSha"]) == 40
+    assert command["generationTicket"] == {
+        "ticketId": ticket["ticketId"],
+        "ticketPath": ticket["ticketPath"],
+    }
+    assert verification.inventory_status == "complete"
+    assert verification.run_succeeded is False
+
+
 def test_codex_network_requires_workspace_write_sandbox(tmp_path):
     completed = subprocess.run(
         [
@@ -1103,6 +1461,51 @@ def review_test_cell(
         "runAt": "2026-06-17T12:00:00Z",
         "reasoning": reasoning,
     }
+
+
+def test_parse_codex_jsonl_exposes_the_last_assistant_message() -> None:
+    first = {
+        "type": "item.completed",
+        "item": {"type": "agent_message", "text": "draft"},
+    }
+    second = {
+        "type": "item.completed",
+        "item": {"type": "agent_message", "text": "final"},
+    }
+    parsed = analyst_runner.parse_codex_jsonl(
+        f"{json.dumps(first)}\n{json.dumps(second)}\n", ""
+    )
+
+    assert parsed["assistantText"] == "draft\nfinal"
+    assert parsed["lastAssistantText"] == "final"
+
+
+def test_seal_normalized_cells_replays_all_trusted_stamps() -> None:
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    binding = {
+        "registrationCommit": "c" * 40,
+        "targetContentHash": "d" * 64,
+        "targetRegistrationPath": f"records/targets/2030-01-10-{'d' * 64}.json",
+        "registeredAtUtc": "2030-01-10T12:00:00Z",
+    }
+
+    distributions = analyst_runner.seal_normalized_cells(
+        [cell],
+        conditional="the registered condition",
+        run_started_at="2030-01-11T10:00:00Z",
+        sealed_at="2030-01-11T10:05:00Z",
+        prompt_mode="fast",
+        target_context=binding,
+    )
+
+    assert cell["type"] == "conditional"
+    assert cell["agentReportedRunAt"] == "2026-06-17T12:00:00Z"
+    assert cell["runStartedAt"] == "2030-01-11T10:00:00Z"
+    assert cell["runAt"] == "2030-01-11T10:05:00Z"
+    assert cell["promptMode"] == "fast"
+    for field, value in binding.items():
+        assert cell[field] == value
+    assert distributions == cell["predictionDistribution"]
 
 
 def test_collision_exclusion_ignores_only_the_exact_generated_wave(

@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import copy
 import datetime as dt
+import hashlib
 import json
 import pathlib
 import re
@@ -531,9 +532,44 @@ def select_targets(
     )
 
 
-def _conventional_ticket_path(ticket_id: str) -> pathlib.PurePosixPath:
+def ticket_record_path(ticket_id: str) -> pathlib.PurePosixPath:
+    """Return the sole repository-relative record path for ``ticket_id``."""
+
     day, _ = _parse_ticket_id(ticket_id)
     return pathlib.PurePosixPath("records", "tickets", day, f"{ticket_id}.json")
+
+
+def ticket_manifest_binding(context: Any) -> dict[str, str]:
+    """Project an exact internal ticket context into its manifest binding."""
+
+    expected_keys = {"ticketId", "ticketPath", "nonce"}
+    if not isinstance(context, dict) or set(context) != expected_keys:
+        actual_keys = (
+            sorted(str(key) for key in context) if isinstance(context, dict) else []
+        )
+        raise TicketError(
+            "generation ticket context must contain exactly "
+            f"{sorted(expected_keys)}; got {actual_keys}"
+        )
+    ticket_id = context["ticketId"]
+    _parse_ticket_id(ticket_id)
+    expected_path = ticket_record_path(ticket_id).as_posix()
+    ticket_path = context["ticketPath"]
+    if ticket_path != expected_path:
+        raise TicketError(
+            "generation ticket context path does not match its ticketId: "
+            f"{ticket_path!r} != {expected_path!r}"
+        )
+    nonce = context["nonce"]
+    if not isinstance(nonce, str) or not re.fullmatch(r"[0-9a-f]{64}", nonce):
+        raise TicketError(
+            "generation ticket context nonce must be 64 lowercase hex characters"
+        )
+    return {
+        "ticketId": ticket_id,
+        "ticketPath": ticket_path,
+        "nonceSha256": hashlib.sha256(nonce.encode()).hexdigest(),
+    }
 
 
 def validate_ticket_supersession(
@@ -546,7 +582,7 @@ def validate_ticket_supersession(
     """Verify that a predecessor is available for exactly its next attempt."""
 
     root = pathlib.Path(repo_root).resolve()
-    relative = _conventional_ticket_path(ticket_id)
+    relative = ticket_record_path(ticket_id)
     predecessor_path = root.joinpath(*relative.parts)
     if not predecessor_path.is_file():
         raise TicketError(f"superseded generation ticket does not exist: {relative}")
@@ -572,7 +608,7 @@ def validate_ticket_supersession(
     if allow_successor_path is not None:
         _, allowed_relative = _git_relative_path(allow_successor_path, root)
         allowed = allowed_relative.as_posix()
-        expected_allowed = _conventional_ticket_path(
+        expected_allowed = ticket_record_path(
             pathlib.PurePosixPath(allowed).stem
         ).as_posix()
         if allowed != expected_allowed:
@@ -669,7 +705,7 @@ def write_minted_ticket(ticket: dict[str, Any], repo_root: str | pathlib.Path) -
     """Write a ticket at its sole conventional repository-relative path."""
 
     root = pathlib.Path(repo_root).resolve()
-    relative = _conventional_ticket_path(ticket["ticketId"])
+    relative = ticket_record_path(ticket["ticketId"])
     destination = root.joinpath(*relative.parts)
     if destination.exists():
         raise TicketError(f"refusing to overwrite generation ticket: {relative}")
@@ -698,7 +734,7 @@ def _check_supersession_command(args: argparse.Namespace) -> dict[str, Any]:
     )
     return {
         "predecessorTicketId": predecessor["ticketId"],
-        "predecessorPath": _conventional_ticket_path(
+        "predecessorPath": ticket_record_path(
             predecessor["ticketId"]
         ).as_posix(),
     }
