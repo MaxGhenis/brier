@@ -425,10 +425,22 @@ def test_policy_refuses_unknown_key_literally() -> None:
             "ticket policy codexSandbox must be one of "
             "['read-only', 'workspace-write']",
         ),
+        (
+            "promptMode",
+            [],
+            "ticket policy promptMode must be one of "
+            "['fast', 'full', 'ladder', 'ladder_v2']",
+        ),
+        (
+            "codexSandbox",
+            [],
+            "ticket policy codexSandbox must be one of "
+            "['read-only', 'workspace-write']",
+        ),
     ],
 )
 def test_policy_refuses_unknown_modes_literally(
-    field: str, value: str, message: str
+    field: str, value: Any, message: str
 ) -> None:
     policy = sample_policy()
     policy[field] = value

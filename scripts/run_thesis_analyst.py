@@ -1528,6 +1528,46 @@ def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
     }
 
 
+def enforce_ticket_codex_stream_binding(
+    command_result: dict[str, Any],
+) -> dict[str, Any]:
+    """Fail a ticket stage when raw JSONL and the Codex -o file disagree."""
+
+    if command_result.get("backend") != "codex" or command_result.get(
+        "returnCode"
+    ) != 0:
+        return command_result
+    raw_stdout = command_result.get("codexStdoutRaw")
+    raw_stderr = command_result.get("codexStderrRaw")
+    last_message = command_result.get("codexLastMessage")
+    mismatch = not all(
+        isinstance(value, str) for value in (raw_stdout, raw_stderr, last_message)
+    )
+    if not mismatch:
+        try:
+            replayed = parse_codex_jsonl(raw_stdout, raw_stderr)
+        except Exception:
+            mismatch = True
+        else:
+            mismatch = replayed["lastAssistantText"] != last_message
+    if not mismatch:
+        return command_result
+
+    message = (
+        "ticket mode refused successful Codex stage because raw JSONL and the "
+        "codex_last_message artifact disagree"
+    )
+    failed = copy.deepcopy(command_result)
+    failed["returnCode"] = 1
+    prior_stderr = str(failed.get("stderr") or "").rstrip()
+    failed["stderr"] = f"{prior_stderr}\n{message}".lstrip()
+    trace = failed.get("codexTrace")
+    if isinstance(trace, dict):
+        trace["effectiveReturnCode"] = 1
+        trace["lastError"] = message
+    return failed
+
+
 # --- Workspace-mutation guard -----------------------------------------------
 # The read-only Codex sandbox denies all sockets (curl inside it exits 6,
 # "could not resolve host"), and the hosted web-search tool cannot fetch raw
@@ -1723,6 +1763,7 @@ def run_codex_agent_command(
             "backend": "codex",
             "argv": logged_cmd,
             "networkAccess": network,
+            "timeoutSeconds": timeout_seconds,
             "startedAt": started_at,
             "finishedAt": finished_at,
             "returnCode": 127,
@@ -1737,6 +1778,7 @@ def run_codex_agent_command(
                 "provider": "openai",
                 "backend": "codex-exec",
                 "model": model,
+                "timeoutSeconds": timeout_seconds,
                 "error": "codex CLI not found",
             },
         }
@@ -1746,6 +1788,7 @@ def run_codex_agent_command(
             "backend": "codex",
             "argv": logged_cmd,
             "networkAccess": network,
+            "timeoutSeconds": timeout_seconds,
             "startedAt": started_at,
             "finishedAt": finished_at,
             "returnCode": 1,
@@ -1760,6 +1803,7 @@ def run_codex_agent_command(
                 "provider": "openai",
                 "backend": "codex-exec",
                 "model": model,
+                "timeoutSeconds": timeout_seconds,
                 "error": str(exc),
             },
         }
@@ -1791,6 +1835,7 @@ def run_codex_agent_command(
         "backend": "codex",
         "argv": logged_cmd,
         "networkAccess": network,
+        "timeoutSeconds": timeout_seconds,
         **(
             {"workspaceMutations": workspace_mutations}
             if workspace_mutations is not None
@@ -1818,6 +1863,7 @@ def run_codex_agent_command(
             "sandbox": sandbox,
             "networkAccess": network,
             "reasoningEffort": reasoning_effort,
+            "timeoutSeconds": timeout_seconds,
             "timedOut": timed_out,
             "timeoutReason": timeout_reason,
             "terminatedAfterOutput": terminated_after_output,
@@ -1870,6 +1916,11 @@ def append_command_artifacts(
                     **(
                         {"networkAccess": command_result["networkAccess"]}
                         if "networkAccess" in command_result
+                        else {}
+                    ),
+                    **(
+                        {"timeoutSeconds": command_result["timeoutSeconds"]}
+                        if "timeoutSeconds" in command_result
                         else {}
                     ),
                     **(
@@ -2569,12 +2620,18 @@ def attach_activity_log(
     refs: list[dict],
     meta: dict[str, Any],
     pre_submit_review: dict[str, Any] | None = None,
+    *,
+    force_model: bool = False,
 ) -> list[dict]:
     output = []
     for cell in cells:
         row = {
             **cell,
-            "model": cell.get("model", meta.get("model")),
+            "model": (
+                meta.get("model")
+                if force_model
+                else cell.get("model", meta.get("model"))
+            ),
             "activityLog": refs,
         }
         if pre_submit_review:
@@ -2757,6 +2814,17 @@ def parse_generation_ticket_context(
         raise SystemExit("ticket mode refuses --command")
     if args.pre_submit_review_command is not None:
         raise SystemExit("ticket mode refuses --pre-submit-review-command")
+    if "THESIS_CODEX_IDLE_TIMEOUT_SECONDS" in os.environ:
+        raise SystemExit(
+            "ticket mode refuses THESIS_CODEX_IDLE_TIMEOUT_SECONDS because "
+            "timeout policy is ticket-sealed"
+        )
+    codex_override = os.getenv("THESIS_CODEX_BIN")
+    if codex_override and pathlib.Path(codex_override).name != "codex":
+        raise SystemExit(
+            "ticket mode refuses THESIS_CODEX_BIN unless its executable basename "
+            "is codex"
+        )
     if not args.codex_model and not args.print_prompt:
         raise SystemExit("ticket mode requires --codex-model")
     context = {
@@ -2943,6 +3011,8 @@ def main() -> int:
 
     def collect_hygiene(stage_result: dict[str, Any]) -> dict[str, Any]:
         nonlocal hygiene_guarded
+        if generation_ticket is not None:
+            stage_result = enforce_ticket_codex_stream_binding(stage_result)
         if "workspaceMutations" in stage_result:
             hygiene_guarded = True
             hygiene_mutations.extend(stage_result["workspaceMutations"])
@@ -3221,6 +3291,7 @@ def main() -> int:
         refs,
         runtime_meta,
         pre_submit_review,
+        force_model=generation_ticket is not None,
     )
     cells_path = out_dir / "cells.with_activity.json"
     cells_path.write_text(json.dumps(cells_with_activity, indent=2) + "\n")

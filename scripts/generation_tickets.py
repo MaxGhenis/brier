@@ -175,11 +175,15 @@ def _validate_policy(policy: Any) -> None:
         "reviewCodexModel",
     ):
         _require_nonempty_string(policy[field], f"ticket policy {field}")
-    if policy["promptMode"] not in PROMPT_MODES:
+    if not isinstance(policy["promptMode"], str) or (
+        policy["promptMode"] not in PROMPT_MODES
+    ):
         raise TicketError(
             f"ticket policy promptMode must be one of {sorted(PROMPT_MODES)}"
         )
-    if policy["codexSandbox"] not in CODEX_SANDBOXES:
+    if not isinstance(policy["codexSandbox"], str) or (
+        policy["codexSandbox"] not in CODEX_SANDBOXES
+    ):
         raise TicketError(
             f"ticket policy codexSandbox must be one of {sorted(CODEX_SANDBOXES)}"
         )

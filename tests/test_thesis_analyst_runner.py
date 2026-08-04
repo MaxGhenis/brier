@@ -389,6 +389,72 @@ def test_generation_ticket_requires_native_codex() -> None:
     assert completed.stderr.strip() == "ticket mode requires --codex-model"
 
 
+def test_generation_ticket_refuses_idle_timeout_environment_override() -> None:
+    ticket = generation_ticket_context()
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ticket",
+            "--period",
+            "2030-01",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--ticket-path",
+            ticket["ticketPath"],
+            "--ticket-nonce",
+            ticket["nonce"],
+            "--codex-model",
+            "gpt-5.5",
+        ],
+        cwd=ROOT,
+        env={**os.environ, "THESIS_CODEX_IDLE_TIMEOUT_SECONDS": "1"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert completed.stderr.strip() == (
+        "ticket mode refuses THESIS_CODEX_IDLE_TIMEOUT_SECONDS because timeout "
+        "policy is ticket-sealed"
+    )
+
+
+def test_generation_ticket_refuses_non_codex_executable_override() -> None:
+    ticket = generation_ticket_context()
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ticket",
+            "--period",
+            "2030-01",
+            "--ticket-id",
+            ticket["ticketId"],
+            "--ticket-path",
+            ticket["ticketPath"],
+            "--ticket-nonce",
+            ticket["nonce"],
+            "--codex-model",
+            "gpt-5.5",
+        ],
+        cwd=ROOT,
+        env={**os.environ, "THESIS_CODEX_BIN": "/tmp/fake-codex"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode != 0
+    assert completed.stderr.strip() == (
+        "ticket mode refuses THESIS_CODEX_BIN unless its executable basename is "
+        "codex"
+    )
+
+
 def test_ticket_manifest_binding_requires_exact_canonical_context() -> None:
     ticket = generation_ticket_context()
     assert generation_tickets.ticket_record_path(ticket["ticketId"]).as_posix() == (
@@ -808,7 +874,6 @@ def test_command_run_can_capture_pre_submit_review_loop(tmp_path):
             "interval source explicit and widened the upper tail by 0.1."
         ),
     )
-
     forecaster_path.write_text(
         "\n".join(
             [
@@ -1028,7 +1093,7 @@ def test_generation_ticket_codex_run_stamps_prompt_command_and_manifest(
     codex_home = tmp_path / "codex-home"
     codex_home.mkdir()
     (codex_home / "auth.json").write_text("{}\n")
-    fake_codex = tmp_path / "fake_codex.py"
+    fake_codex = tmp_path / "codex"
     final_cell = review_test_cell(
         point=5.2,
         ci_low=4.6,
@@ -1038,6 +1103,7 @@ def test_generation_ticket_codex_run_stamps_prompt_command_and_manifest(
             "source and widened the upper tail by 0.1."
         ),
     )
+    final_cell["model"] = "agent-supplied-model"
     review_payload = {
         "summary": "Clarify the interval source before publication.",
         "requiredFixes": [
@@ -1124,11 +1190,13 @@ def test_generation_ticket_codex_run_stamps_prompt_command_and_manifest(
     assert manifest["sealedAt"] == cell["runAt"]
     assert manifest["preSubmitReview"]["status"] == "completed"
     assert cell["pointEstimate"] == 5.2
+    assert cell["model"] == "gpt-5.5"
     for command in commands:
         assert command["generationTicket"] == {
             "ticketId": ticket["ticketId"],
             "ticketPath": ticket["ticketPath"],
         }
+        assert command["timeoutSeconds"] == 600
     assert (
         analyst_runner.format_generation_ticket(ticket)
         in (out_dir / "prompt.md").read_text()
@@ -1142,7 +1210,7 @@ def test_generation_ticket_parse_failure_keeps_ticket_and_checkout_binding(
     codex_home = tmp_path / "codex-home"
     codex_home.mkdir()
     (codex_home / "auth.json").write_text("{}\n")
-    fake_codex = tmp_path / "fake_codex.py"
+    fake_codex = tmp_path / "codex"
     fake_codex.write_text(
         "\n".join(
             [
@@ -1478,6 +1546,29 @@ def test_parse_codex_jsonl_exposes_the_last_assistant_message() -> None:
 
     assert parsed["assistantText"] == "draft\nfinal"
     assert parsed["lastAssistantText"] == "final"
+
+
+def test_ticket_codex_stream_binding_refuses_o_file_only_success() -> None:
+    result = {
+        "backend": "codex",
+        "returnCode": 0,
+        "stderr": "",
+        "codexStdoutRaw": json.dumps(
+            {"type": "turn.completed", "usage": {}}
+        ),
+        "codexStderrRaw": "",
+        "codexLastMessage": '{"pointEstimate": 1}',
+        "codexTrace": {"effectiveReturnCode": 0, "lastError": None},
+    }
+
+    bound = analyst_runner.enforce_ticket_codex_stream_binding(result)
+
+    assert bound["returnCode"] == 1
+    assert bound["codexTrace"]["effectiveReturnCode"] == 1
+    assert "raw JSONL and the codex_last_message artifact disagree" in bound[
+        "stderr"
+    ]
+    assert result["returnCode"] == 0
 
 
 def test_seal_normalized_cells_replays_all_trusted_stamps() -> None:
