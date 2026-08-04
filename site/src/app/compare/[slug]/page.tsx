@@ -221,7 +221,9 @@ export default async function ComparePage({
               "policy outcome resolves neither."
             : "Exactly one arm resolves, against the resolution rule on " +
               "its cell page."}{" "}
-          When the outcome publishes, scoring covers the resolving arm
+          {group.nonExhaustivePair
+            ? "If an arm's condition holds when the outcome publishes, scoring covers that arm"
+            : "When the outcome publishes, scoring covers the resolving arm"}
           {unconditional ? ", the unconditional mixture," : ""}
           {probability ? " and the policy-probability cell" : ""} — one
           outcome, multiple calibration receipts. Disagree with
