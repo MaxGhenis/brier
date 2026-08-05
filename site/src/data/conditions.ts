@@ -314,9 +314,11 @@ export const CONDITIONS: ConditionDefinition[] = [
   // condition is deliberately NOT declared its complement: an intermediate
   // world (legislation setting the TY2027 threshold to, say, $500)
   // falsifies BOTH conditions, and in that world neither arm scores —
-  // each premise resolves on its own literal text. Both match strings are
-  // byte-identical to the `conditional` texts preregistered in
-  // scripts/docket_series.json; conditions.test.ts enforces that coupling.
+  // each premise resolves on its own literal text. The ACTC and CY2027 SPM
+  // pairs share these legal-state IDs but use distinct, outcome-specific
+  // registered literals. Every match string is byte-identical to a
+  // `conditional` text in scripts/docket_series.json; conditions.test.ts
+  // enforces that coupling.
   {
     type: "provision_enacted",
     conditionId: "cond.s3596-actc-threshold.enacted",
@@ -326,6 +328,7 @@ export const CONDITIONS: ConditionDefinition[] = [
       "year 2027 (S.3596's first-dollar phase-in, in any vehicle).",
     matchStrings: [
       "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
+      "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027.",
     ],
     status: "open",
     resolvesBy: "2027-12-31",
@@ -346,6 +349,7 @@ export const CONDITIONS: ConditionDefinition[] = [
       "2027; current law holds.",
     matchStrings: [
       "No legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 amount.",
+      "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, no legislation enacted by 2027-12-31 changes the IRC §24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 amount.",
     ],
     status: "open",
     resolvesBy: "2027-12-31",

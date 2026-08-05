@@ -43,8 +43,10 @@
 
 ## Release calendars (verify every release-calendar resolutionDate here)
 
-Resolve-by-bound targets instead use the registered bound and exact official
-announcement supplied in their target context.
+Resolve-by-bound targets instead use the Thesis lab-committed bound and window
+supplied in their target context. Their exact official announcement
+authenticates methodology identity only; it does not establish either timing
+value.
 - BLS: `https://www.bls.gov/schedule/news_release/` (CPI, Employment
   Situation, JOLTS, PPI)
 - BEA: `https://www.bea.gov/news/schedule` (PCE, GDP)

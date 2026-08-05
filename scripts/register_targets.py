@@ -825,6 +825,21 @@ def _entry_for(
             "ledgerPinSha": ledger_pin["sha"],
             "ledgerPinLineCount": ledger_pin["lineCount"],
         }
+    if contract.get("resolutionDateBasis") == "resolve-by-bound":
+        resolution_rule = (
+            "Preregistered resolve-by resolver binding. The resolutionDate "
+            "and expectedReleaseWindow are Thesis lab commitments. The "
+            "registered source URL authenticates methodology identity only; "
+            "it does not establish either timing value. The analyst must "
+            "supply the precise first-print rule without changing the "
+            "methodology source, field/table, transform, or release policy."
+        )
+    else:
+        resolution_rule = (
+            "Preregistered resolver binding. The analyst must supply the "
+            "precise first-print rule without changing the bound source, "
+            "field/table, transform, or release policy."
+        )
     entry = {
         "kind": "target_registered",
         "dataPointId": contract["dataPointId"],
@@ -832,19 +847,16 @@ def _entry_for(
         "country": contract["country"],
         "periodLabel": contract["period"],
         "unit": contract["unit"],
-        # A preregistration has an expected window, not a claimed exact release
-        # date.  The upper bound keeps legacy runtime consumers total until the
-        # published cell finalizes this entry with the verified date.
+        # Calendar preregistrations have an expected window, not a claimed
+        # exact release date. Bounded preregistrations instead carry the
+        # reviewed Thesis lab commitment verbatim. The upper bound keeps
+        # legacy runtime consumers total until publication.
         "resolutionDate": contract.get(
             "resolutionDate", binding["expectedReleaseWindow"]["end"]
         ),
         "resolutionSource": source,
         "resolutionSourceUrl": source_url,
-        "resolutionRule": (
-            "Preregistered resolver binding. The analyst must supply the precise "
-            "first-print rule without changing the bound source, field/table, "
-            "transform, or release policy."
-        ),
+        "resolutionRule": resolution_rule,
         "resolutionPolicy": "first_print",
         "sourceKind": "official_release",
         "source": source,

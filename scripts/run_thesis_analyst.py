@@ -510,6 +510,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "dataPointId",
         "resolutionDate",
         "resolutionDateBasis",
+        "expectedReleaseWindow",
         "resolutionSource",
         "resolutionSourceUrl",
         "resolutionRule",
@@ -543,9 +544,13 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "# Resolve-by-bound target contract (machine checked)",
             f"- registeredResolveByBound: {json.dumps(bound)}",
             f"- officialAnnouncementUrl: {json.dumps(announcement_url)}",
-            "This is the registered outer bound, not a scheduled release day. "
-            "resolutionDate must byte-echo the registered resolve-by bound; "
-            "never infer a more specific day from cadence.",
+            "The bound and expected release window are Thesis lab "
+            "commitments, not timing claims made by the announcement. The "
+            "announcement authenticates methodology identity only; it does "
+            "not establish the bound or expected release window. This is an "
+            "outer bound, not a scheduled release day. resolutionDate must "
+            "byte-echo the registered resolve-by bound; never infer a more "
+            "specific day from cadence.",
             "resolutionSourceUrl must byte-echo officialAnnouncementUrl. "
             f"Call `{ANNOUNCEMENT_MCP_SERVER}.{ANNOUNCEMENT_MCP_TOOL}` with "
             "that exact URL. The publisher authenticates the structured "
@@ -724,16 +729,18 @@ def build_fast_prompt(
     if bounded_target:
         resolution_source_rule = (
             "- resolutionSourceUrl must byte-echo the registered official "
-            "announcement URL shown in the bounded target context. Use the "
+            "methodology-announcement URL shown in the bounded target "
+            "context. Use the "
             f"`{ANNOUNCEMENT_MCP_SERVER}.{ANNOUNCEMENT_MCP_TOOL}` tool on "
             "that exact URL; put any separately fetched resolving table or "
             "data-artifact URL in sourceContext.\n"
         )
         resolution_date_rule = (
-            "- resolutionDate must byte-echo the registered resolve-by bound "
-            "shown in the target context. It is an outer bound, not a "
-            "scheduled release day; do not infer a more specific date from "
-            "cadence.\n"
+            "- resolutionDate must byte-echo the registered Thesis "
+            "lab-committed resolve-by bound shown in the target context. It "
+            "is an outer bound, not a scheduled release day; the official "
+            "announcement does not establish it, and you must not infer a "
+            "more specific date from cadence.\n"
         )
     else:
         resolution_source_rule = (

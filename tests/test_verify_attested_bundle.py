@@ -346,6 +346,7 @@ def attested_bundle(
     registration_path.write_bytes(registration_payload)
     registration_commit = commit_all(repo, "Register synthetic target")
 
+    release_window = {"start": "2030-01-20", "end": "2030-02-01"}
     target = {
         "registrationCommit": registration_commit,
         "targetContentHash": registration_hash,
@@ -359,10 +360,14 @@ def attested_bundle(
         "targetUnit": "percent",
         "dataPointId": "agency.test.rate.2030_01.first_print",
         "resolutionDate": "2030-02-01",
+        "expectedReleaseWindow": dict(release_window),
         "resolutionSource": "Synthetic agency",
         "resolutionSourceUrl": "https://example.gov/series",
         "resolutionRule": "Resolve to the synthetic first print.",
-        "sourceBinding": {"adapter": "generic-url"},
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "expectedReleaseWindow": dict(release_window),
+        },
     }
     if bounded:
         announcement_url = BOUNDED_ANNOUNCEMENT_URL
@@ -373,10 +378,7 @@ def attested_bundle(
                 "sourceBinding": {
                     "adapter": "census-spm-annual-report",
                     "sourceUrl": announcement_url,
-                    "expectedReleaseWindow": {
-                        "start": "2030-01-20",
-                        "end": target["resolutionDate"],
-                    },
+                    "expectedReleaseWindow": dict(release_window),
                 },
             }
         )
@@ -799,6 +801,9 @@ def test_bounded_target_context_flows_through_prompt_reconstruction(
         f'officialAnnouncementUrl: "{target["sourceBinding"]["sourceUrl"]}"'
         in prompt
     )
+    assert "Thesis lab commitments" in prompt
+    assert "announcement authenticates methodology identity only" in prompt
+    assert "does not establish the bound or expected release window" in prompt
 
 
 @pytest.mark.parametrize(

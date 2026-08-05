@@ -120,7 +120,10 @@ def tool_definition(allowed_url: str) -> dict[str, Any]:
         "title": "Fetch the registered official methodology announcement",
         "description": (
             "Fetch the one exact official announcement URL registered for this "
-            "bounded target and return a terminal HTTP receipt plus an excerpt."
+            "bounded target and return a terminal HTTP receipt plus an excerpt. "
+            "The announcement authenticates methodology identity only; it "
+            "does not establish the Thesis lab-committed release window or "
+            "deadline."
         ),
         "inputSchema": {
             "type": "object",

@@ -61,6 +61,12 @@ def test_tool_schema_limits_input_to_registered_url() -> None:
     tool = fetch_mcp.tool_definition(URL)
 
     assert tool["name"] == "fetch_official_announcement"
+    assert tool["description"] == (
+        "Fetch the one exact official announcement URL registered for this "
+        "bounded target and return a terminal HTTP receipt plus an excerpt. "
+        "The announcement authenticates methodology identity only; it does "
+        "not establish the Thesis lab-committed release window or deadline."
+    )
     assert tool["inputSchema"] == {
         "type": "object",
         "properties": {"url": {"type": "string", "const": URL}},

@@ -344,16 +344,25 @@ describe("s3596 ACTC threshold conditional pair (thesis#106)", () => {
 
   it("registers the enacted arm as a provision_enacted condition", () => {
     const condition = requireEnacted();
+    const spmConditional =
+      "For the CY2027 Census Supplemental Poverty Measure child-poverty " +
+      "outcome, legislation enacted by 2027-12-31 makes the IRC " +
+      "§24(d)(1)(B)(i) earned-income threshold no more than $1 for tax " +
+      "year 2027.";
     expect(condition.statutoryTest).toBe(
       "Legislation enacted by 2027-12-31 makes the IRC §24(d)(1)(B)(i) " +
         "earned-income threshold no more than $1 for tax year 2027.",
     );
-    expect(condition.matchStrings).toEqual([condition.statutoryTest]);
+    expect(condition.matchStrings).toEqual([
+      condition.statutoryTest,
+      spmConditional,
+    ]);
     expect(condition.checkSource).toBe(PROVISION_ENACTED_CHECK_SOURCE);
     expect(condition.deadline).toBe("2027-12-31");
     expect(condition.resolvesBy).toBe("2027-12-31");
     expect(condition.status).toBe("open");
     expect(conditionForContract(condition.statutoryTest)).toBe(condition);
+    expect(conditionForContract(spmConditional)).toBe(condition);
   });
 
   it("registers the current-law arm WITHOUT a complement declaration", () => {
@@ -368,6 +377,25 @@ describe("s3596 ACTC threshold conditional pair (thesis#106)", () => {
     expect(enacted?.complementOf).toBeUndefined();
     expect(currentLaw?.resolvesBy).toBe("2027-12-31");
     expect(currentLaw?.status).toBe("open");
+    const actcConditional =
+      "No legislation enacted by 2027-12-31 changes the IRC " +
+      "§24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year " +
+      "2027; current law holds. The $2,500 operative amount is applied by " +
+      "IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 " +
+      "amount.";
+    const spmConditional =
+      "For the CY2027 Census Supplemental Poverty Measure child-poverty " +
+      "outcome, no legislation enacted by 2027-12-31 changes the IRC " +
+      "§24(d)(1)(B)(i) earned-income threshold of $2,500 for tax year " +
+      "2027; current law holds. The $2,500 operative amount is applied by " +
+      "IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 " +
+      "amount.";
+    expect(currentLaw?.matchStrings).toEqual([
+      actcConditional,
+      spmConditional,
+    ]);
+    expect(conditionForContract(actcConditional)).toBe(currentLaw);
+    expect(conditionForContract(spmConditional)).toBe(currentLaw);
   });
 
   it("binds both preregistered docket conditionals to the registry", () => {

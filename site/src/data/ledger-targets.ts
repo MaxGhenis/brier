@@ -51,7 +51,10 @@ export interface TargetRegisteredLedgerEntry {
   periodLabel: string;
   unit: Unit;
   resolutionDate: string;
-  /** How resolutionDate was established; absent means release-calendar. */
+  /**
+   * Basis for resolutionDate; absent means release-calendar. A bounded date
+   * is a Thesis lab commitment, not timing established by its announcement.
+   */
   resolutionDateBasis?: "release-calendar" | "resolve-by-bound";
   resolutionSource: string;
   resolutionSourceUrl?: string;

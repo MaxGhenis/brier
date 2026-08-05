@@ -2347,6 +2347,10 @@ def test_bounded_target_context_renders_bound_and_announcement() -> None:
         {
             "resolutionDate": "2027-12-31",
             "resolutionDateBasis": "resolve-by-bound",
+            "expectedReleaseWindow": {
+                "start": "2027-09-01",
+                "end": "2027-12-31",
+            },
             "sourceBinding": {"sourceUrl": announcement},
         }
     )
@@ -2354,6 +2358,9 @@ def test_bounded_target_context_renders_bound_and_announcement() -> None:
     assert 'resolutionDateBasis: "resolve-by-bound"' in block
     assert 'registeredResolveByBound: "2027-12-31"' in block
     assert f'officialAnnouncementUrl: "{announcement}"' in block
+    assert "Thesis lab commitments" in block
+    assert "announcement authenticates methodology identity only" in block
+    assert "does not establish the bound or expected release window" in block
     assert "outer bound, not a scheduled release day" in block
     assert "resolutionDate must byte-echo the registered resolve-by bound" in block
     assert (
@@ -2602,20 +2609,28 @@ def test_fast_prompt_names_conditional_on_exactly() -> None:
 @pytest.mark.parametrize("mode", ["full", "fast", "ladder", "ladder_v2"])
 def test_prompts_use_bounded_source_and_date_rules(mode: str) -> None:
     announcement = "https://www.census.gov/newsroom/spm-announcement.html"
+    window = {"start": "2028-08-01", "end": "2028-12-31"}
     context = {
-        "resolutionDate": "2027-12-31",
+        "resolutionDate": "2028-12-31",
         "resolutionDateBasis": "resolve-by-bound",
-        "sourceBinding": {"sourceUrl": announcement},
+        "expectedReleaseWindow": window,
+        "sourceBinding": {
+            "sourceUrl": announcement,
+            "expectedReleaseWindow": window,
+        },
     }
 
     prompt, _ = analyst_runner.build_run_prompt(
-        "census.spm.child_poverty_rate", "2026", None, mode, context
+        "census.spm.child_poverty_rate", "2027", None, mode, context
     )
 
     assert "resolutionSourceUrl must byte-echo" in prompt
     assert "thesis_announcement_fetch.fetch_official_announcement" in prompt
     assert "resolutionDate must byte-echo the registered resolve-by bound" in prompt
     assert "outer bound, not a scheduled release day" in prompt
+    assert "Thesis lab commitments" in prompt
+    assert "announcement authenticates methodology identity only" in prompt
+    assert "does not establish the bound or expected release window" in prompt
     assert announcement in prompt
     if mode != "full":
         assert "most specific stable page for the exact series" not in prompt

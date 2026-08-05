@@ -16,7 +16,8 @@ shares, procedural disenrollment shares.
   per jurisdiction) — say so in the rule and compute it that way.
 - Reporting lags ~3-4 months; for release-calendar targets the resolutionDate
   is when CMS first publishes that period, not the period itself. A bounded
-  target instead uses its registered outer bound.
+  target instead uses its registered Thesis lab-committed outer bound; its
+  announcement does not establish the bound or window.
 
 ## Reference classes for policy effects
 - Arkansas 2018 work requirements: Sommers et al. (NEJM 2019/2020) —

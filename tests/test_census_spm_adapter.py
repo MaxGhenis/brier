@@ -154,6 +154,8 @@ def test_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
         "https://www.census.gov/topics/income-poverty/library/"
         "publications.html"
     )
+    assert "expectedReleaseWindow" not in SPEC
+    assert "resolutionDate" not in SPEC
     assert binding["field"] == "under_18_percent_in_poverty"
     assert "revised-methodology" in binding["table"]
     assert "Table B-2" in binding["table"]
@@ -166,8 +168,8 @@ def test_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
             **binding,
             "allowedHosts": ["www.census.gov", "www2.census.gov"],
             "expectedReleaseWindow": {
-                "start": "2027-09-01",
-                "end": "2027-12-31",
+                "start": "2028-08-01",
+                "end": "2028-12-31",
             },
         },
         SPEC,
@@ -191,9 +193,7 @@ def test_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
     )
 
 
-def test_spm_pair_current_template_is_rejected_by_strict_chronology(
-    capsys: pytest.CaptureFixture[str],
-) -> None:
+def test_spm_pair_targets_cy2027_after_ty2027_policy_and_before_release() -> None:
     entry = docket_entry()
     irs_entry = next(
         candidate
@@ -204,22 +204,60 @@ def test_spm_pair_current_template_is_rejected_by_strict_chronology(
     )
     assert "anchors" not in entry["extras"]
     assert "September 2026" in entry["comment"]
-    assert [
-        (arm["conditionId"], arm["conditional"])
-        for arm in entry["conditionalPair"]["arms"]
-    ] == [
-        (arm["conditionId"], arm["conditional"])
-        for arm in irs_entry["conditionalPair"]["arms"]
+    assert entry["period"] == "2027"
+    assert entry["conditionalPair"]["conditionDeadline"] == "2027-12-31"
+    assert entry["extras"]["resolutionDate"] == "2028-12-31"
+    assert entry["extras"]["expectedReleaseWindow"] == {
+        "start": "2028-08-01",
+        "end": "2028-12-31",
+    }
+    assert "methodology announcement (identity)" in entry["extras"][
+        "resolutionSource"
     ]
+    assert "Table B-2 (resolving artifact)" in entry["extras"][
+        "resolutionSource"
+    ]
+    assert "Thesis lab commitments" in entry["extras"]["resolutionRule"]
+    assert "announcement does not establish either timing value" in entry[
+        "extras"
+    ]["resolutionRule"]
+    assert [arm["conditionId"] for arm in entry["conditionalPair"]["arms"]] == [
+        arm["conditionId"] for arm in irs_entry["conditionalPair"]["arms"]
+    ]
+    assert [arm["conditional"] for arm in entry["conditionalPair"]["arms"]] != [
+        arm["conditional"] for arm in irs_entry["conditionalPair"]["arms"]
+    ]
+    assert all(
+        conditional.startswith(
+            "For the CY2027 Census Supplemental Poverty Measure "
+            "child-poverty outcome,"
+        )
+        and "tax year 2027" in conditional
+        for conditional in (
+            arm["conditional"] for arm in entry["conditionalPair"]["arms"]
+        )
+    )
 
     targets = roll_docket.conditional_pair_seed_targets(
         entry, set(), roll_docket.dt.date(2026, 8, 4)
     )
-    assert targets == []
-    assert capsys.readouterr().err == (
-        "  warning: skip census.spm.child_poverty_rate: conditional pair "
-        "release window must open after the condition deadline\n"
-    )
+    assert [target["catalogSlug"] for target in targets] == [
+        "spm-child-poverty-rate-cy2027-threshold-one-dollar",
+        "spm-child-poverty-rate-cy2027-current-law",
+    ]
+    assert [target["dataPointId"] for target in targets] == [
+        f"{SERIES}.2027.first_print.threshold_one_dollar",
+        f"{SERIES}.2027.first_print.current_law",
+    ]
+    for target in targets:
+        contract = register_targets.build_contract(
+            target, roll_docket.dt.date(2026, 8, 4)
+        )
+        assert contract["resolutionDate"] == "2028-12-31"
+        assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+            "start": "2028-08-01",
+            "end": "2028-12-31",
+        }
 
 
 def test_publication_index_selects_exact_report_and_enforces_first_print() -> None:
@@ -516,15 +554,15 @@ def test_revised_anchor_admission_and_exact_comparison() -> None:
 
 def test_both_condition_arms_route_to_one_annual_print() -> None:
     refs = [
-        f"{SERIES}.2026.first_print.threshold_one_dollar",
-        f"{SERIES}.2026.first_print.current_law",
+        f"{SERIES}.2027.first_print.threshold_one_dollar",
+        f"{SERIES}.2027.first_print.current_law",
     ]
     log = {
         "entries": [
             {
                 "kind": "prediction_recorded",
                 "forecastSlug": f"spm-arm-{index}",
-                "resolutionDate": "2027-12-31",
+                "resolutionDate": "2028-12-31",
                 "unit": "percent",
             }
             for index in range(2)
@@ -542,15 +580,15 @@ def test_both_condition_arms_route_to_one_annual_print() -> None:
     todo = resolve_pending.pending_adapter_refs(log)
     assert [row[0] for row in todo] == refs
     assert {(row[1], row[3], row[4]) for row in todo} == {
-        ("census_spm", "year", "2026")
+        ("census_spm", "year", "2027")
     }
 
 
 def test_unverified_adapter_refuses_before_any_network_call(
     monkeypatch, capsys
 ) -> None:
-    ref = f"{SERIES}.2026.first_print.current_law"
-    forecast = {"resolutionDate": "2027-12-31", "unit": "percent"}
+    ref = f"{SERIES}.2027.first_print.current_law"
+    forecast = {"resolutionDate": "2028-12-31", "unit": "percent"}
     registration = {
         "contract": {
             "resolutionDateBasis": "resolve-by-bound",
@@ -558,8 +596,8 @@ def test_unverified_adapter_refuses_before_any_network_call(
                 **resolve_pending.census_spm_binding_template(SPEC),
                 "allowedHosts": ["www.census.gov", "www2.census.gov"],
                 "expectedReleaseWindow": {
-                    "start": "2027-09-01",
-                    "end": "2027-12-31",
+                    "start": "2028-08-01",
+                    "end": "2028-12-31",
                 },
             },
         }
@@ -574,7 +612,7 @@ def test_unverified_adapter_refuses_before_any_network_call(
         resolve_pending,
         "pending_adapter_refs",
         lambda _log: [
-            (ref, "census_spm", SPEC, "year", "2026", "2027-12-31", forecast)
+            (ref, "census_spm", SPEC, "year", "2027", "2028-12-31", forecast)
         ],
     )
     monkeypatch.setattr(
@@ -586,7 +624,7 @@ def test_unverified_adapter_refuses_before_any_network_call(
         resolve_pending, "registration_contracts", lambda: {ref: registration}
     )
     monkeypatch.setattr(
-        resolve_pending, "utc_now", lambda: "2027-09-01T12:00:00Z"
+        resolve_pending, "utc_now", lambda: "2028-08-01T12:00:00Z"
     )
 
     def unexpected_fetch(*_args, **_kwargs):
@@ -602,7 +640,7 @@ def test_unverified_adapter_refuses_before_any_network_call(
 
 
 def test_absent_basis_census_contract_cannot_inherit_bounded_adapter() -> None:
-    ref = f"{SERIES}.2026.first_print.current_law"
+    ref = f"{SERIES}.2027.first_print.current_law"
     registration = {
         "contract": {
             "dataPointId": ref,
@@ -622,8 +660,8 @@ def test_absent_basis_census_contract_cannot_inherit_bounded_adapter() -> None:
 
 
 def test_mutable_census_adapter_cannot_claim_immutable_late_capture() -> None:
-    ref = f"{SERIES}.2026.first_print.current_law"
-    window = {"start": "2027-09-01", "end": "2027-12-31"}
+    ref = f"{SERIES}.2027.first_print.current_law"
+    window = {"start": "2028-08-01", "end": "2028-12-31"}
     registration = {
         "contract": {
             "sourceBinding": {
@@ -645,14 +683,14 @@ def test_mutable_census_adapter_cannot_claim_immutable_late_capture() -> None:
     )
     assert resolve_pending.bounded_resolution_window_gate(
         ref,
-        resolve_pending.dt.date(2028, 1, 1),
+        resolve_pending.dt.date(2029, 1, 1),
         window,
         registration=registration,
         spec=spoofed,
     ) == (
         "missed",
         f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered window "
-        "closed 2027-12-31; adapter has no authenticated immutable-artifact "
+        "closed 2028-12-31; adapter has no authenticated immutable-artifact "
         "late-capture capability",
     )
 
@@ -662,8 +700,8 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
     monkeypatch, capsys, timing
 ) -> None:
     refs = [
-        f"{SERIES}.2026.first_print.threshold_one_dollar",
-        f"{SERIES}.2026.first_print.current_law",
+        f"{SERIES}.2027.first_print.threshold_one_dollar",
+        f"{SERIES}.2027.first_print.current_law",
     ]
     armed_spec = {
         **SPEC,
@@ -674,15 +712,15 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
         **resolve_pending.census_spm_binding_template(armed_spec),
         "allowedHosts": ["www.census.gov", "www2.census.gov"],
         "expectedReleaseWindow": {
-            "start": "2027-09-01",
-            "end": "2027-12-31",
+            "start": "2028-08-01",
+            "end": "2028-12-31",
         },
     }
     registrations = {
         ref: {
             "contract": {
                 "series": SERIES,
-                "period": "2026",
+                "period": "2027",
                 "resolutionDateBasis": "resolve-by-bound",
                 "sourceBinding": binding,
             },
@@ -691,7 +729,7 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
         for index, ref in enumerate(refs, start=1)
     }
     forecasts = [
-        {"resolutionDate": "2027-12-31", "unit": "percent"}
+        {"resolutionDate": "2028-12-31", "unit": "percent"}
         for _ref in refs
     ]
     monkeypatch.setattr(
@@ -704,7 +742,7 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
         resolve_pending,
         "pending_adapter_refs",
         lambda _log: [
-            (ref, "census_spm", armed_spec, "year", "2026", "2027-12-31", forecast)
+            (ref, "census_spm", armed_spec, "year", "2027", "2028-12-31", forecast)
             for ref, forecast in zip(refs, forecasts)
         ],
     )
@@ -718,20 +756,20 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
     )
     if timing == "crosses-window-end":
         moments = iter(
-            ["2027-12-31T23:59:59Z", "2028-01-01T00:00:01Z"]
+            ["2028-12-31T23:59:59Z", "2029-01-01T00:00:01Z"]
         )
         monkeypatch.setattr(
             resolve_pending,
             "utc_now",
-            lambda: next(moments, "2028-01-01T00:00:01Z"),
+            lambda: next(moments, "2029-01-01T00:00:01Z"),
         )
     elif timing == "missed":
         monkeypatch.setattr(
-            resolve_pending, "utc_now", lambda: "2028-01-01T00:00:01Z"
+            resolve_pending, "utc_now", lambda: "2029-01-01T00:00:01Z"
         )
     else:
         monkeypatch.setattr(
-            resolve_pending, "utc_now", lambda: "2027-09-15T12:00:00Z"
+            resolve_pending, "utc_now", lambda: "2028-09-15T12:00:00Z"
         )
     fetches: list[tuple[str, bool]] = []
 
@@ -743,7 +781,7 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
             b"authenticated-workbook",
             "https://www2.census.gov/programs-surveys/demo/tables/p60/300/"
             "tableB-2.xlsx",
-            "2027-09-15T12:00:02Z",
+            "2028-09-15T12:00:02Z",
             None,
         )
 
@@ -766,14 +804,14 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
 
     assert resolve_pending.main() == 0
     assert fetches == (
-        [] if timing == "missed" else [("2026", True)]
+        [] if timing == "missed" else [("2027", True)]
     )
     output = capsys.readouterr().out
     if timing != "open":
         message = (
             "  FIRST-PRINT WINDOW MISSED (refusing): "
-            f"{SERIES}.2026.first_print.current_law — registered window "
-            "closed 2027-12-31; adapter has no authenticated immutable-"
+            f"{SERIES}.2027.first_print.current_law — registered window "
+            "closed 2028-12-31; adapter has no authenticated immutable-"
             "artifact late-capture capability"
         )
         assert message in output
@@ -781,12 +819,12 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
         assert "LATE FIRST-PRINT CAPTURE (recording)" not in output
         assert "nothing new to record" in output
     else:
-        assert output.count("resolve census.spm.child_poverty_rate.2026") == 2
+        assert output.count("resolve census.spm.child_poverty_rate.2027") == 2
         assert "dry-run: would append 2 row(s)" in output
 
 
-def test_spec_builds_a_percent_fact_bound_to_the_announcement() -> None:
-    ref = f"{SERIES}.2026.first_print.current_law"
+def test_fact_separates_methodology_announcement_from_observed_workbook() -> None:
+    ref = f"{SERIES}.2027.first_print.current_law"
     table_url = (
         "https://www2.census.gov/programs-surveys/demo/tables/p60/300/"
         "tableB-2.xlsx"
@@ -795,9 +833,9 @@ def test_spec_builds_a_percent_fact_bound_to_the_announcement() -> None:
         ref,
         SPEC,
         "year",
-        "2026",
+        "2027",
         13.4,
-        resolve_pending.dt.date(2027, 9, 15),
+        resolve_pending.dt.date(2028, 9, 15),
         SPEC["source_url"],
         table_url,
     )

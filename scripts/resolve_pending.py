@@ -1162,13 +1162,15 @@ FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
     },
 }
 
-# Census's 2026-07-17 statement says it will publish revised-methodology
-# 2019--2024 SPM estimates in September 2026. Until those revised prints exist,
-# current-method history is not a valid parser/calibration anchor for the new
-# series. Keep ``anchors`` ABSENT (not placeholders) and refuse resolution
-# before network access until an integrator verifies at least three revised
-# official prints. The parser and discovery path are committed now so the
-# registered CY2026 pair has a mechanically resolvable source contract.
+# Census's 2026-07-17 statement authenticates the revised SPM methodology's
+# identity and says it will publish revised 2019--2024 estimates in September
+# 2026; it does not establish the registered target's release window or
+# deadline. Until those revised prints exist, current-method history is not a
+# valid parser/calibration anchor for the new series. Keep ``anchors`` ABSENT
+# (not placeholders) and refuse resolution before network access until an
+# integrator verifies at least three revised official prints. The parser and
+# discovery path are committed now so the registered CY2027 pair has a
+# mechanically resolvable source contract.
 CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
     "census.spm.child_poverty_rate": {
         "resolution_date_basis": "resolve-by-bound",
@@ -1216,8 +1218,9 @@ CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
         ),
         "evidence_notes": (
             "CY{period} child Supplemental Poverty Measure rate under the "
-            "revised methodology announced by Census on 2026-07-17, read "
-            "without scaling or rounding from the ALL RACES year row and "
+            "revised methodology whose identity is authenticated by the "
+            "Census 2026-07-17 announcement, read without scaling or "
+            "rounding from the ALL RACES year row and "
             "Table B-2's 'Under 18 years / Below Poverty / Percent' column "
             "in the first annual "
             "income-and-poverty release; the fetched workbook bytes are "

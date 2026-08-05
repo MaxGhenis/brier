@@ -201,6 +201,14 @@ def test_bounded_contract_requires_exact_window_and_matching_bound() -> None:
     )
     assert entry["resolutionDateBasis"] == "resolve-by-bound"
     assert entry["resolutionDate"] == "2030-03-31"
+    assert entry["resolutionRule"] == (
+        "Preregistered resolve-by resolver binding. The resolutionDate and "
+        "expectedReleaseWindow are Thesis lab commitments. The registered "
+        "source URL authenticates methodology identity only; it does not "
+        "establish either timing value. The analyst must supply the precise "
+        "first-print rule without changing the methodology source, "
+        "field/table, transform, or release policy."
+    )
     match, registration = generate_ledger_targets.preregistration_for(
         register_targets.ts_literal(entry), contract["dataPointId"]
     ) or (None, None)

@@ -52,11 +52,13 @@ Optimize for:
 
 Use the default `release-calendar` basis when an official calendar, schedule,
 or release notice states a specific planned day. Use `resolve-by-bound` only
-when an official announcement pins the resolving artifact and methodology but
-does not provide an exact day. A bounded target must carry an
-`expectedReleaseWindow`, set `resolutionDate` to that window's end, and require
-the forecast trace to fetch the registered announcement URL; never infer a day
-from cadence.
+for a reviewed target whose Thesis registration commits a conservative
+`expectedReleaseWindow` and outer deadline while an official announcement
+authenticates the resolving methodology identity without providing an exact
+day. The announcement is not evidence for the lab-committed window or
+deadline. A bounded target must set `resolutionDate` to its window's end and
+require the attested replay to contain a successful structured exact-URL fetch
+event for the registered announcement; never infer a day from cadence.
 
 ## Common Tasks
 
