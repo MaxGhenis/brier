@@ -1168,9 +1168,10 @@ FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
 # deadline. Until those revised prints exist, current-method history is not a
 # valid parser/calibration anchor for the new series. Keep ``anchors`` ABSENT
 # (not placeholders) and refuse resolution before network access until an
-# integrator verifies at least three revised official prints. The parser and
-# discovery path are committed now so the registered CY2027 pair has a
-# mechanically resolvable source contract.
+# integrator verifies all six revised 2019--2024 official prints, including
+# transition-discriminating 2019 and 2020 values. The parser and discovery path
+# are committed now so the registered CY2027 pair has a mechanically
+# resolvable source contract.
 CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
     "census.spm.child_poverty_rate": {
         "resolution_date_basis": "resolve-by-bound",
@@ -4712,6 +4713,32 @@ def _census_spm_normalized_text(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", " ", str(value).lower()).strip()
 
 
+def _census_spm_report_identity(
+    report_url: str, year: str
+) -> tuple[tuple[int, str] | None, str | None]:
+    """Bind a report title year to its actual P60 publication path."""
+
+    if not re.fullmatch(r"\d{4}", year):
+        return None, f"Census SPM period must be YYYY, got {year!r}"
+    parsed = urllib.parse.urlparse(report_url)
+    match = re.fullmatch(
+        r"/library/publications/(\d{4})/demo/p60-(\d+)\.html",
+        parsed.path,
+        re.IGNORECASE,
+    )
+    if match is None or parsed.params or parsed.query or parsed.fragment:
+        return None, f"report URL is not the reviewed P60 path: {report_url!r}"
+    publication_year = int(match.group(1))
+    earliest_publication_year = int(year) + 1
+    if publication_year < earliest_publication_year:
+        return None, (
+            f"report URL publication year {publication_year} predates the "
+            f"earliest valid year {earliest_publication_year} for the {year} "
+            f"outcome: {report_url!r}"
+        )
+    return (publication_year, match.group(2)), None
+
+
 def census_spm_report_url(
     raw_html: bytes,
     year: str,
@@ -4737,21 +4764,17 @@ def census_spm_report_url(
     title_pattern = re.compile(r"\bpoverty in the united states (\d{4})\b")
     for href, label in parser.links:
         url = urllib.parse.urljoin(publications_url, href)
-        parsed = urllib.parse.urlparse(url)
         match = title_pattern.search(_census_spm_normalized_text(label))
         if match is None:
             continue
         report_year = int(match.group(1))
-        expected_release_year = report_year + 1
-        if re.fullmatch(
-            rf"/library/publications/{expected_release_year}/demo/"
-            r"p60-\d+\.html",
-            parsed.path,
-            re.IGNORECASE,
-        ) is None or parsed.params or parsed.query or parsed.fragment:
+        _identity, identity_refusal = _census_spm_report_identity(
+            url, str(report_year)
+        )
+        if identity_refusal:
             return None, (
                 "Census annual report link does not match the reviewed "
-                f"P60 publication path for {report_year}: {url!r}"
+                f"P60 publication path for {report_year}: {identity_refusal}"
             )
         try:
             _require_allowed_host(url, allowed_hosts)
@@ -4805,15 +4828,14 @@ def census_spm_table_url(
     matches: set[str] = set()
     wrong_formats: set[str] = set()
     expected_name = table_filename.lower()
-    report_path = urllib.parse.urlparse(report_url).path
-    report_match = re.fullmatch(
-        rf"/library/publications/{int(year) + 1}/demo/p60-(\d+)\.html",
-        report_path,
-        re.IGNORECASE,
-    )
-    if report_match is None:
-        return None, f"report URL is not the reviewed P60 path: {report_url!r}"
-    report_number = report_match.group(1)
+    try:
+        _require_allowed_host(report_url, allowed_hosts)
+    except ValueError as exc:
+        return None, str(exc)
+    report_identity, refusal = _census_spm_report_identity(report_url, year)
+    if refusal or report_identity is None:
+        return None, refusal
+    _publication_year, report_number = report_identity
     expected_path = (
         f"/programs-surveys/demo/tables/p60/{report_number}/{table_filename}"
     )
@@ -4876,23 +4898,24 @@ _CENSUS_SPM_MONTHS = {
 
 
 def census_spm_report_publication_date(
-    raw_html: bytes, year: str
+    raw_html: bytes, year: str, *, report_url: str
 ) -> tuple[dt.date | None, str | None]:
-    """Read the publication date immediately following the exact report title."""
+    """Bind the title's adjacent publication date to its P60 path year."""
 
     if not re.fullmatch(r"\d{4}", year):
         return None, f"Census SPM period must be YYYY, got {year!r}"
+    report_identity, refusal = _census_spm_report_identity(report_url, year)
+    if refusal or report_identity is None:
+        return None, refusal
+    publication_year, _report_number = report_identity
     parser, refusal = _census_spm_page(raw_html)
     if refusal or parser is None:
         return None, refusal
     expected_title = _census_spm_normalized_text(
         f"Poverty in the United States: {year}"
     )
-    release_year = int(year) + 1
     month_pattern = "|".join(_CENSUS_SPM_MONTHS)
-    date_pattern = re.compile(
-        rf"({month_pattern}) ([0-3]?\d) ({release_year})"
-    )
+    date_pattern = re.compile(rf"({month_pattern}) ([0-3]?\d) (\d{{4}})")
     visible = [text.strip() for text in parser.text if text.strip()]
     candidates: set[dt.date] = set()
     for index, text in enumerate(visible):
@@ -4925,7 +4948,14 @@ def census_spm_report_publication_date(
             f"'Poverty in the United States: {year}', found "
             f"{len(candidates)}"
         )
-    return next(iter(candidates)), None
+    publication_day = next(iter(candidates))
+    if publication_day.year != publication_year:
+        return None, (
+            f"Census report publication date year {publication_day.year} "
+            f"does not match P60 URL publication year {publication_year}: "
+            f"{report_url!r}"
+        )
+    return publication_day, None
 
 
 def census_spm_first_print_gate(
@@ -5210,25 +5240,54 @@ def census_spm_xlsx_grid(
 _CENSUS_SPM_SUPERSCRIPT_DIGITS = str.maketrans(
     "⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"
 )
+_CENSUS_SPM_REQUIRED_ANCHOR_YEARS = {
+    str(year) for year in range(2019, 2025)
+}
+_CENSUS_SPM_LEGACY_TRANSITION_VALUES = {
+    "2019": {12.5, 12.6},
+    "2020": {9.7},
+}
 
 
-def _census_spm_year_cell(value: Any) -> int | None:
-    """Return a year from a standalone cell, tolerating a short footnote."""
+def _census_spm_year_cell(value: Any) -> tuple[int, str | None] | None:
+    """Return a year and optional footnote from one standalone cell."""
 
     if isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
         numeric = float(value)
         if numeric.is_integer() and 1900 <= numeric <= 2200:
-            return int(numeric)
+            return int(numeric), None
         return None
     text = str(value).strip().translate(_CENSUS_SPM_SUPERSCRIPT_DIGITS)
     text = re.sub(r"\s+", "", text)
-    match = re.fullmatch(r"(\d{4})(?:\[?\d{1,2}\]?|\*{1,2})?", text)
+    match = re.fullmatch(r"(\d{4})(?:\[?(\d{1,2})\]?|(\*{1,2}))?", text)
     if match is None:
         return None
     year = int(match.group(1))
-    return year if 1900 <= year <= 2200 else None
+    if not 1900 <= year <= 2200:
+        return None
+    return year, match.group(2) or match.group(3)
+
+
+def _census_spm_revised_methodology_footnotes(
+    grid: list[list[Any]],
+) -> set[str]:
+    """Identify footnotes that explicitly authenticate revised SPM rows."""
+
+    footnotes: set[str] = set()
+    pattern = re.compile(
+        r"^(\d{1,2}) estimates reflect the implementation of revised "
+        r"supplemental poverty measure methodology\b"
+    )
+    for row in grid:
+        for cell in row:
+            if not isinstance(cell, str):
+                continue
+            match = pattern.search(_census_spm_normalized_text(cell))
+            if match is not None:
+                footnotes.add(match.group(1))
+    return footnotes
 
 
 def census_spm_rate_from_grid(
@@ -5331,23 +5390,41 @@ def census_spm_rate_from_grid(
     if refusal or poverty_count_column is None:
         return None, refusal
 
-    row_hits: list[int] = []
+    row_hits: list[tuple[int, str | None]] = []
     for row_index in range(section_row + 1, len(grid)):
         row = grid[row_index]
         label = row[label_column] if label_column < len(row) else ""
-        row_year = _census_spm_year_cell(label)
-        if row_year is not None:
+        year_cell = _census_spm_year_cell(label)
+        if year_cell is not None:
+            row_year, footnote = year_cell
             if row_year == int(year):
-                row_hits.append(row_index)
+                row_hits.append((row_index, footnote))
             continue
         if _census_spm_normalized_text(label):
             break
-    if len(row_hits) != 1:
+    if len(row_hits) > 1:
+        methodology_footnotes = _census_spm_revised_methodology_footnotes(grid)
+        authenticated = [
+            row_index
+            for row_index, footnote in row_hits
+            if footnote in methodology_footnotes
+        ]
+        if len(authenticated) == 1:
+            data_row = authenticated[0]
+        else:
+            return None, (
+                f"expected exactly one {year} row inside ALL RACES, found "
+                f"{len(row_hits)}; duplicate transition rows require exactly "
+                "one row carrying an authenticated revised-methodology "
+                f"footnote, found {len(authenticated)}"
+            )
+    elif len(row_hits) == 1:
+        data_row = row_hits[0][0]
+    else:
         return None, (
             f"expected exactly one {year} row inside ALL RACES, found "
-            f"{len(row_hits)}"
+            "0"
         )
-    data_row = row_hits[0]
     required_column = max(
         percent_column, total_column, poverty_count_column
     )
@@ -5433,7 +5510,7 @@ def census_spm_fetch_year(
             f"indexed P60 artifact: {report_url!r} -> {final_report_url!r}"
         )
     publication_day, refusal = census_spm_report_publication_date(
-        report_raw, year
+        report_raw, year, report_url=final_report_url
     )
     if refusal or publication_day is None:
         return None, None, final_report_url, report_retrieved_at, refusal
@@ -5505,7 +5582,7 @@ def census_spm_verified_anchors(
     if (
         spec.get("anchor_status") != "VERIFIED_REVISED_METHODOLOGY"
         or not isinstance(anchors, dict)
-        or len(anchors) < 3
+        or set(anchors) != _CENSUS_SPM_REQUIRED_ANCHOR_YEARS
     ):
         return None
     verified: dict[str, float] = {}
@@ -5513,7 +5590,7 @@ def census_spm_verified_anchors(
         if (
             not isinstance(year, str)
             or not re.fullmatch(r"\d{4}", year)
-            or not 2019 <= int(year) <= 2024
+            or year not in _CENSUS_SPM_REQUIRED_ANCHOR_YEARS
         ):
             return None
         if isinstance(expected, bool) or not isinstance(expected, (int, float)):
@@ -5522,6 +5599,11 @@ def census_spm_verified_anchors(
         if not math.isfinite(value) or not 0 <= value <= 100:
             return None
         verified[year] = value
+    if any(
+        verified[year] in legacy_values
+        for year, legacy_values in _CENSUS_SPM_LEGACY_TRANSITION_VALUES.items()
+    ):
+        return None
     return verified
 
 
@@ -5530,8 +5612,11 @@ def census_spm_anchor_mismatches(
 ) -> list[str]:
     """Compare all live revised-methodology anchors exactly."""
 
-    if len(anchors) < 3:
-        return [f"only {len(anchors)} verified anchors; at least 3 required"]
+    if set(anchors) != _CENSUS_SPM_REQUIRED_ANCHOR_YEARS:
+        return [
+            "verified anchors must cover exactly 2019-2024; got "
+            f"{sorted(anchors)!r}"
+        ]
     problems = []
     for year, expected in sorted(anchors.items()):
         got = values.get(year)
@@ -8094,11 +8179,12 @@ def main() -> int:
             verified_anchors = census_spm_verified_anchors(spec)
             if verified_anchors is None:
                 # Deliberately before any Census request: the revised 2019--24
-                # prints do not exist yet, and current-method annual reports
-                # cannot authenticate the revised-methodology target.
+                # prints do not exist yet, and legacy annual reports cannot
+                # authenticate the corrected-methodology target.
                 print(
                     f"  CENSUS SPM ADAPTER UNVERIFIED (refusing): {ref} — "
-                    "three revised-methodology official-source anchors are "
+                    "all six 2019-2024 official-source anchors, with "
+                    "transition-discriminating 2019 and 2020 values, are "
                     "required"
                 )
                 continue

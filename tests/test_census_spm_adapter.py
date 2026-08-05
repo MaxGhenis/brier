@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import io
 import json
 import pathlib
@@ -21,6 +22,20 @@ from adopt_proven_series import SOURCE_BINDING_TEMPLATE_KEYS  # noqa: E402
 
 SERIES = "census.spm.child_poverty_rate"
 SPEC = resolve_pending.CENSUS_SPM_ADAPTERS[SERIES]
+FIXTURE_ROOT = ROOT / "tests" / "fixtures" / "census_spm"
+
+
+def corrected_anchor_fixture() -> dict[str, float]:
+    """Synthetic future values that cannot match either legacy transition."""
+
+    return {
+        "2019": 12.1,
+        "2020": 9.3,
+        "2021": 5.1,
+        "2022": 12.3,
+        "2023": 13.6,
+        "2024": 13.2,
+    }
 
 
 def docket_entry() -> dict:
@@ -303,6 +318,26 @@ def test_publication_index_selects_exact_report_and_enforces_first_print() -> No
     )
     assert url is None and "not in adapter allowlist" in refusal
 
+    early_url = (
+        "https://www.census.gov/library/publications/2024/demo/p60-287.html"
+    )
+    url, refusal = resolve_pending.census_spm_report_url(
+        (
+            f'<a href="{early_url}">'
+            "Poverty in the United States: 2024</a>"
+        ).encode(),
+        "2024",
+        publications_url=SPEC["publications_url"],
+        allowed_hosts=SPEC["allowed_hosts"],
+    )
+    assert url is None
+    assert refusal == (
+        "Census annual report link does not match the reviewed P60 "
+        "publication path for 2024: report URL publication year 2024 "
+        "predates the earliest valid year 2025 for the 2024 outcome: "
+        f"{early_url!r}"
+    )
+
 
 def test_report_page_selects_one_table_b2_and_refuses_layout_drift() -> None:
     report_url = "https://www.census.gov/library/publications/2025/demo/p60-287.html"
@@ -343,13 +378,18 @@ def test_report_page_selects_one_table_b2_and_refuses_layout_drift() -> None:
 
 
 def test_report_publication_date_and_first_print_window_fail_closed() -> None:
+    report_url = (
+        "https://www.census.gov/library/publications/2025/demo/p60-287.html"
+    )
     report = b"""
       <h1>Poverty in the United States: 2024</h1>
       <p>September <strong>09</strong>, 2025</p>
       <footer>Page Last Revised - August 13, 2025</footer>
     """
     publication_day, refusal = (
-        resolve_pending.census_spm_report_publication_date(report, "2024")
+        resolve_pending.census_spm_report_publication_date(
+            report, "2024", report_url=report_url
+        )
     )
     assert (publication_day, refusal) == (
         resolve_pending.dt.date(2025, 9, 9),
@@ -371,7 +411,77 @@ def test_report_publication_date_and_first_print_window_fail_closed() -> None:
     assert "missed the 21-day first-print window" in refusal
 
 
-def test_real_table_orientation_and_merged_headers_parse_exact_child_rate() -> None:
+def test_later_publication_year_keeps_title_latest_and_first_print_checks(
+    monkeypatch,
+) -> None:
+    report_url = (
+        "https://www.census.gov/library/publications/2028/demo/p60-300.html"
+    )
+    table_url = (
+        "https://www2.census.gov/programs-surveys/demo/tables/p60/300/"
+        "tableB-2.xlsx"
+    )
+    index = (
+        f'<a href="{report_url}">Poverty in the United States: 2026</a>'
+    ).encode()
+    report = (
+        "<h1>Poverty in the United States: 2026</h1>"
+        "<p>January 12, 2028</p>"
+        f'<a href="{table_url}">Table B-2</a>'
+    ).encode()
+    workbook = b"delayed-cy2026-workbook"
+
+    def fake_get(url, *, allowed_hosts, timeout=120):
+        assert allowed_hosts == SPEC["allowed_hosts"]
+        if url == SPEC["publications_url"]:
+            return index, "2028-01-12T12:00:00Z", url
+        if url == report_url:
+            return report, "2028-01-12T12:00:01Z", url
+        assert url == table_url
+        return workbook, "2028-01-12T12:00:02Z", url
+
+    monkeypatch.setattr(resolve_pending, "http_get", fake_get)
+    monkeypatch.setattr(
+        resolve_pending, "utc_now", lambda: "2028-01-12T12:00:03Z"
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "census_spm_xlsx_grid",
+        lambda raw, spec: ([raw, spec], None),
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "census_spm_rate_from_grid",
+        lambda grid, year, spec: (11.2, None),
+    )
+
+    assert resolve_pending.census_spm_fetch_year(
+        SPEC, "2026", require_latest=True
+    ) == (
+        11.2,
+        workbook,
+        table_url,
+        "2028-01-12T12:00:02Z",
+        None,
+    )
+
+    mismatched_date = report.replace(
+        b"January 12, 2028", b"January 12, 2027"
+    )
+    publication_day, refusal = (
+        resolve_pending.census_spm_report_publication_date(
+            mismatched_date, "2026", report_url=report_url
+        )
+    )
+    assert publication_day is None
+    assert refusal == (
+        "Census report publication date year 2027 does not match P60 URL "
+        "publication year 2028: "
+        "'https://www.census.gov/library/publications/2028/demo/p60-300.html'"
+    )
+
+
+def test_synthetic_table_orientation_and_merged_headers_parse_exact_rate() -> None:
     grid, refusal = resolve_pending.census_spm_xlsx_grid(
         synthetic_workbook(), SPEC
     )
@@ -390,6 +500,57 @@ def test_real_table_orientation_and_merged_headers_parse_exact_child_rate() -> N
         grid, "2023", SPEC, report_year="2024"
     )
     assert (historical, refusal) == (13.7, None)
+
+
+@pytest.mark.parametrize(
+    ("filename", "byte_count", "digest", "report_year", "expected"),
+    (
+        (
+            "p60-283-tableB-2.xlsx",
+            41_756,
+            "c5938c06302e547583d35fc8d1480b6b726b288501c46b99d5965f517b4a245e",
+            "2023",
+            {
+                "2019": 12.6,
+                "2020": 9.7,
+                "2021": 5.2,
+                "2022": 12.4,
+                "2023": 13.7,
+            },
+        ),
+        (
+            "p60-287-tableB-2.xlsx",
+            43_484,
+            "8cdb688380c543c1bd3bc47e2124ec6872511eff8c03c8340b1adacdbd1525fe",
+            "2024",
+            {
+                "2019": 12.6,
+                "2020": 9.7,
+                "2021": 5.2,
+                "2022": 12.4,
+                "2023": 13.7,
+                "2024": 13.4,
+            },
+        ),
+    ),
+)
+def test_official_workbook_vintages_are_hash_pinned_and_parse_legacy_series(
+    filename, byte_count, digest, report_year, expected
+) -> None:
+    raw = (FIXTURE_ROOT / filename).read_bytes()
+    assert len(raw) == byte_count
+    assert hashlib.sha256(raw).hexdigest() == digest
+    grid, refusal = resolve_pending.census_spm_xlsx_grid(raw, SPEC)
+    assert refusal is None
+
+    actual = {}
+    for year in expected:
+        value, refusal = resolve_pending.census_spm_rate_from_grid(
+            grid, year, SPEC, report_year=report_year
+        )
+        assert refusal is None
+        actual[year] = value
+    assert actual == expected
 
 
 def test_table_parser_fails_closed_on_wrong_identity_and_ambiguity() -> None:
@@ -416,6 +577,26 @@ def test_table_parser_fails_closed_on_wrong_identity_and_ambiguity() -> None:
         duplicate_year, "2024", SPEC
     )
     assert "inside ALL RACES, found 2" in refusal
+
+    legacy_grid, refusal = resolve_pending.census_spm_xlsx_grid(
+        (FIXTURE_ROOT / "p60-287-tableB-2.xlsx").read_bytes(), SPEC
+    )
+    assert refusal is None
+    footnote_tamper = copy.deepcopy(legacy_grid)
+    for row in footnote_tamper:
+        for column, cell in enumerate(row):
+            if isinstance(cell, str) and (
+                "revised Supplemental Poverty Measure methodology" in cell
+            ):
+                row[column] = cell.replace("revised", "unreviewed")
+    _, refusal = resolve_pending.census_spm_rate_from_grid(
+        footnote_tamper, "2019", SPEC, report_year="2024"
+    )
+    assert refusal == (
+        "expected exactly one 2019 row inside ALL RACES, found 2; duplicate "
+        "transition rows require exactly one row carrying an authenticated "
+        "revised-methodology footnote, found 0"
+    )
 
     bad_value = copy.deepcopy(grid)
     bad_value[7][9] = "13.4 percent"
@@ -524,29 +705,79 @@ def test_fetch_year_refuses_report_redirect_and_late_capture(monkeypatch) -> Non
 def test_revised_anchor_admission_and_exact_comparison() -> None:
     assert "anchors" not in SPEC
     assert resolve_pending.census_spm_verified_anchors(SPEC) is None
+    corrected = corrected_anchor_fixture()
     verified = {
         **SPEC,
         "anchor_status": "VERIFIED_REVISED_METHODOLOGY",
-        # Synthetic values only. The pre-correction 13.4% 2024 print must
-        # never be mistaken for a revised-methodology anchor.
-        "anchors": {"2022": 10.1, "2023": 10.2, "2024": 10.3},
+        # Synthetic future values only. The real legacy workbook values below
+        # must never arm the corrected-methodology adapter.
+        "anchors": corrected,
     }
     anchors = resolve_pending.census_spm_verified_anchors(verified)
-    assert anchors == {"2022": 10.1, "2023": 10.2, "2024": 10.3}
+    assert anchors == corrected
     assert resolve_pending.census_spm_anchor_mismatches(anchors, anchors) == []
     assert resolve_pending.census_spm_anchor_mismatches(
-        {**anchors, "2024": 10.4}, anchors
-    ) == ["2024=10.4 (official 10.3)"]
+        {**anchors, "2024": 13.3}, anchors
+    ) == ["2024=13.3 (official 13.2)"]
+    incomplete = {
+        year: value for year, value in anchors.items() if year != "2019"
+    }
+    assert resolve_pending.census_spm_anchor_mismatches(
+        incomplete, incomplete
+    ) == [
+        "verified anchors must cover exactly 2019-2024; got "
+        "['2020', '2021', '2022', '2023', '2024']"
+    ]
+    for missing_year in corrected:
+        missing = {
+            year: value
+            for year, value in corrected.items()
+            if year != missing_year
+        }
+        assert (
+            resolve_pending.census_spm_verified_anchors(
+                {**verified, "anchors": missing}
+            )
+            is None
+        )
+    for extra_year in ("2018", "2025"):
+        assert (
+            resolve_pending.census_spm_verified_anchors(
+                {
+                    **verified,
+                    "anchors": {**corrected, extra_year: 10.0},
+                }
+            )
+            is None
+        )
     for bad in (
         {**verified, "anchor_status": "VERIFIED"},
-        {**verified, "anchors": {"2023": 10.2, "2024": 10.3}},
         {
             **verified,
-            "anchors": {"2018": 10.0, "2023": 10.2, "2024": 10.3},
+            "anchors": {**corrected, "2024": True},
         },
         {
             **verified,
-            "anchors": {"2022": 10.1, "2023": 10.2, "2024": True},
+            "anchors": {**corrected, "2019": 12.5},
+        },
+        {
+            **verified,
+            "anchors": {**corrected, "2019": 12.6},
+        },
+        {
+            **verified,
+            "anchors": {**corrected, "2020": 9.7},
+        },
+        {
+            **verified,
+            "anchors": {
+                "2019": 12.6,
+                "2020": 9.7,
+                "2021": 5.2,
+                "2022": 12.4,
+                "2023": 13.7,
+                "2024": 13.4,
+            },
         },
     ):
         assert resolve_pending.census_spm_verified_anchors(bad) is None
@@ -584,8 +815,27 @@ def test_both_condition_arms_route_to_one_annual_print() -> None:
     }
 
 
+@pytest.mark.parametrize(
+    "adapter_spec",
+    (
+        SPEC,
+        {
+            **SPEC,
+            "anchor_status": "VERIFIED_REVISED_METHODOLOGY",
+            "anchors": {
+                "2019": 12.6,
+                "2020": 9.7,
+                "2021": 5.2,
+                "2022": 12.4,
+                "2023": 13.7,
+                "2024": 13.4,
+            },
+        },
+    ),
+    ids=("pending", "legacy-valued"),
+)
 def test_unverified_adapter_refuses_before_any_network_call(
-    monkeypatch, capsys
+    monkeypatch, capsys, adapter_spec
 ) -> None:
     ref = f"{SERIES}.2027.first_print.current_law"
     forecast = {"resolutionDate": "2028-12-31", "unit": "percent"}
@@ -612,7 +862,15 @@ def test_unverified_adapter_refuses_before_any_network_call(
         resolve_pending,
         "pending_adapter_refs",
         lambda _log: [
-            (ref, "census_spm", SPEC, "year", "2027", "2028-12-31", forecast)
+            (
+                ref,
+                "census_spm",
+                adapter_spec,
+                "year",
+                "2027",
+                "2028-12-31",
+                forecast,
+            )
         ],
     )
     monkeypatch.setattr(
@@ -635,7 +893,11 @@ def test_unverified_adapter_refuses_before_any_network_call(
 
     assert resolve_pending.main() == 0
     output = capsys.readouterr().out
-    assert "CENSUS SPM ADAPTER UNVERIFIED" in output
+    assert (
+        "  CENSUS SPM ADAPTER UNVERIFIED (refusing): "
+        f"{ref} — all six 2019-2024 official-source anchors, with "
+        "transition-discriminating 2019 and 2020 values, are required"
+    ) in output
     assert "nothing new to record" in output
 
 
@@ -706,7 +968,7 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
     armed_spec = {
         **SPEC,
         "anchor_status": "VERIFIED_REVISED_METHODOLOGY",
-        "anchors": {"2022": 10.1, "2023": 10.2, "2024": 10.3},
+        "anchors": corrected_anchor_fixture(),
     }
     binding = {
         **resolve_pending.census_spm_binding_template(armed_spec),
