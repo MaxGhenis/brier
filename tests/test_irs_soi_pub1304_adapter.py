@@ -273,6 +273,15 @@ def test_absent_basis_cannot_inherit_bounded_outside_exact_legacy_irs_contract(
 def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
     ref = "irs.actc.total_claims.2027.first_print.current_law"
     window = {"start": "2029-01-01", "end": "2029-12-31"}
+    registration = {
+        "contract": {
+            "sourceBinding": {
+                **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
+                "allowedHosts": ["www.irs.gov"],
+                "expectedReleaseWindow": window,
+            }
+        }
+    }
 
     assert resolve_pending.bounded_resolution_window_gate(
         ref, resolve_pending.dt.date(2028, 12, 31), window
@@ -285,12 +294,56 @@ def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
     ) == ("open", None)
     assert resolve_pending.bounded_resolution_window_gate(
         ref, resolve_pending.dt.date(2030, 1, 1), window
+    ) == (
+        "missed",
+        f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered window "
+        "closed 2029-12-31; adapter has no authenticated immutable-artifact "
+        "late-capture capability",
+    )
+    assert resolve_pending.bounded_resolution_window_gate(
+        ref,
+        resolve_pending.dt.date(2030, 1, 1),
+        window,
+        registration=registration,
+        spec=SPEC,
     ) == ("missed", None)
     assert resolve_pending.bounded_resolution_window_gate(
         ref, resolve_pending.dt.date(2029, 1, 1), None
     ) == (
         "invalid",
         f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}",
+    )
+
+
+def test_immutable_late_capture_capability_requires_exact_irs_binding() -> None:
+    binding = {
+        **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
+        "allowedHosts": ["www.irs.gov"],
+        "expectedReleaseWindow": {
+            "start": "2029-01-01",
+            "end": "2029-12-31",
+        },
+    }
+    registration = {"contract": {"sourceBinding": binding}}
+
+    assert resolve_pending.authenticated_late_capture_capability(
+        registration, SPEC
+    )
+    drifted = copy.deepcopy(registration)
+    drifted["contract"]["sourceBinding"]["field"] = "neighboring-field"
+    assert not resolve_pending.authenticated_late_capture_capability(
+        drifted, SPEC
+    )
+    wrong_hosts = copy.deepcopy(registration)
+    wrong_hosts["contract"]["sourceBinding"]["allowedHosts"] = [
+        "mirror.example"
+    ]
+    assert not resolve_pending.authenticated_late_capture_capability(
+        wrong_hosts, SPEC
+    )
+    assert not resolve_pending.authenticated_late_capture_capability(
+        registration,
+        {**SPEC, "late_capture_capability": True},
     )
 
 
@@ -415,6 +468,94 @@ def test_irs_valid_legacy_and_explicit_basis_keep_pending_verdict(
         "irs.actc.total_claims.2027.first_print.current_law — opens 2029-01-01"
         in output
     )
+
+
+def test_irs_authenticated_immutable_adapter_records_after_window(
+    monkeypatch, capsys
+) -> None:
+    ref = "irs.actc.total_claims.2027.first_print.current_law"
+    window = {"start": "2029-01-01", "end": "2029-12-31"}
+    binding = {
+        **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
+        "allowedHosts": ["www.irs.gov"],
+        "expectedReleaseWindow": window,
+    }
+    registration = {
+        "contract": {
+            "dataPointId": ref,
+            "resolutionDateBasis": "resolve-by-bound",
+            "sourceBinding": binding,
+        }
+    }
+    forecast = {"resolutionDate": "2029-12-31", "unit": "millions"}
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "irs_soi_pub1304",
+                SPEC,
+                "year",
+                "2027",
+                "2029-12-31",
+                forecast,
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "a" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: {ref: registration}
+    )
+    monkeypatch.setattr(
+        resolve_pending, "irs_soi_pub1304_verified_anchors", lambda _spec: {}
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "irs_soi_pub1304_anchor_mismatches",
+        lambda _values, _anchors: [],
+    )
+    monkeypatch.setattr(
+        resolve_pending, "utc_now", lambda: "2030-01-01T00:00:01Z"
+    )
+    fetches: list[str] = []
+
+    def fake_fetch(spec, year):
+        assert spec is SPEC
+        fetches.append(year)
+        return (
+            17_626_084.0,
+            b"authenticated-static-workbook",
+            "https://www.irs.gov/pub/irs-soi/27in33ar.xls",
+            "2030-01-01T00:00:00Z",
+            None,
+        )
+
+    monkeypatch.setattr(
+        resolve_pending, "irs_soi_pub1304_fetch_year", fake_fetch
+    )
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    assert fetches == ["2027"]
+    output = capsys.readouterr().out
+    assert (
+        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — capture completed "
+        "2030-01-01, after the registered window closed 2029-12-31"
+        in output
+    )
+    assert f"  resolve {ref} -> 17.626084 millions" in output
+    assert "dry-run: would append 1 row(s)" in output
 
 
 def test_register_rejects_blank_conditional() -> None:

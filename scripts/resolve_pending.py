@@ -84,6 +84,7 @@ from verify_custody import verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LOG_URL = "https://app.thesisinstitute.org/log.json"
+IMMUTABLE_ARTIFACT_LATE_CAPTURE = "immutable-artifact"
 # ALFRED with a vintage date pins the ADVANCE print (what the resolver rules
 # name); plain FRED would silently hand back revised values on backfills.
 FRED_CSV = (
@@ -1244,6 +1245,10 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
         # reviewed adapter declaration is their legacy fallback; new snapshots
         # carry the same value explicitly and disagreement fails closed.
         "resolution_date_basis": "resolve-by-bound",
+        # Per-year Publication 1304 workbooks are stable artifacts. The shared
+        # window gate honors this capability only after the complete registered
+        # IRS binding reauthenticates against this reviewed adapter.
+        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
         "anchor_status": "VERIFIED",
         # Integrator-verified 2026-08-01 against the official Table 3.3
         # workbooks (20in33ar.xls, 21in33ar.xls, 22in33ar.xls, 23in33ar.xls):
@@ -3050,10 +3055,50 @@ def effective_resolution_date_basis(
     return DEFAULT_RESOLUTION_DATE_BASIS, None
 
 
+def authenticated_late_capture_capability(
+    registration: Mapping[str, Any] | None,
+    spec: Mapping[str, Any],
+) -> bool:
+    """Authenticate an adapter's reviewed immutable-artifact capability."""
+
+    if spec.get("late_capture_capability") != IMMUTABLE_ARTIFACT_LATE_CAPTURE:
+        return False
+    contract = (registration or {}).get("contract") or {}
+    if not isinstance(contract, Mapping):
+        return False
+    binding = contract.get("sourceBinding") or {}
+    if not isinstance(binding, Mapping):
+        return False
+    window = binding.get("expectedReleaseWindow")
+    if not isinstance(window, dict) or set(window) != {"start", "end"}:
+        return False
+    try:
+        start = dt.date.fromisoformat(window["start"])
+        end = dt.date.fromisoformat(window["end"])
+    except (TypeError, ValueError):
+        return False
+    # This is deliberately an adapter allowlist, not a generic truthy flag.
+    # Each admitted immutable-artifact adapter must add its own full binding
+    # reauthentication here before it may capture after a registered window.
+    return bool(
+        binding.get("adapter") == "irs-soi-pub1304"
+        and binding.get("allowedHosts") == list(spec.get("allowed_hosts") or ())
+        and start.isoformat() == window["start"]
+        and end.isoformat() == window["end"]
+        and start <= end
+        and irs_soi_pub1304_binding_matches_spec(binding, spec)
+    )
+
+
 def bounded_resolution_window_gate(
-    ref: str, today: dt.date, window: Any
+    ref: str,
+    today: dt.date,
+    window: Any,
+    *,
+    registration: Mapping[str, Any] | None = None,
+    spec: Mapping[str, Any] | None = None,
 ) -> tuple[str, str | None]:
-    """Return the shared resolve-by window state and legacy-stable verdict."""
+    """Return the shared resolve-by window state and authenticated verdict."""
 
     state = snapshot_window_state(today, window)
     if state == "invalid":
@@ -3063,8 +3108,14 @@ def bounded_resolution_window_gate(
             f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
             f"{window['start']}"
         )
-    # A static first print can still be captured after the outer bound. The
-    # family branch records that lateness loudly once it has artifact bytes.
+    if state == "missed" and not authenticated_late_capture_capability(
+        registration, spec or {}
+    ):
+        return state, (
+            f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered "
+            f"window closed {window['end']}; adapter has no authenticated "
+            "immutable-artifact late-capture capability"
+        )
     return state, None
 
 
@@ -7858,15 +7909,16 @@ def main() -> int:
             contract = (registration or {}).get("contract") or {}
             binding = contract.get("sourceBinding") or {}
             bounded_window = binding.get("expectedReleaseWindow")
-            # This is the generalized form of the former IRS-family carveout:
-            # every bounded target defers until its immutable window opens,
-            # regardless of which adapter will eventually fetch the artifact.
-            # Use the UTC decision day to preserve the IRS leg's established
-            # boundary behavior around midnight.
+            # Every bounded target defers until its immutable window opens.
+            # Once it closes, only a reviewed immutable-artifact capability
+            # backed by the exact registered adapter binding may proceed. Use
+            # the UTC decision day to preserve midnight boundary behavior.
             _window_state, window_verdict = bounded_resolution_window_gate(
                 ref,
                 dt.date.fromisoformat(utc_now()[:10]),
                 bounded_window,
+                registration=registration,
+                spec=spec,
             )
             if window_verdict:
                 print(window_verdict)
@@ -7893,10 +7945,7 @@ def main() -> int:
                     )
                     continue
                 window_state = snapshot_window_state(today, release_window)
-                if window_state != "open" and not (
-                    resolution_date_basis == "resolve-by-bound"
-                    and window_state == "missed"
-                ):
+                if window_state != "open":
                     print(
                         f"  FIRST-PRINT WINDOW {window_state.upper()} "
                         f"(refusing): {ref}"
@@ -8098,24 +8147,16 @@ def main() -> int:
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
                 window = bounded_window
                 effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
-                if effective_capture_date > str(window["end"]):
-                    print(
-                        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
-                        f"capture completed {effective_capture_date}, after "
-                        f"the registered window closed {window['end']}"
-                    )
-                    spec = {
-                        **spec,
-                        "evidence_notes": (
-                            str(spec["evidence_notes"])
-                            + " Capture completed "
-                            + effective_capture_date
-                            + ", after the registered "
-                            + str(window["end"])
-                            + " window by-date; this was still the latest "
-                            "annual report on the official publication index."
-                        ),
-                    }
+                _capture_state, capture_verdict = bounded_resolution_window_gate(
+                    ref,
+                    dt.date.fromisoformat(effective_capture_date),
+                    window,
+                    registration=registration,
+                    spec=spec,
+                )
+                if capture_verdict:
+                    print(capture_verdict)
+                    continue
             source_url = spec["source_url"]
             source_file = fetched_url
             series_id = spec["series_id"]
@@ -8200,8 +8241,17 @@ def main() -> int:
                 # stamp (taken before the response read) and the decision
                 # moment, so a straddle discloses with a coherent date.
                 effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
-                late_capture = effective_capture_date > str(window["end"])
-                if late_capture:
+                capture_state, capture_verdict = bounded_resolution_window_gate(
+                    ref,
+                    dt.date.fromisoformat(effective_capture_date),
+                    window,
+                    registration=registration,
+                    spec=spec,
+                )
+                if capture_verdict:
+                    print(capture_verdict)
+                    continue
+                if capture_state == "missed":
                     print(
                         f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
                         f"capture completed {effective_capture_date}, after "

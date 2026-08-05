@@ -621,8 +621,45 @@ def test_absent_basis_census_contract_cannot_inherit_bounded_adapter() -> None:
     )
 
 
-def test_verified_adapter_resolves_both_arms_from_one_authenticated_print(
-    monkeypatch, capsys
+def test_mutable_census_adapter_cannot_claim_immutable_late_capture() -> None:
+    ref = f"{SERIES}.2026.first_print.current_law"
+    window = {"start": "2027-09-01", "end": "2027-12-31"}
+    registration = {
+        "contract": {
+            "sourceBinding": {
+                **resolve_pending.census_spm_binding_template(SPEC),
+                "allowedHosts": ["www.census.gov", "www2.census.gov"],
+                "expectedReleaseWindow": window,
+            }
+        }
+    }
+    spoofed = {
+        **SPEC,
+        "late_capture_capability": (
+            resolve_pending.IMMUTABLE_ARTIFACT_LATE_CAPTURE
+        ),
+    }
+
+    assert not resolve_pending.authenticated_late_capture_capability(
+        registration, spoofed
+    )
+    assert resolve_pending.bounded_resolution_window_gate(
+        ref,
+        resolve_pending.dt.date(2028, 1, 1),
+        window,
+        registration=registration,
+        spec=spoofed,
+    ) == (
+        "missed",
+        f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered window "
+        "closed 2027-12-31; adapter has no authenticated immutable-artifact "
+        "late-capture capability",
+    )
+
+
+@pytest.mark.parametrize("timing", ["open", "crosses-window-end", "missed"])
+def test_verified_adapter_applies_mutable_window_to_both_arms(
+    monkeypatch, capsys, timing
 ) -> None:
     refs = [
         f"{SERIES}.2026.first_print.threshold_one_dollar",
@@ -679,9 +716,23 @@ def test_verified_adapter_resolves_both_arms_from_one_authenticated_print(
     monkeypatch.setattr(
         resolve_pending, "registration_contracts", lambda: registrations
     )
-    monkeypatch.setattr(
-        resolve_pending, "utc_now", lambda: "2027-09-15T12:00:00Z"
-    )
+    if timing == "crosses-window-end":
+        moments = iter(
+            ["2027-12-31T23:59:59Z", "2028-01-01T00:00:01Z"]
+        )
+        monkeypatch.setattr(
+            resolve_pending,
+            "utc_now",
+            lambda: next(moments, "2028-01-01T00:00:01Z"),
+        )
+    elif timing == "missed":
+        monkeypatch.setattr(
+            resolve_pending, "utc_now", lambda: "2028-01-01T00:00:01Z"
+        )
+    else:
+        monkeypatch.setattr(
+            resolve_pending, "utc_now", lambda: "2027-09-15T12:00:00Z"
+        )
     fetches: list[tuple[str, bool]] = []
 
     def fake_fetch(spec, year, *, require_latest=False):
@@ -714,10 +765,24 @@ def test_verified_adapter_resolves_both_arms_from_one_authenticated_print(
     monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
 
     assert resolve_pending.main() == 0
-    assert fetches == [("2026", True)]
+    assert fetches == (
+        [] if timing == "missed" else [("2026", True)]
+    )
     output = capsys.readouterr().out
-    assert output.count("resolve census.spm.child_poverty_rate.2026") == 2
-    assert "dry-run: would append 2 row(s)" in output
+    if timing != "open":
+        message = (
+            "  FIRST-PRINT WINDOW MISSED (refusing): "
+            f"{SERIES}.2026.first_print.current_law — registered window "
+            "closed 2027-12-31; adapter has no authenticated immutable-"
+            "artifact late-capture capability"
+        )
+        assert message in output
+        assert output.count("FIRST-PRINT WINDOW MISSED (refusing)") == 2
+        assert "LATE FIRST-PRINT CAPTURE (recording)" not in output
+        assert "nothing new to record" in output
+    else:
+        assert output.count("resolve census.spm.child_poverty_rate.2026") == 2
+        assert "dry-run: would append 2 row(s)" in output
 
 
 def test_spec_builds_a_percent_fact_bound_to_the_announcement() -> None:
