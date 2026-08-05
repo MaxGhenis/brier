@@ -11,12 +11,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
+import ipaddress
 import json
+import socket
 import sys
-import urllib.error
 import urllib.parse
-import urllib.request
-from typing import Any, BinaryIO
+from typing import Any, BinaryIO, Callable
 
 SERVER_NAME = "thesis_announcement_fetch"
 TOOL_NAME = "fetch_official_announcement"
@@ -29,6 +30,65 @@ class FetchError(RuntimeError):
     """The registered announcement could not produce a successful receipt."""
 
 
+ResolvedDestination = tuple[int, int, int, tuple[Any, ...]]
+
+
+def _ip_address(value: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
+    address = ipaddress.ip_address(value)
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+        return address.ipv4_mapped
+    return address
+
+
+def _direct_socket_factory(
+    destination: ResolvedDestination,
+) -> Callable[[tuple[str, int], float | None, tuple[str, int] | None], socket.socket]:
+    """Build a connection factory that cannot resolve the hostname again."""
+
+    family, socktype, proto, sockaddr = destination
+    expected_peer = _ip_address(sockaddr[0])
+
+    def create_connection(
+        _address: tuple[str, int],
+        timeout: float | None = None,
+        source_address: tuple[str, int] | None = None,
+    ) -> socket.socket:
+        connection = socket.socket(family, socktype, proto)
+        try:
+            connection.settimeout(timeout)
+            if source_address is not None:
+                connection.bind(source_address)
+            connection.connect(sockaddr)
+            actual_peer = _ip_address(connection.getpeername()[0])
+            if actual_peer != expected_peer:
+                raise FetchError(
+                    "announcement connection peer did not match the vetted address"
+                )
+            return connection
+        except Exception:
+            connection.close()
+            raise
+
+    return create_connection
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """HTTPS with normal hostname verification over one vetted IP socket."""
+
+    def __init__(
+        self,
+        host: str,
+        port: int,
+        destination: ResolvedDestination,
+        *,
+        timeout: float,
+    ) -> None:
+        super().__init__(host, port=port, timeout=timeout)
+        # HTTPSConnection.connect uses this seam before wrapping the socket with
+        # TLS using self.host for SNI and certificate hostname verification.
+        self._create_connection = _direct_socket_factory(destination)
+
+
 def validate_allowed_url(value: str) -> str:
     parsed = urllib.parse.urlsplit(value)
     if (
@@ -39,6 +99,54 @@ def validate_allowed_url(value: str) -> str:
     ):
         raise ValueError("allowed announcement URL must be an absolute HTTPS URL")
     return value
+
+
+def _resolve_public_destinations(url: str) -> list[ResolvedDestination]:
+    parsed = urllib.parse.urlsplit(url)
+    host = parsed.hostname
+    if host is None:  # Kept defensive for direct callers after startup parsing.
+        raise FetchError("registered announcement URL has no hostname")
+    try:
+        port = parsed.port if parsed.port is not None else 443
+        resolved = socket.getaddrinfo(
+            host,
+            port,
+            family=socket.AF_UNSPEC,
+            type=socket.SOCK_STREAM,
+            proto=socket.IPPROTO_TCP,
+        )
+    except (OSError, ValueError) as exc:
+        raise FetchError("announcement host resolution failed") from exc
+    if not resolved:
+        raise FetchError("announcement host resolution returned no IP addresses")
+
+    destinations: list[ResolvedDestination] = []
+    for family, socktype, proto, _canonname, sockaddr in resolved:
+        if family not in {socket.AF_INET, socket.AF_INET6} or not sockaddr:
+            raise FetchError("announcement host resolution returned a non-IP address")
+        try:
+            address = _ip_address(sockaddr[0])
+        except ValueError as exc:
+            raise FetchError(
+                "announcement host resolution returned an invalid IP address"
+            ) from exc
+        if (
+            not address.is_global
+            or address.is_private
+            or address.is_loopback
+            or address.is_link_local
+            or address.is_multicast
+        ):
+            raise FetchError(
+                "registered announcement URL resolves to a non-public address: "
+                f"{address}"
+            )
+        destination = (family, socktype, proto, sockaddr)
+        if destination not in destinations:
+            destinations.append(destination)
+    if not destinations:
+        raise FetchError("announcement host resolution returned no IP addresses")
+    return destinations
 
 
 def _read_bounded(response: BinaryIO) -> bytes:
@@ -60,36 +168,56 @@ def _read_bounded(response: BinaryIO) -> bytes:
 def fetch_announcement(url: str, *, allowed_url: str) -> dict[str, Any]:
     if url != allowed_url:
         raise FetchError("requested URL does not byte-match the registered URL")
-    request = urllib.request.Request(
-        allowed_url,
-        headers={
-            "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.1",
-            "User-Agent": "Thesis-attested-announcement-fetch/1.0",
-        },
-        method="GET",
-    )
+    parsed = urllib.parse.urlsplit(allowed_url)
+    host = parsed.hostname
+    if host is None:  # Kept defensive for direct callers after startup parsing.
+        raise FetchError("registered announcement URL has no hostname")
     try:
-        with urllib.request.urlopen(  # noqa: S310 - exact HTTPS URL is prevalidated.
-            request,
-            timeout=FETCH_TIMEOUT_SECONDS,
-        ) as response:
-            body = _read_bounded(response)
-            status = response.status
-            final_url = response.geturl()
-            content_type = response.headers.get_content_type()
-    except urllib.error.HTTPError as exc:
-        raise FetchError(f"announcement fetch returned HTTP {exc.code}") from exc
-    except (OSError, urllib.error.URLError) as exc:
-        raise FetchError(
-            f"announcement fetch failed with {type(exc).__name__}"
-        ) from exc
+        port = parsed.port if parsed.port is not None else 443
+    except ValueError as exc:
+        raise FetchError("registered announcement URL has an invalid port") from exc
+    destinations = _resolve_public_destinations(allowed_url)
+    request_target = urllib.parse.urlunsplit(
+        ("", "", parsed.path or "/", parsed.query, "")
+    )
+    headers = {
+        "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.1",
+        "User-Agent": "Thesis-attested-announcement-fetch/1.0",
+    }
 
-    if type(status) is not int or not 200 <= status < 300:
-        raise FetchError(f"announcement fetch returned HTTP {status!r}")
+    connection_error: OSError | http.client.HTTPException | None = None
+    for destination in destinations:
+        connection = _PinnedHTTPSConnection(
+            host,
+            port,
+            destination,
+            timeout=FETCH_TIMEOUT_SECONDS,
+        )
+        try:
+            connection.request("GET", request_target, headers=headers)
+            response = connection.getresponse()
+            status = response.status
+            if type(status) is int and 300 <= status < 400:
+                raise FetchError(f"announcement fetch refused HTTP redirect {status}")
+            if type(status) is not int or not 200 <= status < 300:
+                raise FetchError(f"announcement fetch returned HTTP {status!r}")
+            content_type = response.headers.get_content_type()
+            body = _read_bounded(response)
+            break
+        except (OSError, http.client.HTTPException) as exc:
+            connection_error = exc
+        finally:
+            connection.close()
+    else:
+        assert connection_error is not None
+        raise FetchError(
+            f"announcement fetch failed with {type(connection_error).__name__}"
+        ) from connection_error
+
     excerpt = body[:EXCERPT_BYTES].decode("utf-8", errors="replace")
     return {
         "requestedUrl": allowed_url,
-        "finalUrl": final_url,
+        "finalUrl": allowed_url,
         "statusCode": status,
         "responseSha256": hashlib.sha256(body).hexdigest(),
         "contentType": content_type,
@@ -103,8 +231,8 @@ def tool_definition(allowed_url: str) -> dict[str, Any]:
         "type": "object",
         "properties": {
             "requestedUrl": {"type": "string", "const": allowed_url},
-            "finalUrl": {"type": "string"},
-            "statusCode": {"type": "integer", "minimum": 100, "maximum": 599},
+            "finalUrl": {"type": "string", "const": allowed_url},
+            "statusCode": {"type": "integer", "minimum": 200, "maximum": 299},
             "responseSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         },
         "required": [
