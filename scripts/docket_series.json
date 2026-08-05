@@ -1531,6 +1531,55 @@
           "releasePolicy": "first_print"
         }
       }
+    },
+    {
+      "series": "census.spm.child_poverty_rate",
+      "cadence": "annual",
+      "period": "2026",
+      "comment": "Anchors are intentionally absent until Census publishes the revised-methodology 2019-2024 SPM estimates announced for September 2026; current-method prints are not comparable calibration anchors.",
+      "conditionalPair": {
+        "conditionDeadline": "2027-12-31",
+        "arms": [
+          {
+            "catalogSlug": "spm-child-poverty-rate-cy2026-threshold-one-dollar",
+            "dataPointId": "census.spm.child_poverty_rate.2026.first_print.threshold_one_dollar",
+            "conditionId": "cond.s3596-actc-threshold.enacted",
+            "conditional": "Legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027."
+          },
+          {
+            "catalogSlug": "spm-child-poverty-rate-cy2026-current-law",
+            "dataPointId": "census.spm.child_poverty_rate.2026.first_print.current_law",
+            "conditionId": "cond.s3596-actc-threshold.current-law",
+            "conditional": "No legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount."
+          }
+        ]
+      },
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "percent",
+        "country": "US",
+        "resolutionDate": "2027-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2027-09-01",
+          "end": "2027-12-31"
+        },
+        "resolutionSource": "U.S. Census Bureau, Poverty in the United States: 2026, Supplemental Poverty Measure Table B-2",
+        "resolutionSourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+        "resolutionRule": "Resolve to the first Census annual income-and-poverty release artifact for CY2026 under the revised SPM methodology announced on 2026-07-17: Poverty in the United States: 2026, Supplemental Poverty Measure Table B-2, ALL RACES 2026 row, Under 18 years / Below Poverty / Percent column. Record the published percent without scaling or rounding and ignore later revisions.",
+        "sourceBinding": {
+          "adapter": "census-spm-annual-report",
+          "sourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+          "sourceSeriesId": "census.spm.child_poverty_rate",
+          "field": "under_18_percent_in_poverty",
+          "table": "Poverty in the United States annual income-and-poverty release, revised-methodology Supplemental Poverty Measure Table B-2, ALL RACES year row, Under 18 years / Below Poverty / Percent column",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
     }
   ]
 }

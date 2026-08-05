@@ -39,6 +39,7 @@ import json
 import math
 import os
 import pathlib
+import posixpath
 import re
 import shutil
 import subprocess
@@ -48,11 +49,13 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import zipfile
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import quote, urlparse
+from xml.etree import ElementTree as ET
 
 from canonical_json import canonical_bytes, canonical_sha256
 from ledger_release_chain import (
@@ -1150,6 +1153,70 @@ FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
             "Total CRP enrolled acres for {period}, read from the TOTAL CRP "
             "row's Acres column in the dated CRP Monthly Summary PDF selected "
             "from {source_url}; the fetched PDF bytes are archived."
+        ),
+    },
+}
+
+# Census's 2026-07-17 statement says it will publish revised-methodology
+# 2019--2024 SPM estimates in September 2026. Until those revised prints exist,
+# current-method history is not a valid parser/calibration anchor for the new
+# series. Keep ``anchors`` ABSENT (not placeholders) and refuse resolution
+# before network access until an integrator verifies at least three revised
+# official prints. The parser and discovery path are committed now so the
+# registered CY2026 pair has a mechanically resolvable source contract.
+CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
+    "census.spm.child_poverty_rate": {
+        "resolution_date_basis": "resolve-by-bound",
+        "anchor_status": "PENDING_REVISED_PRINT",
+        "source_url": (
+            "https://www.census.gov/newsroom/press-releases/2026/"
+            "statement-on-supplemental-poverty-measure.html"
+        ),
+        "publications_url": (
+            "https://www.census.gov/topics/income-poverty/library/"
+            "publications.html"
+        ),
+        "allowed_hosts": ("www.census.gov", "www2.census.gov"),
+        "series_id": "census.spm.child_poverty_rate",
+        "field": "under_18_percent_in_poverty",
+        "source_table": (
+            "Poverty in the United States annual income-and-poverty release, "
+            "revised-methodology Supplemental Poverty Measure Table B-2, "
+            "ALL RACES year row, Under 18 years / Below Poverty / Percent "
+            "column"
+        ),
+        "report_title_template": "Poverty in the United States: {year}",
+        "table_filename": "tableB-2.xlsx",
+        "sheet_name": "TableB-2",
+        # Census has corrected SPM releases in place before. Bound capture
+        # close to the official publication date, as the other mutable
+        # first-print adapters do, rather than assuming a P60 URL is immutable.
+        "first_print_window_days": 21,
+        "section_label": "ALL RACES",
+        "header_path": ("Under 18 years", "Below Poverty", "Percent"),
+        "total_header_path": ("Under 18 years", "Total"),
+        "poverty_count_header_path": (
+            "Under 18 years",
+            "Below Poverty",
+            "Number",
+        ),
+        "unit": "percent",
+        "label": "US child supplemental poverty measure rate",
+        "measure_concept": "census.spm.child_poverty_rate",
+        "source_name": "census",
+        "concept_authority": "census",
+        "source_concept": (
+            "Supplemental Poverty Measure Table B-2; Under 18 years; "
+            "Percent in poverty"
+        ),
+        "evidence_notes": (
+            "CY{period} child Supplemental Poverty Measure rate under the "
+            "revised methodology announced by Census on 2026-07-17, read "
+            "without scaling or rounding from the ALL RACES year row and "
+            "Table B-2's 'Under 18 years / Below Poverty / Percent' column "
+            "in the first annual "
+            "income-and-poverty release; the fetched workbook bytes are "
+            "archived. Announcement: {source_url}."
         ),
     },
 }
@@ -4444,6 +4511,955 @@ def fsa_crp_fetch_period(
     return value, raw, final_url, retrieved_at, refusal
 
 
+CENSUS_SPM_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+CENSUS_SPM_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+CENSUS_SPM_TRANSFORM = {"operation": "identity", "factor": 1}
+
+
+def census_spm_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the complete reviewed seven-key Census SPM binding."""
+
+    return {
+        "adapter": "census-spm-annual-report",
+        "sourceUrl": spec["source_url"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": dict(CENSUS_SPM_TRANSFORM),
+        "releasePolicy": "first_print",
+    }
+
+
+def census_spm_binding_matches_spec(
+    binding: Any, spec: Mapping[str, Any]
+) -> bool:
+    """Require the registered Census SPM binding to match the executor."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - CENSUS_SPM_BINDING_DERIVED_KEYS
+        != CENSUS_SPM_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    allowed_hosts = binding.get("allowedHosts")
+    if allowed_hosts is not None and (
+        not isinstance(allowed_hosts, list)
+        or sorted(allowed_hosts) != sorted(spec["allowed_hosts"])
+    ):
+        return False
+    projected = {
+        key: binding[key] for key in CENSUS_SPM_BINDING_TEMPLATE_KEYS
+    }
+    return canonical_bytes(projected) == canonical_bytes(
+        census_spm_binding_template(spec)
+    )
+
+
+class _CensusSpmPageParser(HTMLParser):
+    """Collect visible page text and links without trusting script content."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.links: list[tuple[str, str]] = []
+        self.text: list[str] = []
+        self._href: str | None = None
+        self._link_text: list[str] = []
+        self._ignored_depth = 0
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        lowered = tag.lower()
+        if lowered in {"script", "style"}:
+            self._ignored_depth += 1
+            return
+        if lowered != "a" or self._ignored_depth:
+            return
+        self._href = next(
+            (
+                value
+                for name, value in attrs
+                if name.lower() == "href" and value
+            ),
+            None,
+        )
+        self._link_text = []
+
+    def handle_data(self, data: str) -> None:
+        if self._ignored_depth:
+            return
+        self.text.append(data)
+        if self._href is not None:
+            self._link_text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        lowered = tag.lower()
+        if lowered in {"script", "style"} and self._ignored_depth:
+            self._ignored_depth -= 1
+            return
+        if lowered == "a" and self._href is not None:
+            self.links.append((self._href, " ".join(self._link_text)))
+            self._href = None
+            self._link_text = []
+
+
+def _census_spm_page(raw_html: bytes) -> tuple[_CensusSpmPageParser | None, str | None]:
+    try:
+        html = raw_html.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return None, "Census page is not UTF-8 HTML"
+    parser = _CensusSpmPageParser()
+    try:
+        parser.feed(html)
+        parser.close()
+    except Exception as exc:  # noqa: BLE001 - malformed upstream HTML
+        return None, f"Census page did not parse: {exc}"
+    return parser, None
+
+
+def _census_spm_normalized_text(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(value).lower()).strip()
+
+
+def census_spm_report_url(
+    raw_html: bytes,
+    year: str,
+    *,
+    publications_url: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+    require_latest: bool = False,
+) -> tuple[str | None, str | None]:
+    """Select exactly one annual ``Poverty in the United States`` report.
+
+    With ``require_latest``, a later report on the index proves the target's
+    first-print capture window was missed. Historical reports remain usable
+    for runtime anchor checks and analyst base-rate retrieval.
+    """
+
+    if not re.fullmatch(r"\d{4}", year):
+        raise ValueError(f"Census SPM period must be YYYY, got {year!r}")
+    parser, refusal = _census_spm_page(raw_html)
+    if refusal or parser is None:
+        return None, refusal
+
+    reports: dict[int, set[str]] = {}
+    title_pattern = re.compile(r"\bpoverty in the united states (\d{4})\b")
+    for href, label in parser.links:
+        url = urllib.parse.urljoin(publications_url, href)
+        parsed = urllib.parse.urlparse(url)
+        match = title_pattern.search(_census_spm_normalized_text(label))
+        if match is None:
+            continue
+        report_year = int(match.group(1))
+        expected_release_year = report_year + 1
+        if re.fullmatch(
+            rf"/library/publications/{expected_release_year}/demo/"
+            r"p60-\d+\.html",
+            parsed.path,
+            re.IGNORECASE,
+        ) is None or parsed.params or parsed.query or parsed.fragment:
+            return None, (
+                "Census annual report link does not match the reviewed "
+                f"P60 publication path for {report_year}: {url!r}"
+            )
+        try:
+            _require_allowed_host(url, allowed_hosts)
+        except ValueError as exc:
+            return None, str(exc)
+        reports.setdefault(report_year, set()).add(url)
+
+    target_year = int(year)
+    matches = reports.get(target_year, set())
+    later = sorted(report_year for report_year in reports if report_year > target_year)
+    if require_latest and later:
+        return None, (
+            f"Census report for {year} is no longer the latest annual print "
+            f"(found {later[-1]}); the first-print window was missed"
+        )
+    if not matches:
+        return None, None
+    if len(matches) != 1:
+        return None, (
+            f"expected one 'Poverty in the United States: {year}' report, "
+            f"found {len(matches)}"
+        )
+    return next(iter(matches)), None
+
+
+def census_spm_table_url(
+    raw_html: bytes,
+    year: str,
+    *,
+    report_url: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+    table_filename: str = "tableB-2.xlsx",
+) -> tuple[str | None, str | None]:
+    """Select the report's one official Table B-2 XLSX artifact."""
+
+    if not re.fullmatch(r"\d{4}", year):
+        return None, f"Census SPM period must be YYYY, got {year!r}"
+    parser, refusal = _census_spm_page(raw_html)
+    if refusal or parser is None:
+        return None, refusal
+    page_text = _census_spm_normalized_text(" ".join(parser.text))
+    expected_title = _census_spm_normalized_text(
+        f"Poverty in the United States: {year}"
+    )
+    if expected_title not in page_text:
+        return None, (
+            f"report page does not identify {expected_title!r}; wrong annual "
+            "artifact"
+        )
+
+    matches: set[str] = set()
+    wrong_formats: set[str] = set()
+    expected_name = table_filename.lower()
+    report_path = urllib.parse.urlparse(report_url).path
+    report_match = re.fullmatch(
+        rf"/library/publications/{int(year) + 1}/demo/p60-(\d+)\.html",
+        report_path,
+        re.IGNORECASE,
+    )
+    if report_match is None:
+        return None, f"report URL is not the reviewed P60 path: {report_url!r}"
+    report_number = report_match.group(1)
+    expected_path = (
+        f"/programs-surveys/demo/tables/p60/{report_number}/{table_filename}"
+    )
+    for href, label in parser.links:
+        url = urllib.parse.urljoin(report_url, href)
+        parsed = urllib.parse.urlparse(url)
+        filename = parsed.path.rsplit("/", 1)[-1]
+        descriptor = _census_spm_normalized_text(f"{label} {filename}")
+        is_table_b2 = "table b 2" in descriptor
+        if not is_table_b2:
+            continue
+        try:
+            _require_allowed_host(url, allowed_hosts)
+        except ValueError as exc:
+            return None, str(exc)
+        if (
+            filename.lower() == expected_name
+            and parsed.path.lower() == expected_path.lower()
+            and (parsed.hostname or "").lower() == "www2.census.gov"
+            and not (parsed.params or parsed.query or parsed.fragment)
+        ):
+            matches.add(url)
+        else:
+            wrong_formats.add(url)
+    if len(matches) == 1:
+        return next(iter(matches)), None
+    if len(matches) > 1:
+        return None, f"expected one Table B-2 XLSX, found {len(matches)}"
+    if wrong_formats:
+        return None, (
+            "Census published a Table B-2 link but not the reviewed "
+            f"{table_filename!r} artifact; extend the adapter"
+        )
+    return None, (
+        "Census annual report page has no reviewed Table B-2 XLSX link; "
+        "the publication is incomplete or its layout changed"
+    )
+
+
+_CENSUS_SPM_MONTHS = {
+    month.lower(): index
+    for index, month in enumerate(
+        (
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ),
+        start=1,
+    )
+}
+
+
+def census_spm_report_publication_date(
+    raw_html: bytes, year: str
+) -> tuple[dt.date | None, str | None]:
+    """Read the publication date immediately following the exact report title."""
+
+    if not re.fullmatch(r"\d{4}", year):
+        return None, f"Census SPM period must be YYYY, got {year!r}"
+    parser, refusal = _census_spm_page(raw_html)
+    if refusal or parser is None:
+        return None, refusal
+    expected_title = _census_spm_normalized_text(
+        f"Poverty in the United States: {year}"
+    )
+    release_year = int(year) + 1
+    month_pattern = "|".join(_CENSUS_SPM_MONTHS)
+    date_pattern = re.compile(
+        rf"({month_pattern}) ([0-3]?\d) ({release_year})"
+    )
+    visible = [text.strip() for text in parser.text if text.strip()]
+    candidates: set[dt.date] = set()
+    for index, text in enumerate(visible):
+        if _census_spm_normalized_text(text) != expected_title:
+            continue
+        # Census renders the publication date directly beneath the content
+        # title. Joining a few adjacent text nodes tolerates harmless markup
+        # around the month/day/year while excluding footer revision dates.
+        following = visible[index + 1 : index + 9]
+        for width in range(1, min(3, len(following)) + 1):
+            normalized = _census_spm_normalized_text(
+                " ".join(following[:width])
+            )
+            match = date_pattern.fullmatch(normalized)
+            if match is None:
+                continue
+            try:
+                candidates.add(
+                    dt.date(
+                        int(match.group(3)),
+                        _CENSUS_SPM_MONTHS[match.group(1)],
+                        int(match.group(2)),
+                    )
+                )
+            except ValueError:
+                return None, f"invalid Census report publication date: {normalized!r}"
+    if len(candidates) != 1:
+        return None, (
+            "expected exactly one publication date directly beneath "
+            f"'Poverty in the United States: {year}', found "
+            f"{len(candidates)}"
+        )
+    return next(iter(candidates)), None
+
+
+def census_spm_first_print_gate(
+    publication_day: dt.date,
+    capture_day: dt.date,
+    window_days: int,
+) -> str | None:
+    """Bound mutable P60 capture to the reviewed first-print window."""
+
+    if capture_day < publication_day:
+        return (
+            f"capture day {capture_day} predates the official report "
+            f"publication day {publication_day}"
+        )
+    last_day = publication_day + dt.timedelta(days=window_days)
+    if capture_day > last_day:
+        return (
+            f"report published {publication_day}, but capture {capture_day} "
+            f"missed the {window_days}-day first-print window ending {last_day}"
+        )
+    return None
+
+
+def census_spm_effective_capture_day(
+    retrieved_at: str,
+) -> tuple[dt.date | None, str | None]:
+    """Return a post-response day so midnight straddles fail closed."""
+
+    decision_at = utc_now()
+    try:
+        retrieved_day = dt.date.fromisoformat(retrieved_at[:10])
+        decision_day = dt.date.fromisoformat(decision_at[:10])
+    except ValueError:
+        return None, (
+            "invalid Census capture timestamp: "
+            f"retrievedAt={retrieved_at!r}, decisionAt={decision_at!r}"
+        )
+    return max(retrieved_day, decision_day), None
+
+
+def _xlsx_local_name(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1]
+
+
+def _xlsx_column_index(letters: str) -> int:
+    column = 0
+    for letter in letters:
+        column = column * 26 + ord(letter) - ord("A") + 1
+    return column - 1
+
+
+def _xlsx_cell_coordinates(reference: str) -> tuple[int, int]:
+    match = re.fullmatch(r"([A-Z]+)([1-9]\d*)", reference)
+    if match is None:
+        raise ValueError(f"invalid XLSX cell reference {reference!r}")
+    return int(match.group(2)) - 1, _xlsx_column_index(match.group(1))
+
+
+def _xlsx_range_coordinates(
+    reference: str,
+) -> tuple[int, int, int, int]:
+    parts = reference.split(":")
+    if len(parts) not in {1, 2}:
+        raise ValueError(f"invalid XLSX range reference {reference!r}")
+    start_row, start_column = _xlsx_cell_coordinates(parts[0])
+    end_row, end_column = _xlsx_cell_coordinates(parts[-1])
+    if start_row > end_row or start_column > end_column:
+        raise ValueError(f"reversed XLSX range reference {reference!r}")
+    return start_row, start_column, end_row, end_column
+
+
+def _xlsx_xml(archive: zipfile.ZipFile, name: str, *, limit: int = 10_000_000):
+    try:
+        info = archive.getinfo(name)
+    except KeyError as exc:
+        raise ValueError(f"workbook is missing {name}") from exc
+    if info.file_size > limit:
+        raise ValueError(f"workbook XML member {name} exceeds size limit")
+    try:
+        return ET.fromstring(archive.read(info))
+    except ET.ParseError as exc:
+        raise ValueError(f"workbook XML member {name} did not parse: {exc}") from exc
+
+
+def census_spm_xlsx_grid(
+    raw: bytes, spec: Mapping[str, Any]
+) -> tuple[list[list[Any]] | None, str | None]:
+    """Extract the reviewed Table B-2 sheet using only OOXML primitives."""
+
+    if len(raw) > 25_000_000:
+        return None, "Census workbook exceeds the 25 MB adapter limit"
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(raw))
+    except (OSError, zipfile.BadZipFile) as exc:
+        return None, f"workbook parse failed: {exc}"
+    try:
+        with archive:
+            members = archive.infolist()
+            names = [member.filename for member in members]
+            if len(names) != len(set(names)):
+                return None, "Census workbook contains duplicate ZIP members"
+            if any(member.flag_bits & 0x1 for member in members):
+                return None, "Census workbook contains encrypted ZIP members"
+            if sum(member.file_size for member in members) > 50_000_000:
+                return None, "Census workbook expands beyond the 50 MB limit"
+            for name in names:
+                member_path = pathlib.PurePosixPath(name)
+                if (
+                    "\\" in name
+                    or member_path.is_absolute()
+                    or ".." in member_path.parts
+                ):
+                    return None, (
+                        "Census workbook contains an unsafe ZIP member path: "
+                        f"{name!r}"
+                    )
+            workbook = _xlsx_xml(archive, "xl/workbook.xml")
+            relationships = _xlsx_xml(
+                archive, "xl/_rels/workbook.xml.rels"
+            )
+            accepted_name = _census_spm_normalized_text(spec["sheet_name"])
+            sheets = [
+                sheet
+                for sheet in workbook.iter()
+                if _xlsx_local_name(sheet.tag) == "sheet"
+                and _census_spm_normalized_text(sheet.attrib.get("name", ""))
+                == accepted_name
+            ]
+            if len(sheets) != 1:
+                names = [
+                    sheet.attrib.get("name")
+                    for sheet in workbook.iter()
+                    if _xlsx_local_name(sheet.tag) == "sheet"
+                ]
+                return None, (
+                    "expected exactly one Table B-2 sheet, found "
+                    f"{len(sheets)} (sheets: {names!r}); extend the adapter"
+                )
+            relationship_id = next(
+                (
+                    value
+                    for key, value in sheets[0].attrib.items()
+                    if _xlsx_local_name(key) == "id"
+                ),
+                None,
+            )
+            relationship = [
+                item
+                for item in relationships.iter()
+                if _xlsx_local_name(item.tag) == "Relationship"
+                and item.attrib.get("Id") == relationship_id
+            ]
+            if len(relationship) != 1:
+                return None, "Table B-2 sheet relationship is missing or ambiguous"
+            if relationship[0].attrib.get("TargetMode") == "External":
+                return None, "Table B-2 sheet relationship is external"
+            target = relationship[0].attrib.get("Target", "")
+            if target.startswith("/"):
+                sheet_path = target.lstrip("/")
+            else:
+                sheet_path = posixpath.normpath(posixpath.join("xl", target))
+            if sheet_path.startswith("../") or not sheet_path.startswith("xl/"):
+                return None, "Table B-2 sheet relationship leaves xl/"
+            worksheet = _xlsx_xml(archive, sheet_path)
+
+            shared_strings: list[str] = []
+            if "xl/sharedStrings.xml" in archive.namelist():
+                shared = _xlsx_xml(archive, "xl/sharedStrings.xml")
+                for item in shared.iter():
+                    if _xlsx_local_name(item.tag) != "si":
+                        continue
+                    shared_strings.append(
+                        "".join(
+                            node.text or ""
+                            for node in item.iter()
+                            if _xlsx_local_name(node.tag) == "t"
+                        )
+                    )
+
+            cells: dict[tuple[int, int], Any] = {}
+            max_row = max_column = -1
+            for cell in worksheet.iter():
+                if _xlsx_local_name(cell.tag) != "c":
+                    continue
+                reference = cell.attrib.get("r", "")
+                try:
+                    row_index, column_index = _xlsx_cell_coordinates(reference)
+                except ValueError as exc:
+                    return None, str(exc)
+                if row_index >= 10_000 or column_index >= 512:
+                    return None, "Table B-2 sheet dimensions exceed adapter limits"
+                key = (row_index, column_index)
+                if key in cells:
+                    return None, f"duplicate XLSX cell reference {reference!r}"
+                if any(
+                    _xlsx_local_name(node.tag) == "f" for node in cell
+                ):
+                    return None, (
+                        f"formula cell {reference!r} is not admissible in "
+                        "resolution data"
+                    )
+                value_node = next(
+                    (
+                        node
+                        for node in cell
+                        if _xlsx_local_name(node.tag) == "v"
+                    ),
+                    None,
+                )
+                cell_type = cell.attrib.get("t")
+                text = value_node.text if value_node is not None else None
+                try:
+                    if cell_type == "s":
+                        value: Any = shared_strings[int(str(text))]
+                    elif cell_type == "inlineStr":
+                        value = "".join(
+                            node.text or ""
+                            for node in cell.iter()
+                            if _xlsx_local_name(node.tag) == "t"
+                        )
+                    elif cell_type in {"str", "e"}:
+                        value = text or ""
+                    elif cell_type == "b":
+                        value = text == "1"
+                    elif text in {None, ""}:
+                        value = ""
+                    else:
+                        value = float(text)
+                except (IndexError, TypeError, ValueError) as exc:
+                    return None, (
+                        f"invalid value in XLSX cell {reference!r}: {exc}"
+                    )
+                cells[key] = value
+                max_row = max(max_row, row_index)
+                max_column = max(max_column, column_index)
+
+            # Census encodes every header ancestor as a merged OOXML range:
+            # e.g. G4:K4 = Under 18 years and H5:K5 = Below Poverty.
+            # Propagate each top-left label across its range so the pure grid
+            # parser can authenticate the complete column path rather than a
+            # hard-coded letter.
+            for merge in worksheet.iter():
+                if _xlsx_local_name(merge.tag) != "mergeCell":
+                    continue
+                reference = merge.attrib.get("ref", "")
+                try:
+                    start_row, start_column, end_row, end_column = (
+                        _xlsx_range_coordinates(reference)
+                    )
+                except ValueError as exc:
+                    return None, str(exc)
+                if end_row >= 10_000 or end_column >= 512:
+                    return None, "Table B-2 merged range exceeds adapter limits"
+                source = cells.get((start_row, start_column), "")
+                if source == "":
+                    return None, (
+                        f"merged XLSX range {reference!r} has no top-left value"
+                    )
+                for row_index in range(start_row, end_row + 1):
+                    for column_index in range(start_column, end_column + 1):
+                        existing = cells.get((row_index, column_index), "")
+                        if existing not in {"", source}:
+                            return None, (
+                                f"merged XLSX range {reference!r} overlaps a "
+                                "different cell value"
+                            )
+                        cells[(row_index, column_index)] = source
+                max_row = max(max_row, end_row)
+                max_column = max(max_column, end_column)
+    except (OSError, ValueError, zipfile.BadZipFile) as exc:
+        return None, f"workbook parse failed: {exc}"
+
+    if max_row < 0 or max_column < 0:
+        return None, "Table B-2 sheet has no cells"
+    grid = [
+        [cells.get((row, column), "") for column in range(max_column + 1)]
+        for row in range(max_row + 1)
+    ]
+    return grid, None
+
+
+_CENSUS_SPM_SUPERSCRIPT_DIGITS = str.maketrans(
+    "⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"
+)
+
+
+def _census_spm_year_cell(value: Any) -> int | None:
+    """Return a year from a standalone cell, tolerating a short footnote."""
+
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        numeric = float(value)
+        if numeric.is_integer() and 1900 <= numeric <= 2200:
+            return int(numeric)
+        return None
+    text = str(value).strip().translate(_CENSUS_SPM_SUPERSCRIPT_DIGITS)
+    text = re.sub(r"\s+", "", text)
+    match = re.fullmatch(r"(\d{4})(?:\[?\d{1,2}\]?|\*{1,2})?", text)
+    if match is None:
+        return None
+    year = int(match.group(1))
+    return year if 1900 <= year <= 2200 else None
+
+
+def census_spm_rate_from_grid(
+    grid: list[list[Any]],
+    year: str,
+    spec: Mapping[str, Any],
+    *,
+    report_year: str | None = None,
+) -> tuple[float | None, str | None]:
+    """Read ALL RACES x child / below-poverty / percent, failing closed."""
+
+    if not re.fullmatch(r"\d{4}", year):
+        return None, f"Census SPM period must be YYYY, got {year!r}"
+    report_year = report_year or year
+    if not re.fullmatch(r"\d{4}", report_year):
+        return None, f"Census SPM report year must be YYYY, got {report_year!r}"
+    title_candidates = [
+        _census_spm_normalized_text(cell)
+        for row in grid[:7]
+        for cell in row
+        if isinstance(cell, str)
+        and "supplemental poverty measure"
+        in _census_spm_normalized_text(cell)
+    ]
+    if len(set(title_candidates)) != 1:
+        return None, (
+            "expected exactly one Supplemental Poverty Measure title cell, "
+            f"found {len(set(title_candidates))}"
+        )
+    title = title_candidates[0]
+    if "table b 2" not in title or re.search(
+        rf"\bto {re.escape(report_year)}(?: ?\d{{1,2}})?$", title
+    ) is None:
+        return None, (
+            "Table B-2 title is not the Supplemental Poverty Measure range "
+            f"ending in report year {report_year}; wrong or later workbook"
+        )
+
+    section_label = _census_spm_normalized_text(spec["section_label"])
+    section_hits: dict[int, list[int]] = {}
+    for row_index, row in enumerate(grid):
+        columns = [
+            column_index
+            for column_index, cell in enumerate(row)
+            if isinstance(cell, str)
+            and _census_spm_normalized_text(cell) == section_label
+        ]
+        if columns:
+            section_hits[row_index] = columns
+    if len(section_hits) != 1:
+        return None, (
+            f"expected exactly one {spec['section_label']!r} section row, "
+            f"found {len(section_hits)} at {sorted(section_hits)!r}"
+        )
+    section_row, section_columns = next(iter(section_hits.items()))
+    # Census merges the section heading across the table width. The grid
+    # reader intentionally propagates merged labels, so authenticate one row
+    # and recover the original label column from its leftmost occurrence.
+    label_column = min(section_columns)
+
+    column_count = max((len(row) for row in grid[:section_row]), default=0)
+
+    def unique_header_column(
+        path_key: str, description: str
+    ) -> tuple[int | None, str | None]:
+        header_path = {
+            _census_spm_normalized_text(label) for label in spec[path_key]
+        }
+        candidate_columns: list[int] = []
+        for column_index in range(column_count):
+            column_headers = {
+                _census_spm_normalized_text(row[column_index])
+                for row in grid[:section_row]
+                if column_index < len(row)
+                and isinstance(row[column_index], str)
+            }
+            if header_path.issubset(column_headers):
+                candidate_columns.append(column_index)
+        if len(candidate_columns) != 1:
+            return None, (
+                f"expected exactly one {description} column, found "
+                f"{len(candidate_columns)} at {candidate_columns!r}"
+            )
+        return candidate_columns[0], None
+
+    percent_column, refusal = unique_header_column(
+        "header_path", "Under 18 years / Below Poverty / Percent"
+    )
+    if refusal or percent_column is None:
+        return None, refusal
+    total_column, refusal = unique_header_column(
+        "total_header_path", "Under 18 years / Total"
+    )
+    if refusal or total_column is None:
+        return None, refusal
+    poverty_count_column, refusal = unique_header_column(
+        "poverty_count_header_path",
+        "Under 18 years / Below Poverty / Number",
+    )
+    if refusal or poverty_count_column is None:
+        return None, refusal
+
+    row_hits: list[int] = []
+    for row_index in range(section_row + 1, len(grid)):
+        row = grid[row_index]
+        label = row[label_column] if label_column < len(row) else ""
+        row_year = _census_spm_year_cell(label)
+        if row_year is not None:
+            if row_year == int(year):
+                row_hits.append(row_index)
+            continue
+        if _census_spm_normalized_text(label):
+            break
+    if len(row_hits) != 1:
+        return None, (
+            f"expected exactly one {year} row inside ALL RACES, found "
+            f"{len(row_hits)}"
+        )
+    data_row = row_hits[0]
+    required_column = max(
+        percent_column, total_column, poverty_count_column
+    )
+    if required_column >= len(grid[data_row]):
+        return None, "ALL RACES year row is shorter than the required child columns"
+    value = grid[data_row][percent_column]
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or not 0 <= float(value) <= 100
+    ):
+        return None, f"child SPM percent cell is not in [0, 100]: {value!r}"
+    total = grid[data_row][total_column]
+    poverty_count = grid[data_row][poverty_count_column]
+    if (
+        isinstance(total, bool)
+        or not isinstance(total, (int, float))
+        or not math.isfinite(float(total))
+        or float(total) <= 0
+    ):
+        return None, f"child population total is not positive: {total!r}"
+    if (
+        isinstance(poverty_count, bool)
+        or not isinstance(poverty_count, (int, float))
+        or not math.isfinite(float(poverty_count))
+        or not 0 <= float(poverty_count) <= float(total)
+    ):
+        return None, (
+            "child below-poverty count is not between zero and the child "
+            f"population total: {poverty_count!r}"
+        )
+    implied_percent = 100 * float(poverty_count) / float(total)
+    if abs(float(value) - implied_percent) > 0.15:
+        return None, (
+            "child SPM percent fails the Table B-2 arithmetic cross-check: "
+            f"published {float(value)}, implied {implied_percent:.6g} from "
+            f"{float(poverty_count):g}/{float(total):g}"
+        )
+    return float(value), None
+
+
+def census_spm_fetch_year(
+    spec: Mapping[str, Any], year: str, *, require_latest: bool = False
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch one annual report's Table B-2 and parse the child SPM rate."""
+
+    if not re.fullmatch(r"\d{4}", year):
+        return None, None, str(spec["source_url"]), utc_now(), (
+            f"Census SPM period must be YYYY, got {year!r}"
+        )
+    publications_url = str(spec["publications_url"])
+    try:
+        index_raw, index_retrieved_at, index_url = http_get(
+            publications_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (OSError, ValueError) as exc:
+        return None, None, publications_url, utc_now(), (
+            f"Census publications index fetch failed: {exc}"
+        )
+    report_url, refusal = census_spm_report_url(
+        index_raw,
+        year,
+        publications_url=index_url,
+        allowed_hosts=spec["allowed_hosts"],
+        require_latest=require_latest,
+    )
+    if refusal:
+        return None, None, index_url, index_retrieved_at, refusal
+    if report_url is None:
+        return None, None, index_url, index_retrieved_at, None
+    try:
+        report_raw, report_retrieved_at, final_report_url = http_get(
+            report_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (OSError, ValueError) as exc:
+        return None, None, report_url, utc_now(), (
+            f"Census annual report page fetch failed: {exc}"
+        )
+    if final_report_url != report_url:
+        return None, None, final_report_url, report_retrieved_at, (
+            "Census annual report fetch redirected away from the exact "
+            f"indexed P60 artifact: {report_url!r} -> {final_report_url!r}"
+        )
+    publication_day, refusal = census_spm_report_publication_date(
+        report_raw, year
+    )
+    if refusal or publication_day is None:
+        return None, None, final_report_url, report_retrieved_at, refusal
+    report_capture_day, refusal = census_spm_effective_capture_day(
+        report_retrieved_at
+    )
+    if refusal or report_capture_day is None:
+        return None, None, final_report_url, report_retrieved_at, refusal
+    refusal = census_spm_first_print_gate(
+        publication_day,
+        report_capture_day,
+        int(spec["first_print_window_days"]),
+    )
+    if refusal:
+        return None, None, final_report_url, report_retrieved_at, refusal
+    table_url, refusal = census_spm_table_url(
+        report_raw,
+        year,
+        report_url=final_report_url,
+        allowed_hosts=spec["allowed_hosts"],
+        table_filename=str(spec["table_filename"]),
+    )
+    if refusal:
+        return None, None, final_report_url, report_retrieved_at, refusal
+    if table_url is None:
+        return None, None, final_report_url, report_retrieved_at, None
+    try:
+        raw, retrieved_at, final_url = http_get(
+            table_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (OSError, ValueError) as exc:
+        return None, None, table_url, utc_now(), (
+            f"Census Table B-2 fetch failed: {exc}"
+        )
+    final_name = urllib.parse.urlparse(final_url).path.rsplit("/", 1)[-1]
+    if final_url != table_url:
+        return None, raw, final_url, retrieved_at, (
+            "Census Table B-2 fetch redirected away from the reviewed exact "
+            f"artifact URL: {table_url!r} -> {final_url!r}"
+        )
+    table_capture_day, refusal = census_spm_effective_capture_day(retrieved_at)
+    if refusal or table_capture_day is None:
+        return None, raw, final_url, retrieved_at, refusal
+    refusal = census_spm_first_print_gate(
+        publication_day,
+        table_capture_day,
+        int(spec["first_print_window_days"]),
+    )
+    if refusal:
+        return None, raw, final_url, retrieved_at, refusal
+    if final_name.lower() != str(spec["table_filename"]).lower():
+        return None, raw, final_url, retrieved_at, (
+            f"fetched filename {final_name!r} is not the reviewed "
+            f"{spec['table_filename']!r}"
+        )
+    grid, refusal = census_spm_xlsx_grid(raw, spec)
+    if refusal or grid is None:
+        return None, raw, final_url, retrieved_at, refusal
+    value, refusal = census_spm_rate_from_grid(grid, year, spec)
+    return value, raw, final_url, retrieved_at, refusal
+
+
+def census_spm_verified_anchors(
+    spec: Mapping[str, Any],
+) -> dict[str, float] | None:
+    """Return revised-methodology anchors, or None while deliberately unarmed."""
+
+    anchors = spec.get("anchors")
+    if (
+        spec.get("anchor_status") != "VERIFIED_REVISED_METHODOLOGY"
+        or not isinstance(anchors, dict)
+        or len(anchors) < 3
+    ):
+        return None
+    verified: dict[str, float] = {}
+    for year, expected in anchors.items():
+        if (
+            not isinstance(year, str)
+            or not re.fullmatch(r"\d{4}", year)
+            or not 2019 <= int(year) <= 2024
+        ):
+            return None
+        if isinstance(expected, bool) or not isinstance(expected, (int, float)):
+            return None
+        value = float(expected)
+        if not math.isfinite(value) or not 0 <= value <= 100:
+            return None
+        verified[year] = value
+    return verified
+
+
+def census_spm_anchor_mismatches(
+    values: Mapping[str, float | None], anchors: Mapping[str, float]
+) -> list[str]:
+    """Compare all live revised-methodology anchors exactly."""
+
+    if len(anchors) < 3:
+        return [f"only {len(anchors)} verified anchors; at least 3 required"]
+    problems = []
+    for year, expected in sorted(anchors.items()):
+        got = values.get(year)
+        if got is None:
+            problems.append(f"{year}=missing (official {expected})")
+        elif got != expected:
+            problems.append(f"{year}={got} (official {expected})")
+    return problems
+
+
 IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS = {
     "adapter",
     "sourceUrl",
@@ -5057,6 +6073,35 @@ def pending_adapter_refs(
                         FSA_CRP_ADAPTERS[fsa_crp_stem],
                         "month",
                         period,
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        census_spm_stem = next(
+            (
+                stem
+                for stem in CENSUS_SPM_ADAPTERS
+                if ref.startswith(stem + ".")
+            ),
+            None,
+        )
+        if census_spm_stem:
+            # Both legal-condition arms resolve against the same CY annual
+            # Table B-2 print; the suffix only controls which arm scores.
+            arm = re.fullmatch(
+                rf"{re.escape(census_spm_stem)}\.(\d{{4}})\.first_print"
+                r"(?:\.[a-z0-9_]+)?",
+                ref,
+            )
+            if arm:
+                out.append(
+                    (
+                        ref,
+                        "census_spm",
+                        CENSUS_SPM_ADAPTERS[census_spm_stem],
+                        "year",
+                        arm.group(1),
                         release_date,
                         forecast,
                     )
@@ -6512,6 +7557,7 @@ FAMILY_ADAPTERS = {
     # 2026-07-10 generic-url registration met a newly added ALFRED stem.
     "alfred": {"alfred-fred"},
     "bls_api": {"bls-api"},
+    "census_spm": {"census-spm-annual-report"},
     "fsa_crp": {"fsa-crp-monthly-summary"},
     "irs_soi_pub1304": {"irs-soi-pub1304"},
     "qcew": {"bls-qcew"},
@@ -6690,6 +7736,10 @@ def main() -> int:
     ] = {}
     fsa_crp_cache: dict[
         str,
+        tuple[float | None, bytes | None, str, str, str | None],
+    ] = {}
+    census_spm_cache: dict[
+        tuple[str, bool],
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
     irs_soi_cache: dict[
@@ -6960,6 +8010,88 @@ def main() -> int:
             source_file = fetched_url
             series_id = spec["series_id"]
             extension = "pdf"
+        elif kind == "census_spm":
+            verified_anchors = census_spm_verified_anchors(spec)
+            if verified_anchors is None:
+                # Deliberately before any Census request: the revised 2019--24
+                # prints do not exist yet, and current-method annual reports
+                # cannot authenticate the revised-methodology target.
+                print(
+                    f"  CENSUS SPM ADAPTER UNVERIFIED (refusing): {ref} — "
+                    "three revised-methodology official-source anchors are "
+                    "required"
+                )
+                continue
+            registration = registration or {}
+            binding = (registration.get("contract") or {}).get("sourceBinding") or {}
+            if not census_spm_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
+                )
+                continue
+            cache_key = (period, True)
+            if cache_key not in census_spm_cache:
+                census_spm_cache[cache_key] = census_spm_fetch_year(
+                    spec, period, require_latest=True
+                )
+            value, raw, fetched_url, retrieved_at, refusal = census_spm_cache[
+                cache_key
+            ]
+            if refusal:
+                print(f"  CENSUS SPM PARSE REFUSAL (refusing): {ref} — {refusal}")
+                continue
+            if raw is not None:
+                grid, grid_refusal = census_spm_xlsx_grid(raw, spec)
+                if grid_refusal or grid is None:
+                    print(
+                        f"  CENSUS SPM PARSE REFUSAL (refusing): {ref} — "
+                        f"{grid_refusal}"
+                    )
+                    continue
+                anchor_values = {
+                    anchor_year: census_spm_rate_from_grid(
+                        grid,
+                        anchor_year,
+                        spec,
+                        report_year=period,
+                    )[0]
+                    for anchor_year in verified_anchors
+                }
+                mismatches = census_spm_anchor_mismatches(
+                    anchor_values, verified_anchors
+                )
+                if mismatches:
+                    print(
+                        "  ANCHOR MISMATCH (refusing, wrong revised SPM "
+                        f"table/methodology?): {ref} — " + "; ".join(mismatches)
+                    )
+                    continue
+                release_day = dt.date.fromisoformat(retrieved_at[:10])
+                window = bounded_window
+                effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
+                if effective_capture_date > str(window["end"]):
+                    print(
+                        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
+                        f"capture completed {effective_capture_date}, after "
+                        f"the registered window closed {window['end']}"
+                    )
+                    spec = {
+                        **spec,
+                        "evidence_notes": (
+                            str(spec["evidence_notes"])
+                            + " Capture completed "
+                            + effective_capture_date
+                            + ", after the registered "
+                            + str(window["end"])
+                            + " window by-date; this was still the latest "
+                            "annual report on the official publication index."
+                        ),
+                    }
+            source_url = spec["source_url"]
+            source_file = fetched_url
+            series_id = spec["series_id"]
+            extension = "xlsx"
         elif kind == "irs_soi_pub1304":
             verified_anchors = irs_verified_anchors or {}
             registration = registration or {}

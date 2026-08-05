@@ -53,6 +53,7 @@ SOURCE_ADAPTERS = {
     "abs-data-api",
     "abs-release-page",
     "alfred-fred",
+    "census-spm-annual-report",
     "eurostat-api",
     "fsa-crp-monthly-summary",
     "generic-url",
@@ -60,6 +61,12 @@ SOURCE_ADAPTERS = {
     "ons-timeseries",
     "statcan-wds",
     "usaspending-api",
+}
+# Some reviewed adapters resolve through a sibling official data host that is
+# distinct from the registered landing/announcement URL. Keep that expansion
+# trusted and adapter-specific; target proposals cannot widen allowedHosts.
+SOURCE_ADAPTER_ALLOWED_HOSTS = {
+    "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
 }
 NATIVE_INTL_SOURCE_ADAPTERS = {
     "abs-data-api",
@@ -619,7 +626,10 @@ def derive_source_binding(
     # series' published history actually used — the previous cell's
     # resolver plus each URL its run fetched — so an agent citing an
     # established official host passes while a novel host still fails.
-    allowed_hosts = {_host(source_url)}
+    allowed_hosts = {
+        _host(source_url),
+        *SOURCE_ADAPTER_ALLOWED_HOSTS.get(adapter, set()),
+    }
     if previous:
         prior_url = previous.get("resolutionSourceUrl")
         if prior_url:

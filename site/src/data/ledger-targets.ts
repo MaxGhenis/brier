@@ -12,6 +12,7 @@ export type TargetSourceAdapter =
   | "abs-data-api"
   | "abs-release-page"
   | "alfred-fred"
+  | "census-spm-annual-report"
   | "eurostat-api"
   | "fsa-crp-monthly-summary"
   | "generic-url"
