@@ -48,6 +48,16 @@ Optimize for:
 - Do not silently clean failed agent runs into successful ones. Failed traces
   are useful records.
 
+### Choose a resolution date basis
+
+Use the default `release-calendar` basis when an official calendar, schedule,
+or release notice states a specific planned day. Use `resolve-by-bound` only
+when an official announcement pins the resolving artifact and methodology but
+does not provide an exact day. A bounded target must carry an
+`expectedReleaseWindow`, set `resolutionDate` to that window's end, and require
+the forecast trace to fetch the registered announcement URL; never infer a day
+from cadence.
+
 ## Common Tasks
 
 ### Add Or Run Forecasts
