@@ -112,16 +112,18 @@ official Table 3.3 workbook cell); with workspace access you may run them
 base rate fetched through the resolution parser is, by construction, the
 series the target resolves against.
 
-Resolve-by-bound targets during a methodology transition: when the
-registered resolution rule pins a revised-methodology artifact whose
-first print does not exist yet, the CURRENT official series is the
-admissible base rate — fetch it from its official source, name its
-vintage explicitly in the trace, and state the announced methodology
-transition as the regime consideration in the sigma step. Refusing for
-lack of the not-yet-published revised series is wrong; fabricating or
-adjusting values to "pre-apply" the revision is equally wrong. Once the
-revised prints exist, they become required exactly as this section
-demands for every other target.
+Resolve-by-bound targets during a methodology transition: while NO
+official print under the announced revised methodology exists —
+including revised historical or backcast estimates, not merely the
+outcome print the resolution rule names — the CURRENT official series
+is the admissible base rate: fetch it from its official source, name
+its vintage explicitly in the trace, and state the announced
+methodology transition as the regime consideration in the sigma step.
+Refusing for lack of the unpublished revised series is wrong;
+fabricating or adjusting values to "pre-apply" the revision is equally
+wrong. The moment any revised-methodology official print exists, those
+prints are required exactly as this section demands for every other
+target, and old-methodology history stops being admissible.
 
 `activityLog` is added by `scripts/run_thesis_analyst.py`, not by the model.
 It preserves the full run envelope behind the curated public trace: prompt,
