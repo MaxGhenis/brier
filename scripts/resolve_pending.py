@@ -74,7 +74,11 @@ from ledger_release_chain import (
     verify_producer_signature_bytes,
     verify_release_chain,
 )
-from register_targets import RegistrationError, registration_content_hash
+from register_targets import (
+    LEGACY_BOUNDED_CONDITIONAL_IDS,
+    RegistrationError,
+    registration_content_hash,
+)
 from thesis_log_client import load_thesis_log
 from verify_custody import verify_run
 
@@ -2995,31 +2999,55 @@ DEFAULT_RESOLUTION_DATE_BASIS = "release-calendar"
 
 
 def effective_resolution_date_basis(
+    ref: str,
     registration: Mapping[str, Any] | None,
     spec: Mapping[str, Any],
 ) -> tuple[str | None, str | None]:
     """Authenticate release-day versus resolve-by gating semantics.
 
-    The content-hashed registration wins. A reviewed adapter declaration is
-    accepted only as a compatibility fallback for immutable registrations
-    minted before ``resolutionDateBasis`` existed. When both declarations are
-    present they must agree.
+    The content-hashed registration wins. Absence means release-calendar.
+    Only the two immutable IRS-SOI registrations minted immediately before
+    ``resolutionDateBasis`` existed may inherit their reviewed adapter's
+    bounded declaration, and only when their registered adapter identity also
+    matches. When both declarations are present they must agree.
     """
 
     contract = (registration or {}).get("contract") or {}
+    registered_present = "resolutionDateBasis" in contract
     registered = contract.get("resolutionDateBasis")
+    declared_present = "resolution_date_basis" in spec
     declared = spec.get("resolution_date_basis")
-    for label, value in (("registered", registered), ("adapter", declared)):
-        if value is not None and (
+    for label, present, value in (
+        ("registered", registered_present, registered),
+        ("adapter", declared_present, declared),
+    ):
+        if present and (
             not isinstance(value, str) or value not in RESOLUTION_DATE_BASES
         ):
             return None, f"unsupported {label} basis {value!r}"
-    if registered is not None and declared is not None and registered != declared:
+    if registered_present and declared_present and registered != declared:
         return None, (
             f"registered basis {registered!r} disagrees with adapter basis "
             f"{declared!r}"
         )
-    return str(registered or declared or DEFAULT_RESOLUTION_DATE_BASIS), None
+    if registered_present:
+        return str(registered), None
+    if declared == "resolve-by-bound":
+        binding = contract.get("sourceBinding") or {}
+        if (
+            ref in LEGACY_BOUNDED_CONDITIONAL_IDS
+            and contract.get("dataPointId") == ref
+            and isinstance(binding, Mapping)
+            and binding.get("adapter") == "irs-soi-pub1304"
+        ):
+            return "resolve-by-bound", None
+        return None, (
+            "absent registered basis defaults to 'release-calendar'; adapter "
+            "basis 'resolve-by-bound' may be inherited only by the two legacy "
+            "IRS-SOI targets with adapter 'irs-soi-pub1304': "
+            f"{ref}"
+        )
+    return DEFAULT_RESOLUTION_DATE_BASIS, None
 
 
 def bounded_resolution_window_gate(
@@ -7775,7 +7803,7 @@ def main() -> int:
         release_day = dt.date.fromisoformat(source_vintage)
         registration = loop_contracts.get(ref)
         resolution_date_basis, basis_refusal = effective_resolution_date_basis(
-            registration, spec
+            ref, registration, spec
         )
         if basis_refusal:
             print(

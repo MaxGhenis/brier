@@ -183,34 +183,91 @@ def test_legacy_bounded_compatibility_is_scoped_to_the_known_irs_ids() -> None:
         )
 
 
-def test_irs_resolution_basis_keeps_legacy_and_future_gating_identical() -> None:
-    legacy = {"contract": {}}
+@pytest.mark.parametrize(
+    "ref", sorted(register_targets.LEGACY_BOUNDED_CONDITIONAL_IDS)
+)
+def test_irs_resolution_basis_keeps_legacy_and_future_gating_identical(
+    ref: str,
+) -> None:
+    legacy = {
+        "contract": {
+            "dataPointId": ref,
+            "sourceBinding": {"adapter": "irs-soi-pub1304"},
+        }
+    }
     future = {
-        "contract": {"resolutionDateBasis": "resolve-by-bound"}
+        "contract": {
+            "dataPointId": ref,
+            "resolutionDateBasis": "resolve-by-bound",
+            "sourceBinding": {"adapter": "irs-soi-pub1304"},
+        }
     }
 
-    assert resolve_pending.effective_resolution_date_basis(legacy, SPEC) == (
+    assert resolve_pending.effective_resolution_date_basis(ref, legacy, SPEC) == (
         "resolve-by-bound",
         None,
     )
-    assert resolve_pending.effective_resolution_date_basis(future, SPEC) == (
+    assert resolve_pending.effective_resolution_date_basis(ref, future, SPEC) == (
         "resolve-by-bound",
         None,
     )
-    assert resolve_pending.effective_resolution_date_basis(None, {}) == (
+    assert resolve_pending.effective_resolution_date_basis(ref, None, {}) == (
         "release-calendar",
         None,
     )
     basis, refusal = resolve_pending.effective_resolution_date_basis(
-        {"contract": {"resolutionDateBasis": "release-calendar"}}, SPEC
+        ref,
+        {"contract": {"resolutionDateBasis": "release-calendar"}},
+        SPEC,
     )
     assert basis is None
-    assert "disagrees" in str(refusal)
+    assert refusal == (
+        "registered basis 'release-calendar' disagrees with adapter basis "
+        "'resolve-by-bound'"
+    )
     basis, refusal = resolve_pending.effective_resolution_date_basis(
-        {"contract": {"resolutionDateBasis": ["resolve-by-bound"]}}, {}
+        ref,
+        {"contract": {"resolutionDateBasis": ["resolve-by-bound"]}},
+        {},
     )
     assert basis is None
-    assert "unsupported registered basis" in str(refusal)
+    assert refusal == "unsupported registered basis ['resolve-by-bound']"
+
+
+@pytest.mark.parametrize(
+    ("ref", "adapter", "spec"),
+    [
+        (
+            "agency.unrelated.rate.2027.first_print.current_law",
+            "irs-soi-pub1304",
+            SPEC,
+        ),
+        (
+            "irs.actc.total_claims.2027.first_print.current_law",
+            "generic-url",
+            SPEC,
+        ),
+    ],
+)
+def test_absent_basis_cannot_inherit_bounded_outside_exact_legacy_irs_contract(
+    ref: str, adapter: str, spec: dict
+) -> None:
+    registration = {
+        "contract": {
+            "dataPointId": ref,
+            "sourceBinding": {"adapter": adapter},
+        }
+    }
+
+    assert resolve_pending.effective_resolution_date_basis(
+        ref, registration, spec
+    ) == (
+        None,
+        "absent registered basis defaults to 'release-calendar'; adapter "
+        "basis 'resolve-by-bound' may be inherited only by the two legacy "
+        "IRS-SOI targets with adapter 'irs-soi-pub1304': "
+        f"{ref}",
+    )
 
 
 def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
@@ -245,6 +302,8 @@ def run_main_preflight(
     registration: dict,
 ) -> str:
     ref = "irs.actc.total_claims.2027.first_print.current_law"
+    registration = copy.deepcopy(registration)
+    registration["contract"].setdefault("dataPointId", ref)
     forecast = {"resolutionDate": "2029-12-31", "unit": "millions"}
     monkeypatch.setattr(
         resolve_pending,

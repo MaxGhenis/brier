@@ -601,6 +601,26 @@ def test_unverified_adapter_refuses_before_any_network_call(
     assert "nothing new to record" in output
 
 
+def test_absent_basis_census_contract_cannot_inherit_bounded_adapter() -> None:
+    ref = f"{SERIES}.2026.first_print.current_law"
+    registration = {
+        "contract": {
+            "dataPointId": ref,
+            "sourceBinding": {"adapter": "census-spm-annual-report"},
+        }
+    }
+
+    assert resolve_pending.effective_resolution_date_basis(
+        ref, registration, SPEC
+    ) == (
+        None,
+        "absent registered basis defaults to 'release-calendar'; adapter "
+        "basis 'resolve-by-bound' may be inherited only by the two legacy "
+        "IRS-SOI targets with adapter 'irs-soi-pub1304': "
+        f"{ref}",
+    )
+
+
 def test_verified_adapter_resolves_both_arms_from_one_authenticated_print(
     monkeypatch, capsys
 ) -> None:
