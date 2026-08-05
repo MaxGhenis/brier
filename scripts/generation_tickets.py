@@ -149,6 +149,29 @@ def earliest_resolution_boundary(targets: Any) -> str:
                 tzinfo=dt.timezone.utc,
             )
         )
+        if "conditionDeadline" in target:
+            deadline_value = target.get("conditionDeadline")
+            if not isinstance(deadline_value, str) or not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}", deadline_value
+            ):
+                raise TicketError(
+                    f"ticket target {label} conditionDeadline must be a valid "
+                    f"YYYY-MM-DD date: {deadline_value!r}"
+                )
+            try:
+                deadline = dt.date.fromisoformat(deadline_value)
+            except ValueError as exc:
+                raise TicketError(
+                    f"ticket target {label} conditionDeadline must be a valid "
+                    f"YYYY-MM-DD date: {deadline_value!r}"
+                ) from exc
+            boundaries.append(
+                dt.datetime.combine(
+                    deadline,
+                    dt.time.min,
+                    tzinfo=dt.timezone.utc,
+                )
+            )
     return min(boundaries).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 

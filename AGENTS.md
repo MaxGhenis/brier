@@ -95,13 +95,13 @@ data bundle; `publish-attested.yml` reconstructs and replays the run before CI
 commits and attests any `records/**` changes. Never commit or push the locally
 generated record files.
 
-Ticket expiry is clamped to the targets' earliest answer-knowable day
-(`resolutionDate`, `expectedReleaseDate`, or `expectedReleaseWindow.start`),
-so a ticket dies before the earliest instant its answers could be public. A
-registry series that carries none of those fields refuses to mint — by
-design, fail closed: without a stated boundary the clamp cannot hold, and
-such series belong to the scheduled CI lane. Enriching every rolled target
-with a knowable date so the lane could serve them is tracked in #130.
+Ticket expiry is clamped to the targets' earliest answer-knowable UTC day
+start: the minimum authenticated `sourceBinding.expectedReleaseWindow.start`
+or any registered `conditionDeadline`. A ticket therefore dies before either
+the conditioning outcome or resolving print can be known. A target without an
+authenticated nested window refuses to mint by design: without that stated
+boundary the clamp cannot hold, and such series belong to the scheduled CI
+lane.
 
 A transcript binding the nonce cannot predate mint, so the nonce proves the
 published artifact set was assembled after mint; it does not prove the
