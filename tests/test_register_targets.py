@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import adopt_proven_series  # noqa: E402
 import generate_ledger_targets  # noqa: E402
+import generation_tickets  # noqa: E402
 import register_targets  # noqa: E402
 import register_wave  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
@@ -3271,11 +3272,11 @@ def test_attack_register_supersede_retains_old_snapshot_and_one_block(
     assert generated.read_text().count("kind: \"target_registered\"") == 1
 
 
-def conditional_pair_targets() -> list[dict]:
+def conditional_pair_targets(
+    series: str = "irs.actc.total_claims",
+) -> list[dict]:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
-    entry = next(
-        e for e in docket["series"] if e["series"] == "irs.actc.total_claims"
-    )
+    entry = next(e for e in docket["series"] if e["series"] == series)
     return [
         {
             "series": entry["series"],
@@ -3301,6 +3302,135 @@ def test_registration_must_precede_every_release_window_literally() -> None:
     assert str(caught.value) == (
         "expected release window must start after the registration date"
     )
+
+
+def test_mint_registration_refuses_bounded_target_at_window_start(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    configure_registration_root(tmp_path, monkeypatch)
+    monkeypatch.setattr(
+        register_targets,
+        "load_ledger_pin_binding",
+        lambda: _pin("c" * 40, 128),
+    )
+    target = conditional_pair_targets("census.spm.child_poverty_rate")[0]
+    payload = register_targets.bounded_registration_payload({"targets": [target]})
+    targets_path = tmp_path / "bounded-targets.json"
+    targets_path.write_text(json.dumps(payload) + "\n")
+    window_start = dt.date.fromisoformat(target["expectedReleaseWindow"]["start"])
+
+    with pytest.raises(register_targets.RegistrationError) as caught:
+        register_targets.register(
+            targets_path,
+            window_start,
+            f"{window_start.isoformat()}T00:00:00Z",
+        )
+
+    assert str(caught.value) == (
+        "expected release window must start after the registration date"
+    )
+    assert not (tmp_path / "records" / "targets").exists()
+
+
+def test_mint_registration_never_registers_calendar_targets(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    generated_before = generated.read_bytes()
+    target = sample_target()
+    filtered = register_targets.bounded_registration_payload({"targets": [target]})
+    targets_path = tmp_path / "bounded-targets.json"
+    targets_path.write_text(json.dumps(filtered) + "\n")
+
+    assert filtered == {"targets": []}
+    assert (
+        register_targets.register(
+            targets_path,
+            dt.date(2030, 1, 10),
+            "2030-01-10T14:32:05Z",
+        )
+        == []
+    )
+    assert generated.read_bytes() == generated_before
+    assert not (tmp_path / "records" / "targets").exists()
+
+
+def test_bounded_pair_can_register_bind_and_mint(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    live_docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    census_entry = next(
+        entry
+        for entry in live_docket["series"]
+        if entry["series"] == "census.spm.child_poverty_rate"
+    )
+    docket = _write_docket(tmp_path, [census_entry])
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    _commit_files(tmp_path, [generated, docket], "base bounded docket")
+    monkeypatch.setattr(
+        register_targets,
+        "load_ledger_pin_binding",
+        lambda: _pin("c" * 40, 128),
+    )
+
+    raw_targets = conditional_pair_targets("census.spm.child_poverty_rate")
+    filtered = register_targets.bounded_registration_payload(
+        {"targets": raw_targets}
+    )
+    assert len(filtered["targets"]) == 2
+    targets_path = tmp_path / "ticket-targets.json"
+    targets_path.write_text(json.dumps(filtered) + "\n")
+    registrations = register_targets.register(
+        targets_path,
+        dt.date(2026, 8, 5),
+        "2026-08-05T12:00:00Z",
+    )
+    assert len(registrations) == 2
+    assert all(not registration["existing"] for registration in registrations)
+    _commit_files(
+        tmp_path,
+        [generated, *(registration["path"] for registration in registrations)],
+        "register bounded pair",
+    )
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+
+    targets_path.write_text(json.dumps({"targets": raw_targets}) + "\n")
+    reused = register_targets.register(
+        targets_path,
+        dt.date(2026, 8, 5),
+        "2026-08-05T12:30:00Z",
+        reuse_existing_only=True,
+    )
+    assert len(reused) == 2
+    assert all(registration["existing"] for registration in reused)
+    metadata = register_targets.bind_registration_commits(targets_path, head)
+    bound_targets = json.loads(targets_path.read_text())["targets"]
+    ticket = generation_tickets.mint_ticket(
+        bound_targets,
+        {
+            "promptMode": "fast",
+            "codexModel": "gpt-test",
+            "codexReasoningEffort": "low",
+            "codexSandbox": "read-only",
+            "codexNetwork": False,
+            "reviewCodexModel": "gpt-review-test",
+            "reviewCodexSearch": False,
+            "timeoutSeconds": 540,
+        },
+        nonce="a" * 64,
+        minted_at_utc="2026-08-05T13:00:00Z",
+        expires_hours=168,
+        attempt=1,
+        registration_set_hash=metadata["registrationSetHash"],
+    )
+
+    assert sorted(target["catalogSlug"] for target in ticket["targets"]) == sorted(
+        target["catalogSlug"] for target in raw_targets
+    )
+    assert ticket["expiresAtUtc"] == "2026-08-12T13:00:00Z"
 
 
 def test_condition_deadline_must_precede_bounded_window_literally() -> None:

@@ -403,6 +403,23 @@ def resolution_date_basis(target: dict[str, Any]) -> str:
     return str(basis)
 
 
+def bounded_registration_payload(payload: Any) -> dict[str, list[dict[str, Any]]]:
+    """Filter a trusted ticket selection to targets mint may preregister."""
+
+    targets = payload.get("targets") if isinstance(payload, dict) else None
+    if not isinstance(targets, list) or not all(
+        isinstance(target, dict) for target in targets
+    ):
+        raise RegistrationError("targets file must contain an object-list 'targets'")
+    return {
+        "targets": [
+            target
+            for target in targets
+            if resolution_date_basis(target) == "resolve-by-bound"
+        ]
+    }
+
+
 def _add_months(day: dt.date, months: int) -> dt.date:
     month_index = day.year * 12 + day.month - 1 + months
     year, month_index = divmod(month_index, 12)
