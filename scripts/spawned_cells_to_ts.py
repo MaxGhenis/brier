@@ -90,7 +90,45 @@ def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     return slugs
 
 
-def validate(cell: dict, taken: set[str]) -> list[str]:
+def valid_generation_ticket_context(value: object) -> bool:
+    """Accept the runner's nonce context or its sealed manifest projection."""
+
+    if not isinstance(value, dict):
+        return False
+    ticket_id = value.get("ticketId")
+    if not isinstance(ticket_id, str):
+        return False
+    match = re.fullmatch(r"(?P<day>\d{4}-\d{2}-\d{2})-[0-9a-f]+", ticket_id)
+    if match is None:
+        return False
+    if value.get("ticketPath") != (
+        f"records/tickets/{match.group('day')}/{ticket_id}.json"
+    ):
+        return False
+    nonce = value.get("nonce")
+    nonce_sha256 = value.get("nonceSha256")
+    return bool(
+        (isinstance(nonce, str) and re.fullmatch(r"[0-9a-f]{64}", nonce))
+        or (
+            isinstance(nonce_sha256, str)
+            and re.fullmatch(r"[0-9a-f]{64}", nonce_sha256)
+        )
+    )
+
+
+def validate(
+    cell: dict,
+    taken: set[str],
+    *,
+    target_context: dict | None = None,
+    generation_ticket: dict | None = None,
+) -> list[str]:
+    if target_context is None:
+        carried_context = cell.get(SEALED_TARGET_CONTEXT_KEY)
+        target_context = carried_context if isinstance(carried_context, dict) else None
+    if generation_ticket is None:
+        carried_ticket = cell.get(SEALED_VALIDATION_TICKET_KEY)
+        generation_ticket = carried_ticket if isinstance(carried_ticket, dict) else None
     errs = []
     for k in REQUIRED:
         if k not in cell:
@@ -182,6 +220,53 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     run_at = str(
         cell.get("runAt") or (cell.get("predictionRun") or {}).get("runAt") or ""
     )
+    basis = (
+        target_context.get("resolutionDateBasis", "release-calendar")
+        if isinstance(target_context, dict)
+        else "release-calendar"
+    )
+    if basis not in {"release-calendar", "resolve-by-bound"}:
+        errs.append(f"unsupported target resolutionDateBasis {basis!r}")
+    if basis == "resolve-by-bound":
+        if not valid_generation_ticket_context(generation_ticket):
+            errs.append("resolve-by-bound target requires generation ticket context")
+        source_binding = target_context.get("sourceBinding")
+        window = (
+            source_binding.get("expectedReleaseWindow")
+            if isinstance(source_binding, dict)
+            else None
+        )
+        window_start = window.get("start") if isinstance(window, dict) else None
+        try:
+            release_start = datetime.strptime(str(window_start), "%Y-%m-%d").replace(
+                tzinfo=timezone.utc
+            )
+            if release_start.date().isoformat() != window_start:
+                raise ValueError
+        except ValueError:
+            errs.append(
+                "resolve-by-bound target requires canonical "
+                "sourceBinding.expectedReleaseWindow.start"
+            )
+        else:
+            for field in ("runStartedAt", "runAt"):
+                value = cell.get(field)
+                if not isinstance(value, str) or not value:
+                    errs.append(f"resolve-by-bound cell is missing {field}")
+                    continue
+                try:
+                    instant = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                except ValueError:
+                    errs.append(f"resolve-by-bound cell {field} is not ISO-8601")
+                    continue
+                if instant.tzinfo is None:
+                    errs.append(f"resolve-by-bound cell {field} is not timezone-aware")
+                    continue
+                if instant >= release_start:
+                    errs.append(
+                        f"{field} {value} must precede expectedReleaseWindow.start "
+                        f"{window_start}"
+                    )
     # A forecast of an already-published number is leakage, not a forecast:
     # the resolution date must postdate the run. Caught live 2026-07-07 (a
     # "2025 provisional infant mortality" cell whose release was 2026-05-26).
@@ -273,6 +358,13 @@ SEALED_AGENT_KEY = "_sealedAgentMeta"
 # The nonce hash remains in the records manifest; the site only needs the
 # ticket record link that explains which trusted local-generation lane ran.
 SEALED_GENERATION_TICKET_KEY = "_sealedGenerationTicket"
+# Validation-only carriers read from the sealed run manifest. They never
+# reach the published ForecastCell, and unlike the public provenance stamp
+# they are populated even before a converter is told which provenance label
+# to render. This lets the same validator fail closed for bounded cells in
+# runner, replay, and converter paths.
+SEALED_TARGET_CONTEXT_KEY = "_sealedTargetContext"
+SEALED_VALIDATION_TICKET_KEY = "_sealedValidationGenerationTicket"
 
 
 def agent_stamp() -> dict:
@@ -345,12 +437,20 @@ def carry_sealed_run_metadata(
     for cell in cells:
         cell.pop(SEALED_AGENT_KEY, None)
         cell.pop(SEALED_GENERATION_TICKET_KEY, None)
+        cell.pop(SEALED_TARGET_CONTEXT_KEY, None)
+        cell.pop(SEALED_VALIDATION_TICKET_KEY, None)
     sealed_agent = sealed_agent_meta(run_dir)
     manifest_path = run_dir / "manifest.json"
     manifest = (
         json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     )
     has_ticket = manifest.get("generationTicket") is not None
+    sealed_target_context = manifest.get("targetContext")
+    if sealed_target_context is not None and not isinstance(
+        sealed_target_context, dict
+    ):
+        raise ValueError(f"manifest targetContext is invalid: {manifest_path}")
+    validation_ticket = manifest.get("generationTicket")
     if provenance == "ci" and has_ticket:
         raise ValueError(
             "ticketed runs must be converted with --provenance "
@@ -375,6 +475,10 @@ def carry_sealed_run_metadata(
             cell[SEALED_AGENT_KEY] = sealed_agent
         if sealed_ticket:
             cell[SEALED_GENERATION_TICKET_KEY] = sealed_ticket
+        if sealed_target_context is not None:
+            cell[SEALED_TARGET_CONTEXT_KEY] = sealed_target_context
+        if isinstance(validation_ticket, dict):
+            cell[SEALED_VALIDATION_TICKET_KEY] = validation_ticket
 
 
 def to_forecast_cell(

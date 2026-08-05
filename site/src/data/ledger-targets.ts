@@ -12,6 +12,7 @@ export type TargetSourceAdapter =
   | "abs-data-api"
   | "abs-release-page"
   | "alfred-fred"
+  | "census-spm-annual-report"
   | "eurostat-api"
   | "fsa-crp-monthly-summary"
   | "generic-url"
@@ -50,6 +51,11 @@ export interface TargetRegisteredLedgerEntry {
   periodLabel: string;
   unit: Unit;
   resolutionDate: string;
+  /**
+   * Basis for resolutionDate; absent means release-calendar. A bounded date
+   * is a Thesis lab commitment, not timing established by its announcement.
+   */
+  resolutionDateBasis?: "release-calendar" | "resolve-by-bound";
   resolutionSource: string;
   resolutionSourceUrl?: string;
   resolutionRule: string;

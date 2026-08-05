@@ -1,8 +1,8 @@
 name: Mint generation ticket
 
-# Trusted authorization only: this workflow selects targets that already have
-# immutable registrations and commits one ticket record. It never registers a
-# target and never runs the analyst.
+# Trusted authorization only: this workflow may preregister missing bounded
+# targets, then commits one ticket record. It never registers release-calendar
+# targets and never runs the analyst.
 on:
   workflow_dispatch:
     inputs:
@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Select already-registered docket targets
+      - name: Select docket targets
         env:
           SERIES: ${{ inputs.series }}
           SLUGS: ${{ inputs.slugs }}
@@ -80,6 +80,7 @@ jobs:
           set -euo pipefail
           args=(
             python3 scripts/roll_docket.py
+            --include-bounded
             --max-targets 10000
             --out /tmp/ticket-candidates.json
           )
@@ -100,6 +101,159 @@ jobs:
             select_args+=(--slugs "$SLUGS")
           fi
           "${select_args[@]}"
+
+      - name: Register missing bounded targets
+        run: |
+          set -euo pipefail
+          python3 - /tmp/ticket-targets.json /tmp/bounded-registration-targets.json <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from register_targets import bounded_registration_payload
+
+          source = json.loads(pathlib.Path(sys.argv[1]).read_text())
+          pathlib.Path(sys.argv[2]).write_text(
+              json.dumps(
+                  bounded_registration_payload(source), indent=2, sort_keys=True
+              )
+              + "\n"
+          )
+          PY
+          REGISTERED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/bounded-registration-targets.json \
+            --date "${REGISTERED_AT%%T*}" \
+            --registered-at-utc "$REGISTERED_AT" \
+            --metadata-out /tmp/bounded-registration-before-commit.json
+
+          # Registration hydrates the authenticated nested release window.
+          # Refuse with a fresh clock before the next step can commit it.
+          RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          python3 - "$RECHECKED_AT" /tmp/bounded-registration-targets.json <<'PY'
+          import datetime as dt
+          import json
+          import pathlib
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from generation_tickets import earliest_resolution_boundary
+
+          rechecked = dt.datetime.strptime(
+              sys.argv[1], "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          targets = json.loads(pathlib.Path(sys.argv[2]).read_text())["targets"]
+          if targets:
+              boundary = dt.datetime.strptime(
+                  earliest_resolution_boundary(targets), "%Y-%m-%dT%H:%M:%SZ"
+              ).replace(tzinfo=dt.timezone.utc)
+              if rechecked >= boundary:
+                  raise SystemExit(
+                      "targets are already at or past their resolution boundary"
+                  )
+          PY
+
+      - name: Commit missing bounded registrations
+        id: bounded_registration
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-ticket-minter"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/targets/ site/src/data/ledger-targets.generated.ts
+          if git diff --cached --quiet; then
+            echo "committed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --quiet
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Preregister bounded ticket targets $(date -u +%F)"
+          echo "committed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Synchronize, reverify, and push bounded registrations
+        if: steps.bounded_registration.outputs.committed == '1'
+        id: bounded_sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          pushed=0
+          for attempt in 1 2 3; do
+            echo "bounded registration push attempt $attempt"
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "bounded registration tree is dirty before rebase" >&2
+              exit 1
+            fi
+            git pull --rebase origin main
+            uv run --locked --extra custody python scripts/verify_record_chain.py records
+            while IFS= read -r -d '' root; do
+              python3 scripts/verify_custody.py "$(dirname "$root")"
+            done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+
+            # Re-evaluate the hard pre-window gate with a fresh clock after
+            # every rebase so a registration cannot cross midnight into its
+            # release window while waiting on a concurrent docket writer.
+            RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            python3 scripts/register_targets.py \
+              --targets-file /tmp/bounded-registration-targets.json \
+              --date "${RECHECKED_AT%%T*}" \
+              --registered-at-utc "$RECHECKED_AT" \
+              --reuse-existing-only
+            git diff --exit-code
+            git diff --cached --exit-code
+            python3 scripts/register_targets.py \
+              --targets-file /tmp/bounded-registration-targets.json \
+              --bind-registration-commits \
+              --head HEAD \
+              --metadata-out /tmp/bounded-registration-candidate.json
+
+            # The registration command checks the release-window date. Apply
+            # the full answer-knowable boundary (including conditionDeadline)
+            # with a fresh clock immediately before every push attempt.
+            LOCAL=$(git rev-parse HEAD)
+            RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            python3 - "$RECHECKED_AT" /tmp/bounded-registration-targets.json <<'PY'
+          import datetime as dt
+          import json
+          import pathlib
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from generation_tickets import earliest_resolution_boundary
+
+          rechecked = dt.datetime.strptime(
+              sys.argv[1], "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          targets = json.loads(pathlib.Path(sys.argv[2]).read_text())["targets"]
+          boundary = dt.datetime.strptime(
+              earliest_resolution_boundary(targets), "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          if rechecked >= boundary:
+              raise SystemExit(
+                  "targets are already at or past their resolution boundary"
+              )
+          PY
+
+            if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
+              # A zero-exit push is the attestation boundary. Never put a
+              # second network call between this success and attest_commit.
+              pushed=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "bounded registration push did not converge after 3 attempts" >&2
+            exit 1
+          fi
+          echo "attest_commit=$LOCAL" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the bounded registration push
+        if: steps.bounded_sync.outputs.attest_commit != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.bounded_sync.outputs.attest_commit }}
 
       - name: Resolve the sealed policy and clock
         id: policy
@@ -189,6 +343,45 @@ jobs:
           fi
 
           MINTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          {
+            echo "prompt_mode=${PROMPT_MODE:-fast}"
+            echo "codex_model=$CODEX_MODEL"
+            echo "codex_reasoning_effort=$CODEX_REASONING_EFFORT"
+            echo "codex_sandbox=$CODEX_SANDBOX"
+            echo "codex_network=$CODEX_NETWORK"
+            echo "review_codex_model=$REVIEW_CODEX_MODEL"
+            echo "review_codex_search=$REVIEW_CODEX_SEARCH"
+            echo "timeout_seconds=$TIMEOUT_SECONDS"
+            echo "attempt=$ATTEMPT"
+            echo "minted_at=$MINTED_AT"
+            echo "expires_hours=$EXPIRES_HOURS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Reuse and bind immutable registrations at HEAD
+        env:
+          MINTED_AT: ${{ steps.policy.outputs.minted_at }}
+        run: |
+          set -euo pipefail
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/ticket-targets.json \
+            --date "${MINTED_AT%%T*}" \
+            --registered-at-utc "$MINTED_AT" \
+            --reuse-existing-only
+          git diff --exit-code
+          git diff --cached --exit-code
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/ticket-targets.json \
+            --bind-registration-commits \
+            --head HEAD \
+            --metadata-out /tmp/ticket-registration.json
+
+      - name: Clamp expiry to the hydrated resolution boundary
+        id: boundary
+        env:
+          MINTED_AT: ${{ steps.policy.outputs.minted_at }}
+          EXPIRES_HOURS: ${{ steps.policy.outputs.expires_hours }}
+        run: |
+          set -euo pipefail
           EXPIRES_AT=$(python3 - "$MINTED_AT" "$EXPIRES_HOURS" /tmp/ticket-targets.json <<'PY'
           import datetime as dt
           import json
@@ -215,38 +408,7 @@ jobs:
           print(expires.strftime("%Y-%m-%dT%H:%M:%SZ"))
           PY
           )
-          {
-            echo "prompt_mode=${PROMPT_MODE:-fast}"
-            echo "codex_model=$CODEX_MODEL"
-            echo "codex_reasoning_effort=$CODEX_REASONING_EFFORT"
-            echo "codex_sandbox=$CODEX_SANDBOX"
-            echo "codex_network=$CODEX_NETWORK"
-            echo "review_codex_model=$REVIEW_CODEX_MODEL"
-            echo "review_codex_search=$REVIEW_CODEX_SEARCH"
-            echo "timeout_seconds=$TIMEOUT_SECONDS"
-            echo "attempt=$ATTEMPT"
-            echo "minted_at=$MINTED_AT"
-            echo "expires_at=$EXPIRES_AT"
-            echo "expires_hours=$EXPIRES_HOURS"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Reuse and bind immutable registrations at HEAD
-        env:
-          MINTED_AT: ${{ steps.policy.outputs.minted_at }}
-        run: |
-          set -euo pipefail
-          python3 scripts/register_targets.py \
-            --targets-file /tmp/ticket-targets.json \
-            --date "${MINTED_AT%%T*}" \
-            --registered-at-utc "$MINTED_AT" \
-            --reuse-existing-only
-          git diff --exit-code
-          git diff --cached --exit-code
-          python3 scripts/register_targets.py \
-            --targets-file /tmp/ticket-targets.json \
-            --bind-registration-commits \
-            --head HEAD \
-            --metadata-out /tmp/ticket-registration.json
+          echo "expires_at=$EXPIRES_AT" >> "$GITHUB_OUTPUT"
 
       - name: Verify a superseded ticket remains eligible
         if: inputs.supersedes_ticket_id != ''
@@ -264,6 +426,7 @@ jobs:
         env:
           MINTED_AT: ${{ steps.policy.outputs.minted_at }}
           EXPIRES_HOURS: ${{ steps.policy.outputs.expires_hours }}
+          EXPECTED_EXPIRES_AT: ${{ steps.boundary.outputs.expires_at }}
           ATTEMPT: ${{ steps.policy.outputs.attempt }}
           SUPERSEDES_TICKET_ID: ${{ inputs.supersedes_ticket_id }}
           SUPERSEDED_OUTCOME: ${{ inputs.superseded_outcome }}
@@ -311,6 +474,7 @@ jobs:
             )
           fi
           "${args[@]}"
+          test "$(jq -r .expiresAtUtc "$TICKET_PATH")" = "$EXPECTED_EXPIRES_AT"
           {
             echo "ticket_id=$TICKET_ID"
             echo "ticket_path=$TICKET_PATH"

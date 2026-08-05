@@ -193,6 +193,39 @@ request body and response.
 
 ---
 
+# Census SPM corrected-methodology anchors
+
+Status: **pending; adapter deliberately unarmed**.
+
+Census's [17 July 2026 statement](https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html)
+authenticates the identity of a forthcoming correction to the 2019–2024
+Supplemental Poverty Measure estimates. It does not authenticate the Thesis
+lab's CY2027 release window or resolve-by deadline. As of 5 August 2026, the
+promised corrected working-paper values were not yet public, so
+`census.spm.child_poverty_rate` remains `PENDING_REVISED_PRINT` and refuses all
+network resolution attempts.
+
+The adapter is admitted only after an integrator verifies the complete six-year
+2019–2024 vector from the corrected official artifact. The 2019 and 2020 child
+rates must discriminate the corrected series from the known legacy transition
+values: 2019 cannot be 12.5% or 12.6%, and 2020 cannot be 9.7%.
+
+Two official Table B-2 workbooks are committed as parser and rejection
+fixtures, not as corrected anchors:
+
+| Vintage | Official workbook | Bytes | SHA-256 | Parsed child series |
+| --- | --- | ---: | --- | --- |
+| P60-283 | [Table B-2](https://www2.census.gov/programs-surveys/demo/tables/p60/283/tableB-2.xlsx) | 41,756 | `c5938c06302e547583d35fc8d1480b6b726b288501c46b99d5965f517b4a245e` | 2019 12.6%; 2020 9.7%; 2021 5.2%; 2022 12.4%; 2023 13.7% |
+| P60-287 | [Table B-2](https://www2.census.gov/programs-surveys/demo/tables/p60/287/tableB-2.xlsx) | 43,484 | `8cdb688380c543c1bd3bc47e2124ec6872511eff8c03c8340b1adacdbd1525fe` | Same through 2023; 2024 13.4% |
+
+Both vintages contain two ALL RACES 2019 rows. The parser selects the 12.6%
+row only after matching its footnote to the workbook text that explicitly says
+the row implements revised SPM methodology; it refuses ambiguity if that
+footnote identity is absent or duplicated. The plain 12.5% row remains visible
+as legacy rejection evidence.
+
+---
+
 # International adapter anchor verification
 
 Verified on 25 July 2026. An adapter is executable only when its parser and

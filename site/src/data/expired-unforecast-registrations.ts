@@ -30,6 +30,11 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   "bea.wages_and_salaries.level.june_2026.first_print",
   "bls.jolts.job_openings_total.june_2026.first_print",
   "ons.vacancies.total_3m_sa.2026_06.first_print",
+  // The 2026-07-29 UK PPI registration crossed its seven-day orphan grace
+  // without a forecast. Its August 19 first print remains in the future, but
+  // generating against the stale registration now would violate the same
+  // chronology guarantee, so the registration terminates explicitly here.
+  "ons.ppi.output_all_manufactured_yoy.2026_07.first_print",
 ] as const;
 
 export const EXPIRED_UNFORECAST_SET: ReadonlySet<string> = new Set(

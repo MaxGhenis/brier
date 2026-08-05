@@ -62,9 +62,9 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
   {
     billSlug: "s3596-119",
     question:
-      "Census SPM child poverty rate, CY2026 — conditional on the CTC phase-in provision (IRC §24(d)(1)(B)(i) earned-income threshold ≤ $1) being enacted in substantially similar form by 2027-12-31.",
-    status: "refused",
-    note: "Runner refused under its resolution-date rule, verbatim: “No valid forecast cell can be produced yet because the Census Bureau has not published an official release date… Census announced on 2026-07-17 that its 2019–2024 SPM estimates will be revised, so the currently published history is not a stable calibration set.”",
+      "Census SPM child poverty rate, CY2027 — conditional on either a ≤ $1 or unchanged $2,500 IRC §24(d)(1)(B)(i) earned-income threshold for TY2027, determined by legislation enacted by 2027-12-31.",
+    status: "pending",
+    note: "The earlier CY2026 runner refusal remains public. Its causally aligned CY2027 replacement is docketed and awaits the required attested generation-ticket lane. Thesis commits the conservative 2028-08-01 through 2028-12-31 release window and 2028-12-31 resolve-by deadline; the Census announcement authenticates revised-methodology identity only and establishes neither timing value. Like the ACTC pair, this pair is non-exhaustive: an intermediate enacted threshold satisfies neither arm.",
   },
 ];
 

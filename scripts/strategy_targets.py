@@ -343,6 +343,10 @@ def published_target(
         "valueScale": contract["valueScale"],
         "sourceBinding": contract["sourceBinding"],
     }
+    if "resolutionDateBasis" in contract:
+        expected_registration["resolutionDateBasis"] = contract[
+            "resolutionDateBasis"
+        ]
     for key, expected in expected_registration.items():
         if canonical_bytes(block_value(block, key)) != canonical_bytes(expected):
             raise StrategyTargetError(
@@ -373,7 +377,7 @@ def published_target(
         raise StrategyTargetError(
             f"published target lacks final resolver fields for {slug}: {missing}"
         )
-    return {
+    target = {
         "series": contract["series"],
         "period": contract["period"],
         "catalogSlug": slug,
@@ -393,6 +397,9 @@ def published_target(
         "registrationCommit": commit,
         "comparisonTarget": True,
     }
+    if "resolutionDateBasis" in contract:
+        target["resolutionDateBasis"] = contract["resolutionDateBasis"]
+    return target
 
 
 def load_local_resolution_evidence(

@@ -51,6 +51,9 @@ from generation_tickets import (
     ticket_record_path,
 )
 from run_thesis_analyst import (
+    ANNOUNCEMENT_MCP_SERVER,
+    ANNOUNCEMENT_MCP_TOOL,
+    announcement_mcp_config,
     attach_activity_log,
     build_pre_submit_review_metadata,
     build_pre_submit_review_prompt,
@@ -118,7 +121,14 @@ class PromptEvidence:
     runtime_meta: dict[str, Any]
     original_prompt: str
     draft_response: str
+    draft_events: tuple[dict[str, Any], ...]
     review_response: str
+
+
+@dataclass(frozen=True)
+class CodexStageEvidence:
+    last_message: str
+    stdout_events: tuple[dict[str, Any], ...]
 
 
 def _fail(phase: str, message: str) -> AttestedBundleError:
@@ -627,7 +637,7 @@ def _replay_codex_stage(
     search: bool,
     policy: dict[str, Any],
     phase: str,
-) -> str:
+) -> CodexStageEvidence:
     """Replay one successful runner-emitted Codex artifact family."""
 
     def stage_name(suffix: str) -> str:
@@ -661,6 +671,7 @@ def _replay_codex_stage(
     )
     try:
         parsed = parse_codex_jsonl(stdout, stderr)
+        stdout_parsed = parse_codex_jsonl(stdout, "")
     except Exception as exc:
         raise _fail(
             phase,
@@ -682,7 +693,7 @@ def _replay_codex_stage(
         filename=last_filename,
         phase=phase,
     )
-    if parsed["lastAssistantText"] != last_message:
+    if stdout_parsed["lastAssistantText"] != last_message:
         stage_label = prefix.replace("_", " ") if prefix else ""
         raise _fail(
             phase,
@@ -784,7 +795,10 @@ def _replay_codex_stage(
                 f"run {run.index} {trace_filename} {field} does not match "
                 "the ticket runner",
             )
-    return last_message
+    return CodexStageEvidence(
+        last_message=last_message,
+        stdout_events=tuple(stdout_parsed["events"]),
+    )
 
 
 def _check_prompts(
@@ -835,7 +849,7 @@ def _check_prompts(
                 "metadata",
             )
 
-        draft_response = _replay_codex_stage(
+        draft_stage = _replay_codex_stage(
             bundle_repo,
             run,
             prefix="draft_",
@@ -851,7 +865,7 @@ def _check_prompts(
             conditional=run.target.get("conditional"),
             target_context=run.target,
             original_prompt=prompt,
-            draft_response=draft_response,
+            draft_response=draft_stage.last_message,
         )
         recorded_review_prompt = _artifact_bytes(
             bundle_repo,
@@ -867,7 +881,7 @@ def _check_prompts(
                 "trusted reconstruction",
             )
 
-        review_response = _replay_codex_stage(
+        review_stage = _replay_codex_stage(
             bundle_repo,
             run,
             prefix="pre_submit_review_",
@@ -879,8 +893,8 @@ def _check_prompts(
         )
         revision_prompt = build_revision_prompt(
             original_prompt=prompt,
-            draft_response=draft_response,
-            review_response=review_response,
+            draft_response=draft_stage.last_message,
+            review_response=review_stage.last_message,
         )
         recorded_revision_prompt = _artifact_bytes(
             bundle_repo,
@@ -898,8 +912,9 @@ def _check_prompts(
         evidence[run.index] = PromptEvidence(
             runtime_meta=runtime_meta,
             original_prompt=prompt,
-            draft_response=draft_response,
-            review_response=review_response,
+            draft_response=draft_stage.last_message,
+            draft_events=draft_stage.stdout_events,
+            review_response=review_stage.last_message,
         )
     return evidence
 
@@ -923,6 +938,7 @@ def _check_command_argv(
     model: str,
     search: bool,
     policy: dict[str, Any],
+    announcement_url: str | None,
 ) -> None:
     if not isinstance(argv, list) or not argv or not all(
         isinstance(value, str) for value in argv
@@ -983,6 +999,14 @@ def _check_command_argv(
                 "sandbox_workspace_write.network_access=true",
                 label=filename,
             )
+        observed_mcp_config: list[str] = []
+        if announcement_url is not None:
+            for _ in range(len(announcement_mcp_config(announcement_url))):
+                index = _consume(argv, index, "-c", label=filename)
+                if index >= len(argv):
+                    raise ValueError(f"{filename} has an incomplete MCP config")
+                observed_mcp_config.append(argv[index])
+                index += 1
         index = _consume(argv, index, "-C", label=filename)
         if index >= len(argv):
             raise ValueError(f"{filename} lacks the -C path")
@@ -993,6 +1017,46 @@ def _check_command_argv(
         index = _consume(argv, index, "<prompt>", label=filename)
         if index != len(argv):
             raise ValueError(f"{filename} has unexpected trailing argv: {argv[index:]}")
+
+        if announcement_url is not None:
+            command_prefix = (
+                f"mcp_servers.{ANNOUNCEMENT_MCP_SERVER}.command="
+            )
+            command_config = observed_mcp_config[0]
+            if not command_config.startswith(command_prefix):
+                raise ValueError(
+                    f"{filename} announcement MCP command config is invalid"
+                )
+            try:
+                mcp_python = json.loads(command_config[len(command_prefix) :])
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"{filename} announcement MCP command config is invalid"
+                ) from exc
+            if not isinstance(mcp_python, str):
+                raise ValueError(
+                    f"{filename} announcement MCP command config is invalid"
+                )
+            python_path = pathlib.PurePosixPath(mcp_python)
+            expected_python_parent = checkout_path / ".venv" / "bin"
+            if (
+                python_path.parent != expected_python_parent
+                or python_path.name not in {"python", "python3"}
+            ):
+                raise ValueError(
+                    f"{filename} announcement MCP Python is not the checkout "
+                    "virtual environment interpreter"
+                )
+            expected_mcp_config = announcement_mcp_config(
+                announcement_url,
+                checkout_root=checkout_path,
+                python_executable=mcp_python,
+            )
+            if observed_mcp_config != expected_mcp_config:
+                raise ValueError(
+                    f"{filename} announcement MCP config does not match the "
+                    "authenticated target"
+                )
     except ValueError as exc:
         raise _fail("command shape", f"run {run.index} {exc}") from exc
 
@@ -1017,13 +1081,14 @@ def _check_commands(
         "ticketPath": state.relative.as_posix(),
     }
     stages = (
-        ("draft_command.json", policy["codexModel"], True),
+        ("draft_command.json", policy["codexModel"], True, True),
         (
             "pre_submit_review_command.json",
             policy["reviewCodexModel"],
             policy["reviewCodexSearch"],
+            False,
         ),
-        ("command.json", policy["codexModel"], True),
+        ("command.json", policy["codexModel"], True, True),
     )
     for run in runs:
         minted = _parse_utc(
@@ -1064,7 +1129,7 @@ def _check_commands(
         )
         expected_commands = sorted(
             (run.run_relative / filename).as_posix()
-            for filename, _model, _search in stages
+            for filename, _model, _search, _fetch in stages
         )
         if actual_commands != expected_commands:
             raise _fail(
@@ -1075,7 +1140,15 @@ def _check_commands(
         stage_times: dict[
             str, tuple[dt.datetime, dt.datetime, Any, Any]
         ] = {}
-        for filename, model, search in stages:
+        binding = run.target.get("sourceBinding")
+        target_announcement_url = (
+            binding.get("sourceUrl")
+            if run.target.get("resolutionDateBasis", "release-calendar")
+            == "resolve-by-bound"
+            and isinstance(binding, dict)
+            else None
+        )
+        for filename, model, search, fetch_announcement in stages:
             command = _json_artifact(
                 bundle_repo,
                 run,
@@ -1210,6 +1283,9 @@ def _check_commands(
                 model=model,
                 search=search,
                 policy=policy,
+                announcement_url=(
+                    target_announcement_url if fetch_announcement else None
+                ),
             )
         draft_started, draft_finished, draft_started_raw, draft_finished_raw = (
             stage_times["draft_command.json"]
@@ -1294,6 +1370,99 @@ def _check_commands(
             )
 
 
+def _stage_has_authenticated_announcement_fetch(
+    events: tuple[dict[str, Any], ...],
+    *,
+    announcement_url: str,
+) -> bool:
+    final_message_index = max(
+        (
+            index
+            for index, event in enumerate(events)
+            if event.get("type") == "item.completed"
+            and isinstance(event.get("item"), dict)
+            and event["item"].get("type") == "agent_message"
+        ),
+        default=-1,
+    )
+    if final_message_index < 0:
+        return False
+    for event in events[:final_message_index]:
+        if event.get("type") != "item.completed":
+            continue
+        item = event.get("item")
+        if not isinstance(item, dict) or (
+            item.get("type") != "mcp_tool_call"
+            or item.get("server") != ANNOUNCEMENT_MCP_SERVER
+            or item.get("tool") != ANNOUNCEMENT_MCP_TOOL
+            or item.get("status") != "completed"
+            or item.get("error") not in (None, "")
+        ):
+            continue
+        if not canonical_equal(item.get("arguments"), {"url": announcement_url}):
+            continue
+        result = item.get("result")
+        if (
+            not isinstance(result, dict)
+            or not isinstance(result.get("content"), list)
+            or result.get("is_error") is True
+        ):
+            continue
+        structured = result.get("structured_content")
+        if not isinstance(structured, dict):
+            continue
+        status = structured.get("statusCode")
+        if (
+            structured.get("requestedUrl") != announcement_url
+            or structured.get("finalUrl") != announcement_url
+            or type(status) is not int
+            or not 200 <= status < 300
+            or not isinstance(structured.get("responseSha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", structured["responseSha256"])
+            is None
+        ):
+            continue
+        return True
+    return False
+
+
+def _check_bounded_announcement_fetch(
+    run: RunEnvelope,
+    *,
+    draft_events: tuple[dict[str, Any], ...],
+    final_events: tuple[dict[str, Any], ...],
+) -> None:
+    if (
+        run.target.get("resolutionDateBasis", "release-calendar")
+        != "resolve-by-bound"
+    ):
+        return
+    binding = run.target.get("sourceBinding")
+    announcement_url = (
+        binding.get("sourceUrl") if isinstance(binding, dict) else None
+    )
+    if not isinstance(announcement_url, str) or not announcement_url:
+        raise _fail(
+            "derivation replay",
+            f"run {run.index} resolve-by-bound target lacks an authenticated "
+            "announcement URL",
+        )
+    if any(
+        _stage_has_authenticated_announcement_fetch(
+            events,
+            announcement_url=announcement_url,
+        )
+        for events in (draft_events, final_events)
+    ):
+        return
+    raise _fail(
+        "derivation replay",
+        f"run {run.index} resolve-by-bound target lacks a successful "
+        f"authenticated announcement fetch for {announcement_url!r} in "
+        "draft/final Codex stdout",
+    )
+
+
 def _check_replay(
     state: TicketContext,
     bundle_repo: pathlib.Path,
@@ -1305,7 +1474,7 @@ def _check_replay(
     replayed_validations: list[dict[str, Any]] = []
     for run in runs:
         evidence = prompt_evidence[run.index]
-        last_message = _replay_codex_stage(
+        final_stage = _replay_codex_stage(
             bundle_repo,
             run,
             prefix="",
@@ -1315,6 +1484,12 @@ def _check_replay(
             policy=policy,
             phase="derivation replay",
         )
+        _check_bounded_announcement_fetch(
+            run,
+            draft_events=evidence.draft_events,
+            final_events=final_stage.stdout_events,
+        )
+        last_message = final_stage.last_message
         last_message_raw = _artifact_bytes(
             bundle_repo,
             run,
@@ -1419,6 +1594,7 @@ def _check_replay(
             True,
             run.target,
             policy["promptMode"],
+            generation_ticket=state.manifest_binding,
         )
         recorded_validation = _json_artifact(
             bundle_repo,

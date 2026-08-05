@@ -1507,6 +1507,7 @@
         "targetUnit": "millions",
         "country": "US",
         "resolutionDate": "2029-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
         "expectedReleaseWindow": {
           "start": "2029-01-01",
           "end": "2029-12-31"
@@ -1526,6 +1527,55 @@
           "transform": {
             "operation": "multiply",
             "factor": 1e-06
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.spm.child_poverty_rate",
+      "cadence": "annual",
+      "period": "2027",
+      "comment": "Anchors are intentionally absent until Census publishes the revised-methodology 2019-2024 SPM estimates announced for September 2026; current-method prints are not comparable calibration anchors.",
+      "conditionalPair": {
+        "conditionDeadline": "2027-12-31",
+        "arms": [
+          {
+            "catalogSlug": "spm-child-poverty-rate-cy2027-threshold-one-dollar",
+            "dataPointId": "census.spm.child_poverty_rate.2027.first_print.threshold_one_dollar",
+            "conditionId": "cond.s3596-actc-threshold.enacted",
+            "conditional": "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, legislation enacted by 2027-12-31 makes the IRC \u00a724(d)(1)(B)(i) earned-income threshold no more than $1 for tax year 2027."
+          },
+          {
+            "catalogSlug": "spm-child-poverty-rate-cy2027-current-law",
+            "dataPointId": "census.spm.child_poverty_rate.2027.first_print.current_law",
+            "conditionId": "cond.s3596-actc-threshold.current-law",
+            "conditional": "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, no legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount."
+          }
+        ]
+      },
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "percent",
+        "country": "US",
+        "resolutionDate": "2028-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2028-08-01",
+          "end": "2028-12-31"
+        },
+        "resolutionSource": "U.S. Census Bureau revised-SPM methodology announcement (identity) and Poverty in the United States: 2027, Supplemental Poverty Measure Table B-2 (resolving artifact)",
+        "resolutionSourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+        "resolutionRule": "Resolve to the first Census annual income-and-poverty release artifact for CY2027 using the revised SPM methodology whose identity is authenticated by the registered 2026-07-17 Census announcement: Poverty in the United States: 2027, Supplemental Poverty Measure Table B-2, ALL RACES 2027 row, Under 18 years / Below Poverty / Percent column. The 2028-08-01 through 2028-12-31 expected release window and 2028-12-31 resolve-by deadline are Thesis lab commitments; the announcement does not establish either timing value. Record the published percent without scaling or rounding and ignore later revisions.",
+        "sourceBinding": {
+          "adapter": "census-spm-annual-report",
+          "sourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+          "sourceSeriesId": "census.spm.child_poverty_rate",
+          "field": "under_18_percent_in_poverty",
+          "table": "Poverty in the United States annual income-and-poverty release, revised-methodology Supplemental Poverty Measure Table B-2, ALL RACES year row, Under 18 years / Below Poverty / Percent column",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
           },
           "releasePolicy": "first_print"
         }

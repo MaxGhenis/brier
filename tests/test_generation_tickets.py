@@ -33,6 +33,16 @@ def sample_target() -> dict[str, Any]:
         "targetRegistrationPath": f"records/targets/2030-01-10-{'c' * 64}.json",
         "registeredAtUtc": "2030-01-10T10:00:00Z",
         "expectedReleaseDate": "2030-01-20",
+        "expectedReleaseWindow": {
+            "start": "2030-01-20",
+            "end": "2030-01-20",
+        },
+        "sourceBinding": {
+            "expectedReleaseWindow": {
+                "start": "2030-01-20",
+                "end": "2030-01-20",
+            }
+        },
         "conditional": "Synthetic condition",
     }
 
@@ -209,58 +219,144 @@ def test_mint_and_load_ticket_round_trip(tmp_path: pathlib.Path) -> None:
 
 def test_earliest_resolution_boundary_uses_utc_start_of_minimum_day() -> None:
     later = sample_target()
-    later["resolutionDate"] = "2030-01-22"
-    earlier = {**sample_target(), "resolutionDate": "2030-01-18"}
+    later["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2030-01-22",
+        "end": "2030-01-22",
+    }
+    earlier = copy.deepcopy(sample_target())
+    earlier["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2030-01-18",
+        "end": "2030-01-18",
+    }
 
     assert generation_tickets.earliest_resolution_boundary([later, earlier]) == (
         "2030-01-18T00:00:00Z"
     )
 
 
-def test_earliest_resolution_boundary_uses_minimum_present_target_field() -> None:
+def test_earliest_resolution_boundary_ignores_unauthenticated_top_level_dates() -> None:
     target = sample_target()
     target.update(
         {
-            "resolutionDate": "2030-01-19",
-            "expectedReleaseDate": "2030-01-18",
+            "resolutionDate": "2030-01-11",
+            "expectedReleaseDate": "2030-01-12",
             "expectedReleaseWindow": {
-                "start": "2030-01-17",
-                "end": "2030-01-25",
+                "start": "2030-01-13",
+                "end": "2030-01-14",
             },
         }
     )
+    target["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2030-01-17",
+        "end": "2030-01-25",
+    }
 
     assert generation_tickets.earliest_resolution_boundary([target]) == (
         "2030-01-17T00:00:00Z"
     )
 
 
-def test_earliest_resolution_boundary_uses_window_start_not_end() -> None:
+def test_earliest_resolution_boundary_uses_bounded_window_start_not_bound() -> None:
     target = sample_target()
     target.pop("expectedReleaseDate")
-    target["expectedReleaseWindow"] = {
-        "start": "2030-01-16",
+    target.update(
+        {
+            "resolutionDateBasis": "resolve-by-bound",
+            "resolutionDate": "2030-01-31",
+            "expectedReleaseWindow": {
+                "start": "2030-01-16",
+                "end": "2030-01-31",
+            },
+        }
+    )
+    target["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2030-01-15",
         "end": "2030-01-31",
     }
 
     assert generation_tickets.earliest_resolution_boundary([target]) == (
-        "2030-01-16T00:00:00Z"
+        "2030-01-15T00:00:00Z"
     )
 
 
-def test_earliest_resolution_boundary_refuses_target_without_date_and_names_slug(
+def test_earliest_resolution_boundary_uses_earlier_condition_deadline() -> None:
+    target = sample_target()
+    target["conditionDeadline"] = "2030-01-15"
+
+    assert generation_tickets.earliest_resolution_boundary([target]) == (
+        "2030-01-15T00:00:00Z"
+    )
+
+
+@pytest.mark.parametrize("deadline", [None, "2030-1-15", "2030-02-30"])
+def test_earliest_resolution_boundary_refuses_malformed_condition_deadline(
+    deadline: object,
 ) -> None:
     target = sample_target()
-    target.pop("expectedReleaseDate")
+    target["conditionDeadline"] = deadline
 
     with pytest.raises(TicketError) as error:
         generation_tickets.earliest_resolution_boundary([target])
 
     assert str(error.value) == (
-        "ticket target 'synthetic-series-2030-q1' has no answer-knowable date; "
-        "expected resolutionDate, expectedReleaseDate, or "
-        "expectedReleaseWindow.start"
+        "ticket target 'synthetic-series-2030-q1' conditionDeadline must be a "
+        f"valid YYYY-MM-DD date: {deadline!r}"
     )
+
+
+def test_earliest_resolution_boundary_requires_authenticated_nested_window(
+) -> None:
+    target = sample_target()
+    target.pop("sourceBinding")
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.earliest_resolution_boundary([target])
+
+    assert str(error.value) == (
+        "ticket target 'synthetic-series-2030-q1' requires an authenticated "
+        "sourceBinding.expectedReleaseWindow"
+    )
+
+
+@pytest.mark.parametrize(
+    ("window", "message"),
+    [
+        (
+            None,
+            "ticket target 'synthetic-series-2030-q1' "
+            "sourceBinding.expectedReleaseWindow must contain exactly start "
+            "and end: None",
+        ),
+        (
+            {"start": "2030-01-20"},
+            "ticket target 'synthetic-series-2030-q1' "
+            "sourceBinding.expectedReleaseWindow must contain exactly start "
+            "and end: {'start': '2030-01-20'}",
+        ),
+        (
+            {"start": "2030-02-30", "end": "2030-03-01"},
+            "ticket target 'synthetic-series-2030-q1' "
+            "sourceBinding.expectedReleaseWindow.start must be a valid "
+            "YYYY-MM-DD date: '2030-02-30'",
+        ),
+        (
+            {"start": "2030-01-20", "end": "2030-01-19"},
+            "ticket target 'synthetic-series-2030-q1' "
+            "sourceBinding.expectedReleaseWindow ends before it starts",
+        ),
+    ],
+)
+def test_earliest_resolution_boundary_nested_window_refusals_are_literal(
+    window: object,
+    message: str,
+) -> None:
+    target = sample_target()
+    target["sourceBinding"]["expectedReleaseWindow"] = window
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.earliest_resolution_boundary([target])
+
+    assert str(error.value) == message
 
 
 def test_roll_shaped_targets_mint_validate_load_and_compute_boundary(
@@ -323,6 +419,12 @@ def test_roll_shaped_targets_mint_validate_load_and_compute_boundary(
                 "registeredAtUtc": "2030-01-10T10:00:00Z",
             }
         )
+        window = target.get("expectedReleaseWindow") or {
+            "start": target["expectedReleaseDate"],
+            "end": target["expectedReleaseDate"],
+        }
+        target["expectedReleaseWindow"] = copy.deepcopy(window)
+        target["sourceBinding"]["expectedReleaseWindow"] = copy.deepcopy(window)
         assert "resolutionDate" not in target
 
     scratch_repo = tmp_path / "scratch-repo"
@@ -347,7 +449,10 @@ def test_roll_shaped_targets_mint_validate_load_and_compute_boundary(
 
 def test_mint_clamps_expiry_to_earliest_resolution_boundary() -> None:
     target = sample_target()
-    target["resolutionDate"] = "2030-01-12"
+    target["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2030-01-12",
+        "end": "2030-01-12",
+    }
 
     ticket = generation_tickets.mint_ticket(
         [target],
@@ -362,6 +467,49 @@ def test_mint_clamps_expiry_to_earliest_resolution_boundary() -> None:
     assert ticket["expiresAtUtc"] == "2030-01-12T00:00:00Z"
 
 
+def test_mint_clamps_expiry_to_condition_deadline() -> None:
+    target = sample_target()
+    target["conditionDeadline"] = "2030-01-15"
+
+    ticket = generation_tickets.mint_ticket(
+        [target],
+        sample_policy(),
+        nonce=NONCE,
+        minted_at_utc=MINTED_AT,
+        expires_hours=EXPIRES_HOURS,
+        attempt=1,
+        registration_set_hash="d" * 64,
+    )
+
+    assert ticket["expiresAtUtc"] == "2030-01-15T00:00:00Z"
+
+
+@pytest.mark.parametrize(
+    "minted_at_utc",
+    ["2030-01-15T00:00:00Z", "2030-01-15T00:00:01Z"],
+)
+def test_mint_refuses_at_or_past_condition_deadline_literally(
+    minted_at_utc: str,
+) -> None:
+    target = sample_target()
+    target["conditionDeadline"] = "2030-01-15"
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.mint_ticket(
+            [target],
+            sample_policy(),
+            nonce=NONCE,
+            minted_at_utc=minted_at_utc,
+            expires_hours=1,
+            attempt=1,
+            registration_set_hash="d" * 64,
+        )
+
+    assert str(error.value) == (
+        "targets are already at or past their resolution boundary"
+    )
+
+
 @pytest.mark.parametrize(
     "minted_at_utc",
     ["2030-01-10T00:00:00Z", "2030-01-10T00:00:01Z"],
@@ -370,7 +518,10 @@ def test_mint_refuses_at_or_past_resolution_boundary_literally(
     minted_at_utc: str,
 ) -> None:
     target = sample_target()
-    target["resolutionDate"] = "2030-01-10"
+    target["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2030-01-10",
+        "end": "2030-01-10",
+    }
 
     with pytest.raises(TicketError) as error:
         generation_tickets.mint_ticket(
@@ -402,6 +553,23 @@ def test_load_ticket_refuses_expiry_crossing_boundary_literally(
     assert str(error.value) == (
         "ticket expiry crosses the earliest resolution boundary: "
         "2030-01-20T00:00:01Z > 2030-01-20T00:00:00Z"
+    )
+
+
+def test_load_ticket_refuses_expiry_crossing_condition_deadline_literally(
+    tmp_path: pathlib.Path,
+) -> None:
+    ticket = sample_ticket()
+    ticket["targets"][0]["conditionDeadline"] = "2030-01-15"
+    path = tmp_path / "ticket.json"
+    write_ticket(path, ticket)
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.load_ticket(path)
+
+    assert str(error.value) == (
+        "ticket expiry crosses the earliest resolution boundary: "
+        "2030-01-17T12:00:00Z > 2030-01-15T00:00:00Z"
     )
 
 

@@ -2341,6 +2341,148 @@ def test_target_context_binds_the_preregistered_conditional_verbatim() -> None:
     assert analyst_runner.target_context_validation_errors(exact, {}) == []
 
 
+def test_bounded_target_context_renders_bound_and_announcement() -> None:
+    announcement = "https://www.census.gov/newsroom/spm-announcement.html"
+    block = analyst_runner.format_target_context(
+        {
+            "resolutionDate": "2027-12-31",
+            "resolutionDateBasis": "resolve-by-bound",
+            "expectedReleaseWindow": {
+                "start": "2027-09-01",
+                "end": "2027-12-31",
+            },
+            "sourceBinding": {"sourceUrl": announcement},
+        }
+    )
+
+    assert 'resolutionDateBasis: "resolve-by-bound"' in block
+    assert 'registeredResolveByBound: "2027-12-31"' in block
+    assert f'officialAnnouncementUrl: "{announcement}"' in block
+    assert "Thesis lab commitments" in block
+    assert "announcement authenticates methodology identity only" in block
+    assert "does not establish the bound or expected release window" in block
+    assert "outer bound, not a scheduled release day" in block
+    assert "resolutionDate must byte-echo the registered resolve-by bound" in block
+    assert (
+        "thesis_announcement_fetch.fetch_official_announcement" in block
+    )
+    assert "reasoning-token claim" in block
+
+
+def test_bounded_announcement_mcp_config_is_exact_and_target_scoped() -> None:
+    root = Path("/trusted/checkout")
+    url = "https://www.census.gov/newsroom/spm-announcement.html"
+
+    assert analyst_runner.announcement_mcp_config(
+        url,
+        checkout_root=root,
+        python_executable="/trusted/checkout/.venv/bin/python3",
+    ) == [
+        'mcp_servers.thesis_announcement_fetch.command="/trusted/checkout/'
+        '.venv/bin/python3"',
+        'mcp_servers.thesis_announcement_fetch.args=["/trusted/checkout/scripts/'
+        'announcement_fetch_mcp.py","--allowed-url","https://www.census.gov/'
+        'newsroom/spm-announcement.html"]',
+        'mcp_servers.thesis_announcement_fetch.cwd="/trusted/checkout"',
+        "mcp_servers.thesis_announcement_fetch.required=true",
+        'mcp_servers.thesis_announcement_fetch.enabled_tools=['
+        '"fetch_official_announcement"]',
+        "mcp_servers.thesis_announcement_fetch.startup_timeout_sec=10",
+        "mcp_servers.thesis_announcement_fetch.tool_timeout_sec=30",
+        "mcp_servers.thesis_announcement_fetch.tools.fetch_official_announcement."
+        'approval_mode="approve"',
+    ]
+
+
+def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() -> None:
+    announcement = "https://www.census.gov/newsroom/spm-announcement.html"
+    context = {
+        "resolutionDate": "2027-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "sourceBinding": {
+            "sourceUrl": announcement,
+            "allowedHosts": ["www.census.gov"],
+            "expectedReleaseWindow": {
+                "start": "2027-09-01",
+                "end": "2027-12-31",
+            },
+        },
+    }
+
+    def bounded_cell() -> dict:
+        cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+        cell["resolutionDate"] = "2027-12-31"
+        cell["resolutionSourceUrl"] = announcement
+        cell["sourceContext"][0] = announcement
+        cell["runStartedAt"] = "2026-06-17T11:55:00Z"
+        return cell
+
+    exact = bounded_cell()
+    assert analyst_runner.target_context_validation_errors(exact, context) == []
+    unticketed = analyst_runner.validate_cells(
+        [exact], allow_existing_slug=True, target_context=context
+    )
+    assert unticketed["cells"][0]["errors"] == [
+        "resolve-by-bound target requires generation ticket context"
+    ]
+    assert analyst_runner.validate_cells(
+        [exact],
+        allow_existing_slug=True,
+        target_context=context,
+        generation_ticket={
+            "ticketId": "2030-01-10-deadbeef",
+            "ticketPath": (
+                "records/tickets/2030-01-10/2030-01-10-deadbeef.json"
+            ),
+            "nonceSha256": "a" * 64,
+        },
+    )["ok"]
+
+    assert announcement not in json.dumps(exact["reasoning"])
+
+    wrong_citation = bounded_cell()
+    wrong_citation["resolutionSourceUrl"] = (
+        "https://www.census.gov/newsroom/different-announcement.html"
+    )
+    errors = analyst_runner.target_context_validation_errors(wrong_citation, context)
+    assert errors == [
+        "resolutionSourceUrl must byte-echo the resolve-by-bound official "
+        "announcement URL "
+        "'https://www.census.gov/newsroom/spm-announcement.html'"
+    ]
+
+    missing_bound = bounded_cell()
+    missing_context = dict(context)
+    missing_context.pop("resolutionDate")
+    errors = analyst_runner.target_context_validation_errors(
+        missing_bound, missing_context
+    )
+    assert errors == [
+        "resolve-by-bound target has no canonical registered resolutionDate "
+        "bound"
+    ]
+
+    malformed_context = {**context, "resolutionDate": "2027-02-29"}
+    errors = analyst_runner.target_context_validation_errors(
+        bounded_cell(), malformed_context
+    )
+    assert errors == [
+        "resolve-by-bound target has no canonical registered resolutionDate "
+        "bound"
+    ]
+
+
+def test_calendar_target_context_does_not_require_announcement_tool_fetch() -> None:
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    context = {
+        "sourceBinding": {"sourceUrl": "https://example.com/calendar"},
+    }
+    assert analyst_runner.target_context_validation_errors(cell, context) == []
+    assert analyst_runner.target_context_validation_errors(
+        cell, {**context, "resolutionDateBasis": "release-calendar"}
+    ) == []
+
+
 def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
     tmp_path,
 ) -> None:
@@ -2468,6 +2610,55 @@ def test_fast_prompt_names_conditional_on_exactly() -> None:
     )
     assert "conditionalOn: null" in unconditional
     assert '"conditionalOn"' not in unconditional
+
+
+@pytest.mark.parametrize("mode", ["full", "fast", "ladder", "ladder_v2"])
+def test_prompts_use_bounded_source_and_date_rules(mode: str) -> None:
+    announcement = "https://www.census.gov/newsroom/spm-announcement.html"
+    window = {"start": "2028-08-01", "end": "2028-12-31"}
+    context = {
+        "resolutionDate": "2028-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": window,
+        "sourceBinding": {
+            "sourceUrl": announcement,
+            "expectedReleaseWindow": window,
+        },
+    }
+
+    prompt, _ = analyst_runner.build_run_prompt(
+        "census.spm.child_poverty_rate", "2027", None, mode, context
+    )
+
+    assert "resolutionSourceUrl must byte-echo" in prompt
+    assert "thesis_announcement_fetch.fetch_official_announcement" in prompt
+    assert "resolutionDate must byte-echo the registered resolve-by bound" in prompt
+    assert "outer bound, not a scheduled release day" in prompt
+    assert "Thesis lab commitments" in prompt
+    assert "announcement authenticates methodology identity only" in prompt
+    assert "does not establish the bound or expected release window" in prompt
+    assert announcement in prompt
+    if mode != "full":
+        assert "most specific stable page for the exact series" not in prompt
+        assert "verified from an official release calendar" not in prompt
+    else:
+        assert "resolve-by-bound target, byte-echo the Thesis lab-committed" in prompt
+        assert "Do not invent a scheduled day" in prompt
+        assert "registered methodology-announcement MCP tool" in prompt
+
+
+def test_fast_calendar_prompt_keeps_literal_calendar_rules() -> None:
+    prompt, _ = analyst_runner.build_run_prompt(
+        "bls.cps.unemployment_rate",
+        "2026-06",
+        None,
+        "fast",
+        {"resolutionDateBasis": "release-calendar"},
+    )
+
+    assert "most specific stable page for the exact series" in prompt
+    assert "verified from an official release calendar" in prompt
+    assert "resolutionDate must byte-echo the registered resolve-by bound" not in prompt
 
 
 def test_full_prompt_carries_machine_checked_phrasings() -> None:

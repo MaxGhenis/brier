@@ -60,6 +60,11 @@ DEFAULT_RECORD_ROOT = ROOT / "records" / "thesis-analyst"
 CDF_POINT_COUNT = 201
 INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1"
 AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1"
+ANNOUNCEMENT_MCP_SERVER = "thesis_announcement_fetch"
+ANNOUNCEMENT_MCP_TOOL = "fetch_official_announcement"
+ANNOUNCEMENT_MCP_SCRIPT = SCRIPTS / "announcement_fetch_mcp.py"
+ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS = 10
+ANNOUNCEMENT_MCP_TOOL_TIMEOUT_SECONDS = 30
 
 
 def utc_now() -> str:
@@ -504,6 +509,8 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "targetUnit",
         "dataPointId",
         "resolutionDate",
+        "resolutionDateBasis",
+        "expectedReleaseWindow",
         "resolutionSource",
         "resolutionSourceUrl",
         "resolutionRule",
@@ -527,6 +534,29 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         value = target_context.get(key)
         if value not in (None, ""):
             lines.append(f"- {key}: {json.dumps(value, sort_keys=True)}")
+    if target_context.get("resolutionDateBasis") == "resolve-by-bound":
+        bound = target_context.get("resolutionDate")
+        announcement_url = (target_context.get("sourceBinding") or {}).get(
+            "sourceUrl"
+        )
+        lines += [
+            "",
+            "# Resolve-by-bound target contract (machine checked)",
+            f"- registeredResolveByBound: {json.dumps(bound)}",
+            f"- officialAnnouncementUrl: {json.dumps(announcement_url)}",
+            "The bound and expected release window are Thesis lab "
+            "commitments, not timing claims made by the announcement. The "
+            "announcement authenticates methodology identity only; it does "
+            "not establish the bound or expected release window. This is an "
+            "outer bound, not a scheduled release day. resolutionDate must "
+            "byte-echo the registered resolve-by bound; never infer a more "
+            "specific day from cadence.",
+            "resolutionSourceUrl must byte-echo officialAnnouncementUrl. "
+            f"Call `{ANNOUNCEMENT_MCP_SERVER}.{ANNOUNCEMENT_MCP_TOOL}` with "
+            "that exact URL. The publisher authenticates the structured "
+            "draft/final tool event; a reasoning-token claim, search result, "
+            "same-host page, or prose citation cannot substitute for it.",
+        ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
     if fetch_command:
@@ -693,6 +723,38 @@ def build_fast_prompt(
     target_context_text = f"{target_context_block}\n\n" if target_context_block else ""
     ticket_block = format_generation_ticket(ticket)
     ticket_text = f"{ticket_block}\n" if ticket_block else ""
+    bounded_target = (
+        (target_context or {}).get("resolutionDateBasis") == "resolve-by-bound"
+    )
+    if bounded_target:
+        resolution_source_rule = (
+            "- resolutionSourceUrl must byte-echo the registered official "
+            "methodology-announcement URL shown in the bounded target "
+            "context. Use the "
+            f"`{ANNOUNCEMENT_MCP_SERVER}.{ANNOUNCEMENT_MCP_TOOL}` tool on "
+            "that exact URL; put any separately fetched resolving table or "
+            "data-artifact URL in sourceContext.\n"
+        )
+        resolution_date_rule = (
+            "- resolutionDate must byte-echo the registered Thesis "
+            "lab-committed resolve-by bound shown in the target context. It "
+            "is an outer bound, not a scheduled release day; the official "
+            "announcement does not establish it, and you must not infer a "
+            "more specific date from cadence.\n"
+        )
+    else:
+        resolution_source_rule = (
+            "- resolutionSourceUrl must be the most specific stable page for "
+            "the exact series (release page, table, or databrowser query "
+            "with the series code), never a portal or theme landing page; "
+            "state the series code or table id in a text step when one "
+            "exists.\n"
+        )
+        resolution_date_rule = (
+            "- resolutionDate must be verified from an official release "
+            "calendar or announcement schedule this run. Do not infer it "
+            "from cadence.\n"
+        )
     return (
         "# Thesis analyst fast public-release run\n\n"
         "Return exactly one JSON object and no Markdown. Do not wrap it in a "
@@ -771,10 +833,7 @@ def build_fast_prompt(
         "NSA, flash vs final), the resolution rule must name the variant and "
         "every anchor and historical value must come from that same variant; "
         "say so once in a text step.\n"
-        "- resolutionSourceUrl must be the most specific stable page for the "
-        "exact series (release page, table, or databrowser query with the "
-        "series code), never a portal or theme landing page; state the "
-        "series code or table id in a text step when one exists.\n"
+        f"{resolution_source_rule}"
         "- Name concrete upside, downside, and outside-the-interval scenarios, "
         'using the literal phrases "upside risk", "downside risk", and '
         '"outside the interval" (or "would land above/below the interval") so '
@@ -805,8 +864,7 @@ def build_fast_prompt(
         "qualitative source notes. Numbers may come from official public "
         "sources or inspected local run/model artifacts, but the provenance "
         "must be clear.\n"
-        "- resolutionDate must be verified from an official release calendar "
-        "or announcement schedule this run. Do not infer it from cadence.\n"
+        f"{resolution_date_rule}"
         "- Do not use existing local catalog point estimates or intervals as "
         "forecast evidence. If inspected, treat them only as non-authoritative "
         "prior strategy context and keep them out of tool-result evidence.\n"
@@ -1528,6 +1586,46 @@ def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
     }
 
 
+def announcement_mcp_config(
+    announcement_url: str,
+    *,
+    checkout_root: pathlib.PurePath = ROOT,
+    python_executable: str = sys.executable,
+) -> list[str]:
+    """Return the exact trusted MCP overrides for one bounded target URL."""
+
+    server = f"mcp_servers.{ANNOUNCEMENT_MCP_SERVER}"
+    script_path = checkout_root / "scripts" / ANNOUNCEMENT_MCP_SCRIPT.name
+    return [
+        f"{server}.command=" + json.dumps(python_executable),
+        f"{server}.args="
+        + json.dumps(
+            [str(script_path), "--allowed-url", announcement_url],
+            separators=(",", ":"),
+        ),
+        f"{server}.cwd=" + json.dumps(str(checkout_root)),
+        f"{server}.required=true",
+        f'{server}.enabled_tools=["{ANNOUNCEMENT_MCP_TOOL}"]',
+        f"{server}.startup_timeout_sec="
+        f"{ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS}",
+        f"{server}.tool_timeout_sec={ANNOUNCEMENT_MCP_TOOL_TIMEOUT_SECONDS}",
+        f"{server}.tools.{ANNOUNCEMENT_MCP_TOOL}.approval_mode=\"approve\"",
+    ]
+
+
+def target_announcement_url(
+    target_context: dict[str, Any] | None,
+) -> str | None:
+    if not isinstance(target_context, dict) or (
+        target_context.get("resolutionDateBasis", "release-calendar")
+        != "resolve-by-bound"
+    ):
+        return None
+    binding = target_context.get("sourceBinding")
+    url = binding.get("sourceUrl") if isinstance(binding, dict) else None
+    return url if isinstance(url, str) and url else None
+
+
 def enforce_ticket_codex_stream_binding(
     command_result: dict[str, Any],
 ) -> dict[str, Any]:
@@ -1658,6 +1756,7 @@ def run_codex_agent_command(
     sandbox: str,
     reasoning_effort: str | None,
     network: bool = False,
+    announcement_url: str | None = None,
 ) -> dict[str, Any]:
     """Run a prompt through Codex CLI/ChatGPT auth and retain the full trace."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1683,6 +1782,9 @@ def run_codex_agent_command(
         cmd.extend(["-c", f'reasoning_effort="{reasoning_effort}"'])
     if network:
         cmd.extend(["-c", "sandbox_workspace_write.network_access=true"])
+    if announcement_url is not None:
+        for config in announcement_mcp_config(announcement_url):
+            cmd.extend(["-c", config])
     cmd.extend(["-C", str(ROOT), "-s", sandbox, prompt])
     logged_cmd = [*cmd[:-1], "<prompt>"]
 
@@ -2429,6 +2531,7 @@ def validate_cells(
     target_context: dict[str, Any] | None = None,
     prompt_mode: str = "full",
     collision_exclusion: pathlib.Path | None = None,
+    generation_ticket: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -2445,7 +2548,12 @@ def validate_cells(
     rows = []
     ok = True
     for cell in cells:
-        errors = validate(cell, taken | seen)
+        errors = validate(
+            cell,
+            taken | seen,
+            target_context=target_context,
+            generation_ticket=generation_ticket,
+        )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
         errors.extend(target_context_validation_errors(cell, target_context))
@@ -2482,6 +2590,14 @@ def target_context_validation_errors(
     ]
     errors = []
     for context_key, cell_key in checks:
+        if (
+            context_key == "resolutionDate"
+            and target_context.get("resolutionDateBasis") == "resolve-by-bound"
+        ):
+            # The bounded branch below owns the required, canonical bound and
+            # its byte equality. Calendar/default targets keep this literal
+            # target-context comparison unchanged.
+            continue
         expected = target_context.get(context_key)
         if expected in (None, ""):
             continue
@@ -2512,7 +2628,68 @@ def target_context_validation_errors(
                 f"binding hosts {sorted(allowed)!r}"
             )
     errors.extend(first_print_resolution_rule_errors(cell, target_context))
+    errors.extend(bounded_announcement_errors(cell, target_context))
     errors.extend(history_anchor_errors(cell, target_context))
+    return errors
+
+
+def bounded_announcement_errors(
+    cell: dict[str, Any],
+    target_context: dict[str, Any],
+) -> list[str]:
+    """Require cell byte-echoes for a resolve-by-bound target.
+
+    The attested publisher authenticates the actual announcement fetch from
+    raw Codex draft/final events.  Model-authored reasoning tokens are not
+    fetch evidence.
+    """
+
+    basis = target_context.get("resolutionDateBasis", "release-calendar")
+    if basis == "release-calendar":
+        return []
+    if basis != "resolve-by-bound":
+        return [f"unsupported target resolutionDateBasis {basis!r}"]
+    errors = []
+    registered_bound = target_context.get("resolutionDate")
+    canonical_bound = False
+    if isinstance(registered_bound, str) and re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}", registered_bound
+    ):
+        try:
+            canonical_bound = (
+                datetime.strptime(registered_bound, "%Y-%m-%d")
+                .date()
+                .isoformat()
+                == registered_bound
+            )
+        except ValueError:
+            canonical_bound = False
+    if not canonical_bound:
+        errors.append(
+            "resolve-by-bound target has no canonical registered "
+            "resolutionDate bound"
+        )
+    elif cell.get("resolutionDate") != registered_bound:
+        errors.append(
+            "resolutionDate must byte-echo the registered resolve-by bound "
+            f"{registered_bound!r}"
+        )
+    binding = target_context.get("sourceBinding")
+    announcement_url = (
+        binding.get("sourceUrl") if isinstance(binding, dict) else None
+    )
+    if not isinstance(announcement_url, str) or not announcement_url:
+        errors.append(
+            "resolve-by-bound target has no registered official announcement "
+            "URL in sourceBinding.sourceUrl"
+        )
+        return errors
+
+    if cell.get("resolutionSourceUrl") != announcement_url:
+        errors.append(
+            "resolutionSourceUrl must byte-echo the resolve-by-bound official "
+            f"announcement URL {announcement_url!r}"
+        )
     return errors
 
 
@@ -2878,6 +3055,7 @@ def run_forecaster(
     prompt_path: pathlib.Path,
     out_dir: pathlib.Path,
     prefix: str,
+    announcement_url: str | None = None,
 ) -> dict[str, Any]:
     if args.codex_model:
         return run_codex_agent_command(
@@ -2890,6 +3068,7 @@ def run_forecaster(
             sandbox=args.codex_sandbox,
             reasoning_effort=args.codex_reasoning_effort,
             network=args.codex_network,
+            announcement_url=announcement_url,
         )
     return run_agent_command(
         args.command,
@@ -2946,6 +3125,11 @@ def main() -> int:
     run_at = utc_now()
     checkout_sha = workspace_checkout_sha()
     target_context = parse_target_context(args.target_context_json)
+    announcement_url = (
+        target_announcement_url(target_context)
+        if generation_ticket is not None
+        else None
+    )
     prompt, meta = build_run_prompt(
         args.series,
         args.period,
@@ -3027,6 +3211,7 @@ def main() -> int:
                     prompt_path=out_dir / "prompt.md",
                     out_dir=out_dir,
                     prefix="draft_",
+                    announcement_url=announcement_url,
                 )
             )
             draft_ref = append_command_artifacts(
@@ -3103,6 +3288,7 @@ def main() -> int:
                             prompt_path=out_dir / "revision_prompt.md",
                             out_dir=out_dir,
                             prefix="",
+                            announcement_url=announcement_url,
                         )
                     )
                     append_command_artifacts(
@@ -3127,6 +3313,7 @@ def main() -> int:
                     prompt_path=out_dir / "prompt.md",
                     out_dir=out_dir,
                     prefix="",
+                    announcement_url=announcement_url,
                 )
             )
             append_command_artifacts(
@@ -3262,6 +3449,7 @@ def main() -> int:
         args.allow_existing_slug,
         target_context,
         args.prompt_mode,
+        generation_ticket=generation_ticket,
     )
     validation_ref = write_artifact(
         out_dir,

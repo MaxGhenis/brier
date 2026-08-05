@@ -699,6 +699,7 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
         # canonical resolution by-date, and spawn-time history anchors.
         assert target["sourceBinding"]["adapter"] == "irs-soi-pub1304"
         assert target["resolutionDate"] == "2029-12-31"
+        assert target["resolutionDateBasis"] == "resolve-by-bound"
         assert target["expectedReleaseWindow"] == {
             "start": "2029-01-01",
             "end": "2029-12-31",
@@ -708,6 +709,66 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
     # Both arms register as one wave: distinct slugs and dataPointIds.
     build_contract(targets[0], dt.date(2026, 8, 1))
     build_contract(targets[1], dt.date(2026, 8, 1))
+
+
+def test_main_routes_bounded_pairs_only_to_ticket_selection(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [conditional_pair_entry()]}))
+    output = tmp_path / "targets.json"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 8, 1)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(roll_docket, "live_catalog", lambda: (set(), {}, set()))
+    monkeypatch.setattr(
+        sys, "argv", ["roll_docket.py", "--out", str(output)]
+    )
+
+    assert roll_docket.main() == 0
+    assert json.loads(output.read_text()) == {"targets": []}
+    assert capsys.readouterr().out == (
+        "  skip irs.actc.total_claims: resolve-by-bound target requires "
+        "the attested generation-ticket lane\n"
+        "0 targets\n"
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["roll_docket.py", "--include-bounded", "--out", str(output)],
+    )
+    assert roll_docket.main() == 0
+    targets = json.loads(output.read_text())["targets"]
+    assert [target["catalogSlug"] for target in targets] == [
+        "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+        "additional-child-tax-credit-total-claims-ty2027-current-law",
+    ]
+
+
+def test_conditional_pair_stops_when_release_window_opens_literally(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = conditional_pair_entry()
+    start = entry["extras"]["expectedReleaseWindow"]["start"]
+
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date.fromisoformat(start)
+        )
+        == []
+    )
+    assert capsys.readouterr().err == (
+        "  warning: skip irs.actc.total_claims: conditional pair forecast "
+        f"generation must precede release window start {start}\n"
+    )
 
 
 def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
@@ -809,6 +870,47 @@ def test_conditional_pair_fails_closed_on_malformed_registry(mutate) -> None:
         )
         == []
     )
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda entry: entry["extras"].update(
+                resolutionDateBasis="not-a-real-basis"
+            ),
+            "  warning: skip irs.actc.total_claims: conditional pair has "
+            "unsupported resolutionDateBasis 'not-a-real-basis'\n",
+        ),
+        (
+            lambda entry: entry["extras"].update(
+                resolutionDateBasis=["resolve-by-bound"]
+            ),
+            "  warning: skip irs.actc.total_claims: conditional pair has "
+            "unsupported resolutionDateBasis ['resolve-by-bound']\n",
+        ),
+        (
+            lambda entry: entry["extras"].update(
+                resolutionDate="2029-12-30"
+            ),
+            "  warning: skip irs.actc.total_claims: conditional pair "
+            "resolve-by-bound requires resolutionDate to equal window end\n",
+        ),
+    ],
+)
+def test_conditional_pair_basis_refusals_are_literal(
+    mutate, message: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    entry = conditional_pair_entry()
+    mutate(entry)
+
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+    assert capsys.readouterr().err == message
 
 
 def test_conditional_pair_rejects_extras_restating_arm_identity() -> None:

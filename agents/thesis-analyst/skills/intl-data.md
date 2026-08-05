@@ -28,5 +28,8 @@
 
 ## Gotchas
 - Each agency's first print is the resolver; later vintages are irrelevant.
-- Time zones: resolutionDate is the local release date.
+- Time zones: for release-calendar targets, resolutionDate is the local
+  release date. Resolve-by-bound targets use the registered Thesis
+  lab-committed outer bound; their announcement does not establish the bound
+  or window.
 - UK/EA prints publish to one decimal; Canada to one decimal; match precision.

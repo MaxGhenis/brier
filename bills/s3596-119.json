@@ -47,9 +47,9 @@
           "kind": "Direct implementation/outcome",
           "category": "operational",
           "layer": "participation",
-          "text": "IRS Statistics of Income, Individual Income Tax Returns (Publication 1304 line-item tables): number of returns claiming the additional child tax credit and total ACTC dollars, TY2026 versus prior years.",
+          "text": "IRS Statistics of Income, Individual Income Tax Returns (Publication 1304 line-item tables): number of returns claiming the additional child tax credit and total ACTC dollars, TY2027 versus prior years.",
           "series_hint": "irs.soi.additional_child_tax_credit_returns",
-          "rationale": "The provision operates entirely through the ACTC formula, so ACTC returns and dollars are the most direct administrative readout: if the threshold change does anything, it must appear here first. Official, first-print resolvable from a fixed IRS publication. Known weakness: SOI line-item tables publish with roughly a two-year lag, so TY2026 resolves in 2028; considered the weekly Filing Season Statistics as a faster proxy and rejected it because it does not break out the ACTC line.",
+          "rationale": "The provision operates entirely through the ACTC formula, so ACTC returns and dollars are the most direct administrative readout: if the threshold change does anything, it must appear here first. Official, first-print resolvable from a fixed IRS publication. The registered conditional pair targets TY2027, matching its policy premise. Known weakness: SOI line-item tables publish with roughly a two-year lag, so TY2027 resolves in 2029; considered the weekly Filing Season Statistics as a faster proxy and rejected it because it does not break out the ACTC line.",
           "stances": [
             {
               "goal": 0,
@@ -67,7 +67,7 @@
           "layer": "outcome",
           "text": "Census Bureau Supplemental Poverty Measure, child poverty rate — the SPM accounts for refundable credits, so a phase-in change for the lowest earners shows up here if realized take-up is material.",
           "series_hint": "census.spm.child_poverty_rate",
-          "rationale": "Selected because it is the outcome the goal actually claims (resources of the lowest-earning families) and because the SPM is already a live Thesis registry series with existing forecast cells, making a conditional pair immediately registrable. Known weakness: attribution is noisy — a sub-$400-per-family change sits inside the SPM's year-to-year movement, so this metric is informative in the enacted-vs-baseline pair, not as a standalone level.",
+          "rationale": "Selected because it is the outcome the goal actually claims (resources of the lowest-earning families) and because the SPM is already a live Thesis registry series with existing forecast cells. The conditional pair targets CY2027 so its outcome can reflect the provision's TY2027 application. Thesis commits the conservative 2028-08-01 through 2028-12-31 release window and 2028-12-31 resolve-by deadline; the registered Census announcement authenticates revised-methodology identity only and establishes neither timing value. The pair is non-exhaustive: an intermediate enacted threshold satisfies neither arm. Known weakness: attribution is noisy — a sub-$400-per-family change sits inside the SPM's year-to-year movement, so this metric is informative in the enacted-versus-unchanged-current-law pair, not as a standalone level.",
           "stances": [
             {
               "goal": 0,
@@ -99,8 +99,8 @@
         }
       ],
       "conditionals": [
-        "P(IRS SOI TY2026 ACTC returns and dollars | §24(d)(1)(B)(i) threshold of $1 in effect for TY2026 vs not)",
-        "P(Census SPM child poverty rate for 2026 | §24(d)(1)(B)(i) threshold of $1 in effect for TY2026 vs not)"
+        "P(IRS SOI TY2027 ACTC returns and dollars | §24(d)(1)(B)(i) threshold ≤ $1 for TY2027 vs unchanged $2,500 current-law threshold for TY2027; an intermediate enacted threshold is outside both arms)",
+        "P(Census SPM child poverty rate for CY2027 | §24(d)(1)(B)(i) threshold ≤ $1 for TY2027 vs unchanged $2,500 current-law threshold for TY2027; an intermediate enacted threshold is outside both arms)"
       ],
       "compute": [
         {

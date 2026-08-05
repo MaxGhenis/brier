@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import docket_publication  # noqa: E402
-from canonical_json import canonical_bytes  # noqa: E402
+from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from docket_publication import PublicationError  # noqa: E402
 from register_targets import (  # noqa: E402
     REGISTRATION_SCHEMA,
@@ -407,7 +407,15 @@ def test_validate_target_registration_rejects_snapshot_tampering(
         "dataPointId": "agency.test.rate.2030_01.first_print",
         "unit": "percent",
         "valueScale": 1.0,
-        "sourceBinding": {"adapter": "generic-url"},
+        "resolutionDateBasis": "resolve-by-bound",
+        "resolutionDate": "2030-03-31",
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "expectedReleaseWindow": {
+                "start": "2030-02-01",
+                "end": "2030-03-31",
+            },
+        },
     }
     snapshot = {
         "schemaVersion": REGISTRATION_SCHEMA,
@@ -427,16 +435,80 @@ def test_validate_target_registration_rejects_snapshot_tampering(
         "dataPointId": contract["dataPointId"],
         "targetUnit": contract["unit"],
         "valueScale": contract["valueScale"],
+        "resolutionDateBasis": contract["resolutionDateBasis"],
+        "resolutionDate": contract["resolutionDate"],
+        "expectedReleaseWindow": contract["sourceBinding"][
+            "expectedReleaseWindow"
+        ],
         "sourceBinding": contract["sourceBinding"],
         "targetRegistrationPath": relative.as_posix(),
         "targetContentHash": content_hash,
     }
 
     docket_publication.validate_target_registration(tmp_path, target)
+    with pytest.raises(PublicationError) as error:
+        docket_publication.validate_target_registration(
+            tmp_path, {**target, "resolutionDateBasis": "release-calendar"}
+        )
+    assert str(error.value) == (
+        "target registration contract mismatch for resolutionDateBasis: "
+        f"{relative.as_posix()}"
+    )
     snapshot["targets"][0]["unit"] = "ratio"
     path.write_text(json.dumps(snapshot))
     with pytest.raises(PublicationError, match="hash mismatch"):
         docket_publication.validate_target_registration(tmp_path, target)
+
+
+def test_validate_target_registration_rejects_malformed_bounded_snapshot(
+    tmp_path: pathlib.Path,
+) -> None:
+    contract = {
+        "series": "agency.test.rate",
+        "period": "2030-01",
+        "catalogSlug": "agency-test-rate-january-2030",
+        "dataPointId": "agency.test.rate.2030_01.first_print",
+        "unit": "percent",
+        "valueScale": 1.0,
+        "resolutionDateBasis": "resolve-by-bound",
+        "resolutionDate": "2030-03-31",
+        "sourceBinding": {"adapter": "generic-url"},
+    }
+    snapshot = {
+        "schemaVersion": REGISTRATION_SCHEMA,
+        "registeredAtUtc": "2030-01-10T11:59:00Z",
+        "targets": [contract],
+        "ledgerPin": TEST_LEDGER_PIN,
+    }
+    hash_payload = {
+        "schemaVersion": REGISTRATION_SCHEMA,
+        "targets": [contract],
+        "ledgerPin": TEST_LEDGER_PIN,
+    }
+    content_hash = canonical_sha256(hash_payload)
+    relative = pathlib.Path("records/targets") / f"2030-01-10-{content_hash}.json"
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True)
+    path.write_bytes(canonical_bytes(snapshot) + b"\n")
+    target = {
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+        "dataPointId": contract["dataPointId"],
+        "targetUnit": contract["unit"],
+        "valueScale": contract["valueScale"],
+        "resolutionDateBasis": contract["resolutionDateBasis"],
+        "resolutionDate": contract["resolutionDate"],
+        "sourceBinding": contract["sourceBinding"],
+        "targetRegistrationPath": relative.as_posix(),
+        "targetContentHash": content_hash,
+    }
+
+    with pytest.raises(PublicationError) as error:
+        docket_publication.validate_target_registration(tmp_path, target)
+    assert str(error.value) == (
+        "resolve-by-bound target requires an exact expectedReleaseWindow"
+    )
 
 
 def committed_registration(
@@ -718,6 +790,9 @@ def _real_pre_cutover_v2_target() -> dict:
             "country": contract["country"],
             "targetUnit": contract["unit"],
             "valueScale": contract["valueScale"],
+            "expectedReleaseWindow": contract["sourceBinding"][
+                "expectedReleaseWindow"
+            ],
             "sourceBinding": contract["sourceBinding"],
             "registeredAtUtc": snapshot["registeredAtUtc"],
             "targetContentHash": registration_content_hash(snapshot),

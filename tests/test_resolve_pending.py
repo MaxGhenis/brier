@@ -201,6 +201,72 @@ def test_main_removes_signing_secret_before_any_resolver_work(
     assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
 
 
+def test_main_gates_a_non_irs_bounded_adapter_before_network(
+    monkeypatch, capsys
+) -> None:
+    ref = "agency.test.rate.2030-01.first_print"
+    spec = {
+        "fred": "TEST",
+        "transform": "level",
+        "unit": "percent",
+        "label": "Agency test rate",
+        "source_name": "agency",
+        "source_table": "Table A",
+        "concept_authority": "agency",
+    }
+    forecast = {"resolutionDate": "2030-03-31", "unit": "percent"}
+    registration = {
+        "contract": {
+            "resolutionDateBasis": "resolve-by-bound",
+            "sourceBinding": {
+                "adapter": "alfred-fred",
+                "expectedReleaseWindow": {
+                    "start": "2030-02-01",
+                    "end": "2030-03-31",
+                },
+            },
+        }
+    }
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (ref, "alfred", spec, "month", "2030-01", "2030-03-31", forecast)
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "a" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: {ref: registration}
+    )
+    monkeypatch.setattr(
+        resolve_pending, "utc_now", lambda: "2030-01-31T23:59:59Z"
+    )
+
+    def unexpected_fetch(*_args, **_kwargs):
+        raise AssertionError("bounded adapter fetched before its window opened")
+
+    monkeypatch.setattr(resolve_pending, "fred_vintage_series", unexpected_fetch)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    output = capsys.readouterr().out
+    assert (
+        f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens 2030-02-01"
+        in output
+    )
+    assert "nothing new to record" in output
+
+
 def test_parse_ref_period_handles_all_dialects() -> None:
     cases = [
         ("bls.cps.unemployment_rate.june_2026.first_print",

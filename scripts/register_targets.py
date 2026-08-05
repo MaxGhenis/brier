@@ -53,6 +53,7 @@ SOURCE_ADAPTERS = {
     "abs-data-api",
     "abs-release-page",
     "alfred-fred",
+    "census-spm-annual-report",
     "eurostat-api",
     "fsa-crp-monthly-summary",
     "generic-url",
@@ -60,6 +61,12 @@ SOURCE_ADAPTERS = {
     "ons-timeseries",
     "statcan-wds",
     "usaspending-api",
+}
+# Some reviewed adapters resolve through a sibling official data host that is
+# distinct from the registered landing/announcement URL. Keep that expansion
+# trusted and adapter-specific; target proposals cannot widen allowedHosts.
+SOURCE_ADAPTER_ALLOWED_HOSTS = {
+    "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
 }
 NATIVE_INTL_SOURCE_ADAPTERS = {
     "abs-data-api",
@@ -69,6 +76,12 @@ NATIVE_INTL_SOURCE_ADAPTERS = {
     "statcan-wds",
 }
 RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
+RESOLUTION_DATE_BASES = {"release-calendar", "resolve-by-bound"}
+DEFAULT_RESOLUTION_DATE_BASIS = "release-calendar"
+LEGACY_BOUNDED_CONDITIONAL_IDS = {
+    "irs.actc.total_claims.2027.first_print.threshold_one_dollar",
+    "irs.actc.total_claims.2027.first_print.current_law",
+}
 SOURCE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
 SERIES_BINDINGS: dict[str, dict[str, Any]] = {
     "us.dol.initial_claims.sa": {
@@ -194,6 +207,19 @@ def registration_hash_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
         isinstance(target, dict) for target in targets
     ):
         raise RegistrationError("registration snapshot targets must be an object list")
+    for index, target in enumerate(targets):
+        binding = target.get("sourceBinding")
+        window = (
+            binding.get("expectedReleaseWindow")
+            if isinstance(binding, dict)
+            else None
+        )
+        validate_resolution_date_semantics(
+            target.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
+            target.get("resolutionDate"),
+            window,
+            label=f"registration target {index}",
+        )
     payload = {"schemaVersion": schema, "targets": targets}
     if schema == REGISTRATION_SCHEMA:
         payload["ledgerPin"] = validate_ledger_pin_binding(snapshot.get("ledgerPin"))
@@ -209,6 +235,189 @@ def _iso_date(value: str) -> dt.date:
         return dt.date.fromisoformat(value)
     except ValueError as exc:
         raise RegistrationError(f"invalid ISO date {value!r}") from exc
+
+
+def validate_resolution_date_semantics(
+    basis_value: Any,
+    resolution_date: Any,
+    expected_release_window: Any,
+    *,
+    label: str = "target",
+) -> tuple[str, str | None]:
+    """Validate calendar/default or bounded resolution-date semantics.
+
+    This runs both while building a contract and whenever an immutable
+    snapshot is consumed. Legacy contracts omit the basis and therefore pass
+    ``release-calendar`` as their effective default.
+    """
+
+    if not isinstance(basis_value, str) or basis_value not in RESOLUTION_DATE_BASES:
+        raise RegistrationError(
+            "resolutionDateBasis must be one of "
+            f"{sorted(RESOLUTION_DATE_BASES)}, got {basis_value!r} ({label})"
+        )
+    if basis_value == DEFAULT_RESOLUTION_DATE_BASIS:
+        return basis_value, None
+    if not (
+        isinstance(expected_release_window, dict)
+        and set(expected_release_window) == {"start", "end"}
+    ):
+        raise RegistrationError(
+            "resolve-by-bound target requires an exact expectedReleaseWindow"
+        )
+    start_value = expected_release_window["start"]
+    end_value = expected_release_window["end"]
+    if not isinstance(start_value, str) or not isinstance(end_value, str):
+        raise RegistrationError(
+            "resolve-by-bound expectedReleaseWindow dates must be canonical ISO dates"
+        )
+    start = _iso_date(start_value).isoformat()
+    end = _iso_date(end_value).isoformat()
+    if start != start_value or end != end_value:
+        raise RegistrationError(
+            "resolve-by-bound expectedReleaseWindow dates must be canonical ISO dates"
+        )
+    if start > end:
+        raise RegistrationError("expected release window ends before it starts")
+    if not isinstance(resolution_date, str):
+        raise RegistrationError(
+            "resolve-by-bound target requires resolutionDate to equal "
+            "expectedReleaseWindow.end"
+        )
+    resolution_bound = _iso_date(resolution_date).isoformat()
+    if resolution_bound != resolution_date or resolution_bound != end:
+        raise RegistrationError(
+            "resolve-by-bound target requires resolutionDate to equal "
+            "expectedReleaseWindow.end"
+        )
+    return basis_value, resolution_bound
+
+
+def legacy_bounded_target_projection(
+    contract: dict[str, Any], target: dict[str, Any]
+) -> bool:
+    """The exact pre-property IRS contracts that may inherit docket semantics."""
+
+    binding = contract.get("sourceBinding")
+    return (
+        "resolutionDateBasis" not in contract
+        and "resolutionDate" not in contract
+        and target.get("resolutionDateBasis") == "resolve-by-bound"
+        and contract.get("dataPointId") in LEGACY_BOUNDED_CONDITIONAL_IDS
+        and isinstance(binding, dict)
+        and binding.get("adapter") == "irs-soi-pub1304"
+    )
+
+
+def validate_target_resolution_projection(
+    contract: dict[str, Any], target: dict[str, Any], *, label: str
+) -> None:
+    """Require batch context to preserve a snapshot's date-basis semantics."""
+
+    contract_binding = contract.get("sourceBinding")
+    contract_window = (
+        contract_binding.get("expectedReleaseWindow")
+        if isinstance(contract_binding, dict)
+        else None
+    )
+    validate_resolution_date_semantics(
+        contract.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
+        contract.get("resolutionDate"),
+        contract_window,
+        label=f"registered contract {label}",
+    )
+    target_binding = target.get("sourceBinding")
+    target_nested_window = (
+        target_binding.get("expectedReleaseWindow")
+        if isinstance(target_binding, dict)
+        else None
+    )
+    legacy_bounded = legacy_bounded_target_projection(contract, target)
+
+    def require_same_presence_and_value(
+        registered: dict[str, Any],
+        registered_key: str,
+        projected: dict[str, Any],
+        projected_key: str,
+        field: str,
+    ) -> None:
+        if canonical_bytes(
+            [registered_key in registered, registered.get(registered_key)]
+        ) != canonical_bytes(
+            [projected_key in projected, projected.get(projected_key)]
+        ):
+            raise RegistrationError(
+                f"target registration contract mismatch for {field}: {label}"
+            )
+
+    if not legacy_bounded:
+        require_same_presence_and_value(
+            contract,
+            "resolutionDateBasis",
+            target,
+            "resolutionDateBasis",
+            "resolutionDateBasis",
+        )
+        require_same_presence_and_value(
+            contract,
+            "resolutionDate",
+            target,
+            "resolutionDate",
+            "resolutionDate",
+        )
+    contract_binding_map = (
+        contract_binding if isinstance(contract_binding, dict) else {}
+    )
+    target_binding_map = target_binding if isinstance(target_binding, dict) else {}
+    require_same_presence_and_value(
+        contract_binding_map,
+        "expectedReleaseWindow",
+        target,
+        "expectedReleaseWindow",
+        "expectedReleaseWindow",
+    )
+    require_same_presence_and_value(
+        contract_binding_map,
+        "expectedReleaseWindow",
+        target_binding_map,
+        "expectedReleaseWindow",
+        "sourceBinding.expectedReleaseWindow",
+    )
+    validate_resolution_date_semantics(
+        target.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
+        target.get("resolutionDate"),
+        target_nested_window,
+        label=f"batch target {label}",
+    )
+
+
+def resolution_date_basis(target: dict[str, Any]) -> str:
+    """Return and validate the target's resolution-date semantics."""
+
+    basis = target.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS)
+    if not isinstance(basis, str) or basis not in RESOLUTION_DATE_BASES:
+        raise RegistrationError(
+            "resolutionDateBasis must be one of "
+            f"{sorted(RESOLUTION_DATE_BASES)}, got {basis!r}"
+        )
+    return str(basis)
+
+
+def bounded_registration_payload(payload: Any) -> dict[str, list[dict[str, Any]]]:
+    """Filter a trusted ticket selection to targets mint may preregister."""
+
+    targets = payload.get("targets") if isinstance(payload, dict) else None
+    if not isinstance(targets, list) or not all(
+        isinstance(target, dict) for target in targets
+    ):
+        raise RegistrationError("targets file must contain an object-list 'targets'")
+    return {
+        "targets": [
+            target
+            for target in targets
+            if resolution_date_basis(target) == "resolve-by-bound"
+        ]
+    }
 
 
 def _add_months(day: dt.date, months: int) -> dt.date:
@@ -300,10 +509,9 @@ def expected_release_window(
         )
     if end < start:
         raise RegistrationError("expected release window ends before it starts")
-    if adapter in NATIVE_INTL_SOURCE_ADAPTERS and start <= registration_date:
+    if start <= registration_date:
         raise RegistrationError(
-            "native international release window must start after the "
-            "registration date"
+            "expected release window must start after the registration date"
         )
     return {"start": start.isoformat(), "end": end.isoformat()}
 
@@ -479,7 +687,10 @@ def derive_source_binding(
     # series' published history actually used — the previous cell's
     # resolver plus each URL its run fetched — so an agent citing an
     # established official host passes while a novel host still fails.
-    allowed_hosts = {_host(source_url)}
+    allowed_hosts = {
+        _host(source_url),
+        *SOURCE_ADAPTER_ALLOWED_HOSTS.get(adapter, set()),
+    }
     if previous:
         prior_url = previous.get("resolutionSourceUrl")
         if prior_url:
@@ -512,6 +723,12 @@ def build_contract(
     if not unit:
         raise RegistrationError(f"{target.get('catalogSlug', '?')} has no target unit")
     value_scale = float(target.get("valueScale", 1))
+    basis, resolution_bound = validate_resolution_date_semantics(
+        target.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
+        target.get("resolutionDate"),
+        target.get("expectedReleaseWindow"),
+        label=str(target.get("catalogSlug") or target.get("series") or "target"),
+    )
     window = expected_release_window(target, previous, registration_date)
     binding = derive_source_binding(target, previous, window, value_scale)
     contract = {
@@ -526,6 +743,13 @@ def build_contract(
         "valueScale": value_scale,
         "sourceBinding": binding,
     }
+    # Absence is the byte-compatible spelling of the release-calendar
+    # default for registrations that predate this property. Explicit values,
+    # and every bounded target, are content-hashed into the contract.
+    if "resolutionDateBasis" in target:
+        contract["resolutionDateBasis"] = basis
+    if resolution_bound is not None:
+        contract["resolutionDate"] = resolution_bound
     conditional = target.get("conditional")
     if conditional is not None:
         # A conditional arm's legal-state text, condition identity, and
@@ -618,24 +842,38 @@ def _entry_for(
             "ledgerPinSha": ledger_pin["sha"],
             "ledgerPinLineCount": ledger_pin["lineCount"],
         }
-    return {
+    if contract.get("resolutionDateBasis") == "resolve-by-bound":
+        resolution_rule = (
+            "Preregistered resolve-by resolver binding. The resolutionDate "
+            "and expectedReleaseWindow are Thesis lab commitments. The "
+            "registered source URL authenticates methodology identity only; "
+            "it does not establish either timing value. The analyst must "
+            "supply the precise first-print rule without changing the "
+            "methodology source, field/table, transform, or release policy."
+        )
+    else:
+        resolution_rule = (
+            "Preregistered resolver binding. The analyst must supply the "
+            "precise first-print rule without changing the bound source, "
+            "field/table, transform, or release policy."
+        )
+    entry = {
         "kind": "target_registered",
         "dataPointId": contract["dataPointId"],
         "observationId": f"obs.{contract['dataPointId']}",
         "country": contract["country"],
         "periodLabel": contract["period"],
         "unit": contract["unit"],
-        # A preregistration has an expected window, not a claimed exact release
-        # date.  The upper bound keeps legacy runtime consumers total until the
-        # published cell finalizes this entry with the verified date.
-        "resolutionDate": binding["expectedReleaseWindow"]["end"],
+        # Calendar preregistrations have an expected window, not a claimed
+        # exact release date. Bounded preregistrations instead carry the
+        # reviewed Thesis lab commitment verbatim. The upper bound keeps
+        # legacy runtime consumers total until publication.
+        "resolutionDate": contract.get(
+            "resolutionDate", binding["expectedReleaseWindow"]["end"]
+        ),
         "resolutionSource": source,
         "resolutionSourceUrl": source_url,
-        "resolutionRule": (
-            "Preregistered resolver binding. The analyst must supply the precise "
-            "first-print rule without changing the bound source, field/table, "
-            "transform, or release policy."
-        ),
+        "resolutionRule": resolution_rule,
         "resolutionPolicy": "first_print",
         "sourceKind": "official_release",
         "source": source,
@@ -651,6 +889,9 @@ def _entry_for(
         "sourceBinding": binding,
         **pin_fields,
     }
+    if "resolutionDateBasis" in contract:
+        entry["resolutionDateBasis"] = contract["resolutionDateBasis"]
+    return entry
 
 
 def _generated_entries(source: str) -> list[str]:
@@ -750,6 +991,12 @@ def _block_value(block: str, key: str) -> Any:
     return None
 
 
+def _block_has_key(block: str, key: str) -> bool:
+    key_pattern = re.escape(key)
+    pattern = rf'(?:^|[{{,])\s*(?:{key_pattern}|"{key_pattern}")\s*:'
+    return re.search(pattern, block, re.MULTILINE) is not None
+
+
 def _published_block_matches_registration(
     block: str, registration: dict[str, Any]
 ) -> bool:
@@ -772,10 +1019,28 @@ def _published_block_matches_registration(
     if isinstance(pin, dict):
         expected["ledgerPinSha"] = pin["sha"]
         expected["ledgerPinLineCount"] = pin["lineCount"]
-    return all(
+    if not all(
         canonical_bytes(_block_value(block, key)) == canonical_bytes(value)
         for key, value in expected.items()
-    )
+    ):
+        return False
+    basis_present = "resolutionDateBasis" in contract
+    if _block_has_key(block, "resolutionDateBasis") != basis_present:
+        return False
+    if basis_present and canonical_bytes(
+        _block_value(block, "resolutionDateBasis")
+    ) != canonical_bytes(contract["resolutionDateBasis"]):
+        return False
+    # Calendar targets finalize this field to the verified release day. A
+    # bounded contract instead registers an immutable lab deadline, so its
+    # published block must retain that exact bound.
+    if "resolutionDate" in contract and (
+        not _block_has_key(block, "resolutionDate")
+        or canonical_bytes(_block_value(block, "resolutionDate"))
+        != canonical_bytes(contract["resolutionDate"])
+    ):
+        return False
+    return True
 
 
 def _reject_duplicate_object_keys(
@@ -1013,6 +1278,25 @@ def require_conditional_docket_template(
         "conditionId": arm.get("conditionId"),
         "conditionDeadline": pair.get("conditionDeadline"),
     }
+    if batch_target is not None:
+        # Preserve the established run-context drift verdict for the fields
+        # that are consumed by the analyst beyond resolver identity. Bounded
+        # targets additionally sign resolutionDate into the contract, but a
+        # changed/deleted docket bound is still first and foremost a mismatch
+        # with the exact context the batch ran under.
+        context_drifted = sorted(
+            key
+            for key in ("resolutionDate", "anchors")
+            if canonical_bytes(
+                [key in reconstructed_target, reconstructed_target.get(key)]
+            )
+            != canonical_bytes([key in batch_target, batch_target.get(key)])
+        )
+        if context_drifted:
+            raise RegistrationError(
+                "committed docket entry no longer generates the batch "
+                f"target's run context (drifted: {context_drifted}): {label}"
+            )
     try:
         registered_date = (
             parse_utc_instant(registered_at_utc).date()
@@ -1026,11 +1310,26 @@ def require_conditional_docket_template(
             f"conditional contract: {label} ({exc})"
         ) from exc
     rebuilt = json.loads(canonical_bytes(rebuilt))
-    if canonical_bytes(rebuilt) != canonical_bytes(contract):
+    comparable_rebuilt = rebuilt
+    legacy_bounded_contract = legacy_bounded_target_projection(
+        contract, reconstructed_target
+    )
+    if legacy_bounded_contract:
+        # The two IRS conditional arms were registered immediately before the
+        # basis property existed. Their immutable v3 snapshots already bind
+        # the same window and resolve-by day. Let the now-declared docket basis
+        # supply only those redundant fields; every pre-existing contract byte
+        # must still match. Scope the compatibility to those exact ids and
+        # adapter so a later docket edit cannot retrofit bounded semantics
+        # onto an unrelated legacy contract without changing its hash.
+        comparable_rebuilt = dict(rebuilt)
+        comparable_rebuilt.pop("resolutionDateBasis", None)
+        comparable_rebuilt.pop("resolutionDate", None)
+    if canonical_bytes(comparable_rebuilt) != canonical_bytes(contract):
         drifted = sorted(
             key
-            for key in set(rebuilt) | set(contract)
-            if canonical_bytes(rebuilt.get(key))
+            for key in set(comparable_rebuilt) | set(contract)
+            if canonical_bytes(comparable_rebuilt.get(key))
             != canonical_bytes(contract.get(key))
         )
         raise RegistrationError(
@@ -1056,14 +1355,18 @@ def require_conditional_docket_template(
             "targetRegistrationPath",
             "registrationCommit",
         }
+        comparable_target = reconstructed_target
+        if legacy_bounded_contract and "resolutionDateBasis" not in batch_target:
+            comparable_target = dict(reconstructed_target)
+            comparable_target.pop("resolutionDateBasis", None)
         keys = (
-            set(reconstructed_target) | set(batch_target)
+            set(comparable_target) | set(batch_target)
         ) - enrichment - {"sourceBinding"}
         drifted = sorted(
             key
             for key in keys
             if canonical_bytes(
-                [key in reconstructed_target, reconstructed_target.get(key)]
+                [key in comparable_target, comparable_target.get(key)]
             )
             != canonical_bytes([key in batch_target, batch_target.get(key)])
         )
@@ -1397,7 +1700,7 @@ def _plan_registration(
 
 def _target_registration_fields(registration: dict[str, Any]) -> dict[str, Any]:
     contract = registration["contract"]
-    return {
+    fields = {
         "country": contract["country"],
         "dataPointId": contract["dataPointId"],
         "targetUnit": contract["unit"],
@@ -1409,6 +1712,14 @@ def _target_registration_fields(registration: dict[str, Any]) -> dict[str, Any]:
         "targetContentHash": registration["targetContentHash"],
         "targetRegistrationPath": registration["path"].relative_to(ROOT).as_posix(),
     }
+    if "resolutionDate" in contract:
+        fields["resolutionDate"] = contract["resolutionDate"]
+    if "resolutionDateBasis" in contract:
+        fields["resolutionDateBasis"] = contract["resolutionDateBasis"]
+    binding = contract.get("sourceBinding")
+    if isinstance(binding, dict) and "expectedReleaseWindow" in binding:
+        fields["expectedReleaseWindow"] = binding["expectedReleaseWindow"]
+    return fields
 
 
 def register(
@@ -1620,6 +1931,9 @@ def bind_registration_commits(
             "conditionId": target.get("conditionId"),
             "conditionDeadline": target.get("conditionDeadline"),
         }
+        validate_target_resolution_projection(
+            contract, target, label=relative.as_posix()
+        )
         for key, value in expected.items():
             if canonical_bytes(contract.get(key)) != canonical_bytes(value):
                 raise RegistrationError(
@@ -1856,6 +2170,8 @@ def registration_for_cell(cell: dict[str, Any]) -> dict[str, Any]:
         "valueScale": contract["valueScale"],
         "sourceBinding": contract["sourceBinding"],
     }
+    if "resolutionDateBasis" in contract:
+        finalized["resolutionDateBasis"] = contract["resolutionDateBasis"]
     ledger_pin = snapshot.get("ledgerPin")
     if ledger_pin is not None:
         finalized["ledgerPinSha"] = ledger_pin["sha"]
