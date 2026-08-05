@@ -241,7 +241,10 @@ def codex_jsonl(response: str) -> str:
 
 
 @pytest.fixture
-def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
+def attested_bundle(
+    tmp_path: pathlib.Path, request: pytest.FixtureRequest
+) -> AttestedFixture:
+    bounded = getattr(request, "param", None) == "bounded"
     repo = tmp_path / "checkout"
     repo.mkdir()
     git(repo, "init")
@@ -274,6 +277,22 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
         "resolutionRule": "Resolve to the synthetic first print.",
         "sourceBinding": {"adapter": "generic-url"},
     }
+    if bounded:
+        announcement_url = "https://example.gov/spm-methodology-announcement"
+        target.update(
+            {
+                "resolutionDateBasis": "resolve-by-bound",
+                "resolutionSourceUrl": announcement_url,
+                "sourceBinding": {
+                    "adapter": "census-spm-annual-report",
+                    "sourceUrl": announcement_url,
+                    "expectedReleaseWindow": {
+                        "start": "2030-01-20",
+                        "end": target["resolutionDate"],
+                    },
+                },
+            }
+        )
     policy = {
         "promptMode": "fast",
         "codexModel": "gpt-ticket-main",
@@ -361,6 +380,20 @@ def attested_bundle(tmp_path: pathlib.Path) -> AttestedFixture:
             "sourceContext": [target["resolutionSourceUrl"]],
             "runAt": "2030-01-10T12:00:30Z",
             "reasoning": [
+                *(
+                    [
+                        {
+                            "kind": "tool",
+                            "call": (
+                                "GET "
+                                + target["sourceBinding"]["sourceUrl"]
+                            ),
+                            "result": "Fetched the official announcement.",
+                        }
+                    ]
+                    if bounded
+                    else []
+                ),
                 {"kind": "math", "text": "sigma = 0.39; 1.28*sigma = 0.50."},
                 {"kind": "forecast", "point": 1.0, "ciLow": 0.5, "ciHigh": 1.5},
             ],
@@ -655,6 +688,24 @@ def verify(fixture: AttestedFixture, *, now_utc: dt.datetime = NOW_UTC) -> None:
 
 def test_consistent_attested_bundle_passes(attested_bundle: AttestedFixture) -> None:
     verify(attested_bundle)
+
+
+@pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)
+def test_bounded_target_context_flows_through_prompt_reconstruction(
+    attested_bundle: AttestedFixture,
+) -> None:
+    verify(attested_bundle)
+    prompt = run_path(attested_bundle, "prompt.md").read_text()
+    target = attested_bundle.ticket["targets"][0]
+
+    assert 'resolutionDateBasis: "resolve-by-bound"' in prompt
+    assert (
+        f'registeredResolveByBound: "{target["resolutionDate"]}"' in prompt
+    )
+    assert (
+        f'officialAnnouncementUrl: "{target["sourceBinding"]["sourceUrl"]}"'
+        in prompt
+    )
 
 
 def test_expired_ticket_is_refused(attested_bundle: AttestedFixture) -> None:

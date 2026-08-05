@@ -235,13 +235,19 @@ def test_earliest_resolution_boundary_uses_minimum_present_target_field() -> Non
     )
 
 
-def test_earliest_resolution_boundary_uses_window_start_not_end() -> None:
+def test_earliest_resolution_boundary_uses_bounded_window_start_not_bound() -> None:
     target = sample_target()
     target.pop("expectedReleaseDate")
-    target["expectedReleaseWindow"] = {
-        "start": "2030-01-16",
-        "end": "2030-01-31",
-    }
+    target.update(
+        {
+            "resolutionDateBasis": "resolve-by-bound",
+            "resolutionDate": "2030-01-31",
+            "expectedReleaseWindow": {
+                "start": "2030-01-16",
+                "end": "2030-01-31",
+            },
+        }
+    )
 
     assert generation_tickets.earliest_resolution_boundary([target]) == (
         "2030-01-16T00:00:00Z"
