@@ -437,6 +437,9 @@ def test_validate_target_registration_rejects_snapshot_tampering(
         "valueScale": contract["valueScale"],
         "resolutionDateBasis": contract["resolutionDateBasis"],
         "resolutionDate": contract["resolutionDate"],
+        "expectedReleaseWindow": contract["sourceBinding"][
+            "expectedReleaseWindow"
+        ],
         "sourceBinding": contract["sourceBinding"],
         "targetRegistrationPath": relative.as_posix(),
         "targetContentHash": content_hash,
@@ -785,6 +788,9 @@ def _real_pre_cutover_v2_target() -> dict:
             "country": contract["country"],
             "targetUnit": contract["unit"],
             "valueScale": contract["valueScale"],
+            "expectedReleaseWindow": contract["sourceBinding"][
+                "expectedReleaseWindow"
+            ],
             "sourceBinding": contract["sourceBinding"],
             "registeredAtUtc": snapshot["registeredAtUtc"],
             "targetContentHash": registration_content_hash(snapshot),

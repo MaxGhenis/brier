@@ -320,29 +320,74 @@ def validate_target_resolution_projection(
         if isinstance(contract_binding, dict)
         else None
     )
-    contract_basis, _contract_bound = validate_resolution_date_semantics(
+    validate_resolution_date_semantics(
         contract.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
         contract.get("resolutionDate"),
         contract_window,
         label=f"registered contract {label}",
     )
     target_binding = target.get("sourceBinding")
-    target_window = target.get("expectedReleaseWindow")
-    if target_window is None and isinstance(target_binding, dict):
-        target_window = target_binding.get("expectedReleaseWindow")
-    target_basis, _target_bound = validate_resolution_date_semantics(
+    target_nested_window = (
+        target_binding.get("expectedReleaseWindow")
+        if isinstance(target_binding, dict)
+        else None
+    )
+    legacy_bounded = legacy_bounded_target_projection(contract, target)
+
+    def require_same_presence_and_value(
+        registered: dict[str, Any],
+        registered_key: str,
+        projected: dict[str, Any],
+        projected_key: str,
+        field: str,
+    ) -> None:
+        if canonical_bytes(
+            [registered_key in registered, registered.get(registered_key)]
+        ) != canonical_bytes(
+            [projected_key in projected, projected.get(projected_key)]
+        ):
+            raise RegistrationError(
+                f"target registration contract mismatch for {field}: {label}"
+            )
+
+    if not legacy_bounded:
+        require_same_presence_and_value(
+            contract,
+            "resolutionDateBasis",
+            target,
+            "resolutionDateBasis",
+            "resolutionDateBasis",
+        )
+        require_same_presence_and_value(
+            contract,
+            "resolutionDate",
+            target,
+            "resolutionDate",
+            "resolutionDate",
+        )
+    contract_binding_map = (
+        contract_binding if isinstance(contract_binding, dict) else {}
+    )
+    target_binding_map = target_binding if isinstance(target_binding, dict) else {}
+    require_same_presence_and_value(
+        contract_binding_map,
+        "expectedReleaseWindow",
+        target,
+        "expectedReleaseWindow",
+        "expectedReleaseWindow",
+    )
+    require_same_presence_and_value(
+        contract_binding_map,
+        "expectedReleaseWindow",
+        target_binding_map,
+        "expectedReleaseWindow",
+        "sourceBinding.expectedReleaseWindow",
+    )
+    validate_resolution_date_semantics(
         target.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
         target.get("resolutionDate"),
-        target_window,
+        target_nested_window,
         label=f"batch target {label}",
-    )
-    if contract_basis == target_basis:
-        return
-    if legacy_bounded_target_projection(contract, target):
-        return
-    raise RegistrationError(
-        "target registration contract mismatch for resolutionDateBasis: "
-        f"{label}"
     )
 
 
@@ -917,6 +962,12 @@ def _block_value(block: str, key: str) -> Any:
     return None
 
 
+def _block_has_key(block: str, key: str) -> bool:
+    key_pattern = re.escape(key)
+    pattern = rf'(?:^|[{{,])\s*(?:{key_pattern}|"{key_pattern}")\s*:'
+    return re.search(pattern, block, re.MULTILINE) is not None
+
+
 def _published_block_matches_registration(
     block: str, registration: dict[str, Any]
 ) -> bool:
@@ -939,10 +990,28 @@ def _published_block_matches_registration(
     if isinstance(pin, dict):
         expected["ledgerPinSha"] = pin["sha"]
         expected["ledgerPinLineCount"] = pin["lineCount"]
-    return all(
+    if not all(
         canonical_bytes(_block_value(block, key)) == canonical_bytes(value)
         for key, value in expected.items()
-    )
+    ):
+        return False
+    basis_present = "resolutionDateBasis" in contract
+    if _block_has_key(block, "resolutionDateBasis") != basis_present:
+        return False
+    if basis_present and canonical_bytes(
+        _block_value(block, "resolutionDateBasis")
+    ) != canonical_bytes(contract["resolutionDateBasis"]):
+        return False
+    # Calendar targets finalize this field to the verified release day. A
+    # bounded contract instead registers an immutable lab deadline, so its
+    # published block must retain that exact bound.
+    if "resolutionDate" in contract and (
+        not _block_has_key(block, "resolutionDate")
+        or canonical_bytes(_block_value(block, "resolutionDate"))
+        != canonical_bytes(contract["resolutionDate"])
+    ):
+        return False
+    return True
 
 
 def _reject_duplicate_object_keys(
@@ -1618,6 +1687,9 @@ def _target_registration_fields(registration: dict[str, Any]) -> dict[str, Any]:
         fields["resolutionDate"] = contract["resolutionDate"]
     if "resolutionDateBasis" in contract:
         fields["resolutionDateBasis"] = contract["resolutionDateBasis"]
+    binding = contract.get("sourceBinding")
+    if isinstance(binding, dict) and "expectedReleaseWindow" in binding:
+        fields["expectedReleaseWindow"] = binding["expectedReleaseWindow"]
     return fields
 
 

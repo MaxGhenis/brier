@@ -105,42 +105,43 @@ def earliest_resolution_boundary(targets: Any) -> str:
             raise TicketError(f"ticket target {index} must be an object")
         slug = target.get("catalogSlug")
         label = repr(slug) if isinstance(slug, str) and slug else str(index)
-        candidates: list[tuple[str, Any]] = []
-        for field in ("resolutionDate", "expectedReleaseDate"):
-            if field in target:
-                candidates.append((field, target[field]))
-        if "expectedReleaseWindow" in target:
-            window = target["expectedReleaseWindow"]
-            if not isinstance(window, dict) or "start" not in window:
-                raise TicketError(
-                    f"ticket target {label} expectedReleaseWindow.start must be "
-                    f"a valid YYYY-MM-DD date: {window!r}"
-                )
-            candidates.append(("expectedReleaseWindow.start", window["start"]))
-        if not candidates:
+        binding = target.get("sourceBinding")
+        if not isinstance(binding, dict):
             raise TicketError(
-                f"ticket target {label} has no answer-knowable date; expected "
-                "resolutionDate, expectedReleaseDate, or "
-                "expectedReleaseWindow.start"
+                f"ticket target {label} requires an authenticated "
+                "sourceBinding.expectedReleaseWindow"
+            )
+        window = binding.get("expectedReleaseWindow")
+        if not isinstance(window, dict) or set(window) != {"start", "end"}:
+            raise TicketError(
+                f"ticket target {label} sourceBinding.expectedReleaseWindow "
+                f"must contain exactly start and end: {window!r}"
             )
 
-        target_days: list[dt.date] = []
-        for field, value in candidates:
+        parsed_window: dict[str, dt.date] = {}
+        for field in ("start", "end"):
+            value = window[field]
             if not isinstance(value, str) or not re.fullmatch(
                 r"\d{4}-\d{2}-\d{2}", value
             ):
                 raise TicketError(
-                    f"ticket target {label} {field} must be a valid YYYY-MM-DD "
-                    f"date: {value!r}"
+                    f"ticket target {label} sourceBinding.expectedReleaseWindow."
+                    f"{field} must be "
+                    f"a valid YYYY-MM-DD date: {value!r}"
                 )
             try:
-                target_days.append(dt.date.fromisoformat(value))
+                parsed_window[field] = dt.date.fromisoformat(value)
             except ValueError as exc:
                 raise TicketError(
-                    f"ticket target {label} {field} must be a valid YYYY-MM-DD "
-                    f"date: {value!r}"
+                    f"ticket target {label} sourceBinding.expectedReleaseWindow."
+                    f"{field} must be a valid YYYY-MM-DD date: {value!r}"
                 ) from exc
-        boundary_day = min(target_days)
+        if parsed_window["end"] < parsed_window["start"]:
+            raise TicketError(
+                f"ticket target {label} sourceBinding.expectedReleaseWindow "
+                "ends before it starts"
+            )
+        boundary_day = parsed_window["start"]
         boundaries.append(
             dt.datetime.combine(
                 boundary_day,

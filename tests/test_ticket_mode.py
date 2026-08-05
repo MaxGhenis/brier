@@ -74,6 +74,12 @@ def sample_target(
         "targetRegistrationPath": f"records/targets/2030-01-10-{digest}.json",
         "registeredAtUtc": "2030-01-10T10:00:00Z",
         "resolutionDate": "2030-02-01",
+        "sourceBinding": {
+            "expectedReleaseWindow": {
+                "start": "2030-02-01",
+                "end": "2030-02-01",
+            }
+        },
         "conditional": f"Synthetic condition {suffix}.",
     }
 

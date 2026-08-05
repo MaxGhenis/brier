@@ -133,6 +133,9 @@ def test_legacy_irs_contract_reauthenticates_under_declared_bounded_basis() -> N
     target = {
         "resolutionDateBasis": "resolve-by-bound",
         "resolutionDate": "2029-12-31",
+        "expectedReleaseWindow": contract["sourceBinding"][
+            "expectedReleaseWindow"
+        ],
         "sourceBinding": contract["sourceBinding"],
     }
     register_targets.validate_target_resolution_projection(
