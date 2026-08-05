@@ -1,10 +1,11 @@
 {
   "comment": "Canonical series catalog. One row per (concept, geography level/id/vintage, entity) identity. UUID authority is the append-only ledger/series_uuid_registry.jsonl (digest below): a uuid is minted once, inherited from the registry on every regeneration, and changes only through explicit, chained supersede/retire/revive/succeeds events recorded there (live bindings and rows stay in bijection). Consumers reference series by uuid or concept only. Regenerate with scripts/build_series_catalog.py; verify with --check. Aliases are curated identity statements (plus observed spellings of the same identity) and inherit only within one (geography, entity) slice; aliases listed in ambiguous_aliases match multiple rows and never drive inheritance. source_concepts are publisher labels — provenance, never identity. Cross-spelling and cross-vintage merges are manual curation: delete the absorbed row, alias its concept on the survivor, regenerate with --allow-remint.",
   "generator_version": 3,
-  "observations_sha256": "63127ff427a4aa3884f54dd1ee070ab631c15ebb38f23fdc9095a45e9204109f",
-  "observation_rows": 168,
-  "docket_seed_sha256": "930424fb48c0be4c9e2ce17d4e0f2a6be886408e814c80324174a7a303fa0271",
-  "uuid_registry_sha256": "c4ccda3f1746ff06cf8cc17dc221ea3a82b7b16a5d719361e2025bc5d7b63356",
+  "observations_sha256": "b0c29d7cb2aee323a5d30f8196eb59f62aa396066070131c5048740659d5e241",
+  "observation_rows": 171,
+  "current_assertion_rows": 171,
+  "docket_seed_sha256": "64202291e6a7b82510f1628c52d0bbd9f78246cae1342798025fb805856bb60b",
+  "uuid_registry_sha256": "2858ea996975ff706ea12c112743f011dbd888c53f517535a57582194750f8f5",
   "suspect_segments": [],
   "stripped_segments": {
     "2026-05": [
@@ -42,6 +43,8 @@
       "us.frb.industrial_production.total.mom_sa"
     ],
     "2026_06": [
+      "bls.jolts.hires_rate",
+      "census.construction_spending.total_mom",
       "census.m3.durable_goods_new_orders_mom",
       "census.m3.durable_goods_shipments_mom",
       "us.fed.fomc.target_range_upper"
@@ -104,6 +107,7 @@
       "bls.cps.employed_people_by_occupation.production",
       "bls.cps.employed_people_by_occupation.transportation_material_moving",
       "bls.cps.unemployment_rate",
+      "bls.jolts.job_openings",
       "eurostat.hicp.all_items_annual_rate.euro_area",
       "statjp.cpi.tokyo_all_items_annual_rate"
     ],
@@ -1674,20 +1678,36 @@
       "uuid": "3bddc6d0-e581-42dc-9c13-b731a9ede21f",
       "concept": "bls.jolts.hires_rate",
       "family_patterns": [
-        "bls.jolts.hires_rate"
+        "bls.jolts.hires_rate.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "bls_jolts"
+      ],
+      "aliases": [
+        "bls.jolts.hires_rate.2026_06"
+      ],
+      "source_concepts": [
+        "JTSHIR"
+      ],
+      "rid_patterns": [
+        "bls.jolts.hires_rate.{P}.first_print"
+      ],
+      "first_observed_period": "2026-06",
+      "last_observed_period": "2026-06",
+      "observation_count": 1
     },
     {
       "uuid": "020dafc2-2ca3-453b-a6bc-f96d443a5f77",
@@ -1712,6 +1732,7 @@
         "bls_jolts"
       ],
       "aliases": [
+        "bls.jolts.job_openings.june_2026",
         "bls.jolts.job_openings.may_2026"
       ],
       "source_concepts": [
@@ -1721,8 +1742,8 @@
         "bls.jolts.job_openings.{P}.first_print"
       ],
       "first_observed_period": "2026-05",
-      "last_observed_period": "2026-05",
-      "observation_count": 1
+      "last_observed_period": "2026-06",
+      "observation_count": 2
     },
     {
       "uuid": "1d05d94d-0288-46f0-b6a9-1fa499e85fff",
@@ -1965,20 +1986,36 @@
       "uuid": "63222847-045a-4784-bd89-4d7878a2a6d8",
       "concept": "census.construction_spending.total_mom",
       "family_patterns": [
-        "census.construction_spending.total_mom"
+        "census.construction_spending.total_mom.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent_growth",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "census_construction"
+      ],
+      "aliases": [
+        "census.construction_spending.total_mom.2026_06"
+      ],
+      "source_concepts": [
+        "TTLCONS"
+      ],
+      "rid_patterns": [
+        "census.construction_spending.total_mom.{P}.first_print"
+      ],
+      "first_observed_period": "2026-06",
+      "last_observed_period": "2026-06",
+      "observation_count": 1
     },
     {
       "uuid": "e16080e3-02e9-4ae1-95c6-3ded737cf697",
@@ -5038,6 +5075,29 @@
       "unit": "millions",
       "cadence": "month",
       "geography": null,
+      "entity": null,
+      "sources": [],
+      "aliases": [],
+      "source_concepts": [],
+      "rid_patterns": [],
+      "first_observed_period": null,
+      "last_observed_period": null,
+      "observation_count": 0
+    },
+    {
+      "uuid": "23396038-b31d-43cd-be08-4aa9fe916b56",
+      "concept": "irs.actc.total_claims",
+      "family_patterns": [
+        "irs.actc.total_claims"
+      ],
+      "status": "docket-only",
+      "unit": "millions",
+      "cadence": "year",
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "name": "United States"
+      },
       "entity": null,
       "sources": [],
       "aliases": [],

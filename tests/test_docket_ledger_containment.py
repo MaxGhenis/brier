@@ -23,6 +23,7 @@ CATALOG_TOP_LEVEL_KEYS = {
     "generator_version",
     "observations_sha256",
     "observation_rows",
+    "current_assertion_rows",
     "docket_seed_sha256",
     "uuid_registry_sha256",
     "suspect_segments",
@@ -132,6 +133,10 @@ def _assert_containment(
         type(catalog["observation_rows"]) is int
         and catalog["observation_rows"] >= 0
     ), f"{label}.observation_rows must be a non-negative integer"
+    assert (
+        type(catalog["current_assertion_rows"]) is int
+        and 0 <= catalog["current_assertion_rows"] <= catalog["observation_rows"]
+    ), f"{label}.current_assertion_rows must count a subset of the journal"
     for list_key in ("suspect_segments", "ambiguous_aliases"):
         assert type(catalog[list_key]) is list and all(
             type(item) is str for item in catalog[list_key]
@@ -290,6 +295,7 @@ def _catalog_shell(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "generator_version": 3,
         "observations_sha256": "0" * 64,
         "observation_rows": 1,
+        "current_assertion_rows": 1,
         "docket_seed_sha256": "1" * 64,
         "uuid_registry_sha256": "2" * 64,
         "suspect_segments": [],
