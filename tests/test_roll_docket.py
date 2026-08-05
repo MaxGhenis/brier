@@ -849,11 +849,6 @@ def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
         lambda entry: entry["extras"].update(
             expectedReleaseWindow={"start": "2027-06-01", "end": "2029-12-31"}
         ),
-        lambda entry: entry["extras"].update(
-            resolutionDateBasis="not-a-real-basis"
-        ),
-        lambda entry: entry["extras"].update(resolutionDateBasis=["resolve-by-bound"]),
-        lambda entry: entry["extras"].update(resolutionDate="2029-12-30"),
         lambda entry: entry["conditionalPair"]["arms"].pop(),
         lambda entry: entry["conditionalPair"]["arms"][0].pop("conditional"),
         lambda entry: entry["conditionalPair"]["arms"][0].pop("conditionId"),
@@ -875,6 +870,47 @@ def test_conditional_pair_fails_closed_on_malformed_registry(mutate) -> None:
         )
         == []
     )
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (
+            lambda entry: entry["extras"].update(
+                resolutionDateBasis="not-a-real-basis"
+            ),
+            "  warning: skip irs.actc.total_claims: conditional pair has "
+            "unsupported resolutionDateBasis 'not-a-real-basis'\n",
+        ),
+        (
+            lambda entry: entry["extras"].update(
+                resolutionDateBasis=["resolve-by-bound"]
+            ),
+            "  warning: skip irs.actc.total_claims: conditional pair has "
+            "unsupported resolutionDateBasis ['resolve-by-bound']\n",
+        ),
+        (
+            lambda entry: entry["extras"].update(
+                resolutionDate="2029-12-30"
+            ),
+            "  warning: skip irs.actc.total_claims: conditional pair "
+            "resolve-by-bound requires resolutionDate to equal window end\n",
+        ),
+    ],
+)
+def test_conditional_pair_basis_refusals_are_literal(
+    mutate, message: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    entry = conditional_pair_entry()
+    mutate(entry)
+
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date(2026, 8, 1)
+        )
+        == []
+    )
+    assert capsys.readouterr().err == message
 
 
 def test_conditional_pair_rejects_extras_restating_arm_identity() -> None:

@@ -2445,7 +2445,11 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         "https://www.census.gov/newsroom/different-announcement.html"
     )
     errors = analyst_runner.target_context_validation_errors(wrong_citation, context)
-    assert any("resolutionSourceUrl must byte-echo" in error for error in errors)
+    assert errors == [
+        "resolutionSourceUrl must byte-echo the resolve-by-bound official "
+        "announcement URL "
+        "'https://www.census.gov/newsroom/spm-announcement.html'"
+    ]
 
     missing_bound = bounded_cell()
     missing_context = dict(context)
@@ -2453,17 +2457,19 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
     errors = analyst_runner.target_context_validation_errors(
         missing_bound, missing_context
     )
-    assert any(
-        "no canonical registered resolutionDate bound" in error for error in errors
-    )
+    assert errors == [
+        "resolve-by-bound target has no canonical registered resolutionDate "
+        "bound"
+    ]
 
     malformed_context = {**context, "resolutionDate": "2027-02-29"}
     errors = analyst_runner.target_context_validation_errors(
         bounded_cell(), malformed_context
     )
-    assert any(
-        "no canonical registered resolutionDate bound" in error for error in errors
-    )
+    assert errors == [
+        "resolve-by-bound target has no canonical registered resolutionDate "
+        "bound"
+    ]
 
 
 def test_calendar_target_context_does_not_require_announcement_tool_fetch() -> None:

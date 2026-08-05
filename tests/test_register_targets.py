@@ -230,38 +230,80 @@ def test_bounded_contract_requires_exact_window_and_matching_bound() -> None:
     assert published["resolutionDateBasis"] == "resolve-by-bound"
 
     invalid_targets = [
-        {**target, "resolutionDateBasis": "deadline-ish"},
-        {**target, "resolutionDateBasis": None},
-        {key: value for key, value in target.items() if key != "expectedReleaseWindow"},
-        {
-            **target,
-            "expectedReleaseWindow": {
-                "start": "2030-02-01",
-                "end": "2030-03-31",
-                "timezone": "UTC",
+        (
+            {**target, "resolutionDateBasis": "deadline-ish"},
+            "resolutionDateBasis must be one of ['release-calendar', "
+            "'resolve-by-bound'], got 'deadline-ish' "
+            "(agency-test-rate-january-2030)",
+        ),
+        (
+            {**target, "resolutionDateBasis": None},
+            "resolutionDateBasis must be one of ['release-calendar', "
+            "'resolve-by-bound'], got None (agency-test-rate-january-2030)",
+        ),
+        (
+            {
+                key: value
+                for key, value in target.items()
+                if key != "expectedReleaseWindow"
             },
-        },
-        {
-            **target,
-            "expectedReleaseWindow": {"start": None, "end": None},
-        },
-        {
-            **target,
-            "expectedReleaseWindow": {"start": "", "end": ""},
-        },
-        {
-            **target,
-            "expectedReleaseWindow": {
-                "start": "2030-04-01",
-                "end": "2030-03-31",
+            "resolve-by-bound target requires an exact expectedReleaseWindow",
+        ),
+        (
+            {
+                **target,
+                "expectedReleaseWindow": {
+                    "start": "2030-02-01",
+                    "end": "2030-03-31",
+                    "timezone": "UTC",
+                },
             },
-        },
-        {key: value for key, value in target.items() if key != "resolutionDate"},
-        {**target, "resolutionDate": "2030-03-30"},
+            "resolve-by-bound target requires an exact expectedReleaseWindow",
+        ),
+        (
+            {
+                **target,
+                "expectedReleaseWindow": {"start": None, "end": None},
+            },
+            "resolve-by-bound expectedReleaseWindow dates must be canonical "
+            "ISO dates",
+        ),
+        (
+            {
+                **target,
+                "expectedReleaseWindow": {"start": "", "end": ""},
+            },
+            "invalid ISO date ''",
+        ),
+        (
+            {
+                **target,
+                "expectedReleaseWindow": {
+                    "start": "2030-04-01",
+                    "end": "2030-03-31",
+                },
+            },
+            "expected release window ends before it starts",
+        ),
+        (
+            {
+                key: value
+                for key, value in target.items()
+                if key != "resolutionDate"
+            },
+            "resolve-by-bound target requires resolutionDate to equal "
+            "expectedReleaseWindow.end",
+        ),
+        (
+            {**target, "resolutionDate": "2030-03-30"},
+            "resolve-by-bound target requires resolutionDate to equal "
+            "expectedReleaseWindow.end",
+        ),
     ]
-    for invalid in invalid_targets:
-        with pytest.raises(register_targets.RegistrationError):
+    for invalid, message in invalid_targets:
+        with pytest.raises(register_targets.RegistrationError) as error:
             register_targets.build_contract(invalid, dt.date(2030, 1, 10))
+        assert str(error.value) == message
 
 
 def test_registration_hash_revalidates_bounded_snapshot_semantics() -> None:
@@ -283,25 +325,42 @@ def test_registration_hash_revalidates_bounded_snapshot_semantics() -> None:
     assert register_targets.registration_content_hash(snapshot)
 
     invalid_snapshots = []
-    for mutate in (
-        lambda contract: contract["sourceBinding"].pop("expectedReleaseWindow"),
-        lambda contract: contract["sourceBinding"].update(
-            expectedReleaseWindow={
-                "start": "2030-02-01",
-                "end": "2030-03-31",
-                "timezone": "UTC",
-            }
+    for mutate, message in (
+        (
+            lambda contract: contract["sourceBinding"].pop(
+                "expectedReleaseWindow"
+            ),
+            "resolve-by-bound target requires an exact expectedReleaseWindow",
         ),
-        lambda contract: contract.update(resolutionDate="2030-03-30"),
-        lambda contract: contract.update(resolutionDateBasis="deadline-ish"),
+        (
+            lambda contract: contract["sourceBinding"].update(
+                expectedReleaseWindow={
+                    "start": "2030-02-01",
+                    "end": "2030-03-31",
+                    "timezone": "UTC",
+                }
+            ),
+            "resolve-by-bound target requires an exact expectedReleaseWindow",
+        ),
+        (
+            lambda contract: contract.update(resolutionDate="2030-03-30"),
+            "resolve-by-bound target requires resolutionDate to equal "
+            "expectedReleaseWindow.end",
+        ),
+        (
+            lambda contract: contract.update(resolutionDateBasis="deadline-ish"),
+            "resolutionDateBasis must be one of ['release-calendar', "
+            "'resolve-by-bound'], got 'deadline-ish' (registration target 0)",
+        ),
     ):
         invalid = json.loads(json.dumps(snapshot))
         mutate(invalid["targets"][0])
-        invalid_snapshots.append(invalid)
+        invalid_snapshots.append((invalid, message))
 
-    for invalid in invalid_snapshots:
-        with pytest.raises(register_targets.RegistrationError):
+    for invalid, message in invalid_snapshots:
+        with pytest.raises(register_targets.RegistrationError) as error:
             register_targets.registration_content_hash(invalid)
+        assert str(error.value) == message
 
 
 def test_resolution_projection_preserves_absent_basis_spelling() -> None:

@@ -38,6 +38,73 @@ def corrected_anchor_fixture() -> dict[str, float]:
     }
 
 
+def invalid_anchor_specs() -> list[tuple[str, dict]]:
+    corrected = corrected_anchor_fixture()
+    verified = {
+        **SPEC,
+        "anchor_status": "VERIFIED_REVISED_METHODOLOGY",
+        "anchors": corrected,
+    }
+    cases = [
+        ("wrong-status", {**verified, "anchor_status": "VERIFIED"}),
+        (
+            "boolean-2024",
+            {**verified, "anchors": {**corrected, "2024": True}},
+        ),
+        (
+            "legacy-2019-12.5",
+            {**verified, "anchors": {**corrected, "2019": 12.5}},
+        ),
+        (
+            "legacy-2019-12.6",
+            {**verified, "anchors": {**corrected, "2019": 12.6}},
+        ),
+        (
+            "legacy-2020-9.7",
+            {**verified, "anchors": {**corrected, "2020": 9.7}},
+        ),
+        (
+            "full-legacy-vector",
+            {
+                **verified,
+                "anchors": {
+                    "2019": 12.6,
+                    "2020": 9.7,
+                    "2021": 5.2,
+                    "2022": 12.4,
+                    "2023": 13.7,
+                    "2024": 13.4,
+                },
+            },
+        ),
+    ]
+    for missing_year in corrected:
+        cases.append(
+            (
+                f"missing-{missing_year}",
+                {
+                    **verified,
+                    "anchors": {
+                        year: value
+                        for year, value in corrected.items()
+                        if year != missing_year
+                    },
+                },
+            )
+        )
+    for extra_year in ("2018", "2025"):
+        cases.append(
+            (
+                f"extra-{extra_year}",
+                {
+                    **verified,
+                    "anchors": {**corrected, extra_year: 10.0},
+                },
+            )
+        )
+    return cases
+
+
 def docket_entry() -> dict:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     return next(entry for entry in docket["series"] if entry["series"] == SERIES)
@@ -306,7 +373,11 @@ def test_publication_index_selects_exact_report_and_enforces_first_print() -> No
         allowed_hosts=SPEC["allowed_hosts"],
         require_latest=True,
     )
-    assert url is None and "first-print window was missed" in refusal
+    assert (url, refusal) == (
+        None,
+        "Census report for 2024 is no longer the latest annual print (found "
+        "2025); the first-print window was missed",
+    )
 
     url, refusal = resolve_pending.census_spm_report_url(
         b'<a href="https://example.com/library/publications/2025/demo/'
@@ -316,7 +387,11 @@ def test_publication_index_selects_exact_report_and_enforces_first_print() -> No
         publications_url=SPEC["publications_url"],
         allowed_hosts=SPEC["allowed_hosts"],
     )
-    assert url is None and "not in adapter allowlist" in refusal
+    assert (url, refusal) == (
+        None,
+        "source host 'example.com' is not in adapter allowlist "
+        "['www.census.gov', 'www2.census.gov']",
+    )
 
     early_url = (
         "https://www.census.gov/library/publications/2024/demo/p60-287.html"
@@ -365,7 +440,11 @@ def test_report_page_selects_one_table_b2_and_refuses_layout_drift() -> None:
         report_url=report_url,
         allowed_hosts=SPEC["allowed_hosts"],
     )
-    assert url is None and "no reviewed Table B-2 XLSX" in refusal
+    assert (url, refusal) == (
+        None,
+        "Census annual report page has no reviewed Table B-2 XLSX link; the "
+        "publication is incomplete or its layout changed",
+    )
 
     wrong_report_number = report.replace(b"/p60/287/", b"/p60/999/")
     url, refusal = resolve_pending.census_spm_table_url(
@@ -374,7 +453,11 @@ def test_report_page_selects_one_table_b2_and_refuses_layout_drift() -> None:
         report_url=report_url,
         allowed_hosts=SPEC["allowed_hosts"],
     )
-    assert url is None and "not the reviewed" in refusal
+    assert (url, refusal) == (
+        None,
+        "Census published a Table B-2 link but not the reviewed "
+        "'tableB-2.xlsx' artifact; extend the adapter",
+    )
 
 
 def test_report_publication_date_and_first_print_window_fail_closed() -> None:
@@ -408,7 +491,10 @@ def test_report_publication_date_and_first_print_window_fail_closed() -> None:
         resolve_pending.dt.date(2025, 10, 1),
         SPEC["first_print_window_days"],
     )
-    assert "missed the 21-day first-print window" in refusal
+    assert refusal == (
+        "report published 2025-09-09, but capture 2025-10-01 missed the "
+        "21-day first-print window ending 2025-09-30"
+    )
 
 
 def test_later_publication_year_keeps_title_latest_and_first_print_checks(
@@ -560,7 +646,10 @@ def test_table_parser_fails_closed_on_wrong_identity_and_ambiguity() -> None:
     assert refusal is None
 
     _, refusal = resolve_pending.census_spm_rate_from_grid(grid, "2023", SPEC)
-    assert "ending in report year 2023" in refusal
+    assert refusal == (
+        "Table B-2 title is not the Supplemental Poverty Measure range ending "
+        "in report year 2023; wrong or later workbook"
+    )
 
     duplicate_column = copy.deepcopy(grid)
     duplicate_column[3][10] = "Under 18 years"
@@ -569,14 +658,21 @@ def test_table_parser_fails_closed_on_wrong_identity_and_ambiguity() -> None:
     _, refusal = resolve_pending.census_spm_rate_from_grid(
         duplicate_column, "2024", SPEC
     )
-    assert "found 2" in refusal
+    assert refusal == (
+        "expected exactly one Under 18 years / Below Poverty / Percent "
+        "column, found 2 at [9, 10]"
+    )
 
     duplicate_year = copy.deepcopy(grid)
     duplicate_year.insert(10, [2024.0, *("" for _ in range(8)), 99.0])
     _, refusal = resolve_pending.census_spm_rate_from_grid(
         duplicate_year, "2024", SPEC
     )
-    assert "inside ALL RACES, found 2" in refusal
+    assert refusal == (
+        "expected exactly one 2024 row inside ALL RACES, found 2; duplicate "
+        "transition rows require exactly one row carrying an authenticated "
+        "revised-methodology footnote, found 0"
+    )
 
     legacy_grid, refusal = resolve_pending.census_spm_xlsx_grid(
         (FIXTURE_ROOT / "p60-287-tableB-2.xlsx").read_bytes(), SPEC
@@ -603,19 +699,27 @@ def test_table_parser_fails_closed_on_wrong_identity_and_ambiguity() -> None:
     _, refusal = resolve_pending.census_spm_rate_from_grid(
         bad_value, "2024", SPEC
     )
-    assert "not in [0, 100]" in refusal
+    assert refusal == (
+        "child SPM percent cell is not in [0, 100]: '13.4 percent'"
+    )
 
     bad_arithmetic = copy.deepcopy(grid)
     bad_arithmetic[7][7] = 5000.0
     _, refusal = resolve_pending.census_spm_rate_from_grid(
         bad_arithmetic, "2024", SPEC
     )
-    assert "arithmetic cross-check" in refusal
+    assert refusal == (
+        "child SPM percent fails the Table B-2 arithmetic cross-check: "
+        "published 13.4, implied 6.85119 from 5000/72980"
+    )
 
     _, refusal = resolve_pending.census_spm_xlsx_grid(
         synthetic_workbook(sheet_name="Table B-3"), SPEC
     )
-    assert "exactly one Table B-2 sheet" in refusal
+    assert refusal == (
+        "expected exactly one Table B-2 sheet, found 0 (sheets: "
+        "['Table B-3']); extend the adapter"
+    )
 
 
 def test_fetch_year_discovers_and_archives_the_exact_xlsx(monkeypatch) -> None:
@@ -684,7 +788,13 @@ def test_fetch_year_refuses_report_redirect_and_late_capture(monkeypatch) -> Non
 
     monkeypatch.setattr(resolve_pending, "http_get", redirected_get)
     *_, refusal = resolve_pending.census_spm_fetch_year(SPEC, "2024")
-    assert "redirected away from the exact indexed P60 artifact" in refusal
+    assert refusal == (
+        "Census annual report fetch redirected away from the exact indexed "
+        "P60 artifact: "
+        "'https://www.census.gov/library/publications/2025/demo/p60-287.html' "
+        "-> "
+        "'https://www.census.gov/library/publications/2025/demo/p60-999.html'"
+    )
 
     def late_get(url, *, allowed_hosts, timeout=120):
         if url == SPEC["publications_url"]:
@@ -699,7 +809,10 @@ def test_fetch_year_refuses_report_redirect_and_late_capture(monkeypatch) -> Non
         resolve_pending, "utc_now", lambda: "2025-10-01T00:00:01Z"
     )
     *_, refusal = resolve_pending.census_spm_fetch_year(SPEC, "2024")
-    assert "missed the 21-day first-print window" in refusal
+    assert refusal == (
+        "report published 2025-09-09, but capture 2025-10-01 missed the "
+        "21-day first-print window ending 2025-09-30"
+    )
 
 
 def test_revised_anchor_admission_and_exact_comparison() -> None:
@@ -728,58 +841,7 @@ def test_revised_anchor_admission_and_exact_comparison() -> None:
         "verified anchors must cover exactly 2019-2024; got "
         "['2020', '2021', '2022', '2023', '2024']"
     ]
-    for missing_year in corrected:
-        missing = {
-            year: value
-            for year, value in corrected.items()
-            if year != missing_year
-        }
-        assert (
-            resolve_pending.census_spm_verified_anchors(
-                {**verified, "anchors": missing}
-            )
-            is None
-        )
-    for extra_year in ("2018", "2025"):
-        assert (
-            resolve_pending.census_spm_verified_anchors(
-                {
-                    **verified,
-                    "anchors": {**corrected, extra_year: 10.0},
-                }
-            )
-            is None
-        )
-    for bad in (
-        {**verified, "anchor_status": "VERIFIED"},
-        {
-            **verified,
-            "anchors": {**corrected, "2024": True},
-        },
-        {
-            **verified,
-            "anchors": {**corrected, "2019": 12.5},
-        },
-        {
-            **verified,
-            "anchors": {**corrected, "2019": 12.6},
-        },
-        {
-            **verified,
-            "anchors": {**corrected, "2020": 9.7},
-        },
-        {
-            **verified,
-            "anchors": {
-                "2019": 12.6,
-                "2020": 9.7,
-                "2021": 5.2,
-                "2022": 12.4,
-                "2023": 13.7,
-                "2024": 13.4,
-            },
-        },
-    ):
+    for _case, bad in invalid_anchor_specs():
         assert resolve_pending.census_spm_verified_anchors(bad) is None
 
 
@@ -816,26 +878,12 @@ def test_both_condition_arms_route_to_one_annual_print() -> None:
 
 
 @pytest.mark.parametrize(
-    "adapter_spec",
-    (
-        SPEC,
-        {
-            **SPEC,
-            "anchor_status": "VERIFIED_REVISED_METHODOLOGY",
-            "anchors": {
-                "2019": 12.6,
-                "2020": 9.7,
-                "2021": 5.2,
-                "2022": 12.4,
-                "2023": 13.7,
-                "2024": 13.4,
-            },
-        },
-    ),
-    ids=("pending", "legacy-valued"),
+    ("case", "adapter_spec"),
+    [("pending", SPEC), *invalid_anchor_specs()],
+    ids=lambda value: value if isinstance(value, str) else None,
 )
 def test_unverified_adapter_refuses_before_any_network_call(
-    monkeypatch, capsys, adapter_spec
+    monkeypatch, capsys, case, adapter_spec
 ) -> None:
     ref = f"{SERIES}.2027.first_print.current_law"
     forecast = {"resolutionDate": "2028-12-31", "unit": "percent"}
@@ -893,11 +941,12 @@ def test_unverified_adapter_refuses_before_any_network_call(
 
     assert resolve_pending.main() == 0
     output = capsys.readouterr().out
-    assert (
+    message = (
         "  CENSUS SPM ADAPTER UNVERIFIED (refusing): "
         f"{ref} — all six 2019-2024 official-source anchors, with "
         "transition-discriminating 2019 and 2020 values, are required"
-    ) in output
+    )
+    assert message in output.splitlines(), case
     assert "nothing new to record" in output
 
 
@@ -1070,14 +1119,21 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
     )
     output = capsys.readouterr().out
     if timing != "open":
-        message = (
+        refusals = {
+            line
+            for line in output.splitlines()
+            if line.startswith("  FIRST-PRINT WINDOW MISSED (refusing):")
+        }
+        assert refusals == {
+            "  FIRST-PRINT WINDOW MISSED (refusing): "
+            f"{SERIES}.2027.first_print.threshold_one_dollar — registered "
+            "window closed 2028-12-31; adapter has no authenticated "
+            "immutable-artifact late-capture capability",
             "  FIRST-PRINT WINDOW MISSED (refusing): "
             f"{SERIES}.2027.first_print.current_law — registered window "
             "closed 2028-12-31; adapter has no authenticated immutable-"
-            "artifact late-capture capability"
-        )
-        assert message in output
-        assert output.count("FIRST-PRINT WINDOW MISSED (refusing)") == 2
+            "artifact late-capture capability",
+        }
         assert "LATE FIRST-PRINT CAPTURE (recording)" not in output
         assert "nothing new to record" in output
     else:

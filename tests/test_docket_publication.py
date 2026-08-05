@@ -446,12 +446,14 @@ def test_validate_target_registration_rejects_snapshot_tampering(
     }
 
     docket_publication.validate_target_registration(tmp_path, target)
-    with pytest.raises(
-        PublicationError, match="contract mismatch for resolutionDateBasis"
-    ):
+    with pytest.raises(PublicationError) as error:
         docket_publication.validate_target_registration(
             tmp_path, {**target, "resolutionDateBasis": "release-calendar"}
         )
+    assert str(error.value) == (
+        "target registration contract mismatch for resolutionDateBasis: "
+        f"{relative.as_posix()}"
+    )
     snapshot["targets"][0]["unit"] = "ratio"
     path.write_text(json.dumps(snapshot))
     with pytest.raises(PublicationError, match="hash mismatch"):
@@ -502,11 +504,11 @@ def test_validate_target_registration_rejects_malformed_bounded_snapshot(
         "targetContentHash": content_hash,
     }
 
-    with pytest.raises(
-        PublicationError,
-        match="requires an exact expectedReleaseWindow",
-    ):
+    with pytest.raises(PublicationError) as error:
         docket_publication.validate_target_registration(tmp_path, target)
+    assert str(error.value) == (
+        "resolve-by-bound target requires an exact expectedReleaseWindow"
+    )
 
 
 def committed_registration(

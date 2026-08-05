@@ -174,13 +174,17 @@ def test_legacy_bounded_compatibility_is_scoped_to_the_known_irs_ids() -> None:
     legacy.pop("resolutionDateBasis")
     legacy.pop("resolutionDate")
 
-    with pytest.raises(
-        register_targets.RegistrationError,
-        match="no longer regenerates the registered",
-    ):
+    with pytest.raises(register_targets.RegistrationError) as error:
         register_targets.require_conditional_docket_template(
             legacy, [entry], "2026-08-01T00:00:00Z"
         )
+    assert str(error.value) == (
+        "committed docket entry no longer regenerates the registered "
+        "conditional contract (drifted: ['resolutionDate', "
+        "'resolutionDateBasis']): "
+        "agency.legacy.rate.2027.first_print.enacted in series "
+        "agency.legacy.rate"
+    )
 
 
 @pytest.mark.parametrize(
@@ -415,7 +419,9 @@ def test_irs_binding_drift_refuses_before_pending_window(monkeypatch, capsys) ->
         registration={"contract": {"sourceBinding": binding}},
     )
     assert (
-        "BINDING/ADAPTER MISMATCH (refusing, full seven-key registry drift?)" in output
+        "  BINDING/ADAPTER MISMATCH (refusing, full seven-key registry "
+        "drift?): irs.actc.total_claims.2027.first_print.current_law"
+        in output.splitlines()
     )
     assert "RELEASE WINDOW NOT OPEN" not in output
 
@@ -438,7 +444,12 @@ def test_irs_unverified_adapter_refuses_before_pending_window(
         spec=spec,
         registration={"contract": {"sourceBinding": binding}},
     )
-    assert "IRS SOI ADAPTER UNVERIFIED (refusing)" in output
+    assert (
+        "  IRS SOI ADAPTER UNVERIFIED (refusing): "
+        "irs.actc.total_claims.2027.first_print.current_law — three live "
+        "official-source anchors are required"
+        in output.splitlines()
+    )
     assert "RELEASE WINDOW NOT OPEN" not in output
 
 
