@@ -128,6 +128,32 @@ jobs:
             --registered-at-utc "$REGISTERED_AT" \
             --metadata-out /tmp/bounded-registration-before-commit.json
 
+          # Registration hydrates the authenticated nested release window.
+          # Refuse with a fresh clock before the next step can commit it.
+          RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          python3 - "$RECHECKED_AT" /tmp/bounded-registration-targets.json <<'PY'
+          import datetime as dt
+          import json
+          import pathlib
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from generation_tickets import earliest_resolution_boundary
+
+          rechecked = dt.datetime.strptime(
+              sys.argv[1], "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          targets = json.loads(pathlib.Path(sys.argv[2]).read_text())["targets"]
+          if targets:
+              boundary = dt.datetime.strptime(
+                  earliest_resolution_boundary(targets), "%Y-%m-%dT%H:%M:%SZ"
+              ).replace(tzinfo=dt.timezone.utc)
+              if rechecked >= boundary:
+                  raise SystemExit(
+                      "targets are already at or past their resolution boundary"
+                  )
+          PY
+
       - name: Commit missing bounded registrations
         id: bounded_registration
         run: |
@@ -182,7 +208,33 @@ jobs:
               --head HEAD \
               --metadata-out /tmp/bounded-registration-candidate.json
 
+            # The registration command checks the release-window date. Apply
+            # the full answer-knowable boundary (including conditionDeadline)
+            # with a fresh clock immediately before every push attempt.
             LOCAL=$(git rev-parse HEAD)
+            RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            python3 - "$RECHECKED_AT" /tmp/bounded-registration-targets.json <<'PY'
+          import datetime as dt
+          import json
+          import pathlib
+          import sys
+
+          sys.path.insert(0, "scripts")
+          from generation_tickets import earliest_resolution_boundary
+
+          rechecked = dt.datetime.strptime(
+              sys.argv[1], "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          targets = json.loads(pathlib.Path(sys.argv[2]).read_text())["targets"]
+          boundary = dt.datetime.strptime(
+              earliest_resolution_boundary(targets), "%Y-%m-%dT%H:%M:%SZ"
+          ).replace(tzinfo=dt.timezone.utc)
+          if rechecked >= boundary:
+              raise SystemExit(
+                  "targets are already at or past their resolution boundary"
+              )
+          PY
+
             if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
               # A zero-exit push is the attestation boundary. Never put a
               # second network call between this success and attest_commit.

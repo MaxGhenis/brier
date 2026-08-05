@@ -78,6 +78,11 @@ def test_mint_workflow_registers_only_bounded_targets_then_mints() -> None:
     assert "scripts/generation_tickets.py select" in source
     assert "bounded_registration_payload" in bounded_registration["run"]
     assert "/tmp/bounded-registration-targets.json" in bounded_registration["run"]
+    assert "earliest_resolution_boundary" in bounded_registration["run"]
+    assert (
+        "targets are already at or past their resolution boundary"
+        in bounded_registration["run"]
+    )
     assert "--reuse-existing-only" not in bounded_registration["run"]
     assert "--skip-unbindable" not in bounded_registration["run"]
     assert "--bind-registration-commits" in source
@@ -194,6 +199,19 @@ def test_mint_workflow_reverifies_every_push_candidate_and_attests() -> None:
         assert push_success.index("pushed=1") < push_success.index("break")
     assert "RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" in registration_sync
     assert "--reuse-existing-only" in registration_sync
+    assert "earliest_resolution_boundary" in registration_sync
+    assert (
+        "targets are already at or past their resolution boundary"
+        in registration_sync
+    )
+    fresh_clock = registration_sync.rindex(
+        "RECHECKED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    )
+    boundary_recheck = registration_sync.rindex(
+        "earliest_resolution_boundary(targets)"
+    )
+    registration_push = registration_sync.index("push origin main")
+    assert fresh_clock < boundary_recheck < registration_push
     assert "git ls-remote origin refs/heads/main" in source
     assert source.count("uses: ./.github/actions/attest-records-push") == 2
     assert "commit: ${{ steps.bounded_sync.outputs.attest_commit }}" in source
