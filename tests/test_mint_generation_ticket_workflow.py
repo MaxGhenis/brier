@@ -89,6 +89,32 @@ def test_mint_workflow_reuses_registration_and_commits_only_ticket() -> None:
     assert "adopt_proven_series.py" not in source
 
 
+def test_mint_workflow_computes_boundary_after_registration_hydration() -> None:
+    workflow = load_workflow()
+    steps = workflow["jobs"]["mint"]["steps"]
+    policy_index = next(
+        index for index, step in enumerate(steps) if step.get("id") == "policy"
+    )
+    registration_index = next(
+        index
+        for index, step in enumerate(steps)
+        if step.get("name") == "Reuse and bind immutable registrations at HEAD"
+    )
+    boundary_index = next(
+        index for index, step in enumerate(steps) if step.get("id") == "boundary"
+    )
+
+    assert policy_index < registration_index < boundary_index
+    assert "earliest_resolution_boundary" not in steps[policy_index]["run"]
+    assert "--reuse-existing-only" in steps[registration_index]["run"]
+    assert "--bind-registration-commits" in steps[registration_index]["run"]
+    assert "earliest_resolution_boundary" in steps[boundary_index]["run"]
+    assert (
+        "targets are already at or past their resolution boundary"
+        in steps[boundary_index]["run"]
+    )
+
+
 def test_only_ticket_mint_opts_bounded_targets_into_roll_selection() -> None:
     assert "--include-bounded" in WORKFLOW.read_text()
     assert "--include-bounded" not in ORDINARY_ROLL_WORKFLOW.read_text()
