@@ -427,6 +427,7 @@ def attested_bundle(
         True,
         target,
         policy["promptMode"],
+        generation_ticket=generation_tickets.ticket_manifest_binding(prompt_context),
     )
     validation_errors = [
         error

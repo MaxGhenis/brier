@@ -1013,6 +1013,9 @@ def validate_cells(
             target_context=target,
             prompt_mode=prompt_mode,
             collision_exclusion=collision_exclusion,
+            generation_ticket=(
+                manifest.get("generationTicket") if manifest is not None else None
+            ),
         )
         if bool(report.get("ok")) != expected_ok:
             raise PublicationError(

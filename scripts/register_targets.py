@@ -447,10 +447,9 @@ def expected_release_window(
         )
     if end < start:
         raise RegistrationError("expected release window ends before it starts")
-    if adapter in NATIVE_INTL_SOURCE_ADAPTERS and start <= registration_date:
+    if start <= registration_date:
         raise RegistrationError(
-            "native international release window must start after the "
-            "registration date"
+            "expected release window must start after the registration date"
         )
     return {"start": start.isoformat(), "end": end.isoformat()}
 
@@ -709,14 +708,7 @@ def build_contract(
                 "conditional target requires a non-empty conditionId"
             )
         deadline = _iso_date(str(target.get("conditionDeadline")))
-        overlapping_bounded_deadline = (
-            basis == "resolve-by-bound"
-            and deadline.isoformat() == resolution_bound
-        )
-        if (
-            deadline.isoformat() >= binding["expectedReleaseWindow"]["start"]
-            and not overlapping_bounded_deadline
-        ):
+        if deadline.isoformat() >= binding["expectedReleaseWindow"]["start"]:
             raise RegistrationError(
                 "conditionDeadline must precede the expected release window"
             )

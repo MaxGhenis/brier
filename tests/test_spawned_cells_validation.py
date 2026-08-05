@@ -63,6 +63,136 @@ def test_leakage_gate_fires_on_fresh_cells_with_top_level_run_at() -> None:
     assert not any("leakage" in error for error in errors_ok), errors_ok
 
 
+def bounded_context(start: str = "2026-07-11") -> dict:
+    return {
+        "resolutionDateBasis": "resolve-by-bound",
+        "sourceBinding": {
+            "expectedReleaseWindow": {"start": start, "end": "2026-07-17"}
+        },
+    }
+
+
+def ticket_context() -> dict:
+    return {
+        "ticketId": "2026-07-10-deadbeef",
+        "ticketPath": (
+            "records/tickets/2026-07-10/2026-07-10-deadbeef.json"
+        ),
+        "nonceSha256": "a" * 64,
+    }
+
+
+def test_bounded_cell_requires_ticket_context_literally() -> None:
+    cell = probe_cell("2026-07-17")
+    cell["runStartedAt"] = "2026-07-10T04:00:00Z"
+
+    errors = spawned_cells_to_ts.validate(
+        cell, set(), target_context=bounded_context()
+    )
+
+    assert "resolve-by-bound target requires generation ticket context" in errors
+    ticketed = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        target_context=bounded_context(),
+        generation_ticket=ticket_context(),
+    )
+    assert "resolve-by-bound target requires generation ticket context" not in ticketed
+
+
+def test_bounded_cell_rejects_incomplete_ticket_context_literally() -> None:
+    cell = probe_cell("2026-07-17")
+    cell["runStartedAt"] = "2026-07-10T04:00:00Z"
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        target_context=bounded_context(),
+        generation_ticket={"ticketId": "2026-07-10-deadbeef"},
+    )
+
+    assert "resolve-by-bound target requires generation ticket context" in errors
+
+
+def test_shared_validator_rejects_unsupported_basis_literally() -> None:
+    errors = spawned_cells_to_ts.validate(
+        probe_cell("2026-07-17"),
+        set(),
+        target_context={"resolutionDateBasis": "deadline-ish"},
+    )
+
+    assert "unsupported target resolutionDateBasis 'deadline-ish'" in errors
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        (
+            "runStartedAt",
+            None,
+            "resolve-by-bound cell is missing runStartedAt",
+        ),
+        (
+            "runStartedAt",
+            "not-an-instant",
+            "resolve-by-bound cell runStartedAt is not ISO-8601",
+        ),
+        (
+            "runStartedAt",
+            "2026-07-10T04:00:00",
+            "resolve-by-bound cell runStartedAt is not timezone-aware",
+        ),
+        (
+            "runStartedAt",
+            "2026-07-11T00:00:00Z",
+            "runStartedAt 2026-07-11T00:00:00Z must precede "
+            "expectedReleaseWindow.start 2026-07-11",
+        ),
+        (
+            "runAt",
+            "2026-07-11T00:00:00Z",
+            "runAt 2026-07-11T00:00:00Z must precede "
+            "expectedReleaseWindow.start 2026-07-11",
+        ),
+    ],
+)
+def test_bounded_run_and_seal_must_precede_window_literally(
+    field: str, value: str | None, message: str
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["runStartedAt"] = "2026-07-10T04:00:00Z"
+    if value is None:
+        cell.pop(field, None)
+    else:
+        cell[field] = value
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        target_context=bounded_context(),
+        generation_ticket=ticket_context(),
+    )
+
+    assert message in errors
+
+
+def test_bounded_context_requires_canonical_nested_window_start_literally() -> None:
+    cell = probe_cell("2026-07-17")
+    cell["runStartedAt"] = "2026-07-10T04:00:00Z"
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        target_context=bounded_context("2026-7-11"),
+        generation_ticket=ticket_context(),
+    )
+
+    assert (
+        "resolve-by-bound target requires canonical "
+        "sourceBinding.expectedReleaseWindow.start"
+    ) in errors
+
+
 def test_sigma_gate_fires_on_fresh_cells_with_top_level_run_at() -> None:
     # No math step showing sigma/1.28: the derivation gate must complain for
     # a fresh post-2026-07-05 cell, which it silently skipped before the fix.
@@ -249,6 +379,8 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
         "promptHash": "a" * 64,
         "toolPolicyHash": "b" * 64,
     }
+    cell[spawned_cells_to_ts.SEALED_TARGET_CONTEXT_KEY] = bounded_context()
+    cell[spawned_cells_to_ts.SEALED_VALIDATION_TICKET_KEY] = ticket_context()
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
@@ -258,6 +390,31 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     assert "provenance" not in run
     assert "generationTicket" not in run
     assert run["agent"] != "spoofed.agent"
+    assert spawned_cells_to_ts.SEALED_TARGET_CONTEXT_KEY not in loaded
+    assert spawned_cells_to_ts.SEALED_VALIDATION_TICKET_KEY not in loaded
+
+
+def test_converter_validation_uses_sealed_bounded_manifest_context(
+    tmp_path: pathlib.Path,
+) -> None:
+    import json
+
+    manifest = {
+        "targetContext": bounded_context(),
+        "generationTicket": ticket_context(),
+    }
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    cell = probe_cell("2026-07-17")
+    cell["runStartedAt"] = "2026-07-01T03:55:00Z"
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    errors = spawned_cells_to_ts.validate(loaded, set())
+
+    assert "resolve-by-bound target requires generation ticket context" not in errors
+    assert not any("expectedReleaseWindow.start" in error for error in errors)
 
 
 def test_sealed_generation_ticket_reads_manifest_identity(

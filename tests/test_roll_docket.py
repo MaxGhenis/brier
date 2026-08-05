@@ -711,6 +711,66 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
     build_contract(targets[1], dt.date(2026, 8, 1))
 
 
+def test_main_routes_bounded_pairs_only_to_ticket_selection(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [conditional_pair_entry()]}))
+    output = tmp_path / "targets.json"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 8, 1)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(roll_docket, "live_catalog", lambda: (set(), {}, set()))
+    monkeypatch.setattr(
+        sys, "argv", ["roll_docket.py", "--out", str(output)]
+    )
+
+    assert roll_docket.main() == 0
+    assert json.loads(output.read_text()) == {"targets": []}
+    assert capsys.readouterr().out == (
+        "  skip irs.actc.total_claims: resolve-by-bound target requires "
+        "the attested generation-ticket lane\n"
+        "0 targets\n"
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["roll_docket.py", "--include-bounded", "--out", str(output)],
+    )
+    assert roll_docket.main() == 0
+    targets = json.loads(output.read_text())["targets"]
+    assert [target["catalogSlug"] for target in targets] == [
+        "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+        "additional-child-tax-credit-total-claims-ty2027-current-law",
+    ]
+
+
+def test_conditional_pair_stops_when_release_window_opens_literally(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = conditional_pair_entry()
+    start = entry["extras"]["expectedReleaseWindow"]["start"]
+
+    assert (
+        roll_docket.conditional_pair_seed_targets(
+            entry, set(), dt.date.fromisoformat(start)
+        )
+        == []
+    )
+    assert capsys.readouterr().err == (
+        "  warning: skip irs.actc.total_claims: conditional pair forecast "
+        f"generation must precede release window start {start}\n"
+    )
+
+
 def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
     docket = json.loads(
         (ROOT / "scripts" / "docket_series.json").read_text()

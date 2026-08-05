@@ -13,7 +13,7 @@ guard.
 
 Usage:
     python3 scripts/roll_docket.py [--cadence weekly|monthly|quarterly|annual]
-        [--max-targets N] [--out targets.json] [--dry-run]
+        [--max-targets N] [--out targets.json] [--dry-run] [--include-bounded]
 
 Emits a run_thesis_batch.py-compatible targets file. Reviewed recurring seeds
 sort first by exact release date so the capped scheduler cannot defer them
@@ -509,8 +509,6 @@ def conditional_pair_seed_targets(
         deadline = dt.date.fromisoformat(str(pair.get("conditionDeadline")))
     except (TypeError, ValueError):
         return skip("requires an ISO conditionDeadline")
-    if today >= deadline:
-        return skip(f"condition deadline {deadline} has passed")
     extras = entry.get("extras")
     if not isinstance(extras, dict) or not isinstance(
         extras.get("sourceBinding"), dict
@@ -537,10 +535,14 @@ def conditional_pair_seed_targets(
             return skip(
                 "resolve-by-bound requires resolutionDate to equal window end"
             )
-    if start <= deadline and not (
-        basis == "resolve-by-bound" and deadline.isoformat() == window["end"]
-    ):
+    if start <= deadline:
         return skip("release window must open after the condition deadline")
+    if today >= start:
+        return skip(
+            f"forecast generation must precede release window start {start}"
+        )
+    if today >= deadline:
+        return skip(f"condition deadline {deadline} has passed")
     arms = pair.get("arms")
     if not isinstance(arms, list) or len(arms) != 2:
         return skip("requires exactly two arms")
@@ -870,6 +872,14 @@ def main() -> int:
     parser.add_argument("--max-targets", type=int, default=12)
     parser.add_argument("--out")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--include-bounded",
+        action="store_true",
+        help=(
+            "Include resolve-by-bound targets for the attested generation-ticket "
+            "selector. Ordinary auto-roll must leave this disabled."
+        ),
+    )
     args = parser.parse_args()
 
     registry = json.loads(REGISTRY.read_text())["series"]
@@ -886,6 +896,17 @@ def main() -> int:
         if args.series and entry.get("series") != args.series:
             continue
         if args.cadence and entry["cadence"] != args.cadence:
+            continue
+        extras = entry.get("extras")
+        if (
+            isinstance(extras, dict)
+            and extras.get("resolutionDateBasis") == "resolve-by-bound"
+            and not args.include_bounded
+        ):
+            print(
+                f"  skip {entry['series']}: resolve-by-bound target requires "
+                "the attested generation-ticket lane"
+            )
             continue
         if isinstance(entry.get("conditionalPair"), dict):
             pair_targets = conditional_pair_seed_targets(entry, existing, today)

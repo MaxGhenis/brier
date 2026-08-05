@@ -3072,6 +3072,30 @@ def conditional_pair_targets() -> list[dict]:
     ]
 
 
+def test_registration_must_precede_every_release_window_literally() -> None:
+    target = conditional_pair_targets()[0]
+    start = target["expectedReleaseWindow"]["start"]
+
+    with pytest.raises(register_targets.RegistrationError) as caught:
+        register_targets.build_contract(target, dt.date.fromisoformat(start))
+
+    assert str(caught.value) == (
+        "expected release window must start after the registration date"
+    )
+
+
+def test_condition_deadline_must_precede_bounded_window_literally() -> None:
+    target = conditional_pair_targets()[0]
+    target["conditionDeadline"] = target["expectedReleaseWindow"]["start"]
+
+    with pytest.raises(register_targets.RegistrationError) as caught:
+        register_targets.build_contract(target, dt.date(2026, 8, 1))
+
+    assert str(caught.value) == (
+        "conditionDeadline must precede the expected release window"
+    )
+
+
 def test_skip_unbindable_never_registers_a_lone_conditional_arm(
     tmp_path: pathlib.Path, monkeypatch, capsys
 ) -> None:

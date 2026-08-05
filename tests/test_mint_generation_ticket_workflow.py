@@ -6,6 +6,7 @@ import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github/workflows/mint-generation-ticket.yml"
+ORDINARY_ROLL_WORKFLOW = ROOT / ".github/workflows/roll-docket.yml"
 
 
 def load_workflow() -> dict:
@@ -64,6 +65,7 @@ def test_mint_workflow_reuses_registration_and_commits_only_ticket() -> None:
     source = WORKFLOW.read_text()
 
     assert "scripts/roll_docket.py" in source
+    assert "--include-bounded" in source
     assert "scripts/generation_tickets.py select" in source
     assert source.index("--reuse-existing-only") < source.index(
         "--bind-registration-commits"
@@ -85,6 +87,11 @@ def test_mint_workflow_reuses_registration_and_commits_only_ticket() -> None:
     assert "git add records/" not in source
     assert "--skip-unbindable" not in source
     assert "adopt_proven_series.py" not in source
+
+
+def test_only_ticket_mint_opts_bounded_targets_into_roll_selection() -> None:
+    assert "--include-bounded" in WORKFLOW.read_text()
+    assert "--include-bounded" not in ORDINARY_ROLL_WORKFLOW.read_text()
 
 
 def test_mint_workflow_reverifies_every_push_candidate_and_attests() -> None:

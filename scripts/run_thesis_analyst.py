@@ -2473,6 +2473,7 @@ def validate_cells(
     target_context: dict[str, Any] | None = None,
     prompt_mode: str = "full",
     collision_exclusion: pathlib.Path | None = None,
+    generation_ticket: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -2489,7 +2490,12 @@ def validate_cells(
     rows = []
     ok = True
     for cell in cells:
-        errors = validate(cell, taken | seen)
+        errors = validate(
+            cell,
+            taken | seen,
+            target_context=target_context,
+            generation_ticket=generation_ticket,
+        )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
         errors.extend(target_context_validation_errors(cell, target_context))
@@ -3389,6 +3395,7 @@ def main() -> int:
         args.allow_existing_slug,
         target_context,
         args.prompt_mode,
+        generation_ticket=generation_ticket,
     )
     validation_ref = write_artifact(
         out_dir,

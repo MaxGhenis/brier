@@ -1419,6 +1419,7 @@ def _check_replay(
             True,
             run.target,
             policy["promptMode"],
+            generation_ticket=state.manifest_binding,
         )
         recorded_validation = _json_artifact(
             bundle_repo,

@@ -8,6 +8,8 @@ import sys
 import zipfile
 from xml.sax.saxutils import escape
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -189,7 +191,9 @@ def test_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
     )
 
 
-def test_spm_pair_rolls_and_builds_bounded_registrable_contracts() -> None:
+def test_spm_pair_current_template_is_rejected_by_strict_chronology(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     entry = docket_entry()
     irs_entry = next(
         candidate
@@ -211,34 +215,11 @@ def test_spm_pair_rolls_and_builds_bounded_registrable_contracts() -> None:
     targets = roll_docket.conditional_pair_seed_targets(
         entry, set(), roll_docket.dt.date(2026, 8, 4)
     )
-    assert len(targets) == 2
-    contracts = [
-        register_targets.build_contract(
-            target, register_targets.dt.date(2026, 8, 4)
-        )
-        for target in targets
-    ]
-    for target, contract in zip(targets, contracts):
-        assert "anchors" not in target
-        assert contract["period"] == "2026"
-        assert contract["unit"] == "percent"
-        assert contract["resolutionDateBasis"] == "resolve-by-bound"
-        assert contract["resolutionDate"] == "2027-12-31"
-        assert contract["sourceBinding"]["expectedReleaseWindow"] == {
-            "start": "2027-09-01",
-            "end": "2027-12-31",
-        }
-        assert contract["sourceBinding"]["allowedHosts"] == [
-            "www.census.gov",
-            "www2.census.gov",
-        ]
-        register_targets.require_conditional_docket_template(
-            contract,
-            [entry],
-            "2026-08-04T00:00:00Z",
-            batch_target=target,
-        )
-    assert contracts[0]["dataPointId"] != contracts[1]["dataPointId"]
+    assert targets == []
+    assert capsys.readouterr().err == (
+        "  warning: skip census.spm.child_poverty_rate: conditional pair "
+        "release window must open after the condition deadline\n"
+    )
 
 
 def test_publication_index_selects_exact_report_and_enforces_first_print() -> None:

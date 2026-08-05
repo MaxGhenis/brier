@@ -2367,6 +2367,10 @@ def test_bounded_announcement_gate_requires_exact_tool_fetch_and_citation() -> N
         "sourceBinding": {
             "sourceUrl": announcement,
             "allowedHosts": ["www.census.gov"],
+            "expectedReleaseWindow": {
+                "start": "2027-09-01",
+                "end": "2027-12-31",
+            },
         },
     }
 
@@ -2376,12 +2380,28 @@ def test_bounded_announcement_gate_requires_exact_tool_fetch_and_citation() -> N
         cell["resolutionSourceUrl"] = announcement
         cell["sourceContext"][0] = announcement
         cell["reasoning"][2]["call"] = f"GET {announcement}"
+        cell["runStartedAt"] = "2026-06-17T11:55:00Z"
         return cell
 
     exact = bounded_cell()
     assert analyst_runner.target_context_validation_errors(exact, context) == []
-    assert analyst_runner.validate_cells(
+    unticketed = analyst_runner.validate_cells(
         [exact], allow_existing_slug=True, target_context=context
+    )
+    assert unticketed["cells"][0]["errors"] == [
+        "resolve-by-bound target requires generation ticket context"
+    ]
+    assert analyst_runner.validate_cells(
+        [exact],
+        allow_existing_slug=True,
+        target_context=context,
+        generation_ticket={
+            "ticketId": "2030-01-10-deadbeef",
+            "ticketPath": (
+                "records/tickets/2030-01-10/2030-01-10-deadbeef.json"
+            ),
+            "nonceSha256": "a" * 64,
+        },
     )["ok"]
 
     missing_tool = bounded_cell()
