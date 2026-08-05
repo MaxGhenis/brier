@@ -17,7 +17,7 @@ import json
 import socket
 import sys
 import urllib.parse
-from typing import Any, BinaryIO, Callable
+from typing import Any, BinaryIO
 
 SERVER_NAME = "thesis_announcement_fetch"
 TOOL_NAME = "fetch_official_announcement"
@@ -40,36 +40,31 @@ def _ip_address(value: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
     return address
 
 
-def _direct_socket_factory(
+def _connect_vetted_destination(
     destination: ResolvedDestination,
-) -> Callable[[tuple[str, int], float | None, tuple[str, int] | None], socket.socket]:
-    """Build a connection factory that cannot resolve the hostname again."""
+    *,
+    timeout: float | None,
+    source_address: tuple[str, int] | None,
+) -> socket.socket:
+    """Connect directly to one already-vetted IP without another lookup."""
 
     family, socktype, proto, sockaddr = destination
     expected_peer = _ip_address(sockaddr[0])
-
-    def create_connection(
-        _address: tuple[str, int],
-        timeout: float | None = None,
-        source_address: tuple[str, int] | None = None,
-    ) -> socket.socket:
-        connection = socket.socket(family, socktype, proto)
-        try:
-            connection.settimeout(timeout)
-            if source_address is not None:
-                connection.bind(source_address)
-            connection.connect(sockaddr)
-            actual_peer = _ip_address(connection.getpeername()[0])
-            if actual_peer != expected_peer:
-                raise FetchError(
-                    "announcement connection peer did not match the vetted address"
-                )
-            return connection
-        except Exception:
-            connection.close()
-            raise
-
-    return create_connection
+    connection = socket.socket(family, socktype, proto)
+    try:
+        connection.settimeout(timeout)
+        if source_address is not None:
+            connection.bind(source_address)
+        connection.connect(sockaddr)
+        actual_peer = _ip_address(connection.getpeername()[0])
+        if actual_peer != expected_peer:
+            raise FetchError(
+                "announcement connection peer did not match the vetted address"
+            )
+        return connection
+    except Exception:
+        connection.close()
+        raise
 
 
 class _PinnedHTTPSConnection(http.client.HTTPSConnection):
@@ -84,9 +79,30 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
         timeout: float,
     ) -> None:
         super().__init__(host, port=port, timeout=timeout)
-        # HTTPSConnection.connect uses this seam before wrapping the socket with
-        # TLS using self.host for SNI and certificate hostname verification.
-        self._create_connection = _direct_socket_factory(destination)
+        self._destination = destination
+
+    def connect(self) -> None:
+        """Dial the vetted IP, then authenticate the registered hostname."""
+
+        if self._tunnel_host is not None:
+            raise FetchError("announcement fetch refuses proxy tunnels")
+        sys.audit("http.client.connect", self, self.host, self.port)
+        raw_socket = _connect_vetted_destination(
+            self._destination,
+            timeout=self.timeout,
+            source_address=self.source_address,
+        )
+        try:
+            # Keep the registered hostname here: the IP is only the TCP target.
+            # The default context still verifies the certificate against this
+            # name, and wrap_socket sends the same name as TLS SNI.
+            self.sock = self._context.wrap_socket(
+                raw_socket,
+                server_hostname=self.host,
+            )
+        except Exception:
+            raw_socket.close()
+            raise
 
 
 def validate_allowed_url(value: str) -> str:
@@ -177,6 +193,8 @@ def fetch_announcement(url: str, *, allowed_url: str) -> dict[str, Any]:
     except ValueError as exc:
         raise FetchError("registered announcement URL has an invalid port") from exc
     destinations = _resolve_public_destinations(allowed_url)
+    if not destinations:
+        raise FetchError("announcement host resolution returned no IP addresses")
     request_target = urllib.parse.urlunsplit(
         ("", "", parsed.path or "/", parsed.query, "")
     )

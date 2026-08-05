@@ -396,22 +396,60 @@ def test_pinned_connection_refuses_an_unexpected_peer(monkeypatch) -> None:
         "socket",
         lambda *_args, **_kwargs: direct_socket,
     )
-    factory = fetch_mcp._direct_socket_factory(
-        (
-            socket.AF_INET,
-            socket.SOCK_STREAM,
-            socket.IPPROTO_TCP,
-            ("8.8.8.8", 443),
-        )
+    destination = (
+        socket.AF_INET,
+        socket.SOCK_STREAM,
+        socket.IPPROTO_TCP,
+        ("8.8.8.8", 443),
     )
 
     with pytest.raises(
         fetch_mcp.FetchError,
         match=r"^announcement connection peer did not match the vetted address$",
     ):
-        factory(("example.gov", 443), fetch_mcp.FETCH_TIMEOUT_SECONDS, None)
+        fetch_mcp._connect_vetted_destination(
+            destination,
+            timeout=fetch_mcp.FETCH_TIMEOUT_SECONDS,
+            source_address=None,
+        )
 
     assert direct_socket.closed is True
+
+
+def test_pinned_connection_refuses_proxy_tunnels() -> None:
+    connection = fetch_mcp._PinnedHTTPSConnection(
+        "example.gov",
+        443,
+        (
+            socket.AF_INET,
+            socket.SOCK_STREAM,
+            socket.IPPROTO_TCP,
+            ("8.8.8.8", 443),
+        ),
+        timeout=fetch_mcp.FETCH_TIMEOUT_SECONDS,
+    )
+    connection.set_tunnel("proxy.example")
+
+    with pytest.raises(
+        fetch_mcp.FetchError,
+        match=r"^announcement fetch refuses proxy tunnels$",
+    ):
+        connection.connect()
+
+
+def test_fetch_refuses_an_empty_vetted_destination_set(monkeypatch) -> None:
+    monkeypatch.setattr(fetch_mcp, "_resolve_public_destinations", lambda _url: [])
+    monkeypatch.setattr(
+        fetch_mcp,
+        "_PinnedHTTPSConnection",
+        lambda *_args, **_kwargs: pytest.fail("network fetch must not run"),
+    )
+
+    with pytest.raises(
+        fetch_mcp.FetchError,
+        match=r"^announcement host resolution returned no IP addresses$",
+    ):
+        fetch_mcp.fetch_announcement(URL, allowed_url=URL)
 
 
 def test_pinned_connection_uses_a_verifying_default_tls_context() -> None:
@@ -485,6 +523,66 @@ def test_fetch_retries_only_vetted_destinations_and_closes_each(monkeypatch) -> 
         for family, socktype, proto, _canonname, sockaddr in destinations
     ]
     assert len(connections) == 2
+    assert all(connection.closed for connection in connections)
+
+
+def test_fetch_refuses_when_every_vetted_destination_fails(monkeypatch) -> None:
+    class FailingConnection(FakeConnection):
+        def request(self, *args: object, **kwargs: object) -> None:
+            super().request(*args, **kwargs)
+            raise OSError("address unavailable")
+
+    destinations = [
+        (
+            socket.AF_INET,
+            socket.SOCK_STREAM,
+            socket.IPPROTO_TCP,
+            "",
+            ("8.8.8.8", 443),
+        ),
+        (
+            socket.AF_INET,
+            socket.SOCK_STREAM,
+            socket.IPPROTO_TCP,
+            "",
+            ("1.1.1.1", 443),
+        ),
+    ]
+    monkeypatch.setattr(
+        fetch_mcp.socket,
+        "getaddrinfo",
+        lambda *_args, **_kwargs: destinations,
+    )
+    connections: list[FailingConnection] = []
+    used_destinations: list[fetch_mcp.ResolvedDestination] = []
+
+    def build_connection(
+        _host: str,
+        _port: int,
+        destination: fetch_mcp.ResolvedDestination,
+        *,
+        timeout: float,
+    ) -> FailingConnection:
+        assert timeout == fetch_mcp.FETCH_TIMEOUT_SECONDS
+        connection = FailingConnection(FakeResponse(b"unreachable"))
+        connections.append(connection)
+        used_destinations.append(destination)
+        return connection
+
+    monkeypatch.setattr(fetch_mcp, "_PinnedHTTPSConnection", build_connection)
+
+    with pytest.raises(
+        fetch_mcp.FetchError,
+        match=r"^announcement fetch failed with OSError$",
+    ):
+        fetch_mcp.fetch_announcement(URL, allowed_url=URL)
+
+    assert used_destinations == [
+        (family, socktype, proto, sockaddr)
+        for family, socktype, proto, _canonname, sockaddr in destinations
+    ]
+    assert len(connections) == 2
+    assert all(connection.request_count == 1 for connection in connections)
     assert all(connection.closed for connection in connections)
 
 
