@@ -67,12 +67,15 @@ historicalContext >=3 real points; ciLow < point < ciHigh.
   literal date from an official release calendar or announcement during this
   run. This is the existing rule.
 - `resolutionDateBasis: resolve-by-bound`: byte-echo the registered
-  `resolutionDate`, which is an outer bound and not a claimed release day.
-  A `kind: tool` reasoning step must fetch the exact official announcement URL
-  registered as `sourceBinding.sourceUrl`, and the cell must repeat that exact
-  URL as `resolutionSourceUrl`. A same-host substitute, prose-only citation,
-  or `sourceContext` entry does not count. Never derive a more specific day
-  from cadence.
+  `resolutionDate`, which is a Thesis lab-committed outer deadline and not a
+  claimed release day. The registered announcement authenticates methodology
+  identity; it does not establish the deadline or expected release window.
+  The cell must repeat its exact `sourceBinding.sourceUrl` as
+  `resolutionSourceUrl`. In the required attested ticket lane, the publisher
+  separately verifies an exact-URL, successful structured MCP fetch event in
+  replayed draft/final stdout. A reasoning token, same-host substitute, search
+  result, prose citation, or `sourceContext` entry is not fetch evidence.
+  Never derive a more specific day from cadence.
 
 Machine-checked requirements (CI-validated literally, not approximately;
 a trace missing any is rejected):

@@ -83,8 +83,10 @@ double-count it as extra evidence.
    seasonal adjustment, and that it resolves on the FIRST PRINT. Follow the
    target context's resolution-date basis. For a release-calendar target,
    verify the official date from the agency calendar. For a
-   resolve-by-bound target, byte-echo the registered outer bound and fetch the
-   exact registered official announcement; do not invent a scheduled day.
+   resolve-by-bound target, byte-echo the Thesis lab-committed outer deadline
+   and call the exact registered methodology-announcement MCP tool. The
+   announcement pins methodology identity; it does not establish the deadline
+   or release window. Do not invent a scheduled day.
 2. **Fetch the history.** Pull the recent series history (6–24 prints) from
    the official source or its sanctioned mirror per the skill. This is the
    only admissible evidence: numbers you fetched this run.

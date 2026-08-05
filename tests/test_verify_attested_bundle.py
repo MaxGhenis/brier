@@ -40,6 +40,9 @@ FINAL_STARTED_AT = "2030-01-10T12:00:21Z"
 FINAL_FINISHED_AT = "2030-01-10T12:00:30Z"
 SEALED_AT = "2030-01-10T12:01:00Z"
 NOW_UTC = dt.datetime(2030, 1, 10, 13, tzinfo=dt.timezone.utc)
+BOUNDED_ANNOUNCEMENT_URL = (
+    "https://example.gov/spm-methodology-announcement"
+)
 
 
 @dataclass
@@ -189,12 +192,61 @@ def rewrite_final_response(
         rewrite_run_artifact(fixture, filename, payload)
 
 
+def rewrite_stage_stream(
+    fixture: AttestedFixture,
+    *,
+    prefix: str,
+    events: list[dict[str, Any]],
+    stderr: str = "",
+) -> None:
+    response = run_path(fixture, f"{prefix}codex_last_message.txt").read_text()
+    stdout = codex_jsonl(response, events=events)
+    parsed = analyst.parse_codex_jsonl(stdout, stderr)
+    trace_path = run_path(fixture, f"{prefix}codex_trace.json")
+    trace = json.loads(trace_path.read_text())
+    trace["eventCount"] = len(parsed["events"])
+    trace["usage"] = parsed["usage"]
+    trace["lastError"] = parsed["lastError"]
+    replacements = {
+        f"{prefix}codex_stdout.jsonl": stdout.encode(),
+        f"{prefix}codex_stderr.log": stderr.encode(),
+        f"{prefix}codex_events.jsonl": parsed["eventsJsonl"].encode(),
+        f"{prefix}codex_trace.json": json.dumps(trace, indent=2).encode(),
+        f"{prefix}stderr.txt": (parsed["nonJsonStderr"] or stderr).encode(),
+    }
+    for filename, payload in replacements.items():
+        rewrite_run_artifact(fixture, filename, payload)
+
+
+def refresh_cells_with_activity(fixture: AttestedFixture) -> None:
+    manifest = json.loads(run_manifest_path(fixture).read_text())
+    normalized = json.loads(run_path(fixture, "normalized_cells.json").read_text())
+    activity_refs = [
+        artifact
+        for artifact in manifest["artifacts"]
+        if artifact.get("artifactType") not in {"cells_with_activity", "manifest"}
+    ]
+    cells = analyst.attach_activity_log(
+        normalized,
+        activity_refs,
+        manifest["agent"],
+        manifest["preSubmitReview"],
+        force_model=True,
+    )
+    rewrite_run_artifact(
+        fixture,
+        "cells.with_activity.json",
+        (json.dumps(cells, indent=2) + "\n").encode(),
+    )
+
+
 def command_argv(
     fixture: AttestedFixture,
     *,
     prefix: str,
     model: str,
     search: bool,
+    announcement_url: str | None = None,
 ) -> list[str]:
     argv = ["/opt/thesis/bin/codex"]
     if search:
@@ -216,28 +268,63 @@ def command_argv(
             model,
             "-c",
             'reasoning_effort="high"',
-            "-C",
-            str(fixture.repo),
-            "-s",
-            "read-only",
-            "<prompt>",
         ]
     )
+    if announcement_url is not None:
+        for config in analyst.announcement_mcp_config(
+            announcement_url,
+            checkout_root=fixture.repo,
+            python_executable=str(fixture.repo / ".venv" / "bin" / "python3"),
+        ):
+            argv.extend(["-c", config])
+    argv.extend(["-C", str(fixture.repo), "-s", "read-only", "<prompt>"])
     return argv
 
 
-def codex_jsonl(response: str) -> str:
-    return (
-        json.dumps(
-            {
-                "type": "item.completed",
-                "item": {"type": "agent_message", "text": response},
-            }
-        )
-        + "\n"
-        + json.dumps({"type": "turn.completed", "usage": {}})
-        + "\n"
-    )
+def announcement_fetch_event(
+    announcement_url: str,
+    *,
+    requested_url: str | None = None,
+    final_url: str | None = None,
+    status_code: int = 200,
+) -> dict[str, Any]:
+    requested = requested_url or announcement_url
+    return {
+        "type": "item.completed",
+        "item": {
+            "id": "mcp-fetch-1",
+            "type": "mcp_tool_call",
+            "server": analyst.ANNOUNCEMENT_MCP_SERVER,
+            "tool": analyst.ANNOUNCEMENT_MCP_TOOL,
+            "arguments": {"url": requested},
+            "status": "completed",
+            "result": {
+                "content": [{"type": "text", "text": "Official page"}],
+                "structured_content": {
+                    "requestedUrl": requested,
+                    "finalUrl": final_url or announcement_url,
+                    "statusCode": status_code,
+                    "responseSha256": "b" * 64,
+                },
+            },
+        },
+    }
+
+
+def codex_jsonl(
+    response: str,
+    *,
+    events: list[dict[str, Any]] | None = None,
+) -> str:
+    payloads = [
+        *(events or []),
+        {
+            "type": "item.completed",
+            "item": {"type": "agent_message", "text": response},
+        },
+        {"type": "turn.completed", "usage": {}},
+    ]
+    return "".join(json.dumps(payload) + "\n" for payload in payloads)
 
 
 @pytest.fixture
@@ -278,7 +365,7 @@ def attested_bundle(
         "sourceBinding": {"adapter": "generic-url"},
     }
     if bounded:
-        announcement_url = "https://example.gov/spm-methodology-announcement"
+        announcement_url = BOUNDED_ANNOUNCEMENT_URL
         target.update(
             {
                 "resolutionDateBasis": "resolve-by-bound",
@@ -380,20 +467,6 @@ def attested_bundle(
             "sourceContext": [target["resolutionSourceUrl"]],
             "runAt": "2030-01-10T12:00:30Z",
             "reasoning": [
-                *(
-                    [
-                        {
-                            "kind": "tool",
-                            "call": (
-                                "GET "
-                                + target["sourceBinding"]["sourceUrl"]
-                            ),
-                            "result": "Fetched the official announcement.",
-                        }
-                    ]
-                    if bounded
-                    else []
-                ),
                 {"kind": "math", "text": "sigma = 0.39; 1.28*sigma = 0.50."},
                 {"kind": "forecast", "point": 1.0, "ciLow": 0.5, "ciHigh": 1.5},
             ],
@@ -466,8 +539,16 @@ def attested_bundle(
         stdout_artifact_type: str,
         started_at: str,
         finished_at: str,
+        announcement_url: str | None = None,
+        events: list[dict[str, Any]] | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        argv = command_argv(fixture, prefix=prefix, model=model, search=search)
+        argv = command_argv(
+            fixture,
+            prefix=prefix,
+            model=model,
+            search=search,
+            announcement_url=announcement_url,
+        )
         command = {
             "backend": "codex",
             "argv": argv,
@@ -487,7 +568,7 @@ def attested_bundle(
             "command",
             json.dumps(command, indent=2),
         )
-        raw_jsonl = codex_jsonl(response)
+        raw_jsonl = codex_jsonl(response, events=events)
         parsed_stream = analyst.parse_codex_jsonl(raw_jsonl, "")
         artifact(
             f"{prefix}codex_stdout.jsonl", "codex_stdout_jsonl", raw_jsonl
@@ -521,7 +602,7 @@ def attested_bundle(
                     "processReturnCode": 0,
                     "effectiveReturnCode": 0,
                     "usage": {},
-                    "eventCount": 2,
+                    "eventCount": len(parsed_stream["events"]),
                     "lastError": None,
                 },
                 indent=2,
@@ -541,6 +622,14 @@ def attested_bundle(
         stdout_artifact_type="draft_forecast",
         started_at=DRAFT_STARTED_AT,
         finished_at=DRAFT_FINISHED_AT,
+        announcement_url=(
+            target["sourceBinding"]["sourceUrl"] if bounded else None
+        ),
+        events=(
+            [announcement_fetch_event(target["sourceBinding"]["sourceUrl"])]
+            if bounded
+            else None
+        ),
     )
     review_prompt = analyst.build_pre_submit_review_prompt(
         series=target["series"],
@@ -578,6 +667,9 @@ def attested_bundle(
         stdout_artifact_type="stdout",
         started_at=FINAL_STARTED_AT,
         finished_at=FINAL_FINISHED_AT,
+        announcement_url=(
+            target["sourceBinding"]["sourceUrl"] if bounded else None
+        ),
     )
     artifact("raw_response.txt", "raw_response", last_message)
     artifact("parsed_cells.json", "parsed_cell", json.dumps(parsed_cells, indent=2))
@@ -706,6 +798,159 @@ def test_bounded_target_context_flows_through_prompt_reconstruction(
     assert (
         f'officialAnnouncementUrl: "{target["sourceBinding"]["sourceUrl"]}"'
         in prompt
+    )
+
+
+@pytest.mark.parametrize(
+    ("case", "events"),
+    [
+        ("no-event", []),
+        (
+            "search-only",
+            [
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "id": "search-1",
+                        "type": "web_search",
+                        "query": BOUNDED_ANNOUNCEMENT_URL,
+                    },
+                }
+            ],
+        ),
+        (
+            "same-host-lookalike",
+            [
+                announcement_fetch_event(
+                    BOUNDED_ANNOUNCEMENT_URL,
+                    requested_url=(
+                        "https://example.gov/spm-methodology-announcement-copy"
+                    ),
+                )
+            ],
+        ),
+        (
+            "redirect-elsewhere",
+            [
+                announcement_fetch_event(
+                    BOUNDED_ANNOUNCEMENT_URL,
+                    final_url="https://elsewhere.example/spm-methodology",
+                )
+            ],
+        ),
+        (
+            "non-2xx",
+            [
+                announcement_fetch_event(
+                    BOUNDED_ANNOUNCEMENT_URL,
+                    status_code=503,
+                )
+            ],
+        ),
+        (
+            "prose-only",
+            [
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "id": "prose-1",
+                        "type": "agent_message",
+                        "text": (
+                            "I fetched " + BOUNDED_ANNOUNCEMENT_URL + " successfully."
+                        ),
+                    },
+                }
+            ],
+        ),
+    ],
+    ids=lambda value: value if isinstance(value, str) else None,
+)
+@pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)
+def test_bounded_announcement_fetch_tampering_is_refused(
+    attested_bundle: AttestedFixture,
+    case: str,
+    events: list[dict[str, Any]],
+) -> None:
+    rewrite_stage_stream(attested_bundle, prefix="draft_", events=events)
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+
+    assert str(caught.value) == (
+        "derivation replay check failed: run 0 resolve-by-bound target lacks a "
+        "successful authenticated announcement fetch for "
+        f"{BOUNDED_ANNOUNCEMENT_URL!r} in draft/final Codex stdout"
+    ), case
+
+
+@pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)
+def test_bounded_announcement_fetch_in_reviewer_or_stderr_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    event = announcement_fetch_event(BOUNDED_ANNOUNCEMENT_URL)
+    rewrite_stage_stream(attested_bundle, prefix="draft_", events=[])
+    rewrite_stage_stream(
+        attested_bundle,
+        prefix="pre_submit_review_",
+        events=[event],
+    )
+    rewrite_stage_stream(
+        attested_bundle,
+        prefix="",
+        events=[],
+        stderr=json.dumps(event) + "\n",
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+
+    assert str(caught.value) == (
+        "derivation replay check failed: run 0 resolve-by-bound target lacks a "
+        "successful authenticated announcement fetch for "
+        f"{BOUNDED_ANNOUNCEMENT_URL!r} in draft/final Codex stdout"
+    )
+
+
+@pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)
+def test_bounded_announcement_fetch_may_be_authenticated_in_final_stdout(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_stage_stream(attested_bundle, prefix="draft_", events=[])
+    rewrite_stage_stream(
+        attested_bundle,
+        prefix="",
+        events=[announcement_fetch_event(BOUNDED_ANNOUNCEMENT_URL)],
+    )
+    refresh_cells_with_activity(attested_bundle)
+
+    verify(attested_bundle)
+
+
+@pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)
+def test_bounded_announcement_mcp_command_is_bound_to_registered_url(
+    attested_bundle: AttestedFixture,
+) -> None:
+    path = run_path(attested_bundle, "draft_command.json")
+    command = json.loads(path.read_text())
+    command["argv"] = [
+        value.replace(
+            BOUNDED_ANNOUNCEMENT_URL,
+            "https://example.gov/spm-methodology-announcement-copy",
+        )
+        for value in command["argv"]
+    ]
+    rewrite_run_artifact(
+        attested_bundle,
+        "draft_command.json",
+        json.dumps(command, indent=2).encode(),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+
+    assert str(caught.value) == (
+        "command shape check failed: run 0 draft_command.json announcement MCP "
+        "config does not match the authenticated target"
     )
 
 

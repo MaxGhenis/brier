@@ -2356,10 +2356,38 @@ def test_bounded_target_context_renders_bound_and_announcement() -> None:
     assert f'officialAnnouncementUrl: "{announcement}"' in block
     assert "outer bound, not a scheduled release day" in block
     assert "resolutionDate must byte-echo the registered resolve-by bound" in block
-    assert "kind=\"tool\"" in block
+    assert (
+        "thesis_announcement_fetch.fetch_official_announcement" in block
+    )
+    assert "reasoning-token claim" in block
 
 
-def test_bounded_announcement_gate_requires_exact_tool_fetch_and_citation() -> None:
+def test_bounded_announcement_mcp_config_is_exact_and_target_scoped() -> None:
+    root = Path("/trusted/checkout")
+    url = "https://www.census.gov/newsroom/spm-announcement.html"
+
+    assert analyst_runner.announcement_mcp_config(
+        url,
+        checkout_root=root,
+        python_executable="/trusted/checkout/.venv/bin/python3",
+    ) == [
+        'mcp_servers.thesis_announcement_fetch.command="/trusted/checkout/'
+        '.venv/bin/python3"',
+        'mcp_servers.thesis_announcement_fetch.args=["/trusted/checkout/scripts/'
+        'announcement_fetch_mcp.py","--allowed-url","https://www.census.gov/'
+        'newsroom/spm-announcement.html"]',
+        'mcp_servers.thesis_announcement_fetch.cwd="/trusted/checkout"',
+        "mcp_servers.thesis_announcement_fetch.required=true",
+        'mcp_servers.thesis_announcement_fetch.enabled_tools=['
+        '"fetch_official_announcement"]',
+        "mcp_servers.thesis_announcement_fetch.startup_timeout_sec=10",
+        "mcp_servers.thesis_announcement_fetch.tool_timeout_sec=30",
+        "mcp_servers.thesis_announcement_fetch.tools.fetch_official_announcement."
+        'approval_mode="approve"',
+    ]
+
+
+def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() -> None:
     announcement = "https://www.census.gov/newsroom/spm-announcement.html"
     context = {
         "resolutionDate": "2027-12-31",
@@ -2379,7 +2407,6 @@ def test_bounded_announcement_gate_requires_exact_tool_fetch_and_citation() -> N
         cell["resolutionDate"] = "2027-12-31"
         cell["resolutionSourceUrl"] = announcement
         cell["sourceContext"][0] = announcement
-        cell["reasoning"][2]["call"] = f"GET {announcement}"
         cell["runStartedAt"] = "2026-06-17T11:55:00Z"
         return cell
 
@@ -2404,33 +2431,7 @@ def test_bounded_announcement_gate_requires_exact_tool_fetch_and_citation() -> N
         },
     )["ok"]
 
-    missing_tool = bounded_cell()
-    missing_tool["reasoning"][2]["call"] = "GET annual release history"
-    errors = analyst_runner.target_context_validation_errors(missing_tool, context)
-    assert any("tool step fetching" in error for error in errors)
-
-    same_host = bounded_cell()
-    same_host["reasoning"][2]["call"] = (
-        "GET https://www.census.gov/newsroom/different-announcement.html"
-    )
-    errors = analyst_runner.target_context_validation_errors(same_host, context)
-    assert any("exact official announcement" in error for error in errors)
-
-    prose_only = bounded_cell()
-    prose_only["reasoning"][2]["call"] = "GET annual release history"
-    prose_only["reasoning"][1]["text"] += f" Announcement: {announcement}"
-    errors = analyst_runner.target_context_validation_errors(prose_only, context)
-    assert any("tool step fetching" in error for error in errors)
-
-    search_result_only = bounded_cell()
-    search_result_only["reasoning"][2]["call"] = "SEARCH Census SPM announcement"
-    search_result_only["reasoning"][2]["result"] = (
-        f"Search result: {announcement} (published 2026)"
-    )
-    errors = analyst_runner.target_context_validation_errors(
-        search_result_only, context
-    )
-    assert any("tool step fetching" in error for error in errors)
+    assert announcement not in json.dumps(exact["reasoning"])
 
     wrong_citation = bounded_cell()
     wrong_citation["resolutionSourceUrl"] = (
@@ -2612,7 +2613,7 @@ def test_prompts_use_bounded_source_and_date_rules(mode: str) -> None:
     )
 
     assert "resolutionSourceUrl must byte-echo" in prompt
-    assert "Fetch that exact URL in a tool call" in prompt
+    assert "thesis_announcement_fetch.fetch_official_announcement" in prompt
     assert "resolutionDate must byte-echo the registered resolve-by bound" in prompt
     assert "outer bound, not a scheduled release day" in prompt
     assert announcement in prompt
@@ -2620,9 +2621,9 @@ def test_prompts_use_bounded_source_and_date_rules(mode: str) -> None:
         assert "most specific stable page for the exact series" not in prompt
         assert "verified from an official release calendar" not in prompt
     else:
-        assert "resolve-by-bound target, byte-echo the registered outer bound" in prompt
-        assert "do not invent a scheduled day" in prompt
-        assert "registered official announcement URL" in prompt
+        assert "resolve-by-bound target, byte-echo the Thesis lab-committed" in prompt
+        assert "Do not invent a scheduled day" in prompt
+        assert "registered methodology-announcement MCP tool" in prompt
 
 
 def test_fast_calendar_prompt_keeps_literal_calendar_rules() -> None:

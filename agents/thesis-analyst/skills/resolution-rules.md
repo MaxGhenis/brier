@@ -12,8 +12,8 @@ A cell is only as good as its resolution rule. The rule must let a stranger
 4. Where it appears: the release page or data portal URL pattern. For a
    release-calendar target, `resolutionSourceUrl` points at the release series
    page, not a news story. For a resolve-by-bound target, it byte-echoes the
-   registered official announcement URL; separately fetched resolving-artifact
-   URLs belong in `sourceContext`.
+   registered official methodology-announcement URL; separately fetched
+   resolving-artifact URLs belong in `sourceContext`.
 5. For conditionals: the conditioning event, its evaluation date, who/what
    determines it (statute in effect, court order, published guidance), and
    the policy when the condition fails (mark unresolved — never resolve a
@@ -24,9 +24,10 @@ Follow the registered target basis. For `release-calendar` (including an
 absent basis, the default), use the agency's scheduled release date verified
 THIS RUN from the official calendar. Never infer it from typical cadence. If
 the calendar gives a window, use the scheduled date and note the window in the
-rule. For `resolve-by-bound`, byte-echo the registered outer bound, fetch the
-exact official announcement named in the target context, and never infer a
-more specific day.
+rule. For `resolve-by-bound`, byte-echo the Thesis lab-committed outer deadline
+and call the exact-URL announcement MCP tool named in the target context. The
+announcement pins methodology identity; it does not establish the deadline or
+release window. Never infer a more specific day.
 
 ## Anti-patterns (rejected in review)
 - "as published by the government" (which series? which print?)

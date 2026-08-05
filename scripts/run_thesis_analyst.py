@@ -60,6 +60,11 @@ DEFAULT_RECORD_ROOT = ROOT / "records" / "thesis-analyst"
 CDF_POINT_COUNT = 201
 INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1"
 AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1"
+ANNOUNCEMENT_MCP_SERVER = "thesis_announcement_fetch"
+ANNOUNCEMENT_MCP_TOOL = "fetch_official_announcement"
+ANNOUNCEMENT_MCP_SCRIPT = SCRIPTS / "announcement_fetch_mcp.py"
+ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS = 10
+ANNOUNCEMENT_MCP_TOOL_TIMEOUT_SECONDS = 30
 
 
 def utc_now() -> str:
@@ -535,16 +540,17 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         )
         lines += [
             "",
-            "# Resolve-by-bound date evidence (machine checked)",
+            "# Resolve-by-bound target contract (machine checked)",
             f"- registeredResolveByBound: {json.dumps(bound)}",
             f"- officialAnnouncementUrl: {json.dumps(announcement_url)}",
             "This is the registered outer bound, not a scheduled release day. "
             "resolutionDate must byte-echo the registered resolve-by bound; "
             "never infer a more specific day from cadence.",
             "resolutionSourceUrl must byte-echo officialAnnouncementUrl. "
-            "Fetch that exact URL in a tool call (kind=\"tool\"). A same-host "
-            "page, a prose-only citation, or sourceContext alone does not "
-            "satisfy this requirement.",
+            f"Call `{ANNOUNCEMENT_MCP_SERVER}.{ANNOUNCEMENT_MCP_TOOL}` with "
+            "that exact URL. The publisher authenticates the structured "
+            "draft/final tool event; a reasoning-token claim, search result, "
+            "same-host page, or prose citation cannot substitute for it.",
         ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
@@ -718,9 +724,10 @@ def build_fast_prompt(
     if bounded_target:
         resolution_source_rule = (
             "- resolutionSourceUrl must byte-echo the registered official "
-            "announcement URL shown in the bounded target context. Fetch "
-            "that exact URL in a tool call; put any separately fetched "
-            "resolving table or data-artifact URL in sourceContext.\n"
+            "announcement URL shown in the bounded target context. Use the "
+            f"`{ANNOUNCEMENT_MCP_SERVER}.{ANNOUNCEMENT_MCP_TOOL}` tool on "
+            "that exact URL; put any separately fetched resolving table or "
+            "data-artifact URL in sourceContext.\n"
         )
         resolution_date_rule = (
             "- resolutionDate must byte-echo the registered resolve-by bound "
@@ -1572,6 +1579,46 @@ def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
     }
 
 
+def announcement_mcp_config(
+    announcement_url: str,
+    *,
+    checkout_root: pathlib.PurePath = ROOT,
+    python_executable: str = sys.executable,
+) -> list[str]:
+    """Return the exact trusted MCP overrides for one bounded target URL."""
+
+    server = f"mcp_servers.{ANNOUNCEMENT_MCP_SERVER}"
+    script_path = checkout_root / "scripts" / ANNOUNCEMENT_MCP_SCRIPT.name
+    return [
+        f"{server}.command=" + json.dumps(python_executable),
+        f"{server}.args="
+        + json.dumps(
+            [str(script_path), "--allowed-url", announcement_url],
+            separators=(",", ":"),
+        ),
+        f"{server}.cwd=" + json.dumps(str(checkout_root)),
+        f"{server}.required=true",
+        f'{server}.enabled_tools=["{ANNOUNCEMENT_MCP_TOOL}"]',
+        f"{server}.startup_timeout_sec="
+        f"{ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS}",
+        f"{server}.tool_timeout_sec={ANNOUNCEMENT_MCP_TOOL_TIMEOUT_SECONDS}",
+        f"{server}.tools.{ANNOUNCEMENT_MCP_TOOL}.approval_mode=\"approve\"",
+    ]
+
+
+def target_announcement_url(
+    target_context: dict[str, Any] | None,
+) -> str | None:
+    if not isinstance(target_context, dict) or (
+        target_context.get("resolutionDateBasis", "release-calendar")
+        != "resolve-by-bound"
+    ):
+        return None
+    binding = target_context.get("sourceBinding")
+    url = binding.get("sourceUrl") if isinstance(binding, dict) else None
+    return url if isinstance(url, str) and url else None
+
+
 def enforce_ticket_codex_stream_binding(
     command_result: dict[str, Any],
 ) -> dict[str, Any]:
@@ -1702,6 +1749,7 @@ def run_codex_agent_command(
     sandbox: str,
     reasoning_effort: str | None,
     network: bool = False,
+    announcement_url: str | None = None,
 ) -> dict[str, Any]:
     """Run a prompt through Codex CLI/ChatGPT auth and retain the full trace."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1727,6 +1775,9 @@ def run_codex_agent_command(
         cmd.extend(["-c", f'reasoning_effort="{reasoning_effort}"'])
     if network:
         cmd.extend(["-c", "sandbox_workspace_write.network_access=true"])
+    if announcement_url is not None:
+        for config in announcement_mcp_config(announcement_url):
+            cmd.extend(["-c", config])
     cmd.extend(["-C", str(ROOT), "-s", sandbox, prompt])
     logged_cmd = [*cmd[:-1], "<prompt>"]
 
@@ -2579,7 +2630,12 @@ def bounded_announcement_errors(
     cell: dict[str, Any],
     target_context: dict[str, Any],
 ) -> list[str]:
-    """Require the exact registered announcement for a resolve-by bound."""
+    """Require cell byte-echoes for a resolve-by-bound target.
+
+    The attested publisher authenticates the actual announcement fetch from
+    raw Codex draft/final events.  Model-authored reasoning tokens are not
+    fetch evidence.
+    """
 
     basis = target_context.get("resolutionDateBasis", "release-calendar")
     if basis == "release-calendar":
@@ -2626,25 +2682,6 @@ def bounded_announcement_errors(
         errors.append(
             "resolutionSourceUrl must byte-echo the resolve-by-bound official "
             f"announcement URL {announcement_url!r}"
-        )
-
-    fetched_urls: set[str] = set()
-    for step in cell.get("reasoning") or []:
-        if not isinstance(step, dict) or step.get("kind") != "tool":
-            continue
-        # A search result that merely mentions the announcement is not a
-        # fetch. Bind the evidence to the requested URL in the tool CALL;
-        # result-only URLs remain useful discovery context but cannot satisfy
-        # the machine-checked announcement requirement.
-        trace = str(step.get("call") or "")
-        fetched_urls.update(
-            match.rstrip(".,);]}")
-            for match in re.findall(r"https?://[^\s\"'<>]+", trace)
-        )
-    if announcement_url not in fetched_urls:
-        errors.append(
-            "resolve-by-bound trace must contain a tool step fetching the "
-            f"exact official announcement URL {announcement_url!r}"
         )
     return errors
 
@@ -3011,6 +3048,7 @@ def run_forecaster(
     prompt_path: pathlib.Path,
     out_dir: pathlib.Path,
     prefix: str,
+    announcement_url: str | None = None,
 ) -> dict[str, Any]:
     if args.codex_model:
         return run_codex_agent_command(
@@ -3023,6 +3061,7 @@ def run_forecaster(
             sandbox=args.codex_sandbox,
             reasoning_effort=args.codex_reasoning_effort,
             network=args.codex_network,
+            announcement_url=announcement_url,
         )
     return run_agent_command(
         args.command,
@@ -3079,6 +3118,11 @@ def main() -> int:
     run_at = utc_now()
     checkout_sha = workspace_checkout_sha()
     target_context = parse_target_context(args.target_context_json)
+    announcement_url = (
+        target_announcement_url(target_context)
+        if generation_ticket is not None
+        else None
+    )
     prompt, meta = build_run_prompt(
         args.series,
         args.period,
@@ -3160,6 +3204,7 @@ def main() -> int:
                     prompt_path=out_dir / "prompt.md",
                     out_dir=out_dir,
                     prefix="draft_",
+                    announcement_url=announcement_url,
                 )
             )
             draft_ref = append_command_artifacts(
@@ -3236,6 +3281,7 @@ def main() -> int:
                             prompt_path=out_dir / "revision_prompt.md",
                             out_dir=out_dir,
                             prefix="",
+                            announcement_url=announcement_url,
                         )
                     )
                     append_command_artifacts(
@@ -3260,6 +3306,7 @@ def main() -> int:
                     prompt_path=out_dir / "prompt.md",
                     out_dir=out_dir,
                     prefix="",
+                    announcement_url=announcement_url,
                 )
             )
             append_command_artifacts(
