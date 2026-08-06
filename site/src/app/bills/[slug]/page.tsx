@@ -66,14 +66,22 @@ function buildForecastViews(billSlug: string): BillForecastView[] {
       question: group.question,
       eventLabel: group.eventLabel,
       nonExhaustivePair: group.nonExhaustivePair === true,
+      // Larger arm first so the rendered equation is arithmetically true
+      // whichever direction the forecasted effect points.
       gapLabel: falseArm
-        ? `${formatValue(trueArm.pointEstimate, trueArm.unit)} − ${formatValue(
-            falseArm.pointEstimate,
-            falseArm.unit,
-          )} = ${formatValue(
-            Math.abs(trueArm.pointEstimate - falseArm.pointEstimate),
-            trueArm.unit,
-          )}`
+        ? (() => {
+            const [hi, lo] =
+              trueArm.pointEstimate >= falseArm.pointEstimate
+                ? [trueArm, falseArm]
+                : [falseArm, trueArm];
+            return `${formatValue(hi.pointEstimate, hi.unit)} − ${formatValue(
+              lo.pointEstimate,
+              lo.unit,
+            )} = ${formatValue(
+              hi.pointEstimate - lo.pointEstimate,
+              trueArm.unit,
+            )}`;
+          })()
         : undefined,
       gapNote: group.gapNote,
       probability:

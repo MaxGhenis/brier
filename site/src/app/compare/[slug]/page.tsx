@@ -175,8 +175,16 @@ export default async function ComparePage({
             The gap is the forecasted policy effect
           </div>
           <div className="text-[1.05rem] leading-[1.6] text-[var(--theme-text)]">
-            {formatValue(trueArm.pointEstimate, trueArm.unit)} −{" "}
-            {formatValue(falseArm.pointEstimate, falseArm.unit)} ={" "}
+            {formatValue(
+              Math.max(trueArm.pointEstimate, falseArm.pointEstimate),
+              trueArm.unit,
+            )}{" "}
+            −{" "}
+            {formatValue(
+              Math.min(trueArm.pointEstimate, falseArm.pointEstimate),
+              falseArm.unit,
+            )}{" "}
+            ={" "}
             <strong>{formatValue(Math.abs(gap), trueArm.unit)}</strong>
             {group.gapNote ? (
               <span className="text-[var(--theme-text-muted)]"> — {group.gapNote}</span>

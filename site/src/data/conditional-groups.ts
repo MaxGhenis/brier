@@ -21,6 +21,23 @@ export interface ConditionalGroup {
 
 export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
   {
+    slug: "spm-child-poverty-cy2027-threshold-one-dollar",
+    title: "Child SPM poverty under the $1 earned-income threshold",
+    question:
+      "What does S. 3596's $1 earned-income threshold do to the CY2027 Supplemental Poverty Measure child poverty rate?",
+    eventLabel:
+      "Threshold ≤ $1 enacted for TY2027 (legislation enacted by 2027-12-31)",
+    trueArmSlug: "spm-child-poverty-rate-cy2027-threshold-one-dollar",
+    falseArmSlug: "spm-child-poverty-rate-cy2027-current-law",
+    gapNote:
+      "The 0.2-point gap between arms is the forecasted effect of the $1 " +
+      "threshold on CY2027 child SPM poverty — published before Congress " +
+      "decides, resolving against the first revised-methodology CY2027 " +
+      "print by the registered 2028-12-31 bound. An intermediate " +
+      "enactment (say, a $500 threshold) resolves neither arm.",
+    nonExhaustivePair: true,
+  },
+  {
     slug: "actc-claims-ty2027-threshold-one-dollar",
     title: "ACTC claims under the $1 earned-income threshold",
     question:
