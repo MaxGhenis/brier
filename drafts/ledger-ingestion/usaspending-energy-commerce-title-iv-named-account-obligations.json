@@ -1,15 +1,148 @@
 {
   "proposed_concept": "usaspending.energy_commerce.title_iv.named_account_obligations",
-  "status": "proposed",
+  "status": "rejected",
   "unit": "usd",
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "Obligations for the named Title IV program accounts, frozen to a fiscal-year reporting date.",
-  "note": "UNVERIFIED multi-account query; rescissions and spectrum-auction receipts are different accounting products and are not represented by this concept.",
+  "note": "Rejected: the live candidate query returns obligations, but it does not pin identifiers for Commerce AI modernization, De-Risking Compensation, or Alaska pipeline activity, leaving the Title IV scope partial.",
   "adapterFamily": "usaspending-api",
   "billSlugs": ["stress-119hr1eh"],
   "publisher": "U.S. Department of the Treasury, USAspending",
   "statisticalProduct": "USAspending API v2 obligations by federal account/program activity",
   "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-  "verification": "UNVERIFIED: 1. Enumerate every statutory account and resolve its authoritative federal-account/program-activity identifier using https://api.usaspending.gov/docs/endpoints. 2. Pin exact action-date, awarding/funding-agency, account, award-type, and snapshot filters plus three fiscal-year responses. 3. Extend the reviewed USAspending spec only if the query isolates the accounts without title/free-text matching."
+  "verification": {
+    "outcome": "rejected",
+    "reason": "A candidate multi-TAS query returns a fiscal-year total, but it cannot represent the complete Title IV concept: live program-activity lookups returned no match for De-Risking Compensation or Alaska Natural Gas Pipeline, and the likely Commerce Departmental Management account has no 2025/2034 child for the proposed AI modernization appropriation.",
+    "retrievedAt": "2026-08-06T20:01:20Z",
+    "testedQuery": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "body": {
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "time_period": [
+            {
+              "end_date": "2026-09-30",
+              "start_date": "2025-10-01"
+            }
+          ],
+          "treasury_account_components": [
+            {
+              "aid": "089",
+              "bpoa": "2025",
+              "epoa": "2028",
+              "main": "0208",
+              "sub": "000"
+            },
+            {
+              "aid": "089",
+              "bpoa": "2025",
+              "epoa": "2029",
+              "main": "0218",
+              "sub": "000"
+            },
+            {
+              "aid": "089",
+              "bpoa": "2025",
+              "epoa": "2029",
+              "main": "0233",
+              "sub": "000"
+            },
+            {
+              "aid": "013",
+              "bpoa": "2025",
+              "epoa": "2034",
+              "main": "0120",
+              "sub": "000"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      }
+    },
+    "fetchedEvidence": {
+      "httpStatus": 200,
+      "responseSha256": "def433a37a0a6b9f1eccf203b8b615d86f971b4c7589318fddf56f1f07a3082f",
+      "resultRows": [
+        {
+          "fiscalYear": "2026",
+          "aggregatedAmount": 486790591.06,
+          "contractObligations": 486790591.06,
+          "grantObligations": 0,
+          "directObligations": 0,
+          "idvObligations": 0,
+          "loanObligations": 0,
+          "otherObligations": 0
+        }
+      ]
+    },
+    "blockerEvidence": [
+      {
+        "method": "GET",
+        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0120/",
+        "retrievedAt": "2026-08-06T20:04:11Z",
+        "httpStatus": 200,
+        "responseSha256": "2421c0e86f40fb10435214d1c9791a56bf1ffaf6edeaa5bd6d7d5ef2961deb74",
+        "accountTitle": "Salaries and Expenses, Departmental Management, Commerce",
+        "availableChildren": [
+          "013-2021/2021-0120-000",
+          "013-2022/2022-0120-000",
+          "013-2023/2023-0120-000",
+          "013-2024/2024-0120-000",
+          "013-2025/2025-0120-000",
+          "013-2026/2026-0120-000"
+        ],
+        "missingChild": "013-2025/2034-0120-000"
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/program_activity/",
+        "retrievedAt": "2026-08-06T20:04:03Z",
+        "httpStatus": 200,
+        "lookups": [
+          {
+            "body": {
+              "limit": 100,
+              "search_text": "De-Risking Compensation"
+            },
+            "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+            "results": []
+          },
+          {
+            "body": {
+              "limit": 100,
+              "search_text": "Alaska Natural Gas Pipeline"
+            },
+            "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+            "results": []
+          }
+        ]
+      }
+    ]
+  }
 }

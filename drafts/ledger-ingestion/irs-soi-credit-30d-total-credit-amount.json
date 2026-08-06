@@ -1,11 +1,11 @@
 {
   "proposed_concept": "irs.soi.credit_30d.total_credit_amount",
-  "status": "proposed",
+  "status": "verified",
   "unit": "usd_millions",
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "IRS SOI total section 30D clean vehicle credit amount claimed for a fixed tax year.",
-  "note": "UNVERIFIED section-specific individual-return amount field and printed scale.",
+  "note": "VERIFIED: Table 3.3 separately prints the section 30D amount in thousands of dollars beside the claimant-return column.",
   "adapterFamily": "irs-soi-pub1304-style workbook parse",
   "billSlugs": [
     "stress-119hr1eh"
@@ -13,5 +13,92 @@
   "publisher": "Internal Revenue Service, Statistics of Income",
   "statisticalProduct": "Candidate IRS SOI Individual Income Tax Returns Complete Report, section 30D credit amount row",
   "likelyUrlPattern": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
-  "verification": "UNVERIFIED: 1. Search the official tables at https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304 for a separately printed section 30D credit amount. 2. Pin the exact workbook/table/row, return population, tax year, printed dollar scale, first print, revisions, and three vintages. 3. Build a section-specific amount parser; if the field is absent or combined, reclassify this request no-series."
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-06T20:01:23Z",
+    "reason": "The official tax-year workbooks contain one unambiguous section 30D Amount cell at the All returns, total row, printed in thousands of dollars.",
+    "sourcePageUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "conceptIdentityEvidence": {
+      "url": "https://www.irs.gov/irb/2024-09_IRB",
+      "retrievedAtUtc": "2026-08-06T20:04:55Z",
+      "sha256": "a8280c88b974f35e5bd027ce90d3251e569ffd31dfb78a1fe05dfd9471594570",
+      "statement": "IRS identifies section 30D as the Clean Vehicle Credit and states that it was enacted for new qualified plug-in electric drive motor vehicles."
+    },
+    "artifact": {
+      "url": "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+      "retrievedAtUtc": "2026-08-06T20:01:23Z",
+      "sha256": "e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04",
+      "byteLength": 105472,
+      "mediaType": "application/vnd.ms-excel",
+      "taxYear": "2023",
+      "table": "Table 3.3. All Returns: Tax Liability, Tax Credits, and Tax Payments, by Size of Adjusted Gross Income",
+      "sheet": "TBL33",
+      "row": "All returns, total",
+      "rowCell": "A10",
+      "columnHeader": "Clean vehicle credit / Amount",
+      "headerCell": "AE6",
+      "subcolumnCell": "AF7",
+      "cell": "AF10",
+      "fetchedValue": 3231102,
+      "printedUnit": "thousand_usd",
+      "normalizedValue": 3231.102,
+      "normalizedUnit": "usd_millions"
+    },
+    "firstPrint": {
+      "status": "authenticated_static_tax_year_artifact",
+      "basis": "IRS publishes one tax-year-specific Table 3.3 workbook at the fixed {yy}in33ar.xls URL; the value is read directly from that official print, not reconstructed from a later API series."
+    },
+    "anchors": [
+      {
+        "taxYear": "2020",
+        "url": "https://www.irs.gov/pub/irs-soi/20in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "7abb8cf1f6f124e1ef481db562d622f46155effe98dad72bd82d0844996dabaa",
+        "header": "Qualified plug-in electric vehicle credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AD10",
+        "fetchedValue": 313118,
+        "printedUnit": "thousand_usd"
+      },
+      {
+        "taxYear": "2021",
+        "url": "https://www.irs.gov/pub/irs-soi/21in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "b8e3e7ca7bc048dca2b554e78359e4944ce429b4a58c5ea9cbc7e39d71f7ea75",
+        "header": "Qualified plug-in electric vehicle credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AF10",
+        "fetchedValue": 1037358,
+        "printedUnit": "thousand_usd"
+      },
+      {
+        "taxYear": "2022",
+        "url": "https://www.irs.gov/pub/irs-soi/22in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "f04012c527c5bf40e412e112597038d70fd79c017d9476c07eebc3b59e3766a4",
+        "header": "Qualified plug-in electric vehicle credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AF10",
+        "fetchedValue": 1652554,
+        "printedUnit": "thousand_usd"
+      },
+      {
+        "taxYear": "2023",
+        "url": "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04",
+        "header": "Clean vehicle credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AF10",
+        "fetchedValue": 3231102,
+        "printedUnit": "thousand_usd"
+      }
+    ],
+    "parseNotes": [
+      "Accept the exact concept labels Qualified plug-in electric vehicle credit (TY2020–TY2022) and Clean vehicle credit (TY2023).",
+      "TY2023 footnote A49 separately places previously owned clean vehicle credit in Other nonrefundable credits, so the Clean vehicle credit column is not the section 25E aggregate.",
+      "Workbook cell A2 states that all money amounts are in thousands of dollars; multiply the printed integer by 0.001 to produce usd_millions."
+    ]
+  }
 }

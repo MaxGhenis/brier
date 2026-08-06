@@ -1,15 +1,80 @@
 {
   "proposed_concept": "bea.private_nonresidential_fixed_investment",
-  "status": "proposed",
+  "status": "verified",
   "unit": "usd_billions",
   "cadence": "quarterly",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "BEA private nonresidential fixed investment as a broad business-investment outcome.",
-  "note": "UNVERIFIED exact NIPA line, nominal/real basis, and ALFRED mirror; no current resolver stem exists for this concept.",
+  "note": "VERIFIED: FRED/ALFRED PNFI is the exact quarterly nominal private nonresidential fixed-investment level in billions of dollars at a seasonally adjusted annual rate.",
   "adapterFamily": "alfred-fred",
   "billSlugs": ["stress-119hr1eh"],
   "publisher": "Bureau of Economic Analysis",
   "statisticalProduct": "National Income and Product Accounts, private nonresidential fixed investment",
   "likelyUrlPattern": "https://apps.bea.gov/iTable/?ReqID=19&step=2&isuri=1&categories=survey",
-  "verification": "UNVERIFIED: 1. Select one exact BEA NIPA table/line and nominal SAAR or real-growth measure, then pin three advance-release first prints. 2. Locate the exact FRED/ALFRED ID and reproduce those prints through https://alfred.stlouisfed.org/graph/alfredgraph.csv?id={FRED_ID}. 3. Add a stem and anchors only after identity and transform match."
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-06T20:09:06Z",
+    "reason": "PNFI exactly matches the requested concept, usd_billions unit, quarterly cadence, and now-pinned nominal SAAR basis, and ALFRED returned the advance-release Q4 2025 observation at its dated vintage.",
+    "metadataEvidence": {
+      "url": "https://alfred.stlouisfed.org/series?seid=PNFI",
+      "retrievedAtUtc": "2026-08-06T20:03:40Z",
+      "sha256": "a2700ece51c010b61464df156460516b5552702d5bf4df7adf52b0ec48337bff",
+      "byteLength": 68374,
+      "fredId": "PNFI",
+      "title": "Private Nonresidential Fixed Investment",
+      "publisher": "U.S. Bureau of Economic Analysis",
+      "release": "Gross Domestic Product",
+      "beaAccountCode": "A008RC",
+      "units": "Billions of Dollars",
+      "frequency": "Quarterly",
+      "seasonalAdjustment": "Seasonally Adjusted Annual Rate",
+      "releaseTable": "Table 5.3.5. Private Fixed Investment by Type: Quarterly",
+      "metadataVintageStart": "1965-08-19",
+      "metadataVintageEnd": "2026-07-30"
+    },
+    "vintageEvidence": {
+      "url": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PNFI&vintage_date=2026-02-20&cosd=2025-10-01&coed=2025-10-01",
+      "releasePageUrl": "https://alfred.stlouisfed.org/release?et=&pageID=3&rd=2026-02-20&rid=53&t=",
+      "retrievedAtUtc": "2026-08-06T20:03:40Z",
+      "sha256": "05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92",
+      "byteLength": 51,
+      "vintageDate": "2026-02-20",
+      "releaseKind": "GDP advance estimate",
+      "releaseNoticeUrl": "https://www.bea.gov/news/2026/gdp-advance-estimate-4th-quarter-and-year-2025",
+      "releaseNoticeSha256": "3a518ef9109dc0de4677f395c7a6b634d0dc8c9c19724d78d9c1e5342581b829",
+      "releaseNoticeByteLength": 59675,
+      "observationDate": "2025-10-01",
+      "observationPeriod": "2025-Q4",
+      "fetchedValue": 4378.954,
+      "printedUnit": "Billions of Dollars",
+      "frequency": "Quarterly",
+      "seasonalAdjustment": "Seasonally Adjusted Annual Rate"
+    },
+    "match": {
+      "concept": "exact",
+      "unit": "exact: usd_billions",
+      "cadence": "exact: quarterly",
+      "seasonalBasis": "nominal seasonally adjusted annual rate"
+    },
+    "adapterSpecProposal": {
+      "fred": "PNFI",
+      "transform": "level",
+      "unit": "usd_billions",
+      "label": "US private nonresidential fixed investment, nominal SAAR",
+      "source_name": "bea",
+      "source_table": "Gross Domestic Product, Table 5.3.5 (private fixed investment by type)",
+      "concept_authority": "bea"
+    },
+    "releaseCalendarEvidence": {
+      "url": "https://www.bea.gov/news/schedule",
+      "retrievedAtUtc": "2026-08-06T20:06:13Z",
+      "sha256": "2350789893abff75835d0e5927e97beebc5e4a01653bc8e7d4d150304a95c43b",
+      "byteLength": 78062,
+      "suggestedSeedPeriod": "2026-Q3",
+      "suggestedResolutionDate": "2026-10-29",
+      "scheduledRelease": "GDP (Advance Estimate), 3rd Quarter 2026",
+      "scheduledTime": "8:30 AM ET"
+    }
+  }
 }

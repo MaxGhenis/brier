@@ -1,15 +1,79 @@
 {
   "proposed_concept": "eia.natural_gas.vented_flared.us_annual",
-  "status": "proposed",
+  "status": "rejected",
   "unit": "million_cubic_feet",
   "cadence": "annual",
   "proposedFrom": "stress-119s1188is",
   "metricText": "EIA annual U.S. natural gas vented and flared volume.",
-  "note": "UNVERIFIED EIA series code, annual release/first-print rule, and exact ALFRED mirror; no vented/flared stem exists today.",
+  "note": "REJECTED for the alfred-fred family: EIA source key N9040US2 exactly matches the annual U.S. vented-and-flared volume in MMcf, but no exact FRED/ALFRED mirror exists.",
   "adapterFamily": "alfred-fred",
   "billSlugs": ["stress-119s1188is"],
   "publisher": "U.S. Energy Information Administration",
   "statisticalProduct": "U.S. Natural Gas Vented and Flared, annual United States volume",
   "likelyUrlPattern": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
-  "verification": "UNVERIFIED: 1. Confirm the official title, EIA series code, calendar year, million-cubic-feet unit, release schedule, revision policy, and three first prints using https://www.eia.gov/dnav/ng/hist/n9040us2a.htm and https://api.eia.gov/v2/natural-gas/prod/sum/data/. 2. Locate an exact FRED/ALFRED ID and reproduce those prints at https://alfred.stlouisfed.org/graph/alfredgraph.csv?id={FRED_ID}. 3. If no exact mirror exists, build an EIA adapter instead of admitting ALFRED."
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "rejected",
+    "verifiedAtUtc": "2026-08-06T20:09:06Z",
+    "reason": "The official EIA series is valid and exactly matches the request, but neither its source key nor its API-style identifier resolves in FRED and exact-title FRED/ALFRED searches found no mirror, so the alfred-fred family cannot supply vintages.",
+    "blocker": "no_exact_alfred_series",
+    "officialSourceEvidence": {
+      "pageUrl": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+      "artifactUrl": "https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls",
+      "retrievedAtUtc": "2026-08-06T20:00:16Z",
+      "sha256": "2097906a434f257678ed09ab34cb1a5bb6bd070b9430e0edfed3a32b738b3a92",
+      "byteLength": 31232,
+      "pageSha256": "00b6c41be70b9f52463fd4536344372e50dcf96b25b0b58078e989bbf6362e6a",
+      "pageByteLength": 7615,
+      "workbookSheet": "Data 1",
+      "sourceKey": "N9040US2",
+      "title": "U.S. Natural Gas Vented and Flared",
+      "printedUnit": "MMcf",
+      "normalizedUnit": "million_cubic_feet",
+      "frequency": "Annual",
+      "seasonalAdjustment": "No seasonal adjustment is printed; this is an annual level.",
+      "latestYear": "2024",
+      "latestFetchedValue": 335163,
+      "releaseDatePrinted": "2026-07-31",
+      "nextReleaseDatePrinted": "2026-08-31"
+    },
+    "fredMirrorSearchEvidence": {
+      "exactTitle": "U.S. Natural Gas Vented and Flared",
+      "exactTitleFound": false,
+      "catalogUrl": "https://fred.stlouisfed.org/tags/series?et=&ob=pv&od=desc&pageID=1&t=eia%3Bgas",
+      "catalogResultCount": 1461,
+      "catalogRetrievedAtUtc": "2026-08-06T20:09:06Z",
+      "catalogPagesChecked": "1-30 (all 1,461 results)",
+      "catalogPage1Sha256": "1b4b706ff33efa4ddc1b17f5a41b7e0b3fbec08ffcf78d8def8b5f715337db07",
+      "catalogPagesCombinedSha256": "50024c3eb6542804f938e4083558fcc76ea52df43d13cbac3d1678196835d655",
+      "catalogPagesCombinedHashMethod": "SHA-256 of pages 1 through 30 concatenated in numeric order",
+      "directIdChecks": [
+        {
+          "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=N9040US2",
+          "retrievedAtUtc": "2026-08-06T20:08:37Z",
+          "httpStatus": 404,
+          "responseByteLength": 28943,
+          "responseSha256": "59a1ff03a07360199039bcafaa5b2da6427e96ddaa17d5d5a51c8837ebdaa765"
+        },
+        {
+          "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=NG.N9040US2.A",
+          "retrievedAtUtc": "2026-08-06T20:08:37Z",
+          "httpStatus": 404,
+          "responseByteLength": 28943,
+          "responseSha256": "59a1ff03a07360199039bcafaa5b2da6427e96ddaa17d5d5a51c8837ebdaa765"
+        }
+      ]
+    },
+    "match": {
+      "concept": "exact at EIA source",
+      "unit": "exact: million_cubic_feet",
+      "cadence": "exact: annual",
+      "seasonalBasis": "not applicable to annual level"
+    },
+    "vintageEvidence": {
+      "available": false,
+      "reason": "EIA publishes the requested series, but no exact ALFRED series ID exists from which to retrieve first-print vintages."
+    },
+    "requiredNextFamily": "EIA native API or authenticated workbook adapter"
+  }
 }
