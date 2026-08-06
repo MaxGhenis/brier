@@ -1,0 +1,950 @@
+[
+  {
+    "slug": "spm-child-poverty-rate-cy2027-current-law",
+    "country": "US",
+    "type": "conditional",
+    "title": "U.S. child SPM poverty rate, CY2027 current law",
+    "question": "What percent of people under age 18 will the U.S. Census Bureau first report as below poverty for calendar year 2027 in Poverty in the United States: 2027, revised-methodology Supplemental Poverty Measure Table B-2, ALL RACES 2027 row, Under 18 years / Below Poverty / Percent column, an annual series not seasonally adjusted, conditional on the registered current-law IRC \u00a724 threshold state?",
+    "unit": "percent",
+    "pointEstimate": 13.4,
+    "ciLow": 8.3,
+    "ciHigh": 18.5,
+    "confidence": 0.8,
+    "resolutionDate": "2028-12-31",
+    "resolutionSource": "U.S. Census Bureau revised-SPM methodology announcement (identity) and Poverty in the United States: 2027, Supplemental Poverty Measure Table B-2 (resolving artifact)",
+    "resolutionSourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+    "resolutionRule": "Resolve to the first Census annual income-and-poverty release artifact for CY2027 using the revised SPM methodology whose identity is authenticated by the registered 2026-07-17 Census announcement: Poverty in the United States: 2027, Supplemental Poverty Measure Table B-2, ALL RACES 2027 row, Under 18 years / Below Poverty / Percent column. The 2028-08-01 through 2028-12-31 expected release window and 2028-12-31 resolve-by deadline are Thesis lab commitments; the announcement does not establish either timing value. Record the published percent without scaling or rounding and ignore later revisions. If the registered legislative condition fails, leave this conditional forecast unresolved rather than resolving it against an amended-law outcome.",
+    "dataPointId": "census.spm.child_poverty_rate.2027.first_print.current_law",
+    "conditionalOn": "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, no legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount.",
+    "historicalContext": [
+      {
+        "label": "Current-methodology-vintage Table B-2, 2019 child SPM rate",
+        "value": 12.6
+      },
+      {
+        "label": "Current-methodology-vintage Table B-2, 2020 child SPM rate",
+        "value": 9.7
+      },
+      {
+        "label": "Current-methodology-vintage Table B-2, 2021 child SPM rate",
+        "value": 5.2
+      },
+      {
+        "label": "Current-methodology-vintage Table B-2, 2022 child SPM rate",
+        "value": 12.4
+      },
+      {
+        "label": "Current-methodology-vintage Table B-2, 2023 child SPM rate",
+        "value": 13.7
+      },
+      {
+        "label": "Current-methodology-vintage Table B-2, 2024 child SPM rate",
+        "value": 13.4
+      }
+    ],
+    "drivers": [
+      "Latest official child SPM rate anchors persistence at 13.4%",
+      "Current-law $2,500 CTC phase-in threshold contributes no conditional policy delta",
+      "Pandemic-era transfers produced unusually large historical annual changes",
+      "Announced revised SPM methodology creates regime uncertainty without an admissible revised print"
+    ],
+    "sourceContext": [
+      "https://www2.census.gov/programs-surveys/demo/tables/p60/287/tableB-2.xlsx",
+      "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+      "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title26-section24&num=0&edition=prelim",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-06T00:36:05Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for the CY2027 Census child Supplemental Poverty Measure rate under current law"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: resolve the first Census revised-methodology annual Table B-2 print for calendar year 2027, ALL RACES, Under 18 years, Below Poverty, Percent. This annual percentage is not seasonally adjusted. The registered 2028-12-31 date is a Thesis resolve-by bound, not a scheduled release date, and the announcement authenticates methodology identity only."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis_announcement_fetch.fetch_official_announcement",
+        "call": "fetch_official_announcement({\"url\":\"https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html\"})",
+        "result": "Exact registered URL fetched successfully with HTTP status 200, responseBytes 326626, SHA-256 070dd7a18b5e91ee24c56b34cb422a8a8a30d0840b9e5700cb5ca0849a76bcae, and publication date 2026-07-17. Census stated plans to re-release SPM estimates for 2019 through 2024; no revised-methodology estimates were present in the fetched announcement."
+      },
+      {
+        "kind": "tool",
+        "tool": "census.table_b2.fetch",
+        "call": "Downloaded and parsed official P60-287 Table B-2 workbook, ALL RACES rows, Under 18 years / Below Poverty / Percent column.",
+        "result": "Official workbook SHA-256 8cdb688380c543c1bd3bc47e2124ec6872511eff8c03c8340b1adacdbd1525fe. Current official Table B-2 vintage values fetched: 2013 18.1%, 2014 17.1%, 2015 16.2%, 2016 15.2%, 2017 14.2%, 2018 13.7%, 2019 12.6%, 2020 9.7%, 2021 5.2%, 2022 12.4%, 2023 13.7%, 2024 13.4%."
+      },
+      {
+        "kind": "tool",
+        "tool": "uscode.lookup",
+        "call": "Fetched preliminary Title 26, Section 24 from the official U.S. Code website for the conditional threshold.",
+        "result": "Official statutory text fetched: IRC \u00a724(d)(1)(B)(i) uses an underlying earned-income amount of $3,000, while \u00a724(h)(6) substitutes $2,500 for $3,000. The conditional therefore preserves the modeled current-law threshold at $2,500 and contributes a 0.0 percentage-point policy adjustment."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis.model_candidates",
+        "call": "Generated thesis_model_candidate_v1 persistence and expanding-mean benchmarks from the fetched 2013-2024 Table B-2 values.",
+        "result": "Persistence candidate: point 13.4%, p10 8.3%, p50 13.4%, p90 18.5%, 80% interval [8.3%,18.5%], 90% interval [6.8%,20.0%], interval method successive-change Gaussian empirical-residual wrapper, calibration_n 11, train cutoff 2024, walk-forward MAE 1.97 pp. Expanding-mean benchmark walk-forward MAE was 2.62 pp, so persistence was stronger."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the current official Table B-2 vintage is admissible because Census has not yet published any revised-methodology print or backcast. Across 2013-2024 the child SPM rate ranged from 5.2% to 18.1%; the latest six values were 12.6%, 9.7%, 5.2%, 12.4%, 13.7%, and 13.4%. Last-print persistence at 13.4% is the prior and beats the expanding-mean benchmark in walk-forward MAE, 1.97 versus 2.62 percentage points."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanism: the level is the latest 13.4% print; momentum is nearly flat from 13.7% in 2023 to 13.4% in 2024; the 2020-2022 transfer-policy cycle created exceptional moves and is retained in interval calibration; and the stated current-law condition leaves the $2,500 earned-income threshold unchanged, so the conditional policy update is 0.0 percentage points. No direct current signal supports moving materially from persistence. The Thesis specs citation was used only to verify target metadata and slug uniqueness, not as evidence for the forecast point or interval."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 13.4% from the 2024 current-vintage official Table B-2 print; historical sample = 2013-2024 values 18.1, 17.1, 16.2, 15.2, 14.2, 13.7, 12.6, 9.7, 5.2, 12.4, 13.7, 13.4; adjustment components = 0.0 pp for the current-law threshold condition and 0.0 pp for unsupported momentum, so point = 13.4 + 0.0 + 0.0 = 13.4%. Successive changes are -1.0, -0.9, -1.0, -1.0, -0.5, -1.1, -2.9, -4.5, +7.2, +1.3, and -0.3 pp, giving sigma = 2.92 pp; 1.28*sigma = 3.74 pp. Widening by 1.36 for the multi-year horizon and announced methodology transition gives a 5.1 pp half-width, hence 13.4 \u00b1 5.1 = [8.3, 18.5]%. This band would cover 11 of the 12 fetched annual levels."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: downside risk would land below the interval if Congress enacted a major refundable-credit expansion consistent with the condition but affecting another CTC parameter, or if labor-market strength and transfers reduced child poverty toward the 2021 trough. Upside risk would land above the interval if a recession sharply reduced family resources, benefits contracted materially, or the revised methodology raised measured child poverty by more than the historical calibration allows. Either tail could also arise from an unexpectedly large methodology discontinuity."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the correction that the interval covers 11 of 12 fetched annual levels and clarified that the Thesis specs citation supplied target metadata only; no required fixes were identified."
+      },
+      {
+        "kind": "forecast",
+        "point": 13.4,
+        "ciLow": 8.3,
+        "ciHigh": 18.5
+      }
+    ],
+    "agentReportedRunAt": "2026-08-06T00:34:02Z",
+    "runStartedAt": "2026-08-06T00:32:20Z",
+    "promptMode": "full",
+    "registrationCommit": "8b58fab29b2593537430443eb9dc9ca69dff7e2e",
+    "targetContentHash": "cfde77fe3c3a53a3404a01811dbb779c71bb0728e2562e6e63da7ce30acf9389",
+    "targetRegistrationPath": "records/targets/2026-08-05-cfde77fe3c3a53a3404a01811dbb779c71bb0728e2562e6e63da7ce30acf9389.json",
+    "registeredAtUtc": "2026-08-05T23:10:13Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 0.65,
+        "upper": 26.15
+      },
+      "points": [
+        {
+          "value": 0.65,
+          "probability": 0.0
+        },
+        {
+          "value": 0.7775,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 0.905,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 1.0325,
+          "probability": 0.005
+        },
+        {
+          "value": 1.16,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 1.2875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 1.415,
+          "probability": 0.01
+        },
+        {
+          "value": 1.5425,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 1.67,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 1.7975,
+          "probability": 0.015
+        },
+        {
+          "value": 1.925,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 2.0525,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 2.18,
+          "probability": 0.02
+        },
+        {
+          "value": 2.3075,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 2.435,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 2.5625,
+          "probability": 0.025
+        },
+        {
+          "value": 2.69,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 2.8175,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 2.945,
+          "probability": 0.03
+        },
+        {
+          "value": 3.0725,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 3.2,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 3.3275,
+          "probability": 0.035
+        },
+        {
+          "value": 3.455,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 3.5825,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 3.71,
+          "probability": 0.04
+        },
+        {
+          "value": 3.8375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 3.965,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 4.0925,
+          "probability": 0.045
+        },
+        {
+          "value": 4.22,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 4.3475,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 4.475,
+          "probability": 0.05
+        },
+        {
+          "value": 4.6025,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 4.73,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 4.8575,
+          "probability": 0.055
+        },
+        {
+          "value": 4.985,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 5.1125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 5.24,
+          "probability": 0.06
+        },
+        {
+          "value": 5.3675,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 5.495,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 5.6225,
+          "probability": 0.065
+        },
+        {
+          "value": 5.75,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 5.8775,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 6.005,
+          "probability": 0.07
+        },
+        {
+          "value": 6.1325,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 6.26,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 6.3875,
+          "probability": 0.075
+        },
+        {
+          "value": 6.515,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 6.6425,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 6.77,
+          "probability": 0.08
+        },
+        {
+          "value": 6.8975,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 7.025,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 7.1525,
+          "probability": 0.085
+        },
+        {
+          "value": 7.28,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 7.4075,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 7.535,
+          "probability": 0.09
+        },
+        {
+          "value": 7.6625,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 7.79,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 7.9175,
+          "probability": 0.095
+        },
+        {
+          "value": 8.045,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 8.1725,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 8.3,
+          "probability": 0.1
+        },
+        {
+          "value": 8.4275,
+          "probability": 0.11
+        },
+        {
+          "value": 8.555,
+          "probability": 0.12
+        },
+        {
+          "value": 8.6825,
+          "probability": 0.13
+        },
+        {
+          "value": 8.81,
+          "probability": 0.14
+        },
+        {
+          "value": 8.9375,
+          "probability": 0.15
+        },
+        {
+          "value": 9.065,
+          "probability": 0.16
+        },
+        {
+          "value": 9.1925,
+          "probability": 0.17
+        },
+        {
+          "value": 9.32,
+          "probability": 0.18
+        },
+        {
+          "value": 9.4475,
+          "probability": 0.19
+        },
+        {
+          "value": 9.575,
+          "probability": 0.2
+        },
+        {
+          "value": 9.7025,
+          "probability": 0.21
+        },
+        {
+          "value": 9.83,
+          "probability": 0.22
+        },
+        {
+          "value": 9.9575,
+          "probability": 0.23
+        },
+        {
+          "value": 10.085,
+          "probability": 0.24
+        },
+        {
+          "value": 10.2125,
+          "probability": 0.25
+        },
+        {
+          "value": 10.34,
+          "probability": 0.26
+        },
+        {
+          "value": 10.4675,
+          "probability": 0.27
+        },
+        {
+          "value": 10.595,
+          "probability": 0.28
+        },
+        {
+          "value": 10.7225,
+          "probability": 0.29
+        },
+        {
+          "value": 10.85,
+          "probability": 0.3
+        },
+        {
+          "value": 10.9775,
+          "probability": 0.31
+        },
+        {
+          "value": 11.105,
+          "probability": 0.32
+        },
+        {
+          "value": 11.2325,
+          "probability": 0.33
+        },
+        {
+          "value": 11.36,
+          "probability": 0.34
+        },
+        {
+          "value": 11.4875,
+          "probability": 0.35
+        },
+        {
+          "value": 11.615,
+          "probability": 0.36
+        },
+        {
+          "value": 11.7425,
+          "probability": 0.37
+        },
+        {
+          "value": 11.87,
+          "probability": 0.38
+        },
+        {
+          "value": 11.9975,
+          "probability": 0.39
+        },
+        {
+          "value": 12.125,
+          "probability": 0.4
+        },
+        {
+          "value": 12.2525,
+          "probability": 0.41
+        },
+        {
+          "value": 12.38,
+          "probability": 0.42
+        },
+        {
+          "value": 12.5075,
+          "probability": 0.43
+        },
+        {
+          "value": 12.635,
+          "probability": 0.44
+        },
+        {
+          "value": 12.7625,
+          "probability": 0.45
+        },
+        {
+          "value": 12.89,
+          "probability": 0.46
+        },
+        {
+          "value": 13.0175,
+          "probability": 0.47
+        },
+        {
+          "value": 13.145,
+          "probability": 0.48
+        },
+        {
+          "value": 13.2725,
+          "probability": 0.49
+        },
+        {
+          "value": 13.4,
+          "probability": 0.5
+        },
+        {
+          "value": 13.5275,
+          "probability": 0.51
+        },
+        {
+          "value": 13.655,
+          "probability": 0.52
+        },
+        {
+          "value": 13.7825,
+          "probability": 0.53
+        },
+        {
+          "value": 13.91,
+          "probability": 0.54
+        },
+        {
+          "value": 14.0375,
+          "probability": 0.55
+        },
+        {
+          "value": 14.165,
+          "probability": 0.56
+        },
+        {
+          "value": 14.2925,
+          "probability": 0.57
+        },
+        {
+          "value": 14.42,
+          "probability": 0.58
+        },
+        {
+          "value": 14.5475,
+          "probability": 0.59
+        },
+        {
+          "value": 14.675,
+          "probability": 0.6
+        },
+        {
+          "value": 14.8025,
+          "probability": 0.61
+        },
+        {
+          "value": 14.93,
+          "probability": 0.62
+        },
+        {
+          "value": 15.0575,
+          "probability": 0.63
+        },
+        {
+          "value": 15.185,
+          "probability": 0.64
+        },
+        {
+          "value": 15.3125,
+          "probability": 0.65
+        },
+        {
+          "value": 15.44,
+          "probability": 0.66
+        },
+        {
+          "value": 15.5675,
+          "probability": 0.67
+        },
+        {
+          "value": 15.695,
+          "probability": 0.68
+        },
+        {
+          "value": 15.8225,
+          "probability": 0.69
+        },
+        {
+          "value": 15.95,
+          "probability": 0.7
+        },
+        {
+          "value": 16.0775,
+          "probability": 0.71
+        },
+        {
+          "value": 16.205,
+          "probability": 0.72
+        },
+        {
+          "value": 16.3325,
+          "probability": 0.73
+        },
+        {
+          "value": 16.46,
+          "probability": 0.74
+        },
+        {
+          "value": 16.5875,
+          "probability": 0.75
+        },
+        {
+          "value": 16.715,
+          "probability": 0.76
+        },
+        {
+          "value": 16.8425,
+          "probability": 0.77
+        },
+        {
+          "value": 16.97,
+          "probability": 0.78
+        },
+        {
+          "value": 17.0975,
+          "probability": 0.79
+        },
+        {
+          "value": 17.225,
+          "probability": 0.8
+        },
+        {
+          "value": 17.3525,
+          "probability": 0.81
+        },
+        {
+          "value": 17.48,
+          "probability": 0.82
+        },
+        {
+          "value": 17.6075,
+          "probability": 0.83
+        },
+        {
+          "value": 17.735,
+          "probability": 0.84
+        },
+        {
+          "value": 17.8625,
+          "probability": 0.85
+        },
+        {
+          "value": 17.99,
+          "probability": 0.86
+        },
+        {
+          "value": 18.1175,
+          "probability": 0.87
+        },
+        {
+          "value": 18.245,
+          "probability": 0.88
+        },
+        {
+          "value": 18.3725,
+          "probability": 0.89
+        },
+        {
+          "value": 18.5,
+          "probability": 0.9
+        },
+        {
+          "value": 18.6275,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 18.755,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 18.8825,
+          "probability": 0.905
+        },
+        {
+          "value": 19.01,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 19.1375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 19.265,
+          "probability": 0.91
+        },
+        {
+          "value": 19.3925,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 19.52,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 19.6475,
+          "probability": 0.915
+        },
+        {
+          "value": 19.775,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 19.9025,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 20.03,
+          "probability": 0.92
+        },
+        {
+          "value": 20.1575,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 20.285,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 20.4125,
+          "probability": 0.925
+        },
+        {
+          "value": 20.54,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 20.6675,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 20.795,
+          "probability": 0.93
+        },
+        {
+          "value": 20.9225,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 21.05,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 21.1775,
+          "probability": 0.935
+        },
+        {
+          "value": 21.305,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 21.4325,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 21.56,
+          "probability": 0.94
+        },
+        {
+          "value": 21.6875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 21.815,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 21.9425,
+          "probability": 0.945
+        },
+        {
+          "value": 22.07,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 22.1975,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 22.325,
+          "probability": 0.95
+        },
+        {
+          "value": 22.4525,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 22.58,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 22.7075,
+          "probability": 0.955
+        },
+        {
+          "value": 22.835,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 22.9625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 23.09,
+          "probability": 0.96
+        },
+        {
+          "value": 23.2175,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 23.345,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 23.4725,
+          "probability": 0.965
+        },
+        {
+          "value": 23.6,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 23.7275,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 23.855,
+          "probability": 0.97
+        },
+        {
+          "value": 23.9825,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 24.11,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 24.2375,
+          "probability": 0.975
+        },
+        {
+          "value": 24.365,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 24.4925,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 24.62,
+          "probability": 0.98
+        },
+        {
+          "value": 24.7475,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 24.875,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 25.0025,
+          "probability": 0.985
+        },
+        {
+          "value": 25.13,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 25.2575,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 25.385,
+          "probability": 0.99
+        },
+        {
+          "value": 25.5125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 25.64,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 25.7675,
+          "probability": 0.995
+        },
+        {
+          "value": 25.895,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 26.0225,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 26.15,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 13.4,
+        "median": 13.4,
+        "interval80": {
+          "lower": 8.3,
+          "upper": 18.5
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

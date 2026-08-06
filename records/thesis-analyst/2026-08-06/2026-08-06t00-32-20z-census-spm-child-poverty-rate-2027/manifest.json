@@ -1,0 +1,389 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-06T00:32:20Z",
+  "runStartedAt": "2026-08-06T00:32:20Z",
+  "sealedAt": "2026-08-06T00:36:05Z",
+  "series": "census.spm.child_poverty_rate",
+  "period": "2027",
+  "conditional": "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, no legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount.",
+  "targetContext": {
+    "catalogSlug": "spm-child-poverty-rate-cy2027-current-law",
+    "conditionDeadline": "2027-12-31",
+    "conditionId": "cond.s3596-actc-threshold.current-law",
+    "conditional": "For the CY2027 Census Supplemental Poverty Measure child-poverty outcome, no legislation enacted by 2027-12-31 changes the IRC \u00a724(d)(1)(B)(i) earned-income threshold of $2,500 for tax year 2027; current law holds. The $2,500 operative amount is applied by IRC \u00a724(h)(6), while \u00a724(d)(1)(B)(i) contains the underlying $3,000 amount.",
+    "country": "US",
+    "dataPointId": "census.spm.child_poverty_rate.2027.first_print.current_law",
+    "expectedReleaseWindow": {
+      "end": "2028-12-31",
+      "start": "2028-08-01"
+    },
+    "period": "2027",
+    "registeredAt": "2026-08-05T23:10:13Z",
+    "registeredAtUtc": "2026-08-05T23:10:13Z",
+    "registrationCommit": "8b58fab29b2593537430443eb9dc9ca69dff7e2e",
+    "registrationState": "preregistered",
+    "resolutionDate": "2028-12-31",
+    "resolutionDateBasis": "resolve-by-bound",
+    "resolutionRule": "Resolve to the first Census annual income-and-poverty release artifact for CY2027 using the revised SPM methodology whose identity is authenticated by the registered 2026-07-17 Census announcement: Poverty in the United States: 2027, Supplemental Poverty Measure Table B-2, ALL RACES 2027 row, Under 18 years / Below Poverty / Percent column. The 2028-08-01 through 2028-12-31 expected release window and 2028-12-31 resolve-by deadline are Thesis lab commitments; the announcement does not establish either timing value. Record the published percent without scaling or rounding and ignore later revisions.",
+    "resolutionSource": "U.S. Census Bureau revised-SPM methodology announcement (identity) and Poverty in the United States: 2027, Supplemental Poverty Measure Table B-2 (resolving artifact)",
+    "resolutionSourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+    "series": "census.spm.child_poverty_rate",
+    "sourceBinding": {
+      "adapter": "census-spm-annual-report",
+      "allowedHosts": [
+        "www.census.gov",
+        "www2.census.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2028-12-31",
+        "start": "2028-08-01"
+      },
+      "field": "under_18_percent_in_poverty",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "census.spm.child_poverty_rate",
+      "sourceUrl": "https://www.census.gov/newsroom/press-releases/2026/statement-on-supplemental-poverty-measure.html",
+      "table": "Poverty in the United States annual income-and-poverty release, revised-methodology Supplemental Poverty Measure Table B-2, ALL RACES year row, Under 18 years / Below Poverty / Percent column",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "cfde77fe3c3a53a3404a01811dbb779c71bb0728e2562e6e63da7ce30acf9389",
+    "targetRegistrationPath": "records/targets/2026-08-05-cfde77fe3c3a53a3404a01811dbb779c71bb0728e2562e6e63da7ce30acf9389.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "8b58fab29b2593537430443eb9dc9ca69dff7e2e",
+  "targetContentHash": "cfde77fe3c3a53a3404a01811dbb779c71bb0728e2562e6e63da7ce30acf9389",
+  "targetRegistrationPath": "records/targets/2026-08-05-cfde77fe3c3a53a3404a01811dbb779c71bb0728e2562e6e63da7ce30acf9389.json",
+  "registeredAtUtc": "2026-08-05T23:10:13Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.6-sol",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-06T00:32:20Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "bb02f1dc8930e84814cee99a835cbfc069f83be3ef5e99ccaf326121bfecd906"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Correct the minor interval coverage sentence: [8.3, 18.5] covers 11 of the 12 listed annual levels, not 10 of 12."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider stating explicitly that the app.thesisinstitute.org specs citation was used only for target metadata, not for any forecast point or interval."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the correction that the interval covers 11 of 12 fetched annual levels and clarified that the Thesis specs citation supplied target metadata only; no required fixes were identified.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the correction that the interval covers 11 of 12 fetched annual levels and clarified that the Thesis specs citation supplied target metadata only; no required fixes were identified.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publication-ready on the review rubric, with resolver, prior, update logic, interval derivation, tails, and JSON fields coherently tied to the registered target."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/prompt.md",
+      "sha256": "2a601312534af2f92727a005a7107a65f98f12dc88ae9ddb33f6cf340d1cc80f",
+      "bytes": 38995,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_command.json",
+      "sha256": "7e25737c83e5def1a93c531f7321473c7e6be1916c8ddea5f83af243743c5303",
+      "bytes": 2142,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_codex_stdout.jsonl",
+      "sha256": "484a1ca440b61ecc446104834cf3271d41dbb07cb59f60e326e3401d73ff528c",
+      "bytes": 2735203,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_codex_events.jsonl",
+      "sha256": "b4cf468935d8becb0ce3fbdae675a61118c075947a90525396b119606a72b19c",
+      "bytes": 2735542,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_codex_last_message.txt",
+      "sha256": "f23839dfede62e3cd9cda993ed1a0fde38a1aa807f05bb8d13dead9708df4d17",
+      "bytes": 8316,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_codex_trace.json",
+      "sha256": "c61836b94f9f38d7703236eb312afe3a0ea156f9c0e010a20ac9fbbc0e2c973c",
+      "bytes": 571,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_stdout.txt",
+      "sha256": "f23839dfede62e3cd9cda993ed1a0fde38a1aa807f05bb8d13dead9708df4d17",
+      "bytes": 8316,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_prompt.md",
+      "sha256": "ba98243919762504db932b4653fa5d906c9cfb49427e8cf4174f26a615d62322",
+      "bytes": 14926,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_command.json",
+      "sha256": "882c39e0cf09f05f24616d1a56da231b15c3f097e8d7bea952cc9d566060beee",
+      "bytes": 1154,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "923dd889f1595633d931fbe3a45f0803e4850eb7174236bda978395eed51d845",
+      "bytes": 825,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_codex_events.jsonl",
+      "sha256": "a9bbc2efa785da4aecf169552f1fe1cb87c6d859b63ac8eefaac474e5808da29",
+      "bytes": 847,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_codex_last_message.txt",
+      "sha256": "29e9e4dd3217cf6af9846c1949ca6f05ee713456ea450d79ffb2b6aa1bcb57f5",
+      "bytes": 496,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_codex_trace.json",
+      "sha256": "25252f8352e801c2f099079cee3d19901777325207b3838bec7cd43464a8f0f3",
+      "bytes": 562,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_stdout.txt",
+      "sha256": "29e9e4dd3217cf6af9846c1949ca6f05ee713456ea450d79ffb2b6aa1bcb57f5",
+      "bytes": 496,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/revision_prompt.md",
+      "sha256": "27132b22c69b1a8d653ee269d024b25d9f623987e47d3b44fcff72c41a558216",
+      "bytes": 48743,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/command.json",
+      "sha256": "ce0dceb80490a3cb8c56cbb03c7655efbb1e5d8aa214c20583ba3c58d078ec07",
+      "bytes": 2136,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/codex_stdout.jsonl",
+      "sha256": "6289bc8b78ae25b263730c3fd004c3861a074302a390ff32797446d93b1d55e8",
+      "bytes": 9266,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/codex_events.jsonl",
+      "sha256": "725222ab8ebf1e69decfcf73618771592b544d61efd838e7ad693d93760dcde9",
+      "bytes": 9316,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/codex_last_message.txt",
+      "sha256": "96bce7eb625b680d54c1da8b42de7be7ac11ae1dfa40c9ec322835cd5252f333",
+      "bytes": 8691,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/codex_trace.json",
+      "sha256": "3ed5209bc3ec2548ea42562ef8e3a5b92c6bf2e88bfa681423016ddc22b46f42",
+      "bytes": 565,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/stdout.txt",
+      "sha256": "96bce7eb625b680d54c1da8b42de7be7ac11ae1dfa40c9ec322835cd5252f333",
+      "bytes": 8691,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/raw_response.txt",
+      "sha256": "96bce7eb625b680d54c1da8b42de7be7ac11ae1dfa40c9ec322835cd5252f333",
+      "bytes": 8691,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/parsed_cells.json",
+      "sha256": "b2e1272d8ae2a589fbe02c753b3f452b89e059c6413a3b9a6aa7cb98c727cff6",
+      "bytes": 9642,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/normalized_cells.json",
+      "sha256": "c1b573a625447053fed72cb94e270e272459e68ffa1eda5e1d20a82c67d4ba17",
+      "bytes": 27053,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/distribution.json",
+      "sha256": "01d85e18353c927a5376529faa48232e7f277126b9fc59cebc31c93dbe0ae146",
+      "bytes": 13627,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/validation.json",
+      "sha256": "95a091d47e140c49ecc39ca35d19e607fc3ce32ab04d9b34f1cb86cf216bb8c2",
+      "bytes": 142,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/cells.with_activity.json",
+      "sha256": "4fffd9b1d62cec3b676ca5b0423c545bde17fe33bbb46bf560ca023a6fce9636",
+      "bytes": 40516,
+      "createdAt": "2026-08-06T00:32:20Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-06/2026-08-06t00-32-20z-census-spm-child-poverty-rate-2027/manifest.json",
+      "sha256": "6548cdfc46ea0b5bd544ad4b89f3f9a17023eefeb6d786dd1bfa161611044e83",
+      "bytes": 16229,
+      "createdAt": "2026-08-06T00:32:20Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "spm-child-poverty-rate-cy2027-current-law",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "2aeeedef7e9c57dc14510f746d0938d28d82b1dd",
+  "generationTicket": {
+    "ticketId": "2026-08-06-a8c720af9064965ffcbccb9a434b7303cfa40a8ff247b20b278e745b50a71a05",
+    "ticketPath": "records/tickets/2026-08-06/2026-08-06-a8c720af9064965ffcbccb9a434b7303cfa40a8ff247b20b278e745b50a71a05.json",
+    "nonceSha256": "53e172ee299b80f8a77d9c982935cf6688afdd328cb571f2cfa235850b06105a"
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "0d89b075945b60e451f44cad6b11cfb521845564bfcc7189f9cb405add10006b"
+}
