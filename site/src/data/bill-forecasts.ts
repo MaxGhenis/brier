@@ -35,6 +35,11 @@ export const BILL_FORECAST_LINKS: BillForecastLink[] = [
     metricLabel: "ACTC total claims (TY2027)",
     groupSlug: "actc-claims-ty2027-threshold-one-dollar",
   },
+  {
+    billSlug: "s3596-119",
+    metricLabel: "Child SPM poverty (CY2027)",
+    groupSlug: "spm-child-poverty-cy2027-threshold-one-dollar",
+  },
 ];
 
 /**
@@ -58,13 +63,6 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
       "USDA FSA total CRP enrolled acres in the September 2027 CRP Monthly Summary — conditional on enactment of a 27,000,000-acre FY2027–31 ceiling versus no enacted FY2027–31 ceiling by 2027-09-30.",
     status: "pending",
     note: "Both arms were preregistered through the trusted docket on 2026-08-03 — chronology witnessed before any forecasting. A ticketed attested run on 2026-08-04 was refused by the runner's honesty rules when the FSA statistics site failed to serve the official summary (fetch timeout — no observations, no invented values); the refusal trace is retained and the pair retries under a superseding ticket when the source recovers.",
-  },
-  {
-    billSlug: "s3596-119",
-    question:
-      "Census SPM child poverty rate, CY2027 — conditional on either a ≤ $1 or unchanged $2,500 IRC §24(d)(1)(B)(i) earned-income threshold for TY2027, determined by legislation enacted by 2027-12-31.",
-    status: "pending",
-    note: "The earlier CY2026 runner refusal remains public. Its causally aligned CY2027 replacement is docketed and awaits the required attested generation-ticket lane. Thesis commits the conservative 2028-08-01 through 2028-12-31 release window and 2028-12-31 resolve-by deadline; the Census announcement authenticates revised-methodology identity only and establishes neither timing value. Like the ACTC pair, this pair is non-exhaustive: an intermediate enacted threshold satisfies neither arm.",
   },
 ];
 
