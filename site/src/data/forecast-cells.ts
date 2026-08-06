@@ -75,6 +75,7 @@ export type Unit =
   | "percent"
   | "gbp_billions"
   | "usd"
+  | "usd_millions"
   | "usd_billions"
   // Non-canonical variant admitted by the 2026-08-03 auto-roll — registered
   // snapshots are immutable, so the site tolerates it. Canonical is
@@ -7678,6 +7679,8 @@ export function formatValue(value: number, unit: Unit): string {
         return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
       }
       return `$${value.toFixed(2)}`;
+    case "usd_millions":
+      return `$${value.toLocaleString(undefined, { maximumFractionDigits: 3 })}M`;
     case "usd_billions":
       return `$${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
     case "usd_monthly":

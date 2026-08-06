@@ -22,6 +22,7 @@ from register_targets import (  # noqa: E402
 from roll_docket import (  # noqa: E402
     OFFICIAL_CALENDAR_ADAPTERS,
     advance_past_released_native_periods,
+    bounded_annual_first_print_seed_target,
     latest_published_period,
     next_roll_period,
     not_too_far_ahead,
@@ -185,7 +186,13 @@ def test_recurring_seed_requires_canonical_period_spelling(
 
 def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
     registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
-    entries = [entry for entry in registry["series"] if entry.get("seedPeriod")]
+    entries = [
+        entry
+        for entry in registry["series"]
+        if entry.get("seedPeriod")
+        and (entry.get("extras") or {}).get("resolutionDateBasis")
+        != "resolve-by-bound"
+    ]
 
     assert len(entries) == 21
     for entry in entries:
@@ -212,6 +219,210 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
             "end": entry["releaseDates"][period],
         }
         assert contract["seedPeriod"] == period
+
+
+def bounded_annual_seed_entry() -> dict:
+    return {
+        "series": "irs.soi.credit_30d.total_claims",
+        "cadence": "annual",
+        "period": "2027",
+        "seedPeriod": "2027",
+        "slug": "clean-vehicle-credit-total-claims-ty{period}",
+        "extras": {
+            "targetUnit": "count",
+            "valueScale": 1,
+            "resolutionDate": "2030-12-31",
+            "resolutionDateBasis": "resolve-by-bound",
+            "expectedReleaseWindow": {
+                "start": "2029-01-01",
+                "end": "2030-12-31",
+            },
+            "anchors": {"2023": 493953},
+            "sourceBinding": {
+                "adapter": "irs-soi-pub1304",
+                "sourceUrl": "https://www.irs.gov/statistics/irs-table",
+                "sourceSeriesId": "irs.soi.credit_30d.total_claims",
+                "field": "clean_vehicle_credit_returns",
+                "table": "Publication 1304 Table 3.3",
+                "transform": {"operation": "multiply", "factor": 1},
+                "releasePolicy": "first_print",
+            },
+        },
+    }
+
+
+def test_bounded_annual_first_print_seed_is_exact_and_one_shot() -> None:
+    entry = bounded_annual_seed_entry()
+    target = bounded_annual_first_print_seed_target(
+        entry, set(), dt.date(2026, 8, 6)
+    )
+
+    assert target == {
+        "series": entry["series"],
+        "period": "2027",
+        "seedPeriod": "2027",
+        "catalogSlug": "clean-vehicle-credit-total-claims-ty2027",
+        **entry["extras"],
+    }
+    contract = register_targets.build_contract(target, dt.date(2026, 8, 6))
+    assert contract["resolutionDateBasis"] == "resolve-by-bound"
+    assert contract["resolutionDate"] == "2030-12-31"
+    assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+        "start": "2029-01-01",
+        "end": "2030-12-31",
+    }
+    batch_target = {
+        **target,
+        "country": contract["country"],
+        "dataPointId": contract["dataPointId"],
+    }
+    validate_native_calendar_contract(contract, target, entry)
+    register_targets.require_seed_docket_template(
+        contract,
+        [entry],
+        "2026-08-06T00:00:00Z",
+        batch_target=batch_target,
+    )
+    for key, value in (
+        ("catalogSlug", "unauthorized-slug"),
+        ("unit", "percentage_points"),
+        ("valueScale", 999),
+    ):
+        drifted_contract = copy.deepcopy(contract)
+        drifted_contract[key] = value
+        with pytest.raises(
+            RegistrationError, match="no longer regenerates the registered"
+        ):
+            register_targets.require_seed_docket_template(
+                drifted_contract,
+                [entry],
+                "2026-08-06T00:00:00Z",
+                batch_target=batch_target,
+            )
+    drifted_entry = copy.deepcopy(entry)
+    drifted_entry["extras"]["anchors"]["2023"] = 999
+    with pytest.raises(RegistrationError, match="batch target's run context"):
+        register_targets.require_seed_docket_template(
+            contract,
+            [drifted_entry],
+            "2026-08-06T00:00:00Z",
+            batch_target=batch_target,
+        )
+    for key, value in (("period", "2028"), ("cadence", "monthly")):
+        drifted_entry = copy.deepcopy(entry)
+        drifted_entry[key] = value
+        with pytest.raises(RegistrationError, match="annual YYYY period"):
+            register_targets.require_seed_docket_template(
+                contract,
+                [drifted_entry],
+                "2026-08-06T00:00:00Z",
+                batch_target=batch_target,
+            )
+    for key in ("resolutionRule", "resolutionSourceUrl"):
+        injected_target = copy.deepcopy(batch_target)
+        injected_target[key] = "unauthorized analyst-visible context"
+        with pytest.raises(RegistrationError, match="batch target's run context"):
+            register_targets.require_seed_docket_template(
+                contract,
+                [entry],
+                "2026-08-06T00:00:00Z",
+                batch_target=injected_target,
+            )
+    drifted = copy.deepcopy(contract)
+    drifted["sourceBinding"]["expectedReleaseWindow"]["start"] = "2029-02-01"
+    with pytest.raises(RegistrationError, match="bounded seed release window"):
+        validate_native_calendar_contract(drifted, target, entry)
+    assert (
+        bounded_annual_first_print_seed_target(
+            entry,
+            {"clean-vehicle-credit-total-claims-ty2027"},
+            dt.date(2026, 8, 6),
+        )
+        is None
+    )
+    assert (
+        bounded_annual_first_print_seed_target(
+            entry, set(), dt.date(2029, 1, 1)
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "warning"),
+    [
+        ("period", "requires a YYYY period"),
+        ("seed-period", "seedPeriod must equal period"),
+        ("basis", "requires a first_print binding and resolve-by-bound basis"),
+        ("policy", "requires a first_print binding and resolve-by-bound basis"),
+        ("window", "requires an exact expectedReleaseWindow"),
+        ("resolution", "resolutionDate must equal the window end"),
+        ("slug", "malformed bounded annual slug template"),
+    ],
+)
+def test_bounded_annual_first_print_seed_refuses_drift(
+    mutation: str,
+    warning: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = bounded_annual_seed_entry()
+    if mutation == "period":
+        entry["period"] = "FY2027"
+    elif mutation == "seed-period":
+        entry["seedPeriod"] = "2028"
+    elif mutation == "basis":
+        entry["extras"]["resolutionDateBasis"] = "release-calendar"
+    elif mutation == "policy":
+        entry["extras"]["sourceBinding"]["releasePolicy"] = "revision"
+    elif mutation == "window":
+        entry["extras"]["expectedReleaseWindow"] = {"start": "2029-01-01"}
+    elif mutation == "resolution":
+        entry["extras"]["resolutionDate"] = "2029-12-30"
+    else:
+        entry["slug"] = "clean-vehicle-credit-{}"
+
+    assert (
+        bounded_annual_first_print_seed_target(
+            entry, set(), dt.date(2026, 8, 6)
+        )
+        is None
+    )
+    assert warning in capsys.readouterr().err
+
+
+def test_real_bounded_annual_seeds_are_reviewable_and_bound_to_docket() -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entries = [
+        entry
+        for entry in registry["series"]
+        if entry.get("seedPeriod")
+        and (entry.get("extras") or {}).get("resolutionDateBasis")
+        == "resolve-by-bound"
+        and not isinstance(entry.get("conditionalPair"), dict)
+    ]
+
+    assert {entry["series"] for entry in entries} == {
+        "irs.soi.credit_30d.total_claims",
+        "irs.actc.total_credit_amount",
+    }
+    for entry in entries:
+        target = bounded_annual_first_print_seed_target(
+            entry, set(), dt.date(2026, 8, 6)
+        )
+        assert target is not None
+        contract = register_targets.build_contract(target, dt.date(2026, 8, 6))
+        validate_native_calendar_contract(contract, target, entry)
+        batch_target = {
+            **target,
+            "country": contract["country"],
+            "dataPointId": contract["dataPointId"],
+        }
+        register_targets.require_seed_docket_template(
+            contract,
+            [entry],
+            "2026-08-06T00:00:00Z",
+            batch_target=batch_target,
+        )
 
 
 def test_main_prioritizes_dated_seeds_before_a_capped_cursor_target(

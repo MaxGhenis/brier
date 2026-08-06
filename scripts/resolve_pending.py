@@ -52,6 +52,7 @@ import urllib.request
 import zipfile
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from decimal import Decimal
 from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import quote, urlparse
@@ -1235,14 +1236,11 @@ CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
 # per tax year at https://www.irs.gov/pub/irs-soi/{yy}in33ar.xls roughly two
 # calendar years after the tax year; the file is a static print, so the
 # capture is the first print whenever the by-date resolver run fetches it.
-# The claimant-count concept is the "Number of returns" column under the
-# "Refundable child tax credit or additional child tax credit" header
-# ("Additional child tax credit" in TY2020 and earlier prints — the same
-# statistic under IRS's pre-ARPA label), at the "All returns, total" row.
-# Pending references are condition-suffixed conditional-arm ids
-# (irs.actc.total_claims.YYYY.first_print.<condition_token>); every arm of a
-# pair resolves to the same official print, and the site's condition
-# registry gates which arm is scored.
+# Each reviewed spec authenticates one exact concept header, subcolumn, and
+# transform at the "All returns, total" row. Pending references may be plain
+# annual ids or condition-suffixed conditional-arm ids; every arm of a pair
+# resolves to the same official print, and the site's condition registry
+# gates which arm is scored.
 IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
     "irs.actc.total_claims": {
         # Published IRS target snapshots predate the contract property. This
@@ -1287,6 +1285,8 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
             "additional child tax credit",
         ),
         "subcolumn_label": "number of returns",
+        "subcolumn_offset": 0,
+        "value_transform": {"operation": "multiply", "factor": 1e-06},
         "unit": "millions",
         "label": "US refundable child tax credit or ACTC claimant returns",
         "measure_concept": "irs.actc.total_claims",
@@ -1305,6 +1305,115 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
             "workbook bytes are archived. The recorded value is exactly the "
             "registered transform of the published whole-return count "
             "(multiplied by 1e-06), with no further rounding."
+        ),
+    },
+    "irs.actc.total_credit_amount": {
+        "resolution_date_basis": "resolve-by-bound",
+        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
+        "anchor_status": "VERIFIED",
+        "anchors": {
+            "2020": 33664804,
+            "2021": 115869125,
+            "2022": 34843071,
+            "2023": 34533251,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.actc.total_credit_amount",
+        "field": "refundable_child_tax_credit_amount",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, refundable "
+            "child tax credit or additional child tax credit, amount"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "refundable child tax credit or additional child tax credit",
+            "additional child tax credit",
+        ),
+        "subcolumn_label": "amount",
+        "subcolumn_offset": 1,
+        "required_scale_marker": (
+            "(All figures are estimates based on samples—money amounts are "
+            "in thousands of dollars)"
+        ),
+        "scale_marker_cell": (1, 0),
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_millions",
+        "label": "US refundable child tax credit or ACTC total credit amount",
+        "measure_concept": "irs.actc.total_credit_amount",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Refundable "
+            "child tax credit or additional child tax credit; Amount"
+        ),
+        "evidence_notes": (
+            "TY{period} refundable child tax credit or additional child tax "
+            "credit amount, read from the 'All returns, total' row's 'Amount' "
+            "column in the official Publication 1304 Table 3.3 workbook "
+            "linked from {source_url}; the fetched workbook bytes are "
+            "archived. The workbook states that money amounts are in "
+            "thousands of dollars. The recorded value is the published "
+            "whole-thousand-dollar amount multiplied by 0.001 to produce "
+            "USD millions, with no further rounding."
+        ),
+    },
+    "irs.soi.credit_30d.total_claims": {
+        "resolution_date_basis": "resolve-by-bound",
+        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
+        "anchor_status": "VERIFIED",
+        "anchors": {
+            "2020": 61793,
+            "2021": 166244,
+            "2022": 248052,
+            "2023": 493953,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.soi.credit_30d.total_claims",
+        "field": "clean_vehicle_credit_returns",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, clean "
+            "vehicle credit or qualified plug-in electric vehicle credit, "
+            "number of returns"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "clean vehicle credit",
+            "qualified plug-in electric vehicle credit",
+        ),
+        "subcolumn_label": "number of returns",
+        "subcolumn_offset": 0,
+        "value_transform": {"operation": "multiply", "factor": 1},
+        "unit": "count",
+        "label": "US clean vehicle credit claimant returns",
+        "measure_concept": "irs.soi.credit_30d.total_claims",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Clean vehicle "
+            "credit or qualified plug-in electric vehicle credit; Number "
+            "of returns"
+        ),
+        "evidence_notes": (
+            "TY{period} clean vehicle credit claimant returns, read from "
+            "the 'All returns, total' row's 'Number of returns' column in "
+            "the official Publication 1304 Table 3.3 workbook linked from "
+            "{source_url}; the fetched workbook bytes are archived. The "
+            "recorded value is the published whole-return count with an "
+            "identity transform and no rounding."
         ),
     },
 }
@@ -5637,6 +5746,8 @@ IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS = {
     "releasePolicy",
 }
 IRS_SOI_PUB1304_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+# Backward-compatible name for the original ACTC claimant-count spec. New
+# Table 3.3 series carry their transform in the reviewed per-series spec.
 IRS_SOI_PUB1304_TRANSFORM = {"operation": "multiply", "factor": 1e-06}
 
 
@@ -5647,7 +5758,7 @@ def irs_soi_pub1304_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
         "sourceSeriesId": spec["series_id"],
         "field": spec["field"],
         "table": spec["source_table"],
-        "transform": dict(IRS_SOI_PUB1304_TRANSFORM),
+        "transform": dict(spec["value_transform"]),
         "releasePolicy": "first_print",
     }
 
@@ -5716,11 +5827,43 @@ def irs_soi_pub1304_grid(raw: bytes, spec: Mapping[str, Any]):
 def irs_soi_pub1304_count_from_grid(
     grid: list[list[Any]], spec: Mapping[str, Any]
 ) -> tuple[float | None, str | None]:
-    """Read the whole-return claimant count from an extracted grid.
+    """Read one reviewed nonnegative-integer value from an extracted grid.
 
-    Fails closed on ambiguity: the concept header, its number-of-returns
-    subheader, and the all-returns row must each match exactly once.
+    Fails closed on ambiguity: the concept header, requested subheader, and
+    all-returns row must each match exactly once. Amount specs also authenticate
+    the workbook's printed unit marker before any transform is applied.
     """
+
+    required_scale_marker = spec.get("required_scale_marker")
+    if required_scale_marker is not None:
+        marker = _irs_soi_normalized_text(required_scale_marker)
+        marker_cell = spec.get("scale_marker_cell")
+        if (
+            not isinstance(marker_cell, (list, tuple))
+            or len(marker_cell) != 2
+            or any(
+                isinstance(index, bool) or not isinstance(index, int)
+                for index in marker_cell
+            )
+            or any(index < 0 for index in marker_cell)
+        ):
+            return None, f"invalid reviewed scale marker cell: {marker_cell!r}"
+        marker_row, marker_column = marker_cell
+        actual_marker = (
+            grid[marker_row][marker_column]
+            if marker_row < len(grid)
+            and marker_column < len(grid[marker_row])
+            else None
+        )
+        if (
+            not isinstance(actual_marker, str)
+            or _irs_soi_normalized_text(actual_marker) != marker
+        ):
+            return None, (
+                f"expected exact workbook scale declaration {marker!r} at "
+                f"cell ({marker_row}, {marker_column}); found "
+                f"{actual_marker!r}"
+            )
 
     accepted = {
         _irs_soi_normalized_text(label) for label in spec["column_labels"]
@@ -5738,8 +5881,14 @@ def irs_soi_pub1304_count_from_grid(
             f"expected exactly one concept header cell, found "
             f"{len(header_hits)} at {header_hits!r}"
         )
-    header_row, column = header_hits[0]
+    header_row, header_column = header_hits[0]
+    offset = spec.get("subcolumn_offset", 0)
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        return None, f"invalid reviewed subcolumn offset: {offset!r}"
+    column = header_column + offset
     subcolumn = _irs_soi_normalized_text(spec["subcolumn_label"])
+    subcolumn_display = str(spec["subcolumn_label"])
+    subcolumn_display = subcolumn_display[:1].upper() + subcolumn_display[1:]
     if not any(
         len(grid[row]) > column
         and isinstance(grid[row][column], str)
@@ -5747,8 +5896,8 @@ def irs_soi_pub1304_count_from_grid(
         for row in range(header_row + 1, min(header_row + 5, len(grid)))
     ):
         return None, (
-            "concept header column has no 'Number of returns' subheader "
-            "within four rows; IRS changed the column layout"
+            f"concept header offset {offset} has no {subcolumn_display!r} "
+            "subheader within four rows; IRS changed the column layout"
         )
     row_label = _irs_soi_normalized_text(spec["row_label"])
     row_hits = [
@@ -5769,13 +5918,35 @@ def irs_soi_pub1304_count_from_grid(
         isinstance(value, bool)
         or not isinstance(value, (int, float))
         or not math.isfinite(float(value))
-        or float(value) <= 0
+        or float(value) < 0
         or not float(value).is_integer()
     ):
         return None, (
-            f"claimant count cell is not a positive whole number: {value!r}"
+            f"published value cell is not a nonnegative whole number: {value!r}"
         )
     return float(value), None
+
+
+def irs_soi_pub1304_apply_transform(
+    spec: Mapping[str, Any], value: float | None
+) -> float | None:
+    """Apply the exact reviewed per-series transform without extra rounding."""
+
+    if value is None:
+        return None
+    transform = spec.get("value_transform")
+    if not isinstance(transform, dict) or transform.get("operation") != "multiply":
+        raise ValueError("IRS SOI spec requires a multiply transform")
+    factor = transform.get("factor")
+    if isinstance(factor, bool) or not isinstance(factor, (int, float)):
+        raise ValueError("IRS SOI transform factor must be numeric")
+    numeric_factor = float(factor)
+    if not math.isfinite(numeric_factor) or numeric_factor <= 0:
+        raise ValueError("IRS SOI transform factor must be positive and finite")
+    # The registered factors are decimal unit conversions. Apply their exact
+    # decimal spellings so JSON output does not expose binary-float artifacts
+    # such as 34533.251000000004 for a thousand-to-million conversion.
+    return float(Decimal(str(value)) * Decimal(str(factor)))
 
 
 def irs_soi_pub1304_identity_refusal(
@@ -5814,12 +5985,12 @@ def irs_soi_pub1304_identity_refusal(
 def irs_soi_pub1304_fetch_year(
     spec: Mapping[str, Any], year: str
 ) -> tuple[float | None, bytes | None, str, str, str | None]:
-    """Fetch the tax year's Table 3.3 workbook and parse the claimant count.
+    """Fetch the tax year's Table 3.3 workbook and parse its reviewed cell.
 
-    Returns the WHOLE-RETURN COUNT (the anchor unit); callers apply the
-    registered transform. A missing .xls with no .xlsx sibling defers as
-    not-yet-published; a present .xlsx sibling refuses instead of guessing
-    at an unparsed format.
+    Returns the positive integer printed in the workbook (the raw anchor
+    unit); callers apply the registered per-series transform. A missing .xls
+    with no .xlsx sibling defers as not-yet-published; a present .xlsx sibling
+    refuses instead of guessing at an unparsed format.
     """
 
     if not re.fullmatch(r"\d{4}", year):
@@ -5850,8 +6021,27 @@ def irs_soi_pub1304_fetch_year(
     refusal = irs_soi_pub1304_identity_refusal(grid, final_url, year)
     if refusal:
         return None, raw, final_url, retrieved_at, refusal
-    count, refusal = irs_soi_pub1304_count_from_grid(grid, spec)
-    return count, raw, final_url, retrieved_at, refusal
+    value, refusal = irs_soi_pub1304_count_from_grid(grid, spec)
+    return value, raw, final_url, retrieved_at, refusal
+
+
+def irs_soi_pub1304_fetch_normalized_year(
+    spec: Mapping[str, Any], year: str
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch one year and return its value in the registered target unit."""
+
+    value, raw, url, retrieved_at, refusal = irs_soi_pub1304_fetch_year(
+        spec, year
+    )
+    if refusal:
+        return None, raw, url, retrieved_at, refusal
+    return (
+        irs_soi_pub1304_apply_transform(spec, value),
+        raw,
+        url,
+        retrieved_at,
+        None,
+    )
 
 
 def irs_soi_pub1304_verified_anchors(
@@ -7910,7 +8100,7 @@ def main() -> int:
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
     irs_soi_cache: dict[
-        str,
+        tuple[str, str],
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
     # Missing-parser (or similar) environment failures must fail the run
@@ -8262,18 +8452,19 @@ def main() -> int:
             anchor_fetch_failed = False
             anchor_env_failure = None
             for anchor_year in verified_anchors:
-                if anchor_year not in irs_soi_cache:
-                    irs_soi_cache[anchor_year] = irs_soi_pub1304_fetch_year(
+                cache_key = (str(spec["series_id"]), anchor_year)
+                if cache_key not in irs_soi_cache:
+                    irs_soi_cache[cache_key] = irs_soi_pub1304_fetch_year(
                         spec, anchor_year
                     )
-                anchor_count, anchor_raw, _, _, anchor_refusal = irs_soi_cache[
-                    anchor_year
+                anchor_value, anchor_raw, _, _, anchor_refusal = irs_soi_cache[
+                    cache_key
                 ]
                 if anchor_raw is None or anchor_refusal:
                     anchor_fetch_failed = True
                 if anchor_refusal and "xlrd is unavailable" in anchor_refusal:
                     anchor_env_failure = anchor_refusal
-                anchor_counts[anchor_year] = anchor_count
+                anchor_counts[anchor_year] = anchor_value
             if anchor_env_failure:
                 # A missing parser is an environment failure, not a data
                 # state: deferring quietly would leave every IRS target
@@ -8296,10 +8487,11 @@ def main() -> int:
                     f"row/column?): {ref} — " + "; ".join(mismatches)
                 )
                 continue
-            if period not in irs_soi_cache:
-                irs_soi_cache[period] = irs_soi_pub1304_fetch_year(spec, period)
-            count, raw, fetched_url, retrieved_at, refusal = irs_soi_cache[
-                period
+            cache_key = (str(spec["series_id"]), period)
+            if cache_key not in irs_soi_cache:
+                irs_soi_cache[cache_key] = irs_soi_pub1304_fetch_year(spec, period)
+            raw_value, raw, fetched_url, retrieved_at, refusal = irs_soi_cache[
+                cache_key
             ]
             if refusal and "xlrd is unavailable" in refusal:
                 print(
@@ -8310,21 +8502,17 @@ def main() -> int:
             if refusal:
                 print(f"  IRS SOI PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
-            if count is not None:
-                # The observation is exactly the registered transform of the
-                # published whole-return count — multiply by 1e-06, nothing
-                # else. Any rounding convention lives in the cell's own
-                # resolution rule, never in the recorded observation.
-                value = count * IRS_SOI_PUB1304_TRANSFORM["factor"]
-            else:
-                value = None
+            # The observation is exactly the registered per-series transform
+            # of the published integer, with no additional rounding. Any
+            # display convention lives in the forecast's resolution rule.
+            value = irs_soi_pub1304_apply_transform(spec, raw_value)
             # The workbook is a static per-tax-year print with no vintage
             # archive: the capture day is the source vintage. Lateness is
             # judged on the retrieval stamp OR the present decision moment,
             # whichever is later — the stamp precedes the response read, so
             # a request straddling midnight past the window end must still
             # disclose (over-disclosure is the safe direction).
-            if raw is not None:
+            if raw is not None and resolution_date_basis == "resolve-by-bound":
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
                 # The effective capture date is the later of the request
                 # stamp (taken before the response read) and the decision

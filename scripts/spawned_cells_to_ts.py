@@ -23,6 +23,7 @@ ALLOWED_UNITS = {
     "gbp_billions",
     "usd",
     "usd_billions",
+    "usd_millions",
     "usd_monthly",
     "thousands",
     "millions",

@@ -1482,6 +1482,78 @@
       }
     },
     {
+      "series": "irs.soi.credit_30d.total_claims",
+      "cadence": "annual",
+      "period": "2027",
+      "seedPeriod": "2027",
+      "slug": "clean-vehicle-credit-total-claims-ty{period}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "count",
+        "country": "US",
+        "resolutionDate": "2030-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2029-01-01",
+          "end": "2030-12-31"
+        },
+        "anchors": {
+          "2020": 61793,
+          "2021": 166244,
+          "2022": 248052,
+          "2023": 493953
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.soi.credit_30d.total_claims",
+          "field": "clean_vehicle_credit_returns",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, clean vehicle credit or qualified plug-in electric vehicle credit, number of returns",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "irs.actc.total_credit_amount",
+      "cadence": "annual",
+      "period": "2027",
+      "seedPeriod": "2027",
+      "slug": "additional-child-tax-credit-total-credit-amount-ty{period}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "usd_millions",
+        "country": "US",
+        "resolutionDate": "2030-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2029-01-01",
+          "end": "2030-12-31"
+        },
+        "anchors": {
+          "2020": 33664.804,
+          "2021": 115869.125,
+          "2022": 34843.071,
+          "2023": 34533.251
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.actc.total_credit_amount",
+          "field": "refundable_child_tax_credit_amount",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, amount",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
       "series": "irs.actc.total_claims",
       "cadence": "annual",
       "period": "2027",

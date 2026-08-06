@@ -341,3 +341,54 @@ mismatch, so these pins are self-checking, not trusted literals. The same
 counts (divided to millions) are pinned as `anchors` in the docket entry's
 target context, so a preregistered analyst run whose fetched base-rate
 history contradicts the official prints fails validation at spawn time.
+
+## IRS SOI Table 3.3 clean vehicle credit claimant returns
+
+Status: **VERIFIED** (integrator, 2026-08-06). The same four official
+Publication 1304 workbooks and hashes above reproduce the positive whole-return
+count in the `All returns, total` row under `Number of returns`. The exact
+concept label is `Qualified plug-in electric vehicle credit` for TY2020–2022
+and `Clean vehicle credit` for TY2023:
+
+- TY2020: 61,793 returns (`20in33ar.xls`, `TBL33!AC10`)
+- TY2021: 166,244 returns (`21in33ar.xls`, `TBL33!AE10`)
+- TY2022: 248,052 returns (`22in33ar.xls`, `TBL33!AE10`)
+- TY2023: 493,953 returns (`23in33ar.xls`, `TBL33!AE10`)
+
+The registered transform is identity (`factor: 1`) and the target unit is
+`count`. The official 2026 SOI release-list workbook, fetched 2026-08-06
+(36,090 bytes; SHA-256
+`5ceb7a39fe09f0f12416da0e3eb3b80a227eb4475c8f9fe776ebbfab47070f1e`),
+contains one Publication 1304 row: program year 2023, released 2026-03-26. It
+contains no TY2024 row or future exact date. The TY2027 docket target therefore
+uses a conservative Publication 1304 resolve-by window
+(`2029-01-01`–`2030-12-31`); no day is inferred from annual cadence. The outer
+bound allows more than the roughly 27 months between the end of TY2023 and
+the official 2026-03-26 release, avoiding a scoring split before a comparably
+lagged TY2027 print.
+
+## IRS SOI Table 3.3 ACTC total credit amount
+
+Status: **VERIFIED** (integrator, 2026-08-06). The same four official
+Publication 1304 workbooks and hashes above reproduce the positive
+whole-thousand-dollar amount in the `All returns, total` row under `Amount`.
+The accepted concept label is `Additional child tax credit` for TY2020 and
+`Refundable child tax credit or additional child tax credit` for TY2021–2023:
+
+- TY2020: 33,664,804 thousand dollars = 33,664.804 USD millions
+  (`20in33ar.xls`, `TBL33!AN10`)
+- TY2021: 115,869,125 thousand dollars = 115,869.125 USD millions
+  (`21in33ar.xls`, `TBL33!AN10`)
+- TY2022: 34,843,071 thousand dollars = 34,843.071 USD millions
+  (`22in33ar.xls`, `TBL33!AN10`)
+- TY2023: 34,533,251 thousand dollars = 34,533.251 USD millions
+  (`23in33ar.xls`, `TBL33!AN10`)
+
+Each workbook's `TBL33!A2` is exactly `(All figures are estimates based on
+samples—money amounts are in thousands of dollars)`. The parser requires that
+complete declaration at that exact cell before reading the adjacent `Amount`
+subcolumn, and the registered transform multiplies the published integer by
+`0.001` with no further rounding. The TY2027 target uses
+the same reviewed Publication 1304 resolve-by window documented above; the
+2026 release-list workbook provides no TY2024 date from which to infer a
+future exact day.

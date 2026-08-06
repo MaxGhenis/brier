@@ -1104,6 +1104,34 @@ def validate_committed_calendar_contract(
             "recurring seed registration disagrees with the committed "
             "docket seedPeriod"
         )
+    if (
+        is_recurring_seed
+        and contract.get("resolutionDateBasis") == "resolve-by-bound"
+    ):
+        extras = docket_entry.get("extras")
+        expected_window = (
+            extras.get("expectedReleaseWindow")
+            if isinstance(extras, dict)
+            else None
+        )
+        if (
+            not isinstance(expected_window, dict)
+            or set(expected_window) != {"start", "end"}
+            or binding.get("expectedReleaseWindow") != expected_window
+        ):
+            raise RegistrationError(
+                "bounded seed release window disagrees with the committed "
+                "docket window"
+            )
+        if (
+            extras.get("resolutionDate") != contract.get("resolutionDate")
+            or contract.get("resolutionDate") != expected_window["end"]
+        ):
+            raise RegistrationError(
+                "bounded seed resolutionDate disagrees with the committed "
+                "docket window end"
+            )
+        return
     release_dates = docket_entry.get("releaseDates")
     release_date = (
         release_dates.get(contract.get("period"))
@@ -1137,9 +1165,19 @@ def validate_native_calendar_contract(
 
 
 def require_seed_docket_template(
-    contract: dict[str, Any], template_matches: list[dict[str, Any]]
+    contract: dict[str, Any],
+    template_matches: list[dict[str, Any]],
+    registered_at_utc: str | None = None,
+    batch_target: dict[str, Any] | None = None,
 ) -> None:
-    """Require one committed registry authority for a recurring seed."""
+    """Require one committed registry authority for a recurring seed.
+
+    Bounded annual seeds are regenerated in full because, unlike dated
+    release-calendar seeds, their slug and complete run context come only
+    from the reviewed docket entry. This prevents a registration from
+    retaining a valid source template while drifting on unit, scale, slug,
+    anchors, or bound.
+    """
     if contract.get("seedPeriod") is None:
         return
     if len(template_matches) != 1:
@@ -1154,6 +1192,107 @@ def require_seed_docket_template(
             "recurring seed target requires a committed sourceBinding "
             "template"
         )
+    if contract.get("resolutionDateBasis") != "resolve-by-bound":
+        return
+
+    entry = template_matches[0]
+    period = entry.get("seedPeriod")
+    extras = entry.get("extras")
+    slug_template = entry.get("slug")
+    if (
+        entry.get("cadence") != "annual"
+        or entry.get("period") != period
+        or period != contract.get("period")
+        or not isinstance(period, str)
+        or re.fullmatch(r"\d{4}", period) is None
+    ):
+        raise RegistrationError(
+            "committed bounded seed must retain its annual YYYY period"
+        )
+    if not isinstance(extras, dict) or not isinstance(slug_template, str):
+        raise RegistrationError(
+            "bounded recurring seed requires committed extras and slug template"
+        )
+    reserved = {"series", "period", "seedPeriod", "catalogSlug"}
+    clashing = reserved & set(extras)
+    if clashing:
+        raise RegistrationError(
+            "committed bounded seed extras restate reserved target keys "
+            f"{sorted(clashing)}"
+        )
+    try:
+        catalog_slug = slug_template.format(period=str(period).lower())
+    except (IndexError, KeyError, TypeError, ValueError) as exc:
+        raise RegistrationError(
+            "committed bounded seed has a malformed slug template"
+        ) from exc
+    reconstructed_target = {
+        **extras,
+        "series": entry.get("series"),
+        "period": period,
+        "seedPeriod": period,
+        "catalogSlug": catalog_slug,
+    }
+    try:
+        registered_date = (
+            parse_utc_instant(registered_at_utc).date()
+            if registered_at_utc
+            else dt.date.today()
+        )
+        rebuilt = build_contract(reconstructed_target, registered_date)
+    except RegistrationError as exc:
+        raise RegistrationError(
+            "committed bounded seed no longer regenerates a valid contract "
+            f"({exc})"
+        ) from exc
+    if canonical_bytes(rebuilt) != canonical_bytes(contract):
+        drifted = sorted(
+            key
+            for key in set(rebuilt) | set(contract)
+            if canonical_bytes(rebuilt.get(key))
+            != canonical_bytes(contract.get(key))
+        )
+        raise RegistrationError(
+            "committed bounded seed no longer regenerates the registered "
+            f"contract (drifted: {drifted})"
+        )
+    if batch_target is not None:
+        # Model the exact post-registration target passed to the analyst.
+        # Registration normalizes these contract fields and adds only the
+        # enrichment keys excluded below. The derived source binding is
+        # already authenticated by the full contract equality above.
+        comparable_target = {
+            **reconstructed_target,
+            "country": rebuilt["country"],
+            "dataPointId": rebuilt["dataPointId"],
+            "targetUnit": rebuilt["unit"],
+            "valueScale": rebuilt["valueScale"],
+            "sourceBinding": rebuilt["sourceBinding"],
+        }
+        enrichment = {
+            "registrationState",
+            "registeredAt",
+            "registeredAtUtc",
+            "targetContentHash",
+            "targetRegistrationPath",
+            "registrationCommit",
+        }
+        keys = (
+            set(comparable_target) | set(batch_target)
+        ) - enrichment - {"sourceBinding"}
+        context_drifted = sorted(
+            key
+            for key in keys
+            if canonical_bytes(
+                [key in comparable_target, comparable_target.get(key)]
+            )
+            != canonical_bytes([key in batch_target, batch_target.get(key)])
+        )
+        if context_drifted:
+            raise RegistrationError(
+                "committed bounded seed no longer generates the batch "
+                f"target's run context (drifted: {context_drifted})"
+            )
 
 
 def require_conditional_docket_template(
@@ -1947,7 +2086,12 @@ def bind_registration_commits(
             entry for entry in docket_entries if entry["series"] == series
         ]
         require_native_docket_template(contract, template_matches)
-        require_seed_docket_template(contract, template_matches)
+        require_seed_docket_template(
+            contract,
+            template_matches,
+            snapshot["registeredAtUtc"],
+            batch_target=target,
+        )
         require_conditional_docket_template(
             contract,
             template_matches,

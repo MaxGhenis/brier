@@ -2694,6 +2694,7 @@ def test_target_context_surfaces_the_resolution_parser_command() -> None:
     block = analyst_runner.format_target_context(context)
     assert "Resolution-grade base-rate fetch" in block
     assert "IRS_SOI_PUB1304_ADAPTERS['irs.actc.total_claims']" in block
+    assert "irs_soi_pub1304_fetch_normalized_year" in block
     assert "xlrd==2.0.1" in block
     assert "PERIOD" in block
     for anchor_value in ("19119249", "37771612", "18076696", "17626084"):

@@ -617,7 +617,7 @@ BASE_RATE_FETCH_COMMANDS = {
         "  pip install --user xlrd==2.0.1 >/dev/null 2>&1; "
         "python3 -c \"import sys; sys.path.insert(0, 'scripts'); "
         "import resolve_pending as r; "
-        "print(r.irs_soi_pub1304_fetch_year("
+        "print(r.irs_soi_pub1304_fetch_normalized_year("
         "r.IRS_SOI_PUB1304_ADAPTERS['{series}'], 'PERIOD')[0])\""
         "   # PERIOD = a tax year like 2023"
     ),
@@ -688,7 +688,7 @@ def build_fast_prompt(
         "title": "Short display title",
         "question": "Exact agency series, period, adjustment, first print",
         "unit": (
-            "percent|count|thousands|millions|usd|usd_billions|"
+            "percent|count|thousands|millions|usd|usd_millions|usd_billions|"
             "gbp_billions|ratio|percent_growth"
         ),
         "pointEstimate": 0,

@@ -10,6 +10,7 @@ label — and every integrator-verified anchor value reproduces from bytes.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import pathlib
 import sys
@@ -26,26 +27,64 @@ from adopt_proven_series import SOURCE_BINDING_TEMPLATE_KEYS  # noqa: E402
 
 SERIES = "irs.actc.total_claims"
 SPEC = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[SERIES]
+CLEAN_VEHICLE_SERIES = "irs.soi.credit_30d.total_claims"
+CLEAN_VEHICLE_SPEC = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[
+    CLEAN_VEHICLE_SERIES
+]
+ACTC_AMOUNT_SERIES = "irs.actc.total_credit_amount"
+ACTC_AMOUNT_SPEC = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[ACTC_AMOUNT_SERIES]
 FIXTURE_ROOT = ROOT / "tests" / "fixtures" / "irs_soi_pub1304"
+FIXTURE_PINS = {
+    "2020": (
+        103424,
+        "7abb8cf1f6f124e1ef481db562d622f46155effe98dad72bd82d0844996dabaa",
+    ),
+    "2021": (
+        113664,
+        "b8e3e7ca7bc048dca2b554e78359e4944ce429b4a58c5ea9cbc7e39d71f7ea75",
+    ),
+    "2022": (
+        104960,
+        "f04012c527c5bf40e412e112597038d70fd79c017d9476c07eebc3b59e3766a4",
+    ),
+    "2023": (
+        105472,
+        "e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04",
+    ),
+}
 
 
 def fixture_bytes(year: str) -> bytes:
     return (FIXTURE_ROOT / f"{int(year) % 100:02d}in33ar.xls").read_bytes()
 
 
-def docket_entry() -> dict:
+@pytest.mark.parametrize("year", sorted(FIXTURE_PINS))
+def test_workbook_fixture_bytes_match_reviewed_pins(year: str) -> None:
+    raw = fixture_bytes(year)
+    expected_bytes, expected_sha256 = FIXTURE_PINS[year]
+    assert len(raw) == expected_bytes
+    assert hashlib.sha256(raw).hexdigest() == expected_sha256
+
+
+def docket_entry(series: str = SERIES) -> dict:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
-    return next(e for e in docket["series"] if e["series"] == SERIES)
+    return next(e for e in docket["series"] if e["series"] == series)
 
 
-def test_irs_soi_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
-    binding = docket_entry()["extras"]["sourceBinding"]
+@pytest.mark.parametrize(
+    "series", [SERIES, CLEAN_VEHICLE_SERIES, ACTC_AMOUNT_SERIES]
+)
+def test_irs_soi_adapter_and_docket_share_the_exact_seven_key_binding(
+    series: str,
+) -> None:
+    spec = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[series]
+    binding = docket_entry(series)["extras"]["sourceBinding"]
 
     assert "irs-soi-pub1304" in register_targets.SOURCE_ADAPTERS
     assert prospect_targets._source_binding_errors(binding) == []
     assert set(binding) == SOURCE_BINDING_TEMPLATE_KEYS
-    assert resolve_pending.irs_soi_pub1304_binding_template(SPEC) == binding
-    assert resolve_pending.irs_soi_pub1304_binding_matches_spec(binding, SPEC)
+    assert resolve_pending.irs_soi_pub1304_binding_template(spec) == binding
+    assert resolve_pending.irs_soi_pub1304_binding_matches_spec(binding, spec)
     assert resolve_pending.irs_soi_pub1304_binding_matches_spec(
         {
             **binding,
@@ -55,7 +94,7 @@ def test_irs_soi_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
                 "end": "2029-12-31",
             },
         },
-        SPEC,
+        spec,
     )
 
     for key in SOURCE_BINDING_TEMPLATE_KEYS:
@@ -65,10 +104,10 @@ def test_irs_soi_adapter_and_docket_share_the_exact_seven_key_binding() -> None:
         else:
             tampered[key] = f"{tampered[key]}-tampered"
         assert not resolve_pending.irs_soi_pub1304_binding_matches_spec(
-            tampered, SPEC
+            tampered, spec
         )
     assert not resolve_pending.irs_soi_pub1304_binding_matches_spec(
-        {**binding, "unexpected": True}, SPEC
+        {**binding, "unexpected": True}, spec
     )
 
 
@@ -569,6 +608,112 @@ def test_irs_authenticated_immutable_adapter_records_after_window(
     assert "dry-run: would append 1 row(s)" in output
 
 
+def test_irs_runtime_cache_isolated_by_series_and_year(monkeypatch, capsys) -> None:
+    refs = {
+        SERIES: f"{SERIES}.2027.first_print.current_law",
+        CLEAN_VEHICLE_SERIES: f"{CLEAN_VEHICLE_SERIES}.2027.first_print",
+        ACTC_AMOUNT_SERIES: f"{ACTC_AMOUNT_SERIES}.2027.first_print",
+    }
+    specs = {
+        series: resolve_pending.IRS_SOI_PUB1304_ADAPTERS[series]
+        for series in refs
+    }
+    window = {"start": "2029-01-01", "end": "2029-12-31"}
+    registrations = {
+        ref: {
+            "contract": {
+                "dataPointId": ref,
+                "resolutionDateBasis": "resolve-by-bound",
+                "sourceBinding": {
+                    **resolve_pending.irs_soi_pub1304_binding_template(
+                        specs[series]
+                    ),
+                    "allowedHosts": ["www.irs.gov"],
+                    "expectedReleaseWindow": window,
+                },
+            }
+        }
+        for series, ref in refs.items()
+    }
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                refs[series],
+                "irs_soi_pub1304",
+                spec,
+                "year",
+                "2027",
+                "2029-12-31",
+                {"resolutionDate": "2029-12-31", "unit": spec["unit"]},
+            )
+            for series, spec in specs.items()
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "a" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: registrations
+    )
+    monkeypatch.setattr(
+        resolve_pending, "irs_soi_pub1304_verified_anchors", lambda _spec: {}
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "irs_soi_pub1304_anchor_mismatches",
+        lambda _values, _anchors: [],
+    )
+    monkeypatch.setattr(
+        resolve_pending, "utc_now", lambda: "2029-06-01T00:00:00Z"
+    )
+    raw_by_series = {
+        SERIES: 17_626_084.0,
+        CLEAN_VEHICLE_SERIES: 493_953.0,
+        ACTC_AMOUNT_SERIES: 34_533_251.0,
+    }
+    fetches: list[tuple[str, str]] = []
+
+    def fake_fetch(spec, year):
+        fetches.append((spec["series_id"], year))
+        return (
+            raw_by_series[spec["series_id"]],
+            f"{spec['series_id']}-bytes".encode(),
+            f"https://www.irs.gov/pub/irs-soi/{year[-2:]}in33ar.xls",
+            "2029-06-01T00:00:00Z",
+            None,
+        )
+
+    monkeypatch.setattr(
+        resolve_pending, "irs_soi_pub1304_fetch_year", fake_fetch
+    )
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    assert fetches == [
+        (SERIES, "2027"),
+        (CLEAN_VEHICLE_SERIES, "2027"),
+        (ACTC_AMOUNT_SERIES, "2027"),
+    ]
+    output = capsys.readouterr().out
+    assert f"resolve {refs[SERIES]} -> 17.626084 millions" in output
+    assert f"resolve {refs[CLEAN_VEHICLE_SERIES]} -> 493953.0 count" in output
+    assert (
+        f"resolve {refs[ACTC_AMOUNT_SERIES]} -> 34533.251 usd_millions"
+        in output
+    )
+    assert "dry-run: would append 3 row(s)" in output
+
+
 def test_register_rejects_blank_conditional() -> None:
     entry = docket_entry()
     arm = entry["conditionalPair"]["arms"][0]
@@ -599,6 +744,81 @@ def test_real_workbook_fixture_reproduces_the_verified_anchor(year: str) -> None
     count, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(grid, SPEC)
     assert refusal is None
     assert count == SPEC["anchors"][year]
+
+
+@pytest.mark.parametrize(
+    "year",
+    sorted(CLEAN_VEHICLE_SPEC["anchors"]),
+    ids=lambda year: f"30d-ty{year}",
+)
+def test_real_workbook_fixture_reproduces_clean_vehicle_claims_anchor(
+    year: str,
+) -> None:
+    grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+        fixture_bytes(year), CLEAN_VEHICLE_SPEC
+    )
+    assert refusal is None
+    value, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
+        grid, CLEAN_VEHICLE_SPEC
+    )
+    assert refusal is None
+    assert value == CLEAN_VEHICLE_SPEC["anchors"][year]
+
+
+@pytest.mark.parametrize(
+    "year",
+    sorted(ACTC_AMOUNT_SPEC["anchors"]),
+    ids=lambda year: f"actc-amount-ty{year}",
+)
+def test_real_workbook_fixture_reproduces_actc_amount_anchor(year: str) -> None:
+    grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+        fixture_bytes(year), ACTC_AMOUNT_SPEC
+    )
+    assert refusal is None
+    value, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
+        grid, ACTC_AMOUNT_SPEC
+    )
+    assert refusal is None
+    assert value == ACTC_AMOUNT_SPEC["anchors"][year]
+
+
+def test_amount_parser_requires_the_printed_thousand_dollar_scale() -> None:
+    grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+        fixture_bytes("2023"), ACTC_AMOUNT_SPEC
+    )
+    assert refusal is None
+    grid[1][0] = "Money amounts are in dollars."
+    value, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
+        grid, ACTC_AMOUNT_SPEC
+    )
+    assert value is None
+    assert "scale declaration" in refusal
+
+    caveated_grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+        fixture_bytes("2023"), ACTC_AMOUNT_SPEC
+    )
+    assert refusal is None
+    caveated_grid[1][0] = (
+        "(All figures are estimates based on samples—money amounts are in "
+        "thousands of dollars except this table, which is in millions)"
+    )
+    value, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
+        caveated_grid, ACTC_AMOUNT_SPEC
+    )
+    assert value is None
+    assert "scale declaration" in refusal
+
+    moved_grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+        fixture_bytes("2023"), ACTC_AMOUNT_SPEC
+    )
+    assert refusal is None
+    moved_grid[1][1] = moved_grid[1][0]
+    moved_grid[1][0] = ""
+    value, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
+        moved_grid, ACTC_AMOUNT_SPEC
+    )
+    assert value is None
+    assert "cell (1, 0)" in refusal
 
 
 def test_grid_extraction_fails_closed_on_garbage_and_renamed_sheets() -> None:
@@ -667,12 +887,24 @@ def test_synthetic_grid_parses_and_each_guard_fails_closed() -> None:
     _, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
         fractional, SPEC
     )
-    assert "positive whole number" in refusal
+    assert "nonnegative whole number" in refusal
+
+    zero = synthetic_grid()
+    zero[9][3] = 0
+    assert resolve_pending.irs_soi_pub1304_count_from_grid(zero, SPEC) == (
+        0.0,
+        None,
+    )
+
+    negative = synthetic_grid()
+    negative[9][3] = -1
+    _, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(negative, SPEC)
+    assert "nonnegative whole number" in refusal
 
     textual = synthetic_grid()
     textual[9][3] = "17,626,084"
     _, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(textual, SPEC)
-    assert "positive whole number" in refusal
+    assert "nonnegative whole number" in refusal
 
 
 def test_offset_and_refundable_portion_columns_never_match() -> None:
@@ -747,6 +979,42 @@ def test_fetch_year_parses_real_bytes_end_to_end(monkeypatch) -> None:
     assert count == SPEC["anchors"]["2023"]
     assert raw == fixture_bytes("2023")
     assert retrieved_at == "2026-08-01T00:00:00Z"
+
+
+def test_fetch_normalized_year_returns_registered_clean_vehicle_unit(
+    monkeypatch,
+) -> None:
+    def fake_http_get(url, *, allowed_hosts, timeout=120):
+        assert allowed_hosts == CLEAN_VEHICLE_SPEC["allowed_hosts"]
+        assert url == "https://www.irs.gov/pub/irs-soi/23in33ar.xls"
+        return fixture_bytes("2023"), "2026-08-06T00:00:00Z", url
+
+    monkeypatch.setattr(resolve_pending, "http_get", fake_http_get)
+    value, raw, _, _, refusal = (
+        resolve_pending.irs_soi_pub1304_fetch_normalized_year(
+            CLEAN_VEHICLE_SPEC, "2023"
+        )
+    )
+    assert refusal is None
+    assert value == 493953
+    assert raw == fixture_bytes("2023")
+
+
+def test_fetch_normalized_year_returns_actc_usd_millions(monkeypatch) -> None:
+    def fake_http_get(url, *, allowed_hosts, timeout=120):
+        assert allowed_hosts == ACTC_AMOUNT_SPEC["allowed_hosts"]
+        assert url == "https://www.irs.gov/pub/irs-soi/23in33ar.xls"
+        return fixture_bytes("2023"), "2026-08-06T00:00:00Z", url
+
+    monkeypatch.setattr(resolve_pending, "http_get", fake_http_get)
+    value, raw, _, _, refusal = (
+        resolve_pending.irs_soi_pub1304_fetch_normalized_year(
+            ACTC_AMOUNT_SPEC, "2023"
+        )
+    )
+    assert refusal is None
+    assert value == 34533.251
+    assert raw == fixture_bytes("2023")
 
 
 def test_anchor_admission_rejects_placeholders_and_bad_values() -> None:
@@ -867,6 +1135,40 @@ def test_registered_transform_is_exact_with_no_extra_rounding() -> None:
     assert 17626084 * factor == 17.626084
     binding = docket_entry()["extras"]["sourceBinding"]
     assert binding["transform"] == {"operation": "multiply", "factor": factor}
+
+
+def test_clean_vehicle_claim_transform_is_identity() -> None:
+    assert resolve_pending.irs_soi_pub1304_apply_transform(
+        CLEAN_VEHICLE_SPEC, 493953
+    ) == 493953
+    binding = docket_entry(CLEAN_VEHICLE_SERIES)["extras"]["sourceBinding"]
+    assert binding["transform"] == {"operation": "multiply", "factor": 1}
+
+
+def test_actc_amount_transform_is_exact_with_no_extra_rounding() -> None:
+    assert resolve_pending.irs_soi_pub1304_apply_transform(
+        ACTC_AMOUNT_SPEC, 34533251
+    ) == 34533.251
+    binding = docket_entry(ACTC_AMOUNT_SERIES)["extras"]["sourceBinding"]
+    assert binding["transform"] == {"operation": "multiply", "factor": 0.001}
+
+
+@pytest.mark.parametrize(
+    "series", [CLEAN_VEHICLE_SERIES, ACTC_AMOUNT_SERIES]
+)
+def test_new_docket_anchors_are_exactly_normalized_from_raw_pins(
+    series: str,
+) -> None:
+    spec = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[series]
+    entry = docket_entry(series)
+    extras = entry["extras"]
+    factor = spec["value_transform"]["factor"]
+    assert extras["valueScale"] == factor
+    assert extras["sourceBinding"]["transform"] == spec["value_transform"]
+    assert extras["anchors"] == {
+        year: resolve_pending.irs_soi_pub1304_apply_transform(spec, raw)
+        for year, raw in spec["anchors"].items()
+    }
 
 
 def bindable_arm_contract(arm_index: int = 0) -> dict:
