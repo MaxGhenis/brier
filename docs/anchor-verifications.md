@@ -367,6 +367,29 @@ bound allows more than the roughly 27 months between the end of TY2023 and
 the official 2026-03-26 release, avoiding a scoring split before a comparably
 lagged TY2027 print.
 
+## IRS SOI Table 3.3 clean vehicle credit total credit amount
+
+Status: **VERIFIED** (integrator, 2026-08-06). The same four official
+Publication 1304 workbooks and SHA-256 pins above reproduce the positive
+whole-thousand-dollar amount in the `All returns, total` row under `Amount`.
+The exact concept label is `Qualified plug-in electric vehicle credit` for
+TY2020–2022 and `Clean vehicle credit` for TY2023:
+
+- TY2020: 313,118 thousand dollars = 313.118 USD millions
+  (`20in33ar.xls`, `TBL33!AD10`)
+- TY2021: 1,037,358 thousand dollars = 1,037.358 USD millions
+  (`21in33ar.xls`, `TBL33!AF10`)
+- TY2022: 1,652,554 thousand dollars = 1,652.554 USD millions
+  (`22in33ar.xls`, `TBL33!AF10`)
+- TY2023: 3,231,102 thousand dollars = 3,231.102 USD millions
+  (`23in33ar.xls`, `TBL33!AF10`)
+
+The parser authenticates the complete thousand-dollar declaration at
+`TBL33!A2` before reading the adjacent `Amount` subcolumn. The registered
+transform multiplies the printed integer by `0.001` with no further rounding.
+The TY2027 target uses the same reviewed Publication 1304 resolve-by window
+documented above; no exact future release day is inferred from cadence.
+
 ## IRS SOI Table 3.3 ACTC total credit amount
 
 Status: **VERIFIED** (integrator, 2026-08-06). The same four official

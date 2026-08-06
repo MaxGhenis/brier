@@ -1518,6 +1518,42 @@
       }
     },
     {
+      "series": "irs.soi.credit_30d.total_credit_amount",
+      "cadence": "annual",
+      "period": "2027",
+      "seedPeriod": "2027",
+      "slug": "clean-vehicle-credit-total-credit-amount-ty{period}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "usd_millions",
+        "country": "US",
+        "resolutionDate": "2030-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2029-01-01",
+          "end": "2030-12-31"
+        },
+        "anchors": {
+          "2020": 313.118,
+          "2021": 1037.358,
+          "2022": 1652.554,
+          "2023": 3231.102
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.soi.credit_30d.total_credit_amount",
+          "field": "clean_vehicle_credit_amount",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, clean vehicle credit or qualified plug-in electric vehicle credit, amount",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
       "series": "irs.actc.total_credit_amount",
       "cadence": "annual",
       "period": "2027",

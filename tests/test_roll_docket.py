@@ -403,6 +403,7 @@ def test_real_bounded_annual_seeds_are_reviewable_and_bound_to_docket() -> None:
 
     assert {entry["series"] for entry in entries} == {
         "irs.soi.credit_30d.total_claims",
+        "irs.soi.credit_30d.total_credit_amount",
         "irs.actc.total_credit_amount",
     }
     for entry in entries:

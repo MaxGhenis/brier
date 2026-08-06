@@ -31,6 +31,10 @@ CLEAN_VEHICLE_SERIES = "irs.soi.credit_30d.total_claims"
 CLEAN_VEHICLE_SPEC = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[
     CLEAN_VEHICLE_SERIES
 ]
+CLEAN_VEHICLE_AMOUNT_SERIES = "irs.soi.credit_30d.total_credit_amount"
+CLEAN_VEHICLE_AMOUNT_SPEC = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[
+    CLEAN_VEHICLE_AMOUNT_SERIES
+]
 ACTC_AMOUNT_SERIES = "irs.actc.total_credit_amount"
 ACTC_AMOUNT_SPEC = resolve_pending.IRS_SOI_PUB1304_ADAPTERS[ACTC_AMOUNT_SERIES]
 FIXTURE_ROOT = ROOT / "tests" / "fixtures" / "irs_soi_pub1304"
@@ -72,7 +76,13 @@ def docket_entry(series: str = SERIES) -> dict:
 
 
 @pytest.mark.parametrize(
-    "series", [SERIES, CLEAN_VEHICLE_SERIES, ACTC_AMOUNT_SERIES]
+    "series",
+    [
+        SERIES,
+        CLEAN_VEHICLE_SERIES,
+        CLEAN_VEHICLE_AMOUNT_SERIES,
+        ACTC_AMOUNT_SERIES,
+    ],
 )
 def test_irs_soi_adapter_and_docket_share_the_exact_seven_key_binding(
     series: str,
@@ -612,6 +622,9 @@ def test_irs_runtime_cache_isolated_by_series_and_year(monkeypatch, capsys) -> N
     refs = {
         SERIES: f"{SERIES}.2027.first_print.current_law",
         CLEAN_VEHICLE_SERIES: f"{CLEAN_VEHICLE_SERIES}.2027.first_print",
+        CLEAN_VEHICLE_AMOUNT_SERIES: (
+            f"{CLEAN_VEHICLE_AMOUNT_SERIES}.2027.first_print"
+        ),
         ACTC_AMOUNT_SERIES: f"{ACTC_AMOUNT_SERIES}.2027.first_print",
     }
     specs = {
@@ -679,6 +692,7 @@ def test_irs_runtime_cache_isolated_by_series_and_year(monkeypatch, capsys) -> N
     raw_by_series = {
         SERIES: 17_626_084.0,
         CLEAN_VEHICLE_SERIES: 493_953.0,
+        CLEAN_VEHICLE_AMOUNT_SERIES: 3_231_102.0,
         ACTC_AMOUNT_SERIES: 34_533_251.0,
     }
     fetches: list[tuple[str, str]] = []
@@ -702,16 +716,21 @@ def test_irs_runtime_cache_isolated_by_series_and_year(monkeypatch, capsys) -> N
     assert fetches == [
         (SERIES, "2027"),
         (CLEAN_VEHICLE_SERIES, "2027"),
+        (CLEAN_VEHICLE_AMOUNT_SERIES, "2027"),
         (ACTC_AMOUNT_SERIES, "2027"),
     ]
     output = capsys.readouterr().out
     assert f"resolve {refs[SERIES]} -> 17.626084 millions" in output
     assert f"resolve {refs[CLEAN_VEHICLE_SERIES]} -> 493953.0 count" in output
     assert (
+        f"resolve {refs[CLEAN_VEHICLE_AMOUNT_SERIES]} -> "
+        "3231.102 usd_millions" in output
+    )
+    assert (
         f"resolve {refs[ACTC_AMOUNT_SERIES]} -> 34533.251 usd_millions"
         in output
     )
-    assert "dry-run: would append 3 row(s)" in output
+    assert "dry-run: would append 4 row(s)" in output
 
 
 def test_register_rejects_blank_conditional() -> None:
@@ -763,6 +782,25 @@ def test_real_workbook_fixture_reproduces_clean_vehicle_claims_anchor(
     )
     assert refusal is None
     assert value == CLEAN_VEHICLE_SPEC["anchors"][year]
+
+
+@pytest.mark.parametrize(
+    "year",
+    sorted(CLEAN_VEHICLE_AMOUNT_SPEC["anchors"]),
+    ids=lambda year: f"30d-amount-ty{year}",
+)
+def test_real_workbook_fixture_reproduces_clean_vehicle_amount_anchor(
+    year: str,
+) -> None:
+    grid, refusal = resolve_pending.irs_soi_pub1304_grid(
+        fixture_bytes(year), CLEAN_VEHICLE_AMOUNT_SPEC
+    )
+    assert refusal is None
+    value, refusal = resolve_pending.irs_soi_pub1304_count_from_grid(
+        grid, CLEAN_VEHICLE_AMOUNT_SPEC
+    )
+    assert refusal is None
+    assert value == CLEAN_VEHICLE_AMOUNT_SPEC["anchors"][year]
 
 
 @pytest.mark.parametrize(
@@ -1153,8 +1191,19 @@ def test_actc_amount_transform_is_exact_with_no_extra_rounding() -> None:
     assert binding["transform"] == {"operation": "multiply", "factor": 0.001}
 
 
+def test_clean_vehicle_amount_transform_is_exact_with_no_extra_rounding() -> None:
+    assert resolve_pending.irs_soi_pub1304_apply_transform(
+        CLEAN_VEHICLE_AMOUNT_SPEC, 3231102
+    ) == 3231.102
+    binding = docket_entry(CLEAN_VEHICLE_AMOUNT_SERIES)["extras"][
+        "sourceBinding"
+    ]
+    assert binding["transform"] == {"operation": "multiply", "factor": 0.001}
+
+
 @pytest.mark.parametrize(
-    "series", [CLEAN_VEHICLE_SERIES, ACTC_AMOUNT_SERIES]
+    "series",
+    [CLEAN_VEHICLE_SERIES, CLEAN_VEHICLE_AMOUNT_SERIES, ACTC_AMOUNT_SERIES],
 )
 def test_new_docket_anchors_are_exactly_normalized_from_raw_pins(
     series: str,

@@ -1416,6 +1416,63 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
             "identity transform and no rounding."
         ),
     },
+    "irs.soi.credit_30d.total_credit_amount": {
+        "resolution_date_basis": "resolve-by-bound",
+        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
+        "anchor_status": "VERIFIED",
+        "anchors": {
+            "2020": 313118,
+            "2021": 1037358,
+            "2022": 1652554,
+            "2023": 3231102,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.soi.credit_30d.total_credit_amount",
+        "field": "clean_vehicle_credit_amount",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, clean "
+            "vehicle credit or qualified plug-in electric vehicle credit, "
+            "amount"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "clean vehicle credit",
+            "qualified plug-in electric vehicle credit",
+        ),
+        "subcolumn_label": "amount",
+        "subcolumn_offset": 1,
+        "required_scale_marker": (
+            "(All figures are estimates based on samples—money amounts are "
+            "in thousands of dollars)"
+        ),
+        "scale_marker_cell": (1, 0),
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_millions",
+        "label": "US clean vehicle credit total credit amount",
+        "measure_concept": "irs.soi.credit_30d.total_credit_amount",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Clean vehicle "
+            "credit or qualified plug-in electric vehicle credit; Amount"
+        ),
+        "evidence_notes": (
+            "TY{period} clean vehicle credit amount, read from the 'All "
+            "returns, total' row's 'Amount' column in the official "
+            "Publication 1304 Table 3.3 workbook linked from {source_url}; "
+            "the fetched workbook bytes are archived. The workbook states "
+            "that money amounts are in thousands of dollars. The recorded "
+            "value is the published whole-thousand-dollar amount multiplied "
+            "by 0.001 to produce USD millions, with no further rounding."
+        ),
+    },
 }
 
 # ---------------------------------------------------------------------------
