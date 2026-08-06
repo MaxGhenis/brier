@@ -556,6 +556,17 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "that exact URL. The publisher authenticates the structured "
             "draft/final tool event; a reasoning-token claim, search result, "
             "same-host page, or prose citation cannot substitute for it.",
+            "Base rate during a methodology transition: while NO official "
+            "print under the announced revised methodology exists — "
+            "including revised historical or backcast estimates — the "
+            "CURRENT official series is the admissible base rate: fetch it "
+            "from its official source, name its vintage explicitly, and "
+            "state the announced transition as the regime consideration in "
+            "the sigma step. Do not refuse for lack of the unpublished "
+            "revised series, and do not fabricate or pre-apply revision "
+            "adjustments. The moment any revised-methodology official "
+            "print exists, revised prints are required and "
+            "old-methodology history stops being admissible.",
         ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
