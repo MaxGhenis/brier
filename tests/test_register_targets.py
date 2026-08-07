@@ -1783,6 +1783,14 @@ def _pin(sha: str, line_count: int) -> dict:
     }
 
 
+def _catalog_pin(sha: str, line_count: int) -> dict:
+    return {
+        **_pin(sha, line_count),
+        "catalogSha256": "b" * 64,
+        "catalogBytes": 12345,
+    }
+
+
 def _write_block(generated: pathlib.Path, block: str) -> None:
     generated.write_text(
         'import type { TargetRegisteredLedgerEntry } from "./ledger-targets";\n'
@@ -2857,6 +2865,31 @@ def test_authenticated_v3_target_accepts_an_advancing_pin(
 
     block = register_targets._generated_block(rendered, contract["dataPointId"])
     assert register_targets._block_value(block, "ledgerPinLineCount") == 131
+
+
+def test_authenticated_v3_target_rejects_dropping_catalog_commitment(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    contract = _supersede_contract()
+    _commit_v3_supersede_history(
+        tmp_path,
+        generated,
+        contract,
+        monkeypatch,
+        "2026-07-10T06:17:27Z",
+        _catalog_pin("c" * 40, 130),
+    )
+    reroll = _registration(
+        contract,
+        "2026-07-10T07:17:27Z",
+        _pin("d" * 40, 131),
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
 
 
 @pytest.mark.parametrize(

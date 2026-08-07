@@ -49,6 +49,7 @@ LEDGER_PIN_PATH = (
     / "ledger-pin.json"
 )
 LEDGER_PIN_BINDING_KEYS = {"repo", "branch", "sha", "jsonlSha256", "lineCount"}
+LEDGER_PIN_CATALOG_BINDING_KEYS = {"catalogSha256", "catalogBytes"}
 SOURCE_ADAPTERS = {
     "abs-data-api",
     "abs-release-page",
@@ -157,10 +158,16 @@ def parse_utc_instant(value: str) -> dt.datetime:
 def validate_ledger_pin_binding(pin: Any) -> dict[str, Any]:
     """The pinned ledger state a v3 registration commits to."""
 
-    if not isinstance(pin, dict) or set(pin) != LEDGER_PIN_BINDING_KEYS:
+    pin_keys = set(pin) if isinstance(pin, dict) else set()
+    allowed_shapes = {
+        frozenset(LEDGER_PIN_BINDING_KEYS),
+        frozenset(LEDGER_PIN_BINDING_KEYS | LEDGER_PIN_CATALOG_BINDING_KEYS),
+    }
+    if not isinstance(pin, dict) or frozenset(pin_keys) not in allowed_shapes:
         raise RegistrationError(
-            "registration ledgerPin must bind exactly "
-            f"{sorted(LEDGER_PIN_BINDING_KEYS)}"
+            "registration ledgerPin must bind exactly the legacy observation "
+            f"fields {sorted(LEDGER_PIN_BINDING_KEYS)} or those fields plus "
+            f"{sorted(LEDGER_PIN_CATALOG_BINDING_KEYS)}"
         )
     if not re.fullmatch(r"[0-9a-f]{40}", str(pin["sha"])):
         raise RegistrationError(f"ledgerPin sha is not a commit SHA: {pin['sha']!r}")
@@ -171,6 +178,17 @@ def validate_ledger_pin_binding(pin: Any) -> dict[str, Any]:
     # int so the backfill boundary can never be disabled by a truthy value.
     if type(pin["lineCount"]) is not int or pin["lineCount"] < 0:
         raise RegistrationError("ledgerPin lineCount must be a non-negative int")
+    if LEDGER_PIN_CATALOG_BINDING_KEYS.issubset(pin):
+        if type(pin["catalogSha256"]) is not str or not re.fullmatch(
+            r"[0-9a-f]{64}", pin["catalogSha256"]
+        ):
+            raise RegistrationError(
+                "ledgerPin catalogSha256 is not a SHA-256 digest"
+            )
+        if type(pin["catalogBytes"]) is not int or pin["catalogBytes"] < 0:
+            raise RegistrationError(
+                "ledgerPin catalogBytes must be a non-negative int"
+            )
     if not pin["repo"] or not pin["branch"]:
         raise RegistrationError("ledgerPin repo/branch must be non-empty")
     return pin
@@ -189,9 +207,11 @@ def load_ledger_pin_binding() -> dict[str, Any]:
         raise RegistrationError(
             f"unsupported ledger pin schema {pin.get('schemaVersion')!r}"
         )
-    return validate_ledger_pin_binding(
-        {key: pin[key] for key in sorted(LEDGER_PIN_BINDING_KEYS)}
-    )
+    binding = {key: pin[key] for key in sorted(LEDGER_PIN_BINDING_KEYS)}
+    for key in sorted(LEDGER_PIN_CATALOG_BINDING_KEYS):
+        if key in pin:
+            binding[key] = pin[key]
+    return validate_ledger_pin_binding(binding)
 
 
 def registration_hash_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
@@ -1695,13 +1715,24 @@ def _may_supersede(
         old_pin = authenticated_snapshot.get("ledgerPin")
         if old_pin is not None:
             old_pin = validate_ledger_pin_binding(old_pin)
+            old_has_catalog = LEDGER_PIN_CATALOG_BINDING_KEYS.issubset(old_pin)
+            new_has_catalog = LEDGER_PIN_CATALOG_BINDING_KEYS.issubset(new_pin)
             if (
                 new_pin["repo"] != old_pin["repo"]
                 or new_pin["branch"] != old_pin["branch"]
+                or (old_has_catalog and not new_has_catalog)
                 or new_pin["lineCount"] < old_pin["lineCount"]
                 or (
                     new_pin["lineCount"] == old_pin["lineCount"]
                     and new_pin["jsonlSha256"] != old_pin["jsonlSha256"]
+                )
+                or (
+                    old_has_catalog
+                    and new_pin["sha"] == old_pin["sha"]
+                    and any(
+                        new_pin[key] != old_pin[key]
+                        for key in LEDGER_PIN_CATALOG_BINDING_KEYS
+                    )
                 )
             ):
                 return False
