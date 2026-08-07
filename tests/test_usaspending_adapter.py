@@ -310,6 +310,90 @@ def test_usaspending_fetch_caps_each_network_request_at_20_seconds(
     assert retrieved_at.endswith("Z")
 
 
+def test_main_reads_usaspending_binding_from_real_registration_envelope(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    ref = (
+        "usaspending.dod.prime_award_obligations.fy2026."
+        "registered_query_snapshot"
+    )
+    registration = resolve_pending.registration_contracts()[ref]
+    assert set(registration) == {"targetContentHash", "contract", "ledgerPin"}
+    assert registration["contract"]["dataPointId"] == ref
+
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.dod.prime_award_obligations"
+    ]
+    forecast = {"resolutionDate": "2026-10-15", "unit": spec["unit"]}
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 10, 15)
+
+    monkeypatch.setattr(resolve_pending.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "usaspending",
+                spec,
+                "fiscal_year",
+                "2026",
+                "2026-10-15",
+                forecast,
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "a" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "registration_contracts",
+        lambda: {ref: registration},
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "utc_now",
+        lambda: "2026-10-15T12:00:00Z",
+    )
+
+    requests: list[tuple[str, dict | None]] = []
+
+    def fake_fetch(source_url: str, body: dict | None = None):
+        requests.append((source_url, body))
+        raw = b'{"obligations":250495914182.67}'
+        return json.loads(raw), raw, "2026-10-15T12:00:00Z"
+
+    monkeypatch.setattr(resolve_pending, "fetch_usaspending_json", fake_fetch)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    output = capsys.readouterr().out
+    assert requests == [
+        (
+            "https://api.usaspending.gov/api/v2/agency/097/awards/"
+            "?fiscal_year=2026",
+            None,
+        )
+    ]
+    assert f"  resolve {ref} -> 250.5 billions USD" in output.splitlines()
+    assert "dry-run: would append 1 row(s)" in output
+    assert "NO REGISTERED SNAPSHOT WINDOW" not in output
+
+
 def recipient_page(
     page: int,
     has_next: bool,

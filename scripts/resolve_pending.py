@@ -4384,7 +4384,7 @@ def generic_fact(
 ) -> dict:
     source_periods = [period]
     transform = spec.get("transform", "level")
-    if transform in {"mom_diff", "mom_pct"}:
+    if transform in ("mom_diff", "mom_pct"):
         source_periods.append(prior_period_date(period, period_type))
     elif transform == "yoy_from_index":
         source_periods.append(f"{int(period[:4]) - 1}-{period[5:7]}")
@@ -8929,13 +8929,14 @@ def main() -> int:
         elif kind == "usaspending":
             if usaspending_contracts is None:
                 usaspending_contracts = registration_contracts()
-            contract = usaspending_contracts.get(ref)
-            binding = (contract or {}).get("sourceBinding") or {}
+            registration = usaspending_contracts.get(ref)
+            contract = (registration or {}).get("contract") or {}
+            binding = contract.get("sourceBinding") or {}
             window_state = snapshot_window_state(
                 dt.date.fromisoformat(utc_now()[:10]),
                 binding.get("expectedReleaseWindow"),
             )
-            if contract is None or window_state == "invalid":
+            if registration is None or window_state == "invalid":
                 print(f"  NO REGISTERED SNAPSHOT WINDOW (refusing): {ref}")
                 continue
             if window_state == "pending":
