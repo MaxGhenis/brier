@@ -1,0 +1,416 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-07T19:24:07Z",
+  "runStartedAt": "2026-08-07T19:24:07Z",
+  "sealedAt": "2026-08-07T19:28:47Z",
+  "series": "usaspending.dod.small_business_contract_obligation_share",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-dod-small-business-contract-obligation-share-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.dod.small_business_contract_obligation_share.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-07T17:54:06Z",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "registrationState": "preregistered",
+    "series": "usaspending.dod.small_business_contract_obligation_share",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.search.spending_over_time.dod.contracts.small_business_obligation_share",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "table": "USAspending API v2 advanced search, small-business share of DoD prime-contract obligations, fiscal year to date",
+      "transform": {
+        "agency": {
+          "name": "Department of Defense",
+          "tier": "toptier",
+          "type": "awarding"
+        },
+        "awardTypeCodes": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "denominatorRecipientTypeNames": [],
+        "factor": 1,
+        "fiscalYear": "{fiscal_year}",
+        "group": "fiscal_year",
+        "numeratorRecipientTypeNames": [
+          "small_business"
+        ],
+        "operation": "ratio_percent",
+        "requestMethod": "POST",
+        "spendingLevel": "transactions"
+      }
+    },
+    "targetContentHash": "b7ebec1228518b70de1c1c2f93d0b0084f260ea989d72d0b12968b776082e8cf",
+    "targetRegistrationPath": "records/targets/2026-08-07-b7ebec1228518b70de1c1c2f93d0b0084f260ea989d72d0b12968b776082e8cf.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+  "targetContentHash": "b7ebec1228518b70de1c1c2f93d0b0084f260ea989d72d0b12968b776082e8cf",
+  "targetRegistrationPath": "records/targets/2026-08-07-b7ebec1228518b70de1c1c2f93d0b0084f260ea989d72d0b12968b776082e8cf.json",
+  "registeredAtUtc": "2026-08-07T17:54:06Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-07T19:24:07Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "081880f97f03bad9c4cf932183dd95b062226973544d756bb443c3578d27a4fe"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval labels a single FY2024-to-FY2025 change as sigma, which overstates the statistical basis for an 80% interval.",
+        "actionRequested": "Rephrase the interval method as a one-change persistence error proxy plus explicit query-classification uncertainty, or add more realized comparable changes if available."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The historical sample mixes recent GSA all-prime ratios with older DoD performance points that may use a different denominator/regime.",
+        "actionRequested": "State clearly that the older DoD points are non-comparable regime checks and are not used quantitatively in the prior or volatility estimate."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that resolution uses the registered FY2026 snapshot as of the bounded window ending 2026-10-22, not later USAspending revisions."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the final math step's implied 80% bounds exactly aligned with the JSON fields."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warning by recasting sigma as a one-change persistence error proxy plus query-classification uncertainty, and by stating that older DoD performance points are non-comparable regime checks not used quantitatively. Also accepted the clarification that resolution uses the registered bounded-window FY2026 snapshot ending 2026-10-22 rather than later revisions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warning by recasting sigma as a one-change persistence error proxy plus query-classification uncertainty, and by stating that older DoD performance points are non-comparable regime checks not used quantitatively. Also accepted the clarification that resolution uses the registered bounded-window FY2026 snapshot ending 2026-10-22 rather than later revisions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by recasting sigma as a one-change persistence error proxy plus query-classification uncertainty, and by stating that older DoD performance points are non-comparable regime checks not used quantitatively. Also accepted the clarification that resolution uses the registered bounded-window FY2026 snapshot ending 2026-10-22 rather than later revisions.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by recasting sigma as a one-change persistence error proxy plus query-classification uncertainty, and by stating that older DoD performance points are non-comparable regime checks not used quantitatively. Also accepted the clarification that resolution uses the registered bounded-window FY2026 snapshot ending 2026-10-22 rather than later revisions.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after tightening the interval/sample language and denominator comparability caveat."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/prompt.md",
+      "sha256": "b844da22db366a30aaf29c4ff26f3d622f2ab966891dc6a8b8422a2a3042acc9",
+      "bytes": 9475,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_command.json",
+      "sha256": "f5a3e2a3b22e0f148f94a8e830fefcf8bb2d1d7b2a7d6405b8de1dec6fa112f6",
+      "bytes": 785,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "680f7b1b4881fe9227c7e0ea0475bbd0c5a4fcb8423f0dbad70f747a318ba71b",
+      "bytes": 27258,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_codex_stderr.log",
+      "sha256": "aae053e41019d74601115d2683adf37438459eeac95d338cc2e51ad892268998",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_codex_events.jsonl",
+      "sha256": "e072203be88c5d670b0de5ba3ba8e99a7003e8fab62f258a729fcc3df433c905",
+      "bytes": 27131,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_codex_last_message.txt",
+      "sha256": "a698a2b683749638d2e56a51bf95034729351ac000e2652ef696249c4186105b",
+      "bytes": 8302,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_codex_trace.json",
+      "sha256": "b0bf3a118b91962eb8ab8c11ae2d71b4982712b2a736b5ca1f2f10221904ab1b",
+      "bytes": 559,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_stdout.txt",
+      "sha256": "a698a2b683749638d2e56a51bf95034729351ac000e2652ef696249c4186105b",
+      "bytes": 8302,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/draft_stderr.txt",
+      "sha256": "f32cd6933951a18b46f3c123f6fec5516a1d77b95c6582899a7d09d0f9f4134a",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_prompt.md",
+      "sha256": "65d82b75f7f72d727ca24911cc10f97207d88a55293be0239797ca1ab0a2495a",
+      "bytes": 12022,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_command.json",
+      "sha256": "714393ce9f71d18f2cfeb4128f8834ac643d2b819679b5bb427a8606c41ba880",
+      "bytes": 781,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "67b47723f8352c45eb2ba0ca64d651abcb52b314534d443d192957d4cc2566a9",
+      "bytes": 1478,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "9f5e288944fbb80daaa10537ef34dcfac4dd449c45795ce85ee4b93754ff871a",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "56fba53c44b04bd282b099db6e209b7f8290c1c2d6d62f060ac2a53b26c54fa7",
+      "bytes": 1500,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "75667ecd4038cd4d3ef931305cdeaa01f2de40ce53f8aa3aee13c5e2cc1082f0",
+      "bytes": 1117,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "8c4003944e28dc6c3c12ce6c793f61fbb14a93db4c9df373333fc6fb65aaa06c",
+      "bytes": 555,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "75667ecd4038cd4d3ef931305cdeaa01f2de40ce53f8aa3aee13c5e2cc1082f0",
+      "bytes": 1117,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "8a750f247959201dc01fb60864137fe17d33cfe3874f08f8925e8550ad16ed3c",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/revision_prompt.md",
+      "sha256": "76e62cf6999ed4ce091a07e5de6c71cd8feef7f1a99d4c141ced63be719ee01c",
+      "bytes": 19830,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/command.json",
+      "sha256": "d4a30cb23e5443a105891047ceebe752f5128b88cd5b9a2e10a901a09ea72d65",
+      "bytes": 779,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/codex_stdout.jsonl",
+      "sha256": "217084cf212f3c626be2a2aa0d3ad5fc0075bfb487d188b5e491d8eae3b5e8d7",
+      "bytes": 9613,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/codex_stderr.log",
+      "sha256": "9d536e89195c26f4901e1de84b7c786c5a0192e702a61f3ff3cf0713b368ad4a",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/codex_events.jsonl",
+      "sha256": "388cf94081761d94168e223fc496d76895df4adc6eb0784b63e26db17826a6e2",
+      "bytes": 9635,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/codex_last_message.txt",
+      "sha256": "d847a110a85407102c352e6cda5cfb9bd62c3c6f15391593f07e211d125003cc",
+      "bytes": 9052,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/codex_trace.json",
+      "sha256": "f422254cd9ff65a8225cc4c367c3a342149291e5e4fecd39942780263a4aefd1",
+      "bytes": 552,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/stdout.txt",
+      "sha256": "d847a110a85407102c352e6cda5cfb9bd62c3c6f15391593f07e211d125003cc",
+      "bytes": 9052,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/stderr.txt",
+      "sha256": "e3f8308e61b1ee413f78e5f059ca32f778e40f61acb8a373f18369c96bc79fa3",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/raw_response.txt",
+      "sha256": "d847a110a85407102c352e6cda5cfb9bd62c3c6f15391593f07e211d125003cc",
+      "bytes": 9052,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/parsed_cells.json",
+      "sha256": "8fcc0a684f1c506724823174bd1616770b9ff61b34241210055ed143d82a7628",
+      "bytes": 9956,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/normalized_cells.json",
+      "sha256": "14884e7a6eb122c3ede432edc23356a0baa8e08330a244e4a52dcedb83d1ab51",
+      "bytes": 27155,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/distribution.json",
+      "sha256": "3f8ad063b1b65380b083c423496e6e78d1abdf324c7eefae8aa5c6947e6a874b",
+      "bytes": 13415,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/validation.json",
+      "sha256": "02f86376e7900b189466e967b8ea358ba800a051013ea74424f7704affa17069",
+      "bytes": 155,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/cells.with_activity.json",
+      "sha256": "3935effa1466e316d7dead8351d502e3185d0e3a7b0087a58a64df23c1260aa8",
+      "bytes": 43969,
+      "createdAt": "2026-08-07T19:24:07Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-24-07z-usaspending-dod-small-business-contract-obligation-share-fy2026/manifest.json",
+      "sha256": "bdc380df5b6f43dacc59293094deca11da3ebe7c41c9dd6a9adc25109e442b73",
+      "bytes": 17593,
+      "createdAt": "2026-08-07T19:24:07Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-dod-small-business-contract-obligation-share-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "432b79f4ab18ab34df27d5641deeff56509eaba4",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "3a0568854bbf31a39dcba4598a96fa2e8d122902df94aac519eef05a16ab21ba"
+}

@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is broadly tied to the registered USAspending target, but the uncertainty method is not defensible because it treats component dollar levels as volatility.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "The 80% interval is derived from the cross-sectional standard deviation of funding/account component amounts, not realized volatility, forecast error, reporting lag uncertainty, or an explicit uncertainty model.",
+      "actionRequested": "Replace the interval derivation with realized historical volatility/error for comparable USAspending obligation snapshots, or state an explicit uncertainty model with named drivers and justify the implied 80% bounds."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The compact Prior/update/interval step names component amounts as the historical sample, but those are not a time-series or comparable forecast-error sample.",
+      "actionRequested": "Revise the step to clearly separate the base prior, the actual historical/reference sample, each adjustment component, the interval method, and the resulting bounds."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "A persistence prior is mentioned, but no time-series/model prior is actually used or explicitly ruled out for this lumpy first-print USAspending target.",
+      "actionRequested": "Either add a simple historical or persistence model prior using comparable obligation snapshots, or explicitly explain why no time-series prior is reliable here."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify the apparent mismatch between the registered 070-0722 component and references to 070-2025/2034-0722 without changing the registered target.",
+    "Make the tail scenarios more numeric by tying upside and downside cases to specific account families or reporting-delay mechanisms."
+  ]
+}

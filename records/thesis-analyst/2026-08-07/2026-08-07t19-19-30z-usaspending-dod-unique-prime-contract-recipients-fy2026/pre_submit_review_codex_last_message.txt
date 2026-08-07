@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is publishable after fixing the inconsistent historical sample used for the prior and interval.",
+  "requiredFixes": [
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The reasoning mixes contradictory same-query history values: FY2023/FY2024/FY2025 appear as 56.8/55.1/54.2 in one fetched history and 54.2/55.0/55.7 elsewhere, while the seven-year average and sigma are not clearly tied to one consistent sample.",
+      "actionRequested": "Use one audited historical sample for the prior, average, year-to-year dispersion, and sigma; state whether later restatements replace earlier values; then recompute or explicitly confirm the 56.2 prior average, 1.11 sigma, point estimate, and interval."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The historicalContext array and the Prior/update/interval step do not fully agree about the values underlying the forecast.",
+      "actionRequested": "Align historicalContext with the exact sample used in the math step, or label older versus restated snapshots so the reader can audit the numbers."
+    }
+  ],
+  "optionalSuggestions": [
+    "Make the +0.3 thousand defense-budget/procurement-breadth adjustment slightly more concrete or reduce it to a qualitative inside-view nudge.",
+    "Keep the resolver text tied to the ledger phrase 'registered query snapshot' and the 2026-10-15 to 2026-10-22 expected window."
+  ]
+}

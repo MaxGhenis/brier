@@ -1,0 +1,1226 @@
+[
+  {
+    "slug": "initial-claims-week-2026-08-08",
+    "country": "US",
+    "type": "data",
+    "title": "US initial claims, week ending Aug. 8, 2026",
+    "question": "U.S. Department of Labor advance seasonally adjusted initial unemployment insurance claims for the week ending August 8, 2026, first print, in thousands.",
+    "unit": "thousands",
+    "pointEstimate": 201,
+    "ciLow": 187,
+    "ciHigh": 215,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-15",
+    "resolutionSource": "ALFRED/FRED ICSA advance-vintage record of the U.S. Department of Labor Unemployment Insurance Weekly Claims release",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA",
+    "resolutionRule": "Resolve to the first available advance-vintage ALFRED/FRED ICSA value for the observation week ending August 8, 2026, reflecting the first-published DOL seasonally adjusted initial claims print. Convert persons to thousands by multiplying by 0.001; use the first print only and ignore later revisions. The DOL release expected inside the registered window is the Thursday August 13, 2026 UI Weekly Claims release.",
+    "dataPointId": "us.dol.initial_claims.sa.week_2026-08-08",
+    "historicalContext": [
+      {
+        "label": "2026-08-01 SA initial claims, latest advance",
+        "value": 199
+      },
+      {
+        "label": "2026-07-25 SA initial claims, revised",
+        "value": 198
+      },
+      {
+        "label": "2026-07-18 SA initial claims, revised",
+        "value": 189
+      },
+      {
+        "label": "2026-07-11 SA initial claims, revised",
+        "value": 209
+      },
+      {
+        "label": "2026-08-01 4-week moving average",
+        "value": 198.75
+      }
+    ],
+    "drivers": [
+      "Latest DOL/ICSA level is 199k, with the 4-week average at 198.75k.",
+      "Recent 2026 weekly SA claims changes have sigma = 10.6k, implying an 80% half-width near 13.6k.",
+      "July auto-retooling volatility appears to have faded after the 189k July 18 dip and 198k-199k rebound.",
+      "BLS seasonal factor rises from 0.861 for August 1 to 0.893 for August 8, but the target is seasonally adjusted, so this mainly frames NSA-to-SA translation risk.",
+      "Continuing claims at 1.801 million and insured unemployment rate at 1.2 percent indicate no abrupt layoff regime break."
+    ],
+    "sourceContext": [
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA",
+      "https://www.dol.gov/ui/data.pdf",
+      "https://oui.doleta.gov/unemploy/claims_arch.asp/claims.asp",
+      "https://www.bls.gov/lau/current-factors.htm",
+      "https://fred.stlouisfed.org/releases/calendar?ob=n&od=asc&rid=180&ve=2026-12-31&view=week&vs=2026-01-01"
+    ],
+    "runAt": "2026-08-07T19:01:52Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for U.S. initial claims, week ending August 8, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the DOL advance seasonally adjusted initial claims figure for the week ending August 8, 2026, not NSA claims, continuing claims, or a later revised vintage. The registered resolver uses ALFRED/FRED series ICSA as the advance-vintage source binding for the first official DOL print, converted to thousands."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the DOL current UI Weekly Claims PDF for the latest official release and recent table values.",
+        "result": "The August 6, 2026 DOL release reported week ending August 1 initial claims SA at 199,000, prior week revised to 198,000, July 18 at 189,000, and the 4-week moving average at 198,750."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the DOL Office of Unemployment Insurance claims archive publication schedule for the release timing rule.",
+        "result": "DOL says the UI Weekly Claims News Release is published each week on Thursday morning at 8:30 AM Eastern, with a listed 2026 non-Thursday exception on Wednesday November 25, 2026 at 8:30 AM; August 13, 2026 is the Thursday release for the August 8 week."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the FRED release calendar mirror for the specific 2026 weekly claims release date as a schedule cross-check, while keeping DOL as the underlying official release and ALFRED/FRED ICSA as the registered advance-vintage adapter.",
+        "result": "The release calendar lists Unemployment Insurance Weekly Claims Report entries at 7:30 AM Central on Thursday August 6, 2026, Thursday August 13, 2026, and Thursday August 20, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS current seasonal factors for weekly initial and continued claims to compare the target week with the latest observed week.",
+        "result": "BLS lists initial-claims seasonal factors of 0.861 for 2026-08-01 and 0.893 for 2026-08-08, with continued-claims factors of 1.019 and 0.999 respectively."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: using the DOL/ICSA 2026 seasonally adjusted weekly initial-claims table from January 3 through August 1, values mostly sit in a 190k-230k range, with recent levels 217k, 209k, 189k, 198k, and 199k. The immediate base rate is a 199k persistence prior before a small upward update, rather than the higher June level around 224k."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is latest SA level 199k, historical sample is DOL/ICSA 2026 weekly SA initial claims from January 3 through August 1 using available latest-public values as a proxy for first-print volatility, adjustment components are +2k mean reversion from the July 18 low and late-July rebound, +0k for seasonal translation because the target is SA, and +0k for policy/mechanism shock because continuing claims and IUR do not show a break. The 30 successive weekly changes have sigma = 10.6k; 1.28*sigma = 13.6k, so an 80% interval around a 201k point is 201 +/- 13.6 = 187.4k to 214.6k, rounded to 187k-215k."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: a renewed layoff cluster, delayed claims after summer plant shutdowns, or a state-processing catch-up would land above the interval if the advance SA print is above 215k. Downside risk: another holiday/auto-seasonality overadjustment or continued unusually low layoffs would land below the interval if the first print is under 187k."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule to the registered ALFRED/FRED ICSA advance-vintage source binding and using the ledger window-end resolution date, while retaining the DOL August 13, 2026 first-print release as the underlying agency event; accepted the clarification that the 199k base rate precedes the +2k update and that sigma uses available latest-public weekly changes as a first-print volatility proxy."
+      },
+      {
+        "kind": "forecast",
+        "point": 201,
+        "ciLow": 187,
+        "ciHigh": 215
+      }
+    ],
+    "agentReportedRunAt": "2026-08-07T19:00:03Z",
+    "runStartedAt": "2026-08-07T18:59:25Z",
+    "promptMode": "fast",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "targetContentHash": "4cff4a29721acfdd28e02ddf0cf36d714abf61da5a3632f76c0058756c03630f",
+    "targetRegistrationPath": "records/targets/2026-08-07-4cff4a29721acfdd28e02ddf0cf36d714abf61da5a3632f76c0058756c03630f.json",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 166.0,
+        "upper": 236.0
+      },
+      "points": [
+        {
+          "value": 166.0,
+          "probability": 0.0
+        },
+        {
+          "value": 166.35,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 166.7,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 167.05,
+          "probability": 0.005
+        },
+        {
+          "value": 167.4,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 167.75,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 168.1,
+          "probability": 0.01
+        },
+        {
+          "value": 168.45,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 168.8,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 169.15,
+          "probability": 0.015
+        },
+        {
+          "value": 169.5,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 169.85,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 170.2,
+          "probability": 0.02
+        },
+        {
+          "value": 170.55,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 170.9,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 171.25,
+          "probability": 0.025
+        },
+        {
+          "value": 171.6,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 171.95,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 172.3,
+          "probability": 0.03
+        },
+        {
+          "value": 172.65,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 173.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 173.35,
+          "probability": 0.035
+        },
+        {
+          "value": 173.7,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 174.05,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 174.4,
+          "probability": 0.04
+        },
+        {
+          "value": 174.75,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 175.1,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 175.45,
+          "probability": 0.045
+        },
+        {
+          "value": 175.8,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 176.15,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 176.5,
+          "probability": 0.05
+        },
+        {
+          "value": 176.85,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 177.2,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 177.55,
+          "probability": 0.055
+        },
+        {
+          "value": 177.9,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 178.25,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 178.6,
+          "probability": 0.06
+        },
+        {
+          "value": 178.95,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 179.3,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 179.65,
+          "probability": 0.065
+        },
+        {
+          "value": 180.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 180.35,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 180.7,
+          "probability": 0.07
+        },
+        {
+          "value": 181.05,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 181.4,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 181.75,
+          "probability": 0.075
+        },
+        {
+          "value": 182.1,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 182.45,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 182.8,
+          "probability": 0.08
+        },
+        {
+          "value": 183.15,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 183.5,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 183.85,
+          "probability": 0.085
+        },
+        {
+          "value": 184.2,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 184.55,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 184.9,
+          "probability": 0.09
+        },
+        {
+          "value": 185.25,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 185.6,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 185.95,
+          "probability": 0.095
+        },
+        {
+          "value": 186.3,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 186.65,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 187.0,
+          "probability": 0.1
+        },
+        {
+          "value": 187.35,
+          "probability": 0.11
+        },
+        {
+          "value": 187.7,
+          "probability": 0.12
+        },
+        {
+          "value": 188.05,
+          "probability": 0.13
+        },
+        {
+          "value": 188.4,
+          "probability": 0.14
+        },
+        {
+          "value": 188.75,
+          "probability": 0.15
+        },
+        {
+          "value": 189.1,
+          "probability": 0.16
+        },
+        {
+          "value": 189.45,
+          "probability": 0.17
+        },
+        {
+          "value": 189.8,
+          "probability": 0.18
+        },
+        {
+          "value": 190.15,
+          "probability": 0.19
+        },
+        {
+          "value": 190.5,
+          "probability": 0.2
+        },
+        {
+          "value": 190.85,
+          "probability": 0.21
+        },
+        {
+          "value": 191.2,
+          "probability": 0.22
+        },
+        {
+          "value": 191.55,
+          "probability": 0.23
+        },
+        {
+          "value": 191.9,
+          "probability": 0.24
+        },
+        {
+          "value": 192.25,
+          "probability": 0.25
+        },
+        {
+          "value": 192.6,
+          "probability": 0.26
+        },
+        {
+          "value": 192.95,
+          "probability": 0.27
+        },
+        {
+          "value": 193.3,
+          "probability": 0.28
+        },
+        {
+          "value": 193.65,
+          "probability": 0.29
+        },
+        {
+          "value": 194.0,
+          "probability": 0.3
+        },
+        {
+          "value": 194.35,
+          "probability": 0.31
+        },
+        {
+          "value": 194.7,
+          "probability": 0.32
+        },
+        {
+          "value": 195.05,
+          "probability": 0.33
+        },
+        {
+          "value": 195.4,
+          "probability": 0.34
+        },
+        {
+          "value": 195.75,
+          "probability": 0.35
+        },
+        {
+          "value": 196.1,
+          "probability": 0.36
+        },
+        {
+          "value": 196.45,
+          "probability": 0.37
+        },
+        {
+          "value": 196.8,
+          "probability": 0.38
+        },
+        {
+          "value": 197.15,
+          "probability": 0.39
+        },
+        {
+          "value": 197.5,
+          "probability": 0.4
+        },
+        {
+          "value": 197.85,
+          "probability": 0.41
+        },
+        {
+          "value": 198.2,
+          "probability": 0.42
+        },
+        {
+          "value": 198.55,
+          "probability": 0.43
+        },
+        {
+          "value": 198.9,
+          "probability": 0.44
+        },
+        {
+          "value": 199.25,
+          "probability": 0.45
+        },
+        {
+          "value": 199.6,
+          "probability": 0.46
+        },
+        {
+          "value": 199.95,
+          "probability": 0.47
+        },
+        {
+          "value": 200.3,
+          "probability": 0.48
+        },
+        {
+          "value": 200.65,
+          "probability": 0.49
+        },
+        {
+          "value": 201.0,
+          "probability": 0.5
+        },
+        {
+          "value": 201.35,
+          "probability": 0.51
+        },
+        {
+          "value": 201.7,
+          "probability": 0.52
+        },
+        {
+          "value": 202.05,
+          "probability": 0.53
+        },
+        {
+          "value": 202.4,
+          "probability": 0.54
+        },
+        {
+          "value": 202.75,
+          "probability": 0.55
+        },
+        {
+          "value": 203.1,
+          "probability": 0.56
+        },
+        {
+          "value": 203.45,
+          "probability": 0.57
+        },
+        {
+          "value": 203.8,
+          "probability": 0.58
+        },
+        {
+          "value": 204.15,
+          "probability": 0.59
+        },
+        {
+          "value": 204.5,
+          "probability": 0.6
+        },
+        {
+          "value": 204.85,
+          "probability": 0.61
+        },
+        {
+          "value": 205.2,
+          "probability": 0.62
+        },
+        {
+          "value": 205.55,
+          "probability": 0.63
+        },
+        {
+          "value": 205.9,
+          "probability": 0.64
+        },
+        {
+          "value": 206.25,
+          "probability": 0.65
+        },
+        {
+          "value": 206.6,
+          "probability": 0.66
+        },
+        {
+          "value": 206.95,
+          "probability": 0.67
+        },
+        {
+          "value": 207.3,
+          "probability": 0.68
+        },
+        {
+          "value": 207.65,
+          "probability": 0.69
+        },
+        {
+          "value": 208.0,
+          "probability": 0.7
+        },
+        {
+          "value": 208.35,
+          "probability": 0.71
+        },
+        {
+          "value": 208.7,
+          "probability": 0.72
+        },
+        {
+          "value": 209.05,
+          "probability": 0.73
+        },
+        {
+          "value": 209.4,
+          "probability": 0.74
+        },
+        {
+          "value": 209.75,
+          "probability": 0.75
+        },
+        {
+          "value": 210.1,
+          "probability": 0.76
+        },
+        {
+          "value": 210.45,
+          "probability": 0.77
+        },
+        {
+          "value": 210.8,
+          "probability": 0.78
+        },
+        {
+          "value": 211.15,
+          "probability": 0.79
+        },
+        {
+          "value": 211.5,
+          "probability": 0.8
+        },
+        {
+          "value": 211.85,
+          "probability": 0.81
+        },
+        {
+          "value": 212.2,
+          "probability": 0.82
+        },
+        {
+          "value": 212.55,
+          "probability": 0.83
+        },
+        {
+          "value": 212.9,
+          "probability": 0.84
+        },
+        {
+          "value": 213.25,
+          "probability": 0.85
+        },
+        {
+          "value": 213.6,
+          "probability": 0.86
+        },
+        {
+          "value": 213.95,
+          "probability": 0.87
+        },
+        {
+          "value": 214.3,
+          "probability": 0.88
+        },
+        {
+          "value": 214.65,
+          "probability": 0.89
+        },
+        {
+          "value": 215.0,
+          "probability": 0.9
+        },
+        {
+          "value": 215.35,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 215.7,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 216.05,
+          "probability": 0.905
+        },
+        {
+          "value": 216.4,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 216.75,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 217.1,
+          "probability": 0.91
+        },
+        {
+          "value": 217.45,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 217.8,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 218.15,
+          "probability": 0.915
+        },
+        {
+          "value": 218.5,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 218.85,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 219.2,
+          "probability": 0.92
+        },
+        {
+          "value": 219.55,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 219.9,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 220.25,
+          "probability": 0.925
+        },
+        {
+          "value": 220.6,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 220.95,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 221.3,
+          "probability": 0.93
+        },
+        {
+          "value": 221.65,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 222.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 222.35,
+          "probability": 0.935
+        },
+        {
+          "value": 222.7,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 223.05,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 223.4,
+          "probability": 0.94
+        },
+        {
+          "value": 223.75,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 224.1,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 224.45,
+          "probability": 0.945
+        },
+        {
+          "value": 224.8,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 225.15,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 225.5,
+          "probability": 0.95
+        },
+        {
+          "value": 225.85,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 226.2,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 226.55,
+          "probability": 0.955
+        },
+        {
+          "value": 226.9,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 227.25,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 227.6,
+          "probability": 0.96
+        },
+        {
+          "value": 227.95,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 228.3,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 228.65,
+          "probability": 0.965
+        },
+        {
+          "value": 229.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 229.35,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 229.7,
+          "probability": 0.97
+        },
+        {
+          "value": 230.05,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 230.4,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 230.75,
+          "probability": 0.975
+        },
+        {
+          "value": 231.1,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 231.45,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 231.8,
+          "probability": 0.98
+        },
+        {
+          "value": 232.15,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 232.5,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 232.85,
+          "probability": 0.985
+        },
+        {
+          "value": 233.2,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 233.55,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 233.9,
+          "probability": 0.99
+        },
+        {
+          "value": 234.25,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 234.6,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 234.95,
+          "probability": 0.995
+        },
+        {
+          "value": 235.3,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 235.65,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 236.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 201,
+        "median": 201,
+        "interval80": {
+          "lower": 187,
+          "upper": 215
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/prompt.md",
+        "sha256": "7932e550cf5eddce00101067823d7d561c1576af0d595141bfa902cac13d100e",
+        "bytes": 8926,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_command.json",
+        "sha256": "d8c02ab6fdcfd0e97cbf85a654ec2cc60cc69c7f3b4641d7dbcd18201e7eff35",
+        "bytes": 762,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_codex_stdout.jsonl",
+        "sha256": "0f684a230a80bbf676b06910fabb040fefe7516aaf05ac113eed4f208fb669e1",
+        "bytes": 12385,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_codex_stderr.log",
+        "sha256": "778bbffa2475620cb8341a637731ac85cfdeb552121a72686ada516b0a93a23a",
+        "bytes": 233,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_codex_events.jsonl",
+        "sha256": "7ddee591c9697505ad717e664373c8459065895edb2487cbd9b58508237266fc",
+        "bytes": 12383,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_codex_last_message.txt",
+        "sha256": "abd35fdba498edde31d6b02f6512c19c59423873bbddf3ddbfe6af0314a9f7f0",
+        "bytes": 5433,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_codex_trace.json",
+        "sha256": "79bd5cd5269f7b2b932938e57feb21daa422f03e920d9afae25d882ab03f1021",
+        "bytes": 558,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_stdout.txt",
+        "sha256": "abd35fdba498edde31d6b02f6512c19c59423873bbddf3ddbfe6af0314a9f7f0",
+        "bytes": 5433,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_stderr.txt",
+        "sha256": "041fdb6ee82dcca831f06af8c3d2be98fa5f1acac0d90131abb91c7bcc910448",
+        "bytes": 248,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_prompt.md",
+        "sha256": "1c21d5bdb6b9eb5a2a80fce4766e2d367c9870f1d4410804844493f256916582",
+        "bytes": 8500,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_command.json",
+        "sha256": "95701a24afaad3a2acaf564a9da8c30dae4f20b5cf04f2b08d6f47dd27a4e90a",
+        "bytes": 758,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "ea3d334975e28b460bee65198b4e9145fa57089aebee6e0027c8a9ede881117e",
+        "bytes": 1373,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_codex_stderr.log",
+        "sha256": "2091032b2f5d059d7674d1f6a0d069b0c41e26f17c2b6325b92d7ff17a08c26c",
+        "bytes": 233,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_codex_events.jsonl",
+        "sha256": "6e111137c47f5a903636dbb2638da424dd832d9ada0235b6d3bbaedbb90d84c8",
+        "bytes": 1395,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_codex_last_message.txt",
+        "sha256": "9f760d9184018d3ae0c0133553cc2c9c67e37bde68d58877ba112df558e4a9a4",
+        "bytes": 1031,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_codex_trace.json",
+        "sha256": "be6b961998cd151ee5da146d337bdb4fe70b83905e7cc8d922bff3163ce44e9e",
+        "bytes": 552,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_stdout.txt",
+        "sha256": "9f760d9184018d3ae0c0133553cc2c9c67e37bde68d58877ba112df558e4a9a4",
+        "bytes": 1031,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_stderr.txt",
+        "sha256": "0213d49fdd2dd27b1d088be76fe69b89980a2a02d2a2adc3b6463e45fa23d523",
+        "bytes": 248,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/revision_prompt.md",
+        "sha256": "c9e35b3003b63a701ecaa7a92213515bb89ac8294b3db6dc65c188a810180847",
+        "bytes": 16326,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/command.json",
+        "sha256": "592cc336eebae6fc733ae0aa54749112658230ba241a7037ba27b93874e432d0",
+        "bytes": 756,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/codex_stdout.jsonl",
+        "sha256": "acb15f7999856826b1310cab1463b98424593c2064a484ee80aefc02d5b9e87b",
+        "bytes": 6975,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/codex_stderr.log",
+        "sha256": "cf5b29d283bb833de7a642ca0eb022c6143ace8c726aa5cd76a45561f3163e41",
+        "bytes": 233,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/codex_events.jsonl",
+        "sha256": "f0f45d50424e596eb4e1e2dc4dfdc6a274edde0d4c6aec9d7c3ab617879e7bfb",
+        "bytes": 6997,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/codex_last_message.txt",
+        "sha256": "12ebfde2252a3537e9ca25535dc97ff1512fe137bf416abc3daa80fff27e1859",
+        "bytes": 6424,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/codex_trace.json",
+        "sha256": "f56ffa78bcd397adb02b324ca78f8e13086dc941d065300699874c471b472bc6",
+        "bytes": 552,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/stdout.txt",
+        "sha256": "12ebfde2252a3537e9ca25535dc97ff1512fe137bf416abc3daa80fff27e1859",
+        "bytes": 6424,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/stderr.txt",
+        "sha256": "b1887cbb0a8c6bda8d7fb702bff6e1601bc1288c47b4fc6ef70f8c4c3f4fd9aa",
+        "bytes": 248,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/raw_response.txt",
+        "sha256": "12ebfde2252a3537e9ca25535dc97ff1512fe137bf416abc3daa80fff27e1859",
+        "bytes": 6424,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/parsed_cells.json",
+        "sha256": "67afb60292c7794398a65673b0083c2d524d7b3d924aa8b78d842d7bd74959ee",
+        "bytes": 7287,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/normalized_cells.json",
+        "sha256": "ae02b6c365fe9b06870495bf42371e6a09901cd08ff7d0cb00e08b84bf8d2258",
+        "bytes": 24625,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/distribution.json",
+        "sha256": "1dbc30a245cd421117f73b6046a366ab18485a342d43e384a70a8e1b22cc2283",
+        "bytes": 13554,
+        "createdAt": "2026-08-07T18:59:25Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/validation.json",
+        "sha256": "80513401d0873c3b5dc266fa81025f60c426b073b5716b2e91d67c4cdf3ca85e",
+        "bytes": 131,
+        "createdAt": "2026-08-07T18:59:25Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-07T18:59:25Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "2b1dfacc54724776b783198368e4b3b4319afa84fd542067f83328328816293a"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-07/2026-08-07t18-59-25z-us-dol-initial-claims-sa-week-2026-08-08/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Draft uses DOL PDF URL and resolutionDate 2026-08-13, while the canonical target contract binds the resolving adapter/source to ALFRED/FRED ICSA advance vintage with expectedReleaseWindow ending 2026-08-15.",
+          "actionRequested": "Align JSON resolver fields with the ledger target contract: keep the same slug/dataPointId/unit, use the registered ALFRED/FRED ICSA advance-vintage source binding and ledger resolutionDate if required by the catalog, while mentioning in reasoning that the DOL Thursday first print is expected on 2026-08-13."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the 10.6k sigma is computed from first prints or latest revised weekly changes, since the target is first print."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the base-rate sentence slightly more explicit that the 199k persistence prior is chosen before the +2k update."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule to the registered ALFRED/FRED ICSA advance-vintage source binding and using the ledger window-end resolution date, while retaining the DOL August 13, 2026 first-print release as the underlying agency event; accepted the clarification that the 199k base rate precedes the +2k update and that sigma uses available latest-public weekly changes as a first-print volatility proxy.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule to the registered ALFRED/FRED ICSA advance-vintage source binding and using the ledger window-end resolution date, while retaining the DOL August 13, 2026 first-print release as the underlying agency event; accepted the clarification that the 199k base rate precedes the +2k update and that sigma uses available latest-public weekly changes as a first-print volatility proxy.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and rule to the registered ALFRED/FRED ICSA advance-vintage source binding and using the ledger window-end resolution date, while retaining the DOL August 13, 2026 first-print release as the underlying agency event; accepted the clarification that the 199k base rate precedes the +2k update and that sigma uses available latest-public weekly changes as a first-print volatility proxy.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly coherent, but it conflicts with the ledger contract on resolver/source binding and likely resolutionDate handling."
+    }
+  }
+]

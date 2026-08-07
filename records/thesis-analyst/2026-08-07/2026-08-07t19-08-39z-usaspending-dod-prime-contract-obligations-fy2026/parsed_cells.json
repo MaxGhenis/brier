@@ -1,0 +1,141 @@
+[
+  {
+    "slug": "us-dod-prime-contract-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "DoD prime contract obligations FY2026",
+    "question": "What will USAspending.gov first print for Department of Defense agency 097 obligations by award category, contracts row, fiscal year 2026, in billions of current U.S. dollars?",
+    "unit": "usd_billions",
+    "pointEstimate": 475,
+    "ciLow": 360,
+    "ciHigh": 590,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2, agency 097 obligations by award category",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year=2026",
+    "resolutionRule": "Resolve to the captured registered-query snapshot on 2026-10-22 from api.usaspending.gov API v2 endpoint /api/v2/agency/097/obligations_by_award_category/?fiscal_year=2026, taking results[category=contracts].aggregated_amount and multiplying by 1e-9. Use that first captured official snapshot only, with no later restatements or same-day corrections unless the registered Thesis recapture protocol itself defines a recapture. Round from the agency-published dollar amount converted to billions USD.",
+    "dataPointId": "usaspending.dod.prime_contract_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "FY2026 USAspending contracts partial at run lookup",
+        "value": 114.096
+      },
+      {
+        "label": "FY2024 CRS FPDS DoD contract obligations",
+        "value": 445.23
+      },
+      {
+        "label": "FY2023 CRS FPDS DoD contract obligations",
+        "value": 456
+      },
+      {
+        "label": "FY2022 CRS FPDS DoD contract obligations",
+        "value": 414
+      },
+      {
+        "label": "FY2021 CRS FPDS DoD contract obligations",
+        "value": 389
+      },
+      {
+        "label": "FY2020 CRS FPDS DoD contract obligations",
+        "value": 423
+      },
+      {
+        "label": "FY2019 CRS FPDS DoD contract obligations",
+        "value": 383
+      },
+      {
+        "label": "FY2018 CRS FPDS DoD contract obligations",
+        "value": 360
+      },
+      {
+        "label": "FY2017 CRS FPDS DoD contract obligations",
+        "value": 322
+      }
+    ],
+    "drivers": [
+      "FY2026 total DoD budget request near $961.6B including $113.3B reconciliation funding",
+      "acquisition-heavy reconciliation funding should lift contractable dollars but may be multi-year",
+      "regular FY2026 procurement and O&M authorizations are not materially above FY2025",
+      "current USAspending FY2026 contracts-row value was only a partial 114.096B at lookup and is downweighted because of DoD reporting lag",
+      "DoD contract obligations have recently stayed around the mid-$400B range",
+      "USAspending DoD contract data publication lag widens first-snapshot uncertainty"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year=2026",
+      "https://api.usaspending.gov/docs/endpoints",
+      "https://www.usaspending.gov/agency/department-of-defense",
+      "https://www.congress.gov/crs_external_products/R/PDF/R48784/R48784.2.pdf",
+      "https://www.cbo.gov/publication/62396",
+      "https://www.defense.gov/News/Transcripts/Transcript/Article/4228828/background-briefing-on-fy-2026-defense-budget/",
+      "https://www.congress.gov/crs-product/IN12641"
+    ],
+    "runAt": "2026-08-07T19:08:54Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "DoD prime contract obligations FY2026 forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the USAspending API v2 agency 097 obligations_by_award_category endpoint, fiscal_year=2026, contracts row only, transformed from dollars to billions USD. I keep the ledger resolver and its 2026-10-22 registered-query snapshot date; the observed value should be the first captured official API snapshot for that date, not a later revised history."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "USAspending endpoint and publication-variant lookup for agency 097 obligations_by_award_category and DoD award data timing",
+        "result": "USAspending documents /api/v2/agency/<TOPTIER_AGENCY_CODE>/obligations_by_award_category/ as the endpoint for a breakdown of obligations by award category within a fiscal year; the target uses agency code 097 and fiscal_year 2026. USAspending pages also state a 90-day delay for displaying Department of Defense contract award data, so the forecast is explicitly for the registered 2026-10-22 API snapshot rather than a later complete-final restatement."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "USAspending FY2026 live partial lookup for agency 097 obligations_by_award_category before forecast finalization",
+        "result": "The pre-forecast USAspending API response for fiscal_year 2026 showed total_aggregated_amount 117098051040.04 dollars and results[category=contracts].aggregated_amount 114096011260.72 dollars, equal to 114.09601126072 billion dollars after the registered 1e-9 transform; grants were 2667018474.5 dollars and other was 335021304.82 dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "CRS FPDS history lookup for DOD vs non-DOD contract obligations, FY2015-FY2024",
+        "result": "The CRS FPDS figure gives recent DoD contract-obligation history in billions of nominal dollars: FY2020 about 423, FY2021 about 389, FY2022 about 414, FY2023 about 456, and FY2024 about 445.23 from the FY2024 contract-type stack 300.68 fixed-price + 140.46 cost-reimbursement + 4.09 time-and-materials/labor-hours; the longer charted FY2015-FY2019 values used for dispersion are approximately 273, 296, 322, 360, and 383."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "CBO and DoD FY2026 budget request lookup",
+        "result": "CBO reports the DoD FY2026 budget request totaled 961 billion dollars including 113 billion dollars from the 2025 reconciliation act; the DoD briefing gives 961.6 billion total for DoD, 848.3 billion discretionary, and 113.3 billion mandatory reconciliation funding."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "CRS FY2026 NDAA funding authorization lookup by appropriation title",
+        "result": "CRS reports enacted FY2026 NDAA Division A values of 161.7 billion dollars for Procurement, 145.7 billion for RDT&E, 291.5 billion for O&M, 193.2 billion for MILPERS, and 855.7 billion for total DoD-military subfunction 051; the comparable enacted FY2025 NDAA Procurement and O&M figures were 167.8 billion and 294.5 billion."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the best outside-view anchor is recent FPDS/USAspending-style DoD prime contract obligations, not total DoD budget authority. FY2020-FY2024 was roughly 389B to 456B with a recent center near 425B-445B, and FY2024 was 445.23B. That makes a no-shock persistence prior around 450B before considering FY2026 funding changes and first-snapshot incompleteness."
+      },
+      {
+        "kind": "text",
+        "text": "Variant consistency: all historical anchors are for DoD procurement contract obligations or prime contract obligations measured in current-dollar billions, excluding Other Transaction Agreement obligations where the CRS FPDS source says they are excluded. The resolver is narrower in implementation because it reads USAspending's contracts award-category row for agency 097, so the history is a proxy rather than the exact registered-query first-snapshot vintage."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior model uses FY2023-FY2024 near-last-value history at 450B, with the FY2015-FY2024 reference class 273, 296, 322, 360, 383, 423, 389, 414, 456, 445.23. Adjustment components: +20B for FY2026 acquisition-heavy reconciliation funding that should partly obligate through contracts, +10B for nominal price/wage growth and defense-industrial capacity, +5B for policy emphasis on shipbuilding, munitions, missile defense, and industrial-base buys, offset by -10B because the live USAspending FY2026 contracts-row partial was only 114.096B at lookup and the 2026-10-22 registered snapshot may still reflect DoD reporting lag. Point = 450 + 25 = 475. Interval method: sample standard deviation of the FY2015-FY2024 DoD contract-obligation values gives sigma = 62.6; baseline 80% half-width = 1.28*sigma = 1.28*62.6 = 80.1. I widen to 115 because final FPDS volatility is only a proxy for a first-snapshot USAspending API target with DoD reporting lag and source-definition mismatch, so 475 +/- 115 gives 360 to 590."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: a fast obligation of the reconciliation-funded acquisition tranche, large munitions and shipbuilding awards, or accelerated year-end contract actions would land above the interval, especially if the USAspending contracts row captures more than 590B by the registered snapshot. Downside risk: continuing resolution effects, slow obligation of multi-year reconciliation funds, award protests, or an unusually incomplete October 22 DoD reporting snapshot would land below the interval, especially below 360B."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B."
+      },
+      {
+        "kind": "forecast",
+        "point": 475,
+        "ciLow": 360,
+        "ciHigh": 590
+      }
+    ]
+  }
+]

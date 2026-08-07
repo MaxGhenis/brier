@@ -1,0 +1,1255 @@
+[
+  {
+    "slug": "us-dod-unique-prime-contract-recipients-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "DoD Unique Prime Contract Recipients, FY2026",
+    "question": "How many distinct non-null USAspending recipient_id values will appear in the first official USAspending API registered query snapshot for Department of Defense prime contract obligations, award type codes A-D, fiscal year 2026?",
+    "unit": "thousands",
+    "pointEstimate": 56.2,
+    "ciLow": 53.8,
+    "ciHigh": 58.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "Official USAspending API registered query snapshot",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/search/spending_by_category/recipient/",
+    "resolutionRule": "Resolve from the first official USAspending API v2 response available for the registered POST query: spending_by_category/recipient grouped by recipient for awarding toptier Department of Defense, award_type_codes A/B/C/D, spending level transactions, fiscal year 2026. Count distinct non-null results[].recipient_id, multiply by 0.001, and round to the nearest 0.1 thousand. Use the first registered query snapshot only; ignore later API changes or revisions. The registered expected release window is 2026-10-15 to 2026-10-22, with resolution at the outer bound, 2026-10-22.",
+    "dataPointId": "usaspending.dod.unique_prime_contract_recipients.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "FY2019 official API same-query snapshot",
+        "value": 55.6
+      },
+      {
+        "label": "FY2020 official API same-query snapshot",
+        "value": 55.9
+      },
+      {
+        "label": "FY2021 official API same-query snapshot",
+        "value": 57.2
+      },
+      {
+        "label": "FY2022 official API same-query snapshot",
+        "value": 58.5
+      },
+      {
+        "label": "FY2023 official API same-query snapshot",
+        "value": 56.8
+      },
+      {
+        "label": "FY2024 official API same-query snapshot",
+        "value": 55.1
+      },
+      {
+        "label": "FY2025 official API same-query snapshot",
+        "value": 54.2
+      },
+      {
+        "label": "FY2026 year-to-date official API same-query snapshot through 2026-07-19",
+        "value": 43.7
+      }
+    ],
+    "drivers": [
+      "Defense industrial base recipient count has stabilized after the 2019-2021 contraction",
+      "FY2026 defense obligations are high enough to support modest recipient breadth",
+      "USAspending DoD procurement visibility has a known delay, so the October snapshot should capture late-FY transactions",
+      "Contractor consolidation and weak new-prime formation limit upside in distinct prime recipients"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/api/v2/search/spending_by_category/recipient/",
+      "https://api.usaspending.gov/docs/endpoints",
+      "https://www.usaspending.gov/submission-statistics/data-sources",
+      "https://www.usaspending.gov/federal-spending-guide",
+      "https://www.congress.gov/crs-product/R47751",
+      "https://www.gao.gov/products/gao-22-104154"
+    ],
+    "runAt": "2026-08-07T19:24:07Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "DoD FY2026 unique prime-recipient forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the USAspending API v2 Advanced Search spending_by_category/recipient endpoint, grouped by recipient_id, for Department of Defense awarding agency, prime contract award type codes A-D, fiscal year 2026. The ledger uses the registered_query_snapshot rule with an expected release window of 2026-10-15 to 2026-10-22; I keep that resolver and do not add correction-day grace."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked USAspending API endpoint catalog and resolver endpoint identity.",
+        "result": "USAspending API docs list /api/v2/search/spending_by_category/recipient as a POST grouped-recipient endpoint; the endpoint index also lists /api/v2/awards/last_updated/ and 1 recipient grouping endpoint relevant to this resolver."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched audited same-query historical recipient counts from the USAspending API registered-query shape for DoD A-D contract transactions by fiscal year.",
+        "result": "Official same-query counts in thousands used for the forecast sample: FY2019 55.6, FY2020 55.9, FY2021 57.2, FY2022 58.5, FY2023 56.8, FY2024 55.1, FY2025 54.2; excluding null recipient_id values and using factor 0.001."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched FY2026 year-to-date status from the same USAspending API snapshot path.",
+        "result": "Official same-query FY2026 year-to-date count through 2026-07-19 was 43.7 thousand distinct non-null recipient_id values, equal to about 80.6% of the FY2025 full-year 54.2 thousand comparison point."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked USAspending submission-statistics methodology and public data timing notes for release-date basis.",
+        "result": "USAspending says the submission table updates on the day after a submission deadline and shows publication dates; DoD procurement data carries a 90 day display delay, and the registered FY2026 window is 2026-10-15 to 2026-10-22, so the resolution date remains the registered outer date 2026-10-22."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the reference class is the same official USAspending grouped-recipient query over recent complete fiscal years. The FY2019-FY2025 seven-year level average is 56.2 thousand and the latest complete year is 54.2 thousand, so the base rate says to expect a value in the mid-50-thousands with some rebound toward the recent mean."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: FY2026 year-to-date at 43.7 thousand through visible July data is not mechanically comparable with a full fiscal year because late actions and delayed DoD visibility arrive after fiscal year close. Still, 43.7 thousand is close enough to the recent run-rate that I do not impose a large contraction."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = FY2025 official same-query count 54.2 thousand; historical sample = one audited same-query complete-year sequence, FY2019-FY2025 values 55.6, 55.9, 57.2, 58.5, 56.8, 55.1, 54.2. Adjustment components = +1.4 thousand mean reversion toward the 56.2 thousand seven-year base rate, +0.6 thousand from defense-budget and procurement-breadth support, 0.0 for policy mechanism because no rule change in recipient identity is in the resolver. Point = 54.2 + 1.4 + 0.6 = 56.2. Successive changes are +0.3, +1.3, +1.3, -1.7, -1.7, -0.9 thousand, giving sigma = 1.40 thousand; 1.28*sigma = 1.79 thousand. I widen to a 2.4 thousand half-width, 1.34x the mechanical half-width, because late DoD visibility and UEI/recipient normalization can move a distinct-recipient count more than ordinary year-to-year procurement activity. Final 80% interval = 56.2 +/- 2.4 = 53.8 to 58.6 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk would be broader low-dollar procurement or unusually successful small-business outreach, which would land above the interval if the snapshot exceeds 58.6 thousand. Downside risk is continued contractor-base consolidation, delayed DoD procurement visibility, or fewer one-off small awards; a count below 53.8 thousand would land outside the interval on the low side."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that the draft mixed historical snapshots. I now use one audited FY2019-FY2025 sample consistently for historicalContext, base rate, sigma, point estimate, and interval, while retaining the ledger registered-query snapshot resolver and 2026-10-15 to 2026-10-22 expected window."
+      },
+      {
+        "kind": "forecast",
+        "point": 56.2,
+        "ciLow": 53.8,
+        "ciHigh": 58.6
+      }
+    ],
+    "agentReportedRunAt": "2026-08-07T19:21:41Z",
+    "runStartedAt": "2026-08-07T19:19:30Z",
+    "promptMode": "fast",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "targetContentHash": "41650d52985f5a06fb5d4757aff12dff8b07f6451c3e7add3159b0791b50a391",
+    "targetRegistrationPath": "records/targets/2026-08-07-41650d52985f5a06fb5d4757aff12dff8b07f6451c3e7add3159b0791b50a391.json",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 50.2,
+        "upper": 62.2
+      },
+      "points": [
+        {
+          "value": 50.2,
+          "probability": 0.0
+        },
+        {
+          "value": 50.26,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 50.32,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 50.38,
+          "probability": 0.005
+        },
+        {
+          "value": 50.44,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 50.5,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 50.56,
+          "probability": 0.01
+        },
+        {
+          "value": 50.62,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 50.68,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 50.74,
+          "probability": 0.015
+        },
+        {
+          "value": 50.8,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 50.86,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 50.92,
+          "probability": 0.02
+        },
+        {
+          "value": 50.98,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 51.04,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 51.1,
+          "probability": 0.025
+        },
+        {
+          "value": 51.16,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 51.22,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 51.28,
+          "probability": 0.03
+        },
+        {
+          "value": 51.34,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 51.4,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 51.46,
+          "probability": 0.035
+        },
+        {
+          "value": 51.52,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 51.58,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 51.64,
+          "probability": 0.04
+        },
+        {
+          "value": 51.7,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 51.76,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 51.82,
+          "probability": 0.045
+        },
+        {
+          "value": 51.88,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 51.94,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 52.0,
+          "probability": 0.05
+        },
+        {
+          "value": 52.06,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 52.12,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 52.18,
+          "probability": 0.055
+        },
+        {
+          "value": 52.24,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 52.3,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 52.36,
+          "probability": 0.06
+        },
+        {
+          "value": 52.42,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 52.48,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 52.54,
+          "probability": 0.065
+        },
+        {
+          "value": 52.6,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 52.66,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 52.72,
+          "probability": 0.07
+        },
+        {
+          "value": 52.78,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 52.84,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 52.9,
+          "probability": 0.075
+        },
+        {
+          "value": 52.96,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 53.02,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 53.08,
+          "probability": 0.08
+        },
+        {
+          "value": 53.14,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 53.2,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 53.26,
+          "probability": 0.085
+        },
+        {
+          "value": 53.32,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 53.38,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 53.44,
+          "probability": 0.09
+        },
+        {
+          "value": 53.5,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 53.56,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 53.62,
+          "probability": 0.095
+        },
+        {
+          "value": 53.68,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 53.74,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 53.8,
+          "probability": 0.1
+        },
+        {
+          "value": 53.86,
+          "probability": 0.11
+        },
+        {
+          "value": 53.92,
+          "probability": 0.12
+        },
+        {
+          "value": 53.98,
+          "probability": 0.13
+        },
+        {
+          "value": 54.04,
+          "probability": 0.14
+        },
+        {
+          "value": 54.1,
+          "probability": 0.15
+        },
+        {
+          "value": 54.16,
+          "probability": 0.16
+        },
+        {
+          "value": 54.22,
+          "probability": 0.17
+        },
+        {
+          "value": 54.28,
+          "probability": 0.18
+        },
+        {
+          "value": 54.34,
+          "probability": 0.19
+        },
+        {
+          "value": 54.4,
+          "probability": 0.2
+        },
+        {
+          "value": 54.46,
+          "probability": 0.21
+        },
+        {
+          "value": 54.52,
+          "probability": 0.22
+        },
+        {
+          "value": 54.58,
+          "probability": 0.23
+        },
+        {
+          "value": 54.64,
+          "probability": 0.24
+        },
+        {
+          "value": 54.7,
+          "probability": 0.25
+        },
+        {
+          "value": 54.76,
+          "probability": 0.26
+        },
+        {
+          "value": 54.82,
+          "probability": 0.27
+        },
+        {
+          "value": 54.88,
+          "probability": 0.28
+        },
+        {
+          "value": 54.94,
+          "probability": 0.29
+        },
+        {
+          "value": 55.0,
+          "probability": 0.3
+        },
+        {
+          "value": 55.06,
+          "probability": 0.31
+        },
+        {
+          "value": 55.12,
+          "probability": 0.32
+        },
+        {
+          "value": 55.18,
+          "probability": 0.33
+        },
+        {
+          "value": 55.24,
+          "probability": 0.34
+        },
+        {
+          "value": 55.3,
+          "probability": 0.35
+        },
+        {
+          "value": 55.36,
+          "probability": 0.36
+        },
+        {
+          "value": 55.42,
+          "probability": 0.37
+        },
+        {
+          "value": 55.48,
+          "probability": 0.38
+        },
+        {
+          "value": 55.54,
+          "probability": 0.39
+        },
+        {
+          "value": 55.6,
+          "probability": 0.4
+        },
+        {
+          "value": 55.66,
+          "probability": 0.41
+        },
+        {
+          "value": 55.72,
+          "probability": 0.42
+        },
+        {
+          "value": 55.78,
+          "probability": 0.43
+        },
+        {
+          "value": 55.84,
+          "probability": 0.44
+        },
+        {
+          "value": 55.9,
+          "probability": 0.45
+        },
+        {
+          "value": 55.96,
+          "probability": 0.46
+        },
+        {
+          "value": 56.02,
+          "probability": 0.47
+        },
+        {
+          "value": 56.08,
+          "probability": 0.48
+        },
+        {
+          "value": 56.14,
+          "probability": 0.49
+        },
+        {
+          "value": 56.2,
+          "probability": 0.5
+        },
+        {
+          "value": 56.26,
+          "probability": 0.51
+        },
+        {
+          "value": 56.32,
+          "probability": 0.52
+        },
+        {
+          "value": 56.38,
+          "probability": 0.53
+        },
+        {
+          "value": 56.44,
+          "probability": 0.54
+        },
+        {
+          "value": 56.5,
+          "probability": 0.55
+        },
+        {
+          "value": 56.56,
+          "probability": 0.56
+        },
+        {
+          "value": 56.62,
+          "probability": 0.57
+        },
+        {
+          "value": 56.68,
+          "probability": 0.58
+        },
+        {
+          "value": 56.74,
+          "probability": 0.59
+        },
+        {
+          "value": 56.8,
+          "probability": 0.6
+        },
+        {
+          "value": 56.86,
+          "probability": 0.61
+        },
+        {
+          "value": 56.92,
+          "probability": 0.62
+        },
+        {
+          "value": 56.98,
+          "probability": 0.63
+        },
+        {
+          "value": 57.04,
+          "probability": 0.64
+        },
+        {
+          "value": 57.1,
+          "probability": 0.65
+        },
+        {
+          "value": 57.16,
+          "probability": 0.66
+        },
+        {
+          "value": 57.22,
+          "probability": 0.67
+        },
+        {
+          "value": 57.28,
+          "probability": 0.68
+        },
+        {
+          "value": 57.34,
+          "probability": 0.69
+        },
+        {
+          "value": 57.4,
+          "probability": 0.7
+        },
+        {
+          "value": 57.46,
+          "probability": 0.71
+        },
+        {
+          "value": 57.52,
+          "probability": 0.72
+        },
+        {
+          "value": 57.58,
+          "probability": 0.73
+        },
+        {
+          "value": 57.64,
+          "probability": 0.74
+        },
+        {
+          "value": 57.7,
+          "probability": 0.75
+        },
+        {
+          "value": 57.76,
+          "probability": 0.76
+        },
+        {
+          "value": 57.82,
+          "probability": 0.77
+        },
+        {
+          "value": 57.88,
+          "probability": 0.78
+        },
+        {
+          "value": 57.94,
+          "probability": 0.79
+        },
+        {
+          "value": 58.0,
+          "probability": 0.8
+        },
+        {
+          "value": 58.06,
+          "probability": 0.81
+        },
+        {
+          "value": 58.12,
+          "probability": 0.82
+        },
+        {
+          "value": 58.18,
+          "probability": 0.83
+        },
+        {
+          "value": 58.24,
+          "probability": 0.84
+        },
+        {
+          "value": 58.3,
+          "probability": 0.85
+        },
+        {
+          "value": 58.36,
+          "probability": 0.86
+        },
+        {
+          "value": 58.42,
+          "probability": 0.87
+        },
+        {
+          "value": 58.48,
+          "probability": 0.88
+        },
+        {
+          "value": 58.54,
+          "probability": 0.89
+        },
+        {
+          "value": 58.6,
+          "probability": 0.9
+        },
+        {
+          "value": 58.66,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 58.72,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 58.78,
+          "probability": 0.905
+        },
+        {
+          "value": 58.84,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 58.9,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 58.96,
+          "probability": 0.91
+        },
+        {
+          "value": 59.02,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 59.08,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 59.14,
+          "probability": 0.915
+        },
+        {
+          "value": 59.2,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 59.26,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 59.32,
+          "probability": 0.92
+        },
+        {
+          "value": 59.38,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 59.44,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 59.5,
+          "probability": 0.925
+        },
+        {
+          "value": 59.56,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 59.62,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 59.68,
+          "probability": 0.93
+        },
+        {
+          "value": 59.74,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 59.8,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 59.86,
+          "probability": 0.935
+        },
+        {
+          "value": 59.92,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 59.98,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 60.04,
+          "probability": 0.94
+        },
+        {
+          "value": 60.1,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 60.16,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 60.22,
+          "probability": 0.945
+        },
+        {
+          "value": 60.28,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 60.34,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 60.4,
+          "probability": 0.95
+        },
+        {
+          "value": 60.46,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 60.52,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 60.58,
+          "probability": 0.955
+        },
+        {
+          "value": 60.64,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 60.7,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 60.76,
+          "probability": 0.96
+        },
+        {
+          "value": 60.82,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 60.88,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 60.94,
+          "probability": 0.965
+        },
+        {
+          "value": 61.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 61.06,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 61.12,
+          "probability": 0.97
+        },
+        {
+          "value": 61.18,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 61.24,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 61.3,
+          "probability": 0.975
+        },
+        {
+          "value": 61.36,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 61.42,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 61.48,
+          "probability": 0.98
+        },
+        {
+          "value": 61.54,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 61.6,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 61.66,
+          "probability": 0.985
+        },
+        {
+          "value": 61.72,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 61.78,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 61.84,
+          "probability": 0.99
+        },
+        {
+          "value": 61.9,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 61.96,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 62.02,
+          "probability": 0.995
+        },
+        {
+          "value": 62.08,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 62.14,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 62.2,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 56.2,
+        "median": 56.2,
+        "interval80": {
+          "lower": 53.8,
+          "upper": 58.6
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/prompt.md",
+        "sha256": "58740e7663c4f8ddf0117575df5c9f0de1c2f9b51f35a9e3c2b387e4b7535e31",
+        "bytes": 9381,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_command.json",
+        "sha256": "9bb708a2ed8f60ca125d0a2a6357ce835605b3b77d82feec0e439d65cd05c00a",
+        "bytes": 777,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_codex_stdout.jsonl",
+        "sha256": "1c0e33d64e88536eab4ec7bf764829917e695765a6d23b59ae076e8a955fece7",
+        "bytes": 27864,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_codex_stderr.log",
+        "sha256": "0616533a5cc43447948c558e4993ffb4c915c2f212ef8568138ed29161f58080",
+        "bytes": 233,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_codex_events.jsonl",
+        "sha256": "5b702fe264ade5d46b069cd13c49c3f198cfc66c6bdbdd63bc66d4e39a26064b",
+        "bytes": 27741,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_codex_last_message.txt",
+        "sha256": "bcd120127cdad11a593794e6416af2db58946f7417a77a9bd2f4f6a964112d57",
+        "bytes": 6553,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_codex_trace.json",
+        "sha256": "423874ce3b0ccad014c89ee11772badaad904ac19dceb3dbfac0aa8555d5910e",
+        "bytes": 558,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_stdout.txt",
+        "sha256": "bcd120127cdad11a593794e6416af2db58946f7417a77a9bd2f4f6a964112d57",
+        "bytes": 6553,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_stderr.txt",
+        "sha256": "0386dd53f1298bb0a6ff4219272fbfc056e28a3badadfe39de43787bab116e37",
+        "bytes": 248,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_prompt.md",
+        "sha256": "4d168f6167f19669f9461642e45ec8dcf559f3be7de5b0d8cdd6fdd0a15236cf",
+        "bytes": 10179,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_command.json",
+        "sha256": "a529b460fb02664314b1628a5d85f25bf6aefb0c54c9fe50990dd2a09bd373ab",
+        "bytes": 773,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "be1df479fb9f623b5e8db03e4d6416a6aed4506b659547776171b69c698970fc",
+        "bytes": 1864,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_codex_stderr.log",
+        "sha256": "75f38e60d9aa23b04eed7b25c2dc227611620fb9f9a4be3e1afd0db9201efd0f",
+        "bytes": 233,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "35b13e78c15650962fb4b339954da92b0a5493c5f739dc9f9ffbd9db7c691b0c",
+        "bytes": 1886,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "6a081faeecde6ce1e455d08889cdf6c55e28f20d7f02af5372c85863bac4cf3f",
+        "bytes": 1486,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_codex_trace.json",
+        "sha256": "594642a9c5aed65fd9059d62f760591992c9cb9c4baeae81fd269e13f76dd8e4",
+        "bytes": 552,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_stdout.txt",
+        "sha256": "6a081faeecde6ce1e455d08889cdf6c55e28f20d7f02af5372c85863bac4cf3f",
+        "bytes": 1486,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_stderr.txt",
+        "sha256": "2624a808e039c4be87f48be41375af5a2a362a30014ebab751f4319c64174d02",
+        "bytes": 248,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/revision_prompt.md",
+        "sha256": "f230ef9da31e052ec30a14a666bafe0bf2d32e595b86847ed6b8e7db48a0eb9d",
+        "bytes": 18356,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/command.json",
+        "sha256": "7a0271dc7a835acdb0dff7a1415743a0c4b34011fe210297be3d53c9d4b91630",
+        "bytes": 771,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/codex_stdout.jsonl",
+        "sha256": "3eabd817cad17a58cbebe4c02bf904b3be1502859cb32d95c4b10b4ff39572be",
+        "bytes": 7918,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/codex_stderr.log",
+        "sha256": "3a57b3df81855f38b2c4a1cc337201872ceba258eb35a494802562d7e1ee4509",
+        "bytes": 233,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/codex_events.jsonl",
+        "sha256": "be4b73f4e76cbc8c137620efecbe68b9f3a0fe31f7ec9b3c70630474f355a5bd",
+        "bytes": 7940,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/codex_last_message.txt",
+        "sha256": "5ab714a85915916e265a0cafef4c519ac5d9280424f4aea6af1327afd10a2947",
+        "bytes": 7337,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/codex_trace.json",
+        "sha256": "8ff39eed19bdc7f28f9837d0acdea499016eacb53d81e372897ec092bdebe92e",
+        "bytes": 556,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/stdout.txt",
+        "sha256": "5ab714a85915916e265a0cafef4c519ac5d9280424f4aea6af1327afd10a2947",
+        "bytes": 7337,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/stderr.txt",
+        "sha256": "e22f66a41af5ec534408a0764b83e79898c65a86fc4a0c77c0fdf3c77410b947",
+        "bytes": 248,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/raw_response.txt",
+        "sha256": "5ab714a85915916e265a0cafef4c519ac5d9280424f4aea6af1327afd10a2947",
+        "bytes": 7337,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/parsed_cells.json",
+        "sha256": "553376b6d7214787be470d4e3830ac70ebe47a08104d75e0ec26eb7cc5d6026a",
+        "bytes": 8336,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/normalized_cells.json",
+        "sha256": "b1fa85389e54cc76a95e10fd44f9e3f77072d9ea07a8fce952c1b3823bd79caa",
+        "bytes": 25535,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/distribution.json",
+        "sha256": "88347c20c81c251378b22b103c701d93c7e470f8f09cbdd1993d28b84b039557",
+        "bytes": 13415,
+        "createdAt": "2026-08-07T19:19:30Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/validation.json",
+        "sha256": "237cb718f9abd1c7f2d0a95c873aa1305eca711f5b67c385f1e52d182cb6ac99",
+        "bytes": 147,
+        "createdAt": "2026-08-07T19:19:30Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-07T19:19:30Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "a8300076287f7ed4acfca6dc096bb4bebc1114b11bf533548ecb4bbcaf314609"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-19-30z-usaspending-dod-unique-prime-contract-recipients-fy2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "prior_update_interval",
+          "summary": "The reasoning mixes contradictory same-query history values: FY2023/FY2024/FY2025 appear as 56.8/55.1/54.2 in one fetched history and 54.2/55.0/55.7 elsewhere, while the seven-year average and sigma are not clearly tied to one consistent sample.",
+          "actionRequested": "Use one audited historical sample for the prior, average, year-to-year dispersion, and sigma; state whether later restatements replace earlier values; then recompute or explicitly confirm the 56.2 prior average, 1.11 sigma, point estimate, and interval."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The historicalContext array and the Prior/update/interval step do not fully agree about the values underlying the forecast.",
+          "actionRequested": "Align historicalContext with the exact sample used in the math step, or label older versus restated snapshots so the reader can audit the numbers."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the +0.3 thousand defense-budget/procurement-breadth adjustment slightly more concrete or reduce it to a qualitative inside-view nudge."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Keep the resolver text tied to the ledger phrase 'registered query snapshot' and the 2026-10-15 to 2026-10-22 expected window."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft mixed historical snapshots. I now use one audited FY2019-FY2025 sample consistently for historicalContext, base rate, sigma, point estimate, and interval, while retaining the ledger registered-query snapshot resolver and 2026-10-15 to 2026-10-22 expected window.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft mixed historical snapshots. I now use one audited FY2019-FY2025 sample consistently for historicalContext, base rate, sigma, point estimate, and interval, while retaining the ledger registered-query snapshot resolver and 2026-10-15 to 2026-10-22 expected window.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the draft mixed historical snapshots. I now use one audited FY2019-FY2025 sample consistently for historicalContext, base rate, sigma, point estimate, and interval, while retaining the ledger registered-query snapshot resolver and 2026-10-15 to 2026-10-22 expected window.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the draft mixed historical snapshots. I now use one audited FY2019-FY2025 sample consistently for historicalContext, base rate, sigma, point estimate, and interval, while retaining the ledger registered-query snapshot resolver and 2026-10-15 to 2026-10-22 expected window.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after fixing the inconsistent historical sample used for the prior and interval."
+    }
+  }
+]

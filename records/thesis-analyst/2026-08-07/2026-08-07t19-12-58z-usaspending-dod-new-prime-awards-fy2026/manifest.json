@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-07T19:12:58Z",
+  "runStartedAt": "2026-08-07T19:12:58Z",
+  "sealedAt": "2026-08-07T19:16:18Z",
+  "series": "usaspending.dod.new_prime_awards",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-dod-new-prime-awards-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.dod.new_prime_awards.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-07T17:54:06Z",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "registrationState": "preregistered",
+    "series": "usaspending.dod.new_prime_awards",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "new_award_count",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.agency.097.awards.new_award_count",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/new/count/?fiscal_year={fiscal_year}",
+      "table": "USAspending API v2, agency 097 (DoD) new award count, fiscal year to date",
+      "transform": {
+        "factor": 1e-06,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e6964d48e8a09276874f5990a6155deca11583fde07f94e731a8355b70cb4f47",
+    "targetRegistrationPath": "records/targets/2026-08-07-e6964d48e8a09276874f5990a6155deca11583fde07f94e731a8355b70cb4f47.json",
+    "targetUnit": "millions",
+    "valueScale": 1e-06
+  },
+  "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+  "targetContentHash": "e6964d48e8a09276874f5990a6155deca11583fde07f94e731a8355b70cb4f47",
+  "targetRegistrationPath": "records/targets/2026-08-07-e6964d48e8a09276874f5990a6155deca11583fde07f94e731a8355b70cb4f47.json",
+  "registeredAtUtc": "2026-08-07T17:54:06Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-07T19:12:58Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "1660346c3638fceb69fa54c455368c183f15f91d7977adc94ca18e530b785a4d"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the 0.775 elapsed-year fraction is based on FY2026 through the latest_action_date of 2026-07-10."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention whether the historical FY2021-FY2025 pulls used the same endpoint parameters as the resolver, including agency_type and award_type_codes defaults."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to clarify that the 0.775 elapsed-year fraction is tied to FY2026 through latest_action_date 2026-07-10 and that the FY2021-FY2025 historical pulls use the same endpoint/default parameter basis as the resolver; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to clarify that the 0.775 elapsed-year fraction is tied to FY2026 through latest_action_date 2026-07-10 and that the FY2021-FY2025 historical pulls use the same endpoint/default parameter basis as the resolver; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable: it ties the forecast to the registered USAspending resolver, states a defensible persistence prior, explains the current-count update, and keeps point/interval/JSON fields coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/prompt.md",
+      "sha256": "9144c28c88bc6e0e4fb39e840ded9e49ea1d9f47b7848154ba504b346d84519a",
+      "bytes": 8981,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_command.json",
+      "sha256": "4c636342c55cb0dea7c98e5d26c0b4c1af0351461fa25db01b20ce78cfad9732",
+      "bytes": 761,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "9e27c3e6d6b2cb96e50ccb38220f94b7c362212836b118d8760677b5354ec96b",
+      "bytes": 20786,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_codex_stderr.log",
+      "sha256": "087006d84117f93ebbba297ac6cad5b9c90d353ae51da50faf9a43ef4b9c2c07",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_codex_events.jsonl",
+      "sha256": "2451e626eaf0eaba4c3fefbf3445b1dccf281036a244d0ed21e3cc97a39ac4a7",
+      "bytes": 20694,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_codex_last_message.txt",
+      "sha256": "fe7d32b59892193492f6733c4fb05ec0ad9657b3838dc4e338f04cd9dc9468f7",
+      "bytes": 6261,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_codex_trace.json",
+      "sha256": "4c5363ac454f2480c40e882bca4be21629d0d804fc455d945322d01db9b3b88a",
+      "bytes": 559,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_stdout.txt",
+      "sha256": "fe7d32b59892193492f6733c4fb05ec0ad9657b3838dc4e338f04cd9dc9468f7",
+      "bytes": 6261,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/draft_stderr.txt",
+      "sha256": "b93dd2e65659b114f8e80df7704d777ece1f23b02953f0e1dab812a062ab23f5",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_prompt.md",
+      "sha256": "f8a8b11da4c66882ac603e7b42627ac03fc667f51b6a0d1439aef0b5beb2420a",
+      "bytes": 9487,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_command.json",
+      "sha256": "c7317d1836084dc7313e80fa2627dc6a17dd03db452f4610baf0224240d60d3b",
+      "bytes": 757,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "2d27505f3cc0d428233d813d90ab6ec5bad05ce65442ad51a48fe9978e2048be",
+      "bytes": 1270,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "804850004b9281c12dca134b54eaa1e8e7d0b0a919aa23837f6fdb5bb1e30c2d",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "26e413b9aa684431a4def7cc703518b33d6adb78eafdbdb67a2f9f72b33908af",
+      "bytes": 1286,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "21354cc89a791dc0f841c251c6792f665ea9a9b827597e9726fc374e567ded5b",
+      "bytes": 529,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "b69620972e380f169d656bffa34bc7834cac2b322d58d0025d3047fbf7e08ea7",
+      "bytes": 555,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "21354cc89a791dc0f841c251c6792f665ea9a9b827597e9726fc374e567ded5b",
+      "bytes": 529,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "80eb9539368056ba2d9bc3c2cc241d8bbb6b2b12f81fd17bbd933eca8117f390",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/revision_prompt.md",
+      "sha256": "480576f9f9c6d7a644ecb23449a88e261909a5c06093ca3382476ffa535eac2f",
+      "bytes": 16707,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/command.json",
+      "sha256": "58ae0be71ce8a64f52cc9abe24de94e3d004f99f3414f0fafeb80ef574b75af6",
+      "bytes": 755,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/codex_stdout.jsonl",
+      "sha256": "65e75fee762536230c73cae65eeae24fa76d9bdd21fbcf8cf66cc2f06f1da0d0",
+      "bytes": 7346,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/codex_stderr.log",
+      "sha256": "dc061fe848180b9bd69989cab6370c407b9d0cfc6f602b814e61201b77048f45",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/codex_events.jsonl",
+      "sha256": "a450dbb030c471e967ba9b0e2aeb5cd4f07f9816e6520d5673c9395f93cf66e5",
+      "bytes": 7368,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/codex_last_message.txt",
+      "sha256": "af6f7ace63d531a42cd0238a1659aa2c66fcc5c5625816e656e831cb9ac3372b",
+      "bytes": 6789,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/codex_trace.json",
+      "sha256": "635f14614c145eec5b09ffdc2c8415a436545e812b3b8210851f8f33ae852154",
+      "bytes": 552,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/stdout.txt",
+      "sha256": "af6f7ace63d531a42cd0238a1659aa2c66fcc5c5625816e656e831cb9ac3372b",
+      "bytes": 6789,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/stderr.txt",
+      "sha256": "63f149a50b433e50cf74ce56d7253a6e9264f229595d5d7037ae3a649443811f",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/raw_response.txt",
+      "sha256": "af6f7ace63d531a42cd0238a1659aa2c66fcc5c5625816e656e831cb9ac3372b",
+      "bytes": 6789,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/parsed_cells.json",
+      "sha256": "0887146d554de3d7a2d78ce13c848a510b720f4b21e2347c52f8e737b24d3435",
+      "bytes": 7686,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/normalized_cells.json",
+      "sha256": "d29a154c036117115d5454047321ab78d742c0ce3e1b9f5bba51b708190544ba",
+      "bytes": 25153,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/distribution.json",
+      "sha256": "06938595d57463d616383de9f3b850441bf1e45b6e8b5951e68a1c52aaf7de37",
+      "bytes": 13683,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/validation.json",
+      "sha256": "2e1144f33bede295c0682f60831ef76b534383d7c094a662f79f0641a94379a0",
+      "bytes": 131,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/cells.with_activity.json",
+      "sha256": "003fff6d9011d59dc544e4b01832d285c46d9a1a4e5e987bc24bd7c41cac5e1c",
+      "bytes": 38989,
+      "createdAt": "2026-08-07T19:12:58Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-12-58z-usaspending-dod-new-prime-awards-fy2026/manifest.json",
+      "sha256": "e8444105a0ea18567a94aaa8992be758db2928de8cca36a730f8ed9b93b3a4eb",
+      "bytes": 14347,
+      "createdAt": "2026-08-07T19:12:58Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-dod-new-prime-awards-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "432b79f4ab18ab34df27d5641deeff56509eaba4",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "26d5dd29d82fb1aa62153a320d6eae0af48cc6e13e72b3aa5d141fd115b6e33a"
+}

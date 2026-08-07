@@ -1,0 +1,955 @@
+[
+  {
+    "slug": "us-dhs-title-vi-award-transaction-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "DHS Title VI FY2026 award obligations",
+    "question": "What will USAspending API v2 first report for FY2026 DHS Title VI award transaction obligations, filtered to the registered Treasury accounts and all registered prime award type codes, grouped by fiscal year?",
+    "unit": "usd",
+    "pointEstimate": 24800000000,
+    "ciLow": 18160000000,
+    "ciHigh": 31440000000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2 advanced search spending over time",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "resolutionRule": "Resolve to the first official USAspending API v2 /api/v2/search/spending_over_time/ response available on 2026-10-22 for fiscal_year=2026, spending_level=transactions, group=fiscal_year, the registered award_type_codes, and the registered DHS Treasury account components. Use results[time_period.fiscal_year=2026].aggregated_amount in dollars exactly as returned by the API; do not replace it with later corrected or revised USAspending values.",
+    "dataPointId": "usaspending.dhs.title_vi.award_transaction_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "CBP OBBA obligations through Dec 2025, reference class",
+        "value": 11300000000
+      },
+      {
+        "label": "CBP OBBA budget authority, Sep 2025",
+        "value": 64800000000
+      },
+      {
+        "label": "DHS State Border Security Reinforcement Fund appropriation",
+        "value": 10000000000
+      },
+      {
+        "label": "FEMA state and local assistance appropriation",
+        "value": 2580000000
+      },
+      {
+        "label": "FLETC appropriation",
+        "value": 750000000
+      }
+    ],
+    "drivers": [
+      "Large multiyear CBP procurement and construction balances available for FY2026 awards",
+      "State Border Security Reinforcement Fund can add lumpy state reimbursement obligations",
+      "FEMA-administered assistance likely contributes grant obligations but below the CBP construction component",
+      "First-print USAspending timing may miss some late-September agency submissions or corrections"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "https://api.usaspending.gov/api/v2/awards/last_updated/",
+      "https://api.usaspending.gov/api/v2/references/submission_periods/",
+      "https://www.usaspending.gov/federal-spending-guide",
+      "https://openomb.org/agency/department-of-homeland-security/bureau/federal-emergency-management-agency",
+      "https://www.kevinmcnellis.com/posts/ice-cbp-obba-obligation/"
+    ],
+    "runAt": "2026-08-07T19:32:23Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for FY2026 DHS Title VI USAspending award transaction obligations"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the registered USAspending spending_over_time POST query, not a budget-account table: the resolving value is the FY2026 aggregated_amount for prime award transaction obligations across the registered DHS Treasury accounts 070-2025/2029-0530, 070-2025/2029-0532, 070-2025/2029-0509, 070-2025/2029-0510, 070-2025/2029-0413, and 070-0722. Public references sometimes describe 070-0722 as a 2025/2034 State Border Security Reinforcement Fund account; I keep the forecast tied to the registered 070-0722 target contract."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened USAspending API endpoint documentation and source endpoint metadata for /api/v2/search/spending_over_time/ and award update status.",
+        "result": "USAspending documents /api/v2/search/spending_over_time/ as POST; /api/v2/awards/last_updated/ returned last_updated = 08/07/2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked USAspending submission-period schedule endpoint for current official reporting cadence evidence.",
+        "result": "The official submission_periods endpoint showed the 2026-06-01 to 2026-06-30 period with submission_start_date 2026-07-21, submission_due_date 2026-07-31, and certification_due_date 2026-08-15; the registered FY2026 P12 target resolves at the conservative 2026-10-22 bound for the October first-print snapshot."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked USAspending federal spending guide for transaction-file interpretation.",
+        "result": "USAspending states Assistance_PrimeTransactions and Contracts_PrimeTransactions rows represent prime award transactions; the guide also lists FY filters from 2008 through 2026 on Advanced Search."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.reference",
+        "call": "Reviewed public OBBA-to-TAFS mapping and reported USAspending-derived obligations for the same DHS account family.",
+        "result": "The public analysis reported CBP had obligated $11.3 billion, equal to 17% of $64.7 billion OBBA CBP funding, as of December 2025; it also mapped 070-2025/2029-0530 and 070-2025/2029-0532 to CBP OBBA accounts and reported $64.8 billion in those TAFS as of September 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.reference",
+        "call": "Reviewed public account mappings for non-CBP target accounts.",
+        "result": "The same mapping lists Sec. 90005(a) FEMA-administered state and local assistance at $2.58 billion, Sec. 90005(b)(3) State Border Security Reinforcement Fund at $10.00 billion for 070-2025/2034-0722, and FLETC at $0.75 billion for 070-2025/2029-0509 and 070-2025/2029-0510."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.reference",
+        "call": "Checked OpenOMB public apportionment references for the registered FEMA-related accounts.",
+        "result": "OpenOMB listed State Border Security Reinforcement Fund TAFS 070-0722 2025/2034 as FY2026 file 11523612 approved Jun 4 2026, and Federal Assistance FEMA TAFS 070-0413 with FY2026 files approved May 21 2026 and May 26 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: this is a lumpy multiyear appropriation drawdown target. The best outside-view anchor is the already-observed CBP drawdown pace: $11.3 billion in obligations by December 2025 from a $64.7-$64.8 billion account family, with other registered accounts adding smaller but still material grant/reimbursement channels. I do not use a same-series time-series prior because the exact FY2026 Title VI registered-account snapshot is a new policy-funded flow, so earlier fiscal years are not comparable to the FY2026 first-print obligation level."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: base prior is the observed CBP drawdown scale, not a direct persistence forecast. Historical/reference sample is $11.3B already obligated on CBP OBBA accounts, $64.8B CBP authority, $10.0B State Border authority, $2.58B FEMA assistance authority, and $0.75B FLETC authority. Adjustment components are CBP awards 15.0B + State Border 6.5B + FEMA assistance 2.3B + FLETC 0.5B + other first-print timing/rounding 0.5B = 24.8B. Interval method is an explicit component-error model for this lumpy first-print flow: CBP procurement uncertainty 4.0B, State Border timing uncertainty 3.0B, FEMA grant uncertainty 0.8B, FLETC uncertainty 0.2B, USAspending first-print reporting-lag uncertainty 1.0B; sigma = sqrt(4.0^2 + 3.0^2 + 0.8^2 + 0.2^2 + 1.0^2) = 5.19B, and 1.28*sigma = 6.64B. Therefore 24.8B +/- 6.64B gives 18.16B to 31.44B."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: rapid border-wall, screening-technology, or state reimbursement awards could add more than about $10B beyond the CBP base and push total obligations above 31.44B. Downside risk: procurement delays, low 070-0722 award execution, or October first-print reporting gaps could keep the CBP-plus-grants total below 18.16B, outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that cross-sectional account amounts should not be treated as realized volatility; revised the Prior/update/interval step to separate the base prior, fetched reference amounts, additive forecast components, and an explicit component-error uncertainty model. Accepted the suggestion to clarify the 070-0722 versus 2025/2034 reference mismatch while preserving the registered target."
+      },
+      {
+        "kind": "forecast",
+        "point": 24800000000,
+        "ciLow": 18160000000,
+        "ciHigh": 31440000000
+      }
+    ],
+    "agentReportedRunAt": "2026-08-07T19:29:49Z",
+    "runStartedAt": "2026-08-07T19:28:48Z",
+    "promptMode": "fast",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "targetContentHash": "50f66b4f2d7088ad7e74b611f9286b87c6ad34463a87fea873bbcbb15ddddf46",
+    "targetRegistrationPath": "records/targets/2026-08-07-50f66b4f2d7088ad7e74b611f9286b87c6ad34463a87fea873bbcbb15ddddf46.json",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 8200000000.0,
+        "upper": 41400000000.0
+      },
+      "points": [
+        {
+          "value": 8200000000.0,
+          "probability": 0.0
+        },
+        {
+          "value": 8366000000.0,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 8532000000.0,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 8698000000.0,
+          "probability": 0.005
+        },
+        {
+          "value": 8864000000.0,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 9030000000.0,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 9196000000.0,
+          "probability": 0.01
+        },
+        {
+          "value": 9362000000.0,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 9528000000.0,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 9694000000.0,
+          "probability": 0.015
+        },
+        {
+          "value": 9860000000.0,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 10026000000.0,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 10192000000.0,
+          "probability": 0.02
+        },
+        {
+          "value": 10358000000.0,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 10524000000.0,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 10690000000.0,
+          "probability": 0.025
+        },
+        {
+          "value": 10856000000.0,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 11022000000.0,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 11188000000.0,
+          "probability": 0.03
+        },
+        {
+          "value": 11354000000.0,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 11520000000.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 11686000000.0,
+          "probability": 0.035
+        },
+        {
+          "value": 11852000000.0,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 12018000000.0,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 12184000000.0,
+          "probability": 0.04
+        },
+        {
+          "value": 12350000000.0,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 12516000000.0,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 12682000000.0,
+          "probability": 0.045
+        },
+        {
+          "value": 12848000000.0,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 13014000000.0,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 13180000000.0,
+          "probability": 0.05
+        },
+        {
+          "value": 13346000000.0,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 13512000000.0,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 13678000000.0,
+          "probability": 0.055
+        },
+        {
+          "value": 13844000000.0,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 14010000000.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 14176000000.0,
+          "probability": 0.06
+        },
+        {
+          "value": 14342000000.0,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 14508000000.0,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 14674000000.0,
+          "probability": 0.065
+        },
+        {
+          "value": 14840000000.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 15006000000.0,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 15172000000.0,
+          "probability": 0.07
+        },
+        {
+          "value": 15338000000.0,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 15504000000.0,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 15670000000.0,
+          "probability": 0.075
+        },
+        {
+          "value": 15836000000.0,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 16002000000.0,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 16168000000.0,
+          "probability": 0.08
+        },
+        {
+          "value": 16334000000.0,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 16500000000.0,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 16666000000.0,
+          "probability": 0.085
+        },
+        {
+          "value": 16832000000.0,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 16998000000.0,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 17164000000.0,
+          "probability": 0.09
+        },
+        {
+          "value": 17330000000.0,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 17496000000.0,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 17662000000.0,
+          "probability": 0.095
+        },
+        {
+          "value": 17828000000.0,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 17994000000.0,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 18160000000.0,
+          "probability": 0.1
+        },
+        {
+          "value": 18326000000.0,
+          "probability": 0.11
+        },
+        {
+          "value": 18492000000.0,
+          "probability": 0.12
+        },
+        {
+          "value": 18658000000.0,
+          "probability": 0.13
+        },
+        {
+          "value": 18824000000.0,
+          "probability": 0.14
+        },
+        {
+          "value": 18990000000.0,
+          "probability": 0.15
+        },
+        {
+          "value": 19156000000.0,
+          "probability": 0.16
+        },
+        {
+          "value": 19322000000.0,
+          "probability": 0.17
+        },
+        {
+          "value": 19488000000.0,
+          "probability": 0.18
+        },
+        {
+          "value": 19654000000.0,
+          "probability": 0.19
+        },
+        {
+          "value": 19820000000.0,
+          "probability": 0.2
+        },
+        {
+          "value": 19986000000.0,
+          "probability": 0.21
+        },
+        {
+          "value": 20152000000.0,
+          "probability": 0.22
+        },
+        {
+          "value": 20318000000.0,
+          "probability": 0.23
+        },
+        {
+          "value": 20484000000.0,
+          "probability": 0.24
+        },
+        {
+          "value": 20650000000.0,
+          "probability": 0.25
+        },
+        {
+          "value": 20816000000.0,
+          "probability": 0.26
+        },
+        {
+          "value": 20982000000.0,
+          "probability": 0.27
+        },
+        {
+          "value": 21148000000.0,
+          "probability": 0.28
+        },
+        {
+          "value": 21314000000.0,
+          "probability": 0.29
+        },
+        {
+          "value": 21480000000.0,
+          "probability": 0.3
+        },
+        {
+          "value": 21646000000.0,
+          "probability": 0.31
+        },
+        {
+          "value": 21812000000.0,
+          "probability": 0.32
+        },
+        {
+          "value": 21978000000.0,
+          "probability": 0.33
+        },
+        {
+          "value": 22144000000.0,
+          "probability": 0.34
+        },
+        {
+          "value": 22310000000.0,
+          "probability": 0.35
+        },
+        {
+          "value": 22476000000.0,
+          "probability": 0.36
+        },
+        {
+          "value": 22642000000.0,
+          "probability": 0.37
+        },
+        {
+          "value": 22808000000.0,
+          "probability": 0.38
+        },
+        {
+          "value": 22974000000.0,
+          "probability": 0.39
+        },
+        {
+          "value": 23140000000.0,
+          "probability": 0.4
+        },
+        {
+          "value": 23306000000.0,
+          "probability": 0.41
+        },
+        {
+          "value": 23472000000.0,
+          "probability": 0.42
+        },
+        {
+          "value": 23638000000.0,
+          "probability": 0.43
+        },
+        {
+          "value": 23804000000.0,
+          "probability": 0.44
+        },
+        {
+          "value": 23970000000.0,
+          "probability": 0.45
+        },
+        {
+          "value": 24136000000.0,
+          "probability": 0.46
+        },
+        {
+          "value": 24302000000.0,
+          "probability": 0.47
+        },
+        {
+          "value": 24468000000.0,
+          "probability": 0.48
+        },
+        {
+          "value": 24634000000.0,
+          "probability": 0.49
+        },
+        {
+          "value": 24800000000.0,
+          "probability": 0.5
+        },
+        {
+          "value": 24966000000.0,
+          "probability": 0.51
+        },
+        {
+          "value": 25132000000.0,
+          "probability": 0.52
+        },
+        {
+          "value": 25298000000.0,
+          "probability": 0.53
+        },
+        {
+          "value": 25464000000.0,
+          "probability": 0.54
+        },
+        {
+          "value": 25630000000.0,
+          "probability": 0.55
+        },
+        {
+          "value": 25796000000.0,
+          "probability": 0.56
+        },
+        {
+          "value": 25962000000.0,
+          "probability": 0.57
+        },
+        {
+          "value": 26128000000.0,
+          "probability": 0.58
+        },
+        {
+          "value": 26294000000.0,
+          "probability": 0.59
+        },
+        {
+          "value": 26460000000.0,
+          "probability": 0.6
+        },
+        {
+          "value": 26626000000.0,
+          "probability": 0.61
+        },
+        {
+          "value": 26792000000.0,
+          "probability": 0.62
+        },
+        {
+          "value": 26958000000.0,
+          "probability": 0.63
+        },
+        {
+          "value": 27124000000.0,
+          "probability": 0.64
+        },
+        {
+          "value": 27290000000.0,
+          "probability": 0.65
+        },
+        {
+          "value": 27456000000.0,
+          "probability": 0.66
+        },
+        {
+          "value": 27622000000.0,
+          "probability": 0.67
+        },
+        {
+          "value": 27788000000.0,
+          "probability": 0.68
+        },
+        {
+          "value": 27954000000.0,
+          "probability": 0.69
+        },
+        {
+          "value": 28120000000.0,
+          "probability": 0.7
+        },
+        {
+          "value": 28286000000.0,
+          "probability": 0.71
+        },
+        {
+          "value": 28452000000.0,
+          "probability": 0.72
+        },
+        {
+          "value": 28618000000.0,
+          "probability": 0.73
+        },
+        {
+          "value": 28784000000.0,
+          "probability": 0.74
+        },
+        {
+          "value": 28950000000.0,
+          "probability": 0.75
+        },
+        {
+          "value": 29116000000.0,
+          "probability": 0.76
+        },
+        {
+          "value": 29282000000.0,
+          "probability": 0.77
+        },
+        {
+          "value": 29448000000.0,
+          "probability": 0.78
+        },
+        {
+          "value": 29614000000.0,
+          "probability": 0.79
+        },
+        {
+          "value": 29780000000.0,
+          "probability": 0.8
+        },
+        {
+          "value": 29946000000.0,
+          "probability": 0.81
+        },
+        {
+          "value": 30112000000.0,
+          "probability": 0.82
+        },
+        {
+          "value": 30278000000.0,
+          "probability": 0.83
+        },
+        {
+          "value": 30444000000.0,
+          "probability": 0.84
+        },
+        {
+          "value": 30610000000.0,
+          "probability": 0.85
+        },
+        {
+          "value": 30776000000.0,
+          "probability": 0.86
+        },
+        {
+          "value": 30942000000.0,
+          "probability": 0.87
+        },
+        {
+          "value": 31108000000.0,
+          "probability": 0.88
+        },
+        {
+          "value": 31274000000.0,
+          "probability": 0.89
+        },
+        {
+          "value": 31440000000.0,
+          "probability": 0.9
+        },
+        {
+          "value": 31606000000.0,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 31772000000.0,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 31938000000.0,
+          "probability": 0.905
+        },
+        {
+          "value": 32104000000.0,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 32270000000.0,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 32436000000.0,
+          "probability": 0.91
+        },
+        {
+          "value": 32602000000.0,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 32768000000.0,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 32934000000.0,
+          "probability": 0.915
+        },
+        {
+          "value": 33100000000.0,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 33266000000.0,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 33432000000.0,
+          "probability": 0.92
+        },
+        {
+          "value": 33598000000.0,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 33764000000.0,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 33930000000.0,
+          "probability": 0.925
+        },
+        {
+          "value": 34096000000.0,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 34262000000.0,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 34428000000.0,
+          "probability": 0.93
+        },
+        {
+          "value": 34594000000.0,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 34760000000.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 34926000000.0,
+          "probability": 0.935
+        },
+        {
+          "value": 35092000000.0,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 35258000000.0,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 35424000000.0,
+          "probability": 0.94
+        },
+        {
+          "value": 35590000000.0,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 35756000000.0,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 35922000000.0,
+          "probability": 0.945
+        },
+        {
+          "value": 36088000000.0,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 36254000000.0,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 36420000000.0,
+          "probability": 0.95
+        },
+        {
+          "value": 36586000000.0,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 36752000000.0,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 36918000000.0,
+          "probability": 0.955
+        },
+        {
+          "value": 37084000000.0,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 37250000000.0,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 37416000000.0,
+          "probability": 0.96
+        },
+        {
+          "value": 37582000000.0,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 37748000000.0,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 37914000000.0,
+          "probability": 0.965
+        },
+        {
+          "value": 38080000000.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 38246000000.0,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 38412000000.0,
+          "probability": 0.97
+        },
+        {
+          "value": 38578000000.0,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 38744000000.0,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 38910000000.0,
+          "probability": 0.975
+        },
+        {
+          "value": 39076000000.0,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 39242000000.0,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 39408000000.0,
+          "probability": 0.98
+        },
+        {
+          "value": 39574000000.0,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 39740000000.0,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 39906000000.0,
+          "probability": 0.985
+        },
+        {
+          "value": 40072000000.0,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 40238000000.0,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 40404000000.0,
+          "probability": 0.99
+        },
+        {
+          "value": 40570000000.0,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 40736000000.0,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 40902000000.0,
+          "probability": 0.995
+        },
+        {
+          "value": 41068000000.0,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 41234000000.0,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 41400000000.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 24800000000,
+        "median": 24800000000,
+        "interval80": {
+          "lower": 18160000000,
+          "upper": 31440000000
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

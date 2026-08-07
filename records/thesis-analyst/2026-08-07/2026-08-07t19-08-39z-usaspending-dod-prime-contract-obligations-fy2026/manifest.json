@@ -1,0 +1,425 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-07T19:08:39Z",
+  "runStartedAt": "2026-08-07T19:08:39Z",
+  "sealedAt": "2026-08-07T19:12:58Z",
+  "series": "usaspending.dod.prime_contract_obligations",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-dod-prime-contract-obligations-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.dod.prime_contract_obligations.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-07T17:54:06Z",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "registrationState": "preregistered",
+    "series": "usaspending.dod.prime_contract_obligations",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "results[category=contracts].aggregated_amount",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.agency.097.obligations_by_award_category.contracts",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year={fiscal_year}",
+      "table": "USAspending API v2, agency 097 (DoD) obligations by award category, contracts row, fiscal year to date",
+      "transform": {
+        "factor": 1e-09,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be",
+    "targetRegistrationPath": "records/targets/2026-08-07-8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be.json",
+    "targetUnit": "billions USD",
+    "valueScale": 1e-09
+  },
+  "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+  "targetContentHash": "8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be",
+  "targetRegistrationPath": "records/targets/2026-08-07-8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be.json",
+  "registeredAtUtc": "2026-08-07T17:54:06Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-07T19:08:39Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "7bb967d0a67d72601fa96312738eb95d34af72e118a47fe6d470397cb0dd144e"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "Resolution rule adds ambiguity by allowing revision if the registered snapshot is replaced before capture, while the target contract is a registered-query snapshot with first-print treatment tied to the 2026-10-22 resolution date.",
+        "actionRequested": "Restate the rule as resolving to the captured registered-query snapshot for the exact agency 097 endpoint on 2026-10-22, contracts row aggregated_amount times 1e-9, with no later restatements or same-day corrections unless the registration protocol itself defines recapture."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The point estimate moves from a 450B persistence prior to 485B, but the draft does not use or explicitly rule out current FY2026 USAspending YTD evidence that is directly relevant to a first-snapshot API target.",
+        "actionRequested": "Add the latest pre-forecast USAspending FY2026 agency 097 contracts-row evidence available at run time, or explicitly state why the live partial API value was not used and why budget evidence alone supports the +35B update."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval is based on final FY2015-FY2024 CRS/FPDS volatility, not volatility of the registered USAspending first-snapshot measurement with DoD reporting lag.",
+        "actionRequested": "Either justify final FPDS volatility as a proxy for the first-snapshot USAspending target, or widen/adjust the interval to account for API first-print lag and source-definition mismatch."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether CRS history excludes categories that USAspending's contracts row may include or omit, since the draft notes the proxy mismatch but does not quantify it."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the exact historical sample source for FY2015-FY2019 values used in sigma, because only FY2020-FY2024 values appear in historicalContext."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the downside tail explicitly include an unusually incomplete Oct. 22 DoD reporting snapshot, not only lower underlying obligations."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification, added the directly relevant USAspending FY2026 partial API evidence, and widened the interval for first-snapshot lag and proxy-history mismatch; retained the budget-supported upward level update but trimmed it from +35B to +25B.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, but it needs to tighten resolver wording and better justify the large FY2026 upward update against the registered USAspending first-snapshot target."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/prompt.md",
+      "sha256": "485867f3ef642bd7fd321da7f63fa3bd5193208ffab44732112b22f4eeda9ee0",
+      "bytes": 9104,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_command.json",
+      "sha256": "89f21adb142c35b758e3f424e25d7883f2e5040239bd07cc7ce54eb6718202f6",
+      "bytes": 771,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "b62abf5db31d436a043606a3e8b001c476c19a51e2194c7f3fa34aa160cf8151",
+      "bytes": 20752,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_stderr.log",
+      "sha256": "8d9a524c3e1d53516ff73d1ea1f101700693179d589a6424fad4407b04a24454",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_events.jsonl",
+      "sha256": "2cb2af872e375255346296c9e74983075f8d08559e0c192c008f0ab37892e00b",
+      "bytes": 20684,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_last_message.txt",
+      "sha256": "08a32b523c45ee8bebb3fefd27a9b6aa36ab9ba5eb04abeca0ded44ef7bd18e9",
+      "bytes": 7307,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_trace.json",
+      "sha256": "41eb871d9633f2c47d77f217ab1e3f83416fb779228fc0e4dd293539190092c1",
+      "bytes": 559,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_stdout.txt",
+      "sha256": "08a32b523c45ee8bebb3fefd27a9b6aa36ab9ba5eb04abeca0ded44ef7bd18e9",
+      "bytes": 7307,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/draft_stderr.txt",
+      "sha256": "fc178ea2fd5738f83faa89098e88354ecbee57a8de236cd771821cdea58467f5",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_prompt.md",
+      "sha256": "2f99661a75c52f3927b31fe0fff511b3a0e3277c6dc05491a4069c7fbc337638",
+      "bytes": 10656,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_command.json",
+      "sha256": "2540e35cfe64277cec5277f8fb4293dfca58697e338ac75f76d623c3c20b9a46",
+      "bytes": 767,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "39e88415581a7ff795474c70d1222777bb4a1265485bf8d59595cfa18506f785",
+      "bytes": 2599,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "22d02b820d1c0e6f141364501f3a27255b6145ec20c88d27a0bbc8eb7a493800",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "cf606929960e515085a9dfd7bca4d244936a664b5ea61c9db89bee89ee6a7920",
+      "bytes": 2621,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "8209a34143d7275a8ef8c36aac334204ca8af9b7e9c7d573119441b498b094fa",
+      "bytes": 2220,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "7bc8c493ff7492e3b21064319c57bb4285c34c3bd05e8f5e828338835eb98a1f",
+      "bytes": 555,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "8209a34143d7275a8ef8c36aac334204ca8af9b7e9c7d573119441b498b094fa",
+      "bytes": 2220,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "433096499fe6c3da3768dd8fcbca2fa0c98619c83b05955df04011584822343e",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/revision_prompt.md",
+      "sha256": "a485afb22c631395aaa2bd2c2b55322b0f9ac20570e77de52fae440cce8bbcb3",
+      "bytes": 19567,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/command.json",
+      "sha256": "bac9cf7793cc8aa2c4428eca5173c2b3d856020b16594f3f120db2a20c58c775",
+      "bytes": 765,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/codex_stdout.jsonl",
+      "sha256": "2c84e3e6f12c433596b8edebab08c57686dbbb4c318c627f5e439b5905111859",
+      "bytes": 9919,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/codex_stderr.log",
+      "sha256": "a717251824455466accadb795531bdde4803c61136bb29b847f28fc1cc280938",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/codex_events.jsonl",
+      "sha256": "d0e88be4a037e6f415e0c3fcac01efa8ac7d6947066ff13fc74ef202528c003e",
+      "bytes": 9935,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/codex_last_message.txt",
+      "sha256": "8e7b60677e213f9b74b0db58ea30c84790c4e32d8d455b51aa569782ce90330b",
+      "bytes": 8888,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/codex_trace.json",
+      "sha256": "505990c43c9edd7ab24c175b8001f0013516ae2d886c515dde3e366cc096a83e",
+      "bytes": 553,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/stdout.txt",
+      "sha256": "8e7b60677e213f9b74b0db58ea30c84790c4e32d8d455b51aa569782ce90330b",
+      "bytes": 8888,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/stderr.txt",
+      "sha256": "87afa100c9537dd43d18eff68bbddb0d4df66da85ebfb8ac74140f59b48834fe",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/raw_response.txt",
+      "sha256": "8e7b60677e213f9b74b0db58ea30c84790c4e32d8d455b51aa569782ce90330b",
+      "bytes": 8888,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/parsed_cells.json",
+      "sha256": "4db7ab6951e465fb0223e0f1449135dfd9f1add021c6fed51ceeaba3c095752f",
+      "bytes": 9996,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/normalized_cells.json",
+      "sha256": "c968725bfe0c5bc19815a860eeb9c3dcc4e92a6f8d0305c9741acdcbef286b37",
+      "bytes": 27484,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/distribution.json",
+      "sha256": "a68c22f9b720c71e65bbaefc2b011ee59c6632ee06c6ca0863cfff7e106217b3",
+      "bytes": 13704,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/validation.json",
+      "sha256": "9ec73e7ae34a7fc869ab239367260de3e155c48dbfc4fa67666964b0baf71c28",
+      "bytes": 305,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/cells.with_activity.json",
+      "sha256": "538df0ba8af2a6cc1d8bb7c4c86b76d874cd8cd41a62bdd373b4632587c10e65",
+      "bytes": 45623,
+      "createdAt": "2026-08-07T19:08:39Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-08-39z-usaspending-dod-prime-contract-obligations-fy2026/manifest.json",
+      "sha256": "cdbb8fe48eb3c547356aa594d143b1fcde85a2d4b1fced189ab7474643f32736",
+      "bytes": 18381,
+      "createdAt": "2026-08-07T19:08:39Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "us-dod-prime-contract-obligations-fy2026",
+        "ok": false,
+        "errors": [
+          "private-source provenance is not allowed in sourceContext",
+          "unit 'usd_billions' does not match target context targetUnit 'billions USD'"
+        ]
+      }
+    ]
+  },
+  "checkoutSha": "432b79f4ab18ab34df27d5641deeff56509eaba4",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "7c5a15898b34d242cab3a3e3fce75cf7f520efb1f267a3584f824043c0788a07"
+}

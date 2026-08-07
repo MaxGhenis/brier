@@ -1,0 +1,479 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-07T19:28:48Z",
+  "runStartedAt": "2026-08-07T19:28:48Z",
+  "sealedAt": "2026-08-07T19:32:23Z",
+  "series": "usaspending.dhs.title_vi.award_transaction_obligations",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-dhs-title-vi-award-transaction-obligations-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.dhs.title_vi.award_transaction_obligations.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-07T17:54:06Z",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "registrationState": "preregistered",
+    "series": "usaspending.dhs.title_vi.award_transaction_obligations",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.search.spending_over_time.dhs.title_vi.award_transaction_obligations",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "table": "USAspending API v2 advanced search, DHS Title VI award transactions filtered to named Treasury accounts, obligations by fiscal year",
+      "transform": {
+        "awardTypeCodes": [
+          "02",
+          "03",
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11",
+          "A",
+          "B",
+          "C",
+          "D",
+          "IDV_A",
+          "IDV_B",
+          "IDV_B_A",
+          "IDV_B_B",
+          "IDV_B_C",
+          "IDV_C",
+          "IDV_D",
+          "IDV_E"
+        ],
+        "factor": 1,
+        "fiscalYear": "{fiscal_year}",
+        "group": "fiscal_year",
+        "operation": "multiply",
+        "requestMethod": "POST",
+        "spendingLevel": "transactions",
+        "treasuryAccountComponents": [
+          {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0530",
+            "sub": "000"
+          },
+          {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0532",
+            "sub": "000"
+          },
+          {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0509",
+            "sub": "000"
+          },
+          {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0510",
+            "sub": "000"
+          },
+          {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0413",
+            "sub": "000"
+          },
+          {
+            "aid": "070",
+            "main": "0722"
+          }
+        ]
+      }
+    },
+    "targetContentHash": "50f66b4f2d7088ad7e74b611f9286b87c6ad34463a87fea873bbcbb15ddddf46",
+    "targetRegistrationPath": "records/targets/2026-08-07-50f66b4f2d7088ad7e74b611f9286b87c6ad34463a87fea873bbcbb15ddddf46.json",
+    "targetUnit": "usd",
+    "valueScale": 1
+  },
+  "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+  "targetContentHash": "50f66b4f2d7088ad7e74b611f9286b87c6ad34463a87fea873bbcbb15ddddf46",
+  "targetRegistrationPath": "records/targets/2026-08-07-50f66b4f2d7088ad7e74b611f9286b87c6ad34463a87fea873bbcbb15ddddf46.json",
+  "registeredAtUtc": "2026-08-07T17:54:06Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-07T19:28:48Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "5d5e9347669381fd3eb4a8c9f560ce0590445ad5609f5558dd208612678eb3b7"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is derived from the cross-sectional standard deviation of funding/account component amounts, not realized volatility, forecast error, reporting lag uncertainty, or an explicit uncertainty model.",
+        "actionRequested": "Replace the interval derivation with realized historical volatility/error for comparable USAspending obligation snapshots, or state an explicit uncertainty model with named drivers and justify the implied 80% bounds."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact Prior/update/interval step names component amounts as the historical sample, but those are not a time-series or comparable forecast-error sample.",
+        "actionRequested": "Revise the step to clearly separate the base prior, the actual historical/reference sample, each adjustment component, the interval method, and the resulting bounds."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "A persistence prior is mentioned, but no time-series/model prior is actually used or explicitly ruled out for this lumpy first-print USAspending target.",
+        "actionRequested": "Either add a simple historical or persistence model prior using comparable obligation snapshots, or explicitly explain why no time-series prior is reliable here."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify the apparent mismatch between the registered 070-0722 component and references to 070-2025/2034-0722 without changing the registered target."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the tail scenarios more numeric by tying upside and downside cases to specific account families or reporting-delay mechanisms."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that cross-sectional account amounts should not be treated as realized volatility; revised the Prior/update/interval step to separate the base prior, fetched reference amounts, additive forecast components, and an explicit component-error uncertainty model. Accepted the suggestion to clarify the 070-0722 versus 2025/2034 reference mismatch while preserving the registered target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that cross-sectional account amounts should not be treated as realized volatility; revised the Prior/update/interval step to separate the base prior, fetched reference amounts, additive forecast components, and an explicit component-error uncertainty model. Accepted the suggestion to clarify the 070-0722 versus 2025/2034 reference mismatch while preserving the registered target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that cross-sectional account amounts should not be treated as realized volatility; revised the Prior/update/interval step to separate the base prior, fetched reference amounts, additive forecast components, and an explicit component-error uncertainty model. Accepted the suggestion to clarify the 070-0722 versus 2025/2034 reference mismatch while preserving the registered target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that cross-sectional account amounts should not be treated as realized volatility; revised the Prior/update/interval step to separate the base prior, fetched reference amounts, additive forecast components, and an explicit component-error uncertainty model. Accepted the suggestion to clarify the 070-0722 versus 2025/2034 reference mismatch while preserving the registered target.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that cross-sectional account amounts should not be treated as realized volatility; revised the Prior/update/interval step to separate the base prior, fetched reference amounts, additive forecast components, and an explicit component-error uncertainty model. Accepted the suggestion to clarify the 070-0722 versus 2025/2034 reference mismatch while preserving the registered target.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is broadly tied to the registered USAspending target, but the uncertainty method is not defensible because it treats component dollar levels as volatility."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/prompt.md",
+      "sha256": "94ba83d4dfcdf51ea19d57cc687660f33bf69d31eec0fdc285a57522a95a4fc6",
+      "bytes": 9896,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_command.json",
+      "sha256": "f8a3670401ac170cd5e915644c7a46484505a385b313b0866cd24dd543e698b2",
+      "bytes": 783,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "9f7f5363ad5c8f0e75425cbb0f44a7c4e2e970bfc069744d96d2d01618e4462c",
+      "bytes": 19568,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_codex_stderr.log",
+      "sha256": "059e149444de55128157b0186d27c424fdebb60610920cfa0f9972170dd25393",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_codex_events.jsonl",
+      "sha256": "3064a1806a1b3572c1e70e3765f4c4fbf79c59ee79988c0e002b65610bbd026f",
+      "bytes": 19514,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_codex_last_message.txt",
+      "sha256": "2cdb41cab765dc46b9dbe28296fffa766be074e9e3998161e4ce8248a086319d",
+      "bytes": 6718,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_codex_trace.json",
+      "sha256": "38a7c2c1d3332805cadd4f2ce24c598b11e05815c58389229539ecd9f1fd9637",
+      "bytes": 559,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_stdout.txt",
+      "sha256": "2cdb41cab765dc46b9dbe28296fffa766be074e9e3998161e4ce8248a086319d",
+      "bytes": 6718,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/draft_stderr.txt",
+      "sha256": "4cd9a6232ea5d21bd69ff2981eebe6d20672a21b23ac0fcda291080a0194481d",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_prompt.md",
+      "sha256": "b784037c3a1b94dbd7f546070aa95645fcb7c855e91376c3da388240594dbc96",
+      "bytes": 10859,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_command.json",
+      "sha256": "ec4854c5d350ca15ebccfebc4f2f335d790d8768f8b6aac6bc792adcd0e49778",
+      "bytes": 779,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "45a265fa989ed90b362645fc3e70a3976ff1575767ea9540aa7684bccbcb8e6e",
+      "bytes": 2379,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "3b7879f7fc2096766c651759da486bd91e0f544a39308f727397118ffe9f4fcc",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "280519fe08c5c8b89e271a307cfc24906589000fc1c912d461104dced32a0b39",
+      "bytes": 2401,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "4c6bf8d0680e3e3a2028e2f7162c35da1f20fd93cc38cf8cc77266b8ee6bc221",
+      "bytes": 1979,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "ed7f7cdc19b7bd751e60e36aa0915b6f38e51a2ae81d0e68846e809406636b1f",
+      "bytes": 552,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "4c6bf8d0680e3e3a2028e2f7162c35da1f20fd93cc38cf8cc77266b8ee6bc221",
+      "bytes": 1979,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "9e820a8fd2ab4fac2a9bc99fe4a69f921f3b809317616624fb619ff7dc369665",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/revision_prompt.md",
+      "sha256": "37c2f3545eaa64971e2b823fbd1aed2aa91dcb6f607393bbeaca57a096879346",
+      "bytes": 19529,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/command.json",
+      "sha256": "6a2adf2e940677ab03de7d39d8fd504e8589d384ed01e7f93d93dcdbf784fd67",
+      "bytes": 777,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/codex_stdout.jsonl",
+      "sha256": "24fc1d5c5c3433d53878cbffe62c01707f278d6f8fe38ac057be0cdc0a965005",
+      "bytes": 8463,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/codex_stderr.log",
+      "sha256": "a35a2942df1bc4cfa1567b0ae1f79cadf1164360a5a97b969df255905c814d02",
+      "bytes": 233,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/codex_events.jsonl",
+      "sha256": "32ecb12092e98f01e8f897607237c3251c83c21ea0da72d8e310be70daa48560",
+      "bytes": 8485,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/codex_last_message.txt",
+      "sha256": "caeb4440072059332ec2fa10b2ffca4fb920e3a1caaae5398d35fc3d8b456136",
+      "bytes": 7880,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/codex_trace.json",
+      "sha256": "e55cbd8fb674c387b63481b840f44542a56486672b9083765a74071f0eaa5740",
+      "bytes": 552,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/stdout.txt",
+      "sha256": "caeb4440072059332ec2fa10b2ffca4fb920e3a1caaae5398d35fc3d8b456136",
+      "bytes": 7880,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/stderr.txt",
+      "sha256": "8b9974ca51a0dcef103d8672a87e02ab4b53f82a2ee4fe9b9742f413364b3353",
+      "bytes": 248,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/raw_response.txt",
+      "sha256": "caeb4440072059332ec2fa10b2ffca4fb920e3a1caaae5398d35fc3d8b456136",
+      "bytes": 7880,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/parsed_cells.json",
+      "sha256": "0bd977753f3a8c25ba1a4808501e456d4bc6b37d40b0771318782e7ab3fd8aa6",
+      "bytes": 8851,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/normalized_cells.json",
+      "sha256": "eb16180b661570fb57a448a996d11642ba6efdb60a107f6415823b2011c3a585",
+      "bytes": 27733,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/distribution.json",
+      "sha256": "134c9b13b3aaf7ff07dedaa200f7e82ec984928e583b618d569725751caf17a5",
+      "bytes": 15098,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/validation.json",
+      "sha256": "b03d08242190d2944d377283beb2a059e7c7d3527db5d68c2d3e447ef1150fa3",
+      "bytes": 153,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/cells.with_activity.json",
+      "sha256": "d0523d99f1638b7f9d818cc9317a7f315211011f2cfd7721d10a928dc6f767df",
+      "bytes": 45967,
+      "createdAt": "2026-08-07T19:28:48Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-07/2026-08-07t19-28-48z-usaspending-dhs-title-vi-award-transaction-obligations-fy2026/manifest.json",
+      "sha256": "39d1c7585bc1c5b63e7d22baff9ddde6fd37116ff4e560c9dde44f34cb8d4c57",
+      "bytes": 19220,
+      "createdAt": "2026-08-07T19:28:48Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-dhs-title-vi-award-transaction-obligations-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "432b79f4ab18ab34df27d5641deeff56509eaba4",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "e43637167bf4e705907b02ea9d5458454441e41b37ab03580c3a27848fea9553"
+}
