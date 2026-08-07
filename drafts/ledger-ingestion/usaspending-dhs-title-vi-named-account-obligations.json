@@ -1,21 +1,21 @@
 {
   "proposed_concept": "usaspending.dhs.title_vi.named_account_obligations",
-  "status": "verified",
+  "status": "proposed",
   "unit": "usd",
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "DHS obligations for the specific Title VI accounts, separated from preexisting border funding.",
-  "note": "Verified: five exact 2025/2029 TAS components plus dedicated account 070-0722 returned one FY2026 award-transaction obligation row totaling $32,171,899,636.26.",
+  "note": "Proposed: the advanced-search query proves only award-transaction obligations, now admitted separately as usaspending.dhs.title_vi.award_transaction_obligations. Full account obligations require a reviewed financial-account submission/TAS path (including non-award obligations), an exact cumulative field, and first-print custody.",
   "adapterFamily": "usaspending-api",
   "billSlugs": [
     "stress-119hr1eh"
   ],
   "publisher": "U.S. Department of the Treasury, USAspending",
-  "statisticalProduct": "USAspending API v2 award and financial-account obligation totals for named DHS Title VI accounts",
-  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+  "statisticalProduct": "USAspending API v2 Treasury-account-level financial-account submission obligations for named DHS Title VI accounts",
+  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/download/accounts/",
   "verification": {
-    "outcome": "verified",
-    "reason": "Five exact Treasury account components use the bill appropriation's 2025 beginning and 2029 ending periods of availability, and 070-0722 is the dedicated State Border Security Reinforcement federal account. The registered result is narrowly the unioned FY2026 award-transaction aggregate associated with those identifiers, not a financial-account balance or outlay.",
+    "outcome": "proposed",
+    "reason": "The fetched advanced-search response verifies a narrower award-transaction aggregate for five exact 2025/2029 Treasury account components plus dedicated account 070-0722; it does not verify the proposed all-account obligations concept. That concept remains open pending a financial-account submission/TAS query, exact cumulative obligation field, revision policy, and witnessed first-print custody.",
     "retrievedAt": "2026-08-06T20:01:20Z",
     "query": {
       "method": "POST",

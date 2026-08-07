@@ -2844,18 +2844,17 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "obligations"
         ),
     },
-    "usaspending.dhs.title_vi.named_account_obligations": {
+    "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": (
             "results[time_period.fiscal_year={fiscal_year}].aggregated_amount"
         ),
         "series_id": (
             "usaspending.search.spending_over_time.dhs.title_vi."
-            "named_account_obligations"
+            "award_transaction_obligations"
         ),
         "label": (
-            "DHS Title VI named-account award-transaction obligations, "
-            "fiscal year total"
+            "DHS Title VI award-transaction obligations, fiscal year total"
         ),
         "unit": "usd",
         "scale": 1,
@@ -2933,13 +2932,15 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         },
         "source_name": "usaspending_api",
         "source_table": (
-            "USAspending API v2 advanced search, DHS Title VI named Treasury "
-            "accounts, award-transaction obligations by fiscal year"
+            "USAspending API v2 advanced search, DHS Title VI award "
+            "transactions filtered to named Treasury accounts, obligations "
+            "by fiscal year"
         ),
         "concept_authority": "usaspending",
         "source_concept": (
-            "aggregated_amount for the registered union of five "
-            "2025/2029 Title VI TAS components and dedicated account 070-0722"
+            "aggregated_amount of award transactions for the registered union "
+            "of five 2025/2029 Title VI TAS components and dedicated account "
+            "070-0722"
         ),
     },
 }

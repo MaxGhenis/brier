@@ -27,7 +27,7 @@ APEL_SERIES = {
     "usaspending.dod.prime_award_transactions",
     "usaspending.dod.unique_prime_contract_recipients",
     "usaspending.dod.small_business_contract_obligation_share",
-    "usaspending.dhs.title_vi.named_account_obligations",
+    "usaspending.dhs.title_vi.award_transaction_obligations",
 }
 
 
@@ -127,9 +127,9 @@ def share_transform() -> dict:
     ]["transform"]
 
 
-def dhs_transform() -> dict:
+def dhs_award_transaction_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.dhs.title_vi.named_account_obligations"
+        "usaspending.dhs.title_vi.award_transaction_obligations"
     ]["transform"]
 
 
@@ -217,7 +217,112 @@ def test_share_post_bodies_only_differ_by_registered_filter() -> None:
     assert canonical_bytes(denominator) != canonical_bytes(numerator)
 
 
-def test_dhs_post_body_is_the_exact_verified_fy2026_query() -> None:
+def test_dhs_post_body_is_the_exact_award_transaction_query() -> None:
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2026",
+        dhs_award_transaction_transform(),
+    )
+    assert actual["group"] == "fiscal_year"
+    assert actual["spending_level"] == "transactions"
+    assert actual["filters"]["time_period"] == [
+        {"end_date": "2026-09-30", "start_date": "2025-10-01"}
+    ]
+    assert actual["filters"]["award_type_codes"] == [
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "A",
+        "B",
+        "C",
+        "D",
+        "IDV_A",
+        "IDV_B",
+        "IDV_B_A",
+        "IDV_B_B",
+        "IDV_B_C",
+        "IDV_C",
+        "IDV_D",
+        "IDV_E",
+    ]
+    assert actual["filters"]["treasury_account_components"] == [
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0530",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0532",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0509",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0510",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0413",
+            "sub": "000",
+        },
+        {"aid": "070", "main": "0722"},
+    ]
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "340c6f761a86878475118a2dea32711986652d2d019c6cbd4bed2c2efdb3fb56"
+    )
+
+
+def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> None:
+    series = "usaspending.dhs.title_vi.award_transaction_obligations"
+    old_series = "usaspending.dhs.title_vi.named_account_obligations"
+    registry = {entry["series"]: entry for entry in apel_templates()}
+
+    assert old_series not in registry
+    assert old_series not in resolve_pending.USASPENDING_ADAPTERS
+    entry = registry[series]
+    assert entry["slug"] == (
+        "us-dhs-title-vi-award-transaction-obligations-{period}"
+    )
+    binding = entry["extras"]["sourceBinding"]
+    assert binding["sourceSeriesId"] == (
+        "usaspending.search.spending_over_time.dhs.title_vi."
+        "award_transaction_obligations"
+    )
+    assert binding["table"] == (
+        "USAspending API v2 advanced search, DHS Title VI award transactions "
+        "filtered to named Treasury accounts, obligations by fiscal year"
+    )
+
+    spec = resolve_pending.USASPENDING_ADAPTERS[series]
+    assert spec["label"] == (
+        "DHS Title VI award-transaction obligations, fiscal year total"
+    )
+    assert spec["source_concept"].startswith(
+        "aggregated_amount of award transactions"
+    )
+
     request = json.loads(
         (
             ROOT
@@ -226,20 +331,18 @@ def test_dhs_post_body_is_the_exact_verified_fy2026_query() -> None:
             / "usaspending-dhs-title-vi-named-account-obligations.json"
         ).read_text()
     )
-    expected = request["verification"]["query"]["body"]
-    actual = resolve_pending.usaspending_fiscal_year_post_body(
-        "2026",
-        dhs_transform(),
+    assert request["proposed_concept"] == old_series
+    assert request["status"] == "proposed"
+    assert request["verification"]["outcome"] == "proposed"
+    assert request["likelyUrlPattern"] == (
+        "https://api.usaspending.gov/api/v2/download/accounts/"
     )
-    assert actual == expected
-    assert canonical_bytes(actual) == canonical_bytes(expected)
-    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
-        "340c6f761a86878475118a2dea32711986652d2d019c6cbd4bed2c2efdb3fb56"
-    )
+    assert "financial-account submission/TAS path" in request["note"]
+    assert series in request["note"]
 
 
 def test_dhs_post_body_refuses_malformed_or_duplicate_tas_components() -> None:
-    malformed = copy.deepcopy(dhs_transform())
+    malformed = copy.deepcopy(dhs_award_transaction_transform())
     malformed["treasuryAccountComponents"][0].pop("sub")
     with pytest.raises(
         ValueError,
@@ -247,7 +350,7 @@ def test_dhs_post_body_refuses_malformed_or_duplicate_tas_components() -> None:
     ):
         resolve_pending.usaspending_fiscal_year_post_body("2026", malformed)
 
-    duplicated = copy.deepcopy(dhs_transform())
+    duplicated = copy.deepcopy(dhs_award_transaction_transform())
     duplicated["treasuryAccountComponents"].append(
         copy.deepcopy(duplicated["treasuryAccountComponents"][0])
     )

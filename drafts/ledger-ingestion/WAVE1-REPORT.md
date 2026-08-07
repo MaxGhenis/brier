@@ -7,10 +7,12 @@ BEA series are admitted. No `records/**` artifact is part of this work.
 ## Outcome summary
 
 The wave covered 30 requests: eight ALFRED/USAspending quick requests and 22
-workbook-triage requests. Six requests verified cleanly, seven received a
-terminal rejection for the proposed adapter family, and 17 remain proposals
-for a later source family or future official print. Of the six verified
-requests, all six are in the docket today.
+workbook-triage requests. Five requests verified cleanly, seven received a
+terminal rejection for the proposed adapter family, and 18 remain proposals
+for a later source family or future official print. All five verified request
+concepts are in the docket. A sixth, narrower DHS award-transaction series was
+admitted from the fetched USAspending evidence; the broader account-obligations
+request remains proposed.
 
 ### Quick requests
 
@@ -20,7 +22,7 @@ requests, all six are in the docket today.
 | `bea-private-nonresidential-fixed-investment.json` | Admitted | `PNFI` matches the concept, quarterly cadence, nominal SAAR basis, and unit; its first-print fixture and BEA release date are hash-pinned. |
 | `bea-research-and-development-fixed-investment.json` | Admitted | `Y006RC1Q027SBEA` matches the concept, quarterly cadence, nominal SAAR basis, and unit; its first-print fixture and BEA release date are hash-pinned. |
 | `eia-natural-gas-vented-flared-us-annual.json` | Rejected | The official EIA series is exact, but FRED/ALFRED has no mirror and therefore cannot provide first-print vintages. |
-| `usaspending-dhs-title-vi-named-account-obligations.json` | Admitted | The exact six-component Treasury-account query returned a reproducible FY2026 total of $32,171,899,636.26. |
+| `usaspending-dhs-title-vi-named-account-obligations.json` | Proposed | The six-component advanced-search query proves only award-transaction obligations. Full account obligations remain open on a financial-account submission/TAS path; the narrower award-transaction series is admitted separately. |
 | `usaspending-energy-commerce-title-iv-named-account-obligations.json` | Rejected | Live identifiers do not cover all named Title IV programs, so the query would measure only part of the concept. |
 | `usaspending-ondcp-hidta-supplemental-grant-obligations.json` | Rejected | Assistance Listing 95.001 cannot distinguish the section 707(s) supplemental grants from broader HIDTA activity. |
 | `usaspending-usda-selected-rural-program-obligations.json` | Rejected | The requested Supplemental Agricultural Trade Promotion identifier is absent; the available similarly named program is a different concept. |
@@ -62,7 +64,7 @@ The final admitted count is **6**:
 - `irs.soi.credit_30d.total_claims`
 - `irs.actc.total_credit_amount`
 - `irs.soi.credit_30d.total_credit_amount`
-- `usaspending.dhs.title_vi.named_account_obligations`
+- `usaspending.dhs.title_vi.award_transaction_obligations`
 - `bea.private_nonresidential_fixed_investment`
 - `bea.research_and_development_fixed_investment`
 
@@ -71,8 +73,8 @@ annual docket entry using the reviewed `resolve-by-bound` contract. Their
 tests use the real TY2020–TY2023 workbook bytes; the TY2023 fixture is 105,472
 bytes with SHA-256
 `e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04`.
-The DHS series has an exact `usaspending-api` POST plan and FY2026 registered
-snapshot window. Its unmodified 1,146-byte fixture has SHA-256
+The DHS award-transaction series has an exact `usaspending-api` POST plan and
+FY2026 registered snapshot window. Its unmodified 1,146-byte fixture has SHA-256
 `dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720`.
 The two BEA series have identity `alfred-fred` resolver specs and quarterly
 release-calendar seeds. PNFI's unmodified 51-byte first-print fixture has
@@ -86,9 +88,11 @@ All six admissions have integrator-verified anchors.
 
 At the ingestion layer, `stress-119hr1eh` is the only bill slug that gained
 pair-capable outcomes in this wave: section 30D claim count, section 30D credit
-amount, ACTC credit amount, DHS Title VI named-account obligations, private
-nonresidential fixed investment, and private R&D fixed investment. This report
-does not claim that a conditional pair or forecast was registered;
+amount, ACTC credit amount, private nonresidential fixed investment, and
+private R&D fixed investment. The narrower DHS award-transaction series is not
+counted as resolving the requested all-account obligations metric; that request
+remains open for financial-account submission/TAS adapter and custody work.
+This report does not claim that a conditional pair or forecast was registered;
 bill-metric wiring, condition selection, and pair preregistration remain
 separate reviewed steps.
 
