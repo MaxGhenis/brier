@@ -12,10 +12,13 @@ on:
 permissions:
   actions: write # dispatches the recorder after publishing the capture
   contents: write
+  issues: write # surfaces a missed or refused custody poll the same day
   id-token: write # Sigstore attestation of the records push
   attestations: write
 
-concurrency: witness-sba-pdf
+concurrency:
+  group: witness-sba-pdf
+  cancel-in-progress: false
 
 jobs:
   capture:
@@ -57,8 +60,15 @@ jobs:
           PY
           )
           uv run --locked --extra custody python scripts/verify_custody.py "$RUN_DIR"
-          echo "manifest=$RUN_DIR/manifest.json" >> "$GITHUB_OUTPUT"
-          echo "run_dir=$RUN_DIR" >> "$GITHUB_OUTPUT"
+          OUTCOME=$(jq -er '.outcome | select(
+            . == "bootstrap" or . == "changed" or
+            . == "unchanged" or . == "failed"
+          )' "$RUN_DIR/manifest.json")
+          {
+            echo "manifest=$RUN_DIR/manifest.json"
+            echo "run_dir=$RUN_DIR"
+            echo "outcome=$OUTCOME"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Commit the sealed SBA capture attempt
         run: |
@@ -89,6 +99,7 @@ jobs:
             test -z "$(git status --porcelain)"
             git pull --rebase origin main
             uv run --locked --extra custody python scripts/verify_custody.py "$RUN_DIR"
+            uv run --locked --extra custody python scripts/verify_record_chain.py records
             git diff --exit-code
             git diff --cached --exit-code
             if [ "$(git rev-list --count origin/main..HEAD)" = "0" ]; then
@@ -130,3 +141,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run record-forecasts.yml --ref main
+
+      # Failed source fetches are valid, custody-rooted records. Publish and
+      # dispatch them first, then turn the workflow red so an irreversible
+      # first-print gap cannot remain operationally silent.
+      - name: Flag a sealed source failure
+        if: steps.capture.outputs.outcome == 'failed'
+        run: |
+          echo "The sealed SBA source attempt failed; its recorder was dispatched." >&2
+          exit 1
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="SBA PDF custody witness failed $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "The daily SBA PDF custody workflow failed or recorded a sealed source refusal: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Inspect whether the attempt was published and witnessed; first-print custody may not have advanced."
+          fi

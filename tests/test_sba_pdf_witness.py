@@ -384,6 +384,134 @@ def test_redirect_limit_is_sealed_as_a_failed_attempt(
 
 
 @pytest.mark.parametrize(
+    ("read_mode", "expected_detail"),
+    [
+        ("oversized", "response exceeds the 3-byte capture limit"),
+        ("error", "simulated response read error"),
+        ("incomplete", "IncompleteRead(2 bytes read, 1 more expected)"),
+    ],
+)
+def test_response_read_failure_preserves_received_http_metadata(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    read_mode: str,
+    expected_detail: str,
+) -> None:
+    class BrokenResponse:
+        status = 200
+        headers = {
+            "Content-Type": "text/html; charset=utf-8",
+            "ETag": '"received-before-read"',
+            "X-Ignored": "not retained",
+        }
+
+        def __enter__(self) -> BrokenResponse:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            del args
+
+        def geturl(self) -> str:
+            return witness.ENTRY_URL
+
+        def read(self, maximum: int) -> bytes:
+            if read_mode == "error":
+                raise OSError("simulated response read error")
+            if read_mode == "incomplete":
+                raise witness.http.client.IncompleteRead(b"xx", 1)
+            return b"x" * maximum
+
+    class BrokenOpener:
+        def open(self, request: object, *, timeout: float) -> BrokenResponse:
+            del request, timeout
+            return BrokenResponse()
+
+    monkeypatch.setattr(
+        witness.urllib.request,
+        "build_opener",
+        lambda *handlers: BrokenOpener(),
+    )
+    attempt = witness._fetch_url(
+        witness.ENTRY_URL,
+        timeout_seconds=1,
+        max_bytes=3,
+    )
+
+    assert attempt.final_url == witness.ENTRY_URL
+    assert attempt.status == 200
+    assert attempt.headers == {
+        "Content-Type": "text/html; charset=utf-8",
+        "ETag": '"received-before-read"',
+    }
+    assert attempt.body is None
+    assert attempt.error == f"response read failed: {expected_detail}"
+
+    manifest_path = witness.capture_sba_pdf(
+        tmp_path / "records",
+        retrieved_at="2026-08-07T12:00:00Z",
+        fetcher=_fetcher(attempt),
+    )
+    assert _manifest(manifest_path)["outcome"] == "failed"
+    assert verify_run(manifest_path.parent).run_succeeded is False
+
+
+def test_http_error_body_read_failure_preserves_received_metadata(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class IncompleteHttpError(witness.urllib.error.HTTPError):
+        def read(self, amount: int = -1) -> bytes:
+            del amount
+            raise witness.http.client.IncompleteRead(b"x", 2)
+
+    error = IncompleteHttpError(
+        witness.ENTRY_URL,
+        503,
+        "Service Unavailable",
+        {
+            "Content-Type": "text/html",
+            "ETag": '"failed-response"',
+            "X-Ignored": "not retained",
+        },
+        None,
+    )
+
+    class BrokenOpener:
+        def open(self, request: object, *, timeout: float) -> object:
+            del request, timeout
+            raise error
+
+    monkeypatch.setattr(
+        witness.urllib.request,
+        "build_opener",
+        lambda *handlers: BrokenOpener(),
+    )
+    attempt = witness._fetch_url(
+        witness.ENTRY_URL,
+        timeout_seconds=1,
+        max_bytes=3,
+    )
+
+    assert attempt.final_url == witness.ENTRY_URL
+    assert attempt.status == 503
+    assert attempt.headers == {
+        "Content-Type": "text/html",
+        "ETag": '"failed-response"',
+    }
+    assert attempt.body is None
+    assert attempt.error == (
+        "response read failed: IncompleteRead(1 bytes read, 2 more expected)"
+    )
+
+    manifest_path = witness.capture_sba_pdf(
+        tmp_path / "records",
+        retrieved_at="2026-08-07T12:00:00Z",
+        fetcher=_fetcher(attempt),
+    )
+    assert _manifest(manifest_path)["outcome"] == "failed"
+    assert verify_run(manifest_path.parent).run_succeeded is False
+
+
+@pytest.mark.parametrize(
     ("links", "expected_detail"),
     [
         (
@@ -422,6 +550,13 @@ def test_capture_refuses_unapproved_or_ambiguous_page_links(
             _bundle_bytes(extras=(("../escape.txt", b"unsafe"),)),
             "unsafe ZIP member path",
         ),
+        (
+            _bundle_bytes(
+                extras=(("WebsiteReports_FY25Q3/./alias.txt", b"unsafe"),)
+            ),
+            "is not canonical",
+        ),
+        (_bundle_bytes(extras=((".", b"unsafe"),)), "unsafe ZIP member path"),
         (
             _bundle_bytes(omit="WDS_PostChargeOffRecovery_Report_20250630.pdf"),
             "must occur once, found 0",

@@ -13,6 +13,7 @@ import copy
 import datetime as dt
 import gzip
 import hashlib
+import http.client
 import io
 import json
 import pathlib
@@ -266,9 +267,9 @@ def _fetch_url(url: str, *, timeout_seconds: float, max_bytes: int) -> FetchAtte
                 continue
             try:
                 body = _read_bounded(exc, max_bytes)
-            except SbaCaptureError as refusal:
+            except (http.client.HTTPException, OSError, SbaCaptureError) as refusal:
                 body = None
-                error = str(refusal)
+                error = f"response read failed: {refusal}"
             else:
                 error = f"HTTP status {exc.code}"
             return FetchAttempt(
@@ -290,19 +291,25 @@ def _fetch_url(url: str, *, timeout_seconds: float, max_bytes: int) -> FetchAtte
                 None,
                 f"network fetch failed: {type(exc).__name__}",
             )
+        headers: dict[str, str] = {}
+        status: int | None = None
+        final_url = current
         try:
             with response:
+                # Preserve metadata before reading the body. A truncated,
+                # oversized, or otherwise unreadable response is still useful
+                # custody evidence even though it cannot be admitted.
                 headers = _retained_headers(response.headers)
-                body = _read_bounded(response, max_bytes)
                 status = int(response.status)
                 final_url = str(response.geturl())
-        except (OSError, SbaCaptureError) as exc:
+                body = _read_bounded(response, max_bytes)
+        except (http.client.HTTPException, OSError, SbaCaptureError) as exc:
             return FetchAttempt(
                 requested_url,
                 tuple(redirects),
-                current,
-                None,
-                {},
+                final_url,
+                status,
+                headers,
                 None,
                 f"response read failed: {exc}",
             )
@@ -395,8 +402,11 @@ def _safe_zip_member(name: str) -> pathlib.PurePosixPath:
     if not name or "\\" in name or "\x00" in name or name.startswith("/"):
         raise SbaCaptureError(f"unsafe ZIP member path {name!r}")
     path = pathlib.PurePosixPath(name)
-    if any(part in {"", ".", ".."} for part in path.parts):
+    if not path.parts or any(part in {"", ".", ".."} for part in path.parts):
         raise SbaCaptureError(f"unsafe ZIP member path {name!r}")
+    canonical = path.as_posix() + ("/" if name.endswith("/") else "")
+    if name != canonical:
+        raise SbaCaptureError(f"unsafe ZIP member path {name!r} is not canonical")
     return path
 
 
@@ -430,9 +440,10 @@ def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
             )
         for info in infos:
             path = _safe_zip_member(info.filename)
-            if info.filename in seen:
+            normalized_path = path.as_posix()
+            if normalized_path in seen:
                 raise SbaCaptureError(f"duplicate ZIP member path {info.filename!r}")
-            seen.add(info.filename)
+            seen.add(normalized_path)
             if path.parts[0] != root:
                 raise SbaCaptureError(
                     f"ZIP member {info.filename!r} is outside expected root {root!r}"
