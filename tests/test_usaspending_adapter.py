@@ -27,6 +27,7 @@ APEL_SERIES = {
     "usaspending.dod.prime_award_transactions",
     "usaspending.dod.unique_prime_contract_recipients",
     "usaspending.dod.small_business_contract_obligation_share",
+    "usaspending.dhs.title_vi.award_transaction_obligations",
 }
 
 
@@ -126,6 +127,12 @@ def share_transform() -> dict:
     ]["transform"]
 
 
+def dhs_award_transaction_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.dhs.title_vi.award_transaction_obligations"
+    ]["transform"]
+
+
 def test_recipient_post_body_is_the_exact_registered_fy2026_query() -> None:
     expected = {
         "category": "recipient",
@@ -208,6 +215,336 @@ def test_share_post_bodies_only_differ_by_registered_filter() -> None:
     }
     assert "recipient_type_names" not in denominator["filters"]
     assert canonical_bytes(denominator) != canonical_bytes(numerator)
+
+
+def test_dhs_post_body_is_the_exact_award_transaction_query() -> None:
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2026",
+        dhs_award_transaction_transform(),
+    )
+    assert actual["group"] == "fiscal_year"
+    assert actual["spending_level"] == "transactions"
+    assert actual["filters"]["time_period"] == [
+        {"end_date": "2026-09-30", "start_date": "2025-10-01"}
+    ]
+    assert actual["filters"]["award_type_codes"] == [
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "A",
+        "B",
+        "C",
+        "D",
+        "IDV_A",
+        "IDV_B",
+        "IDV_B_A",
+        "IDV_B_B",
+        "IDV_B_C",
+        "IDV_C",
+        "IDV_D",
+        "IDV_E",
+    ]
+    assert actual["filters"]["treasury_account_components"] == [
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0530",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0532",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0509",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0510",
+            "sub": "000",
+        },
+        {
+            "aid": "070",
+            "bpoa": "2025",
+            "epoa": "2029",
+            "main": "0413",
+            "sub": "000",
+        },
+        {"aid": "070", "main": "0722"},
+    ]
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "340c6f761a86878475118a2dea32711986652d2d019c6cbd4bed2c2efdb3fb56"
+    )
+
+
+def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> None:
+    series = "usaspending.dhs.title_vi.award_transaction_obligations"
+    old_series = "usaspending.dhs.title_vi.named_account_obligations"
+    registry = {entry["series"]: entry for entry in apel_templates()}
+
+    assert old_series not in registry
+    assert old_series not in resolve_pending.USASPENDING_ADAPTERS
+    entry = registry[series]
+    assert entry["slug"] == (
+        "us-dhs-title-vi-award-transaction-obligations-{period}"
+    )
+    binding = entry["extras"]["sourceBinding"]
+    assert binding["sourceSeriesId"] == (
+        "usaspending.search.spending_over_time.dhs.title_vi."
+        "award_transaction_obligations"
+    )
+    assert binding["table"] == (
+        "USAspending API v2 advanced search, DHS Title VI award transactions "
+        "filtered to named Treasury accounts, obligations by fiscal year"
+    )
+
+    spec = resolve_pending.USASPENDING_ADAPTERS[series]
+    assert spec["label"] == (
+        "DHS Title VI award-transaction obligations, fiscal year total"
+    )
+    assert spec["source_concept"].startswith(
+        "aggregated_amount of award transactions"
+    )
+
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-dhs-title-vi-named-account-obligations.json"
+        ).read_text()
+    )
+    assert request["proposed_concept"] == old_series
+    assert request["status"] == "proposed"
+    assert request["verification"]["outcome"] == "proposed"
+    assert request["likelyUrlPattern"] == (
+        "https://api.usaspending.gov/api/v2/download/accounts/"
+    )
+    assert "financial-account submission/TAS path" in request["note"]
+    assert series in request["note"]
+
+
+def test_usda_aftpp_request_stays_proposed_pending_isolation() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-usda-selected-rural-program-obligations.json"
+        ).read_text()
+    )
+
+    assert request["status"] == "proposed"
+    assert request["verification"]["outcome"] == "proposed"
+    identity = request["verification"]["implementationIdentityEvidence"]
+    assert identity == {
+        "sourceUrl": (
+            "https://simpler.grants.gov/opportunity/"
+            "06f0ec84-e04b-4258-bc33-1634d1209b42"
+        ),
+        "publisher": "USDA Foreign Agricultural Service",
+        "opportunityTitle": "2026 America First Trade Promotion Program",
+        "opportunityNumber": "USDA-FAS-AFTPP-2026",
+        "assistanceListingNumber": "10.618",
+        "programFunding": 285_000_000,
+    }
+    current = request["verification"]["currentUsaspendingState"]
+    assert current["assistanceListingLookup"]["matchedRow"] == {
+        "programNumber": "10.618",
+        "programTitle": "Regional Agricultural Promotion Program",
+        "popularName": "Regional Agricultural Promotion Program",
+    }
+    assert current["exactNameSpendingQuery"]["resultRow"] == {
+        "fiscalYear": "2026",
+        "aggregatedAmount": 0,
+    }
+    assert "award isolation and reporting lag remain open" in request["note"]
+    assert "reporting lag" in request["verification"]["reason"]
+
+    report = (ROOT / "drafts" / "ledger-ingestion" / "WAVE1-REPORT.md").read_text()
+    assert "Five requests verified cleanly, six received a" in report
+    assert "and 19 remain proposals" in report
+    assert (
+        "| `usaspending-usda-selected-rural-program-obligations.json` "
+        "| Proposed |" in report
+    )
+    assert (
+        "| `usaspending-usda-selected-rural-program-obligations.json` "
+        "| Rejected |" not in report
+    )
+
+
+def test_dhs_post_body_refuses_malformed_or_duplicate_tas_components() -> None:
+    malformed = copy.deepcopy(dhs_award_transaction_transform())
+    malformed["treasuryAccountComponents"][0].pop("sub")
+    with pytest.raises(
+        ValueError,
+        match="^registered USAspending TAS component is malformed$",
+    ):
+        resolve_pending.usaspending_fiscal_year_post_body("2026", malformed)
+
+    duplicated = copy.deepcopy(dhs_award_transaction_transform())
+    duplicated["treasuryAccountComponents"].append(
+        copy.deepcopy(duplicated["treasuryAccountComponents"][0])
+    )
+    with pytest.raises(
+        ValueError,
+        match="^registered USAspending TAS plan repeats a component$",
+    ):
+        resolve_pending.usaspending_fiscal_year_post_body("2026", duplicated)
+
+
+def test_dhs_fixture_is_hash_pinned_and_parses_the_verified_amount() -> None:
+    fixture = (
+        ROOT
+        / "tests"
+        / "fixtures"
+        / "ingestion_wave1"
+        / "usaspending"
+        / "dhs-title-vi-fy2026.json"
+    )
+    raw = fixture.read_bytes()
+    assert len(raw) == 1_146
+    assert not raw.endswith(b"\n")
+    assert hashlib.sha256(raw).hexdigest() == (
+        "dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720"
+    )
+    payload = json.loads(raw)
+    assert resolve_pending.usaspending_fiscal_year_amount(payload, "2026") == (
+        32_171_899_636.26
+    )
+
+
+def test_usaspending_fetch_caps_each_network_request_at_20_seconds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    class Response:
+        def __enter__(self) -> Response:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b'{"results":[]}'
+
+    def fake_urlopen(request: object, timeout: int) -> Response:
+        observed["request"] = request
+        observed["timeout"] = timeout
+        return Response()
+
+    monkeypatch.setattr(resolve_pending.urllib.request, "urlopen", fake_urlopen)
+    payload, raw, retrieved_at = resolve_pending.fetch_usaspending_json(
+        "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        {"group": "fiscal_year"},
+    )
+    assert observed["timeout"] == 20
+    assert payload == {"results": []}
+    assert raw == b'{"results":[]}'
+    assert retrieved_at.endswith("Z")
+
+
+def test_main_reads_usaspending_binding_from_real_registration_envelope(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    ref = (
+        "usaspending.dod.prime_award_obligations.fy2026."
+        "registered_query_snapshot"
+    )
+    registration = resolve_pending.registration_contracts()[ref]
+    assert set(registration) == {"targetContentHash", "contract", "ledgerPin"}
+    assert registration["contract"]["dataPointId"] == ref
+
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.dod.prime_award_obligations"
+    ]
+    forecast = {"resolutionDate": "2026-10-15", "unit": spec["unit"]}
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 10, 15)
+
+    monkeypatch.setattr(resolve_pending.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "usaspending",
+                spec,
+                "fiscal_year",
+                "2026",
+                "2026-10-15",
+                forecast,
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "a" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "registration_contracts",
+        lambda: {ref: registration},
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "utc_now",
+        lambda: "2026-10-15T12:00:00Z",
+    )
+
+    requests: list[tuple[str, dict | None]] = []
+
+    def fake_fetch(source_url: str, body: dict | None = None):
+        requests.append((source_url, body))
+        raw = b'{"obligations":250495914182.67}'
+        return json.loads(raw), raw, "2026-10-15T12:00:00Z"
+
+    monkeypatch.setattr(resolve_pending, "fetch_usaspending_json", fake_fetch)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    output = capsys.readouterr().out
+    assert requests == [
+        (
+            "https://api.usaspending.gov/api/v2/agency/097/awards/"
+            "?fiscal_year=2026",
+            None,
+        )
+    ]
+    assert f"  resolve {ref} -> 250.5 billions USD" in output.splitlines()
+    assert "dry-run: would append 1 row(s)" in output
+    assert "NO REGISTERED SNAPSHOT WINDOW" not in output
 
 
 def recipient_page(

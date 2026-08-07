@@ -5,11 +5,222 @@
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "Obligations under selected USDA conservation and trade-promotion provisions, separated by program and fiscal year.",
-  "note": "UNVERIFIED query plan; the current USAspending executor is hard-coded to six DoD stems and cannot resolve this concept today.",
+  "note": "Proposed: the official 2026 America First Trade Promotion Program notice establishes opportunity USDA-FAS-AFTPP-2026 under Assistance Listing 10.618 with $285 million in program funding. USAspending currently labels 10.618 as Regional Agricultural Promotion Program, while an exact-name FY2026 AFTPP query returns $0, so award isolation and reporting lag remain open.",
   "adapterFamily": "usaspending-api",
   "billSlugs": ["stress-119hr1eh"],
   "publisher": "U.S. Department of the Treasury, USAspending",
   "statisticalProduct": "USAspending API v2 transaction obligations by USDA federal account/program activity",
   "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-  "verification": "UNVERIFIED: 1. Use https://api.usaspending.gov/docs/endpoints to identify stable USDA awarding-agency, federal-account, program-activity, award-type, and action-date filters for every named provision. 2. Prove that those identifiers isolate the programs without free-text guessing and pin three fiscal-year snapshots. 3. Register the exact request bodies and extend the reviewed USAspending spec; otherwise reject the series."
+  "verification": {
+    "outcome": "proposed",
+    "reason": "The official funding notice establishes the exact AFTPP implementation identity, but the tested USAspending program-activity plan does not isolate it. Assistance Listing 10.618 is currently labeled Regional Agricultural Promotion Program, and an exact-name FY2026 AFTPP query returns $0; a reviewed query and first-print custody path must distinguish reporting lag from broader 10.618 activity before admission.",
+    "retrievedAt": "2026-08-06T20:01:21Z",
+    "implementationIdentityEvidence": {
+      "sourceUrl": "https://simpler.grants.gov/opportunity/06f0ec84-e04b-4258-bc33-1634d1209b42",
+      "publisher": "USDA Foreign Agricultural Service",
+      "opportunityTitle": "2026 America First Trade Promotion Program",
+      "opportunityNumber": "USDA-FAS-AFTPP-2026",
+      "assistanceListingNumber": "10.618",
+      "programFunding": 285000000
+    },
+    "testedQuery": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Department of Agriculture",
+              "tier": "toptier",
+              "type": "funding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "program_activities": [
+            {
+              "name": "AGRICULTURAL CONSERVATION EASEMENT PROGRAM"
+            },
+            {
+              "name": "AGRICULTURAL TRADE PROMOTION PROGRAM"
+            },
+            {
+              "name": "CONSERVATION STEWARDSHIP PROGRAM"
+            },
+            {
+              "name": "ENVIRONMENTAL QUALITY INCENTIVES PROGRAM"
+            },
+            {
+              "name": "FERAL SWINE ERADICATION AND CONTROL PILOT PROGRAM"
+            },
+            {
+              "name": "GRASSROOTS SOURCE WATER PAYMENTS"
+            },
+            {
+              "name": "REGIONAL CONSERVATION PARTNERSHIP PROGRAM"
+            },
+            {
+              "name": "VOLUNTARY PUBLIC ACCESS AND HABITAT INCENTIVE PROGRAM"
+            },
+            {
+              "name": "WATERSHED FLOOD AND PREVENTION OPERATIONS"
+            }
+          ],
+          "time_period": [
+            {
+              "end_date": "2026-09-30",
+              "start_date": "2025-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      }
+    },
+    "fetchedEvidence": {
+      "httpStatus": 200,
+      "responseSha256": "07eac5187eaa36b40bb0162a53206d21427e5d2bf30364b0c07a57a76d34d116",
+      "resultRows": [
+        {
+          "fiscalYear": "2026",
+          "aggregatedAmount": 219876391.46,
+          "contractObligations": 212465830.19,
+          "grantObligations": 85194359.63,
+          "idvObligations": -94706.96,
+          "otherObligations": -77689091.4
+        }
+      ]
+    },
+    "blockerEvidence": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/program_activity/",
+        "retrievedAt": "2026-08-06T20:04:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "Supplemental Agricultural Trade Promotion"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "results": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/program_activity/",
+        "retrievedAt": "2026-08-06T20:04:04Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "Agricultural Trade Promotion"
+        },
+        "responseSha256": "a813aa8836228e7b7ef3fbfad10c6ca53378503df4e70fe20903b70a1c091022",
+        "results": [
+          {
+            "programActivityCode": "0048",
+            "programActivityName": "AGRICULTURAL TRADE PROMOTION PROGRAM"
+          }
+        ]
+      }
+    ],
+    "currentUsaspendingState": {
+      "assistanceListingLookup": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAt": "2026-08-07T06:04:09Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 10,
+          "search_text": "10.618"
+        },
+        "responseSha256": "c81c884e0db4aecd44add5634cfef2a553119da55255bbde00d4fbe69ee0db5c",
+        "matchedRow": {
+          "programNumber": "10.618",
+          "programTitle": "Regional Agricultural Promotion Program",
+          "popularName": "Regional Agricultural Promotion Program"
+        }
+      },
+      "exactNameSpendingQuery": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "retrievedAt": "2026-08-07T06:04:02Z",
+        "httpStatus": 200,
+        "body": {
+          "filters": {
+            "agencies": [
+              {
+                "name": "Department of Agriculture",
+                "tier": "toptier",
+                "type": "funding"
+              }
+            ],
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "keywords": [
+              "America First Trade Promotion Program"
+            ],
+            "program_numbers": [
+              "10.618"
+            ],
+            "time_period": [
+              {
+                "end_date": "2026-09-30",
+                "start_date": "2025-10-01"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        },
+        "responseSha256": "41e85299679fb361611f3b37bf5a47ce9b960c88db498ae067ba9363672f3422",
+        "resultRow": {
+          "fiscalYear": "2026",
+          "aggregatedAmount": 0
+        }
+      }
+    }
+  }
 }

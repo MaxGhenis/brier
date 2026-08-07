@@ -832,6 +832,64 @@
       }
     },
     {
+      "series": "bea.private_nonresidential_fixed_investment",
+      "cadence": "quarterly",
+      "slug": "us-private-nonresidential-fixed-investment-q{quarter}-{year}",
+      "seedPeriod": "2026-Q3",
+      "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+      "releaseDates": {
+        "2026-Q3": "2026-10-29"
+      },
+      "extras": {
+        "targetUnit": "usd_billions",
+        "sourceBinding": {
+          "adapter": "bea-release",
+          "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+          "sourceSeriesId": "T50305:L2",
+          "field": "Line 2: Nonresidential",
+          "table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 2 (Nonresidential)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "2e36a67f-ae8d-4717-a70e-9de016e28d3f",
+        "concept": "bea.private_nonresidential_fixed_investment"
+      }
+    },
+    {
+      "series": "bea.research_and_development_fixed_investment",
+      "cadence": "quarterly",
+      "slug": "us-private-research-development-fixed-investment-q{quarter}-{year}",
+      "seedPeriod": "2026-Q3",
+      "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+      "releaseDates": {
+        "2026-Q3": "2026-10-29"
+      },
+      "extras": {
+        "targetUnit": "usd_billions",
+        "sourceBinding": {
+          "adapter": "bea-release",
+          "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+          "sourceSeriesId": "T50305:L18",
+          "field": "Line 18: Research and development",
+          "table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 18 (Research and development)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "3efd33de-5be6-4150-bf62-6e4a1e9a1291",
+        "concept": "bea.research_and_development_fixed_investment"
+      }
+    },
+    {
       "series": "bls.import_price_index.all_imports_mom",
       "cadence": "monthly",
       "slug": "bls-import-price-index-all-imports-mom-{month}-{year}",
@@ -1552,6 +1610,105 @@
       }
     },
     {
+      "series": "usaspending.dhs.title_vi.award_transaction_obligations",
+      "cadence": "annual",
+      "period": "FY2026",
+      "slug": "us-dhs-title-vi-award-transaction-obligations-{period}",
+      "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
+        "valueScale": 1,
+        "targetUnit": "usd",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+          "sourceSeriesId": "usaspending.search.spending_over_time.dhs.title_vi.award_transaction_obligations",
+          "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+          "table": "USAspending API v2 advanced search, DHS Title VI award transactions filtered to named Treasury accounts, obligations by fiscal year",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "treasuryAccountComponents": [
+              {
+                "aid": "070",
+                "bpoa": "2025",
+                "epoa": "2029",
+                "main": "0530",
+                "sub": "000"
+              },
+              {
+                "aid": "070",
+                "bpoa": "2025",
+                "epoa": "2029",
+                "main": "0532",
+                "sub": "000"
+              },
+              {
+                "aid": "070",
+                "bpoa": "2025",
+                "epoa": "2029",
+                "main": "0509",
+                "sub": "000"
+              },
+              {
+                "aid": "070",
+                "bpoa": "2025",
+                "epoa": "2029",
+                "main": "0510",
+                "sub": "000"
+              },
+              {
+                "aid": "070",
+                "bpoa": "2025",
+                "epoa": "2029",
+                "main": "0413",
+                "sub": "000"
+              },
+              {
+                "aid": "070",
+                "main": "0722"
+              }
+            ]
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      },
+      "ledger": {
+        "uuid": "e64ea5db-b72a-4a46-8948-6142dbc59d91",
+        "concept": "usaspending.dhs.title_vi.award_transaction_obligations"
+      }
+    },
+    {
       "series": "bls.cps.employed_people_by_occupation.business_financial_operations",
       "cadence": "monthly",
       "slug": "cps-business-financial-employment-{month}-{year}",
@@ -1779,6 +1936,126 @@
       "ledger": {
         "uuid": "4266e63f-dbf3-4c86-be8d-44315dbe32e3",
         "concept": "usda.fsa.crp.enrolled_acres_total"
+      }
+    },
+    {
+      "series": "irs.soi.credit_30d.total_claims",
+      "cadence": "annual",
+      "period": "2027",
+      "seedPeriod": "2027",
+      "slug": "clean-vehicle-credit-total-claims-ty{period}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "count",
+        "country": "US",
+        "resolutionDate": "2030-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2029-01-01",
+          "end": "2030-12-31"
+        },
+        "anchors": {
+          "2020": 61793,
+          "2021": 166244,
+          "2022": 248052,
+          "2023": 493953
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.soi.credit_30d.total_claims",
+          "field": "clean_vehicle_credit_returns",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, clean vehicle credit or qualified plug-in electric vehicle credit, number of returns",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "f5eacf8a-ce09-4721-a92a-9b19766a0d3c",
+        "concept": "irs.soi.credit_30d.total_claims"
+      }
+    },
+    {
+      "series": "irs.soi.credit_30d.total_credit_amount",
+      "cadence": "annual",
+      "period": "2027",
+      "seedPeriod": "2027",
+      "slug": "clean-vehicle-credit-total-credit-amount-ty{period}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "usd_millions",
+        "country": "US",
+        "resolutionDate": "2030-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2029-01-01",
+          "end": "2030-12-31"
+        },
+        "anchors": {
+          "2020": 313.118,
+          "2021": 1037.358,
+          "2022": 1652.554,
+          "2023": 3231.102
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.soi.credit_30d.total_credit_amount",
+          "field": "clean_vehicle_credit_amount",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, clean vehicle credit or qualified plug-in electric vehicle credit, amount",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "c70d0bc6-d299-4727-959a-3c7bdb324861",
+        "concept": "irs.soi.credit_30d.total_credit_amount"
+      }
+    },
+    {
+      "series": "irs.actc.total_credit_amount",
+      "cadence": "annual",
+      "period": "2027",
+      "seedPeriod": "2027",
+      "slug": "additional-child-tax-credit-total-credit-amount-ty{period}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "usd_millions",
+        "country": "US",
+        "resolutionDate": "2030-12-31",
+        "resolutionDateBasis": "resolve-by-bound",
+        "expectedReleaseWindow": {
+          "start": "2029-01-01",
+          "end": "2030-12-31"
+        },
+        "anchors": {
+          "2020": 33664.804,
+          "2021": 115869.125,
+          "2022": 34843.071,
+          "2023": 34533.251
+        },
+        "sourceBinding": {
+          "adapter": "irs-soi-pub1304",
+          "sourceUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+          "sourceSeriesId": "irs.actc.total_credit_amount",
+          "field": "refundable_child_tax_credit_amount",
+          "table": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, all returns total row, refundable child tax credit or additional child tax credit, amount",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "05d4b329-d6c0-4050-ab25-f1a1deddf465",
+        "concept": "irs.actc.total_credit_amount"
       }
     },
     {

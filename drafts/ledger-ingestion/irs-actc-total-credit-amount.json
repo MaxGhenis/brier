@@ -1,11 +1,11 @@
 {
   "proposed_concept": "irs.actc.total_credit_amount",
-  "status": "proposed",
+  "status": "verified",
   "unit": "usd_millions",
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "IRS SOI refundable child tax credit or additional child tax credit amount for a fixed tax year.",
-  "note": "UNVERIFIED amount-column identity and scale; the existing ACTC executor reads claimant-return counts only.",
+  "note": "VERIFIED: Table 3.3 prints the ACTC amount beside the admitted claimant count; amounts are thousands of dollars and convert to USD millions by multiplying by 0.001.",
   "adapterFamily": "irs-soi-pub1304-style workbook parse",
   "billSlugs": [
     "stress-119hr1eh"
@@ -13,5 +13,86 @@
   "publisher": "Internal Revenue Service, Statistics of Income",
   "statisticalProduct": "IRS SOI Individual Income Tax Returns Complete Report (Publication 1304), Table 3.3, refundable child tax credit or additional child tax credit amount",
   "likelyUrlPattern": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.xls",
-  "verification": "UNVERIFIED: 1. Fetch three Table 3.3 workbooks from https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304 and confirm the amount column under the same refundable child tax credit or additional child tax credit header used by the count series. 2. Pin the all-returns row, tax year, printed scale, first-print date, revisions, and normalize only after the scale is proved. 3. Add a distinct amount-column parser and anchors; never reuse the claimant count as dollars."
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-06T20:01:23Z",
+    "reason": "The official tax-year workbooks contain one unambiguous ACTC Amount cell at the All returns, total row, printed in thousands of dollars.",
+    "sourcePageUrl": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
+    "artifact": {
+      "url": "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+      "retrievedAtUtc": "2026-08-06T20:01:23Z",
+      "sha256": "e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04",
+      "byteLength": 105472,
+      "mediaType": "application/vnd.ms-excel",
+      "taxYear": "2023",
+      "table": "Table 3.3. All Returns: Tax Liability, Tax Credits, and Tax Payments, by Size of Adjusted Gross Income",
+      "sheet": "TBL33",
+      "row": "All returns, total",
+      "rowCell": "A10",
+      "columnHeader": "Refundable child tax credit or additional child tax credit / Amount",
+      "headerCell": "AM5",
+      "subcolumnCell": "AN7",
+      "cell": "AN10",
+      "fetchedValue": 34533251,
+      "printedUnit": "thousand_usd",
+      "normalizedValue": 34533.251,
+      "normalizedUnit": "usd_millions"
+    },
+    "firstPrint": {
+      "status": "capture_window_required",
+      "basis": "IRS publishes each tax-year-specific Table 3.3 workbook at a fixed, non-versioned {yy}in33ar.xls URL. Future first-print resolution must capture the workbook inside the registered release window; after that window it refuses. Late resolution would require a future adapter that authenticates release-time witnessed or versioned custody."
+    },
+    "anchors": [
+      {
+        "taxYear": "2020",
+        "url": "https://www.irs.gov/pub/irs-soi/20in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "7abb8cf1f6f124e1ef481db562d622f46155effe98dad72bd82d0844996dabaa",
+        "header": "Additional child tax credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AN10",
+        "fetchedValue": 33664804,
+        "printedUnit": "thousand_usd"
+      },
+      {
+        "taxYear": "2021",
+        "url": "https://www.irs.gov/pub/irs-soi/21in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "b8e3e7ca7bc048dca2b554e78359e4944ce429b4a58c5ea9cbc7e39d71f7ea75",
+        "header": "Refundable child tax credit or additional child tax credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AN10",
+        "fetchedValue": 115869125,
+        "printedUnit": "thousand_usd"
+      },
+      {
+        "taxYear": "2022",
+        "url": "https://www.irs.gov/pub/irs-soi/22in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "f04012c527c5bf40e412e112597038d70fd79c017d9476c07eebc3b59e3766a4",
+        "header": "Refundable child tax credit or additional child tax credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AN10",
+        "fetchedValue": 34843071,
+        "printedUnit": "thousand_usd"
+      },
+      {
+        "taxYear": "2023",
+        "url": "https://www.irs.gov/pub/irs-soi/23in33ar.xls",
+        "retrievedAtUtc": "2026-08-06T20:01:23Z",
+        "sha256": "e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04",
+        "header": "Refundable child tax credit or additional child tax credit / Amount",
+        "sheet": "TBL33",
+        "cell": "AN10",
+        "fetchedValue": 34533251,
+        "printedUnit": "thousand_usd"
+      }
+    ],
+    "parseNotes": [
+      "Workbook cell A2 states that all money amounts are in thousands of dollars.",
+      "Resolve from the Amount subcolumn adjacent to the admitted Number of returns column; never reuse the claimant count as dollars.",
+      "The requested usd_millions value is the printed integer multiplied by 0.001 with no additional rounding."
+    ]
+  }
 }

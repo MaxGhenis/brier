@@ -1138,6 +1138,8 @@ def test_alfred_docket_templates_build_registration_contracts() -> None:
                     quarter=2,
                 year=2030,
             ),
+            "expectedReleaseDate": "2030-07-31",
+            "releaseCalendarUrl": "https://agency.example/release-calendar",
             **entry["extras"],
         }
 
@@ -1155,8 +1157,8 @@ def test_alfred_docket_templates_build_registration_contracts() -> None:
         )
         assert binding["allowedHosts"] == ["alfred.stlouisfed.org"]
         assert binding["expectedReleaseWindow"] == {
-            "start": "2030-01-02",
-            "end": "2030-03-17",
+            "start": "2030-07-31",
+            "end": "2030-07-31",
         }
 
 
@@ -1247,6 +1249,65 @@ def test_native_registration_refuses_cadence_inferred_release_window() -> None:
             },
             dt.date(2026, 7, 25),
         )
+
+
+def _wave1_bea_successor_target() -> tuple[dict, dict]:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        row
+        for row in docket["series"]
+        if row["series"] == "bea.private_nonresidential_fixed_investment"
+    )
+    target = {
+        "series": entry["series"],
+        "period": "2026-Q4",
+        "catalogSlug": "us-private-nonresidential-fixed-investment-q4-2026",
+        "releaseCalendarUrl": entry["releaseCalendarUrl"],
+        **entry["extras"],
+        "previousTarget": {
+            "period": "2026-Q3",
+            "dataPointId": (
+                "bea.private_nonresidential_fixed_investment."
+                "2026_q3.first_print"
+            ),
+            "country": "US",
+            "unit": "usd_billions",
+            "resolutionDate": "2026-10-29",
+        },
+    }
+    return entry, target
+
+
+def test_bea_release_successor_refuses_cadence_inference_literal() -> None:
+    _, target = _wave1_bea_successor_target()
+
+    with pytest.raises(register_targets.RegistrationError) as caught:
+        register_targets.build_contract(target, dt.date(2026, 11, 1))
+
+    assert str(caught.value) == (
+        "calendar-gated target requires an explicit official "
+        "expectedReleaseDate or expectedReleaseWindow"
+    )
+
+
+def test_bea_release_successor_cannot_invent_release_slot_literal() -> None:
+    entry, target = _wave1_bea_successor_target()
+    target["expectedReleaseDate"] = "2027-01-29"
+    contract = register_targets.build_contract(target, dt.date(2026, 11, 1))
+
+    assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+        "start": "2027-01-29",
+        "end": "2027-01-29",
+    }
+    with pytest.raises(register_targets.RegistrationError) as caught:
+        register_targets.validate_committed_calendar_contract(
+            contract, target, entry
+        )
+
+    assert str(caught.value) == (
+        "committed dated docket entry lacks the target period's release date "
+        "or calendar URL"
+    )
 
 
 def test_inherited_native_binding_keeps_canonical_id_and_official_window() -> None:

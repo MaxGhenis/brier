@@ -54,6 +54,10 @@ OFFICIAL_CALENDAR_ADAPTERS = frozenset(
         "statcan-wds",
     }
 )
+CALENDAR_GATED_SOURCE_ADAPTERS = OFFICIAL_CALENDAR_ADAPTERS | {
+    "alfred-fred",
+    "bea-release",
+}
 
 
 def slugify_series(series: str) -> str:
@@ -444,7 +448,7 @@ def snapshot_seed_target(
         return None
     try:
         slug = entry["slug"].format(period=period.lower())
-    except (KeyError, TypeError, ValueError):
+    except (IndexError, KeyError, TypeError, ValueError):
         print(
             f"  warning: skip {entry.get('series', '?')}: malformed annual "
             "snapshot slug template",
@@ -456,6 +460,101 @@ def snapshot_seed_target(
     return {
         "series": entry["series"],
         "period": period,
+        "catalogSlug": slug,
+        **extras,
+    }
+
+
+def bounded_annual_first_print_seed_target(
+    entry: dict,
+    catalog_slugs: set[str],
+    today: dt.date,
+) -> dict | None:
+    """Admit one reviewed annual first-print seed with a bounded window.
+
+    IRS Publication 1304 does not publish a future exact-day calendar slot.
+    This selector therefore accepts only a registry-authored YYYY period,
+    resolve-by bound, exact expected window, and first-print binding. It never
+    infers any date from annual cadence and never emits after the window opens.
+    """
+
+    if entry.get("cadence") != "annual":
+        return None
+    period = entry.get("period")
+    if not isinstance(period, str) or not re.fullmatch(r"\d{4}", period):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: bounded annual "
+            f"seed requires a YYYY period, got {period!r}",
+            file=sys.stderr,
+        )
+        return None
+    if entry.get("seedPeriod") != period:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: bounded annual "
+            "seedPeriod must equal period",
+            file=sys.stderr,
+        )
+        return None
+    extras = entry.get("extras")
+    binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    if (
+        not isinstance(binding, dict)
+        or binding.get("releasePolicy") != "first_print"
+        or extras.get("resolutionDateBasis") != "resolve-by-bound"
+    ):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: bounded annual "
+            "seed requires a first_print binding and resolve-by-bound basis",
+            file=sys.stderr,
+        )
+        return None
+    window = extras.get("expectedReleaseWindow")
+    if not isinstance(window, dict) or set(window) != {"start", "end"}:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: bounded annual "
+            "seed requires an exact expectedReleaseWindow",
+            file=sys.stderr,
+        )
+        return None
+    try:
+        if not all(isinstance(window[key], str) for key in ("start", "end")):
+            raise ValueError
+        start = dt.date.fromisoformat(window["start"])
+        end = dt.date.fromisoformat(window["end"])
+        resolution_date = dt.date.fromisoformat(
+            str(extras.get("resolutionDate"))
+        )
+    except ValueError:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: malformed bounded "
+            "annual dates",
+            file=sys.stderr,
+        )
+        return None
+    if start > end or resolution_date != end:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: bounded annual "
+            "resolutionDate must equal the window end",
+            file=sys.stderr,
+        )
+        return None
+    if today >= start:
+        return None
+    try:
+        slug = entry["slug"].format(period=period.lower())
+    except (IndexError, KeyError, TypeError, ValueError):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: malformed bounded "
+            "annual slug template",
+            file=sys.stderr,
+        )
+        return None
+    if slug in catalog_slugs:
+        return None
+    return {
+        "series": entry["series"],
+        "period": period,
+        "seedPeriod": period,
         "catalogSlug": slug,
         **extras,
     }
@@ -742,17 +841,18 @@ def recurring_seed_target(
 
 
 def target_extras_for_period(entry: dict, period: str) -> dict | None:
-    """Return target extras, requiring a dated calendar slot for native APIs.
+    """Return target extras, requiring a dated slot for calendar-gated sources.
 
     A previous target's resolution date is not evidence for the next official
-    release date. Native international adapters therefore roll only when the
+    release date. Calendar-gated adapters therefore roll only when the
     committed registry maps the exact reference period to an agency-published
-    date and records the calendar used to verify it.
+    date and records the calendar used to verify it. Neither a mirror nor a
+    mutable current table supplies the publisher's future release calendar.
     """
     extras = entry.get("extras") or {}
     binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
-    if adapter not in OFFICIAL_CALENDAR_ADAPTERS:
+    if adapter not in CALENDAR_GATED_SOURCE_ADAPTERS:
         return dict(extras)
 
     release_dates = entry.get("releaseDates")
@@ -771,7 +871,7 @@ def target_extras_for_period(entry: dict, period: str) -> dict | None:
     except ValueError:
         print(
             f"  warning: skip {entry.get('series', '?')} {period}: "
-            "native adapter has no valid explicit official release date "
+            "calendar-gated adapter has no valid explicit official release date "
             "and releaseCalendarUrl in the docket registry",
             file=sys.stderr,
         )
@@ -791,14 +891,14 @@ def advance_past_released_native_periods(
 
     The normal docket cursor advances only through published forecasts. A
     newly adopted series can therefore point at a missed historical period.
-    Native calendar metadata lets us skip that known outcome without ever
+    Committed calendar metadata lets us skip that known outcome without ever
     generating a post-release forecast, then select the first still-unreleased
     period that has meaningfully begun.
     """
     extras = entry.get("extras") or {}
     binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
-    if adapter not in OFFICIAL_CALENDAR_ADAPTERS:
+    if adapter not in CALENDAR_GATED_SOURCE_ADAPTERS:
         return period
 
     candidate = period
@@ -923,11 +1023,23 @@ def main() -> int:
             candidates.append((2, deadline, pair_targets))
             continue
         if entry["cadence"] == "annual":
-            target = snapshot_seed_target(entry, existing, today)
+            extras = entry.get("extras")
+            binding = (
+                extras.get("sourceBinding") if isinstance(extras, dict) else None
+            )
+            if (
+                isinstance(binding, dict)
+                and binding.get("releasePolicy") == "registered_query_snapshot"
+            ):
+                target = snapshot_seed_target(entry, existing, today)
+            else:
+                target = bounded_annual_first_print_seed_target(
+                    entry, existing, today
+                )
             if target is None:
                 print(
                     f"  skip {entry['series']}: no eligible reviewed "
-                    "snapshot seed"
+                    "annual seed"
                 )
                 continue
             window_start = target["expectedReleaseWindow"]["start"]

@@ -1,15 +1,126 @@
 {
   "proposed_concept": "usaspending.ondcp.hidta_supplemental_grant_obligations",
-  "status": "proposed",
+  "status": "rejected",
   "unit": "usd",
   "cadence": "annual",
   "proposedFrom": "stress-119s767is",
   "metricText": "USAspending obligations for section 707(s) HIDTA supplemental grants.",
-  "note": "UNVERIFIED query identity; Assistance Listing 95.001 is only a lead, and current USAspending resolver specs cover DoD queries only.",
+  "note": "Rejected: Assistance Listing 95.001 returns the whole HIDTA program, and the live award rows do not pin a field identifying section 707(s) supplemental grants.",
   "adapterFamily": "usaspending-api",
   "billSlugs": ["stress-119s767is"],
   "publisher": "U.S. Department of the Treasury, USAspending",
   "statisticalProduct": "USAspending API v2 assistance transactions for ONDCP HIDTA supplemental grants",
   "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-  "verification": "UNVERIFIED: 1. Verify awarding agency, Assistance Listing at https://sam.gov/content/assistance-listings, award-type codes, action dates, and an objective field uniquely identifying section 707(s) using https://api.usaspending.gov/docs/endpoints. 2. Reject free-text-only isolation; otherwise pin exact request bodies and three fiscal-year snapshots. 3. Extend the reviewed seven-key USAspending spec before admission."
+  "verification": {
+    "outcome": "rejected",
+    "reason": "Assistance Listing 95.001 produces a reproducible HIDTA-wide obligation total, but the returned award identity and description fields do not distinguish section 707(s) supplemental competitive grants. The tested plan would require title or description text matching, which is not admissible.",
+    "retrievedAt": "2026-08-06T20:01:21Z",
+    "testedQuery": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "body": {
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "95.001"
+          ],
+          "time_period": [
+            {
+              "end_date": "2026-09-30",
+              "start_date": "2025-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      }
+    },
+    "fetchedEvidence": {
+      "httpStatus": 200,
+      "responseSha256": "7d882e14d349bd2ddfe83ec81235f4889c8dc110c3c25147c6c298abda152ed0",
+      "resultRows": [
+        {
+          "fiscalYear": "2026",
+          "aggregatedAmount": 262984.51,
+          "grantObligations": 262984.51,
+          "contractObligations": 0,
+          "directObligations": 0,
+          "idvObligations": 0,
+          "loanObligations": 0,
+          "otherObligations": 0
+        }
+      ]
+    },
+    "awardRowEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+      "retrievedAt": "2026-08-06T20:03:38Z",
+      "httpStatus": 200,
+      "body": {
+        "fields": [
+          "Award ID",
+          "Recipient Name",
+          "Award Amount",
+          "Awarding Agency",
+          "Awarding Sub Agency",
+          "Funding Agency",
+          "Funding Sub Agency",
+          "Description",
+          "Assistance Listings",
+          "primary_assistance_listing"
+        ],
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05"
+          ],
+          "program_numbers": [
+            "95.001"
+          ],
+          "time_period": [
+            {
+              "end_date": "2026-09-30",
+              "start_date": "2025-10-01"
+            }
+          ]
+        },
+        "limit": 10,
+        "order": "desc",
+        "page": 1,
+        "sort": "Award Amount",
+        "spending_level": "awards"
+      },
+      "responseSha256": "23f2014845338fb611464c00b1b9156bd697ad5643901c592e36077bee76ca07",
+      "hasNext": true,
+      "representativeRows": [
+        {
+          "awardId": "G24MI0001A",
+          "recipientName": "COUNTY OF MONROE",
+          "awardAmount": 11319869.47,
+          "assistanceListing": "95.001",
+          "description": "THE HIDTA PROGRAM REDUCES ILLICIT DRUG SUPPLY BY AIDING FEDERAL, STATE, LOCAL AND TRIBAL LAW ENFORCEMENT. PERFORMANCE IS MEASURED BY DISMANTLING/DISRUPTING DRUG TRAFFICKING AND MONEY LAUNDERING ORGANIZATIONS AND IMPROVING EFFECTIVENESS OF THE INITIATIVES."
+        },
+        {
+          "awardId": "HID3325G0583",
+          "recipientName": "MERCYHURST UNIVERSITY",
+          "awardAmount": 8178117.0,
+          "assistanceListing": "95.001",
+          "description": "HIGH INTENSITY DRUG TRAFFICKING AREAS  HIDTA  PROGRAM FISCAL YEAR  FY  2025 GRANT AWARD"
+        }
+      ]
+    }
+  }
 }

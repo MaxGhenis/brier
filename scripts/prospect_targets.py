@@ -323,6 +323,7 @@ def _source_binding_errors(value: Any) -> list[str]:
         "abs-data-api",
         "abs-release-page",
         "alfred-fred",
+        "bea-release",
         "census-spm-annual-report",
         "eurostat-api",
         "fsa-crp-monthly-summary",

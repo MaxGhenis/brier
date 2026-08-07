@@ -699,6 +699,7 @@ function isUnit(unit: string): unit is Unit {
     "count",
     "gbp_billions",
     "usd",
+    "usd_millions",
     "usd_billions",
     "usd_monthly",
     "thousands",

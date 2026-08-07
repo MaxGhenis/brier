@@ -5,11 +5,52 @@
   "cadence": "annual",
   "proposedFrom": "stress-119hr1021ih",
   "metricText": "SBA Loan Program Performance Disaster program post-charge-off recovery amount.",
-  "note": "UNVERIFIED column name, scale, and cash/cohort timing; context only for the amended loan band.",
-  "adapterFamily": "irs-soi-pub1304-style workbook parse",
-  "billSlugs": ["stress-119hr1021ih"],
+  "note": "PROPOSED: SBA Table 7 prints Disaster FY2024 post-charge-off recovery of $126,510,000, but admission needs a new SBA Loan Program Performance PDF parser plus authenticated first-print custody and historical anchors.",
+  "adapterFamily": "sba-loan-program-performance-pdf",
+  "billSlugs": [
+    "stress-119hr1021ih"
+  ],
   "publisher": "U.S. Small Business Administration",
   "statisticalProduct": "Loan Program Performance fiscal-year tables, Disaster program row, post-charge-off recovery",
-  "likelyUrlPattern": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance/{fiscal-year-file}",
-  "verification": "UNVERIFIED: 1. Locate three official Loan Program Performance files via https://www.sba.gov/document?search=loan%20program%20performance. 2. Confirm the Disaster recovery field, fiscal year/cash timing, dollars scale, cohort, first print, and revisions. 3. Build an SBA-specific workbook/PDF parser and anchors before admission."
+  "likelyUrlPattern": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "proposed",
+    "verifiedAtUtc": "2026-08-06T20:01:23Z",
+    "reason": "The official Table 7 PDF prints the exact Disaster fiscal-year post-charge-off recovery amount. The current source is a rolling PDF bundle whose prior-year amounts may be adjusted, so admission requires a new SBA PDF parser and authenticated release-time or versioned custody.",
+    "sourcePageUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+    "artifact": {
+      "url": "https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip",
+      "retrievedAtUtc": "2026-08-06T20:01:23Z",
+      "sha256": "51d5571d03d028d5efd4b8b9c8d7984f55285d36202eb8f67afe8a3476bb1242",
+      "byteLength": 1296419,
+      "mediaType": "application/zip",
+      "memberPath": "WebsiteReports_FY25Q3/WDS_PostChargeOffRecovery_Report_20250630.pdf",
+      "memberSha256": "09616e8af327a6ea8e3bbc340e44392bbead98e581a9f85a7de99ef8b81e380f",
+      "memberByteLength": 109817,
+      "memberMediaType": "application/pdf",
+      "asOfDate": "2025-06-30",
+      "table": "Table 7 - Post-Charge Off Recovery Amount by Program",
+      "page": 1,
+      "row": "Disaster",
+      "column": "Fiscal Year 2024",
+      "fetchedValue": 126510000,
+      "printedValue": "$126,510,000",
+      "printedUnit": "usd",
+      "normalizedValue": 126510000,
+      "normalizedUnit": "usd"
+    },
+    "firstPrint": {
+      "status": "not_authenticated",
+      "blocker": "The live product is a rolling bundle without authenticated historical snapshot URLs, and Table 7 says post-charge-off recovery amounts for a fiscal year may be adjusted due to data updates."
+    },
+    "requiredWork": [
+      "Implement and review an SBA Loan Program Performance PDF parser for Table 7.",
+      "Add release-time witnessed or versioned custody and historical first-print anchors before admission."
+    ],
+    "fetchNotes": [
+      "The www.sba.gov asset URL returned HTTP 404; the official page redirects to legacy.sba.gov, where the dated FY2025 Q3 ZIP was available.",
+      "Table 7 defines the values as total post-charge-off recovery amount by program as of the end of each fiscal year; the FY2025 column is only through 2025-06-30."
+    ]
+  }
 }

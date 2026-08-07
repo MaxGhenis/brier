@@ -52,6 +52,8 @@ import urllib.request
 import zipfile
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from decimal import Decimal
+from html import unescape
 from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import quote, urlparse
@@ -84,7 +86,6 @@ from verify_custody import verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LOG_URL = "https://app.thesisinstitute.org/log.json"
-IMMUTABLE_ARTIFACT_LATE_CAPTURE = "immutable-artifact"
 # ALFRED with a vintage date pins the ADVANCE print (what the resolver rules
 # name); plain FRED would silently hand back revised values on backfills.
 FRED_CSV = (
@@ -362,6 +363,21 @@ def fred_advance_value(
     return None, raw, url, retrieved_at
 
 
+def parse_fred_vintage_csv(
+    raw: bytes, series_id: str, vintage: str
+) -> dict[str, float]:
+    """Parse a vintage CSV response, including date-constrained fixtures."""
+    rows: dict[str, float] = {}
+    for row in csv.DictReader(io.StringIO(raw.decode())):
+        date = row.get("observation_date") or row.get("DATE")
+        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(
+            series_id
+        )
+        if date and value not in (None, "", "."):
+            rows[date] = float(value)
+    return rows
+
+
 def fred_vintage_series(
     series_id: str, vintage: str
 ) -> tuple[dict[str, float], bytes | None, str, str]:
@@ -373,14 +389,7 @@ def fred_vintage_series(
             raw = r.read()
     except urllib.error.HTTPError:
         return {}, None, url, retrieved_at
-    rows: dict[str, float] = {}
-    for row in csv.DictReader(io.StringIO(raw.decode())):
-        date = row.get("observation_date") or row.get("DATE")
-        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(
-            series_id
-        )
-        if date and value not in (None, "", "."):
-            rows[date] = float(value)
+    rows = parse_fred_vintage_csv(raw, series_id, vintage)
     return rows, raw, url, retrieved_at
 
 
@@ -910,6 +919,439 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
     },
 }
 
+# These ALFRED series are evidence mirrors only. They preserve dated
+# historical vintages for forecast history and anchor tests, but they are not
+# eligible runtime resolvers: current outcomes for both series come from the
+# official BEA GDP advance release and its NIPA table below.
+ALFRED_HISTORY_MIRRORS: dict[str, dict[str, Any]] = {
+    "bea.private_nonresidential_fixed_investment": {
+        "fred": "PNFI",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US private nonresidential fixed investment, nominal SAAR",
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.3.5 "
+            "(private fixed investment by type)"
+        ),
+        "concept_authority": "bea",
+    },
+    "bea.research_and_development_fixed_investment": {
+        "fred": "Y006RC1Q027SBEA",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": (
+            "US private research and development fixed investment, nominal SAAR"
+        ),
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.6.5 "
+            "(private R&D fixed investment)"
+        ),
+        "concept_authority": "bea",
+    },
+}
+
+BEA_ITABLE_PAGE_URL = (
+    "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&"
+    "nipa_table_list=145&categories=survey"
+)
+BEA_ITABLE_DATA_URL = "https://apps.bea.gov/iTablecore/data/app/GetStep"
+BEA_RELEASE_REQUIRED_HOSTS = {"apps.bea.gov", "www.bea.gov"}
+BEA_RELEASE_ALLOWED_HOSTS = {
+    *BEA_RELEASE_REQUIRED_HOSTS,
+    "alfred.stlouisfed.org",
+}
+BEA_RELEASE_ADAPTERS: dict[str, dict[str, Any]] = {
+    "bea.private_nonresidential_fixed_investment": {
+        "table_key": "145",
+        "table_id": "T50305",
+        "line_number": "2",
+        "row_label": "Nonresidential",
+        "source_url": BEA_ITABLE_PAGE_URL,
+        "series_id": "T50305:L2",
+        "field": "Line 2: Nonresidential",
+        "transform": "level",
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_billions",
+        "label": "US private nonresidential fixed investment, nominal SAAR",
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product advance release, NIPA Table 5.3.5, "
+            "line 2 (Nonresidential)"
+        ),
+        "concept_authority": "bea",
+        "source_concept": "T50305:L2",
+        "measure_concept": "bea.private_nonresidential_fixed_investment",
+        "history_mirror": {"adapter": "alfred-fred", "series_id": "PNFI"},
+    },
+    "bea.research_and_development_fixed_investment": {
+        "table_key": "145",
+        "table_id": "T50305",
+        "line_number": "18",
+        "row_label": "Research and development",
+        "source_url": BEA_ITABLE_PAGE_URL,
+        "series_id": "T50305:L18",
+        "field": "Line 18: Research and development",
+        "transform": "level",
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_billions",
+        "label": (
+            "US private research and development fixed investment, nominal SAAR"
+        ),
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product advance release, NIPA Table 5.3.5, "
+            "line 18 (Research and development)"
+        ),
+        "concept_authority": "bea",
+        "source_concept": "T50305:L18",
+        "measure_concept": "bea.research_and_development_fixed_investment",
+        "history_mirror": {
+            "adapter": "alfred-fred",
+            "series_id": "Y006RC1Q027SBEA",
+        },
+    },
+}
+
+BEA_RELEASE_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+BEA_RELEASE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+
+
+def bea_release_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """The reviewed seven-key binding for an official BEA release parser."""
+
+    return {
+        "adapter": "bea-release",
+        "sourceUrl": spec["source_url"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": spec["value_transform"],
+        "releasePolicy": "first_print",
+    }
+
+
+def bea_release_binding_matches_spec(
+    binding: Any, spec: Mapping[str, Any]
+) -> bool:
+    """Authenticate the complete binding before touching either BEA host."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - BEA_RELEASE_BINDING_DERIVED_KEYS
+        != BEA_RELEASE_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    allowed_hosts = binding.get("allowedHosts")
+    if not isinstance(allowed_hosts, list):
+        return False
+    host_set = set(allowed_hosts)
+    if (
+        len(host_set) != len(allowed_hosts)
+        or not BEA_RELEASE_REQUIRED_HOSTS <= host_set
+        or not host_set <= BEA_RELEASE_ALLOWED_HOSTS
+    ):
+        return False
+    projection = {
+        key: binding[key] for key in BEA_RELEASE_BINDING_TEMPLATE_KEYS
+    }
+    return canonical_bytes(projection) == canonical_bytes(
+        bea_release_binding_template(spec)
+    )
+
+
+def _bea_quarter(period: str) -> tuple[int, int]:
+    match = re.fullmatch(r"(\d{4})-(01|04|07|10)", period)
+    if match is None:
+        raise ValueError(f"BEA period must be a quarter start, got {period!r}")
+    return int(match.group(1)), (int(match.group(2)) - 1) // 3 + 1
+
+
+def bea_advance_release_url(period: str, release_day: dt.date) -> str:
+    """Exact official GDP advance-release page for a quarterly period."""
+
+    year, quarter = _bea_quarter(period)
+    ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[quarter]
+    suffix = f"{ordinal}-quarter-{year}"
+    if quarter == 4:
+        suffix = f"{ordinal}-quarter-and-year-{year}"
+    return (
+        f"https://www.bea.gov/news/{release_day.year}/"
+        f"gdp-advance-estimate-{suffix}"
+    )
+
+
+def _bea_release_title(period: str) -> str:
+    year, quarter = _bea_quarter(period)
+    ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[quarter]
+    if quarter == 4:
+        return f"GDP (Advance Estimate), {ordinal} Quarter and Year {year}"
+    return f"GDP (Advance Estimate), {ordinal} Quarter {year}"
+
+
+def bea_release_page_refusal(
+    raw: bytes, period: str, release_day: dt.date
+) -> str | None:
+    """Verify that fetched BEA HTML names this period's advance release."""
+
+    try:
+        page = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return "release response is not UTF-8 HTML"
+    page = re.sub(r"<script\b[^>]*>.*?</script>", " ", page, flags=re.I | re.S)
+    page = re.sub(r"<style\b[^>]*>.*?</style>", " ", page, flags=re.I | re.S)
+    visible = " ".join(unescape(re.sub(r"<[^>]+>", " ", page)).split())
+    title = _bea_release_title(period)
+    date_text = (
+        f"{release_day.strftime('%B')} {release_day.day}, {release_day.year}"
+    )
+    if title not in visible:
+        return f"release page does not contain expected title {title!r}"
+    embargo = re.search(
+        r"EMBARGOED UNTIL RELEASE AT\s+.{1,100}?"
+        + re.escape(date_text),
+        visible,
+        flags=re.I,
+    )
+    if embargo is None:
+        return (
+            "release page embargo line does not contain registered date "
+            f"{date_text!r}"
+        )
+    return None
+
+
+def bea_itable_request_body(
+    spec: Mapping[str, Any], period: str
+) -> dict[str, Any]:
+    year, _quarter = _bea_quarter(period)
+    return {
+        "appid": 19,
+        "stepnum": 3,
+        "data": [
+            ["Categories", "Survey"],
+            ["NIPA_Table_List", str(spec["table_key"])],
+            ["First_Year", str(year)],
+            ["Last_Year", str(year)],
+            ["Scale", "-6"],
+            ["Series", "Q"],
+            ["Select_all_years", "0"],
+        ],
+    }
+
+
+def _bea_cell_value(cell: Any) -> str:
+    return str(cell.get("CV") or "") if isinstance(cell, dict) else ""
+
+
+def _bea_row_label(value: str) -> str:
+    value = re.sub(r"<sup\b[^>]*>.*?</sup>", "", value, flags=re.I | re.S)
+    return " ".join(unescape(re.sub(r"<[^>]+>", " ", value)).split())
+
+
+def bea_itable_value(
+    raw: bytes,
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+) -> tuple[float | None, str | None]:
+    """Read one exact quarterly row from BEA's official iTable response."""
+
+    try:
+        response = json.loads(raw.decode("utf-8"))
+        # The live iTable endpoint double-encodes: the HTTP body is a JSON
+        # string whose contents are the response object. Unwrap exactly one
+        # string layer; anything else still refuses below.
+        if isinstance(response, str):
+            response = json.loads(response)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, "iTable response is not UTF-8 JSON"
+    if not isinstance(response, dict) or response.get("Number") != 3:
+        return None, "iTable response is not the interactive-data table step"
+    prompts = response.get("Prompts")
+    if not isinstance(prompts, list):
+        return None, "iTable response has no prompt list"
+    table_prompts = [
+        prompt
+        for prompt in prompts
+        if isinstance(prompt, dict)
+        and prompt.get("Name") == "TheTable"
+        and prompt.get("UIControl") == "Table"
+    ]
+    if len(table_prompts) != 1:
+        return None, f"expected one iTable table prompt, found {len(table_prompts)}"
+    try:
+        prompt_data = json.loads(table_prompts[0]["PromtData"])
+        table = json.loads(prompt_data["Table"])
+    except (KeyError, TypeError, json.JSONDecodeError):
+        return None, "iTable prompt does not contain a parseable table"
+    if not isinstance(table, dict):
+        return None, "iTable payload is not a table object"
+    if table.get("Title") != "Table 5.3.5. Private Fixed Investment by Type":
+        return None, f"unexpected iTable title {table.get('Title')!r}"
+    revision_text = (
+        f"Last Revised on: {release_day.strftime('%B')} "
+        f"{release_day.day}, {release_day.year}"
+    )
+    description = str(table.get("Description") or "")
+    if not description.startswith(revision_text):
+        return None, (
+            f"iTable revision stamp {description!r} does not start with "
+            f"registered release stamp {revision_text!r}"
+        )
+    subtitle = str(table.get("Sub_Title") or "")
+    if (
+        "[Millions of dollars]" not in subtitle
+        or "Seasonally adjusted at annual rates" not in subtitle
+    ):
+        return None, f"unexpected iTable unit/basis subtitle {subtitle!r}"
+    rows = table.get("Data_Rows")
+    if (
+        not isinstance(rows, list)
+        or len(rows) < 3
+        or not isinstance(rows[0], list)
+        or not isinstance(rows[1], list)
+    ):
+        return None, "iTable response is missing quarterly headers and rows"
+    year, quarter = _bea_quarter(period)
+    year_cells = [_bea_cell_value(cell) for cell in rows[0]]
+    quarter_cells = [_bea_cell_value(cell) for cell in rows[1]]
+    columns = [
+        index
+        for index in range(2, min(len(year_cells), len(quarter_cells)))
+        if year_cells[index] == str(year)
+        and quarter_cells[index] == f"Q{quarter}"
+    ]
+    if len(columns) != 1:
+        return None, (
+            f"expected one {year} Q{quarter} iTable column, found {len(columns)}"
+        )
+    matches = []
+    for row in rows[2:]:
+        if not isinstance(row, list) or len(row) < 2:
+            continue
+        if _bea_cell_value(row[0]) != str(spec["line_number"]):
+            continue
+        if _bea_row_label(_bea_cell_value(row[1])) != spec["row_label"]:
+            continue
+        matches.append(row)
+    if len(matches) != 1:
+        return None, (
+            f"expected one exact line {spec['line_number']} "
+            f"{spec['row_label']!r} row, found {len(matches)}"
+        )
+    column = columns[0]
+    if column >= len(matches[0]):
+        return None, "exact iTable row is shorter than its quarter headers"
+    printed = _bea_cell_value(matches[0][column]).replace(",", "").strip()
+    try:
+        value = float(printed)
+    except ValueError:
+        return None, f"exact iTable cell is not numeric: {printed!r}"
+    if not math.isfinite(value) or value < 0:
+        return None, f"exact iTable cell is not a nonnegative finite value: {value}"
+    transform = spec.get("value_transform")
+    if transform != {"operation": "multiply", "factor": 0.001}:
+        return None, f"unsupported BEA value transform {transform!r}"
+    return round(value * 0.001, 4) + 0.0, None
+
+
+def fetch_bea_release_page(
+    period: str, release_day: dt.date
+) -> tuple[bytes | None, str, str]:
+    url = bea_advance_release_url(period, release_day)
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "text/html",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+    )
+    try:
+        raw, retrieved_at, final_url = http_request(
+            request,
+            allowed_hosts=tuple(sorted(BEA_RELEASE_REQUIRED_HOSTS)),
+        )
+        return raw, final_url, retrieved_at
+    except (OSError, ValueError, urllib.error.HTTPError, urllib.error.URLError):
+        return None, url, retrieved_at
+
+
+def fetch_bea_itable_table(
+    spec: Mapping[str, Any], period: str
+) -> tuple[bytes | None, str, dict[str, Any], str]:
+    body = bea_itable_request_body(spec, period)
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        BEA_ITABLE_DATA_URL,
+        data=canonical_bytes(body),
+        headers={
+            "Accept": "application/json, text/plain",
+            "Content-Type": "application/json",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+        method="POST",
+    )
+    try:
+        raw, retrieved_at, final_url = http_request(
+            request,
+            allowed_hosts=tuple(sorted(BEA_RELEASE_REQUIRED_HOSTS)),
+        )
+        return raw, final_url, body, retrieved_at
+    except (OSError, ValueError, urllib.error.HTTPError, urllib.error.URLError):
+        return None, BEA_ITABLE_DATA_URL, body, retrieved_at
+
+
+def bea_release_snapshot_envelope(
+    *,
+    spec: Mapping[str, Any],
+    period: str,
+    value: float,
+    release_url: str,
+    release_raw: bytes,
+    release_retrieved_at: str,
+    table_url: str,
+    table_body: Mapping[str, Any],
+    table_raw: bytes,
+    table_retrieved_at: str,
+) -> bytes:
+    """Archive both official responses and the deterministic table parse."""
+
+    envelope = {
+        "schemaVersion": "bea_release_snapshot_v1",
+        "release": {
+            "url": release_url,
+            "retrievedAt": release_retrieved_at,
+            "sha256": hashlib.sha256(release_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(release_raw).decode("ascii"),
+        },
+        "table": {
+            "url": table_url,
+            "landingPageUrl": spec["source_url"],
+            "request": table_body,
+            "retrievedAt": table_retrieved_at,
+            "sha256": hashlib.sha256(table_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(table_raw).decode("ascii"),
+        },
+        "derived": {
+            "period": period,
+            "sourceSeriesId": spec["series_id"],
+            "value": value,
+        },
+    }
+    return canonical_bytes(envelope) + b"\n"
+
 # CPS Table A-19 detail rows have no FRED mirror, so they resolve from an
 # immutable Wayback Machine snapshot of the cells' OWN bound source page
 # (bls.gov blocks non-browser fetches; web.archive.org serves the exact
@@ -1233,26 +1675,22 @@ CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
 # IRS SOI Individual Income Tax Returns Complete Report (Publication 1304)
 # Table 3.3 adapter (2026-08-01, thesis#106). Table 3.3 publishes one .xls
 # per tax year at https://www.irs.gov/pub/irs-soi/{yy}in33ar.xls roughly two
-# calendar years after the tax year; the file is a static print, so the
-# capture is the first print whenever the by-date resolver run fetches it.
-# The claimant-count concept is the "Number of returns" column under the
-# "Refundable child tax credit or additional child tax credit" header
-# ("Additional child tax credit" in TY2020 and earlier prints — the same
-# statistic under IRS's pre-ARPA label), at the "All returns, total" row.
-# Pending references are condition-suffixed conditional-arm ids
-# (irs.actc.total_claims.YYYY.first_print.<condition_token>); every arm of a
-# pair resolves to the same official print, and the site's condition
-# registry gates which arm is scored.
+# calendar years after the tax year. That URL is neither versioned nor a
+# release-time witness: the resolver may treat its bytes as the first print
+# only when it captures them inside the registered release window. After the
+# window closes, resolution fails closed until independently witnessed custody
+# exists; current bytes must never be relabeled as the first print.
+# Each reviewed spec authenticates one exact concept header, subcolumn, and
+# transform at the "All returns, total" row. Pending references may be plain
+# annual ids or condition-suffixed conditional-arm ids; every arm of a pair
+# resolves to the same official print, and the site's condition registry
+# gates which arm is scored.
 IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
     "irs.actc.total_claims": {
         # Published IRS target snapshots predate the contract property. This
         # reviewed adapter declaration is their legacy fallback; new snapshots
         # carry the same value explicitly and disagreement fails closed.
         "resolution_date_basis": "resolve-by-bound",
-        # Per-year Publication 1304 workbooks are stable artifacts. The shared
-        # window gate honors this capability only after the complete registered
-        # IRS binding reauthenticates against this reviewed adapter.
-        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
         "anchor_status": "VERIFIED",
         # Integrator-verified 2026-08-01 against the official Table 3.3
         # workbooks (20in33ar.xls, 21in33ar.xls, 22in33ar.xls, 23in33ar.xls):
@@ -1287,6 +1725,8 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
             "additional child tax credit",
         ),
         "subcolumn_label": "number of returns",
+        "subcolumn_offset": 0,
+        "value_transform": {"operation": "multiply", "factor": 1e-06},
         "unit": "millions",
         "label": "US refundable child tax credit or ACTC claimant returns",
         "measure_concept": "irs.actc.total_claims",
@@ -1305,6 +1745,169 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
             "workbook bytes are archived. The recorded value is exactly the "
             "registered transform of the published whole-return count "
             "(multiplied by 1e-06), with no further rounding."
+        ),
+    },
+    "irs.actc.total_credit_amount": {
+        "resolution_date_basis": "resolve-by-bound",
+        "anchor_status": "VERIFIED",
+        "anchors": {
+            "2020": 33664804,
+            "2021": 115869125,
+            "2022": 34843071,
+            "2023": 34533251,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.actc.total_credit_amount",
+        "field": "refundable_child_tax_credit_amount",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, refundable "
+            "child tax credit or additional child tax credit, amount"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "refundable child tax credit or additional child tax credit",
+            "additional child tax credit",
+        ),
+        "subcolumn_label": "amount",
+        "subcolumn_offset": 1,
+        "required_scale_marker": (
+            "(All figures are estimates based on samples—money amounts are "
+            "in thousands of dollars)"
+        ),
+        "scale_marker_cell": (1, 0),
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_millions",
+        "label": "US refundable child tax credit or ACTC total credit amount",
+        "measure_concept": "irs.actc.total_credit_amount",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Refundable "
+            "child tax credit or additional child tax credit; Amount"
+        ),
+        "evidence_notes": (
+            "TY{period} refundable child tax credit or additional child tax "
+            "credit amount, read from the 'All returns, total' row's 'Amount' "
+            "column in the official Publication 1304 Table 3.3 workbook "
+            "linked from {source_url}; the fetched workbook bytes are "
+            "archived. The workbook states that money amounts are in "
+            "thousands of dollars. The recorded value is the published "
+            "whole-thousand-dollar amount multiplied by 0.001 to produce "
+            "USD millions, with no further rounding."
+        ),
+    },
+    "irs.soi.credit_30d.total_claims": {
+        "resolution_date_basis": "resolve-by-bound",
+        "anchor_status": "VERIFIED",
+        "anchors": {
+            "2020": 61793,
+            "2021": 166244,
+            "2022": 248052,
+            "2023": 493953,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.soi.credit_30d.total_claims",
+        "field": "clean_vehicle_credit_returns",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, clean "
+            "vehicle credit or qualified plug-in electric vehicle credit, "
+            "number of returns"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "clean vehicle credit",
+            "qualified plug-in electric vehicle credit",
+        ),
+        "subcolumn_label": "number of returns",
+        "subcolumn_offset": 0,
+        "value_transform": {"operation": "multiply", "factor": 1},
+        "unit": "count",
+        "label": "US clean vehicle credit claimant returns",
+        "measure_concept": "irs.soi.credit_30d.total_claims",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Clean vehicle "
+            "credit or qualified plug-in electric vehicle credit; Number "
+            "of returns"
+        ),
+        "evidence_notes": (
+            "TY{period} clean vehicle credit claimant returns, read from "
+            "the 'All returns, total' row's 'Number of returns' column in "
+            "the official Publication 1304 Table 3.3 workbook linked from "
+            "{source_url}; the fetched workbook bytes are archived. The "
+            "recorded value is the published whole-return count with an "
+            "identity transform and no rounding."
+        ),
+    },
+    "irs.soi.credit_30d.total_credit_amount": {
+        "resolution_date_basis": "resolve-by-bound",
+        "anchor_status": "VERIFIED",
+        "anchors": {
+            "2020": 313118,
+            "2021": 1037358,
+            "2022": 1652554,
+            "2023": 3231102,
+        },
+        "source_url": (
+            "https://www.irs.gov/statistics/soi-tax-stats-individual-income-"
+            "tax-returns-complete-report-publication-1304"
+        ),
+        "file_url_template": "https://www.irs.gov/pub/irs-soi/{yy}in33ar.{ext}",
+        "allowed_hosts": ("www.irs.gov",),
+        "series_id": "irs.soi.credit_30d.total_credit_amount",
+        "field": "clean_vehicle_credit_amount",
+        "source_table": (
+            "IRS SOI Individual Income Tax Returns Complete Report "
+            "(Publication 1304), Table 3.3, all returns total row, clean "
+            "vehicle credit or qualified plug-in electric vehicle credit, "
+            "amount"
+        ),
+        "sheet_name": "TBL33",
+        "row_label": "all returns, total",
+        "column_labels": (
+            "clean vehicle credit",
+            "qualified plug-in electric vehicle credit",
+        ),
+        "subcolumn_label": "amount",
+        "subcolumn_offset": 1,
+        "required_scale_marker": (
+            "(All figures are estimates based on samples—money amounts are "
+            "in thousands of dollars)"
+        ),
+        "scale_marker_cell": (1, 0),
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_millions",
+        "label": "US clean vehicle credit total credit amount",
+        "measure_concept": "irs.soi.credit_30d.total_credit_amount",
+        "source_name": "irs_soi",
+        "concept_authority": "irs",
+        "source_concept": (
+            "Publication 1304 Table 3.3; All returns, total; Clean vehicle "
+            "credit or qualified plug-in electric vehicle credit; Amount"
+        ),
+        "evidence_notes": (
+            "TY{period} clean vehicle credit amount, read from the 'All "
+            "returns, total' row's 'Amount' column in the official "
+            "Publication 1304 Table 3.3 workbook linked from {source_url}; "
+            "the fetched workbook bytes are archived. The workbook states "
+            "that money amounts are in thousands of dollars. The recorded "
+            "value is the published whole-thousand-dollar amount multiplied "
+            "by 0.001 to produce USD millions, with no further rounding."
         ),
     },
 }
@@ -2644,6 +3247,105 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "obligations"
         ),
     },
+    "usaspending.dhs.title_vi.award_transaction_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": (
+            "results[time_period.fiscal_year={fiscal_year}].aggregated_amount"
+        ),
+        "series_id": (
+            "usaspending.search.spending_over_time.dhs.title_vi."
+            "award_transaction_obligations"
+        ),
+        "label": (
+            "DHS Title VI award-transaction obligations, fiscal year total"
+        ),
+        "unit": "usd",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+                "A",
+                "B",
+                "C",
+                "D",
+                "IDV_A",
+                "IDV_B",
+                "IDV_B_A",
+                "IDV_B_B",
+                "IDV_B_C",
+                "IDV_C",
+                "IDV_D",
+                "IDV_E",
+            ],
+            "treasuryAccountComponents": [
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0530",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0532",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0509",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0510",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0413",
+                    "sub": "000",
+                },
+                {"aid": "070", "main": "0722"},
+            ],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, DHS Title VI award "
+            "transactions filtered to named Treasury accounts, obligations "
+            "by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "aggregated_amount of award transactions for the registered union "
+            "of five 2025/2029 Title VI TAS components and dedicated account "
+            "070-0722"
+        ),
+    },
 }
 for _spec in USASPENDING_ADAPTERS.values():
     _spec["evidence_notes"] = (
@@ -2746,6 +3448,73 @@ def usaspending_fiscal_year_dates(fiscal_year: str) -> tuple[str, str]:
         raise ValueError(f"invalid fiscal year: {fiscal_year!r}")
     year = int(fiscal_year)
     return f"{year - 1}-10-01", f"{year}-09-30"
+
+
+def usaspending_fiscal_year_post_body(
+    fiscal_year: str,
+    transform: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build one bound spending-over-time request for registered TAS filters."""
+
+    award_codes = transform.get("awardTypeCodes")
+    components = transform.get("treasuryAccountComponents")
+    factor = transform.get("factor")
+    if (
+        transform.get("operation") != "multiply"
+        or isinstance(factor, bool)
+        or not isinstance(factor, (int, float))
+        or not math.isfinite(float(factor))
+        or factor <= 0
+        or transform.get("requestMethod") != "POST"
+        or transform.get("fiscalYear") != "{fiscal_year}"
+        or transform.get("group") != "fiscal_year"
+        or transform.get("spendingLevel") != "transactions"
+        or not isinstance(award_codes, list)
+        or not award_codes
+        or not all(isinstance(code, str) and code for code in award_codes)
+        or len(set(award_codes)) != len(award_codes)
+        or not isinstance(components, list)
+        or not components
+    ):
+        raise ValueError("registered USAspending TAS plan is malformed")
+
+    normalized_components: list[dict[str, str]] = []
+    for component in components:
+        if not isinstance(component, dict) or set(component) not in (
+            {"aid", "main"},
+            {"aid", "bpoa", "epoa", "main", "sub"},
+        ):
+            raise ValueError("registered USAspending TAS component is malformed")
+        if not all(isinstance(value, str) for value in component.values()):
+            raise ValueError("registered USAspending TAS component is malformed")
+        if (
+            not re.fullmatch(r"\d{3}", component["aid"])
+            or not re.fullmatch(r"\d{4}", component["main"])
+        ):
+            raise ValueError("registered USAspending TAS component is malformed")
+        if "bpoa" in component and (
+            not re.fullmatch(r"\d{4}", component["bpoa"])
+            or not re.fullmatch(r"\d{4}", component["epoa"])
+            or int(component["bpoa"]) > int(component["epoa"])
+            or not re.fullmatch(r"\d{3}", component["sub"])
+        ):
+            raise ValueError("registered USAspending TAS component is malformed")
+        normalized_components.append(copy.deepcopy(component))
+    if len({canonical_bytes(item) for item in normalized_components}) != len(
+        normalized_components
+    ):
+        raise ValueError("registered USAspending TAS plan repeats a component")
+
+    start, end = usaspending_fiscal_year_dates(fiscal_year)
+    return {
+        "filters": {
+            "award_type_codes": list(award_codes),
+            "time_period": [{"end_date": end, "start_date": start}],
+            "treasury_account_components": normalized_components,
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions",
+    }
 
 
 def _usaspending_advanced_filters(
@@ -2980,7 +3749,7 @@ def fetch_usaspending_json(
         headers=headers,
         method=method,
     )
-    with urllib.request.urlopen(request, timeout=120) as response:
+    with urllib.request.urlopen(request, timeout=20) as response:
         raw = response.read()
     return json.loads(raw.decode("utf-8")), raw, retrieved_at
 
@@ -3059,50 +3828,12 @@ def effective_resolution_date_basis(
     return DEFAULT_RESOLUTION_DATE_BASIS, None
 
 
-def authenticated_late_capture_capability(
-    registration: Mapping[str, Any] | None,
-    spec: Mapping[str, Any],
-) -> bool:
-    """Authenticate an adapter's reviewed immutable-artifact capability."""
-
-    if spec.get("late_capture_capability") != IMMUTABLE_ARTIFACT_LATE_CAPTURE:
-        return False
-    contract = (registration or {}).get("contract") or {}
-    if not isinstance(contract, Mapping):
-        return False
-    binding = contract.get("sourceBinding") or {}
-    if not isinstance(binding, Mapping):
-        return False
-    window = binding.get("expectedReleaseWindow")
-    if not isinstance(window, dict) or set(window) != {"start", "end"}:
-        return False
-    try:
-        start = dt.date.fromisoformat(window["start"])
-        end = dt.date.fromisoformat(window["end"])
-    except (TypeError, ValueError):
-        return False
-    # This is deliberately an adapter allowlist, not a generic truthy flag.
-    # Each admitted immutable-artifact adapter must add its own full binding
-    # reauthentication here before it may capture after a registered window.
-    return bool(
-        binding.get("adapter") == "irs-soi-pub1304"
-        and binding.get("allowedHosts") == list(spec.get("allowed_hosts") or ())
-        and start.isoformat() == window["start"]
-        and end.isoformat() == window["end"]
-        and start <= end
-        and irs_soi_pub1304_binding_matches_spec(binding, spec)
-    )
-
-
 def bounded_resolution_window_gate(
     ref: str,
     today: dt.date,
     window: Any,
-    *,
-    registration: Mapping[str, Any] | None = None,
-    spec: Mapping[str, Any] | None = None,
 ) -> tuple[str, str | None]:
-    """Return the shared resolve-by window state and authenticated verdict."""
+    """Return the shared resolve-by window state and fail-closed verdict."""
 
     state = snapshot_window_state(today, window)
     if state == "invalid":
@@ -3112,13 +3843,11 @@ def bounded_resolution_window_gate(
             f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
             f"{window['start']}"
         )
-    if state == "missed" and not authenticated_late_capture_capability(
-        registration, spec or {}
-    ):
+    if state == "missed":
         return state, (
             f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered "
-            f"window closed {window['end']}; adapter has no authenticated "
-            "immutable-artifact late-capture capability"
+            f"window closed {window['end']}; no release-time witnessed or "
+            "versioned first-print custody is registered"
         )
     return state, None
 
@@ -4019,7 +4748,7 @@ def generic_fact(
 ) -> dict:
     source_periods = [period]
     transform = spec.get("transform", "level")
-    if transform in {"mom_diff", "mom_pct"}:
+    if transform in ("mom_diff", "mom_pct"):
         source_periods.append(prior_period_date(period, period_type))
     elif transform == "yoy_from_index":
         source_periods.append(f"{int(period[:4]) - 1}-{period[5:7]}")
@@ -5637,6 +6366,8 @@ IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS = {
     "releasePolicy",
 }
 IRS_SOI_PUB1304_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+# Backward-compatible name for the original ACTC claimant-count spec. New
+# Table 3.3 series carry their transform in the reviewed per-series spec.
 IRS_SOI_PUB1304_TRANSFORM = {"operation": "multiply", "factor": 1e-06}
 
 
@@ -5647,7 +6378,7 @@ def irs_soi_pub1304_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
         "sourceSeriesId": spec["series_id"],
         "field": spec["field"],
         "table": spec["source_table"],
-        "transform": dict(IRS_SOI_PUB1304_TRANSFORM),
+        "transform": dict(spec["value_transform"]),
         "releasePolicy": "first_print",
     }
 
@@ -5716,11 +6447,43 @@ def irs_soi_pub1304_grid(raw: bytes, spec: Mapping[str, Any]):
 def irs_soi_pub1304_count_from_grid(
     grid: list[list[Any]], spec: Mapping[str, Any]
 ) -> tuple[float | None, str | None]:
-    """Read the whole-return claimant count from an extracted grid.
+    """Read one reviewed nonnegative-integer value from an extracted grid.
 
-    Fails closed on ambiguity: the concept header, its number-of-returns
-    subheader, and the all-returns row must each match exactly once.
+    Fails closed on ambiguity: the concept header, requested subheader, and
+    all-returns row must each match exactly once. Amount specs also authenticate
+    the workbook's printed unit marker before any transform is applied.
     """
+
+    required_scale_marker = spec.get("required_scale_marker")
+    if required_scale_marker is not None:
+        marker = _irs_soi_normalized_text(required_scale_marker)
+        marker_cell = spec.get("scale_marker_cell")
+        if (
+            not isinstance(marker_cell, (list, tuple))
+            or len(marker_cell) != 2
+            or any(
+                isinstance(index, bool) or not isinstance(index, int)
+                for index in marker_cell
+            )
+            or any(index < 0 for index in marker_cell)
+        ):
+            return None, f"invalid reviewed scale marker cell: {marker_cell!r}"
+        marker_row, marker_column = marker_cell
+        actual_marker = (
+            grid[marker_row][marker_column]
+            if marker_row < len(grid)
+            and marker_column < len(grid[marker_row])
+            else None
+        )
+        if (
+            not isinstance(actual_marker, str)
+            or _irs_soi_normalized_text(actual_marker) != marker
+        ):
+            return None, (
+                f"expected exact workbook scale declaration {marker!r} at "
+                f"cell ({marker_row}, {marker_column}); found "
+                f"{actual_marker!r}"
+            )
 
     accepted = {
         _irs_soi_normalized_text(label) for label in spec["column_labels"]
@@ -5738,8 +6501,14 @@ def irs_soi_pub1304_count_from_grid(
             f"expected exactly one concept header cell, found "
             f"{len(header_hits)} at {header_hits!r}"
         )
-    header_row, column = header_hits[0]
+    header_row, header_column = header_hits[0]
+    offset = spec.get("subcolumn_offset", 0)
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        return None, f"invalid reviewed subcolumn offset: {offset!r}"
+    column = header_column + offset
     subcolumn = _irs_soi_normalized_text(spec["subcolumn_label"])
+    subcolumn_display = str(spec["subcolumn_label"])
+    subcolumn_display = subcolumn_display[:1].upper() + subcolumn_display[1:]
     if not any(
         len(grid[row]) > column
         and isinstance(grid[row][column], str)
@@ -5747,8 +6516,8 @@ def irs_soi_pub1304_count_from_grid(
         for row in range(header_row + 1, min(header_row + 5, len(grid)))
     ):
         return None, (
-            "concept header column has no 'Number of returns' subheader "
-            "within four rows; IRS changed the column layout"
+            f"concept header offset {offset} has no {subcolumn_display!r} "
+            "subheader within four rows; IRS changed the column layout"
         )
     row_label = _irs_soi_normalized_text(spec["row_label"])
     row_hits = [
@@ -5769,13 +6538,35 @@ def irs_soi_pub1304_count_from_grid(
         isinstance(value, bool)
         or not isinstance(value, (int, float))
         or not math.isfinite(float(value))
-        or float(value) <= 0
+        or float(value) < 0
         or not float(value).is_integer()
     ):
         return None, (
-            f"claimant count cell is not a positive whole number: {value!r}"
+            f"published value cell is not a nonnegative whole number: {value!r}"
         )
     return float(value), None
+
+
+def irs_soi_pub1304_apply_transform(
+    spec: Mapping[str, Any], value: float | None
+) -> float | None:
+    """Apply the exact reviewed per-series transform without extra rounding."""
+
+    if value is None:
+        return None
+    transform = spec.get("value_transform")
+    if not isinstance(transform, dict) or transform.get("operation") != "multiply":
+        raise ValueError("IRS SOI spec requires a multiply transform")
+    factor = transform.get("factor")
+    if isinstance(factor, bool) or not isinstance(factor, (int, float)):
+        raise ValueError("IRS SOI transform factor must be numeric")
+    numeric_factor = float(factor)
+    if not math.isfinite(numeric_factor) or numeric_factor <= 0:
+        raise ValueError("IRS SOI transform factor must be positive and finite")
+    # The registered factors are decimal unit conversions. Apply their exact
+    # decimal spellings so JSON output does not expose binary-float artifacts
+    # such as 34533.251000000004 for a thousand-to-million conversion.
+    return float(Decimal(str(value)) * Decimal(str(factor)))
 
 
 def irs_soi_pub1304_identity_refusal(
@@ -5814,12 +6605,12 @@ def irs_soi_pub1304_identity_refusal(
 def irs_soi_pub1304_fetch_year(
     spec: Mapping[str, Any], year: str
 ) -> tuple[float | None, bytes | None, str, str, str | None]:
-    """Fetch the tax year's Table 3.3 workbook and parse the claimant count.
+    """Fetch the tax year's Table 3.3 workbook and parse its reviewed cell.
 
-    Returns the WHOLE-RETURN COUNT (the anchor unit); callers apply the
-    registered transform. A missing .xls with no .xlsx sibling defers as
-    not-yet-published; a present .xlsx sibling refuses instead of guessing
-    at an unparsed format.
+    Returns the positive integer printed in the workbook (the raw anchor
+    unit); callers apply the registered per-series transform. A missing .xls
+    with no .xlsx sibling defers as not-yet-published; a present .xlsx sibling
+    refuses instead of guessing at an unparsed format.
     """
 
     if not re.fullmatch(r"\d{4}", year):
@@ -5850,8 +6641,27 @@ def irs_soi_pub1304_fetch_year(
     refusal = irs_soi_pub1304_identity_refusal(grid, final_url, year)
     if refusal:
         return None, raw, final_url, retrieved_at, refusal
-    count, refusal = irs_soi_pub1304_count_from_grid(grid, spec)
-    return count, raw, final_url, retrieved_at, refusal
+    value, refusal = irs_soi_pub1304_count_from_grid(grid, spec)
+    return value, raw, final_url, retrieved_at, refusal
+
+
+def irs_soi_pub1304_fetch_normalized_year(
+    spec: Mapping[str, Any], year: str
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch one year and return its value in the registered target unit."""
+
+    value, raw, url, retrieved_at, refusal = irs_soi_pub1304_fetch_year(
+        spec, year
+    )
+    if refusal:
+        return None, raw, url, retrieved_at, refusal
+    return (
+        irs_soi_pub1304_apply_transform(spec, value),
+        raw,
+        url,
+        retrieved_at,
+        None,
+    )
 
 
 def irs_soi_pub1304_verified_anchors(
@@ -6339,6 +7149,22 @@ def pending_adapter_refs(
                         ref,
                         "cms_provider_data",
                         CMS_PROVIDER_DATA_ADAPTERS[cms_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        bea_release_stem = longest_adapter_stem(ref, BEA_RELEASE_ADAPTERS)
+        if bea_release_stem:
+            parsed = parse_ref_period(ref, bea_release_stem)
+            if parsed and parsed[0] == "quarter":
+                out.append(
+                    (
+                        ref,
+                        "bea_release",
+                        BEA_RELEASE_ADAPTERS[bea_release_stem],
                         parsed[0],
                         parsed[1],
                         release_date,
@@ -7723,6 +8549,7 @@ FAMILY_ADAPTERS = {
     # the series name — the 2026-07-25 new-home-sales collision, where a
     # 2026-07-10 generic-url registration met a newly added ALFRED stem.
     "alfred": {"alfred-fred"},
+    "bea_release": {"bea-release"},
     "bls_api": {"bls-api"},
     "census_spm": {"census-spm-annual-report"},
     "fsa_crp": {"fsa-crp-monthly-summary"},
@@ -7888,12 +8715,17 @@ def main() -> int:
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
-    # Generic adapters: ALFRED vintage series, BLS API series, A-19
-    # snapshot rows, and the international native-source adapters. FRED
-    # fetches are cached per (series, vintage); BLS fetches per (series,
-    # year range); A-19 snapshots per month; international artifacts per
-    # source key so dataPointId dialects share one archived response.
+    # Generic adapters: official BEA current releases, ALFRED vintage series,
+    # BLS API series, A-19 snapshot rows, and the international native-source
+    # adapters. Shared official responses are cached so multiple cells from
+    # one release archive the same bytes.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
+    bea_release_page_cache: dict[
+        str, tuple[bytes | None, str, str]
+    ] = {}
+    bea_itable_cache: dict[
+        bytes, tuple[bytes | None, str, dict[str, Any], str]
+    ] = {}
     usaspending_cache: dict[
         tuple[str, bytes | None], tuple[Any, bytes | None, str]
     ] = {}
@@ -7910,7 +8742,7 @@ def main() -> int:
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
     irs_soi_cache: dict[
-        str,
+        tuple[str, str],
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
     # Missing-parser (or similar) environment failures must fail the run
@@ -7998,15 +8830,13 @@ def main() -> int:
             binding = contract.get("sourceBinding") or {}
             bounded_window = binding.get("expectedReleaseWindow")
             # Every bounded target defers until its immutable window opens.
-            # Once it closes, only a reviewed immutable-artifact capability
-            # backed by the exact registered adapter binding may proceed. Use
-            # the UTC decision day to preserve midnight boundary behavior.
+            # Once it closes, resolution requires release-time witnessed or
+            # versioned custody, which no current bounded adapter provides.
+            # Use the UTC decision day to preserve midnight boundary behavior.
             _window_state, window_verdict = bounded_resolution_window_gate(
                 ref,
                 dt.date.fromisoformat(utc_now()[:10]),
                 bounded_window,
-                registration=registration,
-                spec=spec,
             )
             if window_verdict:
                 print(window_verdict)
@@ -8079,6 +8909,112 @@ def main() -> int:
             series_id = spec["series_id"]
             source_file = spec["source_file"]
             extension = spec["extension"]
+        elif kind == "bea_release":
+            contract = (registration or {}).get("contract") or {}
+            binding = contract.get("sourceBinding") or {}
+            if not bea_release_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
+                )
+                continue
+            expected_window = {
+                "start": release_day.isoformat(),
+                "end": release_day.isoformat(),
+            }
+            if binding.get("expectedReleaseWindow") != expected_window:
+                print(
+                    "  FORECAST/REGISTERED RELEASE DATE MISMATCH "
+                    f"(refusing): {ref} — forecast {release_day} is outside "
+                    f"{binding.get('expectedReleaseWindow')!r}"
+                )
+                continue
+            # BEA's interactive NIPA table is mutable. Capture it only on the
+            # registered GDP advance-release day; a later table may already
+            # contain a second estimate or annual-update revision.
+            bea_start_day = dt.date.fromisoformat(utc_now()[:10])
+            if bea_start_day < release_day:
+                print(f"  release {release_day} not reached: {ref}")
+                continue
+            if bea_start_day > release_day:
+                print(
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — "
+                    f"registered release day was {release_day}"
+                )
+                continue
+            release_url = bea_advance_release_url(period, release_day)
+            if release_url not in bea_release_page_cache:
+                bea_release_page_cache[release_url] = fetch_bea_release_page(
+                    period, release_day
+                )
+            release_raw, fetched_release_url, release_retrieved_at = (
+                bea_release_page_cache[release_url]
+            )
+            if release_raw is None:
+                print(f"  BEA RELEASE fetch failed (deferring): {ref}")
+                continue
+            release_refusal = bea_release_page_refusal(
+                release_raw, period, release_day
+            )
+            if release_refusal:
+                print(
+                    f"  BEA RELEASE PAGE REFUSAL (refusing): {ref} — "
+                    f"{release_refusal}"
+                )
+                continue
+            table_body = bea_itable_request_body(spec, period)
+            table_cache_key = canonical_bytes(table_body)
+            if table_cache_key not in bea_itable_cache:
+                bea_itable_cache[table_cache_key] = fetch_bea_itable_table(
+                    spec, period
+                )
+            table_raw, table_url, fetched_table_body, table_retrieved_at = (
+                bea_itable_cache[table_cache_key]
+            )
+            if table_raw is None:
+                print(f"  BEA iTABLE fetch failed (deferring): {ref}")
+                continue
+            effective_capture_day = max(
+                release_retrieved_at[:10],
+                table_retrieved_at[:10],
+                utc_now()[:10],
+            )
+            if effective_capture_day > release_day.isoformat():
+                print(
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — "
+                    f"capture completed {effective_capture_day} after "
+                    f"registered release day {release_day}"
+                )
+                continue
+            value, table_refusal = bea_itable_value(
+                table_raw, spec, period, release_day
+            )
+            if table_refusal:
+                print(
+                    f"  BEA iTABLE PARSE REFUSAL (refusing): {ref} — "
+                    f"{table_refusal}"
+                )
+                continue
+            assert value is not None
+            raw = bea_release_snapshot_envelope(
+                spec=spec,
+                period=period,
+                value=value,
+                release_url=fetched_release_url,
+                release_raw=release_raw,
+                release_retrieved_at=release_retrieved_at,
+                table_url=table_url,
+                table_body=fetched_table_body,
+                table_raw=table_raw,
+                table_retrieved_at=table_retrieved_at,
+            )
+            source_url = fetched_release_url
+            source_file = (
+                "GDP advance release HTML + NIPA Table 5.3.5 iTable JSON"
+            )
+            series_id = str(spec["series_id"]).replace(":", "-")
+            retrieved_at = max(release_retrieved_at, table_retrieved_at)
+            extension = "json"
         elif kind == "alfred":
             cache_key = (spec["fred"], release_day.isoformat())
             if cache_key not in alfred_cache:
@@ -8240,8 +9176,6 @@ def main() -> int:
                     ref,
                     dt.date.fromisoformat(effective_capture_date),
                     window,
-                    registration=registration,
-                    spec=spec,
                 )
                 if capture_verdict:
                     print(capture_verdict)
@@ -8252,28 +9186,28 @@ def main() -> int:
             extension = "xlsx"
         elif kind == "irs_soi_pub1304":
             verified_anchors = irs_verified_anchors or {}
-            registration = registration or {}
-            binding = (registration.get("contract") or {}).get("sourceBinding") or {}
-            # The generalized basis gate above already deferred until this
-            # immutable window opened. A capture after it closes still records
-            # the static workbook's first print, with loud lateness disclosure.
+            # The generalized basis gate above already deferred until the
+            # registered window opened and refused runs that began after it.
+            # Recheck after the fetch so a request that straddles the boundary
+            # cannot publish post-window bytes as the first print.
             window = bounded_window
             anchor_counts: dict[str, float | None] = {}
             anchor_fetch_failed = False
             anchor_env_failure = None
             for anchor_year in verified_anchors:
-                if anchor_year not in irs_soi_cache:
-                    irs_soi_cache[anchor_year] = irs_soi_pub1304_fetch_year(
+                cache_key = (str(spec["series_id"]), anchor_year)
+                if cache_key not in irs_soi_cache:
+                    irs_soi_cache[cache_key] = irs_soi_pub1304_fetch_year(
                         spec, anchor_year
                     )
-                anchor_count, anchor_raw, _, _, anchor_refusal = irs_soi_cache[
-                    anchor_year
+                anchor_value, anchor_raw, _, _, anchor_refusal = irs_soi_cache[
+                    cache_key
                 ]
                 if anchor_raw is None or anchor_refusal:
                     anchor_fetch_failed = True
                 if anchor_refusal and "xlrd is unavailable" in anchor_refusal:
                     anchor_env_failure = anchor_refusal
-                anchor_counts[anchor_year] = anchor_count
+                anchor_counts[anchor_year] = anchor_value
             if anchor_env_failure:
                 # A missing parser is an environment failure, not a data
                 # state: deferring quietly would leave every IRS target
@@ -8296,10 +9230,11 @@ def main() -> int:
                     f"row/column?): {ref} — " + "; ".join(mismatches)
                 )
                 continue
-            if period not in irs_soi_cache:
-                irs_soi_cache[period] = irs_soi_pub1304_fetch_year(spec, period)
-            count, raw, fetched_url, retrieved_at, refusal = irs_soi_cache[
-                period
+            cache_key = (str(spec["series_id"]), period)
+            if cache_key not in irs_soi_cache:
+                irs_soi_cache[cache_key] = irs_soi_pub1304_fetch_year(spec, period)
+            raw_value, raw, fetched_url, retrieved_at, refusal = irs_soi_cache[
+                cache_key
             ]
             if refusal and "xlrd is unavailable" in refusal:
                 print(
@@ -8310,55 +9245,29 @@ def main() -> int:
             if refusal:
                 print(f"  IRS SOI PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
-            if count is not None:
-                # The observation is exactly the registered transform of the
-                # published whole-return count — multiply by 1e-06, nothing
-                # else. Any rounding convention lives in the cell's own
-                # resolution rule, never in the recorded observation.
-                value = count * IRS_SOI_PUB1304_TRANSFORM["factor"]
-            else:
-                value = None
-            # The workbook is a static per-tax-year print with no vintage
-            # archive: the capture day is the source vintage. Lateness is
-            # judged on the retrieval stamp OR the present decision moment,
-            # whichever is later — the stamp precedes the response read, so
-            # a request straddling midnight past the window end must still
-            # disclose (over-disclosure is the safe direction).
-            if raw is not None:
+            # The observation is exactly the registered per-series transform
+            # of the published integer, with no additional rounding. Any
+            # display convention lives in the forecast's resolution rule.
+            value = irs_soi_pub1304_apply_transform(spec, raw_value)
+            # The workbook URL has no vintage archive, so the capture day is
+            # the source vintage. Judge the window on the retrieval stamp OR
+            # the present decision moment, whichever is later: the stamp
+            # precedes the response read, and a request straddling midnight
+            # past the window end must fail closed.
+            if raw is not None and resolution_date_basis == "resolve-by-bound":
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
                 # The effective capture date is the later of the request
                 # stamp (taken before the response read) and the decision
-                # moment, so a straddle discloses with a coherent date.
+                # moment, so a straddle fails against a coherent cutoff date.
                 effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
-                capture_state, capture_verdict = bounded_resolution_window_gate(
+                _capture_state, capture_verdict = bounded_resolution_window_gate(
                     ref,
                     dt.date.fromisoformat(effective_capture_date),
                     window,
-                    registration=registration,
-                    spec=spec,
                 )
                 if capture_verdict:
                     print(capture_verdict)
                     continue
-                if capture_state == "missed":
-                    print(
-                        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
-                        f"capture completed {effective_capture_date}, after "
-                        f"the registered window closed {window['end']}"
-                    )
-                    spec = {
-                        **spec,
-                        "evidence_notes": (
-                            str(spec["evidence_notes"])
-                            + " Capture completed "
-                            + effective_capture_date
-                            + ", after the registered "
-                            + str(window["end"])
-                            + " window by-date; the workbook is a static "
-                            "per-tax-year print, so this capture is still "
-                            "its first print."
-                        ),
-                    }
             source_url = spec["source_url"]
             source_file = fetched_url
             series_id = spec["series_id"]
@@ -8485,13 +9394,14 @@ def main() -> int:
         elif kind == "usaspending":
             if usaspending_contracts is None:
                 usaspending_contracts = registration_contracts()
-            contract = usaspending_contracts.get(ref)
-            binding = (contract or {}).get("sourceBinding") or {}
+            registration = usaspending_contracts.get(ref)
+            contract = (registration or {}).get("contract") or {}
+            binding = contract.get("sourceBinding") or {}
             window_state = snapshot_window_state(
                 dt.date.fromisoformat(utc_now()[:10]),
                 binding.get("expectedReleaseWindow"),
             )
-            if contract is None or window_state == "invalid":
+            if registration is None or window_state == "invalid":
                 print(f"  NO REGISTERED SNAPSHOT WINDOW (refusing): {ref}")
                 continue
             if window_state == "pending":
@@ -8560,6 +9470,39 @@ def main() -> int:
                         f"{spec['field']}"
                     )
                     continue
+            elif query_kind == "fiscal_year_post_scalar":
+                try:
+                    body = usaspending_fiscal_year_post_body(
+                        period,
+                        binding["transform"],
+                    )
+                except ValueError as exc:
+                    print(
+                        f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — "
+                        f"{exc}"
+                    )
+                    continue
+                payload, response_raw, retrieved_at = (
+                    cached_usaspending_request(body)
+                )
+                if response_raw is None:
+                    continue
+                raw_value = usaspending_fiscal_year_amount(payload, period)
+                if raw_value is None:
+                    print(
+                        f"  FIELD NOT FOUND IN RESPONSE (refusing): {ref} — "
+                        f"{spec['field']}"
+                    )
+                    continue
+                raw = usaspending_snapshot_envelope(
+                    snapshot_url,
+                    [(body, response_raw, retrieved_at)],
+                    {
+                        "operation": "select_fiscal_year_amount",
+                        "fiscalYear": period,
+                        "aggregatedAmount": raw_value,
+                    },
+                )
             elif query_kind == "paginated_distinct_count":
                 pages: list[Any] = []
                 exchanges: list[tuple[dict[str, Any], bytes, str]] = []

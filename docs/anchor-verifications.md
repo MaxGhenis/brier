@@ -103,6 +103,64 @@ forward resolution always captures inside the release window.
 
 Raw results: anchor_results.json (kept out of the commit; the table above is the record).
 
+## BEA private nonresidential fixed investment
+
+Status: **VERIFIED** (integrator, 2026-08-07 UTC). ALFRED metadata identifies
+`PNFI` as quarterly private nonresidential fixed investment in billions of
+dollars at a seasonally adjusted annual rate. Three exact-period ALFRED
+responses preserve genuine first prints:
+
+| Observation | First vintage | Value (USD billions, SAAR) | Frozen fixture | SHA-256 |
+|---|---|---:|---|---|
+| 2025 Q2 (`2025-04-01`) | 2025-07-30 | 4,203.220 | `pnfi-2025-q2-first-print.csv` (51 bytes) | `9f550bc31dca1359e70ddf7e9588ef9b67c901ed3eed1c1da8b610aad37b890f` |
+| 2025 Q3 (`2025-07-01`) | 2025-12-23 | 4,291.558 | `pnfi-2025-q3-first-print.csv` (51 bytes) | `b588e9e3e0735b6a145285c529c02344f037303249b175d33a301e39b7f38a52` |
+| 2025 Q4 (`2025-10-01`) | 2026-02-20 | 4,378.954 | `pnfi-2025-q4-first-print.csv` (51 bytes) | `05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92` |
+
+[BEA's official 2025-07-30 advance
+release](https://www.bea.gov/news/2025/gross-domestic-product-2nd-quarter-2025-advance-estimate)
+authenticates the Q2 first-print date. Its [shutdown-delayed 2025-12-23 initial
+estimate](https://www.bea.gov/news/2025/gross-domestic-product-3rd-quarter-2025-initial-estimate-and-corporate-profits)
+explicitly replaced the canceled Q3 advance and second estimates, so it is the
+first Q3 print. The [2026-02-20 advance
+release](https://www.bea.gov/news/2026/gdp-advance-estimate-4th-quarter-and-year-2025)
+authenticates Q4. Fresh preceding-day ALFRED parses confirmed each observation
+row was absent; the request verification records those response hashes and
+last available dates. The executable fixture test therefore clears the
+three-first-print admission gate.
+
+The ALFRED history mirror is already in `usd_billions` and uses identity for
+these pins. The official `bea-release` runtime binding reads BEA's
+million-dollar Table 5.3.5 line 2 and multiplies by 0.001 into `usd_billions`.
+The official BEA schedule was re-fetched the same session and still lists
+`GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so
+the quarterly seed uses the default `release-calendar` basis.
+
+## BEA private research and development fixed investment
+
+Status: **VERIFIED** (integrator, 2026-08-07 UTC). ALFRED metadata identifies
+`Y006RC1Q027SBEA` as quarterly private research and development fixed
+investment in billions of dollars at a seasonally adjusted annual rate. The
+same three BEA first-release dates yield three independently frozen pins:
+
+| Observation | First vintage | Value (USD billions, SAAR) | Frozen fixture | SHA-256 |
+|---|---|---:|---|---|
+| 2025 Q2 (`2025-04-01`) | 2025-07-30 | 821.083 | `bea-rd-2025-q2-first-print.csv` (61 bytes) | `555e5af679223e3365edff09947b29e6d1e78e4ed978cd7553d15da3730ac61e` |
+| 2025 Q3 (`2025-07-01`) | 2025-12-23 | 855.863 | `bea-rd-2025-q3-first-print.csv` (61 bytes) | `25499799f3ed33b75e0a715248a83fa7d865a5ff84c323fd4f5cfceff3cee2c6` |
+| 2025 Q4 (`2025-10-01`) | 2026-02-20 | 885.955 | `bea-rd-2025-q4-first-print.csv` (61 bytes) | `1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1` |
+
+The same official Q2 advance, shutdown-delayed Q3 initial, and Q4 advance
+release notices authenticate the vintage dates. Fresh preceding-day ALFRED
+parses confirmed that each exact observation row was absent. The request
+verification records those absence checks, and the executable test reproduces
+all three values and hashes.
+
+The ALFRED history mirror is already in `usd_billions` and uses identity for
+these pins. The official `bea-release` runtime binding reads BEA's
+million-dollar Table 5.3.5 line 18 and multiplies by 0.001 into `usd_billions`.
+The official BEA schedule was re-fetched the same session and still lists
+`GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so
+the quarterly seed uses the default `release-calendar` basis.
+
 ---
 
 # USAspending FY2026 query anchors
@@ -126,6 +184,26 @@ The current official website mapping identifies `small_business` as the
 API token for “Small Business”:
 
 - https://github.com/fedspendingtransparency/usaspending-website/blob/master/src/js/dataMapping/search/recipientType.js
+
+## DHS Title VI award-transaction obligations
+
+Checked 2026-08-06 against
+`https://api.usaspending.gov/api/v2/search/spending_over_time/`. The reviewed
+POST plan fixes all award-type codes and filters award transactions to five
+Title VI Treasury-account components (`070-0530`, `070-0532`, `070-0509`,
+`070-0510`, and `070-0413`), each with 2025/2029 availability and subaccount
+`000`, plus dedicated account `070-0722`. The fiscal-year action-date bounds
+are derived mechanically.
+
+The unmodified FY2026 response is the 1,146-byte fixture
+`tests/fixtures/ingestion_wave1/usaspending/dhs-title-vi-fy2026.json`, SHA-256
+`dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720`.
+It contains one FY2026 award-transaction row with `aggregated_amount`
+**32,171,899,636.26 USD**. A same-day replay returned byte-identical evidence.
+This fixture verifies the award-transaction query and parser; it does not
+represent all obligations recorded in the named financial accounts. The
+target outcome remains the separately captured response inside the registered
+2026-10-15 through 2026-10-22 snapshot window, not a first-print claim.
 
 ## Unique identifiable prime-contract recipients
 
@@ -341,3 +419,84 @@ mismatch, so these pins are self-checking, not trusted literals. The same
 counts (divided to millions) are pinned as `anchors` in the docket entry's
 target context, so a preregistered analyst run whose fetched base-rate
 history contradicts the official prints fails validation at spawn time.
+
+The `{yy}in33ar.xls` URLs are tax-year-specific but not versioned. These
+fixtures verify parser identity and the values retrieved on their stated
+dates; the URL shape alone does not authenticate release-time first-print
+custody. Future resolution therefore captures only inside the registered
+window and fails closed afterward. Late resolution would require a future
+adapter that authenticates witnessed or versioned first-print custody.
+
+## IRS SOI Table 3.3 clean vehicle credit claimant returns
+
+Status: **VERIFIED** (integrator, 2026-08-06). The same four official
+Publication 1304 workbooks and hashes above reproduce the positive whole-return
+count in the `All returns, total` row under `Number of returns`. The exact
+concept label is `Qualified plug-in electric vehicle credit` for TY2020–2022
+and `Clean vehicle credit` for TY2023:
+
+- TY2020: 61,793 returns (`20in33ar.xls`, `TBL33!AC10`)
+- TY2021: 166,244 returns (`21in33ar.xls`, `TBL33!AE10`)
+- TY2022: 248,052 returns (`22in33ar.xls`, `TBL33!AE10`)
+- TY2023: 493,953 returns (`23in33ar.xls`, `TBL33!AE10`)
+
+The registered transform is identity (`factor: 1`) and the target unit is
+`count`. The official 2026 SOI release-list workbook, fetched 2026-08-06
+(36,090 bytes; SHA-256
+`5ceb7a39fe09f0f12416da0e3eb3b80a227eb4475c8f9fe776ebbfab47070f1e`),
+contains one Publication 1304 row: program year 2023, released 2026-03-26. It
+contains no TY2024 row or future exact date. The TY2027 docket target therefore
+uses a conservative Publication 1304 resolve-by window
+(`2029-01-01`–`2030-12-31`); no day is inferred from annual cadence. The outer
+bound allows more than the roughly 27 months between the end of TY2023 and
+the official 2026-03-26 release, avoiding a scoring split before a comparably
+lagged TY2027 print.
+
+## IRS SOI Table 3.3 clean vehicle credit total credit amount
+
+Status: **VERIFIED** (integrator, 2026-08-06). The same four official
+Publication 1304 workbooks and SHA-256 pins above reproduce the positive
+whole-thousand-dollar amount in the `All returns, total` row under `Amount`.
+The exact concept label is `Qualified plug-in electric vehicle credit` for
+TY2020–2022 and `Clean vehicle credit` for TY2023:
+
+- TY2020: 313,118 thousand dollars = 313.118 USD millions
+  (`20in33ar.xls`, `TBL33!AD10`)
+- TY2021: 1,037,358 thousand dollars = 1,037.358 USD millions
+  (`21in33ar.xls`, `TBL33!AF10`)
+- TY2022: 1,652,554 thousand dollars = 1,652.554 USD millions
+  (`22in33ar.xls`, `TBL33!AF10`)
+- TY2023: 3,231,102 thousand dollars = 3,231.102 USD millions
+  (`23in33ar.xls`, `TBL33!AF10`)
+
+The parser authenticates the complete thousand-dollar declaration at
+`TBL33!A2` before reading the adjacent `Amount` subcolumn. The registered
+transform multiplies the printed integer by `0.001` with no further rounding.
+The TY2027 target uses the same reviewed Publication 1304 resolve-by window
+documented above; no exact future release day is inferred from cadence.
+
+## IRS SOI Table 3.3 ACTC total credit amount
+
+Status: **VERIFIED** (integrator, 2026-08-06). The same four official
+Publication 1304 workbooks and hashes above reproduce the positive
+whole-thousand-dollar amount in the `All returns, total` row under `Amount`.
+The accepted concept label is `Additional child tax credit` for TY2020 and
+`Refundable child tax credit or additional child tax credit` for TY2021–2023:
+
+- TY2020: 33,664,804 thousand dollars = 33,664.804 USD millions
+  (`20in33ar.xls`, `TBL33!AN10`)
+- TY2021: 115,869,125 thousand dollars = 115,869.125 USD millions
+  (`21in33ar.xls`, `TBL33!AN10`)
+- TY2022: 34,843,071 thousand dollars = 34,843.071 USD millions
+  (`22in33ar.xls`, `TBL33!AN10`)
+- TY2023: 34,533,251 thousand dollars = 34,533.251 USD millions
+  (`23in33ar.xls`, `TBL33!AN10`)
+
+Each workbook's `TBL33!A2` is exactly `(All figures are estimates based on
+samples—money amounts are in thousands of dollars)`. The parser requires that
+complete declaration at that exact cell before reading the adjacent `Amount`
+subcolumn, and the registered transform multiplies the published integer by
+`0.001` with no further rounding. The TY2027 target uses
+the same reviewed Publication 1304 resolve-by window documented above; the
+2026 release-list workbook provides no TY2024 date from which to infer a
+future exact day.
