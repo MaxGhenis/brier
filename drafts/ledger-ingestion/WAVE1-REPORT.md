@@ -19,8 +19,8 @@ request remains proposed.
 | Request | Outcome | Reason |
 |---|---|---|
 | `bea-ita-personal-transfer-payments.json` | Rejected | No exact current FRED/ALFRED series; the candidates are broader or discontinued. |
-| `bea-private-nonresidential-fixed-investment.json` | Admitted | Official BEA NIPA Table 5.3.5 line 2 matches the concept, quarterly cadence, nominal SAAR basis, and unit; ALFRED `PNFI` carries the historical-vintage pin. |
-| `bea-research-and-development-fixed-investment.json` | Admitted | Official BEA NIPA Table 5.3.5 line 18 matches the concept, quarterly cadence, nominal SAAR basis, and unit; ALFRED `Y006RC1Q027SBEA` carries the historical-vintage pin. |
+| `bea-private-nonresidential-fixed-investment.json` | Admitted | Official BEA NIPA Table 5.3.5 line 2 matches the concept, quarterly cadence, nominal SAAR basis, and unit; ALFRED `PNFI` carries three Q2-Q4 2025 first-print pins. |
+| `bea-research-and-development-fixed-investment.json` | Admitted | Official BEA NIPA Table 5.3.5 line 18 matches the concept, quarterly cadence, nominal SAAR basis, and unit; ALFRED `Y006RC1Q027SBEA` carries three Q2-Q4 2025 first-print pins. |
 | `eia-natural-gas-vented-flared-us-annual.json` | Rejected | The official EIA series is exact, but FRED/ALFRED has no mirror and therefore cannot provide first-print vintages. |
 | `usaspending-dhs-title-vi-named-account-obligations.json` | Proposed | The six-component advanced-search query proves only award-transaction obligations. Full account obligations remain open on a financial-account submission/TAS path; the narrower award-transaction series is admitted separately. |
 | `usaspending-energy-commerce-title-iv-named-account-obligations.json` | Rejected | Live identifiers do not cover all named Title IV programs, so the query would measure only part of the concept. |
@@ -85,12 +85,27 @@ from BEA's iTable response, then archives both responses together. The real Q2
 `4636dc341d7cd1a53196fdf0ad529143b0e8b2d0db874f6086ca9b8ebf23cf5d`
 for the release HTML and 33,125 bytes / SHA-256
 `ec6529926115cccd3b59ab8b22ac821cf966916dfb0e062876ff893064b0b3f8`
-for the official table response. ALFRED remains the dated-vintage history and
-pin mirror: PNFI's 51-byte fixture has SHA-256
-`05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92`,
-and R&D's 61-byte fixture has SHA-256
-`1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1`.
-All six admissions have integrator-verified anchors.
+for the official table response. ALFRED remains the dated-vintage history
+mirror. Its exact-period fixtures reproduce three first prints per BEA series:
+
+- PNFI: 4,203.220 (2025 Q2, vintage 2025-07-30; SHA-256
+  `9f550bc31dca1359e70ddf7e9588ef9b67c901ed3eed1c1da8b610aad37b890f`),
+  4,291.558 (2025 Q3, vintage 2025-12-23;
+  `b588e9e3e0735b6a145285c529c02344f037303249b175d33a301e39b7f38a52`),
+  and 4,378.954 (2025 Q4, vintage 2026-02-20;
+  `05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92`).
+- Private R&D: 821.083 (2025 Q2, vintage 2025-07-30; SHA-256
+  `555e5af679223e3365edff09947b29e6d1e78e4ed978cd7553d15da3730ac61e`),
+  855.863 (2025 Q3, vintage 2025-12-23;
+  `25499799f3ed33b75e0a715248a83fa7d865a5ff84c323fd4f5cfceff3cee2c6`),
+  and 885.955 (2025 Q4, vintage 2026-02-20;
+  `1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1`).
+
+Official BEA first-release notices authenticate the three dates; Q3's
+shutdown-delayed initial estimate was its first print. Fresh preceding-day
+ALFRED parses found each target observation absent, and executable tests check
+all six fixture hashes and values. The two BEA admissions now satisfy the
+three-first-print gate; all six admissions have integrator-verified anchors.
 
 ## Bill pair readiness
 

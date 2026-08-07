@@ -105,38 +105,61 @@ Raw results: anchor_results.json (kept out of the commit; the table above is the
 
 ## BEA private nonresidential fixed investment
 
-Status: **VERIFIED** (integrator, 2026-08-07 UTC). A fresh official ALFRED
-metadata fetch identified `PNFI` as quarterly private nonresidential fixed
-investment in billions of dollars at a seasonally adjusted annual rate. The
-2026-02-20 vintage prints 2025 Q4 (`2025-10-01`) at **4,378.954**. The exact
-51-byte constrained-vintage response is frozen at
-`tests/fixtures/ingestion_wave1/alfred/pnfi-2025-q4-first-print.csv`, SHA-256
-`05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92`.
+Status: **VERIFIED** (integrator, 2026-08-07 UTC). ALFRED metadata identifies
+`PNFI` as quarterly private nonresidential fixed investment in billions of
+dollars at a seasonally adjusted annual rate. Three exact-period ALFRED
+responses preserve genuine first prints:
+
+| Observation | First vintage | Value (USD billions, SAAR) | Frozen fixture | SHA-256 |
+|---|---|---:|---|---|
+| 2025 Q2 (`2025-04-01`) | 2025-07-30 | 4,203.220 | `pnfi-2025-q2-first-print.csv` (51 bytes) | `9f550bc31dca1359e70ddf7e9588ef9b67c901ed3eed1c1da8b610aad37b890f` |
+| 2025 Q3 (`2025-07-01`) | 2025-12-23 | 4,291.558 | `pnfi-2025-q3-first-print.csv` (51 bytes) | `b588e9e3e0735b6a145285c529c02344f037303249b175d33a301e39b7f38a52` |
+| 2025 Q4 (`2025-10-01`) | 2026-02-20 | 4,378.954 | `pnfi-2025-q4-first-print.csv` (51 bytes) | `05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92` |
+
+[BEA's official 2025-07-30 advance
+release](https://www.bea.gov/news/2025/gross-domestic-product-2nd-quarter-2025-advance-estimate)
+authenticates the Q2 first-print date. Its [shutdown-delayed 2025-12-23 initial
+estimate](https://www.bea.gov/news/2025/gross-domestic-product-3rd-quarter-2025-initial-estimate-and-corporate-profits)
+explicitly replaced the canceled Q3 advance and second estimates, so it is the
+first Q3 print. The [2026-02-20 advance
+release](https://www.bea.gov/news/2026/gdp-advance-estimate-4th-quarter-and-year-2025)
+authenticates Q4. Fresh preceding-day ALFRED parses confirmed each observation
+row was absent; the request verification records those response hashes and
+last available dates. The executable fixture test therefore clears the
+three-first-print admission gate.
 
 The ALFRED history mirror is already in `usd_billions` and uses identity for
-this pin. The official `bea-release` runtime binding reads BEA's million-dollar
-Table 5.3.5 line 2 and multiplies by 0.001 into `usd_billions`. The official
-BEA schedule was re-fetched the same session and still lists `GDP (Advance
-Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so the quarterly
-seed uses the default `release-calendar` basis.
+these pins. The official `bea-release` runtime binding reads BEA's
+million-dollar Table 5.3.5 line 2 and multiplies by 0.001 into `usd_billions`.
+The official BEA schedule was re-fetched the same session and still lists
+`GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so
+the quarterly seed uses the default `release-calendar` basis.
 
 ## BEA private research and development fixed investment
 
-Status: **VERIFIED** (integrator, 2026-08-07 UTC). A fresh official ALFRED
-metadata fetch identified `Y006RC1Q027SBEA` as quarterly private research and
-development fixed investment in billions of dollars at a seasonally adjusted
-annual rate. The 2026-02-20 vintage prints 2025 Q4 (`2025-10-01`) at
-**885.955**. The exact 61-byte constrained-vintage response is frozen at
-`tests/fixtures/ingestion_wave1/alfred/bea-rd-2025-q4-first-print.csv`,
-SHA-256
-`1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1`.
+Status: **VERIFIED** (integrator, 2026-08-07 UTC). ALFRED metadata identifies
+`Y006RC1Q027SBEA` as quarterly private research and development fixed
+investment in billions of dollars at a seasonally adjusted annual rate. The
+same three BEA first-release dates yield three independently frozen pins:
+
+| Observation | First vintage | Value (USD billions, SAAR) | Frozen fixture | SHA-256 |
+|---|---|---:|---|---|
+| 2025 Q2 (`2025-04-01`) | 2025-07-30 | 821.083 | `bea-rd-2025-q2-first-print.csv` (61 bytes) | `555e5af679223e3365edff09947b29e6d1e78e4ed978cd7553d15da3730ac61e` |
+| 2025 Q3 (`2025-07-01`) | 2025-12-23 | 855.863 | `bea-rd-2025-q3-first-print.csv` (61 bytes) | `25499799f3ed33b75e0a715248a83fa7d865a5ff84c323fd4f5cfceff3cee2c6` |
+| 2025 Q4 (`2025-10-01`) | 2026-02-20 | 885.955 | `bea-rd-2025-q4-first-print.csv` (61 bytes) | `1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1` |
+
+The same official Q2 advance, shutdown-delayed Q3 initial, and Q4 advance
+release notices authenticate the vintage dates. Fresh preceding-day ALFRED
+parses confirmed that each exact observation row was absent. The request
+verification records those absence checks, and the executable test reproduces
+all three values and hashes.
 
 The ALFRED history mirror is already in `usd_billions` and uses identity for
-this pin. The official `bea-release` runtime binding reads BEA's million-dollar
-Table 5.3.5 line 18 and multiplies by 0.001 into `usd_billions`. The official
-BEA schedule was re-fetched the same session and still lists `GDP (Advance
-Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so the quarterly
-seed uses the default `release-calendar` basis.
+these pins. The official `bea-release` runtime binding reads BEA's
+million-dollar Table 5.3.5 line 18 and multiplies by 0.001 into `usd_billions`.
+The official BEA schedule was re-fetched the same session and still lists
+`GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so
+the quarterly seed uses the default `release-calendar` basis.
 
 ---
 

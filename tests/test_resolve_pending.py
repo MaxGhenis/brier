@@ -35,78 +35,165 @@ def _alfred_docket_entries() -> list[dict]:
     ]
 
 
-def test_wave1_pnfi_first_print_fixture_is_hash_pinned_and_parses() -> None:
-    fixture = (
-        ROOT
-        / "tests"
-        / "fixtures"
-        / "ingestion_wave1"
-        / "alfred"
-        / "pnfi-2025-q4-first-print.csv"
-    )
-    raw = fixture.read_bytes()
-    assert len(raw) == 51
-    assert hashlib.sha256(raw).hexdigest() == (
-        "05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92"
-    )
-
-    rows = resolve_pending.parse_fred_vintage_csv(
-        raw, "PNFI", "2026-02-20"
-    )
-
-    assert rows == {"2025-10-01": 4378.954}
-    assert resolve_pending.ALFRED_HISTORY_MIRRORS[
-        "bea.private_nonresidential_fixed_investment"
-    ] == {
-        "fred": "PNFI",
-        "transform": "level",
-        "unit": "usd_billions",
-        "label": "US private nonresidential fixed investment, nominal SAAR",
-        "source_name": "bea",
-        "source_table": (
-            "Gross Domestic Product, Table 5.3.5 "
-            "(private fixed investment by type)"
+@pytest.mark.parametrize(
+    (
+        "request_name",
+        "series_id",
+        "period",
+        "observation_date",
+        "vintage_date",
+        "fixture_name",
+        "byte_length",
+        "sha256",
+        "value",
+    ),
+    [
+        (
+            "bea-private-nonresidential-fixed-investment.json",
+            "PNFI",
+            "2025-Q2",
+            "2025-04-01",
+            "2025-07-30",
+            "pnfi-2025-q2-first-print.csv",
+            51,
+            "9f550bc31dca1359e70ddf7e9588ef9b67c901ed3eed1c1da8b610aad37b890f",
+            4203.220,
         ),
-        "concept_authority": "bea",
+        (
+            "bea-private-nonresidential-fixed-investment.json",
+            "PNFI",
+            "2025-Q3",
+            "2025-07-01",
+            "2025-12-23",
+            "pnfi-2025-q3-first-print.csv",
+            51,
+            "b588e9e3e0735b6a145285c529c02344f037303249b175d33a301e39b7f38a52",
+            4291.558,
+        ),
+        (
+            "bea-private-nonresidential-fixed-investment.json",
+            "PNFI",
+            "2025-Q4",
+            "2025-10-01",
+            "2026-02-20",
+            "pnfi-2025-q4-first-print.csv",
+            51,
+            "05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92",
+            4378.954,
+        ),
+        (
+            "bea-research-and-development-fixed-investment.json",
+            "Y006RC1Q027SBEA",
+            "2025-Q2",
+            "2025-04-01",
+            "2025-07-30",
+            "bea-rd-2025-q2-first-print.csv",
+            61,
+            "555e5af679223e3365edff09947b29e6d1e78e4ed978cd7553d15da3730ac61e",
+            821.083,
+        ),
+        (
+            "bea-research-and-development-fixed-investment.json",
+            "Y006RC1Q027SBEA",
+            "2025-Q3",
+            "2025-07-01",
+            "2025-12-23",
+            "bea-rd-2025-q3-first-print.csv",
+            61,
+            "25499799f3ed33b75e0a715248a83fa7d865a5ff84c323fd4f5cfceff3cee2c6",
+            855.863,
+        ),
+        (
+            "bea-research-and-development-fixed-investment.json",
+            "Y006RC1Q027SBEA",
+            "2025-Q4",
+            "2025-10-01",
+            "2026-02-20",
+            "bea-rd-2025-q4-first-print.csv",
+            61,
+            "1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1",
+            885.955,
+        ),
+    ],
+)
+def test_wave1_bea_first_print_fixtures_are_hash_pinned_and_parse(
+    request_name: str,
+    series_id: str,
+    period: str,
+    observation_date: str,
+    vintage_date: str,
+    fixture_name: str,
+    byte_length: int,
+    sha256: str,
+    value: float,
+) -> None:
+    relative_fixture = f"tests/fixtures/ingestion_wave1/alfred/{fixture_name}"
+    raw = (ROOT / relative_fixture).read_bytes()
+    assert len(raw) == byte_length
+    assert hashlib.sha256(raw).hexdigest() == sha256
+    assert resolve_pending.parse_fred_vintage_csv(raw, series_id, vintage_date) == {
+        observation_date: value
     }
 
-
-def test_wave1_bea_rd_first_print_fixture_is_hash_pinned_and_parses() -> None:
-    fixture = (
-        ROOT
-        / "tests"
-        / "fixtures"
-        / "ingestion_wave1"
-        / "alfred"
-        / "bea-rd-2025-q4-first-print.csv"
+    request = json.loads(
+        (ROOT / "drafts" / "ledger-ingestion" / request_name).read_text()
     )
-    raw = fixture.read_bytes()
-    assert len(raw) == 61
-    assert hashlib.sha256(raw).hexdigest() == (
-        "1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1"
-    )
+    anchors = request["verification"]["firstPrintAnchors"]
+    assert len(anchors) == 3
+    anchor = next(row for row in anchors if row["observationPeriod"] == period)
+    assert anchor["observationDate"] == observation_date
+    assert anchor["vintageDate"] == vintage_date
+    assert anchor["fixture"] == relative_fixture
+    assert anchor["byteLength"] == byte_length
+    assert anchor["sha256"] == sha256
+    assert anchor["fetchedValue"] == value
+    assert anchor["priorDayObservationAbsent"] is True
 
-    rows = resolve_pending.parse_fred_vintage_csv(
-        raw, "Y006RC1Q027SBEA", "2026-02-20"
-    )
 
-    assert rows == {"2025-10-01": 885.955}
-    assert resolve_pending.ALFRED_HISTORY_MIRRORS[
-        "bea.research_and_development_fixed_investment"
-    ] == {
-        "fred": "Y006RC1Q027SBEA",
-        "transform": "level",
-        "unit": "usd_billions",
-        "label": (
-            "US private research and development fixed investment, nominal SAAR"
+@pytest.mark.parametrize(
+    ("series", "expected"),
+    [
+        (
+            "bea.private_nonresidential_fixed_investment",
+            {
+                "fred": "PNFI",
+                "transform": "level",
+                "unit": "usd_billions",
+                "label": (
+                    "US private nonresidential fixed investment, nominal SAAR"
+                ),
+                "source_name": "bea",
+                "source_table": (
+                    "Gross Domestic Product, Table 5.3.5 "
+                    "(private fixed investment by type)"
+                ),
+                "concept_authority": "bea",
+            },
         ),
-        "source_name": "bea",
-        "source_table": (
-            "Gross Domestic Product, Table 5.6.5 "
-            "(private R&D fixed investment)"
+        (
+            "bea.research_and_development_fixed_investment",
+            {
+                "fred": "Y006RC1Q027SBEA",
+                "transform": "level",
+                "unit": "usd_billions",
+                "label": (
+                    "US private research and development fixed investment, "
+                    "nominal SAAR"
+                ),
+                "source_name": "bea",
+                "source_table": (
+                    "Gross Domestic Product, Table 5.6.5 "
+                    "(private R&D fixed investment)"
+                ),
+                "concept_authority": "bea",
+            },
         ),
-        "concept_authority": "bea",
-    }
+    ],
+)
+def test_wave1_bea_alfred_history_mirror_specs(
+    series: str, expected: dict[str, object]
+) -> None:
+    assert resolve_pending.ALFRED_HISTORY_MIRRORS[series] == expected
 
 
 def test_archives_raw_response_and_attaches_append_provenance(
