@@ -2338,3 +2338,72 @@ def test_second_parent_declaration_cannot_be_laundered(
 
     with pytest.raises(pin_ledger.PinError, match="downgraded away"):
         pin_ledger.rebuild_from_history(repo, "HEAD")
+
+
+def test_refresh_cannot_cross_declaration_then_downgrade(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # Round-3 repro: the pin sits at an UNDECLARED commit; a later commit
+    # declares the registry and the next removes it again, leaving a
+    # well-formed v2 head. registry_expected derived from the endpoints
+    # alone would advance the pin straight over the crossed declaration;
+    # the walk must latch it and refuse the downgraded head.
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    pin_ledger.refresh()  # pin at the undeclared base
+
+    registry = _registry_bytes()
+    _declare_registry(
+        release_repo.repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="declare uuid registry mid-window",
+    )
+    catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    catalog["generator_version"] = 3
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(release_repo.repo, "v3 catalog mid-window")
+
+    catalog = json.loads(catalog_path.read_text())
+    catalog["generator_version"] = 2
+    catalog.pop("uuid_registry_sha256", None)
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    (release_repo.repo / pin_ledger.LEDGER_REGISTRY_PATH).unlink()
+    _commit(release_repo.repo, "downgrade back to v2 in the same window")
+
+    before = pin_path.read_bytes()
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger.refresh()
+    assert pin_path.read_bytes() == before
+
+
+def test_lineage_scan_refuses_shallow_clone(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # Round-3 repro: a depth-limited clone turns the shallow boundary into
+    # a root, so rev-list silently omits every commit behind it — an
+    # ancestor declaration disappears without error. The scan must refuse
+    # shallow repositories instead of reporting "never declared".
+    repo = release_repo.repo
+    registry = _registry_bytes()
+    _declare_registry(
+        repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="declare uuid registry",
+    )
+    shallow = tmp_path / "shallow-clone"
+    _run(
+        ["git", "clone", "-q", "--depth", "1", f"file://{repo}", str(shallow)],
+        cwd=repo.parent,
+    )
+    with pytest.raises(pin_ledger.PinError, match="shallow"):
+        pin_ledger._walked_lineage_declares_registry(
+            shallow, _git(shallow, "rev-parse", "HEAD")
+        )

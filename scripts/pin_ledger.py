@@ -1549,7 +1549,18 @@ def _walked_lineage_declares_registry(ledger_git: pathlib.Path, head_sha: str) -
     declaration merged in from an abandoned side branch binds the head
     even if its content was never adopted — re-declaring is the recovery,
     silently shedding custody is not.
+
+    A shallow clone is refused outright: git treats the shallow boundary
+    as a root, so ``rev-list`` silently omits everything behind it and an
+    ancestor declaration would vanish without any error — fail open.
     """
+    shallow = _git(ledger_git, "rev-parse", "--is-shallow-repository")
+    if shallow.strip() == "true":
+        raise PinError(
+            "ledger clone is shallow — the shallow boundary poses as a "
+            "root, so the ancestry scan cannot prove the registry "
+            "ratchet; run `git fetch --unshallow` first"
+        )
     listing = _git(
         ledger_git,
         "rev-list",
@@ -1845,6 +1856,12 @@ def refresh(*, require_catalog: bool = False) -> None:
     previous_raw = old_raw
     expected_parent = pin["sha"]
     visited: set[str] = {pin["sha"]}
+    # The registry ratchet must hold across the CROSSED commits too, not
+    # just the two endpoints: a declaration committed and then removed
+    # between refreshes would otherwise advance the pin straight over the
+    # downgrade. Once a declaration is seen the flag latches and no
+    # further catalog fetches are needed.
+    declared_seen = _declares_registry(old_catalog)
     for commit in commits:
         commit_sha = str(commit["sha"])
         commit_payload = (
@@ -1855,6 +1872,15 @@ def refresh(*, require_catalog: bool = False) -> None:
         )
         visited.add(commit_sha)
         raw = _jsonl_at(commit_sha)
+        if not declared_seen and _declares_registry(
+            _remote_catalog_at_commit(
+                commit_sha,
+                commit_payload,
+                raw,
+                required=False,
+            )
+        ):
+            declared_seen = True
         lines = _lines(raw)
         if is_merge and raw != previous_raw:
             raise PinError(
@@ -1911,7 +1937,7 @@ def refresh(*, require_catalog: bool = False) -> None:
         head_registry,
         head_raw,
         label=f"{LEDGER_CATALOG_PATH} at {head_sha}",
-        registry_expected=_declares_registry(old_catalog),
+        registry_expected=declared_seen,
     )
     _write_outputs(
         sha=head_sha,
