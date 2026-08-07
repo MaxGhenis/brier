@@ -528,6 +528,7 @@ def test_main_hands_a_published_seed_back_to_the_ordinary_cursor(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     entry = recurring_seed_entry()
+    entry["releaseDates"]["2026-08"] = "2026-09-10"
     registry = tmp_path / "docket_series.json"
     registry.write_text(json.dumps({"series": [entry]}))
     output = tmp_path / "targets.json"
@@ -557,7 +558,56 @@ def test_main_hands_a_published_seed_back_to_the_ordinary_cursor(
     [target] = json.loads(output.read_text())["targets"]
     assert target["catalogSlug"] == "fixture-august-2026"
     assert "seedPeriod" not in target
-    assert "expectedReleaseDate" not in target
+    assert target["expectedReleaseDate"] == "2026-09-10"
+
+
+@pytest.mark.parametrize(
+    "series",
+    [
+        "bea.private_nonresidential_fixed_investment",
+        "bea.research_and_development_fixed_investment",
+    ],
+)
+def test_main_skips_bea_post_seed_successor_without_official_slot_literal(
+    series: str,
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    registry_data = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text()
+    )
+    entry = next(row for row in registry_data["series"] if row["series"] == series)
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [entry]}))
+    output = tmp_path / "targets.json"
+    published_slug = roll_docket.format_slug(
+        entry["slug"], "2026-Q3", entry["cadence"]
+    )
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 11, 1)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket, "RECORDS", tmp_path / "records")
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        roll_docket,
+        "live_catalog",
+        lambda: ({published_slug}, {}, set()),
+    )
+    monkeypatch.setattr(sys, "argv", ["roll_docket.py", "--out", str(output)])
+
+    assert roll_docket.main() == 0
+
+    assert json.loads(output.read_text()) == {"targets": []}
+    assert capsys.readouterr().err == (
+        f"  warning: skip {series} 2026-Q4: calendar-gated adapter has no "
+        "valid explicit official release date and releaseCalendarUrl in the "
+        "docket registry\n"
+    )
 
 
 def test_main_reports_a_published_cursor_without_an_eligible_successor(

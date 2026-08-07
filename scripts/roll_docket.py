@@ -54,6 +54,7 @@ OFFICIAL_CALENDAR_ADAPTERS = frozenset(
         "statcan-wds",
     }
 )
+CALENDAR_GATED_SOURCE_ADAPTERS = OFFICIAL_CALENDAR_ADAPTERS | {"alfred-fred"}
 
 
 def slugify_series(series: str) -> str:
@@ -837,17 +838,18 @@ def recurring_seed_target(
 
 
 def target_extras_for_period(entry: dict, period: str) -> dict | None:
-    """Return target extras, requiring a dated calendar slot for native APIs.
+    """Return target extras, requiring a dated slot for calendar-gated sources.
 
     A previous target's resolution date is not evidence for the next official
-    release date. Native international adapters therefore roll only when the
+    release date. Calendar-gated adapters therefore roll only when the
     committed registry maps the exact reference period to an agency-published
-    date and records the calendar used to verify it.
+    date and records the calendar used to verify it. ALFRED supplies vintage
+    history, not the publisher's future release calendar.
     """
     extras = entry.get("extras") or {}
     binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
-    if adapter not in OFFICIAL_CALENDAR_ADAPTERS:
+    if adapter not in CALENDAR_GATED_SOURCE_ADAPTERS:
         return dict(extras)
 
     release_dates = entry.get("releaseDates")
@@ -866,7 +868,7 @@ def target_extras_for_period(entry: dict, period: str) -> dict | None:
     except ValueError:
         print(
             f"  warning: skip {entry.get('series', '?')} {period}: "
-            "native adapter has no valid explicit official release date "
+            "calendar-gated adapter has no valid explicit official release date "
             "and releaseCalendarUrl in the docket registry",
             file=sys.stderr,
         )
@@ -886,14 +888,14 @@ def advance_past_released_native_periods(
 
     The normal docket cursor advances only through published forecasts. A
     newly adopted series can therefore point at a missed historical period.
-    Native calendar metadata lets us skip that known outcome without ever
+    Committed calendar metadata lets us skip that known outcome without ever
     generating a post-release forecast, then select the first still-unreleased
     period that has meaningfully begun.
     """
     extras = entry.get("extras") or {}
     binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
-    if adapter not in OFFICIAL_CALENDAR_ADAPTERS:
+    if adapter not in CALENDAR_GATED_SOURCE_ADAPTERS:
         return period
 
     candidate = period

@@ -75,6 +75,7 @@ NATIVE_INTL_SOURCE_ADAPTERS = {
     "ons-timeseries",
     "statcan-wds",
 }
+CALENDAR_GATED_SOURCE_ADAPTERS = NATIVE_INTL_SOURCE_ADAPTERS | {"alfred-fred"}
 RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
 RESOLUTION_DATE_BASES = {"release-calendar", "resolve-by-bound"}
 DEFAULT_RESOLUTION_DATE_BASIS = "release-calendar"
@@ -105,6 +106,20 @@ SERIES_BINDINGS: dict[str, dict[str, Any]] = {
         "dataPointSuffix": "week_{period}.first_print",
     },
 }
+
+
+def is_calendar_gated_source(adapter: Any, series: Any) -> bool:
+    """Whether a recurring source must bind to a committed calendar slot.
+
+    The two weekly SERIES_BINDINGS derive their windows from a reviewed
+    reference-period lag, not from a recurring docket source template. They
+    remain on that separate path even though their resolver is ALFRED.
+    """
+
+    return (
+        adapter in CALENDAR_GATED_SOURCE_ADAPTERS
+        and series not in SERIES_BINDINGS
+    )
 
 
 class RegistrationError(ValueError):
@@ -457,7 +472,7 @@ def expected_release_window(
         and supplied.get("start")
         and supplied.get("end")
     )
-    if adapter in NATIVE_INTL_SOURCE_ADAPTERS:
+    if is_calendar_gated_source(adapter, target.get("series")):
         calendar_url = target.get("releaseCalendarUrl")
         if (
             not isinstance(calendar_url, str)
@@ -465,12 +480,12 @@ def expected_release_window(
             or not urlparse(calendar_url).hostname
         ):
             raise RegistrationError(
-                "native international target requires an HTTPS "
+                "calendar-gated target requires an HTTPS "
                 "releaseCalendarUrl"
             )
         if not has_explicit_window and not target.get("expectedReleaseDate"):
             raise RegistrationError(
-                "native international target requires an explicit official "
+                "calendar-gated target requires an explicit official "
                 "expectedReleaseDate or expectedReleaseWindow"
             )
     if has_explicit_window:
@@ -1093,7 +1108,9 @@ def validate_committed_calendar_contract(
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
     seed_period = contract.get("seedPeriod")
     is_recurring_seed = seed_period is not None
-    if adapter not in NATIVE_INTL_SOURCE_ADAPTERS and not is_recurring_seed:
+    if not is_calendar_gated_source(
+        adapter, contract.get("series")
+    ) and not is_recurring_seed:
         return
     if is_recurring_seed and (
         not isinstance(seed_period, str)
@@ -1516,17 +1533,17 @@ def require_conditional_docket_template(
             )
 
 
-def require_native_docket_template(
+def require_calendar_gated_docket_template(
     contract: dict[str, Any], template_matches: list[dict[str, Any]]
 ) -> None:
-    """Require one committed series/calendar authority for native targets."""
+    """Require one committed series/calendar authority for gated targets."""
     binding = contract.get("sourceBinding")
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
-    if adapter not in NATIVE_INTL_SOURCE_ADAPTERS:
+    if not is_calendar_gated_source(adapter, contract.get("series")):
         return
     if len(template_matches) != 1:
         raise RegistrationError(
-            "native international target requires exactly one committed "
+            "calendar-gated target requires exactly one committed "
             "docket template for "
             f"{contract.get('dataPointId')} in series {contract.get('series')}"
         )
@@ -1534,7 +1551,7 @@ def require_native_docket_template(
     template = extras.get("sourceBinding") if isinstance(extras, dict) else None
     if not isinstance(template, dict):
         raise RegistrationError(
-            "native international target requires a committed sourceBinding "
+            "calendar-gated target requires a committed sourceBinding "
             "template for "
             f"{contract.get('dataPointId')} in series {contract.get('series')}"
         )
@@ -2085,7 +2102,7 @@ def bind_registration_commits(
         template_matches = [
             entry for entry in docket_entries if entry["series"] == series
         ]
-        require_native_docket_template(contract, template_matches)
+        require_calendar_gated_docket_template(contract, template_matches)
         require_seed_docket_template(
             contract,
             template_matches,
