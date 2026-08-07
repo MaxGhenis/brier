@@ -341,6 +341,56 @@ def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> No
     assert series in request["note"]
 
 
+def test_usda_aftpp_request_stays_proposed_pending_isolation() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-usda-selected-rural-program-obligations.json"
+        ).read_text()
+    )
+
+    assert request["status"] == "proposed"
+    assert request["verification"]["outcome"] == "proposed"
+    identity = request["verification"]["implementationIdentityEvidence"]
+    assert identity == {
+        "sourceUrl": (
+            "https://simpler.grants.gov/opportunity/"
+            "06f0ec84-e04b-4258-bc33-1634d1209b42"
+        ),
+        "publisher": "USDA Foreign Agricultural Service",
+        "opportunityTitle": "2026 America First Trade Promotion Program",
+        "opportunityNumber": "USDA-FAS-AFTPP-2026",
+        "assistanceListingNumber": "10.618",
+        "programFunding": 285_000_000,
+    }
+    current = request["verification"]["currentUsaspendingState"]
+    assert current["assistanceListingLookup"]["matchedRow"] == {
+        "programNumber": "10.618",
+        "programTitle": "Regional Agricultural Promotion Program",
+        "popularName": "Regional Agricultural Promotion Program",
+    }
+    assert current["exactNameSpendingQuery"]["resultRow"] == {
+        "fiscalYear": "2026",
+        "aggregatedAmount": 0,
+    }
+    assert "award isolation and reporting lag remain open" in request["note"]
+    assert "reporting lag" in request["verification"]["reason"]
+
+    report = (ROOT / "drafts" / "ledger-ingestion" / "WAVE1-REPORT.md").read_text()
+    assert "Five requests verified cleanly, six received a" in report
+    assert "and 19 remain proposals" in report
+    assert (
+        "| `usaspending-usda-selected-rural-program-obligations.json` "
+        "| Proposed |" in report
+    )
+    assert (
+        "| `usaspending-usda-selected-rural-program-obligations.json` "
+        "| Rejected |" not in report
+    )
+
+
 def test_dhs_post_body_refuses_malformed_or_duplicate_tas_components() -> None:
     malformed = copy.deepcopy(dhs_award_transaction_transform())
     malformed["treasuryAccountComponents"][0].pop("sub")

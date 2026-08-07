@@ -7,8 +7,8 @@ BEA series are admitted. No `records/**` artifact is part of this work.
 ## Outcome summary
 
 The wave covered 30 requests: eight ALFRED/USAspending quick requests and 22
-workbook-triage requests. Five requests verified cleanly, seven received a
-terminal rejection for the proposed adapter family, and 18 remain proposals
+workbook-triage requests. Five requests verified cleanly, six received a
+terminal rejection for the proposed adapter family, and 19 remain proposals
 for a later source family or future official print. All five verified request
 concepts are in the docket. A sixth, narrower DHS award-transaction series was
 admitted from the fetched USAspending evidence; the broader account-obligations
@@ -25,7 +25,7 @@ request remains proposed.
 | `usaspending-dhs-title-vi-named-account-obligations.json` | Proposed | The six-component advanced-search query proves only award-transaction obligations. Full account obligations remain open on a financial-account submission/TAS path; the narrower award-transaction series is admitted separately. |
 | `usaspending-energy-commerce-title-iv-named-account-obligations.json` | Rejected | Live identifiers do not cover all named Title IV programs, so the query would measure only part of the concept. |
 | `usaspending-ondcp-hidta-supplemental-grant-obligations.json` | Rejected | Assistance Listing 95.001 cannot distinguish the section 707(s) supplemental grants from broader HIDTA activity. |
-| `usaspending-usda-selected-rural-program-obligations.json` | Rejected | The requested Supplemental Agricultural Trade Promotion identifier is absent; the available similarly named program is a different concept. |
+| `usaspending-usda-selected-rural-program-obligations.json` | Proposed | The official 2026 America First Trade Promotion Program notice identifies opportunity `USDA-FAS-AFTPP-2026`, Assistance Listing 10.618, and $285 million in program funding. USAspending labels 10.618 as Regional Agricultural Promotion Program and an exact-name FY2026 AFTPP query returns $0, leaving award isolation and reporting lag open. |
 
 ### Workbook requests
 
