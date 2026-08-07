@@ -5,17 +5,17 @@
   "cadence": "quarterly",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "BEA research-and-development fixed investment as a broad research outcome.",
-  "note": "VERIFIED: FRED/ALFRED Y006RC1Q027SBEA is the exact quarterly nominal private research-and-development fixed-investment level in billions of dollars at a seasonally adjusted annual rate.",
-  "adapterFamily": "alfred-fred",
+  "note": "VERIFIED: the official BEA GDP advance-release NIPA Table 5.3.5 line 18 is the quarterly current-print resolver; ALFRED Y006RC1Q027SBEA remains the dated-vintage history mirror.",
+  "adapterFamily": "bea-release",
   "billSlugs": ["stress-119hr1eh"],
   "publisher": "Bureau of Economic Analysis",
-  "statisticalProduct": "BEA NIPA Table 5.6.5, Private Fixed Investment in Intellectual Property Products by Type, research and development, nominal SAAR",
-  "likelyUrlPattern": "https://apps.bea.gov/iTable/?ReqID=19&step=3",
+  "statisticalProduct": "BEA NIPA Table 5.3.5, Private Fixed Investment by Type, line 18 research and development, quarterly nominal SAAR",
+  "likelyUrlPattern": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
   "verification": {
     "schemaVersion": "ledger_ingestion_verification_v1",
     "outcome": "verified",
     "verifiedAtUtc": "2026-08-06T20:09:06Z",
-    "reason": "Y006RC1Q027SBEA exactly matches the requested private R&D fixed-investment concept, usd_billions unit, quarterly cadence, and now-pinned nominal SAAR basis, and ALFRED returned the advance-release Q4 2025 observation at its dated vintage.",
+    "reason": "BEA NIPA Table 5.3.5 line 18 exactly matches the requested private R&D fixed-investment concept, usd_billions unit, quarterly cadence, and nominal SAAR basis. The runtime resolver now authenticates the official GDP advance-release page and captures that official table on release day; ALFRED returned the pinned historical Q4 2025 vintage used for history.",
     "metadataEvidence": {
       "url": "https://alfred.stlouisfed.org/series?seid=Y006RC1Q027SBEA",
       "retrievedAtUtc": "2026-08-06T20:03:40Z",
@@ -68,13 +68,19 @@
       "seasonalBasis": "nominal seasonally adjusted annual rate"
     },
     "adapterSpecProposal": {
-      "fred": "Y006RC1Q027SBEA",
-      "transform": "level",
+      "adapter": "bea-release",
+      "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+      "tableKey": "145",
+      "tableId": "T50305",
+      "lineNumber": "18",
+      "rowLabel": "Research and development",
+      "valueTransform": {"operation": "multiply", "factor": 0.001},
       "unit": "usd_billions",
       "label": "US private research and development fixed investment, nominal SAAR",
       "source_name": "bea",
-      "source_table": "Gross Domestic Product, Table 5.6.5 (private R&D fixed investment)",
-      "concept_authority": "bea"
+      "source_table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 18 (Research and development)",
+      "concept_authority": "bea",
+      "historyMirror": {"adapter": "alfred-fred", "fred": "Y006RC1Q027SBEA"}
     },
     "releaseCalendarEvidence": {
       "url": "https://www.bea.gov/news/schedule",

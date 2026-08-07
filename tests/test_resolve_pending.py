@@ -55,7 +55,7 @@ def test_wave1_pnfi_first_print_fixture_is_hash_pinned_and_parses() -> None:
     )
 
     assert rows == {"2025-10-01": 4378.954}
-    assert resolve_pending.ALFRED_ADAPTERS[
+    assert resolve_pending.ALFRED_HISTORY_MIRRORS[
         "bea.private_nonresidential_fixed_investment"
     ] == {
         "fred": "PNFI",
@@ -91,7 +91,7 @@ def test_wave1_bea_rd_first_print_fixture_is_hash_pinned_and_parses() -> None:
     )
 
     assert rows == {"2025-10-01": 885.955}
-    assert resolve_pending.ALFRED_ADAPTERS[
+    assert resolve_pending.ALFRED_HISTORY_MIRRORS[
         "bea.research_and_development_fixed_investment"
     ] == {
         "fred": "Y006RC1Q027SBEA",

@@ -53,6 +53,7 @@ SOURCE_ADAPTERS = {
     "abs-data-api",
     "abs-release-page",
     "alfred-fred",
+    "bea-release",
     "census-spm-annual-report",
     "eurostat-api",
     "fsa-crp-monthly-summary",
@@ -66,6 +67,7 @@ SOURCE_ADAPTERS = {
 # distinct from the registered landing/announcement URL. Keep that expansion
 # trusted and adapter-specific; target proposals cannot widen allowedHosts.
 SOURCE_ADAPTER_ALLOWED_HOSTS = {
+    "bea-release": {"apps.bea.gov", "www.bea.gov"},
     "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
 }
 NATIVE_INTL_SOURCE_ADAPTERS = {
@@ -75,7 +77,10 @@ NATIVE_INTL_SOURCE_ADAPTERS = {
     "ons-timeseries",
     "statcan-wds",
 }
-CALENDAR_GATED_SOURCE_ADAPTERS = NATIVE_INTL_SOURCE_ADAPTERS | {"alfred-fred"}
+CALENDAR_GATED_SOURCE_ADAPTERS = NATIVE_INTL_SOURCE_ADAPTERS | {
+    "alfred-fred",
+    "bea-release",
+}
 RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
 RESOLUTION_DATE_BASES = {"release-calendar", "resolve-by-bound"}
 DEFAULT_RESOLUTION_DATE_BASIS = "release-calendar"

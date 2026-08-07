@@ -54,7 +54,10 @@ OFFICIAL_CALENDAR_ADAPTERS = frozenset(
         "statcan-wds",
     }
 )
-CALENDAR_GATED_SOURCE_ADAPTERS = OFFICIAL_CALENDAR_ADAPTERS | {"alfred-fred"}
+CALENDAR_GATED_SOURCE_ADAPTERS = OFFICIAL_CALENDAR_ADAPTERS | {
+    "alfred-fred",
+    "bea-release",
+}
 
 
 def slugify_series(series: str) -> str:
@@ -843,8 +846,8 @@ def target_extras_for_period(entry: dict, period: str) -> dict | None:
     A previous target's resolution date is not evidence for the next official
     release date. Calendar-gated adapters therefore roll only when the
     committed registry maps the exact reference period to an agency-published
-    date and records the calendar used to verify it. ALFRED supplies vintage
-    history, not the publisher's future release calendar.
+    date and records the calendar used to verify it. Neither a mirror nor a
+    mutable current table supplies the publisher's future release calendar.
     """
     extras = entry.get("extras") or {}
     binding = extras.get("sourceBinding") if isinstance(extras, dict) else None

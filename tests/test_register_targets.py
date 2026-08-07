@@ -1278,7 +1278,7 @@ def _wave1_bea_successor_target() -> tuple[dict, dict]:
     return entry, target
 
 
-def test_alfred_successor_registration_refuses_cadence_inference_literal() -> None:
+def test_bea_release_successor_refuses_cadence_inference_literal() -> None:
     _, target = _wave1_bea_successor_target()
 
     with pytest.raises(register_targets.RegistrationError) as caught:
@@ -1290,7 +1290,7 @@ def test_alfred_successor_registration_refuses_cadence_inference_literal() -> No
     )
 
 
-def test_alfred_successor_cannot_invent_uncommitted_release_slot_literal() -> None:
+def test_bea_release_successor_cannot_invent_release_slot_literal() -> None:
     entry, target = _wave1_bea_successor_target()
     target["expectedReleaseDate"] = "2027-01-29"
     contract = register_targets.build_contract(target, dt.date(2026, 11, 1))

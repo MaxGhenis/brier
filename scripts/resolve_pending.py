@@ -53,6 +53,7 @@ import zipfile
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from decimal import Decimal
+from html import unescape
 from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import quote, urlparse
@@ -497,32 +498,6 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "source_table": "Gross Domestic Product news release",
         "concept_authority": "bea",
     },
-    "bea.private_nonresidential_fixed_investment": {
-        "fred": "PNFI",
-        "transform": "level",
-        "unit": "usd_billions",
-        "label": "US private nonresidential fixed investment, nominal SAAR",
-        "source_name": "bea",
-        "source_table": (
-            "Gross Domestic Product, Table 5.3.5 "
-            "(private fixed investment by type)"
-        ),
-        "concept_authority": "bea",
-    },
-    "bea.research_and_development_fixed_investment": {
-        "fred": "Y006RC1Q027SBEA",
-        "transform": "level",
-        "unit": "usd_billions",
-        "label": (
-            "US private research and development fixed investment, nominal SAAR"
-        ),
-        "source_name": "bea",
-        "source_table": (
-            "Gross Domestic Product, Table 5.6.5 "
-            "(private R&D fixed investment)"
-        ),
-        "concept_authority": "bea",
-    },
     "bea.disposable_personal_income.level": {
         "fred": "DSPI",
         "transform": "level",
@@ -944,6 +919,434 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "concept_authority": "bls",
     },
 }
+
+# These ALFRED series are evidence mirrors only. They preserve dated
+# historical vintages for forecast history and anchor tests, but they are not
+# eligible runtime resolvers: current outcomes for both series come from the
+# official BEA GDP advance release and its NIPA table below.
+ALFRED_HISTORY_MIRRORS: dict[str, dict[str, Any]] = {
+    "bea.private_nonresidential_fixed_investment": {
+        "fred": "PNFI",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US private nonresidential fixed investment, nominal SAAR",
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.3.5 "
+            "(private fixed investment by type)"
+        ),
+        "concept_authority": "bea",
+    },
+    "bea.research_and_development_fixed_investment": {
+        "fred": "Y006RC1Q027SBEA",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": (
+            "US private research and development fixed investment, nominal SAAR"
+        ),
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.6.5 "
+            "(private R&D fixed investment)"
+        ),
+        "concept_authority": "bea",
+    },
+}
+
+BEA_ITABLE_PAGE_URL = (
+    "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&"
+    "nipa_table_list=145&categories=survey"
+)
+BEA_ITABLE_DATA_URL = "https://apps.bea.gov/iTablecore/data/app/GetStep"
+BEA_RELEASE_REQUIRED_HOSTS = {"apps.bea.gov", "www.bea.gov"}
+BEA_RELEASE_ALLOWED_HOSTS = {
+    *BEA_RELEASE_REQUIRED_HOSTS,
+    "alfred.stlouisfed.org",
+}
+BEA_RELEASE_ADAPTERS: dict[str, dict[str, Any]] = {
+    "bea.private_nonresidential_fixed_investment": {
+        "table_key": "145",
+        "table_id": "T50305",
+        "line_number": "2",
+        "row_label": "Nonresidential",
+        "source_url": BEA_ITABLE_PAGE_URL,
+        "series_id": "T50305:L2",
+        "field": "Line 2: Nonresidential",
+        "transform": "level",
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_billions",
+        "label": "US private nonresidential fixed investment, nominal SAAR",
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product advance release, NIPA Table 5.3.5, "
+            "line 2 (Nonresidential)"
+        ),
+        "concept_authority": "bea",
+        "source_concept": "T50305:L2",
+        "measure_concept": "bea.private_nonresidential_fixed_investment",
+        "history_mirror": {"adapter": "alfred-fred", "series_id": "PNFI"},
+    },
+    "bea.research_and_development_fixed_investment": {
+        "table_key": "145",
+        "table_id": "T50305",
+        "line_number": "18",
+        "row_label": "Research and development",
+        "source_url": BEA_ITABLE_PAGE_URL,
+        "series_id": "T50305:L18",
+        "field": "Line 18: Research and development",
+        "transform": "level",
+        "value_transform": {"operation": "multiply", "factor": 0.001},
+        "unit": "usd_billions",
+        "label": (
+            "US private research and development fixed investment, nominal SAAR"
+        ),
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product advance release, NIPA Table 5.3.5, "
+            "line 18 (Research and development)"
+        ),
+        "concept_authority": "bea",
+        "source_concept": "T50305:L18",
+        "measure_concept": "bea.research_and_development_fixed_investment",
+        "history_mirror": {
+            "adapter": "alfred-fred",
+            "series_id": "Y006RC1Q027SBEA",
+        },
+    },
+}
+
+BEA_RELEASE_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+BEA_RELEASE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+
+
+def bea_release_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """The reviewed seven-key binding for an official BEA release parser."""
+
+    return {
+        "adapter": "bea-release",
+        "sourceUrl": spec["source_url"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": spec["value_transform"],
+        "releasePolicy": "first_print",
+    }
+
+
+def bea_release_binding_matches_spec(
+    binding: Any, spec: Mapping[str, Any]
+) -> bool:
+    """Authenticate the complete binding before touching either BEA host."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - BEA_RELEASE_BINDING_DERIVED_KEYS
+        != BEA_RELEASE_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    allowed_hosts = binding.get("allowedHosts")
+    if not isinstance(allowed_hosts, list):
+        return False
+    host_set = set(allowed_hosts)
+    if (
+        len(host_set) != len(allowed_hosts)
+        or not BEA_RELEASE_REQUIRED_HOSTS <= host_set
+        or not host_set <= BEA_RELEASE_ALLOWED_HOSTS
+    ):
+        return False
+    projection = {
+        key: binding[key] for key in BEA_RELEASE_BINDING_TEMPLATE_KEYS
+    }
+    return canonical_bytes(projection) == canonical_bytes(
+        bea_release_binding_template(spec)
+    )
+
+
+def _bea_quarter(period: str) -> tuple[int, int]:
+    match = re.fullmatch(r"(\d{4})-(01|04|07|10)", period)
+    if match is None:
+        raise ValueError(f"BEA period must be a quarter start, got {period!r}")
+    return int(match.group(1)), (int(match.group(2)) - 1) // 3 + 1
+
+
+def bea_advance_release_url(period: str, release_day: dt.date) -> str:
+    """Exact official GDP advance-release page for a quarterly period."""
+
+    year, quarter = _bea_quarter(period)
+    ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[quarter]
+    suffix = f"{ordinal}-quarter-{year}"
+    if quarter == 4:
+        suffix = f"{ordinal}-quarter-and-year-{year}"
+    return (
+        f"https://www.bea.gov/news/{release_day.year}/"
+        f"gdp-advance-estimate-{suffix}"
+    )
+
+
+def _bea_release_title(period: str) -> str:
+    year, quarter = _bea_quarter(period)
+    ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[quarter]
+    if quarter == 4:
+        return f"GDP (Advance Estimate), {ordinal} Quarter and Year {year}"
+    return f"GDP (Advance Estimate), {ordinal} Quarter {year}"
+
+
+def bea_release_page_refusal(
+    raw: bytes, period: str, release_day: dt.date
+) -> str | None:
+    """Verify that fetched BEA HTML names this period's advance release."""
+
+    try:
+        page = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return "release response is not UTF-8 HTML"
+    page = re.sub(r"<script\b[^>]*>.*?</script>", " ", page, flags=re.I | re.S)
+    page = re.sub(r"<style\b[^>]*>.*?</style>", " ", page, flags=re.I | re.S)
+    visible = " ".join(unescape(re.sub(r"<[^>]+>", " ", page)).split())
+    title = _bea_release_title(period)
+    date_text = (
+        f"{release_day.strftime('%B')} {release_day.day}, {release_day.year}"
+    )
+    if title not in visible:
+        return f"release page does not contain expected title {title!r}"
+    embargo = re.search(
+        r"EMBARGOED UNTIL RELEASE AT\s+.{1,100}?"
+        + re.escape(date_text),
+        visible,
+        flags=re.I,
+    )
+    if embargo is None:
+        return (
+            "release page embargo line does not contain registered date "
+            f"{date_text!r}"
+        )
+    return None
+
+
+def bea_itable_request_body(
+    spec: Mapping[str, Any], period: str
+) -> dict[str, Any]:
+    year, _quarter = _bea_quarter(period)
+    return {
+        "appid": 19,
+        "stepnum": 3,
+        "data": [
+            ["Categories", "Survey"],
+            ["NIPA_Table_List", str(spec["table_key"])],
+            ["First_Year", str(year)],
+            ["Last_Year", str(year)],
+            ["Scale", "-6"],
+            ["Series", "Q"],
+            ["Select_all_years", "0"],
+        ],
+    }
+
+
+def _bea_cell_value(cell: Any) -> str:
+    return str(cell.get("CV") or "") if isinstance(cell, dict) else ""
+
+
+def _bea_row_label(value: str) -> str:
+    value = re.sub(r"<sup\b[^>]*>.*?</sup>", "", value, flags=re.I | re.S)
+    return " ".join(unescape(re.sub(r"<[^>]+>", " ", value)).split())
+
+
+def bea_itable_value(
+    raw: bytes,
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+) -> tuple[float | None, str | None]:
+    """Read one exact quarterly row from BEA's official iTable response."""
+
+    try:
+        response = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, "iTable response is not UTF-8 JSON"
+    if not isinstance(response, dict) or response.get("Number") != 3:
+        return None, "iTable response is not the interactive-data table step"
+    prompts = response.get("Prompts")
+    if not isinstance(prompts, list):
+        return None, "iTable response has no prompt list"
+    table_prompts = [
+        prompt
+        for prompt in prompts
+        if isinstance(prompt, dict)
+        and prompt.get("Name") == "TheTable"
+        and prompt.get("UIControl") == "Table"
+    ]
+    if len(table_prompts) != 1:
+        return None, f"expected one iTable table prompt, found {len(table_prompts)}"
+    try:
+        prompt_data = json.loads(table_prompts[0]["PromtData"])
+        table = json.loads(prompt_data["Table"])
+    except (KeyError, TypeError, json.JSONDecodeError):
+        return None, "iTable prompt does not contain a parseable table"
+    if not isinstance(table, dict):
+        return None, "iTable payload is not a table object"
+    if table.get("Title") != "Table 5.3.5. Private Fixed Investment by Type":
+        return None, f"unexpected iTable title {table.get('Title')!r}"
+    revision_text = (
+        f"Last Revised on: {release_day.strftime('%B')} "
+        f"{release_day.day}, {release_day.year}"
+    )
+    description = str(table.get("Description") or "")
+    if not description.startswith(revision_text):
+        return None, (
+            f"iTable revision stamp {description!r} does not start with "
+            f"registered release stamp {revision_text!r}"
+        )
+    subtitle = str(table.get("Sub_Title") or "")
+    if (
+        "[Millions of dollars]" not in subtitle
+        or "Seasonally adjusted at annual rates" not in subtitle
+    ):
+        return None, f"unexpected iTable unit/basis subtitle {subtitle!r}"
+    rows = table.get("Data_Rows")
+    if (
+        not isinstance(rows, list)
+        or len(rows) < 3
+        or not isinstance(rows[0], list)
+        or not isinstance(rows[1], list)
+    ):
+        return None, "iTable response is missing quarterly headers and rows"
+    year, quarter = _bea_quarter(period)
+    year_cells = [_bea_cell_value(cell) for cell in rows[0]]
+    quarter_cells = [_bea_cell_value(cell) for cell in rows[1]]
+    columns = [
+        index
+        for index in range(2, min(len(year_cells), len(quarter_cells)))
+        if year_cells[index] == str(year)
+        and quarter_cells[index] == f"Q{quarter}"
+    ]
+    if len(columns) != 1:
+        return None, (
+            f"expected one {year} Q{quarter} iTable column, found {len(columns)}"
+        )
+    matches = []
+    for row in rows[2:]:
+        if not isinstance(row, list) or len(row) < 2:
+            continue
+        if _bea_cell_value(row[0]) != str(spec["line_number"]):
+            continue
+        if _bea_row_label(_bea_cell_value(row[1])) != spec["row_label"]:
+            continue
+        matches.append(row)
+    if len(matches) != 1:
+        return None, (
+            f"expected one exact line {spec['line_number']} "
+            f"{spec['row_label']!r} row, found {len(matches)}"
+        )
+    column = columns[0]
+    if column >= len(matches[0]):
+        return None, "exact iTable row is shorter than its quarter headers"
+    printed = _bea_cell_value(matches[0][column]).replace(",", "").strip()
+    try:
+        value = float(printed)
+    except ValueError:
+        return None, f"exact iTable cell is not numeric: {printed!r}"
+    if not math.isfinite(value) or value < 0:
+        return None, f"exact iTable cell is not a nonnegative finite value: {value}"
+    transform = spec.get("value_transform")
+    if transform != {"operation": "multiply", "factor": 0.001}:
+        return None, f"unsupported BEA value transform {transform!r}"
+    return round(value * 0.001, 4) + 0.0, None
+
+
+def fetch_bea_release_page(
+    period: str, release_day: dt.date
+) -> tuple[bytes | None, str, str]:
+    url = bea_advance_release_url(period, release_day)
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "text/html",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+    )
+    try:
+        raw, retrieved_at, final_url = http_request(
+            request,
+            allowed_hosts=tuple(sorted(BEA_RELEASE_REQUIRED_HOSTS)),
+        )
+        return raw, final_url, retrieved_at
+    except (OSError, ValueError, urllib.error.HTTPError, urllib.error.URLError):
+        return None, url, retrieved_at
+
+
+def fetch_bea_itable_table(
+    spec: Mapping[str, Any], period: str
+) -> tuple[bytes | None, str, dict[str, Any], str]:
+    body = bea_itable_request_body(spec, period)
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        BEA_ITABLE_DATA_URL,
+        data=canonical_bytes(body),
+        headers={
+            "Accept": "application/json, text/plain",
+            "Content-Type": "application/json",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+        method="POST",
+    )
+    try:
+        raw, retrieved_at, final_url = http_request(
+            request,
+            allowed_hosts=tuple(sorted(BEA_RELEASE_REQUIRED_HOSTS)),
+        )
+        return raw, final_url, body, retrieved_at
+    except (OSError, ValueError, urllib.error.HTTPError, urllib.error.URLError):
+        return None, BEA_ITABLE_DATA_URL, body, retrieved_at
+
+
+def bea_release_snapshot_envelope(
+    *,
+    spec: Mapping[str, Any],
+    period: str,
+    value: float,
+    release_url: str,
+    release_raw: bytes,
+    release_retrieved_at: str,
+    table_url: str,
+    table_body: Mapping[str, Any],
+    table_raw: bytes,
+    table_retrieved_at: str,
+) -> bytes:
+    """Archive both official responses and the deterministic table parse."""
+
+    envelope = {
+        "schemaVersion": "bea_release_snapshot_v1",
+        "release": {
+            "url": release_url,
+            "retrievedAt": release_retrieved_at,
+            "sha256": hashlib.sha256(release_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(release_raw).decode("ascii"),
+        },
+        "table": {
+            "url": table_url,
+            "landingPageUrl": spec["source_url"],
+            "request": table_body,
+            "retrievedAt": table_retrieved_at,
+            "sha256": hashlib.sha256(table_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(table_raw).decode("ascii"),
+        },
+        "derived": {
+            "period": period,
+            "sourceSeriesId": spec["series_id"],
+            "value": value,
+        },
+    }
+    return canonical_bytes(envelope) + b"\n"
 
 # CPS Table A-19 detail rows have no FRED mirror, so they resolve from an
 # immutable Wayback Machine snapshot of the cells' OWN bound source page
@@ -6793,6 +7196,22 @@ def pending_adapter_refs(
                     )
                 )
             continue
+        bea_release_stem = longest_adapter_stem(ref, BEA_RELEASE_ADAPTERS)
+        if bea_release_stem:
+            parsed = parse_ref_period(ref, bea_release_stem)
+            if parsed and parsed[0] == "quarter":
+                out.append(
+                    (
+                        ref,
+                        "bea_release",
+                        BEA_RELEASE_ADAPTERS[bea_release_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
         for stem, spec in ALFRED_ADAPTERS.items():
             if not ref.startswith(stem + "."):
                 continue
@@ -8170,6 +8589,7 @@ FAMILY_ADAPTERS = {
     # the series name — the 2026-07-25 new-home-sales collision, where a
     # 2026-07-10 generic-url registration met a newly added ALFRED stem.
     "alfred": {"alfred-fred"},
+    "bea_release": {"bea-release"},
     "bls_api": {"bls-api"},
     "census_spm": {"census-spm-annual-report"},
     "fsa_crp": {"fsa-crp-monthly-summary"},
@@ -8335,12 +8755,17 @@ def main() -> int:
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
-    # Generic adapters: ALFRED vintage series, BLS API series, A-19
-    # snapshot rows, and the international native-source adapters. FRED
-    # fetches are cached per (series, vintage); BLS fetches per (series,
-    # year range); A-19 snapshots per month; international artifacts per
-    # source key so dataPointId dialects share one archived response.
+    # Generic adapters: official BEA current releases, ALFRED vintage series,
+    # BLS API series, A-19 snapshot rows, and the international native-source
+    # adapters. Shared official responses are cached so multiple cells from
+    # one release archive the same bytes.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
+    bea_release_page_cache: dict[
+        str, tuple[bytes | None, str, str]
+    ] = {}
+    bea_itable_cache: dict[
+        bytes, tuple[bytes | None, str, dict[str, Any], str]
+    ] = {}
     usaspending_cache: dict[
         tuple[str, bytes | None], tuple[Any, bytes | None, str]
     ] = {}
@@ -8526,6 +8951,112 @@ def main() -> int:
             series_id = spec["series_id"]
             source_file = spec["source_file"]
             extension = spec["extension"]
+        elif kind == "bea_release":
+            contract = (registration or {}).get("contract") or {}
+            binding = contract.get("sourceBinding") or {}
+            if not bea_release_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
+                )
+                continue
+            expected_window = {
+                "start": release_day.isoformat(),
+                "end": release_day.isoformat(),
+            }
+            if binding.get("expectedReleaseWindow") != expected_window:
+                print(
+                    "  FORECAST/REGISTERED RELEASE DATE MISMATCH "
+                    f"(refusing): {ref} — forecast {release_day} is outside "
+                    f"{binding.get('expectedReleaseWindow')!r}"
+                )
+                continue
+            # BEA's interactive NIPA table is mutable. Capture it only on the
+            # registered GDP advance-release day; a later table may already
+            # contain a second estimate or annual-update revision.
+            bea_start_day = dt.date.fromisoformat(utc_now()[:10])
+            if bea_start_day < release_day:
+                print(f"  release {release_day} not reached: {ref}")
+                continue
+            if bea_start_day > release_day:
+                print(
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — "
+                    f"registered release day was {release_day}"
+                )
+                continue
+            release_url = bea_advance_release_url(period, release_day)
+            if release_url not in bea_release_page_cache:
+                bea_release_page_cache[release_url] = fetch_bea_release_page(
+                    period, release_day
+                )
+            release_raw, fetched_release_url, release_retrieved_at = (
+                bea_release_page_cache[release_url]
+            )
+            if release_raw is None:
+                print(f"  BEA RELEASE fetch failed (deferring): {ref}")
+                continue
+            release_refusal = bea_release_page_refusal(
+                release_raw, period, release_day
+            )
+            if release_refusal:
+                print(
+                    f"  BEA RELEASE PAGE REFUSAL (refusing): {ref} — "
+                    f"{release_refusal}"
+                )
+                continue
+            table_body = bea_itable_request_body(spec, period)
+            table_cache_key = canonical_bytes(table_body)
+            if table_cache_key not in bea_itable_cache:
+                bea_itable_cache[table_cache_key] = fetch_bea_itable_table(
+                    spec, period
+                )
+            table_raw, table_url, fetched_table_body, table_retrieved_at = (
+                bea_itable_cache[table_cache_key]
+            )
+            if table_raw is None:
+                print(f"  BEA iTABLE fetch failed (deferring): {ref}")
+                continue
+            effective_capture_day = max(
+                release_retrieved_at[:10],
+                table_retrieved_at[:10],
+                utc_now()[:10],
+            )
+            if effective_capture_day > release_day.isoformat():
+                print(
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — "
+                    f"capture completed {effective_capture_day} after "
+                    f"registered release day {release_day}"
+                )
+                continue
+            value, table_refusal = bea_itable_value(
+                table_raw, spec, period, release_day
+            )
+            if table_refusal:
+                print(
+                    f"  BEA iTABLE PARSE REFUSAL (refusing): {ref} — "
+                    f"{table_refusal}"
+                )
+                continue
+            assert value is not None
+            raw = bea_release_snapshot_envelope(
+                spec=spec,
+                period=period,
+                value=value,
+                release_url=fetched_release_url,
+                release_raw=release_raw,
+                release_retrieved_at=release_retrieved_at,
+                table_url=table_url,
+                table_body=fetched_table_body,
+                table_raw=table_raw,
+                table_retrieved_at=table_retrieved_at,
+            )
+            source_url = fetched_release_url
+            source_file = (
+                "GDP advance release HTML + NIPA Table 5.3.5 iTable JSON"
+            )
+            series_id = str(spec["series_id"]).replace(":", "-")
+            retrieved_at = max(release_retrieved_at, table_retrieved_at)
+            extension = "json"
         elif kind == "alfred":
             cache_key = (spec["fred"], release_day.isoformat())
             if cache_key not in alfred_cache:

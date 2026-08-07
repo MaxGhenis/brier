@@ -671,14 +671,14 @@
       "extras": {
         "targetUnit": "usd_billions",
         "sourceBinding": {
-          "adapter": "alfred-fred",
-          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PNFI",
-          "sourceSeriesId": "PNFI",
-          "field": "PNFI",
-          "table": "Gross Domestic Product, Table 5.3.5 (private fixed investment by type)",
+          "adapter": "bea-release",
+          "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+          "sourceSeriesId": "T50305:L2",
+          "field": "Line 2: Nonresidential",
+          "table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 2 (Nonresidential)",
           "transform": {
             "operation": "multiply",
-            "factor": 1
+            "factor": 0.001
           },
           "releasePolicy": "first_print"
         }
@@ -696,14 +696,14 @@
       "extras": {
         "targetUnit": "usd_billions",
         "sourceBinding": {
-          "adapter": "alfred-fred",
-          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=Y006RC1Q027SBEA",
-          "sourceSeriesId": "Y006RC1Q027SBEA",
-          "field": "Y006RC1Q027SBEA",
-          "table": "Gross Domestic Product, Table 5.6.5 (private R&D fixed investment)",
+          "adapter": "bea-release",
+          "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+          "sourceSeriesId": "T50305:L18",
+          "field": "Line 18: Research and development",
+          "table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 18 (Research and development)",
           "transform": {
             "operation": "multiply",
-            "factor": 1
+            "factor": 0.001
           },
           "releasePolicy": "first_print"
         }

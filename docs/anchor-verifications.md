@@ -113,10 +113,12 @@ investment in billions of dollars at a seasonally adjusted annual rate. The
 `tests/fixtures/ingestion_wave1/alfred/pnfi-2025-q4-first-print.csv`, SHA-256
 `05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92`.
 
-The registered transform is identity (`factor: 1`) and the target unit is
-`usd_billions`. The official BEA schedule was re-fetched the same session and
-still lists `GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at
-8:30 AM ET, so the quarterly seed uses the default `release-calendar` basis.
+The ALFRED history mirror is already in `usd_billions` and uses identity for
+this pin. The official `bea-release` runtime binding reads BEA's million-dollar
+Table 5.3.5 line 2 and multiplies by 0.001 into `usd_billions`. The official
+BEA schedule was re-fetched the same session and still lists `GDP (Advance
+Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so the quarterly
+seed uses the default `release-calendar` basis.
 
 ## BEA private research and development fixed investment
 
@@ -129,10 +131,12 @@ annual rate. The 2026-02-20 vintage prints 2025 Q4 (`2025-10-01`) at
 SHA-256
 `1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1`.
 
-The registered transform is identity (`factor: 1`) and the target unit is
-`usd_billions`. The official BEA schedule was re-fetched the same session and
-still lists `GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at
-8:30 AM ET, so the quarterly seed uses the default `release-calendar` basis.
+The ALFRED history mirror is already in `usd_billions` and uses identity for
+this pin. The official `bea-release` runtime binding reads BEA's million-dollar
+Table 5.3.5 line 18 and multiplies by 0.001 into `usd_billions`. The official
+BEA schedule was re-fetched the same session and still lists `GDP (Advance
+Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so the quarterly
+seed uses the default `release-calendar` basis.
 
 ---
 

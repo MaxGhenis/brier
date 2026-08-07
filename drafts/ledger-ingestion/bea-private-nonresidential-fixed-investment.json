@@ -5,17 +5,17 @@
   "cadence": "quarterly",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "BEA private nonresidential fixed investment as a broad business-investment outcome.",
-  "note": "VERIFIED: FRED/ALFRED PNFI is the exact quarterly nominal private nonresidential fixed-investment level in billions of dollars at a seasonally adjusted annual rate.",
-  "adapterFamily": "alfred-fred",
+  "note": "VERIFIED: the official BEA GDP advance-release NIPA Table 5.3.5 line 2 is the current-print resolver; ALFRED PNFI remains the dated-vintage history mirror.",
+  "adapterFamily": "bea-release",
   "billSlugs": ["stress-119hr1eh"],
   "publisher": "Bureau of Economic Analysis",
   "statisticalProduct": "National Income and Product Accounts, private nonresidential fixed investment",
-  "likelyUrlPattern": "https://apps.bea.gov/iTable/?ReqID=19&step=2&isuri=1&categories=survey",
+  "likelyUrlPattern": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
   "verification": {
     "schemaVersion": "ledger_ingestion_verification_v1",
     "outcome": "verified",
     "verifiedAtUtc": "2026-08-06T20:09:06Z",
-    "reason": "PNFI exactly matches the requested concept, usd_billions unit, quarterly cadence, and now-pinned nominal SAAR basis, and ALFRED returned the advance-release Q4 2025 observation at its dated vintage.",
+    "reason": "BEA NIPA Table 5.3.5 line 2 exactly matches the requested concept, usd_billions unit, quarterly cadence, and nominal SAAR basis. The runtime resolver now authenticates the official GDP advance-release page and captures that official table on release day; ALFRED returned the pinned historical Q4 2025 vintage used for history.",
     "metadataEvidence": {
       "url": "https://alfred.stlouisfed.org/series?seid=PNFI",
       "retrievedAtUtc": "2026-08-06T20:03:40Z",
@@ -68,13 +68,19 @@
       "seasonalBasis": "nominal seasonally adjusted annual rate"
     },
     "adapterSpecProposal": {
-      "fred": "PNFI",
-      "transform": "level",
+      "adapter": "bea-release",
+      "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+      "tableKey": "145",
+      "tableId": "T50305",
+      "lineNumber": "2",
+      "rowLabel": "Nonresidential",
+      "valueTransform": {"operation": "multiply", "factor": 0.001},
       "unit": "usd_billions",
       "label": "US private nonresidential fixed investment, nominal SAAR",
       "source_name": "bea",
-      "source_table": "Gross Domestic Product, Table 5.3.5 (private fixed investment by type)",
-      "concept_authority": "bea"
+      "source_table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 2 (Nonresidential)",
+      "concept_authority": "bea",
+      "historyMirror": {"adapter": "alfred-fred", "fred": "PNFI"}
     },
     "releaseCalendarEvidence": {
       "url": "https://www.bea.gov/news/schedule",
