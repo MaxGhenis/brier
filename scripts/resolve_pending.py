@@ -1169,6 +1169,11 @@ def bea_itable_value(
 
     try:
         response = json.loads(raw.decode("utf-8"))
+        # The live iTable endpoint double-encodes: the HTTP body is a JSON
+        # string whose contents are the response object. Unwrap exactly one
+        # string layer; anything else still refuses below.
+        if isinstance(response, str):
+            response = json.loads(response)
     except (UnicodeDecodeError, json.JSONDecodeError):
         return None, "iTable response is not UTF-8 JSON"
     if not isinstance(response, dict) or response.get("Number") != 3:

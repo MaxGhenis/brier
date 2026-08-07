@@ -60,9 +60,9 @@ def test_real_bea_current_release_fixtures_are_hash_pinned_and_parse() -> None:
     assert hashlib.sha256(release_raw).hexdigest() == (
         "4636dc341d7cd1a53196fdf0ad529143b0e8b2d0db874f6086ca9b8ebf23cf5d"
     )
-    assert len(table_raw) == 33_125
+    assert len(table_raw) == 46_905
     assert hashlib.sha256(table_raw).hexdigest() == (
-        "ec6529926115cccd3b59ab8b22ac821cf966916dfb0e062876ff893064b0b3f8"
+        "59e5f1ab0eeaa76cdca566383c66eab7787214216ffcbe35aa4c1793a894750d"
     )
     assert (
         resolve_pending.bea_release_page_refusal(release_raw, "2026-04", RELEASE_DAY)
@@ -86,6 +86,10 @@ def test_real_bea_current_release_fixtures_are_hash_pinned_and_parse() -> None:
 def test_bea_table_revision_stamp_must_equal_registered_release_day() -> None:
     raw = (FIXTURES / "nipa-table-5-3-5-2026-q2.json").read_bytes()
     response = json.loads(raw)
+    # The raw fixture is the live double-encoded body: a JSON string
+    # wrapping the response object. Unwrap it the way the parser does.
+    if isinstance(response, str):
+        response = json.loads(response)
     table_prompt = next(
         prompt for prompt in response["Prompts"] if prompt["Name"] == "TheTable"
     )

@@ -87,8 +87,8 @@ line 2 (nonresidential fixed investment) or line 18 (research and development)
 from BEA's iTable response, then archives both responses together. The real Q2
 2026 parser fixtures are hash-pinned at 52,640 bytes / SHA-256
 `4636dc341d7cd1a53196fdf0ad529143b0e8b2d0db874f6086ca9b8ebf23cf5d`
-for the release HTML and 33,125 bytes / SHA-256
-`ec6529926115cccd3b59ab8b22ac821cf966916dfb0e062876ff893064b0b3f8`
+for the release HTML and 46,905 bytes / SHA-256
+`59e5f1ab0eeaa76cdca566383c66eab7787214216ffcbe35aa4c1793a894750d`
 for the official table response. ALFRED remains the dated-vintage history
 mirror. Its exact-period fixtures reproduce three first prints per BEA series:
 
