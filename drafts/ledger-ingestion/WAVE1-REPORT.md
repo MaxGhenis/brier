@@ -34,9 +34,9 @@ The detailed scoring, artifact hashes, exact cells, and tie-break rule are in
 
 | Rank | Request | Outcome |
 |---:|---|---|
-| 1 | `irs-soi-credit-30d-total-claims.json` | Admitted from Table 3.3; TY2023 first print is 493,953 returns. |
-| 2 | `irs-actc-total-credit-amount.json` | Admitted from Table 3.3; TY2023 first print is $34,533.251 million. |
-| 3 | `irs-soi-credit-30d-total-credit-amount.json` | Admitted from Table 3.3; TY2023 first print is $3,231.102 million. |
+| 1 | `irs-soi-credit-30d-total-claims.json` | Admitted from Table 3.3; the current TY2023 official workbook prints 493,953 returns. |
+| 2 | `irs-actc-total-credit-amount.json` | Admitted from Table 3.3; the current TY2023 official workbook prints $34,533.251 million. |
+| 3 | `irs-soi-credit-30d-total-credit-amount.json` | Admitted from Table 3.3; the current TY2023 official workbook prints $3,231.102 million. |
 | 4 | `sba-disaster-loan-program-charge-off-amount.json` | Rejected for this family: the exact value is in a rolling, revisable PDF bundle without first-print custody. |
 | 5 | `sba-disaster-loan-program-charge-off-rate-upb.json` | Rejected for this family for the same rolling-PDF and first-print-custody mismatch. |
 | 6 | `sba-disaster-loan-program-post-charge-off-recovery.json` | Deferred to a new SBA PDF/custody family. |
@@ -73,6 +73,10 @@ annual docket entry using the reviewed `resolve-by-bound` contract. Their
 tests use the real TY2020–TY2023 workbook bytes; the TY2023 fixture is 105,472
 bytes with SHA-256
 `e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04`.
+The fixed IRS workbook URLs are not versioned. These fixtures authenticate the
+parser and values as retrieved, not release-time custody: future first-print
+resolution must capture inside the registered window and refuses after it.
+Late resolution would require future custody-backed adapter support.
 The DHS award-transaction series has an exact `usaspending-api` POST plan and
 FY2026 registered snapshot window. Its unmodified 1,146-byte fixture has SHA-256
 `dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720`.

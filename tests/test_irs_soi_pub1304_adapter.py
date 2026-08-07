@@ -323,18 +323,9 @@ def test_absent_basis_cannot_inherit_bounded_outside_exact_legacy_irs_contract(
     )
 
 
-def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
+def test_irs_resolve_by_window_verdicts_are_literal() -> None:
     ref = "irs.actc.total_claims.2027.first_print.current_law"
     window = {"start": "2029-01-01", "end": "2029-12-31"}
-    registration = {
-        "contract": {
-            "sourceBinding": {
-                **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
-                "allowedHosts": ["www.irs.gov"],
-                "expectedReleaseWindow": window,
-            }
-        }
-    }
 
     assert resolve_pending.bounded_resolution_window_gate(
         ref, resolve_pending.dt.date(2028, 12, 31), window
@@ -350,16 +341,9 @@ def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
     ) == (
         "missed",
         f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered window "
-        "closed 2029-12-31; adapter has no authenticated immutable-artifact "
-        "late-capture capability",
+        "closed 2029-12-31; no release-time witnessed or versioned "
+        "first-print custody is registered",
     )
-    assert resolve_pending.bounded_resolution_window_gate(
-        ref,
-        resolve_pending.dt.date(2030, 1, 1),
-        window,
-        registration=registration,
-        spec=SPEC,
-    ) == ("missed", None)
     assert resolve_pending.bounded_resolution_window_gate(
         ref, resolve_pending.dt.date(2029, 1, 1), None
     ) == (
@@ -368,35 +352,10 @@ def test_irs_resolve_by_window_verdicts_remain_byte_identical() -> None:
     )
 
 
-def test_immutable_late_capture_capability_requires_exact_irs_binding() -> None:
-    binding = {
-        **resolve_pending.irs_soi_pub1304_binding_template(SPEC),
-        "allowedHosts": ["www.irs.gov"],
-        "expectedReleaseWindow": {
-            "start": "2029-01-01",
-            "end": "2029-12-31",
-        },
-    }
-    registration = {"contract": {"sourceBinding": binding}}
-
-    assert resolve_pending.authenticated_late_capture_capability(
-        registration, SPEC
-    )
-    drifted = copy.deepcopy(registration)
-    drifted["contract"]["sourceBinding"]["field"] = "neighboring-field"
-    assert not resolve_pending.authenticated_late_capture_capability(
-        drifted, SPEC
-    )
-    wrong_hosts = copy.deepcopy(registration)
-    wrong_hosts["contract"]["sourceBinding"]["allowedHosts"] = [
-        "mirror.example"
-    ]
-    assert not resolve_pending.authenticated_late_capture_capability(
-        wrong_hosts, SPEC
-    )
-    assert not resolve_pending.authenticated_late_capture_capability(
-        registration,
-        {**SPEC, "late_capture_capability": True},
+def test_no_irs_adapter_claims_late_capture_capability() -> None:
+    assert all(
+        "late_capture_capability" not in spec
+        for spec in resolve_pending.IRS_SOI_PUB1304_ADAPTERS.values()
     )
 
 
@@ -530,8 +489,9 @@ def test_irs_valid_legacy_and_explicit_basis_keep_pending_verdict(
     )
 
 
-def test_irs_authenticated_immutable_adapter_records_after_window(
-    monkeypatch, capsys
+@pytest.mark.parametrize("timing", ["crosses-window-end", "missed"])
+def test_irs_post_window_resolution_refuses_without_witnessed_custody(
+    monkeypatch, capsys, timing
 ) -> None:
     ref = "irs.actc.total_claims.2027.first_print.current_law"
     window = {"start": "2029-01-01", "end": "2029-12-31"}
@@ -585,9 +545,19 @@ def test_irs_authenticated_immutable_adapter_records_after_window(
         "irs_soi_pub1304_anchor_mismatches",
         lambda _values, _anchors: [],
     )
-    monkeypatch.setattr(
-        resolve_pending, "utc_now", lambda: "2030-01-01T00:00:01Z"
-    )
+    if timing == "crosses-window-end":
+        moments = iter(
+            ["2029-12-31T23:59:59Z", "2030-01-01T00:00:01Z"]
+        )
+        monkeypatch.setattr(
+            resolve_pending,
+            "utc_now",
+            lambda: next(moments, "2030-01-01T00:00:01Z"),
+        )
+    else:
+        monkeypatch.setattr(
+            resolve_pending, "utc_now", lambda: "2030-01-01T00:00:01Z"
+        )
     fetches: list[str] = []
 
     def fake_fetch(spec, year):
@@ -595,7 +565,7 @@ def test_irs_authenticated_immutable_adapter_records_after_window(
         fetches.append(year)
         return (
             17_626_084.0,
-            b"authenticated-static-workbook",
+            b"current-workbook-without-release-time-custody",
             "https://www.irs.gov/pub/irs-soi/27in33ar.xls",
             "2030-01-01T00:00:00Z",
             None,
@@ -607,15 +577,19 @@ def test_irs_authenticated_immutable_adapter_records_after_window(
     monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
 
     assert resolve_pending.main() == 0
-    assert fetches == ["2027"]
+    assert fetches == (["2027"] if timing == "crosses-window-end" else [])
     output = capsys.readouterr().out
-    assert (
-        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — capture completed "
-        "2030-01-01, after the registered window closed 2029-12-31"
-        in output
+    refusal = (
+        f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered window "
+        "closed 2029-12-31; no release-time witnessed or versioned "
+        "first-print custody is registered"
     )
-    assert f"  resolve {ref} -> 17.626084 millions" in output
-    assert "dry-run: would append 1 row(s)" in output
+    assert output.splitlines().count(refusal) == 1
+    assert f"  resolve {ref}" not in output
+    assert "LATE FIRST-PRINT CAPTURE (recording)" not in output
+    assert "still its first print" not in output
+    assert "dry-run: would append" not in output
+    assert "nothing new to record" in output
 
 
 def test_irs_runtime_cache_isolated_by_series_and_year(monkeypatch, capsys) -> None:

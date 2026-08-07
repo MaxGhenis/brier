@@ -420,6 +420,13 @@ counts (divided to millions) are pinned as `anchors` in the docket entry's
 target context, so a preregistered analyst run whose fetched base-rate
 history contradicts the official prints fails validation at spawn time.
 
+The `{yy}in33ar.xls` URLs are tax-year-specific but not versioned. These
+fixtures verify parser identity and the values retrieved on their stated
+dates; the URL shape alone does not authenticate release-time first-print
+custody. Future resolution therefore captures only inside the registered
+window and fails closed afterward. Late resolution would require a future
+adapter that authenticates witnessed or versioned first-print custody.
+
 ## IRS SOI Table 3.3 clean vehicle credit claimant returns
 
 Status: **VERIFIED** (integrator, 2026-08-06). The same four official

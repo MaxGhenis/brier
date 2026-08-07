@@ -970,39 +970,19 @@ def test_absent_basis_census_contract_cannot_inherit_bounded_adapter() -> None:
     )
 
 
-def test_mutable_census_adapter_cannot_claim_immutable_late_capture() -> None:
+def test_mutable_census_adapter_has_no_late_capture_bypass() -> None:
     ref = f"{SERIES}.2027.first_print.current_law"
     window = {"start": "2028-08-01", "end": "2028-12-31"}
-    registration = {
-        "contract": {
-            "sourceBinding": {
-                **resolve_pending.census_spm_binding_template(SPEC),
-                "allowedHosts": ["www.census.gov", "www2.census.gov"],
-                "expectedReleaseWindow": window,
-            }
-        }
-    }
-    spoofed = {
-        **SPEC,
-        "late_capture_capability": (
-            resolve_pending.IMMUTABLE_ARTIFACT_LATE_CAPTURE
-        ),
-    }
 
-    assert not resolve_pending.authenticated_late_capture_capability(
-        registration, spoofed
-    )
     assert resolve_pending.bounded_resolution_window_gate(
         ref,
         resolve_pending.dt.date(2029, 1, 1),
         window,
-        registration=registration,
-        spec=spoofed,
     ) == (
         "missed",
         f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered window "
-        "closed 2028-12-31; adapter has no authenticated immutable-artifact "
-        "late-capture capability",
+        "closed 2028-12-31; no release-time witnessed or versioned "
+        "first-print custody is registered",
     )
 
 
@@ -1127,12 +1107,12 @@ def test_verified_adapter_applies_mutable_window_to_both_arms(
         assert refusals == {
             "  FIRST-PRINT WINDOW MISSED (refusing): "
             f"{SERIES}.2027.first_print.threshold_one_dollar — registered "
-            "window closed 2028-12-31; adapter has no authenticated "
-            "immutable-artifact late-capture capability",
+            "window closed 2028-12-31; no release-time witnessed or "
+            "versioned first-print custody is registered",
             "  FIRST-PRINT WINDOW MISSED (refusing): "
             f"{SERIES}.2027.first_print.current_law — registered window "
-            "closed 2028-12-31; adapter has no authenticated immutable-"
-            "artifact late-capture capability",
+            "closed 2028-12-31; no release-time witnessed or versioned "
+            "first-print custody is registered",
         }
         assert "LATE FIRST-PRINT CAPTURE (recording)" not in output
         assert "nothing new to record" in output

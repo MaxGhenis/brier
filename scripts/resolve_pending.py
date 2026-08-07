@@ -86,7 +86,6 @@ from verify_custody import verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LOG_URL = "https://app.thesisinstitute.org/log.json"
-IMMUTABLE_ARTIFACT_LATE_CAPTURE = "immutable-artifact"
 # ALFRED with a vintage date pins the ADVANCE print (what the resolver rules
 # name); plain FRED would silently hand back revised values on backfills.
 FRED_CSV = (
@@ -1671,8 +1670,11 @@ CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
 # IRS SOI Individual Income Tax Returns Complete Report (Publication 1304)
 # Table 3.3 adapter (2026-08-01, thesis#106). Table 3.3 publishes one .xls
 # per tax year at https://www.irs.gov/pub/irs-soi/{yy}in33ar.xls roughly two
-# calendar years after the tax year; the file is a static print, so the
-# capture is the first print whenever the by-date resolver run fetches it.
+# calendar years after the tax year. That URL is neither versioned nor a
+# release-time witness: the resolver may treat its bytes as the first print
+# only when it captures them inside the registered release window. After the
+# window closes, resolution fails closed until independently witnessed custody
+# exists; current bytes must never be relabeled as the first print.
 # Each reviewed spec authenticates one exact concept header, subcolumn, and
 # transform at the "All returns, total" row. Pending references may be plain
 # annual ids or condition-suffixed conditional-arm ids; every arm of a pair
@@ -1684,10 +1686,6 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
         # reviewed adapter declaration is their legacy fallback; new snapshots
         # carry the same value explicitly and disagreement fails closed.
         "resolution_date_basis": "resolve-by-bound",
-        # Per-year Publication 1304 workbooks are stable artifacts. The shared
-        # window gate honors this capability only after the complete registered
-        # IRS binding reauthenticates against this reviewed adapter.
-        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
         "anchor_status": "VERIFIED",
         # Integrator-verified 2026-08-01 against the official Table 3.3
         # workbooks (20in33ar.xls, 21in33ar.xls, 22in33ar.xls, 23in33ar.xls):
@@ -1746,7 +1744,6 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     "irs.actc.total_credit_amount": {
         "resolution_date_basis": "resolve-by-bound",
-        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
         "anchor_status": "VERIFIED",
         "anchors": {
             "2020": 33664804,
@@ -1803,7 +1800,6 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     "irs.soi.credit_30d.total_claims": {
         "resolution_date_basis": "resolve-by-bound",
-        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
         "anchor_status": "VERIFIED",
         "anchors": {
             "2020": 61793,
@@ -1855,7 +1851,6 @@ IRS_SOI_PUB1304_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     "irs.soi.credit_30d.total_credit_amount": {
         "resolution_date_basis": "resolve-by-bound",
-        "late_capture_capability": IMMUTABLE_ARTIFACT_LATE_CAPTURE,
         "anchor_status": "VERIFIED",
         "anchors": {
             "2020": 313118,
@@ -3828,50 +3823,12 @@ def effective_resolution_date_basis(
     return DEFAULT_RESOLUTION_DATE_BASIS, None
 
 
-def authenticated_late_capture_capability(
-    registration: Mapping[str, Any] | None,
-    spec: Mapping[str, Any],
-) -> bool:
-    """Authenticate an adapter's reviewed immutable-artifact capability."""
-
-    if spec.get("late_capture_capability") != IMMUTABLE_ARTIFACT_LATE_CAPTURE:
-        return False
-    contract = (registration or {}).get("contract") or {}
-    if not isinstance(contract, Mapping):
-        return False
-    binding = contract.get("sourceBinding") or {}
-    if not isinstance(binding, Mapping):
-        return False
-    window = binding.get("expectedReleaseWindow")
-    if not isinstance(window, dict) or set(window) != {"start", "end"}:
-        return False
-    try:
-        start = dt.date.fromisoformat(window["start"])
-        end = dt.date.fromisoformat(window["end"])
-    except (TypeError, ValueError):
-        return False
-    # This is deliberately an adapter allowlist, not a generic truthy flag.
-    # Each admitted immutable-artifact adapter must add its own full binding
-    # reauthentication here before it may capture after a registered window.
-    return bool(
-        binding.get("adapter") == "irs-soi-pub1304"
-        and binding.get("allowedHosts") == list(spec.get("allowed_hosts") or ())
-        and start.isoformat() == window["start"]
-        and end.isoformat() == window["end"]
-        and start <= end
-        and irs_soi_pub1304_binding_matches_spec(binding, spec)
-    )
-
-
 def bounded_resolution_window_gate(
     ref: str,
     today: dt.date,
     window: Any,
-    *,
-    registration: Mapping[str, Any] | None = None,
-    spec: Mapping[str, Any] | None = None,
 ) -> tuple[str, str | None]:
-    """Return the shared resolve-by window state and authenticated verdict."""
+    """Return the shared resolve-by window state and fail-closed verdict."""
 
     state = snapshot_window_state(today, window)
     if state == "invalid":
@@ -3881,13 +3838,11 @@ def bounded_resolution_window_gate(
             f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
             f"{window['start']}"
         )
-    if state == "missed" and not authenticated_late_capture_capability(
-        registration, spec or {}
-    ):
+    if state == "missed":
         return state, (
             f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — registered "
-            f"window closed {window['end']}; adapter has no authenticated "
-            "immutable-artifact late-capture capability"
+            f"window closed {window['end']}; no release-time witnessed or "
+            "versioned first-print custody is registered"
         )
     return state, None
 
@@ -8870,15 +8825,13 @@ def main() -> int:
             binding = contract.get("sourceBinding") or {}
             bounded_window = binding.get("expectedReleaseWindow")
             # Every bounded target defers until its immutable window opens.
-            # Once it closes, only a reviewed immutable-artifact capability
-            # backed by the exact registered adapter binding may proceed. Use
-            # the UTC decision day to preserve midnight boundary behavior.
+            # Once it closes, resolution requires release-time witnessed or
+            # versioned custody, which no current bounded adapter provides.
+            # Use the UTC decision day to preserve midnight boundary behavior.
             _window_state, window_verdict = bounded_resolution_window_gate(
                 ref,
                 dt.date.fromisoformat(utc_now()[:10]),
                 bounded_window,
-                registration=registration,
-                spec=spec,
             )
             if window_verdict:
                 print(window_verdict)
@@ -9218,8 +9171,6 @@ def main() -> int:
                     ref,
                     dt.date.fromisoformat(effective_capture_date),
                     window,
-                    registration=registration,
-                    spec=spec,
                 )
                 if capture_verdict:
                     print(capture_verdict)
@@ -9230,11 +9181,10 @@ def main() -> int:
             extension = "xlsx"
         elif kind == "irs_soi_pub1304":
             verified_anchors = irs_verified_anchors or {}
-            registration = registration or {}
-            binding = (registration.get("contract") or {}).get("sourceBinding") or {}
-            # The generalized basis gate above already deferred until this
-            # immutable window opened. A capture after it closes still records
-            # the static workbook's first print, with loud lateness disclosure.
+            # The generalized basis gate above already deferred until the
+            # registered window opened and refused runs that began after it.
+            # Recheck after the fetch so a request that straddles the boundary
+            # cannot publish post-window bytes as the first print.
             window = bounded_window
             anchor_counts: dict[str, float | None] = {}
             anchor_fetch_failed = False
@@ -9294,47 +9244,25 @@ def main() -> int:
             # of the published integer, with no additional rounding. Any
             # display convention lives in the forecast's resolution rule.
             value = irs_soi_pub1304_apply_transform(spec, raw_value)
-            # The workbook is a static per-tax-year print with no vintage
-            # archive: the capture day is the source vintage. Lateness is
-            # judged on the retrieval stamp OR the present decision moment,
-            # whichever is later — the stamp precedes the response read, so
-            # a request straddling midnight past the window end must still
-            # disclose (over-disclosure is the safe direction).
+            # The workbook URL has no vintage archive, so the capture day is
+            # the source vintage. Judge the window on the retrieval stamp OR
+            # the present decision moment, whichever is later: the stamp
+            # precedes the response read, and a request straddling midnight
+            # past the window end must fail closed.
             if raw is not None and resolution_date_basis == "resolve-by-bound":
                 release_day = dt.date.fromisoformat(retrieved_at[:10])
                 # The effective capture date is the later of the request
                 # stamp (taken before the response read) and the decision
-                # moment, so a straddle discloses with a coherent date.
+                # moment, so a straddle fails against a coherent cutoff date.
                 effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
-                capture_state, capture_verdict = bounded_resolution_window_gate(
+                _capture_state, capture_verdict = bounded_resolution_window_gate(
                     ref,
                     dt.date.fromisoformat(effective_capture_date),
                     window,
-                    registration=registration,
-                    spec=spec,
                 )
                 if capture_verdict:
                     print(capture_verdict)
                     continue
-                if capture_state == "missed":
-                    print(
-                        f"  LATE FIRST-PRINT CAPTURE (recording): {ref} — "
-                        f"capture completed {effective_capture_date}, after "
-                        f"the registered window closed {window['end']}"
-                    )
-                    spec = {
-                        **spec,
-                        "evidence_notes": (
-                            str(spec["evidence_notes"])
-                            + " Capture completed "
-                            + effective_capture_date
-                            + ", after the registered "
-                            + str(window["end"])
-                            + " window by-date; the workbook is a static "
-                            "per-tax-year print, so this capture is still "
-                            "its first print."
-                        ),
-                    }
             source_url = spec["source_url"]
             source_file = fetched_url
             series_id = spec["series_id"]
