@@ -27,6 +27,7 @@ APEL_SERIES = {
     "usaspending.dod.prime_award_transactions",
     "usaspending.dod.unique_prime_contract_recipients",
     "usaspending.dod.small_business_contract_obligation_share",
+    "usaspending.dhs.title_vi.named_account_obligations",
 }
 
 
@@ -126,6 +127,12 @@ def share_transform() -> dict:
     ]["transform"]
 
 
+def dhs_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.dhs.title_vi.named_account_obligations"
+    ]["transform"]
+
+
 def test_recipient_post_body_is_the_exact_registered_fy2026_query() -> None:
     expected = {
         "category": "recipient",
@@ -208,6 +215,99 @@ def test_share_post_bodies_only_differ_by_registered_filter() -> None:
     }
     assert "recipient_type_names" not in denominator["filters"]
     assert canonical_bytes(denominator) != canonical_bytes(numerator)
+
+
+def test_dhs_post_body_is_the_exact_verified_fy2026_query() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-dhs-title-vi-named-account-obligations.json"
+        ).read_text()
+    )
+    expected = request["verification"]["query"]["body"]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2026",
+        dhs_transform(),
+    )
+    assert actual == expected
+    assert canonical_bytes(actual) == canonical_bytes(expected)
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "340c6f761a86878475118a2dea32711986652d2d019c6cbd4bed2c2efdb3fb56"
+    )
+
+
+def test_dhs_post_body_refuses_malformed_or_duplicate_tas_components() -> None:
+    malformed = copy.deepcopy(dhs_transform())
+    malformed["treasuryAccountComponents"][0].pop("sub")
+    with pytest.raises(
+        ValueError,
+        match="^registered USAspending TAS component is malformed$",
+    ):
+        resolve_pending.usaspending_fiscal_year_post_body("2026", malformed)
+
+    duplicated = copy.deepcopy(dhs_transform())
+    duplicated["treasuryAccountComponents"].append(
+        copy.deepcopy(duplicated["treasuryAccountComponents"][0])
+    )
+    with pytest.raises(
+        ValueError,
+        match="^registered USAspending TAS plan repeats a component$",
+    ):
+        resolve_pending.usaspending_fiscal_year_post_body("2026", duplicated)
+
+
+def test_dhs_fixture_is_hash_pinned_and_parses_the_verified_amount() -> None:
+    fixture = (
+        ROOT
+        / "tests"
+        / "fixtures"
+        / "ingestion_wave1"
+        / "usaspending"
+        / "dhs-title-vi-fy2026.json"
+    )
+    raw = fixture.read_bytes()
+    assert len(raw) == 1_146
+    assert not raw.endswith(b"\n")
+    assert hashlib.sha256(raw).hexdigest() == (
+        "dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720"
+    )
+    payload = json.loads(raw)
+    assert resolve_pending.usaspending_fiscal_year_amount(payload, "2026") == (
+        32_171_899_636.26
+    )
+
+
+def test_usaspending_fetch_caps_each_network_request_at_20_seconds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    class Response:
+        def __enter__(self) -> Response:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b'{"results":[]}'
+
+    def fake_urlopen(request: object, timeout: int) -> Response:
+        observed["request"] = request
+        observed["timeout"] = timeout
+        return Response()
+
+    monkeypatch.setattr(resolve_pending.urllib.request, "urlopen", fake_urlopen)
+    payload, raw, retrieved_at = resolve_pending.fetch_usaspending_json(
+        "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        {"group": "fiscal_year"},
+    )
+    assert observed["timeout"] == 20
+    assert payload == {"results": []}
+    assert raw == b'{"results":[]}'
+    assert retrieved_at.endswith("Z")
 
 
 def recipient_page(

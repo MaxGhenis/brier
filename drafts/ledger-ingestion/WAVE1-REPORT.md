@@ -1,8 +1,8 @@
 # Ingestion wave 1 report
 
 Status as of 2026-08-06: triage and request verification are complete, three
-IRS workbook series are admitted, and three verified quick-series admissions
-remain to close the mission. Evidence comes from checkpoint commits
+IRS workbook series and one USAspending series are admitted, and two verified
+quick-series admissions remain to close the mission. Evidence comes from
 `eb7b8304`, `1ccadb26`, and `a1a123ff`; no `records/**` artifact is part of this
 work.
 
@@ -12,7 +12,7 @@ The wave covered 30 requests: eight ALFRED/USAspending quick requests and 22
 workbook-triage requests. Six requests verified cleanly, seven received a
 terminal rejection for the proposed adapter family, and 17 remain proposals
 for a later source family or future official print. Of the six verified
-requests, three are in the docket today and three still need admission wiring.
+requests, four are in the docket today and two still need admission wiring.
 
 ### Quick requests
 
@@ -22,7 +22,7 @@ requests, three are in the docket today and three still need admission wiring.
 | `bea-private-nonresidential-fixed-investment.json` | Verified; admission pending | `PNFI` matches the concept, quarterly cadence, nominal SAAR basis, and unit, with an ALFRED vintage observation and a dated BEA release. |
 | `bea-research-and-development-fixed-investment.json` | Verified; admission pending | `Y006RC1Q027SBEA` matches the concept, quarterly cadence, nominal SAAR basis, and unit, with an ALFRED vintage observation and a dated BEA release. |
 | `eia-natural-gas-vented-flared-us-annual.json` | Rejected | The official EIA series is exact, but FRED/ALFRED has no mirror and therefore cannot provide first-print vintages. |
-| `usaspending-dhs-title-vi-named-account-obligations.json` | Verified; admission pending | The exact six-component Treasury-account query returned a reproducible FY2026 total of $32,171,899,636.26. |
+| `usaspending-dhs-title-vi-named-account-obligations.json` | Admitted | The exact six-component Treasury-account query returned a reproducible FY2026 total of $32,171,899,636.26. |
 | `usaspending-energy-commerce-title-iv-named-account-obligations.json` | Rejected | Live identifiers do not cover all named Title IV programs, so the query would measure only part of the concept. |
 | `usaspending-ondcp-hidta-supplemental-grant-obligations.json` | Rejected | Assistance Listing 95.001 cannot distinguish the section 707(s) supplemental grants from broader HIDTA activity. |
 | `usaspending-usda-selected-rural-program-obligations.json` | Rejected | The requested Supplemental Agricultural Trade Promotion identifier is absent; the available similarly named program is a different concept. |
@@ -59,42 +59,45 @@ The detailed scoring, artifact hashes, exact cells, and tie-break rule are in
 
 ## Admissions and fixture custody
 
-The current admitted count is **3**:
+The current admitted count is **4**:
 
 - `irs.soi.credit_30d.total_claims`
 - `irs.actc.total_credit_amount`
 - `irs.soi.credit_30d.total_credit_amount`
+- `usaspending.dhs.title_vi.named_account_obligations`
 
-Each has an `irs-soi-pub1304` resolver spec, a 2027 annual docket entry using
-the reviewed `resolve-by-bound` contract, integrator-verified anchors, and
-tests against the real TY2020–TY2023 workbook bytes. The TY2023 fixture is
-105,472 bytes with SHA-256
+The three IRS series each have an `irs-soi-pub1304` resolver spec and a 2027
+annual docket entry using the reviewed `resolve-by-bound` contract. Their
+tests use the real TY2020–TY2023 workbook bytes; the TY2023 fixture is 105,472
+bytes with SHA-256
 `e749d3e9636d9784e2a5e8639f49ce5389a4ca0aaeedca6c671cee0b71264c04`.
+The DHS series has an exact `usaspending-api` POST plan and FY2026 registered
+snapshot window. Its unmodified 1,146-byte fixture has SHA-256
+`dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720`.
+All four admissions have integrator-verified anchors.
 
 The following verified requests are not included in that admitted count and
 remain wave-1 closure work:
 
 1. `bea.private_nonresidential_fixed_investment`
 2. `bea.research_and_development_fixed_investment`
-3. `usaspending.dhs.title_vi.named_account_obligations`
 
 ## Bill pair readiness
 
 At the ingestion layer, `stress-119hr1eh` is the only bill slug that gained
 pair-capable outcomes in this wave: section 30D claim count, section 30D credit
-amount, and ACTC credit amount. This report does not claim that a conditional
-pair or forecast was registered; bill-metric wiring, condition selection, and
-pair preregistration remain separate reviewed steps.
+amount, ACTC credit amount, and DHS Title VI named-account obligations. This
+report does not claim that a conditional pair or forecast was registered;
+bill-metric wiring, condition selection, and pair preregistration remain
+separate reviewed steps.
 
 No admitted series resulted for `stress-119hr1021ih`,
 `stress-119hr5595ih`, `stress-119s1188is`, or `stress-119s767is`.
 
 ## Ranked next work
 
-Before declaring wave 1 complete, admit the three verified quick series. The
-DHS USAspending series ranks first because its unmodified response fixture and
-hash are already committed; the two BEA series follow and need real
-hash-pinned ALFRED fixtures plus registry, adapter, anchor, and selection
+Before declaring wave 1 complete, admit the two verified BEA series. Both need
+real hash-pinned ALFRED fixtures plus registry, adapter, anchor, and selection
 tests.
 
 After that closure work, the next source-family order is:

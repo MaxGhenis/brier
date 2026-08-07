@@ -2810,6 +2810,104 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "obligations"
         ),
     },
+    "usaspending.dhs.title_vi.named_account_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": (
+            "results[time_period.fiscal_year={fiscal_year}].aggregated_amount"
+        ),
+        "series_id": (
+            "usaspending.search.spending_over_time.dhs.title_vi."
+            "named_account_obligations"
+        ),
+        "label": (
+            "DHS Title VI named-account award-transaction obligations, "
+            "fiscal year total"
+        ),
+        "unit": "usd",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+                "A",
+                "B",
+                "C",
+                "D",
+                "IDV_A",
+                "IDV_B",
+                "IDV_B_A",
+                "IDV_B_B",
+                "IDV_B_C",
+                "IDV_C",
+                "IDV_D",
+                "IDV_E",
+            ],
+            "treasuryAccountComponents": [
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0530",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0532",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0509",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0510",
+                    "sub": "000",
+                },
+                {
+                    "aid": "070",
+                    "bpoa": "2025",
+                    "epoa": "2029",
+                    "main": "0413",
+                    "sub": "000",
+                },
+                {"aid": "070", "main": "0722"},
+            ],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, DHS Title VI named Treasury "
+            "accounts, award-transaction obligations by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "aggregated_amount for the registered union of five "
+            "2025/2029 Title VI TAS components and dedicated account 070-0722"
+        ),
+    },
 }
 for _spec in USASPENDING_ADAPTERS.values():
     _spec["evidence_notes"] = (
@@ -2912,6 +3010,73 @@ def usaspending_fiscal_year_dates(fiscal_year: str) -> tuple[str, str]:
         raise ValueError(f"invalid fiscal year: {fiscal_year!r}")
     year = int(fiscal_year)
     return f"{year - 1}-10-01", f"{year}-09-30"
+
+
+def usaspending_fiscal_year_post_body(
+    fiscal_year: str,
+    transform: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build one bound spending-over-time request for registered TAS filters."""
+
+    award_codes = transform.get("awardTypeCodes")
+    components = transform.get("treasuryAccountComponents")
+    factor = transform.get("factor")
+    if (
+        transform.get("operation") != "multiply"
+        or isinstance(factor, bool)
+        or not isinstance(factor, (int, float))
+        or not math.isfinite(float(factor))
+        or factor <= 0
+        or transform.get("requestMethod") != "POST"
+        or transform.get("fiscalYear") != "{fiscal_year}"
+        or transform.get("group") != "fiscal_year"
+        or transform.get("spendingLevel") != "transactions"
+        or not isinstance(award_codes, list)
+        or not award_codes
+        or not all(isinstance(code, str) and code for code in award_codes)
+        or len(set(award_codes)) != len(award_codes)
+        or not isinstance(components, list)
+        or not components
+    ):
+        raise ValueError("registered USAspending TAS plan is malformed")
+
+    normalized_components: list[dict[str, str]] = []
+    for component in components:
+        if not isinstance(component, dict) or set(component) not in (
+            {"aid", "main"},
+            {"aid", "bpoa", "epoa", "main", "sub"},
+        ):
+            raise ValueError("registered USAspending TAS component is malformed")
+        if not all(isinstance(value, str) for value in component.values()):
+            raise ValueError("registered USAspending TAS component is malformed")
+        if (
+            not re.fullmatch(r"\d{3}", component["aid"])
+            or not re.fullmatch(r"\d{4}", component["main"])
+        ):
+            raise ValueError("registered USAspending TAS component is malformed")
+        if "bpoa" in component and (
+            not re.fullmatch(r"\d{4}", component["bpoa"])
+            or not re.fullmatch(r"\d{4}", component["epoa"])
+            or int(component["bpoa"]) > int(component["epoa"])
+            or not re.fullmatch(r"\d{3}", component["sub"])
+        ):
+            raise ValueError("registered USAspending TAS component is malformed")
+        normalized_components.append(copy.deepcopy(component))
+    if len({canonical_bytes(item) for item in normalized_components}) != len(
+        normalized_components
+    ):
+        raise ValueError("registered USAspending TAS plan repeats a component")
+
+    start, end = usaspending_fiscal_year_dates(fiscal_year)
+    return {
+        "filters": {
+            "award_type_codes": list(award_codes),
+            "time_period": [{"end_date": end, "start_date": start}],
+            "treasury_account_components": normalized_components,
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions",
+    }
 
 
 def _usaspending_advanced_filters(
@@ -3146,7 +3311,7 @@ def fetch_usaspending_json(
         headers=headers,
         method=method,
     )
-    with urllib.request.urlopen(request, timeout=120) as response:
+    with urllib.request.urlopen(request, timeout=20) as response:
         raw = response.read()
     return json.loads(raw.decode("utf-8")), raw, retrieved_at
 
@@ -8805,6 +8970,39 @@ def main() -> int:
                         f"{spec['field']}"
                     )
                     continue
+            elif query_kind == "fiscal_year_post_scalar":
+                try:
+                    body = usaspending_fiscal_year_post_body(
+                        period,
+                        binding["transform"],
+                    )
+                except ValueError as exc:
+                    print(
+                        f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — "
+                        f"{exc}"
+                    )
+                    continue
+                payload, response_raw, retrieved_at = (
+                    cached_usaspending_request(body)
+                )
+                if response_raw is None:
+                    continue
+                raw_value = usaspending_fiscal_year_amount(payload, period)
+                if raw_value is None:
+                    print(
+                        f"  FIELD NOT FOUND IN RESPONSE (refusing): {ref} — "
+                        f"{spec['field']}"
+                    )
+                    continue
+                raw = usaspending_snapshot_envelope(
+                    snapshot_url,
+                    [(body, response_raw, retrieved_at)],
+                    {
+                        "operation": "select_fiscal_year_amount",
+                        "fiscalYear": period,
+                        "aggregatedAmount": raw_value,
+                    },
+                )
             elif query_kind == "paginated_distinct_count":
                 pages: list[Any] = []
                 exchanges: list[tuple[dict[str, Any], bytes, str]] = []

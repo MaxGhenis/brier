@@ -774,9 +774,9 @@ def apel_snapshot_entries() -> list[dict]:
     ]
 
 
-def test_real_apel_seeds_build_six_preregistered_snapshot_contracts() -> None:
+def test_real_apel_seeds_build_seven_preregistered_snapshot_contracts() -> None:
     entries = apel_snapshot_entries()
-    assert len(entries) == 6
+    assert len(entries) == 7
 
     for entry in entries:
         assert entry["cadence"] == "annual"

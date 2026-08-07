@@ -127,6 +127,24 @@ API token for “Small Business”:
 
 - https://github.com/fedspendingtransparency/usaspending-website/blob/master/src/js/dataMapping/search/recipientType.js
 
+## DHS Title VI named-account obligations
+
+Checked 2026-08-06 against
+`https://api.usaspending.gov/api/v2/search/spending_over_time/`. The reviewed
+POST plan fixes all award-type codes and unions five Title VI Treasury-account
+components (`070-0530`, `070-0532`, `070-0509`, `070-0510`, and `070-0413`),
+each with 2025/2029 availability and subaccount `000`, plus dedicated account
+`070-0722`. The fiscal-year action-date bounds are derived mechanically.
+
+The unmodified FY2026 response is the 1,146-byte fixture
+`tests/fixtures/ingestion_wave1/usaspending/dhs-title-vi-fy2026.json`, SHA-256
+`dd51e2eb947fc8b302fe9c33297c85989b542c933801dcb0729edf39ba157720`.
+It contains one FY2026 row with `aggregated_amount` **32,171,899,636.26 USD**.
+A same-day replay returned byte-identical evidence. This fixture verifies the
+query and parser; the target outcome remains the separately captured response
+inside the registered 2026-10-15 through 2026-10-22 snapshot window, not a
+first-print claim.
+
 ## Unique identifiable prime-contract recipients
 
 Endpoint:
