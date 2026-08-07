@@ -817,6 +817,20 @@ def _validate_catalog_binding(
             f"{LEDGER_JSONL_PATH} line count {expected_rows}"
         )
     declared_registry = catalog.get("uuid_registry_sha256")
+    generator_version = catalog.get("generator_version")
+    if (
+        isinstance(generator_version, int)
+        and generator_version >= 3
+        and declared_registry is None
+    ):
+        # Generator v3 made the registry the UUID authority; a v3+ catalog
+        # without the declaration is a coordinated downgrade, not a legacy
+        # commit.
+        raise PinError(
+            f"{label} is generator v{generator_version} but does not "
+            "declare uuid_registry_sha256 — registry binding cannot be "
+            "downgraded away"
+        )
     if declared_registry is not None:
         if type(declared_registry) is not str or not re.fullmatch(
             r"[0-9a-f]{64}", declared_registry

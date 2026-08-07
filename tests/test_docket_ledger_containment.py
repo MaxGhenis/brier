@@ -186,6 +186,12 @@ def _assert_containment(
                 f"({by_uuid[uuid]['concept']}, {concept})"
             )
             continue
+        shape_problem = _row_shape_problem(row)
+        if shape_problem:
+            malformed_catalog_rows.append(
+                f"row {index} ({concept}): {shape_problem}"
+            )
+            continue
         by_uuid[uuid] = row
     assert not malformed_catalog_rows, (
         f"{label} violates the frozen catalog row schema:\n- "
@@ -263,6 +269,39 @@ def _assert_containment(
                 f"valueScale={value_scale!r}"
             )
 
+    # Containment is not just compatibility: every committed pin must BE
+    # the canonical resolution. A sibling lineage with the same concept,
+    # cadence, and unit is compatible but WRONG; re-derive independently.
+    resolution_mismatches: list[str] = []
+    name_rows: dict[str, list[dict[str, Any]]] = {}
+    alias_tally: dict[str, int] = {}
+    for row in by_uuid.values():
+        for alias in row["aliases"]:
+            alias_tally[alias] = alias_tally.get(alias, 0) + 1
+    canonical_names = {row["concept"] for row in by_uuid.values()}
+    for row in by_uuid.values():
+        name_rows.setdefault(row["concept"], []).append(row)
+        for alias in row["aliases"]:
+            if alias_tally[alias] == 1 and alias not in canonical_names:
+                name_rows.setdefault(alias, []).append(row)
+    for entry in docket_rows:
+        if type(entry) is not dict or type(entry.get("series")) is not str:
+            continue
+        ledger = entry.get("ledger")
+        if type(ledger) is not dict or type(ledger.get("uuid")) is not str:
+            continue
+        expected, problem = _derive_expected_pin(entry, name_rows)
+        if expected is None:
+            resolution_mismatches.append(
+                f"{entry['series']}: cannot re-derive the pin ({problem})"
+            )
+        elif expected["uuid"] != ledger["uuid"]:
+            resolution_mismatches.append(
+                f"{entry['series']}: committed pin {ledger['uuid']} is not "
+                f"the canonical resolution {expected['uuid']} "
+                f"({(expected.get('entity') or {}).get('role')})"
+            )
+
     duplicate_uuids = {
         uuid: owners for uuid, owners in uuid_owners.items() if len(owners) > 1
     }
@@ -286,6 +325,11 @@ def _assert_containment(
                 f"{uuid}: {', '.join(owners)}"
                 for uuid, owners in sorted(duplicate_uuids.items())
             )
+        )
+    if resolution_mismatches:
+        failures.append(
+            "pins that are not the canonical resolution:\n- "
+            + "\n- ".join(resolution_mismatches)
         )
     assert not failures, f"docket is not contained in {label}:\n" + "\n".join(failures)
 
@@ -330,6 +374,120 @@ def _catalog_row(**overrides: Any) -> dict[str, Any]:
     }
     row.update(overrides)
     return row
+
+
+def _row_shape_problem(row: dict[str, Any]) -> str | None:
+    for what, allowed in (
+        ("geography", {"level", "id", "vintage", "name"}),
+        ("entity", {"name", "role"}),
+    ):
+        value = row[what]
+        if value is None:
+            continue
+        if type(value) is not dict or not value:
+            return f"{what} must be a non-empty object or null"
+        if set(value) - allowed:
+            return f"{what} has unknown fields {sorted(set(value) - allowed)}"
+        for field, field_value in value.items():
+            if field_value is not None and (
+                type(field_value) is not str or not field_value
+            ):
+                return f"{what}.{field} must be a nonempty string or null"
+    for key in ("unit", "cadence", "first_observed_period",
+                "last_observed_period"):
+        if row[key] is not None and (
+            type(row[key]) is not str or not row[key]
+        ):
+            return f"{key} must be a nonempty string or null"
+    for key in ("family_patterns", "sources", "aliases", "source_concepts",
+                "rid_patterns"):
+        if type(row[key]) is not list or any(
+            type(item) is not str for item in row[key]
+        ):
+            return f"{key} must be a list of strings"
+    if type(row["observation_count"]) is not int or row["observation_count"] < 0:
+        return "observation_count must be a non-negative integer"
+    if row["status"] not in ("observed", "docket-only"):
+        return f"unsupported status {row['status']!r}"
+    return None
+
+
+# Country spellings as the docket uses them -> catalog geography ids.
+# Kept in sync, deliberately by duplication, with the stamper: this gate
+# re-derives every pin with its OWN implementation of the rules.
+COUNTRY_IDS = {"US": "0100000US", "CA": "CA", "GB": "GB", "AU": "AU",
+               "JP": "JP", "BE": "BE"}
+
+
+def _derive_expected_pin(
+    entry: dict[str, Any], name_rows: dict[str, list[dict[str, Any]]]
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Independently re-derive the canonical pin for a docket entry.
+
+    Mirrors the stamper's documented pipeline: name match (canonical
+    first, then unambiguous alias), docket-only placeholder short-circuit,
+    national-geography filter with declared-country id, cadence, unit
+    agreement modulo valueScale, source-binding disambiguation (fatal only
+    when needed), earliest-lineage tiebreak.
+    """
+    name = entry["series"]
+    candidates = name_rows.get(name, [])
+    if not candidates:
+        return None, f"{name}: no catalog row matches the name"
+    observed = [r for r in candidates if r["status"] != "docket-only"]
+    extras = entry.get("extras") if type(entry.get("extras")) is dict else {}
+    country = extras.get("country")
+    expected_id = COUNTRY_IDS.get(country) if country else None
+    if not observed:
+        compatible = [
+            r for r in candidates
+            if expected_id is None
+            or (r.get("geography") or {}).get("id") == expected_id
+        ]
+        if len(compatible) == 1:
+            return compatible[0], None
+        return None, f"{name}: {len(compatible)} placeholders after country check"
+    pool = [
+        r for r in observed
+        if (r.get("geography") or {}).get("level") == "country"
+        and (expected_id is None
+             or (r.get("geography") or {}).get("id") == expected_id)
+    ]
+    expected_cadence = CADENCE_MAP.get(entry.get("cadence"))
+    if expected_cadence is not None:
+        pool = [r for r in pool if r.get("cadence") == expected_cadence]
+    pool = [
+        r for r in pool
+        if _units_agree(extras.get("targetUnit"), r.get("unit"),
+                        extras.get("valueScale"))
+    ]
+    if not pool:
+        return None, f"{name}: no candidate survives the filters"
+    binding = extras.get("sourceBinding") or {}
+    source_id = binding.get("sourceSeriesId") or binding.get("field")
+    if source_id is not None:
+        bound = [r for r in pool
+                 if source_id in (r.get("source_concepts") or [])]
+        if len(bound) == 1:
+            return bound[0], None
+        if len(bound) > 1:
+            return None, f"{name}: source binding matches several rows"
+        if len(pool) > 1:
+            return None, (
+                f"{name}: declared binding {source_id!r} needed but matched "
+                "nothing"
+            )
+        return pool[0], None
+    if len(pool) == 1:
+        return pool[0], None
+    firsts = [r.get("first_observed_period") for r in pool]
+    if any(type(f) is not str for f in firsts):
+        return None, f"{name}: unrankable lineages"
+    earliest = min(firsts)
+    winners = [r for r in pool if r["first_observed_period"] == earliest]
+    if len(winners) != 1:
+        return None, f"{name}: earliest-lineage tie"
+    return winners[0], None
 
 
 def _docket_file(tmp_path: pathlib.Path, entries: list[dict[str, Any]]):
@@ -503,3 +661,52 @@ def test_docket_is_contained_in_pinned_catalog() -> None:
         "pinned catalog SHA-256 does not match ledger-pin.json"
     )
     _assert_containment(_object(raw, "pinned catalog"), "pinned catalog")
+
+
+def test_containment_rejects_wrong_sibling_pin(tmp_path: pathlib.Path) -> None:
+    # Review repro: a compatible-but-wrong sibling lineage must fail
+    # containment — the committed pin has to BE the canonical resolution.
+    early = _catalog_row(
+        uuid="00000000-0000-4000-8000-0000000000aa",
+        concept="bls.cps.unemployment_rate",
+        unit="percent",
+        entity={"name": "person", "role": "civilian_labor_force"},
+        first_observed_period="2026-05",
+    )
+    late = _catalog_row(
+        uuid="00000000-0000-4000-8000-0000000000bb",
+        concept="bls.cps.unemployment_rate",
+        unit="percent",
+    )
+    entry = {
+        "series": "bls.cps.unemployment_rate",
+        "cadence": "monthly",
+        "slug": "u3",
+        "extras": {"targetUnit": "percent"},
+        "ledger": {"uuid": late["uuid"],
+                   "concept": "bls.cps.unemployment_rate"},
+    }
+    docket_path = _docket_file(tmp_path, [entry])
+    with pytest.raises(AssertionError, match="not the canonical resolution"):
+        _assert_containment(
+            _catalog_shell([early, late]), "test catalog",
+            docket_path=docket_path,
+        )
+    entry["ledger"]["uuid"] = early["uuid"]
+    docket_path = _docket_file(tmp_path, [entry])
+    _assert_containment(
+        _catalog_shell([early, late]), "test catalog",
+        docket_path=docket_path,
+    )
+
+
+def test_containment_rejects_malformed_row_internals(
+    tmp_path: pathlib.Path,
+) -> None:
+    row = _catalog_row()
+    row["geography"] = "not-an-object"
+    docket_path = _docket_file(tmp_path, [])
+    with pytest.raises(AssertionError, match="non-empty object or null"):
+        _assert_containment(
+            _catalog_shell([row]), "test catalog", docket_path=docket_path
+        )

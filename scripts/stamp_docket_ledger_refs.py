@@ -112,8 +112,30 @@ def _resolve_concept_candidates(
     """Resolve a multi-row concept match; (row, note) or (None, problem)."""
 
     name = entry["series"]
-    if len(candidates) == 1:
-        return candidates[0], None
+
+    # A docket-only placeholder is this docket's own seeded row: it has no
+    # observations, so the observed-lineage filters (cadence, unit source
+    # bindings) cannot apply. Pin it directly after checking the declared
+    # country agrees; observed candidates always take the full pipeline.
+    observed = [
+        row for row in candidates if row.get("status") != "docket-only"
+    ]
+    if not observed:
+        country = (entry.get("extras") or {}).get("country")
+        expected_id = COUNTRY_IDS.get(country) if country else None
+        compatible = [
+            row
+            for row in candidates
+            if expected_id is None
+            or (row.get("geography") or {}).get("id") == expected_id
+        ]
+        if len(compatible) == 1:
+            return compatible[0], None
+        return None, (
+            f"{name}: {len(compatible)} docket-only placeholders match "
+            "after the country check — curate the catalog"
+        )
+    candidates = observed
 
     def describe(rows: list[dict[str, Any]]) -> str:
         return ", ".join(
@@ -156,8 +178,6 @@ def _resolve_concept_candidates(
             f"{name}: no candidate survives geography/cadence/unit filters "
             f"among {describe(candidates)}"
         )
-    if len(national) == 1:
-        return national[0], None
 
     binding = extras.get("sourceBinding") or {}
     source_id = binding.get("sourceSeriesId") or binding.get("field")
@@ -169,18 +189,39 @@ def _resolve_concept_candidates(
         ]
         if len(bound) == 1:
             row = bound[0]
-            note = (
-                f"source binding pick: {name} -> {row['uuid']} "
-                f"(source {source_id}, entity "
-                f"{(row.get('entity') or {}).get('role')}; "
-                f"{len(candidates)} rows share this concept)"
-            )
+            note = None
+            if len(candidates) > 1:
+                note = (
+                    f"source binding pick: {name} -> {row['uuid']} "
+                    f"(source {source_id}, entity "
+                    f"{(row.get('entity') or {}).get('role')}; "
+                    f"{len(candidates)} rows share this concept)"
+                )
             return row, note
         if len(bound) > 1:
             return None, (
                 f"{name}: source binding {source_id!r} matches several "
                 f"rows: {describe(bound)}"
             )
+        if len(national) > 1:
+            # The binding was NEEDED to disambiguate siblings and failed:
+            # silently falling back to another rule would pin a row the
+            # docket's own feed declaration contradicts.
+            return None, (
+                f"{name}: declared source binding {source_id!r} matches no "
+                f"candidate among {describe(national)} — fix the binding "
+                "or the catalog before stamping"
+            )
+        # One candidate passed every filter; the declared feed label has
+        # simply not appeared among its observed source labels yet.
+        return national[0], (
+            f"binding not yet observed: {name} declares {source_id!r}; "
+            f"sole candidate {national[0]['uuid']} carries "
+            f"{national[0].get('source_concepts')}"
+        )
+
+    if len(national) == 1:
+        return national[0], None
 
     firsts = [row.get("first_observed_period") for row in national]
     if any(type(first) is not str for first in firsts):
@@ -285,7 +326,10 @@ def stamp_docket(
                 )
                 ambiguous.append(f"{name}: {', '.join(candidate_names)}")
                 continue
-            row = candidates[0]
+            row, note = _resolve_concept_candidates(entry, candidates)
+            if row is None:
+                ambiguous.append(note)
+                continue
             notes.append(f"alias match: {name} -> {row['concept']}")
         matches.append((entry, row))
 

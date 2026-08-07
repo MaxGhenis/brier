@@ -14,18 +14,22 @@ from stamp_docket_ledger_refs import StampError, stamp_docket  # noqa: E402
 
 
 def _catalog() -> dict:
+    base = {
+        "status": "observed",
+        "unit": "percent",
+        "cadence": "month",
+        "geography": {"level": "country", "id": "0100000US",
+                      "vintage": "current"},
+        "entity": {"name": "economy", "role": "aggregate"},
+        "source_concepts": [],
+        "first_observed_period": "2026-05",
+    }
     return {
         "series": [
-            {
-                "uuid": "direct-uuid",
-                "concept": "direct.series",
-                "aliases": [],
-            },
-            {
-                "uuid": "legacy-uuid",
-                "concept": "legacy.series",
-                "aliases": ["direct.series", "alias.series"],
-            },
+            {"uuid": "direct-uuid", "concept": "direct.series",
+             "aliases": [], **base},
+            {"uuid": "legacy-uuid", "concept": "legacy.series",
+             "aliases": ["direct.series", "alias.series"], **base},
         ]
     }
 
@@ -280,3 +284,82 @@ def test_source_binding_overrides_earliest_lineage() -> None:
 
     assert stamped["series"][0]["ledger"]["uuid"] == "uuid-indpro"
     assert notes and "source binding pick" in notes[0]
+
+
+def test_single_concept_match_still_passes_filters() -> None:
+    # Review repro: a lone California row must not be stamped for a
+    # US-national docket entry just because it is the only name match.
+    catalog = {
+        "series": [
+            _row("uuid-ca", "fns.snap.error_rate",
+                 geography={"level": "state", "id": "0400000US06",
+                            "vintage": "current"}),
+        ]
+    }
+    docket = {
+        "series": [
+            {"series": "fns.snap.error_rate", "cadence": "monthly",
+             "slug": "e", "extras": {"country": "US",
+                                     "targetUnit": "percent"}}
+        ]
+    }
+    with pytest.raises(StampError, match="no candidate survives"):
+        stamp_docket(catalog, docket)
+
+
+def test_needed_source_binding_must_match() -> None:
+    catalog = {
+        "series": [
+            _row("uuid-a", "dup.series", source_concepts=["OTHER"]),
+            _row("uuid-b", "dup.series",
+                 entity={"name": "person", "role": "specific"},
+                 source_concepts=["ALSO_OTHER"],
+                 first_observed_period="2026-04"),
+        ]
+    }
+    docket = {
+        "series": [
+            {"series": "dup.series", "cadence": "monthly", "slug": "d",
+             "extras": {"sourceBinding": {"sourceSeriesId": "MISSING"}}}
+        ]
+    }
+    with pytest.raises(StampError, match="matches no candidate"):
+        stamp_docket(catalog, docket)
+
+
+def test_sole_candidate_with_lagging_source_label_pins_with_note() -> None:
+    catalog = {
+        "series": [
+            _row("uuid-only", "bls.ppi.final_demand_monthly_change",
+                 source_concepts=["bls.ppi.final_demand_monthly_change"]),
+        ]
+    }
+    docket = {
+        "series": [
+            {"series": "bls.ppi.final_demand_monthly_change",
+             "cadence": "monthly", "slug": "p",
+             "extras": {"sourceBinding": {"sourceSeriesId": "PPIFIS"}}}
+        ]
+    }
+    stamped, notes = stamp_docket(catalog, docket)
+    assert stamped["series"][0]["ledger"]["uuid"] == "uuid-only"
+    assert notes and "binding not yet observed" in notes[0]
+
+
+def test_docket_only_placeholder_pins_directly() -> None:
+    catalog = {
+        "series": [
+            _row("uuid-ph", "irs.actc.total_claims",
+                 status="docket-only", unit="millions", cadence="year",
+                 entity=None, first_observed_period=None),
+        ]
+    }
+    docket = {
+        "series": [
+            {"series": "irs.actc.total_claims", "cadence": "annual",
+             "slug": "actc", "extras": {"country": "US",
+                                        "targetUnit": "millions"}}
+        ]
+    }
+    stamped, notes = stamp_docket(catalog, docket)
+    assert stamped["series"][0]["ledger"]["uuid"] == "uuid-ph"

@@ -954,6 +954,60 @@ def _declare_registry(
     _commit(repo, message)
 
 
+def test_v3_catalog_cannot_downgrade_registry_binding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # Coordinated removal of the declaration AND the registry file from a
+    # generator-v3 catalog must be a PinError, not a silent legacy fallback.
+    catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    catalog["generator_version"] = 3
+    catalog.pop("uuid_registry_sha256", None)
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(release_repo.repo, "downgrade registry binding")
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_registry_binding_enforced_on_stationary_refresh(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # The same-head refresh path (no remote move) must also couple the
+    # catalog to its registry: declare a digest with no registry present.
+    catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    catalog["uuid_registry_sha256"] = "a" * 64
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(release_repo.repo, "declare registry without file")
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    pin_before = pin_path.read_bytes()
+
+    with pytest.raises(pin_ledger.PinError, match="is missing"):
+        pin_ledger.refresh()
+    # And again with the pin already at this head (stationary path).
+    with pytest.raises(pin_ledger.PinError, match="is missing"):
+        pin_ledger.refresh()
+
+    assert pin_path.read_bytes() == pin_before
+
+
 def test_refresh_binds_declared_uuid_registry(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
