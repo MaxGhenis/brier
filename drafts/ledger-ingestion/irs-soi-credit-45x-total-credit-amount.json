@@ -5,13 +5,46 @@
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "IRS SOI total section 45X advanced manufacturing production credit amount claimed for a fixed tax year.",
-  "note": "UNVERIFIED section-specific corporation-return amount field and printed scale.",
-  "adapterFamily": "irs-soi-pub1304-style workbook parse",
+  "note": "PROPOSED: Publication 5108 separately prints *317,505 thousand dollars (317.505 USD millions) for TY2022 Form 3800 line 1b, where the asterisk marks a small-sample estimate, but admission needs a new IRS corporation line-item PDF parser plus authenticated first-print custody and three genuine edition pins.",
+  "adapterFamily": "irs-soi-pub5108-line-item-pdf",
   "billSlugs": [
     "stress-119hr1eh"
   ],
   "publisher": "Internal Revenue Service, Statistics of Income",
-  "statisticalProduct": "Candidate IRS SOI Corporation Income Tax Returns Complete Report, section 45X credit amount row",
-  "likelyUrlPattern": "https://www.irs.gov/statistics/soi-tax-stats-corporation-income-tax-returns-complete-report",
-  "verification": "UNVERIFIED: 1. Search the official tables at https://www.irs.gov/statistics/soi-tax-stats-corporation-income-tax-returns-complete-report for a separately printed section 45X credit amount. 2. Pin the exact workbook/table/row, return population, tax year, printed dollar scale, first print, revisions, and three vintages. 3. Build a section-specific amount parser; if the field is absent or combined, reclassify this request no-series."
+  "statisticalProduct": "Publication 5108, Corporation Income Tax Returns Line Item Estimates, Form 3800 line 1b",
+  "likelyUrlPattern": "https://www.irs.gov/pub/irs-pdf/p5108.pdf",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "proposed",
+    "verifiedAtUtc": "2026-08-06T20:07:14Z",
+    "reason": "The official TY2022 corporation line-item PDF separately prints the section 45X credit amount in thousands of dollars. It is outside the admitted Publication 1304 workbook parser, and the generic current-PDF URL plus one retrieved hash do not authenticate the first print or revisions.",
+    "sourcePageUrl": "https://www.irs.gov/pub/irs-pdf/p5108.pdf",
+    "artifact": {
+      "url": "https://www.irs.gov/pub/irs-pdf/p5108.pdf",
+      "retrievedAtUtc": "2026-08-06T20:07:14Z",
+      "sha256": "0c7516d5a784a24f51522bd3cf5358bbed735c031e54ba56c87bad831a873855",
+      "byteLength": 4639023,
+      "mediaType": "application/pdf",
+      "taxYear": "2022",
+      "publication": "Publication 5108, Corporation Income Tax Returns Line Item Estimates",
+      "form": "Form 3800, General Business Credits",
+      "line": "1b Advanced manufacturing production (Form 7207)",
+      "pdfPage": 168,
+      "fetchedValue": 317505,
+      "printedValue": "*317,505",
+      "printedUnit": "thousand_usd",
+      "normalizedValue": 317.505,
+      "normalizedUnit": "usd_millions",
+      "sampleFlag": "The asterisk marks a small-sample estimate."
+    },
+    "workbookMismatch": "The fetched TY2022 corporation Table 11 workbook prints only aggregate General business credit rather than a separate section 45X row.",
+    "firstPrint": {
+      "status": "not_authenticated",
+      "blocker": "One post-release hash of the generic Publication 5108 URL does not prove release-time first-print bytes or revision history."
+    },
+    "requiredWork": [
+      "Implement and review an IRS Publication 5108 corporation line-item PDF parser for Form 3800 line 1b and its thousand-dollar transform.",
+      "Add release-time witnessed or versioned custody and three genuine edition pins before admission."
+    ]
+  }
 }

@@ -5,13 +5,45 @@
   "cadence": "annual",
   "proposedFrom": "stress-119hr1eh",
   "metricText": "IRS SOI number of returns claiming the section 25E previously owned clean vehicle credit for a fixed tax year.",
-  "note": "UNVERIFIED section-specific field; no repository evidence proves a stable separately printed claim-count row.",
-  "adapterFamily": "irs-soi-pub1304-style workbook parse",
+  "note": "PROPOSED: Publication 4801 separately prints 31,992 TY2023 Schedule 3 line 6m returns, but admission needs a new IRS individual line-item PDF parser plus authenticated first-print custody and three genuine edition pins.",
+  "adapterFamily": "irs-soi-pub4801-line-item-pdf",
   "billSlugs": [
     "stress-119hr1eh"
   ],
   "publisher": "Internal Revenue Service, Statistics of Income",
-  "statisticalProduct": "Candidate IRS SOI Individual Income Tax Returns Complete Report, section 25E claim-count row",
-  "likelyUrlPattern": "https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304",
-  "verification": "UNVERIFIED: 1. Search the official tables at https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304 for a separately printed section 25E claim count. 2. Pin the exact workbook/table/row, form population, tax year, count unit, first print, revisions, and three vintages. 3. Build a section-specific parser; if the field is absent or combined, reclassify this request no-series."
+  "statisticalProduct": "Publication 4801, Individual Income Tax Returns Line Item Estimates, Schedule 3 line 6m",
+  "likelyUrlPattern": "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "proposed",
+    "verifiedAtUtc": "2026-08-06T20:06:57Z",
+    "reason": "The official TY2023 line-item PDF separately prints the section 25E return count. It is outside the admitted Publication 1304 workbook parser, and the generic current-PDF URL plus one retrieved hash do not authenticate the first print or revisions.",
+    "sourcePageUrl": "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+    "artifact": {
+      "url": "https://www.irs.gov/pub/irs-pdf/p4801.pdf",
+      "retrievedAtUtc": "2026-08-06T20:06:57Z",
+      "sha256": "49686f6c909452bc775bed40f10a633629e8ce486d7f47ee131cb093d1d04d81",
+      "byteLength": 4228018,
+      "mediaType": "application/pdf",
+      "taxYear": "2023",
+      "publication": "Publication 4801, Individual Income Tax Returns Line Item Estimates",
+      "schedule": "Schedule 3 (Form 1040), Additional Credits and Payments",
+      "line": "6m Credit for previously owned clean vehicles",
+      "pdfPage": 31,
+      "fetchedValue": 31992,
+      "printedValue": "31,992",
+      "printedUnit": "returns",
+      "normalizedValue": 31992,
+      "normalizedUnit": "count"
+    },
+    "workbookMismatch": "TY2023 Table 3.3 footnote A49 folds section 25E into Other nonrefundable credits rather than printing a separate section 25E claimant row.",
+    "firstPrint": {
+      "status": "not_authenticated",
+      "blocker": "One post-release hash of the generic Publication 4801 URL does not prove release-time first-print bytes or revision history."
+    },
+    "requiredWork": [
+      "Implement and review an IRS Publication 4801 line-item PDF parser for Schedule 3 line 6m.",
+      "Add release-time witnessed or versioned custody and three genuine edition pins before admission."
+    ]
+  }
 }
