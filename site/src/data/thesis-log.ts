@@ -388,6 +388,8 @@ export interface PolicyEngineLedgerPin {
   jsonlSha256: string;
   jsonlBytes: number;
   lineCount: number;
+  catalogSha256?: string;
+  catalogBytes?: number;
   pinnedAtUtc: string;
 }
 
@@ -396,7 +398,22 @@ export interface PolicyEngineLedgerPin {
 // would let any upstream writer change what this site scores.
 export const POLICYENGINE_LEDGER_PIN = ledgerPinJson as PolicyEngineLedgerPin;
 
-export const POLICYENGINE_LEDGER_FACTS_URL = `https://raw.githubusercontent.com/${POLICYENGINE_LEDGER_PIN.repo}/${POLICYENGINE_LEDGER_PIN.sha}/ledger/official_observations.jsonl`;
+function policyEngineLedgerFileUrl(
+  pin: PolicyEngineLedgerPin,
+  path: string,
+): string {
+  return `https://raw.githubusercontent.com/${pin.repo}/${pin.sha}/${path}`;
+}
+
+export const POLICYENGINE_LEDGER_FACTS_URL = policyEngineLedgerFileUrl(
+  POLICYENGINE_LEDGER_PIN,
+  "ledger/official_observations.jsonl",
+);
+
+export const POLICYENGINE_LEDGER_SERIES_CATALOG_URL = policyEngineLedgerFileUrl(
+  POLICYENGINE_LEDGER_PIN,
+  "ledger/series_catalog.json",
+);
 
 interface PolicyEngineAggregateFactRow {
   value: number;
@@ -463,6 +480,92 @@ function assertPinnedLedgerBytes(raw: Buffer, pin: PolicyEngineLedgerPin) {
         "refusing to build against an unpinned ledger state",
     );
   }
+}
+
+interface SeriesCatalogCommitment {
+  sha256: string;
+  bytes: number;
+}
+
+function seriesCatalogCommitment(
+  pin: PolicyEngineLedgerPin,
+): SeriesCatalogCommitment | null {
+  const hasSha256 = Object.prototype.hasOwnProperty.call(pin, "catalogSha256");
+  const hasBytes = Object.prototype.hasOwnProperty.call(pin, "catalogBytes");
+  if (hasSha256 !== hasBytes) {
+    throw new Error(
+      "ledger pin must carry catalogSha256 and catalogBytes together",
+    );
+  }
+  if (!hasSha256) {
+    return null;
+  }
+  if (
+    typeof pin.catalogSha256 !== "string" ||
+    !/^[0-9a-f]{64}$/.test(pin.catalogSha256)
+  ) {
+    throw new Error("ledger pin catalogSha256 must be a SHA-256 digest");
+  }
+  if (
+    typeof pin.catalogBytes !== "number" ||
+    !Number.isInteger(pin.catalogBytes) ||
+    pin.catalogBytes < 0
+  ) {
+    throw new Error("ledger pin catalogBytes must be a non-negative integer");
+  }
+  return { sha256: pin.catalogSha256, bytes: pin.catalogBytes };
+}
+
+function assertPinnedSeriesCatalogBytes(
+  raw: Buffer,
+  pin: PolicyEngineLedgerPin,
+  commitment: SeriesCatalogCommitment,
+) {
+  const digest = createHash("sha256").update(raw).digest("hex");
+  if (digest !== commitment.sha256 || raw.length !== commitment.bytes) {
+    throw new Error(
+      `ledger series catalog bytes at ${pin.sha} are ${digest} ` +
+        `(${raw.length} bytes) but the committed pin requires ` +
+        `${commitment.sha256} (${commitment.bytes}); refusing to build ` +
+        "against an unpinned ledger catalog",
+    );
+  }
+}
+
+export async function fetchPinnedPolicyEngineLedgerBytes(
+  pin: PolicyEngineLedgerPin,
+): Promise<Buffer> {
+  const catalogCommitment = seriesCatalogCommitment(pin);
+  const factsUrl = policyEngineLedgerFileUrl(
+    pin,
+    "ledger/official_observations.jsonl",
+  );
+  const catalogUrl = policyEngineLedgerFileUrl(
+    pin,
+    "ledger/series_catalog.json",
+  );
+  const [factsResponse, catalogResponse] = await Promise.all([
+    fetch(factsUrl),
+    catalogCommitment ? fetch(catalogUrl) : Promise.resolve(null),
+  ]);
+  if (!factsResponse.ok) {
+    throw new Error(
+      `PolicyEngine Ledger fetch failed with HTTP ${factsResponse.status}`,
+    );
+  }
+  if (catalogResponse && !catalogResponse.ok) {
+    throw new Error(
+      "PolicyEngine Ledger series catalog fetch failed with HTTP " +
+        catalogResponse.status,
+    );
+  }
+  const raw = Buffer.from(await factsResponse.arrayBuffer());
+  assertPinnedLedgerBytes(raw, pin);
+  if (catalogResponse && catalogCommitment) {
+    const catalogRaw = Buffer.from(await catalogResponse.arrayBuffer());
+    assertPinnedSeriesCatalogBytes(catalogRaw, pin, catalogCommitment);
+  }
+  return raw;
 }
 
 // Every fetched row must carry its acceptance record; a row the committed
@@ -550,14 +653,7 @@ async function fetchPolicyEngineLedger(): Promise<PolicyEngineLedgerEntry[]> {
         `the pin commits ${pin.lineCount}`,
     );
   }
-  const response = await fetch(POLICYENGINE_LEDGER_FACTS_URL);
-  if (!response.ok) {
-    throw new Error(
-      `PolicyEngine Ledger fetch failed with HTTP ${response.status}`,
-    );
-  }
-  const raw = Buffer.from(await response.arrayBuffer());
-  assertPinnedLedgerBytes(raw, pin);
+  const raw = await fetchPinnedPolicyEngineLedgerBytes(pin);
   const facts = raw
     .toString("utf-8")
     .split("\n")

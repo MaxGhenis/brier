@@ -8,6 +8,7 @@ bytes. This run archives, custody-rooted and chain-committed by the next
 recorder digest:
 
 - the observation JSONL bytes at one immutable commit SHA (never a branch);
+- the optional series catalog bytes at that same immutable commit SHA;
 - the GitHub commit API responses for the thesis-facts branch head and the
   ledger main head, binding both SHAs to their commit metadata;
 - the complete direct ``releases/manifests`` Git tree at that commit, including
@@ -21,6 +22,8 @@ brier's witnessed chain.
 Usage:
     python3 scripts/witness_upstream_ledger.py [--ledger-sha SHA]
         [--expect-line-count N] [--expect-jsonl-sha256 HEX]
+        [--require-catalog] [--expect-catalog-sha256 HEX]
+        [--expect-catalog-bytes N]
         [--extra name=path-or-url ...] [--note TEXT]
 """
 
@@ -37,6 +40,7 @@ import pathlib
 import re
 import shutil
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -49,6 +53,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 LEDGER_REPO = "PolicyEngine/ledger"
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
+LEDGER_CATALOG_PATH = "ledger/series_catalog.json"
 LEDGER_RELEASE_DIRECTORY = "releases/manifests"
 ARCHIVE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9._-]*")
 GIT_SHA_RE = re.compile(r"[0-9a-f]{40}")
@@ -349,6 +354,43 @@ def _validate_jsonl(raw: bytes) -> dict[str, Any]:
     }
 
 
+def _validate_catalog(raw: bytes, jsonl: dict[str, Any]) -> dict[str, Any]:
+    """Validate and commit the catalog generated from the witnessed JSONL."""
+
+    catalog = _json_object(raw, "ledger series catalog")
+    if not isinstance(catalog.get("series"), list):
+        raise ValueError("ledger series catalog lacks a series array")
+    if catalog.get("observations_sha256") != jsonl["sha256"]:
+        raise ValueError(
+            "ledger series catalog observations_sha256 does not match "
+            "official_observations.jsonl"
+        )
+    if (
+        type(catalog.get("observation_rows")) is not int
+        or catalog["observation_rows"] != jsonl["lineCount"]
+    ):
+        raise ValueError(
+            "ledger series catalog observation_rows does not match "
+            "official_observations.jsonl"
+        )
+    return {
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }
+
+
+def _catalog_at(sha: str) -> tuple[bytes, str] | None:
+    """Fetch the optional catalog at ``sha``; only a real 404 means absent."""
+
+    url = f"https://raw.githubusercontent.com/{LEDGER_REPO}/{sha}/{LEDGER_CATALOG_PATH}"
+    try:
+        return _fetch(url), url
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise
+
+
 def _seal(run_dir: pathlib.Path, manifest: dict[str, Any]) -> None:
     """Seal the witness inventory exactly like the resolver custody flow."""
 
@@ -421,6 +463,13 @@ def main() -> int:
     parser.add_argument("--expect-line-count", type=int)
     parser.add_argument("--expect-jsonl-sha256")
     parser.add_argument(
+        "--require-catalog",
+        action="store_true",
+        help="fail when series_catalog.json is absent at the selected SHA",
+    )
+    parser.add_argument("--expect-catalog-sha256")
+    parser.add_argument("--expect-catalog-bytes", type=int)
+    parser.add_argument(
         "--extra",
         action="append",
         default=[],
@@ -454,6 +503,40 @@ def main() -> int:
             f"jsonl sha256 {jsonl['sha256']} != expected {args.expect_jsonl_sha256}"
         )
 
+    catalog_result = _catalog_at(branch_sha)
+    catalog_raw: bytes | None = None
+    catalog_url: str | None = None
+    catalog: dict[str, Any] | None = None
+    catalog_expected = (
+        args.require_catalog
+        or args.expect_catalog_sha256 is not None
+        or args.expect_catalog_bytes is not None
+    )
+    if catalog_result is None:
+        if catalog_expected:
+            raise SystemExit(
+                f"required {LEDGER_CATALOG_PATH} is absent at {branch_sha}"
+            )
+    else:
+        catalog_raw, catalog_url = catalog_result
+        catalog = _validate_catalog(catalog_raw, jsonl)
+        if (
+            args.expect_catalog_sha256 is not None
+            and catalog["sha256"] != args.expect_catalog_sha256
+        ):
+            raise SystemExit(
+                f"catalog sha256 {catalog['sha256']} != expected "
+                f"{args.expect_catalog_sha256}"
+            )
+        if (
+            args.expect_catalog_bytes is not None
+            and catalog["bytes"] != args.expect_catalog_bytes
+        ):
+            raise SystemExit(
+                f"catalog has {catalog['bytes']} bytes, expected "
+                f"{args.expect_catalog_bytes}"
+            )
+
     release_archive, release_inputs = _release_archive_inputs(
         branch_sha, branch_commit_raw
     )
@@ -463,6 +546,18 @@ def main() -> int:
             raw=jsonl_raw,
             role="official_observations_jsonl",
             url=jsonl_url,
+        ),
+        *(
+            [
+                ArchiveInput(
+                    name="series-catalog.json",
+                    raw=catalog_raw,
+                    role="series_catalog_json",
+                    url=catalog_url,
+                )
+            ]
+            if catalog_raw is not None
+            else []
         ),
         ArchiveInput(
             name="ledger-branch-commit.json",
@@ -530,6 +625,7 @@ def main() -> int:
             "ledgerBranchSha": branch_sha,
             "ledgerMainSha": main_sha,
             "jsonl": jsonl,
+            **({"catalog": catalog} if catalog is not None else {}),
             "releaseArchive": release_archive,
             "upstream": upstream,
         }
