@@ -118,6 +118,22 @@ The registered transform is identity (`factor: 1`) and the target unit is
 still lists `GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at
 8:30 AM ET, so the quarterly seed uses the default `release-calendar` basis.
 
+## BEA private research and development fixed investment
+
+Status: **VERIFIED** (integrator, 2026-08-07 UTC). A fresh official ALFRED
+metadata fetch identified `Y006RC1Q027SBEA` as quarterly private research and
+development fixed investment in billions of dollars at a seasonally adjusted
+annual rate. The 2026-02-20 vintage prints 2025 Q4 (`2025-10-01`) at
+**885.955**. The exact 61-byte constrained-vintage response is frozen at
+`tests/fixtures/ingestion_wave1/alfred/bea-rd-2025-q4-first-print.csv`,
+SHA-256
+`1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1`.
+
+The registered transform is identity (`factor: 1`) and the target unit is
+`usd_billions`. The official BEA schedule was re-fetched the same session and
+still lists `GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at
+8:30 AM ET, so the quarterly seed uses the default `release-calendar` basis.
+
 ---
 
 # USAspending FY2026 query anchors

@@ -685,6 +685,31 @@
       }
     },
     {
+      "series": "bea.research_and_development_fixed_investment",
+      "cadence": "quarterly",
+      "slug": "us-private-research-development-fixed-investment-q{quarter}-{year}",
+      "seedPeriod": "2026-Q3",
+      "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+      "releaseDates": {
+        "2026-Q3": "2026-10-29"
+      },
+      "extras": {
+        "targetUnit": "usd_billions",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=Y006RC1Q027SBEA",
+          "sourceSeriesId": "Y006RC1Q027SBEA",
+          "field": "Y006RC1Q027SBEA",
+          "table": "Gross Domestic Product, Table 5.6.5 (private R&D fixed investment)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
       "series": "bls.import_price_index.all_imports_mom",
       "cadence": "monthly",
       "slug": "bls-import-price-index-all-imports-mom-{month}-{year}",

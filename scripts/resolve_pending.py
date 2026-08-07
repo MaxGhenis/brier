@@ -509,6 +509,20 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         ),
         "concept_authority": "bea",
     },
+    "bea.research_and_development_fixed_investment": {
+        "fred": "Y006RC1Q027SBEA",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": (
+            "US private research and development fixed investment, nominal SAAR"
+        ),
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.6.5 "
+            "(private R&D fixed investment)"
+        ),
+        "concept_authority": "bea",
+    },
     "bea.disposable_personal_income.level": {
         "fred": "DSPI",
         "transform": "level",

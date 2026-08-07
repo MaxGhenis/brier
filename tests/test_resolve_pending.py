@@ -71,6 +71,44 @@ def test_wave1_pnfi_first_print_fixture_is_hash_pinned_and_parses() -> None:
     }
 
 
+def test_wave1_bea_rd_first_print_fixture_is_hash_pinned_and_parses() -> None:
+    fixture = (
+        ROOT
+        / "tests"
+        / "fixtures"
+        / "ingestion_wave1"
+        / "alfred"
+        / "bea-rd-2025-q4-first-print.csv"
+    )
+    raw = fixture.read_bytes()
+    assert len(raw) == 61
+    assert hashlib.sha256(raw).hexdigest() == (
+        "1e7e49c3d4c3468182298f1ec511bb38cafbb1a96d0a83a3f62414b729de01f1"
+    )
+
+    rows = resolve_pending.parse_fred_vintage_csv(
+        raw, "Y006RC1Q027SBEA", "2026-02-20"
+    )
+
+    assert rows == {"2025-10-01": 885.955}
+    assert resolve_pending.ALFRED_ADAPTERS[
+        "bea.research_and_development_fixed_investment"
+    ] == {
+        "fred": "Y006RC1Q027SBEA",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": (
+            "US private research and development fixed investment, nominal SAAR"
+        ),
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.6.5 "
+            "(private R&D fixed investment)"
+        ),
+        "concept_authority": "bea",
+    }
+
+
 def test_archives_raw_response_and_attaches_append_provenance(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:

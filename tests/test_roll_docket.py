@@ -194,7 +194,7 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
         != "resolve-by-bound"
     ]
 
-    assert len(entries) == 22
+    assert len(entries) == 23
     for entry in entries:
         # Evaluate each seed the day before its own pinned release: valid
         # whenever the registry is re-seeded (a fixed review date broke on
@@ -227,6 +227,23 @@ def test_wave1_pnfi_registry_pins_the_reviewed_bea_release() -> None:
         item
         for item in registry["series"]
         if item["series"] == "bea.private_nonresidential_fixed_investment"
+    )
+
+    assert entry["seedPeriod"] == "2026-Q3"
+    assert entry["releaseDates"] == {"2026-Q3": "2026-10-29"}
+    assert entry["releaseCalendarUrl"] == "https://www.bea.gov/news/schedule"
+    # The seed becomes selectable on the first day inside the 75-day horizon.
+    target = recurring_seed_target(entry, set(), dt.date(2026, 8, 15))
+    assert target is not None
+    assert target["expectedReleaseDate"] == "2026-10-29"
+
+
+def test_wave1_bea_rd_registry_pins_the_reviewed_bea_release() -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        item
+        for item in registry["series"]
+        if item["series"] == "bea.research_and_development_fixed_investment"
     )
 
     assert entry["seedPeriod"] == "2026-Q3"
