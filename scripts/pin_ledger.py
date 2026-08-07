@@ -818,11 +818,15 @@ def _validate_catalog_binding(
         )
     declared_registry = catalog.get("uuid_registry_sha256")
     generator_version = catalog.get("generator_version")
-    if (
-        isinstance(generator_version, int)
-        and generator_version >= 3
-        and declared_registry is None
-    ):
+    if type(generator_version) is not int or generator_version < 1:
+        # A string/bool/missing version is not a legacy catalog, it is a
+        # malformed one — and the rollback trick rides on exactly that
+        # ambiguity.
+        raise PinError(
+            f"{label} generator_version must be a positive integer, got "
+            f"{generator_version!r}"
+        )
+    if generator_version >= 3 and declared_registry is None:
         # Generator v3 made the registry the UUID authority; a v3+ catalog
         # without the declaration is a coordinated downgrade, not a legacy
         # commit.
@@ -855,14 +859,33 @@ def _validate_catalog_binding(
         )
 
 
+def _declares_registry(catalog_raw: bytes | None) -> bool:
+    if catalog_raw is None:
+        return False
+    try:
+        catalog = json.loads(catalog_raw)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    return isinstance(catalog, dict) and (
+        catalog.get("uuid_registry_sha256") is not None
+    )
+
+
 def _validate_catalog_and_registry(
     catalog_raw: bytes | None,
     registry_raw: bytes | None,
     jsonl_raw: bytes,
     *,
     label: str,
+    registry_expected: bool = False,
 ) -> None:
-    """Couple the catalog and UUID-registry commitments at one commit."""
+    """Couple the catalog and UUID-registry commitments at one commit.
+
+    ``registry_expected`` is the monotonic ratchet: once the pinned
+    lineage has declared a registry, every later head must keep
+    declaring one — a version rollback that drops both the declaration
+    and the file is a downgrade, never a legacy state.
+    """
 
     if catalog_raw is None:
         if registry_raw is not None:
@@ -870,7 +893,19 @@ def _validate_catalog_and_registry(
                 f"same-commit {LEDGER_REGISTRY_PATH} exists without "
                 f"{LEDGER_CATALOG_PATH}"
             )
+        if registry_expected:
+            raise PinError(
+                f"{label}: the pinned lineage declared a UUID registry "
+                "but this commit has no catalog at all — registry binding "
+                "cannot be downgraded away"
+            )
         return
+    if registry_expected and not _declares_registry(catalog_raw):
+        raise PinError(
+            f"{label}: the pinned lineage declared a UUID registry but "
+            "this catalog does not — registry binding cannot be "
+            "downgraded away"
+        )
     _validate_catalog_binding(
         catalog_raw, jsonl_raw, label=label, registry_raw=registry_raw
     )
@@ -1876,6 +1911,7 @@ def refresh(*, require_catalog: bool = False) -> None:
         head_registry,
         head_raw,
         label=f"{LEDGER_CATALOG_PATH} at {head_sha}",
+        registry_expected=_declares_registry(old_catalog),
     )
     _write_outputs(
         sha=head_sha,

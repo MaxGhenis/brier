@@ -331,6 +331,8 @@ def stamp_docket(
                 ambiguous.append(note)
                 continue
             notes.append(f"alias match: {name} -> {row['concept']}")
+            if note:
+                notes.append(note)
         matches.append((entry, row))
 
     problems: list[str] = []

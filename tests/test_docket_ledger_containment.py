@@ -118,8 +118,9 @@ def _assert_containment(
     assert "comment" not in catalog or type(catalog["comment"]) is str, (
         f"{label}.comment must be a string when present"
     )
-    assert type(catalog["generator_version"]) is int, (
-        f"{label}.generator_version must be an integer"
+    assert catalog["generator_version"] == 3, (
+        f"{label}.generator_version must be exactly 3 — the schema below "
+        "is frozen on generator v3, and a masquerading version is drift"
     )
     for digest_key in (
         "observations_sha256",
@@ -407,7 +408,24 @@ def _row_shape_problem(row: dict[str, Any]) -> str | None:
             return f"{key} must be a list of strings"
     if type(row["observation_count"]) is not int or row["observation_count"] < 0:
         return "observation_count must be a non-negative integer"
-    if row["status"] not in ("observed", "docket-only"):
+    if row["status"] == "observed":
+        if row["observation_count"] < 1:
+            return "observed rows must carry observations"
+    elif row["status"] == "docket-only":
+        if (
+            row["observation_count"] != 0
+            or row["entity"] is not None
+            or row["sources"]
+            or row["rid_patterns"]
+            or row["first_observed_period"] is not None
+            or row["last_observed_period"] is not None
+        ):
+            return (
+                "docket-only rows must be observation-free placeholders "
+                "(no entity, sources, rid patterns, periods, or counts) — "
+                "a relabeled observed row is not a placeholder"
+            )
+    else:
         return f"unsupported status {row['status']!r}"
     return None
 
@@ -437,6 +455,8 @@ def _derive_expected_pin(
     observed = [r for r in candidates if r["status"] != "docket-only"]
     extras = entry.get("extras") if type(entry.get("extras")) is dict else {}
     country = extras.get("country")
+    if country is not None and country not in COUNTRY_IDS:
+        return None, f"{name}: unmapped docket country {country!r}"
     expected_id = COUNTRY_IDS.get(country) if country else None
     if not observed:
         compatible = [
@@ -709,4 +729,38 @@ def test_containment_rejects_malformed_row_internals(
     with pytest.raises(AssertionError, match="non-empty object or null"):
         _assert_containment(
             _catalog_shell([row]), "test catalog", docket_path=docket_path
+        )
+
+
+def test_containment_matches_stamper_on_unknown_country(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Second-round repro: country "ZZ" was rejected by the stamper but
+    # blessed by containment's weaker re-derivation.
+    row = _catalog_row()
+    entry = {
+        "series": "unrelated.series",
+        "cadence": "monthly",
+        "slug": "u",
+        "extras": {"country": "ZZ", "targetUnit": "percent"},
+        "ledger": {"uuid": row["uuid"], "concept": row["concept"]},
+    }
+    docket_path = _docket_file(tmp_path, [entry])
+    with pytest.raises(AssertionError, match="unmapped docket country"):
+        _assert_containment(
+            _catalog_shell([row]), "test catalog", docket_path=docket_path
+        )
+
+
+def test_containment_rejects_masquerades(tmp_path: pathlib.Path) -> None:
+    docket_path = _docket_file(tmp_path, [])
+    v2 = _catalog_shell([_catalog_row()])
+    v2["generator_version"] = 2
+    with pytest.raises(AssertionError, match="exactly 3"):
+        _assert_containment(v2, "test catalog", docket_path=docket_path)
+    relabeled = _catalog_row(status="docket-only")  # keeps count/entity
+    with pytest.raises(AssertionError, match="not a placeholder"):
+        _assert_containment(
+            _catalog_shell([relabeled]), "test catalog",
+            docket_path=docket_path,
         )

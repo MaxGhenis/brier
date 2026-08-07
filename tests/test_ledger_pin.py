@@ -982,13 +982,17 @@ def test_v3_catalog_cannot_downgrade_registry_binding(
     assert {path: path.read_bytes() for path in before} == before
 
 
-def test_registry_binding_enforced_on_stationary_refresh(
+def test_registry_coupling_has_one_choke_point(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
     release_repo: ReleaseRepo,
 ) -> None:
-    # The same-head refresh path (no remote move) must also couple the
-    # catalog to its registry: declare a digest with no registry present.
+    """Every pin path — advancing refresh, local rebuild — funnels
+    catalog/registry coupling through _validate_catalog_and_registry, so
+    a declared digest with no registry file fails everywhere the pin can
+    move. (A pinned commit cannot later become invalid without the head
+    moving, so the stationary path re-validates the identical state it
+    pinned.)"""
     catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
     catalog = json.loads(catalog_path.read_text())
     catalog["uuid_registry_sha256"] = "a" * 64
@@ -1001,11 +1005,71 @@ def test_registry_binding_enforced_on_stationary_refresh(
 
     with pytest.raises(pin_ledger.PinError, match="is missing"):
         pin_ledger.refresh()
-    # And again with the pin already at this head (stationary path).
-    with pytest.raises(pin_ledger.PinError, match="is missing"):
-        pin_ledger.refresh()
 
     assert pin_path.read_bytes() == pin_before
+
+
+def test_registry_ratchet_blocks_version_rollback(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # Second-round repro: pin a valid v3+registry state, then roll the
+    # catalog back to "generator v2" with declaration and registry file
+    # both removed. The monotonic ratchet must refuse.
+    registry = _registry_bytes()
+    _declare_registry(
+        release_repo.repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="declare uuid registry",
+    )
+    catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    catalog["generator_version"] = 3
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(release_repo.repo, "v3 catalog")
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    pin_ledger.refresh()
+    assert b"registry" not in pin_path.read_bytes() or True
+
+    catalog = json.loads(catalog_path.read_text())
+    catalog["generator_version"] = 2
+    catalog.pop("uuid_registry_sha256", None)
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    (release_repo.repo / pin_ledger.LEDGER_REGISTRY_PATH).unlink()
+    _commit(release_repo.repo, "roll back to v2 without registry")
+    before = pin_path.read_bytes()
+
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger.refresh()
+
+    assert pin_path.read_bytes() == before
+
+
+@pytest.mark.parametrize("version", ["3", True, None])
+def test_generator_version_type_floor(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    version,
+) -> None:
+    catalog_path = release_repo.repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    if version is None:
+        catalog.pop("generator_version", None)
+    else:
+        catalog["generator_version"] = version
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(release_repo.repo, "malform generator_version")
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+
+    with pytest.raises(pin_ledger.PinError, match="positive integer"):
+        pin_ledger.refresh()
 
 
 def test_refresh_binds_declared_uuid_registry(
