@@ -36,6 +36,8 @@ Issues = "https://github.com/ThesisInstitute/thesis/issues"
 [project.optional-dependencies]
 custody = [
     "receipt==0.3.0; python_version >= '3.11'",
+    # SBA first-print custody replays the strict PDF parser during verification.
+    "pypdf>=5.1",
 ]
 challenge = [
     # Submitter-side keyless signing for the challenge lane (#52). Exact-pinned

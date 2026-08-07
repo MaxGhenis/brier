@@ -72,6 +72,8 @@ SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
 LEDGER_WITNESS_V1 = "thesis_ledger_witness_run_v1"
 LEDGER_WITNESS_V2 = "thesis_ledger_witness_run_v2"
 LEDGER_RELEASE_ARCHIVE_V1 = "thesis_ledger_release_archive_v1"
+SBA_PDF_WITNESS_V1 = "thesis_sba_pdf_witness_run_v1"
+SBA_PDF_FETCH_EVENT_V1 = "thesis_sba_pdf_fetch_event_v1"
 LEDGER_REPO = "PolicyEngine/ledger"
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
@@ -1274,6 +1276,529 @@ def _require_commit_response(raw: bytes, expected_sha: str, relative: str) -> No
         )
 
 
+def _verify_sba_fetch_record(
+    value: Any,
+    *,
+    label: str,
+    expected_url: str | None,
+) -> dict[str, Any]:
+    from witness_sba_pdf import ALLOWED_HOSTS, SbaCaptureError, _official_url
+
+    record = _exact_object(
+        value,
+        {
+            "requestedUrl",
+            "redirects",
+            "finalUrl",
+            "status",
+            "contentType",
+            "headers",
+            "outcome",
+            "bodySha256",
+            "bodyBytes",
+            "error",
+        },
+        label,
+    )
+    requested = record["requestedUrl"]
+    if not isinstance(requested, str) or (
+        expected_url is not None and requested != expected_url
+    ):
+        raise CustodyError(f"{label} requested URL mismatch: {requested!r}")
+    try:
+        _official_url(requested, label=f"{label} requested URL")
+    except SbaCaptureError as exc:
+        raise CustodyError(str(exc)) from exc
+
+    headers = record["headers"]
+    if not isinstance(headers, dict) or not all(
+        isinstance(name, str) and isinstance(item, str)
+        for name, item in headers.items()
+    ):
+        raise CustodyError(f"{label} headers must be a string map")
+    allowed_headers = {
+        "Date",
+        "Location",
+        "Content-Type",
+        "Content-Length",
+        "ETag",
+        "Last-Modified",
+    }
+    if not set(headers).issubset(allowed_headers):
+        raise CustodyError(f"{label} contains unapproved retained headers")
+    if record["contentType"] != headers.get("Content-Type"):
+        raise CustodyError(f"{label} contentType disagrees with retained headers")
+
+    redirects = record["redirects"]
+    if not isinstance(redirects, list) or len(redirects) > 10:
+        raise CustodyError(f"{label} redirects must be a bounded list")
+    current = requested
+    escaped = False
+    for index, raw_hop in enumerate(redirects):
+        if escaped:
+            raise CustodyError(f"{label} continued fetching after a host escape")
+        hop = _exact_object(
+            raw_hop,
+            {"sourceUrl", "status", "location", "targetUrl", "headers"},
+            f"{label} redirect {index}",
+        )
+        if hop["sourceUrl"] != current or hop["status"] not in {
+            301,
+            302,
+            303,
+            307,
+            308,
+        }:
+            raise CustodyError(f"{label} redirect {index} breaks the recorded chain")
+        if not isinstance(hop["location"], str) or not isinstance(
+            hop["targetUrl"], str
+        ):
+            raise CustodyError(f"{label} redirect {index} URL fields are invalid")
+        target = urllib.parse.urljoin(current, hop["location"])
+        if target != hop["targetUrl"]:
+            raise CustodyError(f"{label} redirect {index} target mismatch")
+        hop_headers = hop["headers"]
+        if not isinstance(hop_headers, dict) or not all(
+            isinstance(name, str) and isinstance(item, str)
+            for name, item in hop_headers.items()
+        ):
+            raise CustodyError(f"{label} redirect {index} headers are invalid")
+        if not set(hop_headers).issubset(allowed_headers):
+            raise CustodyError(f"{label} redirect {index} contains unapproved headers")
+        try:
+            _official_url(target, label=f"{label} redirect target")
+        except SbaCaptureError:
+            escaped = True
+            if index != len(redirects) - 1:
+                raise CustodyError(
+                    f"{label} continued redirecting after an off-host target"
+                )
+        current = target
+
+    outcome = record["outcome"]
+    if outcome not in {"success", "failed"}:
+        raise CustodyError(f"{label} has invalid outcome {outcome!r}")
+    final_url = record["finalUrl"]
+    if final_url is not None and not isinstance(final_url, str):
+        raise CustodyError(f"{label} final URL must be a string or null")
+    if final_url != current:
+        raise CustodyError(f"{label} final URL disagrees with the redirect chain")
+    status = record["status"]
+    if status is not None and (type(status) is not int or not 100 <= status <= 599):
+        raise CustodyError(f"{label} HTTP status is invalid")
+    body_sha = record["bodySha256"]
+    body_bytes = record["bodyBytes"]
+    if (body_sha is None) != (body_bytes is None):
+        raise CustodyError(f"{label} body hash and byte count must appear together")
+    if body_sha is not None:
+        _sha256_value(body_sha, f"{label} body SHA-256")
+        if type(body_bytes) is not int or body_bytes < 0:
+            raise CustodyError(f"{label} body byte count is invalid")
+    error = record["error"]
+    if error is not None and (not isinstance(error, str) or not error):
+        raise CustodyError(f"{label} error must be a nonempty string or null")
+    if outcome == "success":
+        if escaped or status != 200 or error is not None or body_sha is None:
+            raise CustodyError(f"{label} success claim is internally inconsistent")
+        try:
+            assert final_url is not None
+            parsed = _official_url(final_url, label=f"{label} final URL")
+        except (AssertionError, SbaCaptureError) as exc:
+            raise CustodyError(f"{label} final URL is not approved") from exc
+        if parsed.hostname not in ALLOWED_HOSTS:
+            raise CustodyError(f"{label} final URL host is not approved")
+    elif error is None:
+        raise CustodyError(f"{label} failed outcome lacks an error")
+    if escaped and (
+        outcome != "failed" or "outside the SBA allowlist" not in str(error)
+    ):
+        raise CustodyError(f"{label} host escape was not recorded as a refusal")
+    return record
+
+
+def _verify_sba_archive(
+    run_dir: Path,
+    value: Any,
+    *,
+    expected_path: str,
+    label: str,
+) -> tuple[bytes, bytes]:
+    archive = _exact_object(
+        value,
+        {
+            "path",
+            "rawSha256",
+            "rawBytes",
+            "gzipSha256",
+            "gzipBytes",
+            "contentEncoding",
+        },
+        label,
+    )
+    if archive["path"] != expected_path or archive["contentEncoding"] != "gzip":
+        raise CustodyError(f"{label} has the wrong path or content encoding")
+    compressed = _safe_artifact_path(run_dir, expected_path).read_bytes()
+    if (
+        _sha256(compressed) != archive["gzipSha256"]
+        or len(compressed) != archive["gzipBytes"]
+    ):
+        raise CustodyError(f"{label} deterministic-gzip commitment mismatch")
+    try:
+        raw = gzip.decompress(compressed)
+    except (OSError, EOFError) as exc:
+        raise CustodyError(f"{label} is not valid gzip") from exc
+    if _sha256(raw) != archive["rawSha256"] or len(raw) != archive["rawBytes"]:
+        raise CustodyError(f"{label} raw-byte commitment mismatch")
+    if (
+        len(compressed) < 10
+        or compressed[:3] != b"\x1f\x8b\x08"
+        or compressed[3] != 0
+        or compressed[4:8] != b"\x00\x00\x00\x00"
+    ):
+        raise CustodyError(f"{label} lacks the reviewed zero-mtime gzip header")
+    return raw, compressed
+
+
+def _verify_sba_event_archive(
+    run_dir: Path,
+    fetch: dict[str, Any],
+    *,
+    path: str,
+    label: str,
+) -> bytes:
+    compressed = _safe_artifact_path(run_dir, path).read_bytes()
+    try:
+        raw = gzip.decompress(compressed)
+    except (OSError, EOFError) as exc:
+        raise CustodyError(f"{label} is not valid gzip") from exc
+    if (
+        len(compressed) < 10
+        or compressed[:3] != b"\x1f\x8b\x08"
+        or compressed[3] != 0
+        or compressed[4:8] != b"\x00\x00\x00\x00"
+    ):
+        raise CustodyError(f"{label} lacks the reviewed zero-mtime gzip header")
+    if _sha256(raw) != fetch["bodySha256"] or len(raw) != fetch["bodyBytes"]:
+        raise CustodyError(f"{label} disagrees with its structured fetch event")
+    return raw
+
+
+def _verify_sba_pdf_witness_v2(
+    run_dir: Path, manifest: dict[str, Any], entries: list[dict[str, Any]]
+) -> None:
+    from witness_sba_pdf import (
+        _REPORT_PREFIXES,
+        _RUN_RE,
+        ALLOWED_HOSTS,
+        CAPTURE_REFUSAL,
+        ENTRY_URL,
+        PARSER_CONTRACT,
+        SbaCaptureError,
+        _inspect_bundle,
+        _linked_bundle,
+    )
+
+    _exact_object(
+        manifest,
+        {
+            "schemaVersion",
+            "retrievedAt",
+            "source",
+            "outcome",
+            "ok",
+            "fetchEventPath",
+            "bundle",
+            "previousCompleteCapture",
+            "failure",
+            "custodyInventoryVersion",
+            "runMode",
+            "manifestHashSemantics",
+            "artifacts",
+            "custodyRootSha256",
+        },
+        "SBA PDF witness manifest",
+    )
+    if manifest["schemaVersion"] != SBA_PDF_WITNESS_V1:
+        raise CustodyError("SBA PDF witness custody mode has the wrong schema")
+    retrieved_at = str(manifest["retrievedAt"])
+    retrieved = _instant(retrieved_at, "SBA PDF witness retrievedAt")
+    expected_run_name = retrieved.strftime("%Y%m%dT%H%M%SZ-sba-pdf-witness")
+    if (
+        _RUN_RE.fullmatch(run_dir.name) is None
+        or run_dir.name != expected_run_name
+        or run_dir.parent.name != retrieved.date().isoformat()
+    ):
+        raise CustodyError("SBA PDF witness run path disagrees with retrievedAt")
+    source = _exact_object(
+        manifest["source"],
+        {"entryUrl", "allowedHosts", "requiredSeries", "parserContract"},
+        "SBA PDF witness source",
+    )
+    if source != {
+        "entryUrl": ENTRY_URL,
+        "allowedHosts": list(ALLOWED_HOSTS),
+        "requiredSeries": list(_REPORT_PREFIXES),
+        "parserContract": PARSER_CONTRACT,
+    }:
+        raise CustodyError("SBA PDF witness source contract mismatch")
+    if manifest["fetchEventPath"] != "fetch_event.json":
+        raise CustodyError("SBA PDF witness has the wrong fetch-event path")
+    event = _json_bytes_object(
+        (run_dir / "fetch_event.json").read_bytes(), "SBA PDF fetch event"
+    )
+    event = _exact_object(
+        event,
+        {"schemaVersion", "attemptedAt", "outcome", "landing", "asset", "failure"},
+        "SBA PDF fetch event",
+    )
+    if (
+        event["schemaVersion"] != SBA_PDF_FETCH_EVENT_V1
+        or event["attemptedAt"] != retrieved_at
+        or event["outcome"] != manifest["outcome"]
+        or event["failure"] != manifest["failure"]
+    ):
+        raise CustodyError("SBA PDF fetch event disagrees with its manifest")
+    landing = _verify_sba_fetch_record(
+        event["landing"], label="SBA landing fetch", expected_url=ENTRY_URL
+    )
+    asset = (
+        _verify_sba_fetch_record(
+            event["asset"], label="SBA asset fetch", expected_url=None
+        )
+        if event["asset"] is not None
+        else None
+    )
+
+    outcome = manifest["outcome"]
+    if outcome not in {"bootstrap", "changed", "unchanged", "failed"}:
+        raise CustodyError(f"invalid SBA PDF witness outcome {outcome!r}")
+    expected_artifacts = {"fetch_event.json": "fetch_event"}
+    landing_raw: bytes | None = None
+    if landing["bodySha256"] is not None:
+        expected_artifacts["upstream/landing-page.html.gz"] = "landing_archive"
+        landing_raw = _verify_sba_event_archive(
+            run_dir,
+            landing,
+            path="upstream/landing-page.html.gz",
+            label="SBA landing event archive",
+        )
+    if outcome in {"bootstrap", "changed"}:
+        expected_artifacts["upstream/loan-program-performance.zip.gz"] = (
+            "bundle_archive"
+        )
+    actual_artifacts = {
+        str(entry["path"]): str(entry["artifactType"]) for entry in entries
+    }
+    if actual_artifacts != expected_artifacts:
+        raise CustodyError(
+            "SBA PDF witness artifact inventory mismatch: "
+            f"expected={expected_artifacts}, got={actual_artifacts}"
+        )
+
+    if outcome in {"bootstrap", "changed"}:
+        if manifest["ok"] is not True or manifest["failure"] is not None:
+            raise CustodyError("complete SBA capture has an invalid success state")
+        if manifest["previousCompleteCapture"] is not None:
+            raise CustodyError("complete SBA capture must not embed a prior reference")
+        if (
+            landing["outcome"] != "success"
+            or asset is None
+            or asset["outcome"] != "success"
+        ):
+            raise CustodyError("complete SBA capture requires two successful fetches")
+        bundle = _exact_object(
+            manifest["bundle"],
+            {
+                "label",
+                "fiscalYear",
+                "quarter",
+                "assetUrl",
+                "rawSha256",
+                "rawBytes",
+                "reportAsOf",
+                "memberInventory",
+                "reports",
+                "parserContract",
+                "landingArchive",
+                "zipArchive",
+            },
+            "SBA complete bundle",
+        )
+        archived_landing_raw, _ = _verify_sba_archive(
+            run_dir,
+            bundle["landingArchive"],
+            expected_path="upstream/landing-page.html.gz",
+            label="SBA landing archive",
+        )
+        zip_raw, _ = _verify_sba_archive(
+            run_dir,
+            bundle["zipArchive"],
+            expected_path="upstream/loan-program-performance.zip.gz",
+            label="SBA ZIP archive",
+        )
+        if (
+            landing_raw is None
+            or archived_landing_raw != landing_raw
+            or asset["bodySha256"] != _sha256(zip_raw)
+            or asset["bodyBytes"] != len(zip_raw)
+        ):
+            raise CustodyError("SBA fetch event body commitments do not replay")
+        assert isinstance(landing["finalUrl"], str)
+        try:
+            identity = _linked_bundle(landing_raw, page_url=landing["finalUrl"])
+            if asset["requestedUrl"] != identity.linked_url:
+                raise CustodyError(
+                    "SBA ZIP was not fetched from the archived page link"
+                )
+            replayed = _inspect_bundle(zip_raw, identity=identity)
+        except SbaCaptureError as exc:
+            raise CustodyError(f"SBA bundle replay refused: {exc}") from exc
+        claimed = {
+            name: value
+            for name, value in bundle.items()
+            if name not in {"landingArchive", "zipArchive"}
+        }
+        if claimed != replayed:
+            raise CustodyError("SBA bundle manifest does not match strict replay")
+    elif outcome == "unchanged":
+        if (
+            manifest["ok"] is not True
+            or manifest["failure"] is not None
+            or landing["outcome"] != "success"
+            or asset is None
+            or asset["outcome"] != "success"
+        ):
+            raise CustodyError("unchanged SBA capture has an invalid success state")
+        bundle = _exact_object(
+            manifest["bundle"],
+            {
+                "label",
+                "fiscalYear",
+                "quarter",
+                "assetUrl",
+                "rawSha256",
+                "rawBytes",
+                "reportAsOf",
+                "parserContract",
+            },
+            "SBA unchanged bundle",
+        )
+        previous = _exact_object(
+            manifest["previousCompleteCapture"],
+            {
+                "runDirectory",
+                "custodyRootPath",
+                "custodyRootSha256",
+                "bundleSha256",
+                "bundleBytes",
+                "bundleLabel",
+                "reportAsOf",
+            },
+            "SBA prior complete capture",
+        )
+        root_path = _repository_artifact_path(run_dir, str(previous["custodyRootPath"]))
+        expected_run = _safe_relative(str(previous["runDirectory"]))
+        records_root = next(
+            (ancestor for ancestor in run_dir.parents if ancestor.name == "records"),
+            None,
+        )
+        if records_root is None:
+            raise CustodyError("SBA run directory is not beneath records")
+        current_run = (
+            PurePosixPath("records") / run_dir.relative_to(records_root).as_posix()
+        )
+        if (
+            not expected_run.parts
+            or expected_run.parts[0] != "records"
+            or str(previous["custodyRootPath"])
+            != f"{expected_run.as_posix()}/custody_root.json"
+            or root_path.parent.name != expected_run.name
+        ):
+            raise CustodyError("SBA prior run directory disagrees with its root path")
+        if expected_run.as_posix() >= current_run.as_posix():
+            raise CustodyError(
+                "SBA prior complete capture does not precede the current run"
+            )
+        prior_verification = verify_run(root_path.parent)
+        prior_manifest = _load_object(root_path.parent / "manifest.json")
+        prior_bundle = prior_manifest.get("bundle")
+        prior_retrieved = _instant(
+            prior_manifest.get("retrievedAt"), "SBA prior capture retrievedAt"
+        )
+        if prior_retrieved >= retrieved:
+            raise CustodyError(
+                "SBA prior complete capture does not precede the current run"
+            )
+        if (
+            prior_manifest.get("schemaVersion") != SBA_PDF_WITNESS_V1
+            or prior_manifest.get("outcome") not in {"bootstrap", "changed"}
+            or not isinstance(prior_bundle, dict)
+            or prior_verification.custody_root_sha256 != previous["custodyRootSha256"]
+            or prior_bundle.get("rawSha256") != previous["bundleSha256"]
+            or prior_bundle.get("rawBytes") != previous["bundleBytes"]
+            or prior_bundle.get("label") != previous["bundleLabel"]
+            or prior_bundle.get("reportAsOf") != previous["reportAsOf"]
+        ):
+            raise CustodyError("SBA prior complete capture reference does not verify")
+        if landing_raw is None or not isinstance(landing["finalUrl"], str):
+            raise CustodyError("SBA unchanged capture lacks its archived landing page")
+        try:
+            identity = _linked_bundle(landing_raw, page_url=landing["finalUrl"])
+        except SbaCaptureError as exc:
+            raise CustodyError(f"SBA unchanged landing replay refused: {exc}") from exc
+        if (
+            bundle["label"] != identity.label
+            or bundle["fiscalYear"] != identity.fiscal_year
+            or bundle["quarter"] != identity.quarter
+            or bundle["parserContract"] != PARSER_CONTRACT
+            or bundle["rawSha256"] != asset["bodySha256"]
+            or bundle["rawBytes"] != asset["bodyBytes"]
+            or bundle["rawSha256"] != previous["bundleSha256"]
+            or bundle["rawBytes"] != previous["bundleBytes"]
+            or bundle["label"] != previous["bundleLabel"]
+            or bundle["reportAsOf"] != previous["reportAsOf"]
+            or bundle["assetUrl"] != identity.linked_url
+            or asset["requestedUrl"] != bundle["assetUrl"]
+        ):
+            raise CustodyError("SBA unchanged observation disagrees with prior bytes")
+    else:
+        failure = _exact_object(
+            manifest["failure"], {"stage", "reason"}, "SBA capture failure"
+        )
+        if (
+            manifest["ok"] is not False
+            or manifest["bundle"] is not None
+            or manifest["previousCompleteCapture"] is not None
+            or not isinstance(failure["stage"], str)
+            or not failure["stage"]
+            or not isinstance(failure["reason"], str)
+            or not failure["reason"].startswith(CAPTURE_REFUSAL)
+        ):
+            raise CustodyError("failed SBA capture has an invalid refusal state")
+        stage = failure["stage"]
+        state_matches = (
+            stage == "landing fetch"
+            and landing["outcome"] == "failed"
+            and asset is None
+        ) or (
+            stage == "landing validation"
+            and landing["outcome"] == "success"
+            and asset is None
+        ) or (
+            stage == "asset fetch"
+            and landing["outcome"] == "success"
+            and asset is not None
+            and asset["outcome"] == "failed"
+        ) or (
+            stage in {"asset validation", "bundle validation"}
+            and landing["outcome"] == "success"
+            and asset is not None
+            and asset["outcome"] == "success"
+        )
+        if not state_matches:
+            raise CustodyError("SBA capture failure stage disagrees with fetch state")
+
+
 def _verified_constituent_runs(
     run_dir: Path,
     manifest: dict[str, Any],
@@ -1610,6 +2135,7 @@ def verify_run(run_dir: Path) -> CustodyVerification:
             "resolver",
             "derived_ensemble",
             "ledger_witness",
+            "sba_pdf_witness",
         }:
             raise CustodyError(
                 "custody run mode mismatch: "
@@ -1801,6 +2327,8 @@ def verify_run(run_dir: Path) -> CustodyVerification:
             _verify_resolver_v2(run_dir, manifest, normalized_entries)
         elif run_mode == "ledger_witness":
             _verify_ledger_witness_v2(run_dir, manifest, normalized_entries)
+        elif run_mode == "sba_pdf_witness":
+            _verify_sba_pdf_witness_v2(run_dir, manifest, normalized_entries)
         elif run_mode == "derived_ensemble":
             _verify_derived_ensemble_v2(run_dir, manifest, normalized_entries, custody)
         else:
@@ -1822,6 +2350,7 @@ def verify_run(run_dir: Path) -> CustodyVerification:
                 and manifest["validation"].get("ok") is True
             )
             or (run_mode == "derived_ensemble" and manifest.get("ok") is True)
+            or (run_mode == "sba_pdf_witness" and manifest.get("ok") is True)
         ),
     )
 

@@ -66,6 +66,7 @@ ALLOWED_WORKFLOWS = {
     ".github/workflows/resolve-and-rebuild.yml",
     ".github/workflows/roll-docket.yml",
     ".github/workflows/strategy-docket.yml",
+    ".github/workflows/witness-sba-pdf.yml",
 }
 ALLOWED_REF = "refs/heads/main"
 SIGNER_RE = re.compile(
