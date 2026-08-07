@@ -35,6 +35,42 @@ def _alfred_docket_entries() -> list[dict]:
     ]
 
 
+def test_wave1_pnfi_first_print_fixture_is_hash_pinned_and_parses() -> None:
+    fixture = (
+        ROOT
+        / "tests"
+        / "fixtures"
+        / "ingestion_wave1"
+        / "alfred"
+        / "pnfi-2025-q4-first-print.csv"
+    )
+    raw = fixture.read_bytes()
+    assert len(raw) == 51
+    assert hashlib.sha256(raw).hexdigest() == (
+        "05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92"
+    )
+
+    rows = resolve_pending.parse_fred_vintage_csv(
+        raw, "PNFI", "2026-02-20"
+    )
+
+    assert rows == {"2025-10-01": 4378.954}
+    assert resolve_pending.ALFRED_ADAPTERS[
+        "bea.private_nonresidential_fixed_investment"
+    ] == {
+        "fred": "PNFI",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US private nonresidential fixed investment, nominal SAAR",
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.3.5 "
+            "(private fixed investment by type)"
+        ),
+        "concept_authority": "bea",
+    }
+
+
 def test_archives_raw_response_and_attaches_append_provenance(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:

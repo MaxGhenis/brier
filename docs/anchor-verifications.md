@@ -103,6 +103,21 @@ forward resolution always captures inside the release window.
 
 Raw results: anchor_results.json (kept out of the commit; the table above is the record).
 
+## BEA private nonresidential fixed investment
+
+Status: **VERIFIED** (integrator, 2026-08-07 UTC). A fresh official ALFRED
+metadata fetch identified `PNFI` as quarterly private nonresidential fixed
+investment in billions of dollars at a seasonally adjusted annual rate. The
+2026-02-20 vintage prints 2025 Q4 (`2025-10-01`) at **4,378.954**. The exact
+51-byte constrained-vintage response is frozen at
+`tests/fixtures/ingestion_wave1/alfred/pnfi-2025-q4-first-print.csv`, SHA-256
+`05b9718a7ab180b5f8aa5028dbdc04291f5e76c69ebacd0214239d5c57d4df92`.
+
+The registered transform is identity (`factor: 1`) and the target unit is
+`usd_billions`. The official BEA schedule was re-fetched the same session and
+still lists `GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at
+8:30 AM ET, so the quarterly seed uses the default `release-calendar` basis.
+
 ---
 
 # USAspending FY2026 query anchors

@@ -660,6 +660,31 @@
       }
     },
     {
+      "series": "bea.private_nonresidential_fixed_investment",
+      "cadence": "quarterly",
+      "slug": "us-private-nonresidential-fixed-investment-q{quarter}-{year}",
+      "seedPeriod": "2026-Q3",
+      "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+      "releaseDates": {
+        "2026-Q3": "2026-10-29"
+      },
+      "extras": {
+        "targetUnit": "usd_billions",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PNFI",
+          "sourceSeriesId": "PNFI",
+          "field": "PNFI",
+          "table": "Gross Domestic Product, Table 5.3.5 (private fixed investment by type)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
       "series": "bls.import_price_index.all_imports_mom",
       "cadence": "monthly",
       "slug": "bls-import-price-index-all-imports-mom-{month}-{year}",

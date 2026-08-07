@@ -363,6 +363,21 @@ def fred_advance_value(
     return None, raw, url, retrieved_at
 
 
+def parse_fred_vintage_csv(
+    raw: bytes, series_id: str, vintage: str
+) -> dict[str, float]:
+    """Parse a vintage CSV response, including date-constrained fixtures."""
+    rows: dict[str, float] = {}
+    for row in csv.DictReader(io.StringIO(raw.decode())):
+        date = row.get("observation_date") or row.get("DATE")
+        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(
+            series_id
+        )
+        if date and value not in (None, "", "."):
+            rows[date] = float(value)
+    return rows
+
+
 def fred_vintage_series(
     series_id: str, vintage: str
 ) -> tuple[dict[str, float], bytes | None, str, str]:
@@ -374,14 +389,7 @@ def fred_vintage_series(
             raw = r.read()
     except urllib.error.HTTPError:
         return {}, None, url, retrieved_at
-    rows: dict[str, float] = {}
-    for row in csv.DictReader(io.StringIO(raw.decode())):
-        date = row.get("observation_date") or row.get("DATE")
-        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(
-            series_id
-        )
-        if date and value not in (None, "", "."):
-            rows[date] = float(value)
+    rows = parse_fred_vintage_csv(raw, series_id, vintage)
     return rows, raw, url, retrieved_at
 
 
@@ -487,6 +495,18 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US real GDP, SAAR percent change",
         "source_name": "bea",
         "source_table": "Gross Domestic Product news release",
+        "concept_authority": "bea",
+    },
+    "bea.private_nonresidential_fixed_investment": {
+        "fred": "PNFI",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US private nonresidential fixed investment, nominal SAAR",
+        "source_name": "bea",
+        "source_table": (
+            "Gross Domestic Product, Table 5.3.5 "
+            "(private fixed investment by type)"
+        ),
         "concept_authority": "bea",
     },
     "bea.disposable_personal_income.level": {
