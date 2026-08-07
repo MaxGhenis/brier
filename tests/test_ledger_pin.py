@@ -2196,19 +2196,69 @@ def test_lineage_scan_survives_merge_dags(
         pin_ledger.rebuild_from_history(repo, "HEAD")
 
 
-def test_lineage_scan_ignores_incomparable_side_branches(
+def test_lineage_scan_accepts_declaration_retaining_merge(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
     release_repo: ReleaseRepo,
 ) -> None:
+    # Round-1 false-rejection repro: a DECLARED mainline merges an
+    # undeclared sibling while RETAINING its declared catalog. The scan
+    # must report the declaration and must not read the sibling's
+    # undeclared content as a downgrade.
     repo = release_repo.repo
     base_sha = _git(repo, "rev-parse", "HEAD")
     catalog_path = repo / pin_ledger.LEDGER_CATALOG_PATH
 
-    # Declaration lands on a SIDE branch only; mainline keeps an
-    # undeclared catalog and the merge RETAINS the mainline (undeclared)
-    # content. First-parent walking must not read the side declaration as
-    # preceding mainline commits.
+    _git(repo, "checkout", "-q", "-b", "undeclared-side")
+    catalog = json.loads(catalog_path.read_text())
+    catalog["comment"] = "sibling touch, never declared"
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    _commit(repo, "side: touch catalog, still undeclared")
+
+    registry = _registry_bytes()
+    _git(repo, "checkout", "-q", base_sha)
+    _git(repo, "checkout", "-q", "-b", "declared-mainline")
+    _declare_registry(
+        repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="mainline: declare uuid registry",
+    )
+    _git(
+        repo,
+        "merge",
+        "-q",
+        "--no-ff",
+        "-s",
+        "ours",
+        "undeclared-side",
+        "-m",
+        "merge sibling, retain declared catalog",
+    )
+
+    assert (
+        pin_ledger._walked_lineage_declares_registry(
+            repo, _git(repo, "rev-parse", "HEAD")
+        )
+        is True
+    )
+
+
+def test_unadopted_side_declaration_binds_fail_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # Merge topology cannot distinguish "we declined a side branch's
+    # declaration" from "an undeclared branch swallowed a declared
+    # mainline and the ref fast-forwarded onto the merge" — the DAGs are
+    # identical. The ratchet is therefore existential: once a declaring
+    # catalog is in the ancestry, an undeclared head refuses, even when
+    # the declaration's content was never adopted.
+    repo = release_repo.repo
+    base_sha = _git(repo, "rev-parse", "HEAD")
+    catalog_path = repo / pin_ledger.LEDGER_CATALOG_PATH
+
     registry = _registry_bytes()
     _git(repo, "checkout", "-q", "-b", "declaring-side")
     _declare_registry(
@@ -2235,9 +2285,56 @@ def test_lineage_scan_ignores_incomparable_side_branches(
         "merge side, retain mainline catalog",
     )
 
-    assert (
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
         pin_ledger._walked_lineage_declares_registry(
             repo, _git(repo, "rev-parse", "HEAD")
         )
-        is False
+
+
+def test_second_parent_declaration_cannot_be_laundered(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    # Round-2 repro: mainline DECLARES; an undeclared branch merges the
+    # declared tip with `-s ours` (declaration content discarded, the
+    # declaring commit demoted to second parent and TREESAME to the first
+    # parent), then the ref fast-forwards onto the merge. A single-parent
+    # walk never lists the declaring commit; the existential scan must
+    # still find it and refuse the undeclared head.
+    repo = release_repo.repo
+    undeclared_sha = _git(repo, "rev-parse", "HEAD")
+    branch = _git(repo, "rev-parse", "--abbrev-ref", "HEAD")
+
+    registry = _registry_bytes()
+    _declare_registry(
+        repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="mainline declares uuid registry",
     )
+    declared_sha = _git(repo, "rev-parse", "HEAD")
+
+    _git(repo, "checkout", "-q", "-b", "swallow", undeclared_sha)
+    (repo / "side-note.txt").write_text("diverged while undeclared\n")
+    _commit(repo, "side diverges while undeclared")
+    _git(
+        repo,
+        "merge",
+        "-q",
+        "--no-ff",
+        "-s",
+        "ours",
+        branch,
+        "-m",
+        "swallow declared mainline as second parent",
+    )
+    merge_sha = _git(repo, "rev-parse", "HEAD")
+    _git(repo, "checkout", "-q", branch)
+    _git(repo, "merge", "-q", "--ff-only", "swallow")
+    assert _git(repo, "rev-parse", "HEAD") == merge_sha
+    parents = _git(repo, "show", "-s", "--format=%P", merge_sha).split()
+    assert parents[1] == declared_sha
+
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger.rebuild_from_history(repo, "HEAD")

@@ -1531,44 +1531,50 @@ def _local_registry_at_commit(ledger_git: pathlib.Path, sha: str) -> bytes | Non
 
 
 def _walked_lineage_declares_registry(ledger_git: pathlib.Path, head_sha: str) -> bool:
-    """Whether the catalog lineage up to ``head_sha`` ever declared a UUID
-    registry — and refuse mid-lineage downgrades along the way.
+    """Whether any ancestor catalog of ``head_sha`` ever declared a UUID
+    registry — and refuse an undeclared head once one did.
 
-    Operator recovery must not become a laundering path: the catalog's
-    content transitions along the FIRST-PARENT lineage of ``head_sha`` are
-    scanned in order; once any version declares ``uuid_registry_sha256``,
-    every later version must keep declaring it. First-parent makes the
-    walk genuinely linear (incomparable side-branch commits never appear,
-    so they cannot produce false downgrade rejections), and
-    ``--full-history`` disables the history simplification that would
-    otherwise prune a declaring commit when a merge adopts the other
-    side's catalog — the adopting merge itself is a listed transition and
-    is judged on its own content.
+    Operator recovery must not become a laundering path, and merge
+    topology cannot be trusted to expose one: branch names are not part
+    of history, so a walk along any single parent line cannot tell "a
+    side branch offered a declaration we declined" apart from "we were
+    declared, an undeclared branch swallowed us with ``-s ours``, and the
+    ref fast-forwarded onto the merge" — the DAGs are identical, only the
+    ref movements differ. The ratchet is therefore existential over the
+    FULL ancestry: every commit that touched the catalog (``rev-list
+    --full-history``, no parent restriction, so neither history
+    simplification nor second-parent placement can hide one) is read, and
+    if any version declared ``uuid_registry_sha256``, the catalog at
+    ``head_sha`` itself must still declare it. Fail-closed by design: a
+    declaration merged in from an abandoned side branch binds the head
+    even if its content was never adopted — re-declaring is the recovery,
+    silently shedding custody is not.
     """
     listing = _git(
         ledger_git,
-        "log",
-        "--first-parent",
+        "rev-list",
         "--full-history",
-        "--format=%H",
-        "--reverse",
         head_sha,
         "--",
         LEDGER_CATALOG_PATH,
     )
-    declared = False
+    declaring_commit = None
     for commit in [line for line in listing.splitlines() if line]:
         catalog_raw = _local_catalog_at_commit(ledger_git, commit, required=False)
-        declares = _declares_registry(catalog_raw)
-        if declared and not declares:
-            raise PinError(
-                f"catalog commit {commit} drops the UUID registry "
-                "declaration after the lineage established one — "
-                "registry binding cannot be downgraded away, even "
-                "through rebuild_from_history"
-            )
-        declared = declared or declares
-    return declared
+        if _declares_registry(catalog_raw):
+            declaring_commit = commit
+            break
+    if declaring_commit is None:
+        return False
+    head_catalog = _local_catalog_at_commit(ledger_git, head_sha, required=False)
+    if not _declares_registry(head_catalog):
+        raise PinError(
+            f"catalog at {head_sha} lacks the UUID registry declaration "
+            f"although ancestor commit {declaring_commit} established one "
+            "— registry binding cannot be downgraded away, even through "
+            "rebuild_from_history"
+        )
+    return True
 
 
 def rebuild_from_history(
