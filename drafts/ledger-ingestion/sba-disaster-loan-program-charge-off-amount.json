@@ -1,21 +1,23 @@
 {
   "proposed_concept": "sba.disaster.loan_program.charge_off_amount",
-  "status": "rejected",
+  "status": "proposed",
   "unit": "usd",
   "cadence": "annual",
   "proposedFrom": "stress-119hr1021ih",
   "metricText": "SBA Loan Program Performance Disaster program charge-off amount for a fixed fiscal year.",
-  "note": "REJECTED for the existing-family wave: the exact metric is public, but only in a rolling PDF bundle with no first-print archive, so the IRS workbook parser cannot admit it.",
-  "adapterFamily": "irs-soi-pub1304-style workbook parse",
-  "billSlugs": ["stress-119hr1021ih"],
+  "note": "PROPOSED: the reviewed SBA PDF parser and custody lane are implemented. Admission awaits the first allowlisted-workflow-attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml that covers a completed fiscal year.",
+  "adapterFamily": "sba-loan-program-performance-pdf",
+  "billSlugs": [
+    "stress-119hr1021ih"
+  ],
   "publisher": "U.S. Small Business Administration",
   "statisticalProduct": "Loan Program Performance fiscal-year tables, Disaster program row, charge-off amount",
   "likelyUrlPattern": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
   "verification": {
     "schemaVersion": "ledger_ingestion_verification_v1",
-    "outcome": "rejected",
+    "outcome": "proposed",
     "verifiedAtUtc": "2026-08-06T20:01:23Z",
-    "reason": "The exact Disaster charge-off amount is printed, but the only live artifact is a rolling PDF bundle with revisable history and no first-print archive; admitting it would require a new SBA PDF/custody adapter family.",
+    "reason": "The official Table 5 PDF prints the exact Disaster fiscal-year charge-off amount. The reviewed SBA PDF parser and custody lane now exist, but this pre-lane artifact has neither an allowlisted witness-sba-pdf.yml workflow attestation nor an external witness; admission awaits the first eligible capture.",
     "sourcePageUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
     "artifact": {
       "url": "https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip",
@@ -34,16 +36,21 @@
       "column": "Fiscal Year 2024",
       "fetchedValue": 299971326,
       "printedValue": "$299,971,326",
-      "printedUnit": "usd"
+      "printedUnit": "usd",
+      "normalizedValue": 299971326,
+      "normalizedUnit": "usd"
     },
     "firstPrint": {
       "status": "not_authenticated",
-      "blocker": "The source page replaces one current ZIP, publishes no historical snapshot URLs, and the PDF states that prior fiscal-year charge-off amounts may be adjusted due to data updates."
+      "blocker": "This 2026-08-06 fetch predates the workflow-backed custody lane and is not an attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml; the rolling product exposes no authenticated historical versions."
     },
+    "requiredWork": [
+      "Run the official-page capture through .github/workflows/witness-sba-pdf.yml, publish it in an introducing commit attested by that workflow, and obtain an available recorder-chain witness; then recheck admission."
+    ],
     "fetchNotes": [
       "The www.sba.gov asset URL linked by the official page returned HTTP 404; the page redirects to legacy.sba.gov, where the same official relative path returned the ZIP.",
       "The PDF directly defines charge-off amount as principal and interest outstanding when a loan is charged off and identifies the Disaster row, so concept and unit are computable.",
-      "The artifact is PDF, not XLS/XLSX, and cannot be served by the existing irs-soi-pub1304 xlrd parser."
+      "The retained artifact is parser evidence only; it predates the attested SBA custody lane and is not admissible as a first-print capture."
     ]
   }
 }

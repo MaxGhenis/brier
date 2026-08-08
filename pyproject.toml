@@ -36,6 +36,9 @@ Issues = "https://github.com/ThesisInstitute/thesis/issues"
 [project.optional-dependencies]
 custody = [
     "receipt==0.3.0; python_version >= '3.11'",
+    # SBA custody replays geometry through pypdf layout internals; any version
+    # bump must pass the official-layout and adversarial-fixture suite first.
+    "pypdf==6.14.2",
 ]
 challenge = [
     # Submitter-side keyless signing for the challenge lane (#52). Exact-pinned
@@ -48,6 +51,9 @@ resolver = [
     # receipt/sigstore. resolve_pending.py imports it lazily and fails closed
     # with an install hint when absent.
     "xlrd==2.0.1",
+    # SBA loan-performance resolution replays the hash-pinned PDF member from
+    # witnessed custody and therefore needs the same strict parser as capture.
+    "pypdf==6.14.2",
 ]
 experiments = [
     "numpy>=2.2.6",

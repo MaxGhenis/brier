@@ -19,6 +19,7 @@ export type TargetSourceAdapter =
   | "generic-url"
   | "irs-soi-pub1304"
   | "ons-timeseries"
+  | "sba-loan-program-performance-pdf"
   | "statcan-wds"
   | "usaspending-api";
 

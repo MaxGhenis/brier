@@ -7,8 +7,8 @@ BEA series are admitted. No `records/**` artifact is part of this work.
 ## Outcome summary
 
 The wave covered 30 requests: eight ALFRED/USAspending quick requests and 22
-workbook-triage requests. Five requests verified cleanly, six received a
-terminal rejection for the proposed adapter family, and 19 remain proposals
+workbook-triage requests. Five requests verified cleanly, four received a
+terminal rejection for the proposed adapter family, and 21 remain proposals
 for a later source family or future official print. All five verified request
 concepts are in the docket. A sixth, narrower DHS award-transaction series was
 admitted from the fetched USAspending evidence; the broader account-obligations
@@ -37,9 +37,9 @@ The detailed scoring, artifact hashes, exact cells, and tie-break rule are in
 | 1 | `irs-soi-credit-30d-total-claims.json` | Admitted from Table 3.3; the current TY2023 official workbook prints 493,953 returns. |
 | 2 | `irs-actc-total-credit-amount.json` | Admitted from Table 3.3; the current TY2023 official workbook prints $34,533.251 million. |
 | 3 | `irs-soi-credit-30d-total-credit-amount.json` | Admitted from Table 3.3; the current TY2023 official workbook prints $3,231.102 million. |
-| 4 | `sba-disaster-loan-program-charge-off-amount.json` | Rejected for this family: the exact value is in a rolling, revisable PDF bundle without first-print custody. |
-| 5 | `sba-disaster-loan-program-charge-off-rate-upb.json` | Rejected for this family for the same rolling-PDF and first-print-custody mismatch. |
-| 6 | `sba-disaster-loan-program-post-charge-off-recovery.json` | Deferred to a new SBA PDF/custody family. |
+| 4 | `sba-disaster-loan-program-charge-off-amount.json` | Proposed; the SBA PDF/custody family is built, and admission awaits the first eligible capture from `.github/workflows/witness-sba-pdf.yml`. |
+| 5 | `sba-disaster-loan-program-charge-off-rate-upb.json` | Proposed; the SBA PDF/custody family is built, and admission awaits the first eligible capture from `.github/workflows/witness-sba-pdf.yml`. |
+| 6 | `sba-disaster-loan-program-post-charge-off-recovery.json` | Proposed; the SBA PDF/custody family is built, and admission awaits the first eligible capture from `.github/workflows/witness-sba-pdf.yml`. |
 | 7 | `irs-soi-credit-25e-total-claims.json` | Deferred to an IRS line-item PDF family; the exact field is absent from Table 3.3. |
 | 8 | `irs-soi-credit-25e-total-credit-amount.json` | Deferred to an IRS line-item PDF family; the exact field is absent from Table 3.3. |
 | 9 | `irs-soi-credit-45x-total-claims.json` | Deferred to an IRS corporation line-item PDF family. |
@@ -128,10 +128,11 @@ No admitted series resulted for `stress-119hr1021ih`,
 
 ## Ranked next work
 
-With wave 1 complete, the next source-family order is:
+With wave 1 complete, the remaining source-family order is:
 
-1. Add reviewed SBA PDF parsing and first-print custody, covering the three
-   disaster-loan performance requests and `stress-119hr1021ih`.
+1. Run `.github/workflows/witness-sba-pdf.yml` until it publishes an eligible
+   capture, obtain an available recorder-chain witness, and recheck admission
+   for the three disaster-loan performance requests and `stress-119hr1021ih`.
 2. Add an IRS individual line-item PDF family for the two section 25E
    requests.
 3. Add an IRS corporation line-item PDF family for the two section 45X

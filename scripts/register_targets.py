@@ -61,6 +61,7 @@ SOURCE_ADAPTERS = {
     "generic-url",
     "irs-soi-pub1304",
     "ons-timeseries",
+    "sba-loan-program-performance-pdf",
     "statcan-wds",
     "usaspending-api",
 }
@@ -70,6 +71,7 @@ SOURCE_ADAPTERS = {
 SOURCE_ADAPTER_ALLOWED_HOSTS = {
     "bea-release": {"apps.bea.gov", "www.bea.gov"},
     "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
+    "sba-loan-program-performance-pdf": {"legacy.sba.gov", "www.sba.gov"},
 }
 NATIVE_INTL_SOURCE_ADAPTERS = {
     "abs-data-api",
