@@ -156,6 +156,246 @@ def test_valid_submission_is_included_with_verbatim_quantiles_and_provenance(
     }
 
 
+def test_second_shot_rejects_while_first_accepted_survives(
+    submission_repo: dict[str, Any],
+) -> None:
+    # One shot per (challenger, target): git history orders acceptance,
+    # so the first accepted content IS the forecast; a later divergent
+    # file rejects while the original and rival challengers survive.
+    duplicate = dict(submission_repo["submission"])
+    duplicate["pointEstimate"] = 3.1
+    write_json(
+        submission_repo["inbox_dir"] / "fixture-user" / "second-shot.json",
+        duplicate,
+    )
+    other = dict(submission_repo["submission"])
+    other["challenger"] = "github:other-user"
+    other["systemName"] = "Other Forecaster"
+    write_json(
+        submission_repo["inbox_dir"] / "other-user" / "fixture-rate.json",
+        other,
+    )
+    commit_all(submission_repo["repo"], "Add duplicate and rival submissions")
+
+    records = run_ingest(submission_repo)
+
+    challengers = sorted(record["challenger"] for record in records)
+    assert challengers == ["github:fixture-user", "github:other-user"]
+    fixture_rows = [
+        record for record in records if record["challenger"] == "github:fixture-user"
+    ]
+    assert len(fixture_rows) == 1
+    assert fixture_rows[0]["pointEstimate"] == 3.0
+
+
+def test_case_variant_challenger_cannot_double_enter(
+    submission_repo: dict[str, Any],
+) -> None:
+    # GitHub logins are case-insensitive: GITHUB:FIXTURE-USER is the same
+    # challenger, so the variant rejects against the first accepted
+    # content while the original forecast survives.
+    variant = dict(submission_repo["submission"])
+    variant["challenger"] = "github:FIXTURE-USER"
+    write_json(
+        submission_repo["inbox_dir"] / "fixture-user-alias" / "same-target.json",
+        variant,
+    )
+    commit_all(submission_repo["repo"], "Add case-variant duplicate")
+
+    records = run_ingest(submission_repo)
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+
+
+def test_rename_plus_edit_cannot_replace_the_forecast(
+    submission_repo: dict[str, Any],
+) -> None:
+    # The round-3 bypass: delete the accepted file and re-add it under a
+    # new name with a changed forecast. Canonical content is keyed to
+    # (challenger, dataPointId) across history, so the replacement
+    # rejects and nothing survives for the key until the challenger's PR
+    # restores the accepted content.
+    edited = dict(submission_repo["submission"])
+    edited["pointEstimate"] = 3.2
+    submission_repo["submission_path"].unlink()
+    write_json(
+        submission_repo["inbox_dir"] / "fixture-user" / "renamed-shot.json",
+        edited,
+    )
+    commit_all(submission_repo["repo"], "Rename and edit the submission")
+
+    assert run_ingest(submission_repo) == []
+
+
+def test_merge_introduced_forecast_is_canonical_and_immutable(
+    submission_repo: dict[str, Any],
+) -> None:
+    # A forecast accepted via a merge commit (branch -> mainline) must
+    # enter the canonical map at the merge, so a later rename-plus-edit
+    # still rejects.
+    repo = submission_repo["repo"]
+    git(repo, "checkout", "-q", "-b", "side")
+    other = dict(submission_repo["submission"])
+    other["challenger"] = "github:merge-user"
+    path = submission_repo["inbox_dir"] / "merge-user" / "fixture-rate.json"
+    write_json(path, other)
+    commit_all(repo, "Side-branch submission")
+    git(repo, "checkout", "-q", "-")
+    git(
+        repo,
+        "-c",
+        "user.name=Challenge Adapter Test",
+        "-c",
+        "user.email=challenge-adapter@example.com",
+        "-c",
+        "commit.gpgsign=false",
+        "merge",
+        "--no-ff",
+        "-q",
+        "-m",
+        "Accept side submission",
+        "side",
+    )
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == [
+        "github:fixture-user",
+        "github:merge-user",
+    ]
+
+    edited = dict(other)
+    edited["pointEstimate"] = 3.3
+    path.unlink()
+    write_json(submission_repo["inbox_dir"] / "merge-user" / "renamed.json", edited)
+    commit_all(repo, "Rename and edit the merged submission")
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == ["github:fixture-user"]
+
+
+def test_stale_branch_merged_later_cannot_predate_the_first_forecast(
+    submission_repo: dict[str, Any],
+) -> None:
+    # Acceptance order is the first-parent chain: a divergent draft
+    # committed on an old side branch and merged AFTER the real
+    # submission landed must not become canonical.
+    repo = submission_repo["repo"]
+    # The side branch forks from the CURRENT tip and carries a divergent
+    # draft for the fixture challenger's target at a different path.
+    git(repo, "checkout", "-q", "-b", "stale")
+    draft = dict(submission_repo["submission"])
+    draft["pointEstimate"] = 9.9
+    write_json(submission_repo["inbox_dir"] / "fixture-user" / "draft.json", draft)
+    commit_all(repo, "Stale divergent draft")
+    git(repo, "checkout", "-q", "-")
+    git(
+        repo,
+        "-c",
+        "user.name=Challenge Adapter Test",
+        "-c",
+        "user.email=challenge-adapter@example.com",
+        "-c",
+        "commit.gpgsign=false",
+        "merge",
+        "--no-ff",
+        "-q",
+        "-m",
+        "Merge stale draft later",
+        "stale",
+    )
+    records = run_ingest(submission_repo)
+    # The mainline submission stays canonical; the draft is a divergent
+    # surplus and rejects.
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+    assert records[0]["pointEstimate"] == 3.0
+
+
+def test_fixed_in_place_file_canonicalizes_and_then_locks(
+    submission_repo: dict[str, Any],
+) -> None:
+    # Round-5 finding: an undecodable ADD followed by a valid
+    # modification must canonicalize the first valid content — the key
+    # must not stay fail-open. The fixed content survives, and a later
+    # rewrite rejects against it.
+    repo = submission_repo["repo"]
+    path = submission_repo["inbox_dir"] / "fix-user" / "fixture-rate.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"\xff\xfe{ not json")
+    commit_all(repo, "Add undecodable submission")
+
+    fixed = dict(submission_repo["submission"])
+    fixed["challenger"] = "github:fix-user"
+    write_json(path, fixed)
+    commit_all(repo, "Fix the submission in place")
+
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == [
+        "github:fix-user",
+        "github:fixture-user",
+    ]
+
+    rewritten = dict(fixed)
+    rewritten["pointEstimate"] = 3.4
+    write_json(path, rewritten)
+    commit_all(repo, "Rewrite after acceptance")
+
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == ["github:fixture-user"]
+
+
+def test_undecodable_history_does_not_abort_the_batch(
+    submission_repo: dict[str, Any],
+) -> None:
+    bad = submission_repo["inbox_dir"] / "fixture-user" / "garbled.json"
+    bad.write_bytes(b"\xff\xfe{ not json")
+    commit_all(submission_repo["repo"], "Add undecodable file")
+    bad.unlink()
+    commit_all(submission_repo["repo"], "Remove undecodable file")
+
+    records = run_ingest(submission_repo)
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+
+
+def test_pure_rename_of_accepted_content_survives(
+    submission_repo: dict[str, Any],
+) -> None:
+    # A byte-identical file at a new path is the same forecast.
+    original_bytes = submission_repo["submission_path"].read_bytes()
+    submission_repo["submission_path"].unlink()
+    new_path = submission_repo["inbox_dir"] / "fixture-user" / "renamed.json"
+    new_path.write_bytes(original_bytes)
+    commit_all(submission_repo["repo"], "Rename the submission unchanged")
+
+    records = run_ingest(submission_repo)
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+    assert records[0]["pointEstimate"] == 3.0
+
+
+def test_edited_accepted_submission_is_refused(
+    submission_repo: dict[str, Any],
+) -> None:
+    # One shot per target includes the content: editing the accepted file
+    # in a later commit must not replace the forecast.
+    edited = dict(submission_repo["submission"])
+    edited["pointEstimate"] = 3.05
+    rewrite_and_commit(submission_repo, edited, "Nudge the point estimate")
+
+    assert run_ingest(submission_repo) == []
+
+
+def test_interval_must_equal_q10_and_q90(
+    submission_repo: dict[str, Any],
+) -> None:
+    inconsistent = dict(submission_repo["submission"])
+    inconsistent["ciLow"] = 2.75
+    write_json(
+        submission_repo["inbox_dir"] / "other-user" / "inconsistent.json",
+        {**inconsistent, "challenger": "github:other-user"},
+    )
+    commit_all(submission_repo["repo"], "Add interval-inconsistent submission")
+
+    records = run_ingest(submission_repo)
+    challengers = sorted(record["challenger"] for record in records)
+    assert challengers == ["github:fixture-user"]
+
+
 def test_non_registered_submission_is_skipped(
     submission_repo: dict[str, Any],
     caplog: pytest.LogCaptureFixture,

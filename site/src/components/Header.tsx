@@ -14,7 +14,8 @@ export function Header({
     | "briefings"
     | "log"
     | "calibration"
-    | "models";
+    | "models"
+    | "challenge";
 }) {
   return (
     <header
@@ -161,6 +162,21 @@ export function Header({
             }
           >
             Models
+          </Link>
+          <Link
+            href="/challenge"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "challenge"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "challenge"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Challenge
           </Link>
           <Link
             href="/calibration"

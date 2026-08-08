@@ -34,8 +34,10 @@ wins earns a claim nobody can dispute — including us.
    ever resolved by human judgment.
 2. **Who may enter.** Any system. Participants self-declare
    `systemType` (`ai` | `human` | `hybrid`); the headline challenge is
-   AI-vs-AI and leaderboards segment by declaration. Identity = the
-   GitHub account that submits; one account is one challenger.
+   AI-vs-AI. (Current build: external leaderboard rows are labeled with
+   the declaration; grouped segmentation ships with `records/challenge/`
+   scoring ingestion.) Identity = the GitHub account that submits; one
+   account is one challenger.
 3. **One shot per target.** A challenger's first valid submission for a
    dataPointId is final; later submissions for the same pair are
    rejected. This matches our own agents' one-registered-run-per-lane
@@ -47,17 +49,23 @@ wins earns a claim nobody can dispute — including us.
    witnessed like any records commit. The v5 tiers then apply verbatim:
    witnessed before the observation → headline-eligible;
    claimed-time-only → published below the fold; on or after the
-   observation → violated. No special cases.
-5. **Distributions, not vibes.** Minimum: point estimate + 80% central
-   interval (scored via the same interval-seeded CDF our fallback uses).
-   Encouraged: a quantile grid (`quantiles`: 0.05–0.95), scored as a
-   piecewise-linear CDF exactly like agent-native distributions.
-   `distributionProvenance: external_submission` labels every score.
+   observation → violated. No special cases. (Current build: the merged
+   inbox path yields claimed-time chronology — honestly labeled, reward-
+   excluded; headline eligibility requires the records-path intake.)
+5. **Distributions, not vibes.** The v1 intake requires all three:
+   point estimate, 80% central interval, and the full seven-rung
+   quantile grid (p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, strictly
+   increasing values), scored as a piecewise-linear CDF exactly like
+   agent-native distributions. External scores are labeled by the
+   `externalSubmission { challenger, systemType }` field carried on
+   every run entry and reward row; `distributionProvenance` keeps
+   describing the distribution's own construction (`agent_reported`
+   for a submitted grid), exactly as for agent runs.
 6. **No trace requirement — visibly.** Our agents publish full reasoning
    traces; challengers may not want to. External cells are exempt from
-   the trace-depth rubric and the site renders "reasoning: not published"
-   on them. The transparency gap stays legible instead of being papered
-   over.
+   the trace-depth rubric and the site renders their submission record
+   under a "submission record (no reasoning trace required)" label. The
+   transparency gap stays legible instead of being papered over.
 7. **Scoring.** Identical to agents: exact CRPS on the materialized CDF,
    normalization only by pre-registered ledger dispersion, paired
    persistence comparison where a baseline exists. No challenger-specific
@@ -105,9 +113,11 @@ plus no prizes; revisit with any prize design.
   "ciHigh": 229.0,
   "quantiles": [
     {"p": 0.05, "value": 196.0},
+    {"p": 0.1, "value": 200.0},
     {"p": 0.25, "value": 207.0},
     {"p": 0.5, "value": 214.0},
     {"p": 0.75, "value": 221.0},
+    {"p": 0.9, "value": 229.0},
     {"p": 0.95, "value": 233.0}
   ],
   "generatedAtUtc": "2026-07-20T14:00:00Z",
@@ -115,20 +125,30 @@ plus no prizes; revisit with any prize design.
 }
 ```
 
-`quantiles` optional; when present it must be strictly increasing in
-both `p` and `value`, include 0.1/0.5/0.9 or bracket them, and agree
-with `ciLow`/`ciHigh` at 0.1/0.9 within interpolation tolerance.
-`generatedAtUtc` is the challenger's claim; chronology never trusts it —
-the witnessed intake commit is the clock.
+`quantiles` is required: exactly the seven rungs above
+(p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95) with strictly increasing
+values — the intake (`scripts/ingest_challenge_submissions.py`) rejects
+anything else. One shot per (challenger, dataPointId): the first
+content accepted onto the mainline (first-parent order, so merge-borne
+files count at their merge) is canonical forever, keyed
+case-insensitively across the whole inbox history (GitHub logins are
+case-insensitive). Edits, renamed rewrites, delete-and-readd
+replacements, and surplus divergent copies all reject while the
+canonical forecast survives; a byte-identical rename carries the
+forecast unchanged. `generatedAtUtc` is the challenger's
+claim; under the current inbox intake the score carries claimed-time
+chronology (labeled, reward-excluded). The records-path intake will
+bind chronology to a witnessed commit instead.
 
 ## Build plan
 
 | Piece | Status |
 |---|---|
 | Design (this doc) | done |
-| `scripts/validate_challenge_submission.py` + tests | done |
+| `scripts/validate_challenge_submission.py` + tests | retired — deleted with the 2026-07-20 hold; the shipped inbox path validates via `scripts/ingest_challenge_submissions.py` |
 | Intake workflow (`challenge-intake.yml`) | staged — cross-model review first (privileged writer + PR-triggered = the risky pair) |
 | Attestation allowlist entry for the intake workflow | with the workflow |
-| Site: scoring ingestion of `records/challenge/`, external flag on leaderboards | next |
-| `/challenge` page: rules, how to enter, live external scores | next |
+| Site: external flag on scored rows + leaderboards (`externalSubmission` through run entries → reward rows → agent leaderboard) | done 2026-08-07 — accepted inbox submissions already score through `getForecastRunEntries`, so the flag rides the identical pipeline |
+| Site: scoring ingestion of `records/challenge/` (replaces the hand-wired augment map + `site/src/data/challenge.ts` registry with generated output) | open — follows the intake workflow |
+| `/challenge` page: rules, how to enter, live submissions + records digests | done 2026-08-07 — scores surface on `/calibration` once targets resolve |
 | Outreach (Preseen, Mantic, FutureSearch, Metaculus bot authors) | after the lane is live-fired end to end |

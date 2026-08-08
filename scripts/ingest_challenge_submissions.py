@@ -215,6 +215,100 @@ def submission_path(path: Path, repo_root: Path) -> str:
         ) from error
 
 
+def first_accepted_content(
+    inbox_dir: Path, repo_root: Path
+) -> dict[tuple[str, str], tuple[bytes, str]]:
+    """Map each (challenger, dataPointId) to its first-accepted bytes and path.
+
+    One shot per target binds the CONTENT, not a pathname: walking the
+    inbox history oldest-first and recording the earliest parseable file
+    for each key means an edit, a rename, or a delete-and-readd all
+    leave the canonical bytes unchanged — any current file whose bytes
+    differ from them is refused. A predecessor that never parsed (and so
+    was never an accepted forecast) does not define canonical content.
+    """
+
+    inbox_rel = (
+        inbox_dir.resolve(strict=True)
+        .relative_to(repo_root.resolve(strict=True))
+        .as_posix()
+    )
+    try:
+        # Acceptance order is the FIRST-PARENT chain: content counts as
+        # accepted when it lands on the mainline, whether by a direct
+        # commit or inside a merge result (-m diffs merges against their
+        # first parent). Every change type is walked — not just
+        # additions — because the first ACCEPTED FORECAST for a key may
+        # arrive as a modification (e.g. an undecodable file later fixed
+        # in place); filtering to additions would leave such keys with
+        # no canonical content and one-shot fail-open. Plain --reverse
+        # would walk the whole DAG, letting a stale side branch merged
+        # later pre-date the true first forecast.
+        log = subprocess.run(
+            [
+                "git",
+                "log",
+                "--reverse",
+                "--first-parent",
+                "-m",
+                "--format=%H",
+                "--name-status",
+                "--",
+                inbox_rel,
+            ],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ChallengeSubmissionError(
+            f"cannot walk the inbox history for {inbox_rel}: {error}"
+        ) from error
+    canonical: dict[tuple[str, str], bytes] = {}
+    commit = ""
+    for line in log.stdout.splitlines():
+        if _COMMIT_RE.fullmatch(line.strip()):
+            commit = line.strip()
+            continue
+        fields = line.split("\t")
+        if len(fields) < 2 or not fields[0]:
+            continue
+        status = fields[0][0]
+        if status == "D":
+            continue
+        # A/M/T use the single path; renames (R) and copies (C) land the
+        # content at their DESTINATION path.
+        added = fields[-1]
+        if not added.endswith(".json") or added.endswith(".sigstore.json"):
+            continue
+        try:
+            raw = subprocess.run(
+                ["git", "show", f"{commit}:{added}"],
+                cwd=repo_root,
+                check=True,
+                capture_output=True,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError):
+            continue
+        try:
+            payload = json.loads(raw)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Undecodable or unparseable history was never an accepted
+            # forecast; it must not define canonical content or abort
+            # the batch.
+            continue
+        if not isinstance(payload, dict):
+            continue
+        challenger = payload.get("challenger")
+        data_point_id = payload.get("dataPointId")
+        if not isinstance(challenger, str) or not isinstance(data_point_id, str):
+            continue
+        key = (challenger.lower(), data_point_id)
+        canonical.setdefault(key, (raw, added))
+    return canonical
+
+
 def merge_commit_for(path: Path, repo_root: Path) -> str:
     """Return the exact commit requested by the challenge provenance contract."""
 
@@ -276,6 +370,15 @@ def adapt_submission(
 
     point_estimate = _finite_number(payload.get("pointEstimate"), field="pointEstimate")
     quantiles = validate_quantiles(payload)
+    # ciLow/ciHigh and the 0.1/0.9 rungs describe the same 80% band; a
+    # submission that disagrees with itself is refused rather than
+    # silently resolved in favor of the grid.
+    ci_low = _finite_number(payload.get("ciLow"), field="ciLow")
+    ci_high = _finite_number(payload.get("ciHigh"), field="ciHigh")
+    if ci_low != quantiles[1]["value"] or ci_high != quantiles[5]["value"]:
+        raise ChallengeSubmissionError(
+            "ciLow/ciHigh must equal the 0.1 and 0.9 quantile values"
+        )
     generated_value = _required_string(payload, "generatedAtUtc")
     generated_at = parse_utc_datetime(generated_value, field="generatedAtUtc")
     if generated_at >= target.release_at:
@@ -351,7 +454,91 @@ def ingest_challenge_submissions(
             LOGGER.warning("Skipping challenge submission %s: %s", display_path, error)
             continue
         records.append(record)
-    return records
+    canonical = first_accepted_content(inbox_dir, repo_root)
+    records = _reject_replaced_content(records, canonical, repo_root)
+    return _reject_duplicate_targets(records, canonical)
+
+
+def _reject_replaced_content(
+    records: list[dict[str, Any]],
+    canonical: dict[tuple[str, str], tuple[bytes, str]],
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    """Refuse any record whose bytes differ from the first-accepted bytes
+    for its (challenger, dataPointId) — edits, renames, and
+    delete-and-readd games all land here."""
+
+    kept: list[dict[str, Any]] = []
+    for record in records:
+        key = (
+            str(record.get("challenger")).lower(),
+            str(record.get("dataPointId")),
+        )
+        relative = str(record.get("provenance", {}).get("submissionPath", ""))
+        current = (repo_root / relative).read_bytes()
+        entry = canonical.get(key)
+        if entry is not None and current != entry[0]:
+            LOGGER.warning(
+                "Rejecting %s: content differs from the first accepted "
+                "submission for %s / %s; one shot per target is final",
+                relative,
+                record.get("challenger"),
+                record.get("dataPointId"),
+            )
+            continue
+        kept.append(record)
+    return kept
+
+
+def _reject_duplicate_targets(
+    records: list[dict[str, Any]],
+    canonical: dict[tuple[str, str], tuple[bytes, str]],
+) -> list[dict[str, Any]]:
+    """Enforce one shot per (challenger, dataPointId).
+
+    Records reaching here are byte-identical to the first-accepted
+    content for their key, so duplicates are surplus copies: exactly one
+    survives — the file at the first-accepted path when it still exists,
+    else the lexicographically first path — and the rest reject with a
+    warning. Keys are case-insensitive on the challenger because GitHub
+    logins are.
+    """
+
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for record in records:
+        key = (
+            str(record.get("challenger")).lower(),
+            str(record.get("dataPointId")),
+        )
+        groups.setdefault(key, []).append(record)
+    kept: list[dict[str, Any]] = []
+    for key, group in groups.items():
+        if len(group) == 1:
+            kept.extend(group)
+            continue
+
+        def _path(record: dict[str, Any]) -> str:
+            return str(record.get("provenance", {}).get("submissionPath", ""))
+
+        first_path = canonical.get(key, (b"", ""))[1]
+        chosen = next(
+            (record for record in group if _path(record) == first_path),
+            min(group, key=_path),
+        )
+        for record in group:
+            if record is chosen:
+                continue
+            LOGGER.warning(
+                "Rejecting surplus copy %s for %s / %s: one shot per target",
+                _path(record),
+                record.get("challenger"),
+                record.get("dataPointId"),
+            )
+        kept.append(chosen)
+    kept.sort(
+        key=lambda record: str(record.get("provenance", {}).get("submissionPath", ""))
+    )
+    return kept
 
 
 def main() -> int:

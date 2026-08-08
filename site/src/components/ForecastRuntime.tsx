@@ -711,6 +711,14 @@ function ForecastRunLane({
             <span>{agentLabel}</span>
             <span>{modelLabel}</span>
             <span>{formatRunRecordedAt(run)}</span>
+            {run.externalSubmission && (
+              <span
+                className="rounded-full border border-[#A94E80] px-2 py-[1px] text-[#A94E80]"
+                title={`Open-challenge submission by ${run.externalSubmission.challenger} (self-declared ${run.externalSubmission.systemType}). Shows the submission record; a reasoning trace is not required.`}
+              >
+                external · {run.externalSubmission.systemType}
+              </span>
+            )}
             {agentOrdinal && agentOrdinal.count > 1 && (
               <span className="rounded-full border border-[var(--theme-border)] px-2 py-[1px]">
                 update {agentOrdinal.index}/{agentOrdinal.count}
@@ -789,7 +797,9 @@ function RunTraceDetails({
   return (
     <details className="mt-3 border-t border-[var(--theme-border)] pt-3">
       <summary className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-        public trace
+        {run.externalSubmission
+          ? "submission record (no reasoning trace required)"
+          : "public trace"}
       </summary>
       <div className="mt-3 space-y-2">
         {run.predictionRun?.preSubmitReview && (

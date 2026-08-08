@@ -1,4 +1,5 @@
 import type {
+  ExternalSubmissionAttribution,
   ForecastCell,
   PredictionPreSubmitReviewWorkflow,
 } from "./forecast-cells";
@@ -75,6 +76,8 @@ export interface BrierRewardRow {
   runLabel: string;
   runVariantId: string;
   runAt?: string;
+  /** Present on open-challenge rows: the external submitter's identity. */
+  externalSubmission?: ExternalSubmissionAttribution;
   distributionProvenance: DistributionProvenance;
   transformVersion: string;
   resolutionDate: string;
@@ -125,6 +128,10 @@ export interface BrierRewardRow {
 export interface BrierAgentLeaderboardRow {
   agent: string;
   model?: string;
+  /** True when every run in the group is an open-challenge submission. */
+  external: boolean;
+  /** Self-declared system types present in an external group's rows. */
+  externalSystemTypes?: ExternalSubmissionAttribution["systemType"][];
   scoredRuns: number;
   totalRuns: number;
   unpairedMeanReward: number | null;
@@ -461,6 +468,7 @@ function buildRewardRow({
     runLabel: run.label,
     runVariantId: run.variantId,
     runAt: run.predictionRun?.runAt,
+    externalSubmission: run.externalSubmission,
     distributionProvenance: run.predictionDistribution.provenance,
     transformVersion: getDistributionTransformVersion(
       run.predictionDistribution,
@@ -541,6 +549,25 @@ export function buildBrierAgentLeaderboard(
   return [...groups.entries()]
     .map(([key, group]) => {
       const [agent, model] = key.split("\u0000");
+      const externalRows = group.filter((row) => Boolean(row.externalSubmission));
+      // A group mixing internal and external rows means one agent
+      // identity is being used by both the lab and a challenger; that is
+      // an integrity anomaly, not a display choice — fail the build.
+      if (externalRows.length > 0 && externalRows.length < group.length) {
+        throw new Error(
+          `leaderboard group ${agent} mixes internal and external rows`,
+        );
+      }
+      const external = externalRows.length === group.length && group.length > 0;
+      const externalSystemTypes = external
+        ? [
+            ...new Set(
+              externalRows.flatMap((row) =>
+                row.externalSubmission ? [row.externalSubmission.systemType] : [],
+              ),
+            ),
+          ].sort()
+        : undefined;
       const rawScoredRows = group.filter(
         (row) => row.reward.components.crps !== null,
       );
@@ -561,6 +588,8 @@ export function buildBrierAgentLeaderboard(
       return {
         agent,
         model: model || undefined,
+        external,
+        externalSystemTypes,
         scoredRuns: rawScoredRows.length,
         totalRuns: group.length,
         unpairedMeanReward: mean(
