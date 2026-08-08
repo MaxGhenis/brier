@@ -1,56 +1,63 @@
 {
-  "proposed_concept": "sba.disaster.loan_program.charge_off_amount",
-  "status": "proposed",
-  "unit": "usd",
-  "cadence": "annual",
-  "proposedFrom": "stress-119hr1021ih",
-  "metricText": "SBA Loan Program Performance Disaster program charge-off amount for a fixed fiscal year.",
-  "note": "PROPOSED: the reviewed SBA PDF parser and custody lane are implemented. Admission awaits the first allowlisted-workflow-attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml that covers a completed fiscal year.",
-  "adapterFamily": "sba-loan-program-performance-pdf",
-  "billSlugs": [
-    "stress-119hr1021ih"
+ "proposed_concept": "sba.disaster.loan_program.charge_off_amount",
+ "status": "verified",
+ "unit": "usd",
+ "cadence": "annual",
+ "proposedFrom": "stress-119hr1021ih",
+ "metricText": "SBA Loan Program Performance Disaster program charge-off amount for a fixed fiscal year.",
+ "note": "VERIFIED: the first allowlisted-workflow capture from .github/workflows/witness-sba-pdf.yml (run 31241032674, outcome bootstrap, FY25Q3 bundle byte-identical to the pre-lane verification artifact) is sealed at records/2026-08-08/20260808T050910Z-sba-pdf-witness and externally witnessed by records/2026-08-08/digest-31243980798-1.json (RFC 3161 TSA). Admission condition met; resolution stays witnessed-capture-only.",
+ "adapterFamily": "sba-loan-program-performance-pdf",
+ "billSlugs": [
+  "stress-119hr1021ih"
+ ],
+ "publisher": "U.S. Small Business Administration",
+ "statisticalProduct": "Loan Program Performance fiscal-year tables, Disaster program row, charge-off amount",
+ "likelyUrlPattern": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+ "verification": {
+  "schemaVersion": "ledger_ingestion_verification_v1",
+  "outcome": "verified",
+  "verifiedAtUtc": "2026-08-08T05:15:00Z",
+  "reason": "The reviewed SBA PDF parser and witnessed-capture custody lane are live (thesis#145). The first capture from the allowlisted witness-sba-pdf.yml workflow (run 31241032674) sealed the same FY25Q3 bundle this request's artifact block pins (raw sha 51d5571d03d028d5efd4b8b9c8d7984f55285d36202eb8f67afe8a3476bb1242) at records/2026-08-08/20260808T050910Z-sba-pdf-witness, and the capture's records path is bound into the externally witnessed digest records/2026-08-08/digest-31243980798-1.json.",
+  "sourcePageUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+  "artifact": {
+   "url": "https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip",
+   "retrievedAtUtc": "2026-08-06T20:01:23Z",
+   "sha256": "51d5571d03d028d5efd4b8b9c8d7984f55285d36202eb8f67afe8a3476bb1242",
+   "byteLength": 1296419,
+   "mediaType": "application/zip",
+   "memberPath": "WebsiteReports_FY25Q3/WDS_ChargeOffAmount_Report_20250630.pdf",
+   "memberSha256": "b3f352425adcc3304cbcc406d63a2ced149bc8224f3b604c2b47403edc9070f3",
+   "memberByteLength": 107076,
+   "memberMediaType": "application/pdf",
+   "asOfDate": "2025-06-30",
+   "table": "Table 5 - Charge Off Amount by Program",
+   "page": 1,
+   "row": "Disaster",
+   "column": "Fiscal Year 2024",
+   "fetchedValue": 299971326,
+   "printedValue": "$299,971,326",
+   "printedUnit": "usd",
+   "normalizedValue": 299971326,
+   "normalizedUnit": "usd"
+  },
+  "firstPrint": {
+   "status": "not_authenticated",
+   "blocker": "This 2026-08-06 fetch predates the workflow-backed custody lane and is not an attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml; the rolling product exposes no authenticated historical versions."
+  },
+  "requiredWork": [
+   "Run the official-page capture through .github/workflows/witness-sba-pdf.yml, publish it in an introducing commit attested by that workflow, and obtain an available recorder-chain witness; then recheck admission."
   ],
-  "publisher": "U.S. Small Business Administration",
-  "statisticalProduct": "Loan Program Performance fiscal-year tables, Disaster program row, charge-off amount",
-  "likelyUrlPattern": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
-  "verification": {
-    "schemaVersion": "ledger_ingestion_verification_v1",
-    "outcome": "proposed",
-    "verifiedAtUtc": "2026-08-06T20:01:23Z",
-    "reason": "The official Table 5 PDF prints the exact Disaster fiscal-year charge-off amount. The reviewed SBA PDF parser and custody lane now exist, but this pre-lane artifact has neither an allowlisted witness-sba-pdf.yml workflow attestation nor an external witness; admission awaits the first eligible capture.",
-    "sourcePageUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
-    "artifact": {
-      "url": "https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip",
-      "retrievedAtUtc": "2026-08-06T20:01:23Z",
-      "sha256": "51d5571d03d028d5efd4b8b9c8d7984f55285d36202eb8f67afe8a3476bb1242",
-      "byteLength": 1296419,
-      "mediaType": "application/zip",
-      "memberPath": "WebsiteReports_FY25Q3/WDS_ChargeOffAmount_Report_20250630.pdf",
-      "memberSha256": "b3f352425adcc3304cbcc406d63a2ced149bc8224f3b604c2b47403edc9070f3",
-      "memberByteLength": 107076,
-      "memberMediaType": "application/pdf",
-      "asOfDate": "2025-06-30",
-      "table": "Table 5 - Charge Off Amount by Program",
-      "page": 1,
-      "row": "Disaster",
-      "column": "Fiscal Year 2024",
-      "fetchedValue": 299971326,
-      "printedValue": "$299,971,326",
-      "printedUnit": "usd",
-      "normalizedValue": 299971326,
-      "normalizedUnit": "usd"
-    },
-    "firstPrint": {
-      "status": "not_authenticated",
-      "blocker": "This 2026-08-06 fetch predates the workflow-backed custody lane and is not an attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml; the rolling product exposes no authenticated historical versions."
-    },
-    "requiredWork": [
-      "Run the official-page capture through .github/workflows/witness-sba-pdf.yml, publish it in an introducing commit attested by that workflow, and obtain an available recorder-chain witness; then recheck admission."
-    ],
-    "fetchNotes": [
-      "The www.sba.gov asset URL linked by the official page returned HTTP 404; the page redirects to legacy.sba.gov, where the same official relative path returned the ZIP.",
-      "The PDF directly defines charge-off amount as principal and interest outstanding when a loan is charged off and identifies the Disaster row, so concept and unit are computable.",
-      "The retained artifact is parser evidence only; it predates the attested SBA custody lane and is not admissible as a first-print capture."
-    ]
+  "fetchNotes": [
+   "The www.sba.gov asset URL linked by the official page returned HTTP 404; the page redirects to legacy.sba.gov, where the same official relative path returned the ZIP.",
+   "The PDF directly defines charge-off amount as principal and interest outstanding when a loan is charged off and identifies the Disaster row, so concept and unit are computable.",
+   "The retained artifact is parser evidence only; it predates the attested SBA custody lane and is not admissible as a first-print capture."
+  ],
+  "witnessedCapture": {
+   "runPath": "records/2026-08-08/20260808T050910Z-sba-pdf-witness",
+   "workflowRunId": "31241032674",
+   "witnessDigest": "records/2026-08-08/digest-31243980798-1.json",
+   "outcome": "bootstrap",
+   "bundleLabel": "FY25Q3"
   }
+ }
 }

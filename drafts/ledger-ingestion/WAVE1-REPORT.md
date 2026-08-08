@@ -4,6 +4,13 @@ Status as of 2026-08-07: wave 1 is complete. Triage and request verification
 are complete, and three IRS workbook series, one USAspending series, and two
 BEA series are admitted. No `records/**` artifact is part of this work.
 
+Wave-2 update, 2026-08-08: the three SBA Loan Program Performance
+requests moved proposed → verified. The witnessed-capture custody
+family merged (thesis#145), the first allowlisted-workflow capture is
+sealed and externally witnessed, and the three series carry docket-only
+placeholders in PolicyEngine/chronicle. Verified totals below reflect
+wave 1 only; the SBA admissions are wave 2's opener.
+
 ## Outcome summary
 
 The wave covered 30 requests: eight ALFRED/USAspending quick requests and 22
