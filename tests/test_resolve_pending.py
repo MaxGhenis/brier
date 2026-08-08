@@ -277,7 +277,7 @@ def test_archives_raw_response_and_attaches_append_provenance(
         {
             "schemaVersion": "thesis_resolution_run_v1",
             "retrievedAt": enriched["retrievedAt"],
-            "ledgerRepo": "PolicyEngine/ledger",
+            "ledgerRepo": "PolicyEngine/chronicle",
             "ledgerBranch": "facts",
             "ledgerRepoSha": enriched["ledgerRepoSha"],
             "facts": [
@@ -335,7 +335,7 @@ def test_ledger_state_pins_content_fetch_to_the_recorded_repo_sha(monkeypatch) -
     monkeypatch.setattr(resolve_pending.subprocess, "run", fake_run)
 
     content, blob_sha, repo_sha = resolve_pending.ledger_state(
-        "PolicyEngine/ledger", "facts", "ledger/facts.jsonl"
+        "PolicyEngine/chronicle", "facts", "ledger/facts.jsonl"
     )
 
     assert content == "{}\n"
@@ -662,7 +662,7 @@ def test_manifest_dedupes_shared_response_archives(tmp_path) -> None:
         manifest = {
             "schemaVersion": "thesis_resolution_run_v1",
             "retrievedAt": "2026-07-10T12:00:00Z",
-            "ledgerRepo": "PolicyEngine/ledger",
+            "ledgerRepo": "PolicyEngine/chronicle",
             "ledgerBranch": "test",
             "ledgerRepoSha": "0" * 40,
             "facts": [
@@ -1355,7 +1355,7 @@ def test_bls_json_archive_passes_custody_verification(tmp_path) -> None:
             {
                 "schemaVersion": "thesis_resolution_run_v1",
                 "retrievedAt": "2026-08-07T13:40:00Z",
-                "ledgerRepo": "PolicyEngine/ledger",
+                "ledgerRepo": "PolicyEngine/chronicle",
                 "ledgerBranch": "test",
                 "ledgerRepoSha": "0" * 40,
                 "facts": [
@@ -1530,7 +1530,7 @@ def _release_fixture_tree(
         },
         "append": None,
         "createdAtUtc": created_at,
-        "producer": {"repo": "PolicyEngine/ledger", "branch": "fixture"},
+        "producer": {"repo": "PolicyEngine/chronicle", "branch": "fixture"},
     }
     manifest_raw = canonical_bytes(manifest) + b"\n"
     manifest_name = ledger_release_chain.manifest_filename(0, manifest_raw)
@@ -1735,7 +1735,7 @@ def test_append_proposal_builds_byte_correct_verified_release(
 
     release_now = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2)
     merged = resolve_pending.propose_ledger_append(
-        "PolicyEngine/ledger",
+        "PolicyEngine/chronicle",
         "codex/thesis-ledger-facts",
         "ledger/official_observations.jsonl",
         candidate.decode(),
@@ -1784,7 +1784,7 @@ def test_append_proposal_builds_byte_correct_verified_release(
         timespec="seconds"
     ).replace("+00:00", "Z")
     assert manifest["producer"] == {
-        "repo": "PolicyEngine/ledger",
+        "repo": "PolicyEngine/chronicle",
         "branch": "codex/thesis-ledger-facts",
     }
     assert manifest["state"] == {
@@ -1842,7 +1842,7 @@ def test_append_proposal_missing_signing_key_has_no_remote_mutation(
         match=resolve_pending.PRODUCER_SIGNING_KEY_ENV,
     ):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -1915,7 +1915,7 @@ def test_append_proposal_signing_failure_erases_key_and_has_no_remote_mutation(
         match="producer signing failed with exit code 23",
     ) as caught:
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -1969,7 +1969,7 @@ def test_append_proposal_self_verify_failure_precedes_tsa_and_remote_mutation(
         match="producer Ed25519 signature verification failed",
     ):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2006,7 +2006,7 @@ def test_append_proposal_bad_receipt_has_no_remote_mutation(
 
     with pytest.raises(ledger_release_chain.ReleaseChainError):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2042,7 +2042,7 @@ def test_append_proposal_tsa_failure_has_no_remote_mutation(
 
     with pytest.raises(resolve_pending.LedgerProposalError, match="timestamp request"):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2094,7 +2094,7 @@ def test_postmerge_state_is_fully_reverified(
     )
 
     resolve_pending._verify_remote_proposal_state(
-        "PolicyEngine/ledger",
+        "PolicyEngine/chronicle",
         "d" * 40,
         path=path,
         candidate_ledger=candidate,
@@ -2111,7 +2111,7 @@ def test_postmerge_state_is_fully_reverified(
     files[old_receipt] = b"tampered historical receipt"
     with pytest.raises(ledger_release_chain.ReleaseChainError):
         resolve_pending._verify_remote_proposal_state(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "d" * 40,
             path=path,
             candidate_ledger=candidate,
@@ -2135,7 +2135,7 @@ def test_pre_genesis_append_emits_no_release_files_or_tsa(monkeypatch) -> None:
         raise AssertionError("pre-genesis proposal contacted a TSA")
 
     merged = resolve_pending.propose_ledger_append(
-        "PolicyEngine/ledger",
+        "PolicyEngine/chronicle",
         "codex/thesis-ledger-facts",
         "ledger/official_observations.jsonl",
         candidate.decode(),
@@ -2169,7 +2169,7 @@ def test_append_proposal_refuses_to_merge_and_cleans_gate_failure(
 
     with pytest.raises(resolve_pending.LedgerProposalError, match="append gate"):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2204,7 +2204,7 @@ def test_append_proposal_cleans_pr_and_branch_when_merge_is_refused(
 
     with pytest.raises(resolve_pending.LedgerProposalError, match="did not merge"):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2239,7 +2239,7 @@ def test_append_proposal_refuses_if_base_moves_during_gate_poll(
         match="moved while proposal awaited the append gate",
     ):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2297,7 +2297,7 @@ def test_append_proposal_recovers_ambiguous_successful_merge(monkeypatch) -> Non
     )
 
     merged = resolve_pending.propose_ledger_append(
-        "PolicyEngine/ledger",
+        "PolicyEngine/chronicle",
         "codex/thesis-ledger-facts",
         "ledger/official_observations.jsonl",
         candidate.decode(),
@@ -2354,7 +2354,7 @@ def test_append_proposal_rejects_retarget_after_normal_merge_response(
         match="expected proposal head and base",
     ):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2394,7 +2394,7 @@ def test_append_proposal_rejects_merge_response_sha_disagreement(monkeypatch) ->
         match="SHA disagrees with pull-request state",
     ):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2427,7 +2427,7 @@ def test_merge_recovery_rejects_retargeted_pull_request(monkeypatch) -> None:
         match="expected proposal head and base",
     ):
         resolve_pending._merged_proposal_sha(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             7,
             expected_head_sha="c" * 40,
             expected_base="codex/thesis-ledger-facts",
@@ -2452,7 +2452,7 @@ def test_append_proposal_recovers_and_cleans_ambiguous_ref_creation(
 
     with pytest.raises(RuntimeError, match="ref creation"):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2486,7 +2486,7 @@ def test_append_proposal_recovers_and_cleans_ambiguous_pr_creation(
 
     with pytest.raises(RuntimeError, match="PR creation"):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
             candidate.decode(),
@@ -2527,7 +2527,7 @@ def test_publish_proposal_uses_one_tree_and_one_commit(monkeypatch) -> None:
     }
 
     commit = resolve_pending._publish_proposal_commit(
-        "PolicyEngine/ledger",
+        "PolicyEngine/chronicle",
         base_sha="b" * 40,
         base_tree_sha="c" * 40,
         message="test",
@@ -2560,21 +2560,21 @@ def test_fetch_git_blob_binds_response_and_bytes_to_requested_sha(monkeypatch) -
     }
     monkeypatch.setattr(resolve_pending, "_gh_api", lambda *_args: json.dumps(payload))
 
-    assert resolve_pending._fetch_git_blob("PolicyEngine/ledger", requested_sha) == raw
+    assert resolve_pending._fetch_git_blob("PolicyEngine/chronicle", requested_sha) == raw
 
     payload["sha"] = "0" * 40
     with pytest.raises(resolve_pending.LedgerProposalError, match="requested blob"):
-        resolve_pending._fetch_git_blob("PolicyEngine/ledger", requested_sha)
+        resolve_pending._fetch_git_blob("PolicyEngine/chronicle", requested_sha)
 
     payload["sha"] = requested_sha
     payload["content"] = base64.b64encode(b"same reported size!!").decode("ascii")
     payload["size"] = len(b"same reported size!!")
     with pytest.raises(resolve_pending.LedgerProposalError, match="do not match"):
-        resolve_pending._fetch_git_blob("PolicyEngine/ledger", requested_sha)
+        resolve_pending._fetch_git_blob("PolicyEngine/chronicle", requested_sha)
 
 
 def test_fetch_repository_tree_binds_commit_trees_and_blobs(monkeypatch) -> None:
-    repo = "PolicyEngine/ledger"
+    repo = "PolicyEngine/chronicle"
     commit_sha = "a" * 40
     ledger_path = "ledger/official_observations.jsonl"
     blobs = {
@@ -2655,7 +2655,7 @@ def test_fetch_repository_tree_rejects_swapped_commit_response(monkeypatch) -> N
 
     with pytest.raises(resolve_pending.LedgerProposalError, match="requested commit"):
         resolve_pending._fetch_repository_tree(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "a" * 40,
             "ledger/official_observations.jsonl",
         )
@@ -2681,7 +2681,7 @@ def test_fetch_repository_tree_rejects_partial_tree_with_claimed_sha(
 
     with pytest.raises(resolve_pending.LedgerProposalError, match="partial base state"):
         resolve_pending._fetch_repository_tree(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             commit_sha,
             "ledger/official_observations.jsonl",
         )
@@ -2704,7 +2704,7 @@ def test_append_proposal_rejects_unwitnessed_base_state(
 
     with pytest.raises(ledger_release_chain.ReleaseChainError, match="HEAD release"):
         resolve_pending.propose_ledger_append(
-            "PolicyEngine/ledger",
+            "PolicyEngine/chronicle",
             "codex/thesis-ledger-facts",
             path,
             candidate.decode(),
@@ -3421,7 +3421,7 @@ def test_intl_fact_rows_carry_country_geography_and_concept() -> None:
     )
     assert row["geography"]["id"] == "EA21"
     # The euro area must use a level the ledger's arch fact schema admits
-    # (the append gate rejected "area"; regression for PolicyEngine/ledger#90).
+    # (the append gate rejected "area"; regression for PolicyEngine/chronicle#90).
     assert row["geography"]["level"] == "region"
     # The print-kind suffix is stripped from the measure concept.
     assert row["measure"]["concept"] == (

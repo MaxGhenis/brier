@@ -1775,7 +1775,7 @@ def test_absent_basis_published_block_cannot_gain_explicit_default(
 
 def _pin(sha: str, line_count: int) -> dict:
     return {
-        "repo": "PolicyEngine/ledger",
+        "repo": "PolicyEngine/chronicle",
         "branch": "codex/thesis-ledger-facts",
         "sha": sha,
         "jsonlSha256": "a" * 64,

@@ -71,7 +71,7 @@ export default async function PolicyEngineLedgerPage() {
               View Thesis Log →
             </a>
             <a
-              href="https://github.com/PolicyEngine/ledger"
+              href="https://github.com/PolicyEngine/chronicle"
               className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
             >
               PolicyEngine ledger repo →

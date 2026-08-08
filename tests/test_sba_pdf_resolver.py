@@ -571,7 +571,7 @@ def test_sba_zip_response_archive_passes_resolution_custody_verification(
         {
             "schemaVersion": "thesis_resolution_run_v1",
             "retrievedAt": "2026-08-07T13:40:00Z",
-            "ledgerRepo": "PolicyEngine/ledger",
+            "ledgerRepo": "PolicyEngine/chronicle",
             "ledgerBranch": "test",
             "ledgerRepoSha": "0" * 40,
             "facts": [

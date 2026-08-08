@@ -17,7 +17,7 @@ function pin(
 ): PolicyEngineLedgerPin {
   return {
     schemaVersion: "thesis_ledger_pin_v1",
-    repo: "PolicyEngine/ledger",
+    repo: "PolicyEngine/chronicle",
     branch: "codex/thesis-ledger-facts",
     sha: "a".repeat(40),
     jsonlSha256: sha256(OBSERVATIONS),

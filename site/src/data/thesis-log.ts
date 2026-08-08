@@ -277,7 +277,7 @@ export interface PolicyEngineLedgerExport {
   schemaVersion: "policyengine_ledger_v1";
   source: {
     name: "PolicyEngine Ledger";
-    url: "https://github.com/PolicyEngine/ledger";
+    url: "https://github.com/PolicyEngine/chronicle";
     jsonMirrorUrl: "https://app.thesisinstitute.org/ledger.json";
     // The immutable upstream state this export was built from; the daily
     // recorder archives this surface, so the pin rides the witness chain.
@@ -324,7 +324,7 @@ export interface ThesisLogExport {
     jsonUrl: "https://app.thesisinstitute.org/log.json";
     factLedger: {
       name: "PolicyEngine Ledger";
-      url: "https://github.com/PolicyEngine/ledger";
+      url: "https://github.com/PolicyEngine/chronicle";
       jsonUrl: "https://app.thesisinstitute.org/ledger.json";
     };
   };
@@ -1136,7 +1136,7 @@ export function buildPolicyEngineLedgerExport(
     schemaVersion: "policyengine_ledger_v1",
     source: {
       name: "PolicyEngine Ledger",
-      url: "https://github.com/PolicyEngine/ledger",
+      url: "https://github.com/PolicyEngine/chronicle",
       jsonMirrorUrl: "https://app.thesisinstitute.org/ledger.json",
       pin: POLICYENGINE_LEDGER_PIN,
     },
@@ -1207,7 +1207,7 @@ export function buildThesisLogData(
       jsonUrl: "https://app.thesisinstitute.org/log.json",
       factLedger: {
         name: "PolicyEngine Ledger",
-        url: "https://github.com/PolicyEngine/ledger",
+        url: "https://github.com/PolicyEngine/chronicle",
         jsonUrl: "https://app.thesisinstitute.org/ledger.json",
       },
     },

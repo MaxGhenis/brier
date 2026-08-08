@@ -1,4 +1,5 @@
-# Vendored byte-for-byte from PolicyEngine/ledger scripts/verify_release_chain.py
+# Vendored byte-for-byte from PolicyEngine/chronicle (then named
+# PolicyEngine/ledger) scripts/verify_release_chain.py
 # (witnessed-journal). Do not edit here; update from upstream.
 #!/usr/bin/env python3
 """Offline verification for the witnessed thesis-ledger release chain.

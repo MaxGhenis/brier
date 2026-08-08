@@ -2,7 +2,7 @@
 """Witness the upstream fact ledger's exact bytes into the record chain.
 
 The recorder archives the site's DERIVED ledger.json, but the upstream
-``official_observations.jsonl`` on PolicyEngine/ledger's thesis-facts branch
+``official_observations.jsonl`` on PolicyEngine/chronicle's thesis-facts branch
 remained mutable history: nothing in Thesis's witnessed records held the raw
 bytes. This run archives, custody-rooted and chain-committed by the next
 recorder digest:
@@ -50,7 +50,7 @@ from canonical_json import canonical_bytes, canonical_sha256
 from verify_custody import verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-LEDGER_REPO = "PolicyEngine/ledger"
+LEDGER_REPO = "PolicyEngine/chronicle"
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
 LEDGER_CATALOG_PATH = "ledger/series_catalog.json"

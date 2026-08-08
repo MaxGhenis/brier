@@ -29,7 +29,7 @@ RUN_PREFIX = pathlib.PurePosixPath(
 REGISTRATION = pathlib.PurePosixPath(f"records/targets/2030-01-10-{'a' * 64}.json")
 
 TEST_LEDGER_PIN = {
-    "repo": "PolicyEngine/ledger",
+    "repo": "PolicyEngine/chronicle",
     "branch": "codex/thesis-ledger-facts",
     "sha": "f" * 40,
     "jsonlSha256": "0" * 64,

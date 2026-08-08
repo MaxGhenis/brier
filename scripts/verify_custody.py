@@ -75,7 +75,14 @@ LEDGER_WITNESS_V2 = "thesis_ledger_witness_run_v2"
 LEDGER_RELEASE_ARCHIVE_V1 = "thesis_ledger_release_archive_v1"
 SBA_PDF_WITNESS_V1 = "thesis_sba_pdf_witness_run_v1"
 SBA_PDF_FETCH_EVENT_V1 = "thesis_sba_pdf_fetch_event_v1"
-LEDGER_REPO = "PolicyEngine/ledger"
+LEDGER_REPO = "PolicyEngine/chronicle"
+# The upstream repository was renamed from PolicyEngine/ledger to
+# PolicyEngine/chronicle on 2026-08-07. It is the same repository —
+# GitHub preserves identity, commit SHAs, and redirects — so records
+# witnessed before the rename legitimately store URLs under the old
+# slug. Verification accepts either alias in STORED records while all
+# new URL construction uses the canonical LEDGER_REPO above.
+LEDGER_REPO_ALIASES = ("PolicyEngine/chronicle", "PolicyEngine/ledger")
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
 LEDGER_CATALOG_PATH = "ledger/series_catalog.json"
@@ -686,8 +693,11 @@ def _named_ledger_archive(
 def _require_ledger_tree_url(
     record: dict[str, Any], tree_sha: str, label: str
 ) -> None:
-    expected = f"https://api.github.com/repos/{LEDGER_REPO}/git/trees/{tree_sha}"
-    if record.get("url") != expected:
+    expected = {
+        f"https://api.github.com/repos/{repo}/git/trees/{tree_sha}"
+        for repo in LEDGER_REPO_ALIASES
+    }
+    if record.get("url") not in expected:
         raise CustodyError(f"{label} URL is not the exact immutable Git-tree URL")
 
 
@@ -992,9 +1002,9 @@ def _verify_ledger_witness_v2(
     if schema_version == LEDGER_WITNESS_V2 and "releaseArchive" not in manifest:
         raise CustodyError("ledger witness v2 manifest lacks releaseArchive")
     if schema_version == LEDGER_WITNESS_V2:
-        if manifest.get("ledgerRepo") != LEDGER_REPO:
+        if manifest.get("ledgerRepo") not in LEDGER_REPO_ALIASES:
             raise CustodyError(
-                f"ledger witness v2 repo must be exactly {LEDGER_REPO!r}"
+                f"ledger witness v2 repo must be one of {LEDGER_REPO_ALIASES!r}"
             )
         if manifest.get("ledgerBranch") != LEDGER_BRANCH:
             raise CustodyError(
@@ -1102,28 +1112,31 @@ def _verify_ledger_witness_v2(
         # consistent but contradictory bundle (finding 11).
         if role == "ledger_branch_commit_api":
             _require_commit_response(raw, branch_sha, relative)
-            if schema_version == LEDGER_WITNESS_V2 and record.get("url") != (
-                f"https://api.github.com/repos/{LEDGER_REPO}/commits/{branch_sha}"
-            ):
+            if schema_version == LEDGER_WITNESS_V2 and record.get("url") not in {
+                f"https://api.github.com/repos/{repo}/commits/{branch_sha}"
+                for repo in LEDGER_REPO_ALIASES
+            }:
                 raise CustodyError(
                     "ledger witness branch-commit URL is not the exact "
                     "immutable API URL"
                 )
         elif role == "ledger_main_commit_api":
             _require_commit_response(raw, main_sha, relative)
-            if schema_version == LEDGER_WITNESS_V2 and record.get("url") != (
-                f"https://api.github.com/repos/{LEDGER_REPO}/commits/{main_sha}"
-            ):
+            if schema_version == LEDGER_WITNESS_V2 and record.get("url") not in {
+                f"https://api.github.com/repos/{repo}/commits/{main_sha}"
+                for repo in LEDGER_REPO_ALIASES
+            }:
                 raise CustodyError(
                     "ledger witness main-commit URL is not the exact immutable API URL"
                 )
         elif role == "official_observations_jsonl":
             url = str(record.get("url", ""))
-            expected_url = (
-                f"https://raw.githubusercontent.com/{LEDGER_REPO}/{branch_sha}/"
+            expected_urls = {
+                f"https://raw.githubusercontent.com/{repo}/{branch_sha}/"
                 f"{LEDGER_JSONL_PATH}"
-            )
-            if schema_version == LEDGER_WITNESS_V2 and url != expected_url:
+                for repo in LEDGER_REPO_ALIASES
+            }
+            if schema_version == LEDGER_WITNESS_V2 and url not in expected_urls:
                 raise CustodyError(
                     "ledger witness observations URL is not the exact immutable URL: "
                     f"{url!r}"
@@ -1139,11 +1152,12 @@ def _verify_ledger_witness_v2(
                 )
         elif role == "series_catalog_json":
             url = str(record.get("url", ""))
-            expected_url = (
-                f"https://raw.githubusercontent.com/{LEDGER_REPO}/{branch_sha}/"
+            expected_urls = {
+                f"https://raw.githubusercontent.com/{repo}/{branch_sha}/"
                 f"{LEDGER_CATALOG_PATH}"
-            )
-            if schema_version == LEDGER_WITNESS_V2 and url != expected_url:
+                for repo in LEDGER_REPO_ALIASES
+            }
+            if schema_version == LEDGER_WITNESS_V2 and url not in expected_urls:
                 raise CustodyError(
                     "ledger witness catalog URL is not the exact immutable URL: "
                     f"{url!r}"
