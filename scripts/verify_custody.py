@@ -61,9 +61,10 @@ RESOLVER_RESPONSE_RE = re.compile(
     # pages (e.g. the Wayback snapshot of BLS Table A-19 and the Eurostat/
     # ABS release-day pages), JSON for API captures (BLS Public Data API,
     # StatCan WDS, ABS Data API, Eurostat SDMX), XLSX for e-Stat release
-    # workbooks (the Tokyo CPI preliminary's only machine-readable form).
+    # workbooks, and ZIP for witnessed SBA PDF bundles whose member lineage
+    # remains on the fact row.
     r"responses/[a-z0-9._-]+-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}"
-    r"\.(?:csv|html|json|xlsx)\.gz"
+    r"\.(?:csv|html|json|xlsx|zip)\.gz"
 )
 LEDGER_WITNESS_ARCHIVE_RE = re.compile(r"upstream/[a-z0-9][a-z0-9._-]*\.gz")
 ARCHIVE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9._-]*\Z")

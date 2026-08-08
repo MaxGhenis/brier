@@ -81,8 +81,26 @@ from register_targets import (
     RegistrationError,
     registration_content_hash,
 )
+from sba_loan_performance import (
+    CHARGE_OFF_AMOUNT_SERIES,
+    CHARGE_OFF_RATE_SERIES,
+    POST_CHARGE_OFF_RECOVERY_SERIES,
+    SBA_REPORT_SPECS,
+    SbaLoanPerformanceCell,
+    parse_sba_loan_performance_pdf,
+)
+from sba_loan_performance import (
+    LAYOUT_REFUSAL as SBA_LAYOUT_REFUSAL,
+)
+from sba_loan_performance import (
+    PARSER_REFUSAL as SBA_PARSER_REFUSAL,
+)
+from sba_loan_performance import (
+    PARTIAL_REFUSAL as SBA_PARTIAL_REFUSAL,
+)
 from thesis_log_client import load_thesis_log
-from verify_custody import verify_run
+from verify_custody import CustodyError, verify_run
+from witnessed_timeline import TimelineError, extract_timeline
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LOG_URL = "https://app.thesisinstitute.org/log.json"
@@ -96,6 +114,85 @@ FRED_CSV = (
 MAX_TIMESTAMP_TOKEN_BYTES = 1024 * 1024
 DEFAULT_TIMESTAMP_TIMEOUT_SECONDS = 45.0
 PRODUCER_SIGNING_KEY_ENV = "LEDGER_PRODUCER_SIGNING_KEY"
+
+SBA_CUSTODY_ABSENT = "SBA CUSTODY ABSENT (refusing):"
+SBA_CUSTODY_UNWITNESSED = "SBA CUSTODY UNWITNESSED (refusing):"
+SBA_CUSTODY_INVALID = "SBA CUSTODY INVALID (refusing):"
+SBA_EARLIEST_CAPTURE_AMBIGUOUS = (
+    "SBA EARLIEST CAPTURE AMBIGUOUS (refusing):"
+)
+SBA_WITNESS_SCHEMA = "thesis_sba_pdf_witness_run_v1"
+SBA_WITNESS_RUN_MODE = "sba_pdf_witness"
+SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v1"
+SBA_ENTRY_URL = (
+    "https://www.sba.gov/document/"
+    "report-small-business-administration-loan-program-performance"
+)
+SBA_BINDING_ADAPTER = "sba-loan-program-performance-pdf"
+SBA_ARCHIVE_SERIES_ID = "sba-loan-program-performance"
+SBA_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+SBA_BINDING_DERIVED_KEYS = {"allowedHosts", "expectedReleaseWindow"}
+
+SBA_PDF_ADAPTERS: dict[str, dict[str, Any]] = {
+    CHARGE_OFF_AMOUNT_SERIES: {
+        "series_id": CHARGE_OFF_AMOUNT_SERIES,
+        "label": "SBA Disaster loan-program charge-off amount",
+        "unit": "usd",
+        "source_name": "sba_loan_program_performance",
+        "source_table": SBA_REPORT_SPECS[CHARGE_OFF_AMOUNT_SERIES].title,
+        "field": "Disaster / Disaster",
+        "valid_range": (0, math.inf),
+    },
+    CHARGE_OFF_RATE_SERIES: {
+        "series_id": CHARGE_OFF_RATE_SERIES,
+        "label": "SBA Disaster loan-program charge-off rate / UPB",
+        "unit": "percent",
+        "source_name": "sba_loan_program_performance",
+        "source_table": SBA_REPORT_SPECS[CHARGE_OFF_RATE_SERIES].title,
+        "field": "Disaster / Disaster",
+        "valid_range": (0, 100),
+    },
+    POST_CHARGE_OFF_RECOVERY_SERIES: {
+        "series_id": POST_CHARGE_OFF_RECOVERY_SERIES,
+        "label": "SBA Disaster post-charge-off recovery amount",
+        "unit": "usd",
+        "source_name": "sba_loan_program_performance",
+        "source_table": SBA_REPORT_SPECS[POST_CHARGE_OFF_RECOVERY_SERIES].title,
+        "field": "Disaster / Disaster",
+        "valid_range": (0, math.inf),
+    },
+}
+
+
+@dataclass(frozen=True)
+class SbaPdfResolution:
+    value: int | float
+    unit: str
+    raw_bundle: bytes
+    run_directory: str
+    source_url: str
+    member_path: str
+    provenance: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class _SbaPdfCandidate:
+    run_dir: pathlib.Path
+    run_directory: str
+    manifest: dict[str, Any]
+    custody_root_sha256: str
+    proof: dict[str, Any] | None
+    partial_only: bool
+
+
 TSA_ENDPOINTS = {
     "freetsa": "https://freetsa.org/tsr",
     # DigiCert's documented RFC 3161 endpoint is plain HTTP (its TLS endpoint
@@ -4064,6 +4161,441 @@ def adapter_unit_matches(
     return unit == spec["unit"]
 
 
+def sba_pdf_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """The exact reviewed registration binding for one SBA PDF series."""
+
+    return {
+        "adapter": SBA_BINDING_ADAPTER,
+        "sourceUrl": SBA_ENTRY_URL,
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": {"operation": "identity", "factor": 1},
+        "releasePolicy": "first_print",
+    }
+
+
+def sba_pdf_binding_matches_spec(
+    binding: Mapping[str, Any], spec: Mapping[str, Any]
+) -> bool:
+    """Reject adapter-name matches whose source/table/cell contract drifted."""
+
+    if not isinstance(binding, dict):
+        return False
+    if set(binding) - SBA_BINDING_DERIVED_KEYS != SBA_BINDING_TEMPLATE_KEYS:
+        return False
+    projected = {key: binding[key] for key in SBA_BINDING_TEMPLATE_KEYS}
+    return canonical_bytes(projected) == canonical_bytes(
+        sba_pdf_binding_template(spec)
+    )
+
+
+def _sba_refusal(prefix: str, reason: str) -> tuple[None, str]:
+    return None, f"{prefix} {reason}"
+
+
+def _sba_capture_directories(records: pathlib.Path) -> list[pathlib.Path]:
+    if not records.is_dir():
+        return []
+    return sorted(records.glob("*/*-sba-pdf-witness"))
+
+
+def _sba_manifest(run_dir: pathlib.Path) -> dict[str, Any]:
+    if run_dir.is_symlink():
+        raise ValueError(f"capture directory is a symlink: {run_dir}")
+    manifest_path = run_dir / "manifest.json"
+    try:
+        manifest = json.loads(manifest_path.read_bytes())
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise ValueError(f"capture manifest cannot be read: {run_dir}: {exc}") from exc
+    if not isinstance(manifest, dict):
+        raise ValueError(f"capture manifest is not an object: {run_dir}")
+    if (
+        manifest.get("schemaVersion") != SBA_WITNESS_SCHEMA
+        or manifest.get("runMode") != SBA_WITNESS_RUN_MODE
+    ):
+        raise ValueError(f"capture manifest identity drifted: {run_dir}")
+    return manifest
+
+
+def _sba_proof_time(proof: Mapping[str, Any]) -> dt.datetime:
+    earliest = proof.get("earliestWitnessedAt")
+    tsa_time = proof.get("tsaGenTime")
+    if not isinstance(earliest, str) or earliest != tsa_time:
+        raise ValueError("timeline proof has inconsistent witnessed times")
+    try:
+        parsed = dt.datetime.fromisoformat(earliest.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("timeline proof has an invalid witnessed time") from exc
+    if parsed.tzinfo is None:
+        raise ValueError("timeline proof witnessed time is not timezone-aware")
+    if not isinstance(proof.get("witnessDigest"), str) or not isinstance(
+        proof.get("coverage"), str
+    ):
+        raise ValueError("timeline proof is missing witness identity")
+    return parsed
+
+
+def _sba_candidate_proof(
+    timeline: Mapping[str, Any],
+    *,
+    run_directory: str,
+    custody_root_sha256: str,
+) -> dict[str, Any] | None:
+    runs = timeline.get("runs")
+    roots = timeline.get("custodyRoots")
+    if not isinstance(runs, Mapping) or not isinstance(roots, Mapping):
+        raise ValueError("witnessed timeline lacks run/root indexes")
+    run_proof = runs.get(run_directory)
+    root_proof = roots.get(custody_root_sha256)
+    if run_proof is None and root_proof is None:
+        return None
+    if not isinstance(run_proof, Mapping) or not isinstance(root_proof, Mapping):
+        raise ValueError("witnessed timeline covers only part of a custody run")
+    _sba_proof_time(run_proof)
+    _sba_proof_time(root_proof)
+    identity_keys = ("earliestWitnessedAt", "witnessDigest", "tsaGenTime")
+    if any(run_proof.get(key) != root_proof.get(key) for key in identity_keys):
+        raise ValueError("run and custody-root witness proofs disagree")
+    return dict(run_proof)
+
+
+def _sba_archive_path(run_dir: pathlib.Path, logical: Any) -> pathlib.Path:
+    if not isinstance(logical, str) or not logical:
+        raise ValueError("capture archive path is absent")
+    path = (run_dir / logical).resolve()
+    try:
+        path.relative_to(run_dir.resolve())
+    except ValueError as exc:
+        raise ValueError("capture archive path escapes its run") from exc
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("capture archive is missing or symlinked")
+    return path
+
+
+def _replay_sba_candidate(
+    candidate: _SbaPdfCandidate,
+    *,
+    series: str,
+    fiscal_year: int,
+) -> tuple[SbaPdfResolution | None, str | None]:
+    bundle = candidate.manifest.get("bundle")
+    if not isinstance(bundle, dict):
+        return _sba_refusal(SBA_CUSTODY_INVALID, "complete capture lacks a bundle")
+    source = candidate.manifest.get("source")
+    if not isinstance(source, dict):
+        return _sba_refusal(SBA_CUSTODY_INVALID, "capture source identity is absent")
+    if source.get("entryUrl") != SBA_ENTRY_URL:
+        return _sba_refusal(SBA_CUSTODY_INVALID, "capture landing URL drifted")
+    if (
+        source.get("parserContract") != SBA_PARSER_CONTRACT
+        or bundle.get("parserContract") != SBA_PARSER_CONTRACT
+    ):
+        return _sba_refusal(SBA_CUSTODY_INVALID, "capture parser identity drifted")
+    archive = bundle.get("zipArchive")
+    if not isinstance(archive, dict):
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID, "complete capture lacks its ZIP archive reference"
+        )
+    try:
+        archive_path = _sba_archive_path(candidate.run_dir, archive.get("path"))
+        raw_bundle = gzip.decompress(archive_path.read_bytes())
+    except (OSError, EOFError, gzip.BadGzipFile, ValueError) as exc:
+        return _sba_refusal(SBA_CUSTODY_INVALID, f"ZIP archive replay failed: {exc}")
+    if (
+        hashlib.sha256(raw_bundle).hexdigest() != archive.get("rawSha256")
+        or len(raw_bundle) != archive.get("rawBytes")
+    ):
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID, "replayed ZIP bytes disagree with the manifest"
+        )
+
+    reports = bundle.get("reports")
+    matching = (
+        [report for report in reports if report.get("series") == series]
+        if isinstance(reports, list)
+        and all(isinstance(report, dict) for report in reports)
+        else []
+    )
+    if len(matching) != 1:
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID,
+            f"capture has {len(matching)} report entries for {series}",
+        )
+    report = matching[0]
+    member_path = report.get("memberPath")
+    if not isinstance(member_path, str):
+        return _sba_refusal(SBA_CUSTODY_INVALID, "report member path is absent")
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw_bundle)) as archive_zip:
+            member = archive_zip.read(member_path)
+    except (KeyError, OSError, RuntimeError, ValueError, zipfile.BadZipFile) as exc:
+        return _sba_refusal(SBA_CUSTODY_INVALID, f"PDF member replay failed: {exc}")
+    if (
+        hashlib.sha256(member).hexdigest() != report.get("memberSha256")
+        or len(member) != report.get("memberBytes")
+    ):
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID, "replayed PDF bytes disagree with the manifest"
+        )
+
+    cell, refusal = parse_sba_loan_performance_pdf(
+        member, series=series, fiscal_year=fiscal_year
+    )
+    if refusal:
+        if not refusal.startswith(
+            (SBA_LAYOUT_REFUSAL, SBA_PARTIAL_REFUSAL, SBA_PARSER_REFUSAL)
+        ):
+            return _sba_refusal(
+                SBA_CUSTODY_INVALID,
+                f"strict parser returned an unknown refusal: {refusal}",
+            )
+        return None, refusal
+    if not isinstance(cell, SbaLoanPerformanceCell):
+        return _sba_refusal(SBA_CUSTODY_INVALID, "strict parser returned no cell")
+
+    normalized_unit = "usd" if cell.unit == "USD" else cell.unit
+    spec = SBA_PDF_ADAPTERS[series]
+    if normalized_unit != spec["unit"]:
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID,
+            f"parsed unit {cell.unit!r} does not match {spec['unit']!r}",
+        )
+    proof = candidate.proof
+    if proof is None:
+        return _sba_refusal(
+            SBA_CUSTODY_UNWITNESSED, "capture lacks an available timeline proof"
+        )
+
+    fetch_path = _sba_archive_path(
+        candidate.run_dir, candidate.manifest.get("fetchEventPath")
+    )
+    try:
+        fetch_event = json.loads(fetch_path.read_bytes())
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        return _sba_refusal(SBA_CUSTODY_INVALID, f"fetch event replay failed: {exc}")
+    landing = fetch_event.get("landing") if isinstance(fetch_event, dict) else None
+    landing_final = landing.get("finalUrl") if isinstance(landing, dict) else None
+
+    provenance = {
+        "custodyMode": "earliest_witnessed_capture",
+        "runDirectory": candidate.run_directory,
+        "landingUrl": source.get("entryUrl"),
+        "landingFinalUrl": landing_final,
+        "assetUrl": bundle.get("assetUrl"),
+        "zipSha256": archive.get("rawSha256"),
+        "memberPath": member_path,
+        "memberSha256": report.get("memberSha256"),
+        "custodyRootSha256": candidate.custody_root_sha256,
+        "witnessDigest": proof.get("witnessDigest"),
+        "earliestWitnessedAt": proof.get("earliestWitnessedAt"),
+        "tsaGenTime": proof.get("tsaGenTime"),
+        "witnessCoverage": proof.get("coverage"),
+        "tableTitle": cell.table_title,
+        "section": "Disaster",
+        "row": "Disaster",
+        "fiscalYear": fiscal_year,
+        "printedValue": cell.printed_value,
+        "unit": normalized_unit,
+        "parserContract": source.get("parserContract"),
+    }
+    source_url = bundle.get("assetUrl")
+    if not isinstance(source_url, str):
+        return _sba_refusal(SBA_CUSTODY_INVALID, "capture asset URL is absent")
+    return (
+        SbaPdfResolution(
+            value=cell.value,
+            unit=normalized_unit,
+            raw_bundle=raw_bundle,
+            run_directory=candidate.run_directory,
+            source_url=source_url,
+            member_path=member_path,
+            provenance=provenance,
+        ),
+        None,
+    )
+
+
+def resolve_sba_pdf_first_print(
+    records: pathlib.Path,
+    *,
+    series: str,
+    fiscal_year: int,
+    timeline: Mapping[str, Any] | None = None,
+) -> tuple[SbaPdfResolution | None, str | None]:
+    """Replay the earliest witnessed complete SBA PDF capture, never live bytes."""
+
+    if series not in SBA_PDF_ADAPTERS:
+        raise ValueError(f"unsupported SBA loan-performance series {series!r}")
+    if type(fiscal_year) is not int:
+        raise TypeError("fiscal_year must be an integer")
+    records = records.resolve()
+    if timeline is None:
+        try:
+            timeline = extract_timeline(records)
+        except (OSError, TimelineError, ValueError) as exc:
+            return _sba_refusal(
+                SBA_CUSTODY_INVALID,
+                f"witnessed record timeline does not verify: {exc}",
+            )
+    run_dirs = _sba_capture_directories(records)
+    if not run_dirs:
+        return _sba_refusal(
+            SBA_CUSTODY_ABSENT,
+            f"no dedicated capture exists for {series} fiscal year {fiscal_year}",
+        )
+
+    physical: list[_SbaPdfCandidate] = []
+    for run_dir in run_dirs:
+        try:
+            manifest = _sba_manifest(run_dir)
+            verification = verify_run(run_dir)
+        except (CustodyError, OSError, ValueError) as exc:
+            if SBA_PARSER_REFUSAL in str(exc):
+                return None, str(exc)[str(exc).index(SBA_PARSER_REFUSAL) :]
+            return _sba_refusal(
+                SBA_CUSTODY_INVALID, f"capture verification failed: {run_dir}: {exc}"
+            )
+        if (
+            verification.run_mode != SBA_WITNESS_RUN_MODE
+            or manifest.get("outcome") not in {"bootstrap", "changed"}
+            or manifest.get("ok") is not True
+        ):
+            continue
+        bundle = manifest.get("bundle")
+        if not isinstance(bundle, dict):
+            return _sba_refusal(SBA_CUSTODY_INVALID, "complete capture lacks a bundle")
+        bundle_year = bundle.get("fiscalYear")
+        quarter = bundle.get("quarter")
+        if (
+            type(bundle_year) is not int
+            or type(quarter) is not int
+            or quarter not in range(1, 5)
+        ):
+            return _sba_refusal(
+                SBA_CUSTODY_INVALID, "capture has an unrecognized bundle identity"
+            )
+        if not (bundle_year - 9 <= fiscal_year <= bundle_year):
+            continue
+        run_directory = run_dir.relative_to(records.parent).as_posix()
+        physical.append(
+            _SbaPdfCandidate(
+                run_dir=run_dir,
+                run_directory=run_directory,
+                manifest=manifest,
+                custody_root_sha256=verification.custody_root_sha256,
+                proof=None,
+                partial_only=quarter < 4 and fiscal_year == bundle_year,
+            )
+        )
+    if not physical:
+        return _sba_refusal(
+            SBA_CUSTODY_ABSENT,
+            f"no complete capture covers {series} fiscal year {fiscal_year}",
+        )
+
+    candidates: list[_SbaPdfCandidate] = []
+    try:
+        for candidate in physical:
+            proof = _sba_candidate_proof(
+                timeline,
+                run_directory=candidate.run_directory,
+                custody_root_sha256=candidate.custody_root_sha256,
+            )
+            candidates.append(
+                _SbaPdfCandidate(
+                    run_dir=candidate.run_dir,
+                    run_directory=candidate.run_directory,
+                    manifest=candidate.manifest,
+                    custody_root_sha256=candidate.custody_root_sha256,
+                    proof=proof,
+                    partial_only=candidate.partial_only,
+                )
+            )
+    except ValueError as exc:
+        return _sba_refusal(SBA_CUSTODY_INVALID, f"timeline proof is invalid: {exc}")
+
+    complete = [candidate for candidate in candidates if not candidate.partial_only]
+    witnessed = [candidate for candidate in complete if candidate.proof is not None]
+    if not witnessed:
+        if complete:
+            return _sba_refusal(
+                SBA_CUSTODY_UNWITNESSED,
+                "complete capture exists without an available proof for "
+                f"fiscal year {fiscal_year}",
+            )
+        witnessed = [
+            candidate for candidate in candidates if candidate.proof is not None
+        ]
+        if not witnessed:
+            return _sba_refusal(
+                SBA_CUSTODY_UNWITNESSED,
+                "matching capture bytes lack an available proof for "
+                f"fiscal year {fiscal_year}",
+            )
+
+    try:
+        earliest_time = min(
+            _sba_proof_time(candidate.proof or {}) for candidate in witnessed
+        )
+        earliest = [
+            candidate
+            for candidate in witnessed
+            if _sba_proof_time(candidate.proof or {}) == earliest_time
+        ]
+    except ValueError as exc:
+        return _sba_refusal(SBA_CUSTODY_INVALID, f"timeline proof is invalid: {exc}")
+
+    replayed: list[SbaPdfResolution] = []
+    for candidate in sorted(earliest, key=lambda item: item.run_directory):
+        resolution, refusal = _replay_sba_candidate(
+            candidate, series=series, fiscal_year=fiscal_year
+        )
+        if refusal:
+            return None, refusal
+        assert resolution is not None
+        replayed.append(resolution)
+    normalized = {(item.value, item.unit) for item in replayed}
+    if len(normalized) != 1:
+        return _sba_refusal(
+            SBA_EARLIEST_CAPTURE_AMBIGUOUS,
+            f"{len(replayed)} earliest captures disagree for fiscal year {fiscal_year}",
+        )
+
+    chosen = min(
+        replayed,
+        key=lambda item: (str(item.provenance["zipSha256"]), item.run_directory),
+    )
+    provenance = {
+        **chosen.provenance,
+        "equivalentCaptures": [
+            {
+                key: item.provenance[key]
+                for key in (
+                    "runDirectory",
+                    "zipSha256",
+                    "memberSha256",
+                    "custodyRootSha256",
+                    "witnessDigest",
+                )
+            }
+            for item in replayed
+        ],
+    }
+    return (
+        SbaPdfResolution(
+            value=chosen.value,
+            unit=chosen.unit,
+            raw_bundle=chosen.raw_bundle,
+            run_directory=chosen.run_directory,
+            source_url=chosen.source_url,
+            member_path=chosen.member_path,
+            provenance=provenance,
+        ),
+        None,
+    )
+
+
 def intl_value_valid(spec: dict[str, Any], value: float) -> bool:
     """Schema/unit-scale gate independent of the forecast being scored."""
     if not math.isfinite(value):
@@ -4798,6 +5330,70 @@ def generic_fact(
         # instead of pretending the target month's row alone produced them.
         "source_row_keys": source_periods,
         "source_cell_keys": [spec.get("fred", spec.get("source_concept", ""))],
+    }
+
+
+def sba_pdf_fact(
+    ref: str,
+    spec: Mapping[str, Any],
+    fiscal_year: str,
+    resolution: SbaPdfResolution,
+) -> dict[str, Any]:
+    """Build a fact that calls this value the earliest witnessed capture."""
+
+    witnessed_at = str(resolution.provenance["earliestWitnessedAt"])
+    observed_at = witnessed_at[:10]
+    source_file = posixpath.basename(urlparse(resolution.source_url).path)
+    if not source_file:
+        raise ValueError("SBA custody asset URL has no source filename")
+    return {
+        "source_record_id": ref,
+        "label": f"{spec['label']}, fiscal year {fiscal_year}",
+        "value": resolution.value,
+        "observed_at": observed_at,
+        "period": {"type": "fiscal_year", "value": fiscal_year},
+        "domain": "economy",
+        "geography": US_GEOGRAPHY,
+        "entity": {
+            "name": "SBA Disaster Loan Program",
+            "role": "federal_program",
+        },
+        "measure": {
+            "concept": spec["series_id"],
+            "unit": resolution.unit,
+            "source_concept": spec["series_id"],
+            "concept_relation": "exact_official_table_cell",
+            "concept_authority": "U.S. Small Business Administration",
+            "concept_evidence_url": SBA_ENTRY_URL,
+            "concept_evidence_notes": (
+                "Earliest externally witnessed, hash-pinned capture that "
+                "strictly parses the completed fiscal-year Disaster cell; "
+                "this does not claim SBA's historically first publication."
+            ),
+        },
+        "aggregation": {"method": "level"},
+        "filters": {"program": "Disaster"},
+        # The complete proof remains part of the ledger row (and therefore
+        # the signed ledger release), while responseArchive below binds the
+        # exact upstream ZIP bytes rather than a locally synthesized wrapper.
+        "custodyProvenance": resolution.provenance,
+        "source": {
+            "source_name": spec["source_name"],
+            "source_table": resolution.provenance["tableTitle"],
+            "source_file": source_file,
+            "url": resolution.source_url,
+            "vintage": "earliest_witnessed_capture",
+            "source_sha256": resolution.provenance["zipSha256"],
+            "extracted_at": dt.date.today().isoformat(),
+            "extraction_method": (
+                "Strict replay of a committed SBA PDF custody capture selected "
+                "by the verified recorder-chain TSA timeline"
+            ),
+        },
+        "source_row_keys": ["section:Disaster", "row:Disaster"],
+        "source_cell_keys": [
+            f"{resolution.member_path}::Fiscal Year {fiscal_year}"
+        ],
     }
 
 
@@ -6937,6 +7533,22 @@ def pending_adapter_refs(
         release_date = str(forecast.get("resolutionDate") or "")
         if not release_date:
             continue
+        sba_stem = longest_adapter_stem(ref, SBA_PDF_ADAPTERS)
+        if sba_stem:
+            parsed = parse_ref_period(ref, sba_stem)
+            if parsed and parsed[0] == "fiscal_year":
+                out.append(
+                    (
+                        ref,
+                        "sba_pdf",
+                        SBA_PDF_ADAPTERS[sba_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
         intl_stem = longest_adapter_stem(ref, INTL_ADAPTERS)
         if intl_stem:
             parsed = parse_ref_period(ref, intl_stem)
@@ -8555,6 +9167,7 @@ FAMILY_ADAPTERS = {
     "fsa_crp": {"fsa-crp-monthly-summary"},
     "irs_soi_pub1304": {"irs-soi-pub1304"},
     "qcew": {"bls-qcew"},
+    "sba_pdf": {SBA_BINDING_ADAPTER},
     "usaspending": {"usaspending-api"},
 }
 
@@ -8716,9 +9329,9 @@ def main() -> int:
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
     # Generic adapters: official BEA current releases, ALFRED vintage series,
-    # BLS API series, A-19 snapshot rows, and the international native-source
-    # adapters. Shared official responses are cached so multiple cells from
-    # one release archive the same bytes.
+    # BLS API series, A-19 snapshot rows, international native sources, and
+    # witnessed SBA PDF custody. Shared official responses are cached so
+    # multiple cells from one release archive the same bytes.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
     bea_release_page_cache: dict[
         str, tuple[bytes | None, str, str]
@@ -8764,6 +9377,9 @@ def main() -> int:
     # download per distribution URL, shared across cells on the same file.
     cms_metastore_cache: dict[str, tuple[str, str, str] | None] = {}
     cms_csv_cache: dict[str, bytes | None] = {}
+    sba_timeline_cache: Mapping[str, Any] | None = None
+    sba_timeline_error: str | None = None
+    sba_timeline_loaded = False
     loop_contracts = registration_contracts()
     for ref, kind, spec, period_type, period, source_vintage, forecast in (
         adapter_todo
@@ -8824,6 +9440,15 @@ def main() -> int:
                     f"registry drift?): {ref}"
                 )
                 continue
+        if kind == "sba_pdf":
+            registered_contract = (registration or {}).get("contract") or {}
+            binding = registered_contract.get("sourceBinding") or {}
+            if not sba_pdf_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full SBA PDF "
+                    f"registry drift?): {ref}"
+                )
+                continue
         bounded_window = None
         if resolution_date_basis == "resolve-by-bound":
             contract = (registration or {}).get("contract") or {}
@@ -8831,17 +9456,62 @@ def main() -> int:
             bounded_window = binding.get("expectedReleaseWindow")
             # Every bounded target defers until its immutable window opens.
             # Once it closes, resolution requires release-time witnessed or
-            # versioned custody, which no current bounded adapter provides.
+            # versioned custody; only explicitly reviewed family legs may
+            # supply that stronger evidence.
             # Use the UTC decision day to preserve midnight boundary behavior.
-            _window_state, window_verdict = bounded_resolution_window_gate(
+            window_state, window_verdict = bounded_resolution_window_gate(
                 ref,
                 dt.date.fromisoformat(utc_now()[:10]),
                 bounded_window,
             )
-            if window_verdict:
+            # A closed bound normally proves that a mutable live fetch can no
+            # longer establish the first print. SBA is the reviewed exception:
+            # this leg never fetches live bytes and may resolve after the bound
+            # only from versioned, externally witnessed custody.
+            if window_verdict and not (
+                kind == "sba_pdf" and window_state == "missed"
+            ):
                 print(window_verdict)
                 continue
-        if kind == "intl":
+        sba_resolution: SbaPdfResolution | None = None
+        archive_vintage = release_day.isoformat()
+        if kind == "sba_pdf":
+            if not sba_timeline_loaded:
+                try:
+                    sba_timeline_cache = extract_timeline(ROOT / "records")
+                except (OSError, TimelineError, ValueError) as exc:
+                    sba_timeline_error = str(exc)
+                sba_timeline_loaded = True
+            if sba_timeline_error is not None:
+                print(
+                    f"  {SBA_CUSTODY_INVALID} witnessed record timeline does "
+                    f"not verify: {sba_timeline_error}"
+                )
+                continue
+            assert sba_timeline_cache is not None
+            sba_resolution, refusal = resolve_sba_pdf_first_print(
+                ROOT / "records",
+                series=spec["series_id"],
+                fiscal_year=int(period),
+                timeline=sba_timeline_cache,
+            )
+            if refusal:
+                if refusal.startswith(SBA_PARSER_REFUSAL):
+                    environment_failures.append(f"{ref}: {refusal}")
+                print(f"  {refusal}")
+                continue
+            assert sba_resolution is not None
+            value = sba_resolution.value
+            raw = sba_resolution.raw_bundle
+            source_url = sba_resolution.source_url
+            source_file = posixpath.basename(urlparse(source_url).path)
+            series_id = SBA_ARCHIVE_SERIES_ID
+            retrieved_at = utc_now()
+            archive_vintage = str(
+                sba_resolution.provenance["earliestWitnessedAt"]
+            )[:10]
+            extension = "zip"
+        elif kind == "intl":
             registration = target_contracts.get(ref)
             if registration:
                 contract = registration["contract"]
@@ -9681,7 +10351,7 @@ def main() -> int:
         if value is None or raw is None:
             print(f"  not yet published: {ref}")
             continue
-        if kind == "intl":
+        if kind in {"intl", "sba_pdf"}:
             plausible = intl_value_valid(spec, value)
         else:
             plausible = value_plausible(value, forecast)
@@ -9691,12 +10361,29 @@ def main() -> int:
                 f"{ref} -> {value}"
             )
             continue
-        row = generic_fact(
-            ref, spec, period_type, period, value, release_day,
-            source_url, source_file,
-        )
+        if kind == "sba_pdf":
+            assert sba_resolution is not None
+            row = sba_pdf_fact(ref, spec, period, sba_resolution)
+        else:
+            row = generic_fact(
+                ref,
+                spec,
+                period_type,
+                period,
+                value,
+                release_day,
+                source_url,
+                source_file,
+            )
         fetched_rows.append(
-            (row, series_id, release_day.isoformat(), raw, retrieved_at, extension)
+            (
+                row,
+                series_id,
+                archive_vintage if kind == "sba_pdf" else release_day.isoformat(),
+                raw,
+                retrieved_at,
+                extension,
+            )
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
