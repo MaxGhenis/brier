@@ -379,8 +379,8 @@ def test_usda_aftpp_request_stays_proposed_pending_isolation() -> None:
     assert "reporting lag" in request["verification"]["reason"]
 
     report = (ROOT / "drafts" / "ledger-ingestion" / "WAVE1-REPORT.md").read_text()
-    assert "Five requests verified cleanly, six received a" in report
-    assert "and 19 remain proposals" in report
+    assert "Five requests verified cleanly, four received a" in report
+    assert "and 21 remain proposals" in report
     assert (
         "| `usaspending-usda-selected-rural-program-obligations.json` "
         "| Proposed |" in report

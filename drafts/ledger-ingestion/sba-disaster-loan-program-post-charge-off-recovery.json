@@ -5,7 +5,7 @@
   "cadence": "annual",
   "proposedFrom": "stress-119hr1021ih",
   "metricText": "SBA Loan Program Performance Disaster program post-charge-off recovery amount.",
-  "note": "SBA PDF custody family BUILT (docs/lanes/2026-08-07-sba-pdf-custody-family.md): strict parser with hash-pinned official fixtures, witnessed-capture integration wired into resolve-and-rebuild, and a witnessed-only resolver that fails closed. Admission awaits the first published witnessed capture containing a reference period \u2014 the operational witnessing cadence is live from the next resolve-and-rebuild run; register once a capture exists.",
+  "note": "PROPOSED: the reviewed SBA PDF parser and custody lane are implemented. Admission awaits the first allowlisted-workflow-attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml that covers a completed fiscal year.",
   "adapterFamily": "sba-loan-program-performance-pdf",
   "billSlugs": [
     "stress-119hr1021ih"
@@ -17,7 +17,7 @@
     "schemaVersion": "ledger_ingestion_verification_v1",
     "outcome": "proposed",
     "verifiedAtUtc": "2026-08-06T20:01:23Z",
-    "reason": "The official Table 7 PDF prints the exact Disaster fiscal-year post-charge-off recovery amount. The current source is a rolling PDF bundle whose prior-year amounts may be adjusted, so admission requires a new SBA PDF parser and authenticated release-time or versioned custody.",
+    "reason": "The official Table 7 PDF prints the exact Disaster fiscal-year post-charge-off recovery amount. The reviewed SBA PDF parser and custody lane now exist, but this pre-lane artifact has neither an allowlisted witness-sba-pdf.yml workflow attestation nor an external witness; admission awaits the first eligible capture.",
     "sourcePageUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
     "artifact": {
       "url": "https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip",
@@ -42,11 +42,10 @@
     },
     "firstPrint": {
       "status": "not_authenticated",
-      "blocker": "The live product is a rolling bundle without authenticated historical snapshot URLs, and Table 7 says post-charge-off recovery amounts for a fiscal year may be adjusted due to data updates."
+      "blocker": "This 2026-08-06 fetch predates the workflow-backed custody lane and is not an attested, externally witnessed capture from .github/workflows/witness-sba-pdf.yml; the rolling product exposes no authenticated historical versions."
     },
     "requiredWork": [
-      "Implement and review an SBA Loan Program Performance PDF parser for Table 7.",
-      "Add release-time witnessed or versioned custody and historical first-print anchors before admission."
+      "Run the official-page capture through .github/workflows/witness-sba-pdf.yml, publish it in an introducing commit attested by that workflow, and obtain an available recorder-chain witness; then recheck admission."
     ],
     "fetchNotes": [
       "The www.sba.gov asset URL returned HTTP 404; the official page redirects to legacy.sba.gov, where the dated FY2025 Q3 ZIP was available.",
