@@ -130,8 +130,11 @@ No admitted series resulted for `stress-119hr1021ih`,
 
 With wave 1 complete, the next source-family order is:
 
-1. Add reviewed SBA PDF parsing and first-print custody, covering the three
-   disaster-loan performance requests and `stress-119hr1021ih`.
+1. ~~Add reviewed SBA PDF parsing and first-print custody~~ — BUILT
+   2026-08-07 (docs/lanes/2026-08-07-sba-pdf-custody-family.md): parser,
+   witnessed-capture integration, and witnessed-only resolver landed;
+   the three disaster-loan requests stay proposed until the first
+   published witnessed capture exists, then admit.
 2. Add an IRS individual line-item PDF family for the two section 25E
    requests.
 3. Add an IRS corporation line-item PDF family for the two section 45X
