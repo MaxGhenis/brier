@@ -190,8 +190,7 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
         entry
         for entry in registry["series"]
         if entry.get("seedPeriod")
-        and (entry.get("extras") or {}).get("resolutionDateBasis")
-        != "resolve-by-bound"
+        and (entry.get("extras") or {}).get("resolutionDateBasis") != "resolve-by-bound"
     ]
 
     assert len(entries) == 23
@@ -287,9 +286,7 @@ def bounded_annual_seed_entry() -> dict:
 
 def test_bounded_annual_first_print_seed_is_exact_and_one_shot() -> None:
     entry = bounded_annual_seed_entry()
-    target = bounded_annual_first_print_seed_target(
-        entry, set(), dt.date(2026, 8, 6)
-    )
+    target = bounded_annual_first_print_seed_target(entry, set(), dt.date(2026, 8, 6))
 
     assert target == {
         "series": entry["series"],
@@ -375,9 +372,7 @@ def test_bounded_annual_first_print_seed_is_exact_and_one_shot() -> None:
         is None
     )
     assert (
-        bounded_annual_first_print_seed_target(
-            entry, set(), dt.date(2029, 1, 1)
-        )
+        bounded_annual_first_print_seed_target(entry, set(), dt.date(2029, 1, 1))
         is None
     )
 
@@ -416,9 +411,7 @@ def test_bounded_annual_first_print_seed_refuses_drift(
         entry["slug"] = "clean-vehicle-credit-{}"
 
     assert (
-        bounded_annual_first_print_seed_target(
-            entry, set(), dt.date(2026, 8, 6)
-        )
+        bounded_annual_first_print_seed_target(entry, set(), dt.date(2026, 8, 6))
         is None
     )
     assert warning in capsys.readouterr().err
@@ -430,8 +423,7 @@ def test_real_bounded_annual_seeds_are_reviewable_and_bound_to_docket() -> None:
         entry
         for entry in registry["series"]
         if entry.get("seedPeriod")
-        and (entry.get("extras") or {}).get("resolutionDateBasis")
-        == "resolve-by-bound"
+        and (entry.get("extras") or {}).get("resolutionDateBasis") == "resolve-by-bound"
         and not isinstance(entry.get("conditionalPair"), dict)
     ]
 
@@ -439,6 +431,11 @@ def test_real_bounded_annual_seeds_are_reviewable_and_bound_to_docket() -> None:
         "irs.soi.credit_30d.total_claims",
         "irs.soi.credit_30d.total_credit_amount",
         "irs.actc.total_credit_amount",
+        # SBA custody family, admitted 2026-08-08 (no release calendar;
+        # bounded basis is the selector requirement for annual seeds).
+        "sba.disaster.loan_program.charge_off_amount",
+        "sba.disaster.loan_program.charge_off_rate_upb",
+        "sba.disaster.loan_program.post_charge_off_recovery",
     }
     for entry in entries:
         target = bounded_annual_first_print_seed_target(
@@ -574,16 +571,12 @@ def test_main_skips_bea_post_seed_successor_without_official_slot_literal(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    registry_data = json.loads(
-        (ROOT / "scripts" / "docket_series.json").read_text()
-    )
+    registry_data = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     entry = next(row for row in registry_data["series"] if row["series"] == series)
     registry = tmp_path / "docket_series.json"
     registry.write_text(json.dumps({"series": [entry]}))
     output = tmp_path / "targets.json"
-    published_slug = roll_docket.format_slug(
-        entry["slug"], "2026-Q3", entry["cadence"]
-    )
+    published_slug = roll_docket.format_slug(entry["slug"], "2026-Q3", entry["cadence"])
 
     class FixedDate(dt.date):
         @classmethod
@@ -615,9 +608,7 @@ def test_main_reports_a_published_cursor_without_an_eligible_successor(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    registry_data = json.loads(
-        (ROOT / "scripts" / "docket_series.json").read_text()
-    )
+    registry_data = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     entry = next(
         row for row in registry_data["series"] if row["series"] == "bls.lns11300000"
     )
@@ -665,13 +656,12 @@ def test_template_regex_supports_repeated_tokens_without_duplicate_groups() -> N
 
 
 def test_abbreviated_month_template_recovers_legacy_published_cursor() -> None:
-    entry = registry_entry(
-        "monthly", "labor-force-participation-{month_abbr}-{year}"
-    )
+    entry = registry_entry("monthly", "labor-force-participation-{month_abbr}-{year}")
 
-    assert latest_published_period(
-        entry, {"labor-force-participation-dec-2026"}
-    ) == ("2026-12", "labor-force-participation-dec-2026")
+    assert latest_published_period(entry, {"labor-force-participation-dec-2026"}) == (
+        "2026-12",
+        "labor-force-participation-dec-2026",
+    )
     assert (
         roll_docket.format_slug(entry["slug"], "2027-01", "monthly")
         == "labor-force-participation-jan-2027"
@@ -733,9 +723,7 @@ def test_far_future_rogue_slug_recovers_earliest_eligible_gap() -> None:
 def test_native_registry_date_becomes_exact_registration_window() -> None:
     registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     entry = next(
-        row
-        for row in registry["series"]
-        if row["series"] == "abs.cpi.all_groups.yoy"
+        row for row in registry["series"] if row["series"] == "abs.cpi.all_groups.yoy"
     )
     extras = target_extras_for_period(entry, "2026-08")
 
@@ -814,16 +802,15 @@ def test_native_roll_never_forecasts_an_already_published_outcome(
 ) -> None:
     registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     entry = next(
-        row
-        for row in registry["series"]
-        if row["series"] == "statcan.cpi.allitems.yoy"
+        row for row in registry["series"] if row["series"] == "statcan.cpi.allitems.yoy"
     )
 
     # June was released on 20 July before this docket date. The first eligible
     # still-unknown period is July, whose official print is due 17 August.
-    assert advance_past_released_native_periods(
-        entry, "2026-06", dt.date(2026, 7, 25)
-    ) == "2026-07"
+    assert (
+        advance_past_released_native_periods(entry, "2026-06", dt.date(2026, 7, 25))
+        == "2026-07"
+    )
     warning = capsys.readouterr().err
     assert "official release 2026-07-20 is not after docket date 2026-07-25" in (
         warning
@@ -888,12 +875,11 @@ def test_real_apel_seeds_build_seven_preregistered_snapshot_contracts() -> None:
         assert contract["dataPointId"] == (
             f"{entry['series']}.fy2026.registered_query_snapshot"
         )
-        assert contract["sourceBinding"]["expectedReleaseWindow"] == (
-            entry["extras"]["expectedReleaseWindow"]
+        assert (
+            contract["sourceBinding"]["expectedReleaseWindow"]
+            == (entry["extras"]["expectedReleaseWindow"])
         )
-        assert contract["sourceBinding"]["allowedHosts"] == [
-            "api.usaspending.gov"
-        ]
+        assert contract["sourceBinding"]["allowedHosts"] == ["api.usaspending.gov"]
 
 
 @pytest.mark.parametrize(
@@ -919,11 +905,14 @@ def test_snapshot_seed_is_one_shot_and_never_steps_the_fiscal_year() -> None:
     entry = apel_snapshot_entries()[0]
     slug = entry["slug"].format(period="fy2026")
 
-    assert snapshot_seed_target(
-        entry,
-        {slug},
-        dt.date(2026, 8, 1),
-    ) is None
+    assert (
+        snapshot_seed_target(
+            entry,
+            {slug},
+            dt.date(2026, 8, 1),
+        )
+        is None
+    )
     assert entry["period"] == "FY2026"
     assert "FY2027" not in json.dumps(entry)
 
@@ -954,18 +943,19 @@ def test_snapshot_seed_rejects_unreviewable_annual_entries(
     else:
         entry["extras"]["sourceBinding"]["releasePolicy"] = "first_print"
 
-    assert snapshot_seed_target(
-        entry,
-        set(),
-        dt.date(2026, 8, 1),
-    ) is None
+    assert (
+        snapshot_seed_target(
+            entry,
+            set(),
+            dt.date(2026, 8, 1),
+        )
+        is None
+    )
     assert "warning: skip" in capsys.readouterr().err
 
 
 def conditional_pair_entry() -> dict:
-    docket = json.loads(
-        (ROOT / "scripts" / "docket_series.json").read_text()
-    )
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     return copy.deepcopy(
         next(
             entry
@@ -1024,9 +1014,7 @@ def test_main_routes_bounded_pairs_only_to_ticket_selection(
     monkeypatch.setattr(roll_docket, "REGISTRY", registry)
     monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
     monkeypatch.setattr(roll_docket, "live_catalog", lambda: (set(), {}, set()))
-    monkeypatch.setattr(
-        sys, "argv", ["roll_docket.py", "--out", str(output)]
-    )
+    monkeypatch.setattr(sys, "argv", ["roll_docket.py", "--out", str(output)])
 
     assert roll_docket.main() == 0
     assert json.loads(output.read_text()) == {"targets": []}
@@ -1068,9 +1056,7 @@ def test_conditional_pair_stops_when_release_window_opens_literally(
 
 
 def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
-    docket = json.loads(
-        (ROOT / "scripts" / "docket_series.json").read_text()
-    )
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     entry = next(
         row
         for row in docket["series"]
@@ -1090,8 +1076,7 @@ def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
         for target in targets
     )
     assert all(
-        target["expectedReleaseWindow"]
-        == {"start": "2027-12-01", "end": "2027-12-31"}
+        target["expectedReleaseWindow"] == {"start": "2027-12-01", "end": "2027-12-31"}
         for target in targets
     )
     assert all(target["conditionDeadline"] == "2027-09-30" for target in targets)
@@ -1104,9 +1089,7 @@ def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
 
 def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
     entry = conditional_pair_entry()
-    published = {
-        "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar"
-    }
+    published = {"additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar"}
     targets = roll_docket.conditional_pair_seed_targets(
         entry, published, dt.date(2026, 8, 1)
     )
@@ -1114,19 +1097,13 @@ def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
         "additional-child-tax-credit-total-claims-ty2027-current-law"
     ]
 
-    both = published | {
-        "additional-child-tax-credit-total-claims-ty2027-current-law"
-    }
+    both = published | {"additional-child-tax-credit-total-claims-ty2027-current-law"}
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, both, dt.date(2026, 8, 1)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, both, dt.date(2026, 8, 1))
         == []
     )
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, set(), dt.date(2027, 12, 31)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2027, 12, 31))
         == []
     )
 
@@ -1161,9 +1138,7 @@ def test_conditional_pair_fails_closed_on_malformed_registry(mutate) -> None:
     entry = conditional_pair_entry()
     mutate(entry)
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, set(), dt.date(2026, 8, 1)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
         == []
     )
 
@@ -1186,9 +1161,7 @@ def test_conditional_pair_fails_closed_on_malformed_registry(mutate) -> None:
             "unsupported resolutionDateBasis ['resolve-by-bound']\n",
         ),
         (
-            lambda entry: entry["extras"].update(
-                resolutionDate="2029-12-30"
-            ),
+            lambda entry: entry["extras"].update(resolutionDate="2029-12-30"),
             "  warning: skip irs.actc.total_claims: conditional pair "
             "resolve-by-bound requires resolutionDate to equal window end\n",
         ),
@@ -1201,9 +1174,7 @@ def test_conditional_pair_basis_refusals_are_literal(
     mutate(entry)
 
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, set(), dt.date(2026, 8, 1)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
         == []
     )
     assert capsys.readouterr().err == message
@@ -1213,17 +1184,13 @@ def test_conditional_pair_rejects_extras_restating_arm_identity() -> None:
     entry = conditional_pair_entry()
     entry["extras"]["conditional"] = "override both arms"
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, set(), dt.date(2026, 8, 1)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
         == []
     )
     entry = conditional_pair_entry()
     entry["extras"]["dataPointId"] = "irs.actc.total_claims.2028.first_print.x"
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, set(), dt.date(2026, 8, 1)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
         == []
     )
 
@@ -1234,18 +1201,14 @@ def test_conditional_pair_rejects_mislabeled_data_point_year() -> None:
         "irs.actc.total_claims.2028.first_print.threshold_one_dollar"
     )
     assert (
-        roll_docket.conditional_pair_seed_targets(
-            entry, set(), dt.date(2026, 8, 1)
-        )
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
         == []
     )
 
 
 def test_capped_selection_never_splits_a_pair_unit() -> None:
     pair = [{"catalogSlug": "arm-a"}, {"catalogSlug": "arm-b"}]
-    singles = [
-        (3, f"2026-0{n}", {"catalogSlug": f"single-{n}"}) for n in (1, 2, 3)
-    ]
+    singles = [(3, f"2026-0{n}", {"catalogSlug": f"single-{n}"}) for n in (1, 2, 3)]
     candidates = [(2, "2027-12-31", pair), *singles]
 
     # The pair fits: both arms selected together.
