@@ -30,6 +30,8 @@ from canonical_json import canonical_bytes, canonical_sha256
 from sba_loan_performance import (
     CHARGE_OFF_AMOUNT_SERIES,
     CHARGE_OFF_RATE_SERIES,
+    COMPLETION_COMPLETED,
+    COMPLETION_PARTIAL,
     POST_CHARGE_OFF_RECOVERY_SERIES,
     parse_sba_loan_performance_pdf,
 )
@@ -43,7 +45,7 @@ RUN_SCHEMA = "thesis_sba_pdf_witness_run_v1"
 FETCH_EVENT_SCHEMA = "thesis_sba_pdf_fetch_event_v1"
 RUN_MODE = "sba_pdf_witness"
 CAPTURE_REFUSAL = "SBA CAPTURE FAILED (refusing):"
-PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v2"
+PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v3"
 
 MAX_LANDING_BYTES = 5 * 1024 * 1024
 MAX_BUNDLE_BYTES = 50 * 1024 * 1024
@@ -516,6 +518,9 @@ def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
 
     parsed_year = identity.fiscal_year - 1
     expected_as_of = _expected_as_of(identity)
+    expected_header_years = tuple(
+        range(identity.fiscal_year - 9, identity.fiscal_year + 1)
+    )
     reports: list[dict[str, Any]] = []
     observed_dates: set[dt.date] = set()
     for series, prefix in _REPORT_PREFIXES.items():
@@ -555,9 +560,24 @@ def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
                 f"required report {member_path!r} as-of date does not match "
                 f"{identity.label}"
             )
-        if cell.partial_fiscal_year != identity.fiscal_year:
+        if cell.header_years != expected_header_years:
             raise SbaCaptureError(
-                f"required report {member_path!r} fiscal year disagrees with bundle"
+                f"required report {member_path!r} header years disagree with bundle"
+            )
+        if cell.completion_status == COMPLETION_PARTIAL:
+            if cell.partial_fiscal_year != identity.fiscal_year:
+                raise SbaCaptureError(
+                    f"required report {member_path!r} partial fiscal year "
+                    "disagrees with bundle"
+                )
+        elif (
+            cell.completion_status != COMPLETION_COMPLETED
+            or cell.partial_fiscal_year is not None
+            or identity.quarter != 4
+        ):
+            raise SbaCaptureError(
+                f"required report {member_path!r} completion status "
+                "disagrees with bundle"
             )
         observed_dates.add(report_as_of)
         reports.append(
@@ -568,6 +588,7 @@ def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
                 "memberBytes": len(member),
                 "tableTitle": cell.table_title,
                 "reportAsOf": cell.report_as_of,
+                "completionStatus": cell.completion_status,
                 "partialFiscalYear": cell.partial_fiscal_year,
                 "headerYears": list(cell.header_years),
                 "parsedFiscalYear": cell.fiscal_year,

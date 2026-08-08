@@ -23,15 +23,24 @@ import witness_sba_pdf as witness  # noqa: E402
 from sba_loan_performance import (  # noqa: E402
     CHARGE_OFF_AMOUNT_SERIES,
     CHARGE_OFF_RATE_SERIES,
+    COMPLETION_COMPLETED,
+    COMPLETION_PARTIAL,
     LAYOUT_REFUSAL,
     PARTIAL_REFUSAL,
     POST_CHARGE_OFF_RECOVERY_SERIES,
+    SBA_REPORT_SPECS,
 )
 from verify_custody import verify_run  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "sba_loan_performance"
 ASSET_URL = (
     "https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip"
+)
+Q4_ASSET_URL = (
+    "https://legacy.sba.gov/sites/default/files/2025-12/WebsiteReports_FY25Q4.zip"
+)
+Q1_ASSET_URL = (
+    "https://legacy.sba.gov/sites/default/files/2026-03/WebsiteReports_FY26Q1.zip"
 )
 LANDING_URL = (
     "https://legacy.sba.gov/document/"
@@ -77,6 +86,86 @@ def _bundle_bytes(
     return output.getvalue()
 
 
+def _rewritten_report(
+    series: str,
+    *,
+    header_year_shift: int,
+    partial_fiscal_year: int | None,
+    report_date: str,
+) -> bytes:
+    from pypdf import PdfReader, PdfWriter
+    from pypdf.generic import ByteStringObject, ContentStream
+
+    name = REPORTS[series]
+    reader = PdfReader(io.BytesIO((FIXTURES / name).read_bytes()), strict=True)
+    writer = PdfWriter(clone_from=reader)
+    page = writer.pages[0]
+    content = ContentStream(page["/Contents"].get_object(), writer, "bytes")
+    spec = SBA_REPORT_SPECS[series]
+    header_replacements = 0
+    footer_replacements = 0
+    header_map = {
+        f"{year} ".encode(): f"{year + header_year_shift} ".encode()
+        for year in range(2016, 2026)
+    }
+    for args, operator in content.operations:
+        if operator != b"Tj" or len(args) != 1:
+            continue
+        printed = bytes(args[0])
+        if header_year_shift and printed in header_map:
+            args[0] = ByteStringObject(header_map[printed])
+            header_replacements += 1
+        elif printed.startswith(spec.footer_lead.encode()):
+            if partial_fiscal_year is None:
+                replacement = spec.footer_lead.encode() + b" "
+            else:
+                replacement = printed.replace(
+                    b"data displayed in 2025",
+                    f"data displayed in {partial_fiscal_year}".encode(),
+                    1,
+                ).replace(b"06/30/2025", report_date.encode(), 1)
+            args[0] = ByteStringObject(replacement)
+            footer_replacements += 1
+        elif b"06/30/2025." in printed:
+            replacement = (
+                b""
+                if partial_fiscal_year is None
+                else printed.replace(b"06/30/2025", report_date.encode(), 1)
+            )
+            args[0] = ByteStringObject(replacement)
+    page.replace_contents(content)
+    assert footer_replacements == 1
+    assert header_replacements == (10 if header_year_shift else 0)
+    output = io.BytesIO()
+    writer.write(output)
+    return output.getvalue()
+
+
+def _period_bundle_bytes(
+    *,
+    label: str,
+    member_date: str,
+    header_year_shift: int,
+    partial_fiscal_year: int | None,
+    report_date: str,
+) -> bytes:
+    output = io.BytesIO()
+    root = f"WebsiteReports_{label}"
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED) as archive:
+        for series, fixture_name in REPORTS.items():
+            member_name = fixture_name.replace("20250630", member_date)
+            archive.writestr(
+                f"{root}/{member_name}",
+                _rewritten_report(
+                    series,
+                    header_year_shift=header_year_shift,
+                    partial_fiscal_year=partial_fiscal_year,
+                    report_date=report_date,
+                ),
+            )
+    return output.getvalue()
+
+
 def _success(url: str, body: bytes, content_type: str) -> witness.FetchAttempt:
     return witness.FetchAttempt(
         requested_url=url,
@@ -92,8 +181,8 @@ def _success(url: str, body: bytes, content_type: str) -> witness.FetchAttempt:
     )
 
 
-def _landing_success() -> witness.FetchAttempt:
-    body = f'<a href="{ASSET_URL}">download</a>'.encode()
+def _landing_success(asset_url: str = ASSET_URL) -> witness.FetchAttempt:
+    body = f'<a href="{asset_url}">download</a>'.encode()
     return witness.FetchAttempt(
         requested_url=witness.ENTRY_URL,
         redirects=(
@@ -137,13 +226,14 @@ def _capture(
     *,
     retrieved_at: str,
     bundle: bytes,
+    asset_url: str = ASSET_URL,
 ) -> pathlib.Path:
     return witness.capture_sba_pdf(
         records,
         retrieved_at=retrieved_at,
         fetcher=_fetcher(
-            _landing_success(),
-            _success(ASSET_URL, bundle, "application/zip"),
+            _landing_success(asset_url),
+            _success(asset_url, bundle, "application/zip"),
         ),
     )
 
@@ -371,6 +461,8 @@ def test_resolves_each_series_from_real_witnessed_zip_and_pdf(
         "fiscalYear",
         "printedValue",
         "unit",
+        "reportCompletionStatus",
+        "partialFiscalYear",
         "parserContract",
     }
     provenance = resolution.provenance
@@ -398,6 +490,8 @@ def test_resolves_each_series_from_real_witnessed_zip_and_pdf(
     assert provenance["fiscalYear"] == 2024
     assert provenance["printedValue"] == printed_value
     assert provenance["unit"] == expected_unit
+    assert provenance["reportCompletionStatus"] == COMPLETION_PARTIAL
+    assert provenance["partialFiscalYear"] == 2025
     assert provenance["parserContract"] == manifest["bundle"]["parserContract"]  # type: ignore[index]
 
     spec = resolve_pending.SBA_PDF_ADAPTERS[series]
@@ -527,6 +621,189 @@ def test_refuses_tampered_witnessed_archive_as_invalid_custody(
 
     assert resolution is None
     assert refusal is not None and refusal.startswith(INVALID)
+
+
+def test_completed_q4_capture_resolves_current_fiscal_year(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = tmp_path / "records"
+    bundle = _period_bundle_bytes(
+        label="FY25Q4",
+        member_date="20250930",
+        header_year_shift=0,
+        partial_fiscal_year=None,
+        report_date="09/30/2025",
+    )
+    manifest_path = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=bundle,
+        asset_url=Q4_ASSET_URL,
+    )
+    manifest = _manifest(manifest_path)
+    captured = manifest["bundle"]
+    assert isinstance(captured, dict)
+    reports = captured["reports"]
+    assert isinstance(reports, list)
+    assert {report["completionStatus"] for report in reports} == {
+        COMPLETION_COMPLETED
+    }
+    assert {report["partialFiscalYear"] for report in reports} == {None}
+    assert captured["reportAsOf"] == "2025-09-30"
+    assert verify_run(manifest_path.parent).run_succeeded is True
+    _install_timeline(
+        monkeypatch,
+        _timeline(records, (manifest_path, "2026-08-07T13:00:00Z")),
+    )
+
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2025,
+    )
+
+    assert refusal is None
+    assert resolution is not None
+    assert (resolution.value, resolution.unit) == (107_714_599, "usd")
+    assert resolution.raw_bundle == bundle
+    assert resolution.source_url == Q4_ASSET_URL
+    assert resolution.provenance["reportCompletionStatus"] == COMPLETION_COMPLETED
+    assert resolution.provenance["partialFiscalYear"] is None
+
+
+def test_q4_partial_yields_to_q1_capture_that_completes_prior_fiscal_year(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = tmp_path / "records"
+    q4_bundle = _period_bundle_bytes(
+        label="FY25Q4",
+        member_date="20250930",
+        header_year_shift=0,
+        partial_fiscal_year=2025,
+        report_date="09/30/2025",
+    )
+    q4 = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=q4_bundle,
+        asset_url=Q4_ASSET_URL,
+    )
+    q1_bundle = _period_bundle_bytes(
+        label="FY26Q1",
+        member_date="20251231",
+        header_year_shift=1,
+        partial_fiscal_year=2026,
+        report_date="12/31/2025",
+    )
+    q1 = _capture(
+        records,
+        retrieved_at="2026-08-08T12:00:00Z",
+        bundle=q1_bundle,
+        asset_url=Q1_ASSET_URL,
+    )
+    for manifest_path, partial_year in ((q4, 2025), (q1, 2026)):
+        manifest = _manifest(manifest_path)
+        captured = manifest["bundle"]
+        assert isinstance(captured, dict)
+        reports = captured["reports"]
+        assert isinstance(reports, list)
+        assert {report["completionStatus"] for report in reports} == {
+            COMPLETION_PARTIAL
+        }
+        assert {report["partialFiscalYear"] for report in reports} == {
+            partial_year
+        }
+    _install_timeline(
+        monkeypatch,
+        _timeline(
+            records,
+            (q4, "2026-08-07T13:00:00Z"),
+            (q1, "2026-08-08T13:00:00Z"),
+        ),
+    )
+
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2025,
+    )
+
+    assert refusal is None
+    assert resolution is not None
+    assert (resolution.value, resolution.unit) == (299_971_326, "usd")
+    assert resolution.raw_bundle == q1_bundle
+    assert resolution.run_directory == q1.parent.relative_to(
+        records.parent.resolve()
+    ).as_posix()
+    assert resolution.source_url == Q1_ASSET_URL
+    assert resolution.provenance["reportCompletionStatus"] == COMPLETION_PARTIAL
+    assert resolution.provenance["partialFiscalYear"] == 2026
+
+
+def test_retained_q4_parse_failure_still_blocks_later_q1_completion(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = tmp_path / "records"
+    valid_q4 = _period_bundle_bytes(
+        label="FY25Q4",
+        member_date="20250930",
+        header_year_shift=0,
+        partial_fiscal_year=None,
+        report_date="09/30/2025",
+    )
+    failed_output = io.BytesIO()
+    with (
+        zipfile.ZipFile(io.BytesIO(valid_q4)) as source,
+        zipfile.ZipFile(
+            failed_output, "w", compression=zipfile.ZIP_STORED
+        ) as destination,
+    ):
+        for info in source.infolist():
+            body = source.read(info)
+            if info.filename.endswith("WDS_ChargeOffAmount_Report_20250930.pdf"):
+                body = b"%PDF-1.4\ninvalid layout\n%%EOF\n"
+            destination.writestr(info, body)
+    failed = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=failed_output.getvalue(),
+        asset_url=Q4_ASSET_URL,
+    )
+    q1_bundle = _period_bundle_bytes(
+        label="FY26Q1",
+        member_date="20251231",
+        header_year_shift=1,
+        partial_fiscal_year=2026,
+        report_date="12/31/2025",
+    )
+    q1 = _capture(
+        records,
+        retrieved_at="2026-08-08T12:00:00Z",
+        bundle=q1_bundle,
+        asset_url=Q1_ASSET_URL,
+    )
+    assert _manifest(failed)["outcome"] == "failed"
+    assert _manifest(q1)["outcome"] == "bootstrap"
+    _install_timeline(
+        monkeypatch,
+        _timeline(
+            records,
+            (failed, "2026-08-07T13:00:00Z"),
+            (q1, "2026-08-08T13:00:00Z"),
+        ),
+    )
+
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2025,
+    )
+
+    assert resolution is None
+    assert refusal == f"{LAYOUT_REFUSAL} strict PDF parsing failed"
 
 
 def test_refuses_partial_fiscal_year_from_witnessed_capture(

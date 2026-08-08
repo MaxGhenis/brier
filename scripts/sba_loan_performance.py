@@ -15,7 +15,7 @@ import math
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, Literal
 
 LAYOUT_REFUSAL = "SBA PDF LAYOUT DRIFT (refusing):"
 PARTIAL_REFUSAL = "SBA PERIOD PARTIAL (refusing):"
@@ -24,6 +24,10 @@ PARSER_REFUSAL = "SBA PDF PARSER UNAVAILABLE (refusing):"
 CHARGE_OFF_AMOUNT_SERIES = "sba.disaster.loan_program.charge_off_amount"
 CHARGE_OFF_RATE_SERIES = "sba.disaster.loan_program.charge_off_rate_upb"
 POST_CHARGE_OFF_RECOVERY_SERIES = "sba.disaster.loan_program.post_charge_off_recovery"
+
+COMPLETION_PARTIAL = "partial"
+COMPLETION_COMPLETED = "completed"
+SbaCompletionStatus = Literal["partial", "completed"]
 
 
 @dataclass(frozen=True)
@@ -45,7 +49,8 @@ class SbaLoanPerformanceCell:
     printed_value: str
     table_title: str
     report_as_of: str
-    partial_fiscal_year: int
+    completion_status: SbaCompletionStatus
+    partial_fiscal_year: int | None
     header_years: tuple[int, ...]
     pdf_sha256: str | None = None
 
@@ -1038,33 +1043,55 @@ def parse_sba_loan_performance_text(
                 f"expected one exact {label} statement, found {marker_count}"
             )
 
-    partial_re = re.compile(re.escape(spec.footer_lead) + _PARTIAL_TAIL_RE.pattern)
-    partial_matches = list(partial_re.finditer(collapsed))
-    if len(partial_matches) != 1:
+    footer_lead_count = collapsed.count(spec.footer_lead)
+    if footer_lead_count != 1:
         return _layout_refusal(
-            "expected one exact quarter-to-date fiscal-year statement, found "
-            f"{len(partial_matches)}"
+            "expected one exact fiscal-year completion lead, found "
+            f"{footer_lead_count}"
         )
-    partial_year = int(partial_matches[0].group("year"))
-    date_text = partial_matches[0].group("date")
-    try:
-        report_as_of = dt.datetime.strptime(date_text, "%m/%d/%Y").date()
-    except ValueError:
-        return _layout_refusal("quarter-to-date statement has an invalid date")
-    if (report_as_of.month, report_as_of.day) not in _QUARTER_ENDS:
-        return _layout_refusal("report as-of date is not a quarter end")
-    as_of_fiscal_year = report_as_of.year + (report_as_of.month >= 10)
-    if partial_year != as_of_fiscal_year or partial_year != years[-1]:
+    footer_start = collapsed.index(spec.footer_lead)
+    definition_start = collapsed.index(spec.definition_marker)
+    if definition_start <= footer_start:
         return _layout_refusal(
-            "quarter-to-date fiscal year does not match the report as-of date "
-            "and final header"
+            "fiscal-year completion statement does not precede the unit definition"
+        )
+    footer_statement = collapsed[footer_start:definition_start].strip()
+    partial_re = re.compile(re.escape(spec.footer_lead) + _PARTIAL_TAIL_RE.pattern)
+    partial_match = partial_re.fullmatch(footer_statement)
+    if footer_statement == spec.footer_lead:
+        completion_status: SbaCompletionStatus = COMPLETION_COMPLETED
+        partial_year = None
+        try:
+            report_as_of = dt.date(years[-1], 9, 30)
+        except ValueError:
+            return _layout_refusal("completed fiscal year is not a valid date year")
+    elif partial_match is not None:
+        completion_status = COMPLETION_PARTIAL
+        partial_year = int(partial_match.group("year"))
+        date_text = partial_match.group("date")
+        try:
+            report_as_of = dt.datetime.strptime(date_text, "%m/%d/%Y").date()
+        except ValueError:
+            return _layout_refusal("quarter-to-date statement has an invalid date")
+        if (report_as_of.month, report_as_of.day) not in _QUARTER_ENDS:
+            return _layout_refusal("report as-of date is not a quarter end")
+        as_of_fiscal_year = report_as_of.year + (report_as_of.month >= 10)
+        if partial_year != as_of_fiscal_year or partial_year != years[-1]:
+            return _layout_refusal(
+                "quarter-to-date fiscal year does not match the report as-of date "
+                "and final header"
+            )
+    else:
+        return _layout_refusal(
+            "fiscal-year completion statement is neither the reviewed completed "
+            "nor quarter-to-date form"
         )
 
     if fiscal_year not in years:
         return _layout_refusal(
             f"fiscal year {fiscal_year} is absent from the ten-year header"
         )
-    if fiscal_year == partial_year:
+    if completion_status == COMPLETION_PARTIAL and fiscal_year == partial_year:
         return (
             None,
             f"{PARTIAL_REFUSAL} fiscal year {fiscal_year} is quarter-to-date "
@@ -1091,6 +1118,7 @@ def parse_sba_loan_performance_text(
             printed_value=printed_value,
             table_title=spec.title,
             report_as_of=report_as_of.isoformat(),
+            completion_status=completion_status,
             partial_fiscal_year=partial_year,
             header_years=years,
         ),

@@ -85,6 +85,8 @@ from register_targets import (
 from sba_loan_performance import (
     CHARGE_OFF_AMOUNT_SERIES,
     CHARGE_OFF_RATE_SERIES,
+    COMPLETION_COMPLETED,
+    COMPLETION_PARTIAL,
     POST_CHARGE_OFF_RECOVERY_SERIES,
     SBA_REPORT_SPECS,
     SbaLoanPerformanceCell,
@@ -126,7 +128,7 @@ SBA_EARLIEST_CAPTURE_AMBIGUOUS = (
 SBA_WITNESS_SCHEMA = "thesis_sba_pdf_witness_run_v1"
 SBA_WITNESS_RUN_MODE = "sba_pdf_witness"
 SBA_WITNESS_WORKFLOW = ".github/workflows/witness-sba-pdf.yml"
-SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v2"
+SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v3"
 SBA_ENTRY_URL = (
     "https://www.sba.gov/document/"
     "report-small-business-administration-loan-program-performance"
@@ -4394,6 +4396,57 @@ def _sba_bundle_period_coverage(
     return set(displayed), set(possible_completed)
 
 
+def _sba_report_completed_years(
+    bundle: Mapping[str, Any],
+    *,
+    series: str,
+    displayed: set[int],
+    possible_completed: set[int],
+) -> tuple[set[int], str]:
+    """Refine pre-parse coverage with one successfully parsed report footer."""
+
+    reports = bundle.get("reports")
+    matching = (
+        [report for report in reports if report.get("series") == series]
+        if isinstance(reports, list)
+        and all(isinstance(report, dict) for report in reports)
+        else []
+    )
+    if len(matching) != 1:
+        raise ValueError(
+            f"capture has {len(matching)} report entries for {series}"
+        )
+    report = matching[0]
+    header_years = report.get("headerYears")
+    if (
+        not isinstance(header_years, list)
+        or not all(type(year) is int for year in header_years)
+        or header_years != sorted(displayed)
+    ):
+        raise ValueError("parsed report header coverage disagrees with its bundle")
+    completion_status = report.get("completionStatus")
+    partial_fiscal_year = report.get("partialFiscalYear")
+    if completion_status == COMPLETION_PARTIAL:
+        if partial_fiscal_year != header_years[-1]:
+            raise ValueError(
+                "parsed report partial fiscal year disagrees with its header"
+            )
+        completed = set(header_years[:-1])
+    elif completion_status == COMPLETION_COMPLETED:
+        if partial_fiscal_year is not None:
+            raise ValueError(
+                "parsed completed report unexpectedly names a partial fiscal year"
+            )
+        completed = set(header_years)
+    else:
+        raise ValueError("parsed report has an unrecognized completion status")
+    if not completed <= possible_completed:
+        raise ValueError(
+            "parsed report completion status exceeds filename-derived coverage"
+        )
+    return completed, completion_status
+
+
 def _replay_sba_candidate(
     candidate: _SbaPdfCandidate,
     *,
@@ -4460,6 +4513,16 @@ def _replay_sba_candidate(
             f"capture has {len(matching)} report entries for {series}",
         )
     report = matching[0]
+    try:
+        displayed, possible_completed = _sba_bundle_period_coverage(bundle)
+        completed_years, completion_status = _sba_report_completed_years(
+            bundle,
+            series=series,
+            displayed=displayed,
+            possible_completed=possible_completed,
+        )
+    except ValueError as exc:
+        return _sba_refusal(SBA_CUSTODY_INVALID, str(exc))
     member_path = report.get("memberPath")
     if not isinstance(member_path, str):
         return _sba_refusal(SBA_CUSTODY_INVALID, "report member path is absent")
@@ -4490,6 +4553,14 @@ def _replay_sba_candidate(
         return None, refusal
     if not isinstance(cell, SbaLoanPerformanceCell):
         return _sba_refusal(SBA_CUSTODY_INVALID, "strict parser returned no cell")
+    if (
+        fiscal_year not in completed_years
+        or cell.completion_status != completion_status
+    ):
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID,
+            "replayed report completion status disagrees with the manifest",
+        )
 
     normalized_unit = "usd" if cell.unit == "USD" else cell.unit
     spec = SBA_PDF_ADAPTERS[series]
@@ -4544,6 +4615,8 @@ def _replay_sba_candidate(
         "fiscalYear": fiscal_year,
         "printedValue": cell.printed_value,
         "unit": normalized_unit,
+        "reportCompletionStatus": cell.completion_status,
+        "partialFiscalYear": cell.partial_fiscal_year,
         "parserContract": source.get("parserContract"),
     }
     source_url = bundle.get("assetUrl")
@@ -4624,10 +4697,18 @@ def resolve_sba_pdf_first_print(
             return _sba_refusal(SBA_CUSTODY_INVALID, "covered capture lacks a bundle")
         try:
             displayed, possible_completed = _sba_bundle_period_coverage(bundle)
-        except ValueError as exc:
-            return _sba_refusal(
-                SBA_CUSTODY_INVALID, str(exc)
+            completed = (
+                _sba_report_completed_years(
+                    bundle,
+                    series=series,
+                    displayed=displayed,
+                    possible_completed=possible_completed,
+                )[0]
+                if successful_bundle
+                else possible_completed
             )
+        except ValueError as exc:
+            return _sba_refusal(SBA_CUSTODY_INVALID, str(exc))
         if fiscal_year not in displayed:
             continue
         run_directory = run_dir.relative_to(records.parent).as_posix()
@@ -4638,7 +4719,7 @@ def resolve_sba_pdf_first_print(
                 manifest=manifest,
                 custody_root_sha256=verification.custody_root_sha256,
                 proof=None,
-                partial_only=fiscal_year not in possible_completed,
+                partial_only=fiscal_year not in completed,
             )
         )
     if not physical:

@@ -69,6 +69,31 @@ def rewritten_pdf(raw: bytes, mutate: Callable[[Any, Any], None]) -> bytes:
     return output.getvalue()
 
 
+def completed_q4_pdf_bytes(series: str) -> bytes:
+    from pypdf.generic import ByteStringObject, ContentStream
+
+    spec = sba.SBA_REPORT_SPECS[series]
+    footer_replacements = 0
+
+    def complete_footer(page: Any, writer: Any) -> None:
+        nonlocal footer_replacements
+        content = ContentStream(page["/Contents"].get_object(), writer, "bytes")
+        for args, operator in content.operations:
+            if operator != b"Tj" or len(args) != 1:
+                continue
+            printed = bytes(args[0])
+            if printed.startswith(spec.footer_lead.encode()):
+                args[0] = ByteStringObject(spec.footer_lead.encode() + b" ")
+                footer_replacements += 1
+            elif b"06/30/2025." in printed:
+                args[0] = ByteStringObject(b"")
+        page.replace_contents(content)
+
+    rewritten = rewritten_pdf(fixture_bytes(series), complete_footer)
+    assert footer_replacements == 1
+    return rewritten
+
+
 @pytest.mark.parametrize("series", FIXTURES)
 def test_official_pdf_fixture_bytes_match_reviewed_pins(series: str) -> None:
     _, expected_size, expected_sha256, *_ = FIXTURES[series]
@@ -100,9 +125,46 @@ def test_real_official_pdf_parses_exact_disaster_fy2024_cell(series: str) -> Non
     assert cell.unit == expected_unit
     assert cell.printed_value == printed
     assert cell.report_as_of == "2025-06-30"
+    assert cell.completion_status == sba.COMPLETION_PARTIAL
     assert cell.partial_fiscal_year == 2025
     assert cell.header_years == tuple(range(2016, 2026))
     assert cell.pdf_sha256 == expected_sha256
+
+
+@pytest.mark.parametrize(
+    ("series", "expected_value", "expected_unit", "printed"),
+    (
+        (sba.CHARGE_OFF_AMOUNT_SERIES, 107_714_599, "USD", "$107,714,599"),
+        (sba.CHARGE_OFF_RATE_SERIES, 0.90, "percent", "0.90%"),
+        (
+            sba.POST_CHARGE_OFF_RECOVERY_SERIES,
+            85_429_990,
+            "USD",
+            "$85,429,990",
+        ),
+    ),
+)
+def test_completed_q4_footer_parses_latest_fiscal_year(
+    series: str,
+    expected_value: int | float,
+    expected_unit: str,
+    printed: str,
+) -> None:
+    cell, refusal = sba.parse_sba_loan_performance_pdf(
+        completed_q4_pdf_bytes(series),
+        series=series,
+        fiscal_year=2025,
+    )
+
+    assert refusal is None
+    assert cell is not None
+    assert cell.value == expected_value
+    assert cell.unit == expected_unit
+    assert cell.printed_value == printed
+    assert cell.report_as_of == "2025-09-30"
+    assert cell.completion_status == sba.COMPLETION_COMPLETED
+    assert cell.partial_fiscal_year is None
+    assert cell.header_years == tuple(range(2016, 2026))
 
 
 def test_real_pdf_refuses_current_partial_year_with_literal_message() -> None:
@@ -726,8 +788,32 @@ def test_text_parser_refuses_missing_completed_year_marker() -> None:
 
     assert cell is None
     assert refusal == (
-        "SBA PDF LAYOUT DRIFT (refusing): expected one exact quarter-to-date "
-        "fiscal-year statement, found 0"
+        "SBA PDF LAYOUT DRIFT (refusing): expected one exact fiscal-year "
+        "completion lead, found 0"
+    )
+
+
+def test_text_parser_refuses_malformed_completion_suffix() -> None:
+    series = sba.CHARGE_OFF_AMOUNT_SERIES
+    text, refusal = sba.sba_pdf_text(fixture_bytes(series), series=series)
+    assert refusal is None and text is not None
+    text = text.replace(
+        "Since data are not available through the end of the most recent fiscal year",
+        "Because recent data remain unavailable",
+        1,
+    )
+
+    cell, refusal = sba.parse_sba_loan_performance_text(
+        text,
+        series=series,
+        fiscal_year=2024,
+        _geometric_printed_value="$299,971,326",
+    )
+
+    assert cell is None
+    assert refusal == (
+        "SBA PDF LAYOUT DRIFT (refusing): fiscal-year completion statement is "
+        "neither the reviewed completed nor quarter-to-date form"
     )
 
 

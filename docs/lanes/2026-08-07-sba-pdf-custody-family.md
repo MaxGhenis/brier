@@ -122,10 +122,9 @@ Each never-overwritten capture run must:
 5. Record the bundle label and report as-of date derived from strict report
    content, not merely from the URL or HTTP headers. Parsed cells are useful
    audit output, but the archived bytes remain the authority and must replay.
-   Parser contract v2 requires the exact page and crop bounds, only reviewed
-   full-page clipping paths, reviewed light table backgrounds, the opaque gray
-   table-grid paint phase, and exactly one black tagged token in every aligned
-   header/value cell for all ten year labels and all ten `Disaster` values. It
+   Parser contract v3 retains v2's exact page, crop, paint, tagged-cell, and
+   geometric-column checks and additionally records whether the reviewed
+   footer marks the final fiscal-year column as partial or completed. It
    rejects annotations, optional content, transparency groups, and any path,
    image, or shading that could paint over the grid or text. The parser maps a
    value to a year through the shared geometric column, never through
@@ -181,6 +180,11 @@ committed record corpus and must:
    skipped merely because its internals later fail strict parsing. An
    unrecognized bundle identity is source drift and blocks selection pending
    review rather than being ignored.
+   A successfully parsed Q4 report whose reviewed footer still marks that
+   column partial does not establish completed coverage and may yield to a
+   later Q1 report that completes the prior fiscal year. A Q4 parse failure has
+   no trustworthy status and remains a blocker under the filename-derived
+   possible coverage rule.
 4. Within the possible-coverage set, identify the minimum externally verified
    `earliestWitnessedAt` before parsing a value. Do not order captures by a
    claimed fetch time or HTTP/PDF metadata.
