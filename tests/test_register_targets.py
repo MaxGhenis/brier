@@ -2020,6 +2020,72 @@ def _committed_supersession_state(
     )
 
 
+def test_find_ticket_successor_accepts_authenticated_cross_supersession(
+    tmp_path, monkeypatch
+) -> None:
+    # The post-commit successor scan must admit the same authenticated
+    # binding-only supersession that mint admits, via the time-stable
+    # committed-introduction test on both sides.
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    old_target = {**old_target, "conditional": "Synthetic condition"}
+    new_target = {**new_target, "conditional": "Synthetic condition"}
+
+    predecessor = generation_tickets.mint_ticket(
+        [old_target],
+        {
+            "promptMode": "fast",
+            "codexModel": "gpt-5.5",
+            "codexReasoningEffort": "low",
+            "codexSandbox": "read-only",
+            "codexNetwork": False,
+            "reviewCodexModel": "gpt-5.5",
+            "reviewCodexSearch": False,
+            "timeoutSeconds": 3600,
+        },
+        nonce="a" * 64,
+        minted_at_utc="2026-07-12T00:00:00Z",
+        expires_hours=24,
+        attempt=1,
+        registration_set_hash="d" * 64,
+    )
+    successor = generation_tickets.mint_ticket(
+        [new_target],
+        {
+            "promptMode": "fast",
+            "codexModel": "gpt-5.5",
+            "codexReasoningEffort": "high",
+            "codexSandbox": "read-only",
+            "codexNetwork": False,
+            "reviewCodexModel": "gpt-5.5",
+            "reviewCodexSearch": False,
+            "timeoutSeconds": 3600,
+        },
+        nonce="b" * 64,
+        minted_at_utc="2026-07-12T06:00:00Z",
+        expires_hours=24,
+        attempt=2,
+        supersedes=predecessor["ticketId"],
+        superseded_outcome={
+            "outcome": "failed",
+            "reason": "announcement fetch structurally impossible",
+        },
+        registration_set_hash="e" * 64,
+        predecessor_ticket=predecessor,
+        repo_root=tmp_path,
+    )
+
+    for ticket in (predecessor, successor):
+        path = tmp_path.joinpath(
+            *generation_tickets.ticket_record_path(ticket["ticketId"]).parts
+        )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(ticket, sort_keys=True) + "\n")
+
+    found = generation_tickets.find_ticket_successor(predecessor["ticketId"], tmp_path)
+    assert found is not None
+    assert successor["ticketId"] in found
+
+
 def test_ticket_supersession_accepts_binding_only_registration_supersession(
     tmp_path, monkeypatch
 ) -> None:

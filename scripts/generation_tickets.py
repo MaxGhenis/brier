@@ -402,6 +402,7 @@ def _require_superseding_targets(
     predecessor: dict[str, Any],
     *,
     repo_root: pathlib.Path,
+    require_current: bool = True,
 ) -> None:
     """Authenticate an attempt whose targets crossed registration supersession.
 
@@ -452,49 +453,85 @@ def _require_superseding_targets(
             continue
         if _target_identity(new_target) != _target_identity(old_target):
             raise _identical_refusal()
-        block = register_targets._generated_block(source, data_point_id)
-        if not block or register_targets._block_value(
-            block, "targetContentHash"
-        ) != new_target.get("targetContentHash"):
-            raise TicketError(
-                f"generation ticket {successor['ticketId']} cannot supersede "
-                f"{predecessor['ticketId']}: {data_point_id} does not "
-                "match the current registered contract"
+        if require_current:
+            block = register_targets._generated_block(source, data_point_id)
+            if not block or register_targets._block_value(
+                block, "targetContentHash"
+            ) != new_target.get("targetContentHash"):
+                raise TicketError(
+                    f"generation ticket {successor['ticketId']} cannot "
+                    f"supersede {predecessor['ticketId']}: {data_point_id} "
+                    "does not match the current registered contract"
+                )
+        else:
+            # Later in history the registry may have moved again; the
+            # time-stable fact is that the successor's contract was a
+            # real committed registration.
+            _require_committed_snapshot(
+                successor,
+                predecessor,
+                data_point_id,
+                new_target.get("targetContentHash"),
+                repo_root=repo_root,
+                side="successor",
             )
-        old_hash = old_target.get("targetContentHash")
-        if not isinstance(old_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", old_hash):
-            raise TicketError(
-                f"generation ticket {successor['ticketId']} cannot supersede "
-                f"{predecessor['ticketId']}: {data_point_id} predecessor "
-                "lacks a content hash"
-            )
-        try:
-            introducing = subprocess.run(
-                [
-                    "git",
-                    "log",
-                    "--diff-filter=A",
-                    "--format=%H",
-                    "--",
-                    f"records/targets/*-{old_hash}.json",
-                ],
-                cwd=repo_root,
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.split()
-        except (OSError, subprocess.CalledProcessError) as exc:
-            raise TicketError(
-                f"generation ticket {successor['ticketId']} cannot supersede "
-                f"{predecessor['ticketId']}: cannot replay {data_point_id} "
-                f"predecessor registration history: {exc}"
-            ) from exc
-        if len(introducing) != 1:
-            raise TicketError(
-                f"generation ticket {successor['ticketId']} cannot supersede "
-                f"{predecessor['ticketId']}: {data_point_id} predecessor "
-                "contract is not a committed registration"
-            )
+        _require_committed_snapshot(
+            successor,
+            predecessor,
+            data_point_id,
+            old_target.get("targetContentHash"),
+            repo_root=repo_root,
+            side="predecessor",
+        )
+
+
+def _require_committed_snapshot(
+    successor: dict[str, Any],
+    predecessor: dict[str, Any],
+    data_point_id: str,
+    content_hash: Any,
+    *,
+    repo_root: pathlib.Path,
+    side: str,
+) -> None:
+    """One side of an authenticated supersession must be a committed
+    registration: its snapshot has exactly one introduction in history."""
+
+    if not isinstance(content_hash, str) or not re.fullmatch(
+        r"[0-9a-f]{64}", content_hash
+    ):
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: {data_point_id} {side} "
+            "lacks a content hash"
+        )
+    try:
+        introducing = subprocess.run(
+            [
+                "git",
+                "log",
+                "--diff-filter=A",
+                "--format=%H",
+                "--",
+                f"records/targets/*-{content_hash}.json",
+            ],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.split()
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: cannot replay {data_point_id} "
+            f"{side} registration history: {exc}"
+        ) from exc
+    if len(introducing) != 1:
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: {data_point_id} {side} "
+            "contract is not a committed registration"
+        )
 
 
 def mint_ticket(
@@ -707,18 +744,29 @@ def find_ticket_successor(ticket_id: str, repo_root: str | pathlib.Path) -> str 
                     f"generation ticket {ticket['ticketId']} has corrupt retry "
                     f"accounting for {ticket_id}: predecessor identity differs"
                 )
-            if ticket["registrationSetHash"] != predecessor["registrationSetHash"]:
-                raise TicketError(
-                    f"generation ticket {ticket['ticketId']} has corrupt retry "
-                    f"accounting for {ticket_id}: registrationSetHash differs"
-                )
-            if canonical_bytes(ticket["targets"]) != canonical_bytes(
+            if ticket["registrationSetHash"] != predecessor[
+                "registrationSetHash"
+            ] or canonical_bytes(ticket["targets"]) != canonical_bytes(
                 predecessor["targets"]
             ):
-                raise TicketError(
-                    f"generation ticket {ticket['ticketId']} has corrupt retry "
-                    f"accounting for {ticket_id}: targets differ"
+                mismatch = (
+                    "registrationSetHash differs"
+                    if ticket["registrationSetHash"]
+                    != predecessor["registrationSetHash"]
+                    else "targets differ"
                 )
+                try:
+                    _require_superseding_targets(
+                        ticket,
+                        predecessor,
+                        repo_root=root,
+                        require_current=False,
+                    )
+                except TicketError:
+                    raise TicketError(
+                        f"generation ticket {ticket['ticketId']} has corrupt "
+                        f"retry accounting for {ticket_id}: {mismatch}"
+                    ) from None
             matches.append(path)
     if not matches:
         return None
