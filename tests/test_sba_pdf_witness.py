@@ -169,6 +169,43 @@ def _ungridded_probe_bytes() -> bytes:
     return base64.b64decode(encoded.strip(), validate=True)
 
 
+def test_valid_zip_with_octet_stream_header_is_captured(
+    tmp_path: pathlib.Path,
+) -> None:
+    records = tmp_path / "records"
+    landing = _landing_bytes(ASSET_URL)
+    manifest_path = witness.capture_sba_pdf(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        fetcher=_fetcher(
+            _landing_success(landing),
+            _success(ASSET_URL, _bundle_bytes(), "application/octet-stream"),
+        ),
+    )
+    assert _manifest(manifest_path)["outcome"] == "bootstrap"
+
+
+def test_non_zip_bytes_with_zip_header_are_refused(
+    tmp_path: pathlib.Path,
+) -> None:
+    records = tmp_path / "records"
+    landing = _landing_bytes(ASSET_URL)
+    manifest_path = witness.capture_sba_pdf(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        fetcher=_fetcher(
+            _landing_success(landing),
+            _success(ASSET_URL, b"%PDF-1.7 not a zip at all", "application/zip"),
+        ),
+    )
+    manifest = _manifest(manifest_path)
+    assert manifest["outcome"] == "failed"
+    failure = manifest["failure"]
+    assert isinstance(failure, dict)
+    assert failure["stage"] == "bundle validation"
+    assert "does not have a ZIP signature" in str(failure["reason"])
+
+
 def test_bootstrap_capture_seals_and_strictly_replays_official_reports(
     tmp_path: pathlib.Path,
 ) -> None:

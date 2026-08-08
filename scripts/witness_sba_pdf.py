@@ -887,9 +887,11 @@ def capture_sba_pdf(
         )
         asset_raw = _require_success(asset, stage=active_stage)
         active_stage = "asset validation"
-        asset_type = asset.headers.get("Content-Type", "").split(";", 1)[0].lower()
-        if asset_type != "application/zip":
-            raise SbaCaptureError(f"content type {asset_type!r} is not application/zip")
+        # The Content-Type header is recorded but never load-bearing:
+        # servers drift between application/zip and application/octet-stream
+        # for the same asset, and refusing on header metadata would discard
+        # a covered capture and let a later revision resolve in its place.
+        # The byte-level ZIP validation below is the sole classifier.
         raw_sha = _sha256(asset_raw)
         bundle = _captured_bundle(asset_raw, identity=identity)
         if (
