@@ -16,7 +16,7 @@ anchor verification (see BLS_API_ADAPTERS).
 
 Usage:
     python3 scripts/resolve_pending.py [--dry-run]
-        [--ledger-repo PolicyEngine/ledger]
+        [--ledger-repo PolicyEngine/chronicle]
         [--ledger-branch codex/thesis-ledger-facts]
         [--ledger-path ledger/official_observations.jsonl]
 
@@ -2325,7 +2325,7 @@ INTL_GEOGRAPHY = {
         "name": "United Kingdom",
     },
     # "region" is the arch fact schema's level for supranational scopes
-    # (ALLOWED_GEOGRAPHY_LEVELS in PolicyEngine/ledger arch/core.py).
+    # (ALLOWED_GEOGRAPHY_LEVELS in PolicyEngine/chronicle arch/core.py).
     "EA": {
         "level": "region",
         "id": "EA21",
@@ -8183,7 +8183,7 @@ def _build_next_release_manifest(
         },
         "createdAtUtc": _created_at_utc(now),
         "producer": {
-            "repo": "PolicyEngine/ledger",
+            "repo": "PolicyEngine/chronicle",
             "branch": "codex/thesis-ledger-facts",
         },
     }
@@ -9600,7 +9600,7 @@ def main() -> int:
     producer_signing_key = os.environ.pop(PRODUCER_SIGNING_KEY_ENV, None)
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--ledger-repo", default="PolicyEngine/ledger")
+    parser.add_argument("--ledger-repo", default="PolicyEngine/chronicle")
     parser.add_argument("--ledger-branch", default="codex/thesis-ledger-facts")
     parser.add_argument("--ledger-path", default="ledger/official_observations.jsonl")
     args = parser.parse_args()

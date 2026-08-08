@@ -161,7 +161,7 @@ def test_docket_pair_arms_bind_registrable_conditional_contracts() -> None:
         "registeredAtUtc": "2026-08-01T00:00:00Z",
         "targets": [contracts[0]],
         "ledgerPin": {
-            "repo": "PolicyEngine/ledger",
+            "repo": "PolicyEngine/chronicle",
             "branch": "codex/thesis-ledger-facts",
             "sha": "0" * 40,
             "jsonlSha256": "0" * 64,

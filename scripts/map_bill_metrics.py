@@ -281,7 +281,7 @@ def map_artifact(
                     )
                 else:
                     note = (
-                        "Proposed catalog row for PolicyEngine/ledger "
+                        "Proposed catalog row for PolicyEngine/chronicle "
                         "series_catalog.json; verify identity, unit, cadence, "
                         "and official source before ingestion."
                     )

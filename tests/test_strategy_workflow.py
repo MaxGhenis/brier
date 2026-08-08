@@ -63,7 +63,7 @@ def test_strategy_workflow_pins_tools_and_witnesses_run_window() -> None:
     assert "actions/download-artifact@v8" in source
     assert "oven-sh/setup-bun@v2" in source
     assert "@openai/codex@0.144.0" in source
-    assert "PolicyEngine/ledger" in source
+    assert "PolicyEngine/chronicle" in source
     assert "application/vnd.github.raw+json" in source
     assert "artifactCreatedAtUtc" not in source  # stamped by trusted selector code
     assert "verify-artifact" in source

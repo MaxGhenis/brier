@@ -125,7 +125,7 @@ blocks all sockets, and runs that can't fetch fabricate plausible values
 instead (the 2026-07-24 broadband rejection: a 65+ share series matching
 neither the ACS 1-year nor 5-year file, with raw counts off by up to 2.3
 million — invented, not a vintage mix-up). Resolved outcomes
-are recorded as observations in PolicyEngine/ledger (formerly arch-data)
+are recorded as observations in PolicyEngine/chronicle (formerly ledger, originally arch-data; renamed 2026-08-07)
 (`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
 which the site fetches at build time. Deploy by pushing `main`; run the
 recorder workflow (`gh workflow run record-forecasts.yml --ref main`) right

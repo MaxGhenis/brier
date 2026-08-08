@@ -130,9 +130,10 @@ def test_registration_snapshot_round_trip_and_hash_stability(
     assert contract["dataPointId"] == "agency.test.rate.2030_01.first_print"
     assert round_trip["dataPointId"] == contract["dataPointId"]
     assert round_trip["sourceBinding"] == contract["sourceBinding"]
-    assert round_trip["expectedReleaseWindow"] == contract["sourceBinding"][
-        "expectedReleaseWindow"
-    ]
+    assert (
+        round_trip["expectedReleaseWindow"]
+        == contract["sourceBinding"]["expectedReleaseWindow"]
+    )
     assert round_trip["registeredAt"] == registered_at_utc
     assert round_trip["registeredAtUtc"] == registered_at_utc
     assert round_trip["targetContentHash"] == content_hash
@@ -171,9 +172,12 @@ def test_resolution_date_basis_defaults_without_churning_legacy_contracts() -> N
     assert "resolutionDateBasis" not in contract
 
     explicit = {**target, "resolutionDateBasis": "release-calendar"}
-    assert register_targets.build_contract(
-        explicit, dt.date(2030, 1, 10)
-    )["resolutionDateBasis"] == "release-calendar"
+    assert (
+        register_targets.build_contract(explicit, dt.date(2030, 1, 10))[
+            "resolutionDateBasis"
+        ]
+        == "release-calendar"
+    )
 
 
 def test_bounded_contract_requires_exact_window_and_matching_bound() -> None:
@@ -266,8 +270,7 @@ def test_bounded_contract_requires_exact_window_and_matching_bound() -> None:
                 **target,
                 "expectedReleaseWindow": {"start": None, "end": None},
             },
-            "resolve-by-bound expectedReleaseWindow dates must be canonical "
-            "ISO dates",
+            "resolve-by-bound expectedReleaseWindow dates must be canonical ISO dates",
         ),
         (
             {
@@ -287,11 +290,7 @@ def test_bounded_contract_requires_exact_window_and_matching_bound() -> None:
             "expected release window ends before it starts",
         ),
         (
-            {
-                key: value
-                for key, value in target.items()
-                if key != "resolutionDate"
-            },
+            {key: value for key, value in target.items() if key != "resolutionDate"},
             "resolve-by-bound target requires resolutionDate to equal "
             "expectedReleaseWindow.end",
         ),
@@ -328,9 +327,7 @@ def test_registration_hash_revalidates_bounded_snapshot_semantics() -> None:
     invalid_snapshots = []
     for mutate, message in (
         (
-            lambda contract: contract["sourceBinding"].pop(
-                "expectedReleaseWindow"
-            ),
+            lambda contract: contract["sourceBinding"].pop("expectedReleaseWindow"),
             "resolve-by-bound target requires an exact expectedReleaseWindow",
         ),
         (
@@ -365,9 +362,7 @@ def test_registration_hash_revalidates_bounded_snapshot_semantics() -> None:
 
 
 def test_resolution_projection_preserves_absent_basis_spelling() -> None:
-    contract = register_targets.build_contract(
-        sample_target(), dt.date(2030, 1, 10)
-    )
+    contract = register_targets.build_contract(sample_target(), dt.date(2030, 1, 10))
     window = contract["sourceBinding"]["expectedReleaseWindow"]
     target = {
         "expectedReleaseWindow": window,
@@ -404,9 +399,7 @@ def test_resolution_projection_preserves_absent_basis_spelling() -> None:
         ),
         (lambda target: target.pop("expectedReleaseWindow"), "expectedReleaseWindow"),
         (
-            lambda target: target["expectedReleaseWindow"].update(
-                start="2030-02-02"
-            ),
+            lambda target: target["expectedReleaseWindow"].update(start="2030-02-02"),
             "expectedReleaseWindow",
         ),
         (
@@ -491,9 +484,10 @@ def test_registration_retry_reuses_immutable_snapshot_and_generated_target(
     round_trip = json.loads(targets_path.read_text())["targets"][0]
     assert round_trip["registeredAt"] == "2030-01-10T14:32:05Z"
     assert round_trip["registeredAtUtc"] == "2030-01-10T14:32:05Z"
-    assert round_trip["targetRegistrationPath"] == original_path.relative_to(
-        tmp_path
-    ).as_posix()
+    assert (
+        round_trip["targetRegistrationPath"]
+        == original_path.relative_to(tmp_path).as_posix()
+    )
 
 
 def test_reuse_existing_only_hydrates_without_rewriting_registration(
@@ -527,9 +521,10 @@ def test_reuse_existing_only_hydrates_without_rewriting_registration(
     [hydrated] = json.loads(targets_path.read_text())["targets"]
     assert hydrated["registeredAtUtc"] == "2030-01-10T14:32:05Z"
     assert hydrated["targetContentHash"] == original["targetContentHash"]
-    assert hydrated["targetRegistrationPath"] == original["path"].relative_to(
-        tmp_path
-    ).as_posix()
+    assert (
+        hydrated["targetRegistrationPath"]
+        == original["path"].relative_to(tmp_path).as_posix()
+    )
 
 
 def test_reuse_existing_only_refuses_generated_rewrite_before_any_write(
@@ -631,8 +626,7 @@ def test_reuse_existing_only_refuses_whole_set_before_any_write(
     [
         (
             "--bind-registration-commits",
-            "--reuse-existing-only cannot be combined with "
-            "--bind-registration-commits",
+            "--reuse-existing-only cannot be combined with --bind-registration-commits",
         ),
         (
             "--skip-unbindable",
@@ -931,9 +925,7 @@ def test_register_wave_derives_explicit_provenance_from_validated_batches() -> N
         "results": [],
         "generationTicket": {
             "ticketId": "2030-01-11-deadbeef",
-            "ticketPath": (
-                "records/tickets/2030-01-11/2030-01-11-deadbeef.json"
-            ),
+            "ticketPath": ("records/tickets/2030-01-11/2030-01-11-deadbeef.json"),
             "nonceSha256": "a" * 64,
         },
     }
@@ -1029,9 +1021,7 @@ def test_register_wave_refuses_existing_provenance_mismatch(
             "provenance: ci != local_operator_attested"
         ),
     ):
-        register_wave.replay_provenance_for_module(
-            module, "local_operator_attested"
-        )
+        register_wave.replay_provenance_for_module(module, "local_operator_attested")
 
 
 def test_published_target_is_exactly_regenerated_and_retry_safe(
@@ -1132,10 +1122,10 @@ def test_alfred_docket_templates_build_registration_contracts() -> None:
             "series": entry["series"],
             "period": period,
             "catalogSlug": entry["slug"].format(
-                    period=period,
-                    month="june",
-                    month_abbr="jun",
-                    quarter=2,
+                period=period,
+                month="june",
+                month_abbr="jun",
+                quarter=2,
                 year=2030,
             ),
             "expectedReleaseDate": "2030-07-31",
@@ -1226,9 +1216,7 @@ def test_native_registration_refuses_cadence_inferred_release_window() -> None:
     ):
         register_targets.build_contract(target, dt.date(2026, 7, 25))
 
-    with pytest.raises(
-        register_targets.RegistrationError, match="releaseCalendarUrl"
-    ):
+    with pytest.raises(register_targets.RegistrationError, match="releaseCalendarUrl"):
         register_targets.build_contract(
             {
                 **target,
@@ -1267,8 +1255,7 @@ def _wave1_bea_successor_target() -> tuple[dict, dict]:
         "previousTarget": {
             "period": "2026-Q3",
             "dataPointId": (
-                "bea.private_nonresidential_fixed_investment."
-                "2026_q3.first_print"
+                "bea.private_nonresidential_fixed_investment.2026_q3.first_print"
             ),
             "country": "US",
             "unit": "usd_billions",
@@ -1300,9 +1287,7 @@ def test_bea_release_successor_cannot_invent_release_slot_literal() -> None:
         "end": "2027-01-29",
     }
     with pytest.raises(register_targets.RegistrationError) as caught:
-        register_targets.validate_committed_calendar_contract(
-            contract, target, entry
-        )
+        register_targets.validate_committed_calendar_contract(contract, target, entry)
 
     assert str(caught.value) == (
         "committed dated docket entry lacks the target period's release date "
@@ -1313,10 +1298,7 @@ def test_bea_release_successor_cannot_invent_release_slot_literal() -> None:
 def test_inherited_native_binding_keeps_canonical_id_and_official_window() -> None:
     previous = {
         "period": "2026-07",
-        "dataPointId": (
-            "abs.labour.unemployment_rate.australia."
-            "july_2026.first_print"
-        ),
+        "dataPointId": ("abs.labour.unemployment_rate.australia.july_2026.first_print"),
         "country": "AU",
         "unit": "percent",
         "resolutionDate": "2026-08-20",
@@ -1361,9 +1343,7 @@ def test_inherited_native_binding_keeps_canonical_id_and_official_window() -> No
         "abs.labour.unemployment_rate.2026_08.first_print"
     )
     assert contract["sourceBinding"]["adapter"] == "abs-data-api"
-    assert contract["sourceBinding"]["sourceSeriesId"] == (
-        "LF/M13.3.1599.20.AUS.M"
-    )
+    assert contract["sourceBinding"]["sourceSeriesId"] == ("LF/M13.3.1599.20.AUS.M")
     assert contract["sourceBinding"]["expectedReleaseWindow"] == {
         "start": "2026-09-24",
         "end": "2026-09-24",
@@ -1528,9 +1508,7 @@ def _binding_template(binding: dict) -> dict:
     }
 
 
-def _write_docket(
-    tmp_path: pathlib.Path, entries: list[dict]
-) -> pathlib.Path:
+def _write_docket(tmp_path: pathlib.Path, entries: list[dict]) -> pathlib.Path:
     path = tmp_path / "scripts" / "docket_series.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"series": entries}, indent=2) + "\n")
@@ -1601,15 +1579,11 @@ def _target_from_contract(contract: dict) -> dict:
         "targetUnit": contract["unit"],
         "valueScale": contract["valueScale"],
         "sourceBinding": contract["sourceBinding"],
-        "expectedReleaseWindow": contract["sourceBinding"][
-            "expectedReleaseWindow"
-        ],
+        "expectedReleaseWindow": contract["sourceBinding"]["expectedReleaseWindow"],
     }
 
 
-def _registered_target_payload(
-    registration: dict, relative: pathlib.Path
-) -> dict:
+def _registered_target_payload(registration: dict, relative: pathlib.Path) -> dict:
     contract = registration["contract"]
     target = {
         "series": contract["series"],
@@ -1641,8 +1615,7 @@ def _install_registration_for_bind(
     registration: dict,
 ) -> tuple[pathlib.Path, pathlib.Path]:
     relative = (
-        pathlib.Path("records/targets")
-        / f"{registration['registeredAtUtc'][:10]}-"
+        pathlib.Path("records/targets") / f"{registration['registeredAtUtc'][:10]}-"
         f"{registration['targetContentHash']}.json"
     )
     snapshot_path = tmp_path / relative
@@ -1735,9 +1708,7 @@ def test_bounded_published_block_resolution_tampering_is_refused(
     _write_block(generated, register_targets.ts_literal(published))
 
     with pytest.raises(register_targets.RegistrationError) as error:
-        register_targets.render_generated_targets(
-            [registration], allow_published=True
-        )
+        register_targets.render_generated_targets([registration], allow_published=True)
 
     assert str(error.value) == (
         "existing generated target is not the exact immutable preregistration "
@@ -1763,9 +1734,7 @@ def test_absent_basis_published_block_cannot_gain_explicit_default(
     _write_block(generated, register_targets.ts_literal(published))
 
     with pytest.raises(register_targets.RegistrationError) as error:
-        register_targets.render_generated_targets(
-            [registration], allow_published=True
-        )
+        register_targets.render_generated_targets([registration], allow_published=True)
 
     assert str(error.value) == (
         "existing generated target is not the exact immutable preregistration "
@@ -1775,7 +1744,7 @@ def test_absent_basis_published_block_cannot_gain_explicit_default(
 
 def _pin(sha: str, line_count: int) -> dict:
     return {
-        "repo": "PolicyEngine/ledger",
+        "repo": "PolicyEngine/chronicle",
         "branch": "codex/thesis-ledger-facts",
         "sha": sha,
         "jsonlSha256": "a" * 64,
@@ -1960,9 +1929,44 @@ def _commit_v3_supersede_history(
     return path
 
 
-def test_plain_append_with_prefix_id_does_not_query_git(
+def test_pre_rename_pin_is_superseded_by_canonical_pin(tmp_path, monkeypatch) -> None:
+    # Registrations recorded before the 2026-08-07 rename pin
+    # PolicyEngine/ledger; an advancing reroll pinning the canonical
+    # PolicyEngine/chronicle is the same upstream and must supersede.
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    contract = _supersede_contract()
+    old_pin = {**_pin("b" * 40, 127), "repo": "PolicyEngine/ledger"}
+    _commit_v3_supersede_history(
+        tmp_path, generated, contract, monkeypatch, "2026-07-10T05:03:56Z", old_pin
+    )
+
+    registration = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
+    rendered = register_targets.render_generated_targets(
+        [registration], allow_published=True, allow_supersede=True
+    )
+    block = register_targets._generated_block(rendered, contract["dataPointId"])
+    assert register_targets._block_value(block, "ledgerPinLineCount") == 128
+
+
+def test_foreign_repo_pin_never_unifies_with_the_alias_set(
     tmp_path, monkeypatch
 ) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    contract = _supersede_contract()
+    old_pin = {**_pin("b" * 40, 127), "repo": "PolicyEngine/ledger"}
+    _commit_v3_supersede_history(
+        tmp_path, generated, contract, monkeypatch, "2026-07-10T05:03:56Z", old_pin
+    )
+
+    foreign_pin = {**_pin("d" * 40, 129), "repo": "attacker/chronicle"}
+    foreign = _registration(contract, "2026-07-10T07:00:00Z", foreign_pin)
+    with pytest.raises(register_targets.RegistrationError):
+        register_targets.render_generated_targets(
+            [foreign], allow_published=True, allow_supersede=True
+        )
+
+
+def test_plain_append_with_prefix_id_does_not_query_git(tmp_path, monkeypatch) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     contract = _supersede_contract()
     longer_contract = {
@@ -1988,22 +1992,20 @@ def test_plain_append_with_prefix_id_does_not_query_git(
         raise AssertionError(f"plain append queried git: {args}")
 
     monkeypatch.setattr(register_targets, "_git_output", unexpected_git)
-    registration = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    registration = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     rendered = register_targets.render_generated_targets(
         [registration], allow_published=True, allow_supersede=True
     )
 
     assert (
-        len(register_targets._generated_blocks(rendered, contract["dataPointId"]))
+        len(register_targets._generated_blocks(rendered, contract["dataPointId"])) == 1
+    )
+    assert (
+        len(
+            register_targets._generated_blocks(rendered, longer_contract["dataPointId"])
+        )
         == 1
     )
-    assert len(
-        register_targets._generated_blocks(
-            rendered, longer_contract["dataPointId"]
-        )
-    ) == 1
 
 
 def test_unpublished_v2_target_is_superseded_by_a_pinned_v3_reroll(
@@ -2019,16 +2021,16 @@ def test_unpublished_v2_target_is_superseded_by_a_pinned_v3_reroll(
     )
 
     block = register_targets._generated_block(rendered, contract["dataPointId"])
-    assert register_targets._block_value(block, "targetContentHash") == v3[
-        "targetContentHash"
-    ]
+    assert (
+        register_targets._block_value(block, "targetContentHash")
+        == v3["targetContentHash"]
+    )
     assert register_targets._block_value(block, "ledgerPinLineCount") == 128
     assert (
-        register_targets._block_value(block, "registeredAt")
-        == "2026-07-10T06:17:27Z"
+        register_targets._block_value(block, "registeredAt") == "2026-07-10T06:17:27Z"
     )
     # Superseded in place, not appended: exactly one kind: target_registered.
-    assert rendered.count("kind: \"target_registered\"") == 1
+    assert rendered.count('kind: "target_registered"') == 1
 
 
 def test_committed_docket_template_authorizes_source_binding_upgrade(
@@ -2036,9 +2038,7 @@ def test_committed_docket_template_authorizes_source_binding_upgrade(
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
     _commit_files(tmp_path, [docket], "upgrade ABS source binding")
 
@@ -2055,30 +2055,23 @@ def test_committed_docket_template_authorizes_source_binding_upgrade(
         rendered, upgraded_contract["dataPointId"]
     )
     assert len(blocks) == 1
-    assert register_targets._block_value(blocks[0], "sourceBinding") == reroll[
-        "contract"
-    ]["sourceBinding"]
-    assert rendered.count("kind: \"target_registered\"") == 1
+    assert (
+        register_targets._block_value(blocks[0], "sourceBinding")
+        == reroll["contract"]["sourceBinding"]
+    )
+    assert rendered.count('kind: "target_registered"') == 1
 
 
-def test_binding_upgrade_refuses_wave_invented_binding(
-    tmp_path, monkeypatch
-) -> None:
+def test_binding_upgrade_refuses_wave_invented_binding(tmp_path, monkeypatch) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
     _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
     invented = json.loads(json.dumps(upgraded_contract))
-    invented["sourceBinding"]["sourceUrl"] = (
-        "https://invented.example/abs-unemployment"
-    )
+    invented["sourceBinding"]["sourceUrl"] = "https://invented.example/abs-unemployment"
     invented["sourceBinding"]["allowedHosts"] = ["invented.example"]
-    reroll = _registration(
-        invented, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(invented, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
 
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
@@ -2091,9 +2084,7 @@ def test_binding_upgrade_refuses_uncommitted_docket_authority(
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     docket = _write_docket(tmp_path, [_docket_entry(old_contract)])
     _commit_files(tmp_path, [docket], "commit original ABS binding")
     # The working tree advertises the upgrade, but trusted HEAD still binds A.
@@ -2113,9 +2104,7 @@ def test_binding_upgrade_refuses_uncommitted_docket_authority(
 def test_binding_upgrade_refuses_identity_drift(tmp_path, monkeypatch) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
     _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
     drifted = {**upgraded_contract, "unit": "count"}
@@ -2123,9 +2112,7 @@ def test_binding_upgrade_refuses_identity_drift(tmp_path, monkeypatch) -> None:
         ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
     ).strip()
     assert register_targets._binding_is_committed_template(drifted, head)
-    reroll = _registration(
-        drifted, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(drifted, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
 
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
@@ -2139,9 +2126,7 @@ def test_binding_upgrade_refuses_derived_key_abuse(
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
     _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
     abused = json.loads(json.dumps(upgraded_contract))
@@ -2149,9 +2134,7 @@ def test_binding_upgrade_refuses_derived_key_abuse(
         abused["sourceBinding"]["waveOverride"] = True
     else:
         abused["sourceBinding"].pop("field")
-    reroll = _registration(
-        abused, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(abused, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
 
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
@@ -2162,9 +2145,7 @@ def test_binding_upgrade_refuses_derived_key_abuse(
 def test_binding_upgrade_refuses_ambiguous_template(tmp_path, monkeypatch) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     entry = _docket_entry(upgraded_contract)
     docket = _write_docket(tmp_path, [entry, entry])
     _commit_files(tmp_path, [docket], "commit ambiguous ABS bindings")
@@ -2185,18 +2166,14 @@ def test_binding_upgrade_refuses_stale_binding_projection(
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     old_contract, upgraded_contract = _binding_upgrade_contracts()
-    _commit_v2_supersede_history(
-        tmp_path, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(tmp_path, generated, old_contract, monkeypatch)
     docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
     _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
     stale = json.loads(json.dumps(old_contract))
     # Enter the changed-contract lane while retaining binding A's projection.
     # An exactly byte-equal A contract remains allowed by the required fast path.
     stale["sourceBinding"]["expectedReleaseWindow"]["end"] = "2026-08-28"
-    reroll = _registration(
-        stale, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(stale, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
 
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
@@ -2227,9 +2204,7 @@ def test_binding_upgrade_of_published_head_target_is_refused(
     head = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
     ).strip()
-    assert register_targets._binding_is_committed_template(
-        upgraded_contract, head
-    )
+    assert register_targets._binding_is_committed_template(upgraded_contract, head)
     reroll = _registration(
         upgraded_contract,
         "2026-07-10T06:17:27Z",
@@ -2272,9 +2247,7 @@ def test_adoption_writes_an_authorizing_template_and_bind_accepts_it(
     legacy_run_dir = records / "2026-07-10" / "000-legacy-without-binding"
     legacy_run_dir.mkdir()
     legacy_cells_path = legacy_run_dir / "cells.with_activity.json"
-    legacy_cells_path.write_text(
-        json.dumps([{"slug": contract["catalogSlug"]}]) + "\n"
-    )
+    legacy_cells_path.write_text(json.dumps([{"slug": contract["catalogSlug"]}]) + "\n")
     legacy_manifest = {
         **manifest,
         "cellsPath": legacy_cells_path.relative_to(tmp_path).as_posix(),
@@ -2284,9 +2257,7 @@ def test_adoption_writes_an_authorizing_template_and_bind_accepts_it(
             if key != "sourceBinding"
         },
     }
-    (legacy_run_dir / "manifest.json").write_text(
-        json.dumps(legacy_manifest) + "\n"
-    )
+    (legacy_run_dir / "manifest.json").write_text(json.dumps(legacy_manifest) + "\n")
     monkeypatch.setattr(adopt_proven_series, "ROOT", tmp_path)
     monkeypatch.setattr(adopt_proven_series, "REGISTRY", docket)
     monkeypatch.setattr(adopt_proven_series, "RECORDS", records)
@@ -2423,9 +2394,7 @@ def test_bind_native_registration_requires_committed_calendar_authority(
         }
         entries.append(entry)
     docket = _write_docket(tmp_path, entries)
-    registration = _registration(
-        contract, "2026-07-25T14:32:05Z", _pin("c" * 40, 128)
-    )
+    registration = _registration(contract, "2026-07-25T14:32:05Z", _pin("c" * 40, 128))
     snapshot, targets_path = _install_registration_for_bind(
         tmp_path, generated, registration
     )
@@ -2505,9 +2474,7 @@ def test_bind_recurring_seed_requires_committed_calendar_authority(
         }
         entries.append(entry)
     docket = _write_docket(tmp_path, entries)
-    registration = _registration(
-        contract, "2026-07-25T14:32:05Z", _pin("c" * 40, 128)
-    )
+    registration = _registration(contract, "2026-07-25T14:32:05Z", _pin("c" * 40, 128))
     snapshot, targets_path = _install_registration_for_bind(
         tmp_path, generated, registration
     )
@@ -2627,9 +2594,7 @@ def test_bind_rejects_malformed_head_docket(
     elif malformation == "missing-series":
         malformed = {"series": [{"extras": {}}]}
     elif malformation == "non-dict-extras":
-        malformed = {
-            "series": [{"series": contract["series"], "extras": []}]
-        }
+        malformed = {"series": [{"series": contract["series"], "extras": []}]}
     else:
         malformed = {
             "series": [
@@ -2659,9 +2624,7 @@ def test_duplicate_docket_keys_fail_closed_for_supersede_and_bind(
     supersede_root = tmp_path / "supersede"
     supersede_root.mkdir()
     generated = configure_registration_root(supersede_root, monkeypatch)
-    _commit_v2_supersede_history(
-        supersede_root, generated, old_contract, monkeypatch
-    )
+    _commit_v2_supersede_history(supersede_root, generated, old_contract, monkeypatch)
     docket = supersede_root / "scripts" / "docket_series.json"
     docket.parent.mkdir(parents=True)
     docket.write_text(_docket_with_duplicate_key(upgraded_contract, duplicate))
@@ -2669,9 +2632,7 @@ def test_duplicate_docket_keys_fail_closed_for_supersede_and_bind(
     head = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=supersede_root, text=True
     ).strip()
-    assert not register_targets._binding_is_committed_template(
-        upgraded_contract, head
-    )
+    assert not register_targets._binding_is_committed_template(upgraded_contract, head)
     reroll = _registration(
         upgraded_contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
     )
@@ -2833,9 +2794,7 @@ def test_attack_supersede_rejects_same_count_non_descendant_pin(
         # Same repo, branch, and count, but demonstrably different ledger bytes.
         "jsonlSha256": "b" * 64,
     }
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", unrelated_pin
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", unrelated_pin)
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -2855,9 +2814,7 @@ def test_authenticated_v3_target_accepts_an_advancing_pin(
         "2026-07-10T06:17:27Z",
         _pin("c" * 40, 130),
     )
-    reroll = _registration(
-        contract, "2026-07-10T07:17:27Z", _pin("d" * 40, 131)
-    )
+    reroll = _registration(contract, "2026-07-10T07:17:27Z", _pin("d" * 40, 131))
 
     rendered = register_targets.render_generated_targets(
         [reroll], allow_published=True, allow_supersede=True
@@ -2931,9 +2888,7 @@ def test_attack_supersede_rejects_country_change(tmp_path, monkeypatch) -> None:
     )
 
     changed = {**contract, "country": "US"}
-    reroll = _registration(
-        changed, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(changed, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -2948,12 +2903,8 @@ def test_attack_published_state_rollback_cannot_be_superseded(
     contract = _supersede_contract()
     registered_at = "2026-07-10T05:03:56Z"
     preregistered = _backed_block(tmp_path, contract, registered_at, None)
-    content_hash = register_targets._block_value(
-        preregistered, "targetContentHash"
-    )
-    published = register_targets._entry_for(
-        contract, content_hash, registered_at, None
-    )
+    content_hash = register_targets._block_value(preregistered, "targetContentHash")
+    published = register_targets._entry_for(contract, content_hash, registered_at, None)
     published["registrationState"] = "published"
     _write_block(generated, register_targets.ts_literal(published))
 
@@ -2961,9 +2912,7 @@ def test_attack_published_state_rollback_cannot_be_superseded(
     # against its snapshot. The current-state check must not forget that this
     # target was already consumed.
     _write_block(generated, preregistered)
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -2978,9 +2927,7 @@ def test_attack_snapshot_timestamp_rewrite_cannot_backdate_supersede(
     contract = _supersede_contract()
     genuine_time = "2026-07-10T10:00:00Z"
     genuine_block = _backed_block(tmp_path, contract, genuine_time, None)
-    content_hash = register_targets._block_value(
-        genuine_block, "targetContentHash"
-    )
+    content_hash = register_targets._block_value(genuine_block, "targetContentHash")
     snapshot_path = next((tmp_path / "records" / "targets").glob("*.json"))
     snapshot = json.loads(snapshot_path.read_text())
     snapshot["registeredAtUtc"] = "2026-07-10T01:00:00Z"
@@ -2997,9 +2944,7 @@ def test_attack_snapshot_timestamp_rewrite_cannot_backdate_supersede(
 
     # 05:00 is later than the forged timestamp but earlier than the genuine
     # 10:00 registration. A self-consistency check alone cannot detect this.
-    reroll = _registration(
-        contract, "2026-07-10T05:00:00Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T05:00:00Z", _pin("c" * 40, 128))
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -3019,9 +2964,7 @@ def test_attack_duplicate_published_block_prevents_supersede(
     source = generated.read_text()
     old_block = register_targets._generated_block(source, contract["dataPointId"])
     old_hash = register_targets._block_value(old_block, "targetContentHash")
-    published = register_targets._entry_for(
-        contract, old_hash, registered_at, None
-    )
+    published = register_targets._entry_for(contract, old_hash, registered_at, None)
     published["registrationState"] = "published"
     noncanonical_duplicate = register_targets.ts_literal(published).replace(
         "  {\n", "  { \n", 1
@@ -3031,9 +2974,7 @@ def test_attack_duplicate_published_block_prevents_supersede(
         source[:closer] + noncanonical_duplicate + "\n" + source[closer:]
     )
 
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -3117,9 +3058,7 @@ def test_attack_self_consistent_uncommitted_snapshot_can_back_a_supersede(
     original_path.rename(forged_path)
     _write_block(generated, forged)
 
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -3141,8 +3080,7 @@ def test_attack_comment_decoy_cannot_misdirect_the_replacement(
     generated.write_text(
         generated.read_text().replace(
             "export const GENERATED_FORECAST_TARGETS = [",
-            f"/*\n{old_block}\n*/\n"
-            "export const GENERATED_FORECAST_TARGETS = [",
+            f"/*\n{old_block}\n*/\nexport const GENERATED_FORECAST_TARGETS = [",
             1,
         )
     )
@@ -3168,12 +3106,8 @@ def test_attack_comment_decoy_cannot_misdirect_the_replacement(
         capture_output=True,
     )
 
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
-    with pytest.raises(
-        register_targets.RegistrationError, match="did not replace"
-    ):
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
+    with pytest.raises(register_targets.RegistrationError, match="did not replace"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
         )
@@ -3197,9 +3131,7 @@ def test_attack_contract_canonicalization_rejects_semantic_changes(
         "label": "Caf\u00e9",
         "nullable": None,
     }
-    old_block = _backed_block(
-        tmp_path, contract, "2026-07-10T05:03:56Z", None
-    )
+    old_block = _backed_block(tmp_path, contract, "2026-07-10T05:03:56Z", None)
 
     mutations = []
     changed_transform = json.loads(json.dumps(contract))
@@ -3214,12 +3146,8 @@ def test_attack_contract_canonicalization_rejects_semantic_changes(
 
     for changed in mutations:
         _write_block(generated, old_block)
-        reroll = _registration(
-            changed, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-        )
-        with pytest.raises(
-            register_targets.RegistrationError, match="not the exact"
-        ):
+        reroll = _registration(changed, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
+        with pytest.raises(register_targets.RegistrationError, match="not the exact"):
             register_targets.render_generated_targets(
                 [reroll], allow_published=True, allow_supersede=True
             )
@@ -3240,17 +3168,16 @@ def test_attack_canonical_key_order_and_integral_float_are_equivalent(
         "factor": 1.0,
         "operation": "multiply",
     }
-    reroll = _registration(
-        equivalent, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(equivalent, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
 
     rendered = register_targets.render_generated_targets(
         [reroll], allow_published=True, allow_supersede=True
     )
     block = register_targets._generated_block(rendered, contract["dataPointId"])
-    assert register_targets._block_value(block, "targetContentHash") == reroll[
-        "targetContentHash"
-    ]
+    assert (
+        register_targets._block_value(block, "targetContentHash")
+        == reroll["targetContentHash"]
+    )
 
 
 @pytest.mark.parametrize(
@@ -3269,9 +3196,7 @@ def test_attack_timestamp_format_tricks_cannot_supersede(
     _write_block(
         generated, _backed_block(tmp_path, contract, "2026-07-10T05:03:56Z", None)
     )
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     reroll["registeredAtUtc"] = trick
 
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
@@ -3285,9 +3210,7 @@ def test_attack_snapshot_timestamp_mismatch_cannot_back_supersede(
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
     contract = _supersede_contract()
-    old_block = _backed_block(
-        tmp_path, contract, "2026-07-10T05:03:56Z", None
-    )
+    old_block = _backed_block(tmp_path, contract, "2026-07-10T05:03:56Z", None)
     snapshot_path = next((tmp_path / "records" / "targets").glob("*.json"))
     snapshot = json.loads(snapshot_path.read_text())
     # registeredAtUtc is excluded from the v2 content hash, so the filename and
@@ -3296,9 +3219,7 @@ def test_attack_snapshot_timestamp_mismatch_cannot_back_supersede(
     snapshot_path.write_bytes(canonical_bytes(snapshot) + b"\n")
     _write_block(generated, old_block)
 
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     with pytest.raises(register_targets.RegistrationError, match="not the exact"):
         register_targets.render_generated_targets(
             [reroll], allow_published=True, allow_supersede=True
@@ -3313,9 +3234,7 @@ def test_attack_publisher_materialization_cannot_supersede(
     _write_block(
         generated, _backed_block(tmp_path, contract, "2026-07-10T05:03:56Z", None)
     )
-    reroll = _registration(
-        contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
-    )
+    reroll = _registration(contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128))
     path = (
         tmp_path
         / "records"
@@ -3349,9 +3268,7 @@ def test_attack_register_supersede_retains_old_snapshot_and_one_block(
         "targetUnit": contract["unit"],
         "valueScale": contract["valueScale"],
         "sourceBinding": contract["sourceBinding"],
-        "expectedReleaseWindow": contract["sourceBinding"][
-            "expectedReleaseWindow"
-        ],
+        "expectedReleaseWindow": contract["sourceBinding"]["expectedReleaseWindow"],
     }
     targets_path = tmp_path / "targets.json"
     targets_path.write_text(json.dumps({"targets": [target]}))
@@ -3363,7 +3280,7 @@ def test_attack_register_supersede_retains_old_snapshot_and_one_block(
     assert old_path.read_bytes() == old_bytes
     assert reroll["path"].is_file()
     assert reroll["path"] != old_path
-    assert generated.read_text().count("kind: \"target_registered\"") == 1
+    assert generated.read_text().count('kind: "target_registered"') == 1
 
 
 def conditional_pair_targets(
@@ -3469,9 +3386,7 @@ def test_bounded_pair_can_register_bind_and_mint(
     )
 
     raw_targets = conditional_pair_targets("census.spm.child_poverty_rate")
-    filtered = register_targets.bounded_registration_payload(
-        {"targets": raw_targets}
-    )
+    filtered = register_targets.bounded_registration_payload({"targets": raw_targets})
     assert len(filtered["targets"]) == 2
     targets_path = tmp_path / "ticket-targets.json"
     targets_path.write_text(json.dumps(filtered) + "\n")
@@ -3555,18 +3470,12 @@ def test_skip_unbindable_never_registers_a_lone_conditional_arm(
     sabotaged = dict(arms[0], conditionId="   ")  # fails build_contract
     plain = sample_target()
     targets_path = tmp_path / "targets.json"
-    targets_path.write_text(
-        json.dumps({"targets": [sabotaged, arms[1], plain]})
-    )
+    targets_path.write_text(json.dumps({"targets": [sabotaged, arms[1], plain]}))
 
     registrations = register_targets.register(
         targets_path, registration_date, registered_at_utc, True
     )
-    slugs = [
-        t["catalogSlug"]
-        for r in registrations
-        for t in r["snapshot"]["targets"]
-    ]
+    slugs = [t["catalogSlug"] for r in registrations for t in r["snapshot"]["targets"]]
     assert slugs == [plain["catalogSlug"]]
     surviving = json.loads(targets_path.read_text())["targets"]
     assert [t["catalogSlug"] for t in surviving] == [plain["catalogSlug"]]
@@ -3580,11 +3489,7 @@ def test_skip_unbindable_never_registers_a_lone_conditional_arm(
     registrations = register_targets.register(
         targets_path, registration_date, registered_at_utc, True
     )
-    slugs = [
-        t["catalogSlug"]
-        for r in registrations
-        for t in r["snapshot"]["targets"]
-    ]
+    slugs = [t["catalogSlug"] for r in registrations for t in r["snapshot"]["targets"]]
     assert sorted(slugs) == sorted(
         arm["catalogSlug"] for arm in conditional_pair_targets()
     )
@@ -3593,9 +3498,7 @@ def test_skip_unbindable_never_registers_a_lone_conditional_arm(
     targets_path.write_text(
         json.dumps({"targets": [sabotaged, conditional_pair_targets()[1]]})
     )
-    with pytest.raises(
-        register_targets.RegistrationError, match="no bindable targets"
-    ):
+    with pytest.raises(register_targets.RegistrationError, match="no bindable targets"):
         register_targets.register(
             targets_path, registration_date, registered_at_utc, True
         )

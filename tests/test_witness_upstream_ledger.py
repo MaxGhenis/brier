@@ -177,25 +177,30 @@ def _release_inputs(
                     "appendedRowCount": line_count - previous_count,
                     "appendedBytesSha256": hashlib.sha256(suffix).hexdigest(),
                 }
-            manifest_raw = canonical_bytes(
-                {
-                    "schemaVersion": "thesis_ledger_release_v1",
-                    "releaseIndex": index,
-                    "previousManifestSha256": previous_digest,
-                    "state": {
-                        "path": wul.LEDGER_JSONL_PATH,
-                        "jsonlSha256": hashlib.sha256(state_bytes).hexdigest(),
-                        "lineCount": line_count,
-                        "immutablePrefixSha256": hashlib.sha256(b"{}\n").hexdigest(),
-                    },
-                    "append": append,
-                    "createdAtUtc": f"2020-01-01T00:00:0{index}Z",
-                    "producer": {
-                        "repo": wul.LEDGER_REPO,
-                        "branch": wul.LEDGER_BRANCH,
-                    },
-                }
-            ) + b"\n"
+            manifest_raw = (
+                canonical_bytes(
+                    {
+                        "schemaVersion": "thesis_ledger_release_v1",
+                        "releaseIndex": index,
+                        "previousManifestSha256": previous_digest,
+                        "state": {
+                            "path": wul.LEDGER_JSONL_PATH,
+                            "jsonlSha256": hashlib.sha256(state_bytes).hexdigest(),
+                            "lineCount": line_count,
+                            "immutablePrefixSha256": hashlib.sha256(
+                                b"{}\n"
+                            ).hexdigest(),
+                        },
+                        "append": append,
+                        "createdAtUtc": f"2020-01-01T00:00:0{index}Z",
+                        "producer": {
+                            "repo": wul.LEDGER_REPO,
+                            "branch": wul.LEDGER_BRANCH,
+                        },
+                    }
+                )
+                + b"\n"
+            )
             digest = hashlib.sha256(manifest_raw).hexdigest()
             manifest_name = f"{index:04d}-{digest[:16]}.json"
             manifest_path = tmp_path / manifest_name
@@ -398,7 +403,7 @@ def _witness_run(tmp_path: pathlib.Path, monkeypatch) -> pathlib.Path:
         ]
     )
     branch_url = (
-        "https://raw.githubusercontent.com/PolicyEngine/ledger/"
+        "https://raw.githubusercontent.com/PolicyEngine/chronicle/"
         + ("b" * 40)
         + "/ledger/official_observations.jsonl"
     )
@@ -428,7 +433,7 @@ def _witness_run(tmp_path: pathlib.Path, monkeypatch) -> pathlib.Path:
     manifest = {
         "schemaVersion": "thesis_ledger_witness_run_v1",
         "retrievedAt": "2030-01-01T00:00:00Z",
-        "ledgerRepo": "PolicyEngine/ledger",
+        "ledgerRepo": "PolicyEngine/chronicle",
         "ledgerBranch": "codex/thesis-ledger-facts",
         "ledgerBranchSha": "b" * 40,
         "ledgerMainSha": "c" * 40,
@@ -656,9 +661,7 @@ def test_v2_witness_archives_and_inventory_binds_producer_signature(
         wul._seal(run_dir, manifest)
 
 
-def test_witnessed_pin_validator_binds_full_release_head(
-    tmp_path, monkeypatch
-) -> None:
+def test_witnessed_pin_validator_binds_full_release_head(tmp_path, monkeypatch) -> None:
     run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch)
     pin_path = _pin_for_witness(tmp_path, run_dir)
     monkeypatch.setattr(vwp, "ROOT", tmp_path)
@@ -736,9 +739,7 @@ def test_witnessed_pin_validator_binds_both_receipt_times(
 def test_witnessed_pin_validator_rejects_stale_nonterminal_release_head(
     tmp_path, monkeypatch
 ) -> None:
-    run_dir, _source_files = _v2_witness_run(
-        tmp_path, monkeypatch, release_count=2
-    )
+    run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch, release_count=2)
     pin_path = _pin_for_witness(tmp_path, run_dir)
     manifest = json.loads((run_dir / "manifest.json").read_text())
     genesis = next(
@@ -916,6 +917,57 @@ def test_pregenesis_pin_refuses_any_archived_release_artifact(
         vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
 
 
+def test_v2_witness_accepts_pre_rename_ledger_repo_alias(tmp_path, monkeypatch) -> None:
+    # Records witnessed before the 2026-08-07 PolicyEngine/ledger ->
+    # PolicyEngine/chronicle rename store URLs under the old slug; the
+    # same repository stands behind both names, so they must keep
+    # verifying forever.
+    def mutate(manifest: dict) -> None:
+        manifest["ledgerRepo"] = "PolicyEngine/ledger"
+        for record in manifest["upstream"]:
+            if isinstance(record.get("url"), str):
+                record["url"] = record["url"].replace(
+                    "PolicyEngine/chronicle", "PolicyEngine/ledger"
+                )
+
+    run_dir, _source_files = _v2_witness_run(
+        tmp_path, monkeypatch, mutate_manifest=mutate
+    )
+    result = verify_run(run_dir)
+    assert result.inventory_status == "complete"
+
+
+def test_witnessed_pin_replays_across_the_rename(tmp_path, monkeypatch) -> None:
+    # A witness sealed before the 2026-08-07 rename records
+    # PolicyEngine/ledger; the CURRENT canonical pin names
+    # PolicyEngine/chronicle. The replay must unify the two slugs while
+    # every other identity field stays a literal comparison.
+    def mutate(manifest: dict) -> None:
+        manifest["ledgerRepo"] = "PolicyEngine/ledger"
+        for record in manifest["upstream"]:
+            if isinstance(record.get("url"), str):
+                record["url"] = record["url"].replace(
+                    "PolicyEngine/chronicle", "PolicyEngine/ledger"
+                )
+
+    run_dir, _source_files = _v2_witness_run(
+        tmp_path, monkeypatch, mutate_manifest=mutate
+    )
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    pin = json.loads(pin_path.read_text())
+    assert pin["repo"] == "PolicyEngine/chronicle"
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+    assert vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path) == run_dir
+
+
+def test_witnessed_pin_refuses_foreign_repo_manifest(tmp_path, monkeypatch) -> None:
+    def mutate(manifest: dict) -> None:
+        manifest["ledgerRepo"] = "attacker/chronicle"
+
+    with pytest.raises(CustodyError):
+        _v2_witness_run(tmp_path, monkeypatch, mutate_manifest=mutate)
+
+
 def test_v2_witness_rejects_resealed_wrong_jsonl_byte_count(
     tmp_path, monkeypatch
 ) -> None:
@@ -1024,9 +1076,7 @@ def test_v2_witness_detects_tampered_der_receipt(tmp_path, monkeypatch) -> None:
         verify_run(run_dir)
 
 
-def test_v2_witness_refuses_resealed_receipt_replacement(
-    tmp_path, monkeypatch
-) -> None:
+def test_v2_witness_refuses_resealed_receipt_replacement(tmp_path, monkeypatch) -> None:
     run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch)
     manifest = json.loads((run_dir / "manifest.json").read_text())
     receipt = next(
@@ -1062,7 +1112,8 @@ def test_v2_witness_refuses_resealed_receipt_replacement(
 @pytest.mark.parametrize(
     ("field", "value", "diagnostic"),
     [
-        ("ledgerRepo", "attacker/ledger", "repo must be exactly"),
+        ("ledgerRepo", "attacker/ledger", "repo must be one of"),
+        ("ledgerRepo", "PolicyEngine/Chronicle", "repo must be one of"),
         ("ledgerBranch", "attacker/branch", "branch must be exactly"),
         ("ledgerBranchSha", "not-a-git-sha", "branch SHA"),
         ("ledgerMainSha", "not-a-git-sha", "main SHA"),
@@ -1382,7 +1433,7 @@ def test_witness_run_requires_the_observations_archive(tmp_path, monkeypatch) ->
     manifest = {
         "schemaVersion": "thesis_ledger_witness_run_v1",
         "retrievedAt": "2030-01-01T00:00:00Z",
-        "ledgerRepo": "PolicyEngine/ledger",
+        "ledgerRepo": "PolicyEngine/chronicle",
         "ledgerBranch": "codex/thesis-ledger-facts",
         "ledgerBranchSha": "b" * 40,
         "ledgerMainSha": "c" * 40,
@@ -1417,7 +1468,7 @@ def test_witness_rejects_a_commit_archive_unrelated_to_the_manifest_sha(
     run_dir.mkdir(parents=True)
     jsonl_raw = _jsonl_bytes([{"source_record_id": "series.a.2030", "value": 1}])
     branch_url = (
-        "https://raw.githubusercontent.com/PolicyEngine/ledger/"
+        "https://raw.githubusercontent.com/PolicyEngine/chronicle/"
         + ("b" * 40)
         + "/ledger/official_observations.jsonl"
     )
@@ -1448,7 +1499,7 @@ def test_witness_rejects_a_commit_archive_unrelated_to_the_manifest_sha(
     manifest = {
         "schemaVersion": "thesis_ledger_witness_run_v1",
         "retrievedAt": "2030-01-01T00:00:00Z",
-        "ledgerRepo": "PolicyEngine/ledger",
+        "ledgerRepo": "PolicyEngine/chronicle",
         "ledgerBranch": "codex/thesis-ledger-facts",
         "ledgerBranchSha": "b" * 40,
         "ledgerMainSha": "c" * 40,

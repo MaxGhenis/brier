@@ -65,7 +65,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 PIN_PATH = ROOT / "site" / "src" / "data" / "ledger-pin.json"
 AVAILABILITY_PATH = ROOT / "records" / "ledger" / "availability.json"
 GENERATED_PATH = ROOT / "site" / "src" / "data" / "ledger-availability.generated.ts"
-LEDGER_REPO = "PolicyEngine/ledger"
+LEDGER_REPO = "PolicyEngine/chronicle"
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
 LEDGER_CATALOG_PATH = "ledger/series_catalog.json"
@@ -1931,7 +1931,7 @@ def main() -> int:
     parser.add_argument(
         "--ledger-git",
         type=pathlib.Path,
-        help="local clone of PolicyEngine/ledger with the thesis-facts branch",
+        help="local clone of PolicyEngine/chronicle with the thesis-facts branch",
     )
     parser.add_argument(
         "--head", help="pin this commit instead of the branch head (rebuild only)"

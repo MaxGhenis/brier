@@ -36,7 +36,7 @@ REGISTRY = ROOT / "scripts" / "docket_series.json"
 DENYLIST = ROOT / "scripts" / "docket_denylist.json"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
 LEDGER_URL = (
-    "https://github.com/PolicyEngine/ledger/raw/refs/heads/"
+    "https://github.com/PolicyEngine/chronicle/raw/refs/heads/"
     "codex/thesis-ledger-facts/ledger/official_observations.jsonl"
 )
 

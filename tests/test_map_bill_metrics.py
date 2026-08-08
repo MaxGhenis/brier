@@ -199,7 +199,7 @@ def test_maps_all_registry_states_and_writes_ingestion_request(
         "proposedFrom": "example-bill",
         "metricText": "Unknown metric",
         "note": (
-            "Proposed catalog row for PolicyEngine/ledger "
+            "Proposed catalog row for PolicyEngine/chronicle "
             "series_catalog.json; verify identity, unit, cadence, and "
             "official source before ingestion."
         ),
@@ -761,7 +761,7 @@ def test_existing_request_for_colliding_concept_is_not_overwritten(
             "proposedFrom": "earlier-bill",
             "metricText": "An earlier metric",
             "note": (
-                "Proposed catalog row for PolicyEngine/ledger "
+                "Proposed catalog row for PolicyEngine/chronicle "
                 "series_catalog.json; verify identity, unit, cadence, and "
                 "official source before ingestion."
             ),

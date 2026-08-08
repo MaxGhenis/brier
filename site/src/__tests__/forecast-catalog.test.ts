@@ -893,7 +893,7 @@ describe("forecast catalog", () => {
     expect(exportPayload.schemaVersion).toBe("policyengine_ledger_v1");
     expect(exportPayload.source.name).toBe("PolicyEngine Ledger");
     expect(exportPayload.source.url).toBe(
-      "https://github.com/PolicyEngine/ledger",
+      "https://github.com/PolicyEngine/chronicle",
     );
     expect(exportPayload.source.jsonMirrorUrl).toBe(
       "https://app.thesisinstitute.org/ledger.json",

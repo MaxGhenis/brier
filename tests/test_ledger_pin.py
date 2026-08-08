@@ -520,7 +520,7 @@ def _install_remote(
         raise AssertionError(f"unexpected API path {path}")
 
     raw_pattern = re.compile(
-        r"https://raw\.githubusercontent\.com/PolicyEngine/ledger/"
+        r"https://raw\.githubusercontent\.com/PolicyEngine/chronicle/"
         r"(?P<sha>[0-9a-f]{40})/(?P<path>.+)"
     )
 
@@ -638,7 +638,7 @@ def _prepare_refresh(
 
 def _pin_binding() -> dict:
     return {
-        "repo": "PolicyEngine/ledger",
+        "repo": "PolicyEngine/chronicle",
         "branch": "codex/thesis-ledger-facts",
         "sha": "a" * 40,
         "jsonlSha256": "b" * 64,

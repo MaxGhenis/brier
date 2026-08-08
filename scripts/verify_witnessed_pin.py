@@ -22,7 +22,7 @@ from ledger_release_chain import (
     _parse_receipt_text,
     load_manifest,
 )
-from verify_custody import CustodyError, verify_run
+from verify_custody import CustodyError, same_ledger_repo, verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PIN_SCHEMA = "thesis_ledger_pin_v1"
@@ -270,16 +270,12 @@ def verify_witnessed_pin(
     manifest = _object(witness_path, "witness manifest")
     pin = _object(selected_pin_path, "ledger pin")
     if manifest.get("schemaVersion") != WITNESS_SCHEMA:
-        raise WitnessedPinError(
-            f"witness schema must be exactly {WITNESS_SCHEMA!r}"
-        )
+        raise WitnessedPinError(f"witness schema must be exactly {WITNESS_SCHEMA!r}")
     if pin.get("schemaVersion") != PIN_SCHEMA:
         raise WitnessedPinError(f"pin schema must be exactly {PIN_SCHEMA!r}")
     pin_keys = set(pin)
     allowed_pin_keys = PIN_KEYS | PIN_CATALOG_KEYS
-    if not PIN_KEYS.issubset(pin_keys) or not pin_keys.issubset(
-        allowed_pin_keys
-    ):
+    if not PIN_KEYS.issubset(pin_keys) or not pin_keys.issubset(allowed_pin_keys):
         raise WitnessedPinError(
             "pin keys are not closed-world: "
             f"missing={sorted(PIN_KEYS - pin_keys)}, "
@@ -311,9 +307,7 @@ def verify_witnessed_pin(
         ):
             raise WitnessedPinError("pin catalogSha256 must be a SHA-256 digest")
         if type(pin.get("catalogBytes")) is not int or pin["catalogBytes"] < 0:
-            raise WitnessedPinError(
-                "pin catalogBytes must be a non-negative integer"
-            )
+            raise WitnessedPinError("pin catalogBytes must be a non-negative integer")
     _strict_utc(pin.get("pinnedAtUtc"), "pin pinnedAtUtc")
     expected_identity = {
         "ledgerRepo": pin.get("repo"),
@@ -323,7 +317,13 @@ def verify_witnessed_pin(
     mismatches = {
         key: (manifest.get(key), expected)
         for key, expected in expected_identity.items()
-        if manifest.get(key) != expected
+        if not (
+            # The repo slug unifies across the documented rename; every
+            # other identity field stays a literal comparison.
+            same_ledger_repo(manifest.get(key), expected)
+            if key == "ledgerRepo"
+            else manifest.get(key) == expected
+        )
     }
     jsonl = manifest.get("jsonl")
     if type(jsonl) is not dict:
@@ -400,9 +400,7 @@ def verify_witnessed_pin(
             )
         else:
             _strict_utc(head["freetsaGenTimeUtc"], "releaseHead.freetsaGenTimeUtc")
-            _strict_utc(
-                head["digicertGenTimeUtc"], "releaseHead.digicertGenTimeUtc"
-            )
+            _strict_utc(head["digicertGenTimeUtc"], "releaseHead.digicertGenTimeUtc")
             manifests, receipts = _release_inventory(release_files)
             terminal_index = max(manifests)
             if index != terminal_index:
