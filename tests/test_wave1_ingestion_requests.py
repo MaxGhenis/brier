@@ -132,9 +132,17 @@ def test_sba_requests_match_the_implemented_custody_lane(
     serialized = json.dumps(request).lower()
     verification = request["verification"]
 
-    assert request["status"] == "proposed"
+    # Admitted 2026-08-08 (wave-2 opener): the first allowlisted-workflow
+    # capture met each request's stated admission condition, so the
+    # drafts advanced proposed -> verified with the capture reference.
+    assert request["status"] == "verified"
     assert request["adapterFamily"] == "sba-loan-program-performance-pdf"
-    assert verification["outcome"] == "proposed"
+    assert verification["outcome"] == "verified"
+    witnessed = verification["witnessedCapture"]
+    assert witnessed["outcome"] == "bootstrap"
+    assert witnessed["runPath"].endswith("-sba-pdf-witness")
+    assert witnessed["witnessDigest"].startswith("records/")
+    # The pre-lane fetch stays recorded exactly as it was refused.
     assert verification["firstPrint"]["status"] == "not_authenticated"
     assert verification["artifact"]["normalizedValue"] == normalized_value
     assert verification["artifact"]["normalizedUnit"] == normalized_unit
@@ -161,9 +169,13 @@ def test_wave1_report_matches_all_30_request_outcomes() -> None:
     )
 
     assert len(request_names) == 30
-    assert outcomes == Counter({"verified": 5, "rejected": 4, "proposed": 21})
+    # Wave-1 totals were 5/4/21; the three SBA requests advanced to
+    # verified on 2026-08-08 as wave 2's opener (report carries the
+    # dated note), so the file statuses now count 8/4/18.
+    assert outcomes == Counter({"verified": 8, "rejected": 4, "proposed": 18})
     assert "Five requests verified cleanly, four received a" in report
     assert "and 21 remain proposals" in report
+    assert "Wave-2 update, 2026-08-08" in report
     assert SBA_WORKFLOW in report
     assert "resolve-and-rebuild" not in report
     assert "~~Add reviewed SBA PDF parsing" not in report
@@ -179,15 +191,13 @@ def test_wave1_report_matches_all_30_request_outcomes() -> None:
 def test_sba_recovery_request_pins_the_discovered_pdf_member() -> None:
     request = json.loads(
         (
-            REQUEST_ROOT
-            / "sba-disaster-loan-program-post-charge-off-recovery.json"
+            REQUEST_ROOT / "sba-disaster-loan-program-post-charge-off-recovery.json"
         ).read_text()
     )
     artifact = request["verification"]["artifact"]
 
     assert artifact["memberPath"] == (
-        "WebsiteReports_FY25Q3/"
-        "WDS_PostChargeOffRecovery_Report_20250630.pdf"
+        "WebsiteReports_FY25Q3/WDS_PostChargeOffRecovery_Report_20250630.pdf"
     )
     assert artifact["memberSha256"] == (
         "09616e8af327a6ea8e3bbc340e44392bbead98e581a9f85a7de99ef8b81e380f"
