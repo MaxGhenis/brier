@@ -23,3 +23,11 @@ establish when any value first appeared, and must never be used as resolution
 evidence. Admissibility requires the dedicated custody run and externally
 witnessed first-print selection defined in
 `docs/lanes/2026-08-07-sba-pdf-custody-family.md`.
+
+`adversarial-ungridded.pdf.b64` is Sol's 2,481-byte synthetic negative probe,
+stored as base64 so its four non-UTF-8 PDF-comment bytes can remain exact in a
+text fixture. The decoded SHA-256 is
+`5c8a3b33d13154b13c66a102490db767780f4f603ed3e7bb2f8621c674a442dd`.
+It reproduces the reviewed attack: all required words and an FY2024 value of
+`$999,999,999` appear as untagged text at one x-coordinate, with no table grid.
+It is not an official SBA artifact and must be rejected before value parsing.

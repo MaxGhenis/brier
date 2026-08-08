@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import io
 import json
@@ -39,13 +40,16 @@ def _bundle_bytes(
     *,
     omit: str | None = None,
     extras: tuple[tuple[str, bytes], ...] = (),
+    overrides: dict[str, bytes] | None = None,
 ) -> bytes:
+    overrides = overrides or {}
     output = io.BytesIO()
     root = "WebsiteReports_FY25Q3"
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_STORED) as archive:
         for name in REPORT_FIXTURES:
             if name != omit:
-                archive.writestr(f"{root}/{name}", (FIXTURE_ROOT / name).read_bytes())
+                raw = overrides.get(name, (FIXTURE_ROOT / name).read_bytes())
+                archive.writestr(f"{root}/{name}", raw)
         for name, raw in extras:
             archive.writestr(name, raw)
     return output.getvalue()
@@ -160,6 +164,11 @@ def _manifest(path: pathlib.Path) -> dict[str, object]:
     return value
 
 
+def _ungridded_probe_bytes() -> bytes:
+    encoded = (FIXTURE_ROOT / "adversarial-ungridded.pdf.b64").read_bytes()
+    return base64.b64decode(encoded.strip(), validate=True)
+
+
 def test_bootstrap_capture_seals_and_strictly_replays_official_reports(
     tmp_path: pathlib.Path,
 ) -> None:
@@ -197,6 +206,38 @@ def test_bootstrap_capture_seals_and_strictly_replays_official_reports(
     assert verification.custody_inventory_version == 2
     assert verification.artifact_count == 3
     assert verification.run_succeeded is True
+
+
+def test_capture_refuses_ungridded_pdf_probe_end_to_end(
+    tmp_path: pathlib.Path,
+) -> None:
+    report_name = "WDS_ChargeOffAmount_Report_20250630.pdf"
+    manifest_path = _capture(
+        tmp_path / "records",
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=_bundle_bytes(overrides={report_name: _ungridded_probe_bytes()}),
+    )
+
+    manifest = _manifest(manifest_path)
+    assert manifest["outcome"] == "failed"
+    assert manifest["ok"] is False
+    assert manifest["failure"] == {
+        "stage": "bundle validation",
+        "reason": (
+            "SBA CAPTURE FAILED (refusing): "
+            "WebsiteReports_FY25Q3/WDS_ChargeOffAmount_Report_20250630.pdf: "
+            "SBA PDF LAYOUT DRIFT (refusing): page 1 has no reviewed table grid"
+        ),
+    }
+    bundle = manifest["bundle"]
+    assert isinstance(bundle, dict)
+    assert bundle["periodCoverage"] == {
+        "periodType": "fiscal_year",
+        "displayedFiscalYears": list(range(2016, 2026)),
+        "possibleCompletedFiscalYears": list(range(2016, 2025)),
+    }
+    assert (manifest_path.parent / bundle["zipArchive"]["path"]).is_file()
+    assert verify_run(manifest_path.parent).run_succeeded is False
 
 
 def test_changed_capture_archives_and_replays_new_bundle(
@@ -551,9 +592,7 @@ def test_capture_refuses_unapproved_or_ambiguous_page_links(
             "unsafe ZIP member path",
         ),
         (
-            _bundle_bytes(
-                extras=(("WebsiteReports_FY25Q3/./alias.txt", b"unsafe"),)
-            ),
+            _bundle_bytes(extras=(("WebsiteReports_FY25Q3/./alias.txt", b"unsafe"),)),
             "is not canonical",
         ),
         (_bundle_bytes(extras=((".", b"unsafe"),)), "unsafe ZIP member path"),

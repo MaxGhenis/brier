@@ -122,6 +122,14 @@ Each never-overwritten capture run must:
 5. Record the bundle label and report as-of date derived from strict report
    content, not merely from the URL or HTTP headers. Parsed cells are useful
    audit output, but the archived bytes remain the authority and must replay.
+   Parser contract v2 requires the exact page and crop bounds, only reviewed
+   full-page clipping paths, reviewed light table backgrounds, the opaque gray
+   table-grid paint phase, and exactly one black tagged token in every aligned
+   header/value cell for all ten year labels and all ten `Disaster` values. It
+   rejects annotations, optional content, transparency groups, and any path,
+   image, or shading that could paint over the grid or text. The parser maps a
+   value to a year through the shared geometric column, never through
+   whitespace-token position.
 6. Seal the exact run inventory in `custody_root.json`, write the manifest once
    with its custody-root hash, and immediately pass `verify_custody.py`. The
    dedicated verifier must enforce artifact cardinality, paths, URLs, hashes,

@@ -43,7 +43,7 @@ RUN_SCHEMA = "thesis_sba_pdf_witness_run_v1"
 FETCH_EVENT_SCHEMA = "thesis_sba_pdf_fetch_event_v1"
 RUN_MODE = "sba_pdf_witness"
 CAPTURE_REFUSAL = "SBA CAPTURE FAILED (refusing):"
-PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v1"
+PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v2"
 
 MAX_LANDING_BYTES = 5 * 1024 * 1024
 MAX_BUNDLE_BYTES = 50 * 1024 * 1024

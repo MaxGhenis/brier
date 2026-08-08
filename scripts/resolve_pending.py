@@ -126,7 +126,7 @@ SBA_EARLIEST_CAPTURE_AMBIGUOUS = (
 SBA_WITNESS_SCHEMA = "thesis_sba_pdf_witness_run_v1"
 SBA_WITNESS_RUN_MODE = "sba_pdf_witness"
 SBA_WITNESS_WORKFLOW = ".github/workflows/witness-sba-pdf.yml"
-SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v1"
+SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v2"
 SBA_ENTRY_URL = (
     "https://www.sba.gov/document/"
     "report-small-business-administration-loan-program-performance"
