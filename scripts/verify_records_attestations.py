@@ -50,6 +50,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Iterable
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
@@ -362,18 +363,38 @@ def extract_certificate_identities(payload: object) -> set[str]:
     return identities
 
 
-def cert_identity_pattern(repository: str) -> str:
+def cert_identity_pattern(
+    repository: str,
+    allowed_workflows: Iterable[str] | None = None,
+) -> str:
     """The exact signer identities gh must enforce during verification.
 
     Identity checking happens INSIDE gh against the Sigstore certificate —
     never by scanning verification output, which contains attester-influenced
-    statement fields alongside the certificate.
+    statement fields alongside the certificate. Callers may narrow the global
+    allowlist, but cannot expand it; family-specific consumers use this to
+    require the one workflow authorized to publish their records.
     """
 
-    workflows = "|".join(re.escape(workflow) for workflow in sorted(ALLOWED_WORKFLOWS))
+    workflows = (
+        set(ALLOWED_WORKFLOWS)
+        if allowed_workflows is None
+        else set(allowed_workflows)
+    )
+    if not workflows:
+        raise ProvenanceError("attestation workflow allowlist is empty")
+    unknown = workflows - ALLOWED_WORKFLOWS
+    if unknown:
+        raise ProvenanceError(
+            "attestation workflow is not globally allowlisted: "
+            + ", ".join(sorted(unknown))
+        )
+    alternatives = "|".join(
+        re.escape(workflow) for workflow in sorted(workflows)
+    )
     return (
         f"^https://github\\.com/{re.escape(repository)}/"
-        f"({workflows})@{re.escape(ALLOWED_REF)}$"
+        f"({alternatives})@{re.escape(ALLOWED_REF)}$"
     )
 
 
@@ -418,7 +439,11 @@ def pinned_id_results(payload: object) -> list:
 
 
 def verify_commit(
-    commit: str, repository: str, era: tuple[str, str] | None = None
+    commit: str,
+    repository: str,
+    era: tuple[str, str] | None = None,
+    *,
+    allowed_workflows: Iterable[str] | None = None,
 ) -> str:
     """Verify one commit's attestation; return the accepted signer identity.
 
@@ -430,7 +455,8 @@ def verify_commit(
     and does not follow transfers. Live commits look up via ``--repo``.
     Both paths additionally require the certificate to carry the pinned
     immutable repository id, so neither slug reuse nor owner-store
-    breadth can admit a foreign repository's certificate.
+    breadth can admit a foreign repository's certificate. ``allowed_workflows``
+    may narrow, but never expand, the repository-wide workflow allowlist.
     """
 
     if era is None:
@@ -439,6 +465,7 @@ def verify_commit(
         era_slug, store_flag = era[0], ("--owner", era[1])
     if not ERA_SLUG_RE.fullmatch(era_slug):
         raise ProvenanceError(f"malformed verification slug: {era_slug!r}")
+    identity_pattern = cert_identity_pattern(era_slug, allowed_workflows)
     payload = subject_bytes(era_slug, commit)
     with tempfile.TemporaryDirectory() as tmp:
         subject_path = pathlib.Path(tmp) / subject_name(commit)
@@ -458,7 +485,7 @@ def verify_commit(
                     str(subject_path),
                     *store_flag,
                     "--cert-identity-regex",
-                    cert_identity_pattern(era_slug),
+                    identity_pattern,
                     "--format",
                     "json",
                 ],

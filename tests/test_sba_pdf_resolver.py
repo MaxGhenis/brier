@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import pathlib
+import subprocess
 import sys
 import zipfile
 from collections.abc import Callable, Mapping
@@ -48,6 +49,11 @@ ABSENT = "SBA CUSTODY ABSENT (refusing):"
 UNWITNESSED = "SBA CUSTODY UNWITNESSED (refusing):"
 INVALID = "SBA CUSTODY INVALID (refusing):"
 AMBIGUOUS = "SBA EARLIEST CAPTURE AMBIGUOUS (refusing):"
+ATTESTED_COMMIT = "a" * 40
+ATTESTATION_SIGNER = (
+    "github.com/ThesisInstitute/thesis/.github/workflows/"
+    "witness-sba-pdf.yml@refs/heads/main"
+)
 
 
 def _bundle_bytes(
@@ -194,6 +200,16 @@ def _install_timeline(
     timeline: dict[str, object],
 ) -> None:
     monkeypatch.setattr(resolve_pending, "extract_timeline", lambda _records: timeline)
+    monkeypatch.setattr(
+        resolve_pending,
+        "_sba_capture_introducing_commit",
+        lambda _records, _run_dir: ATTESTED_COMMIT,
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "_sba_verify_capture_attestation",
+        lambda _commit: ATTESTATION_SIGNER,
+    )
 
 
 def test_refuses_when_no_sba_capture_exists(
@@ -234,6 +250,65 @@ def test_refuses_valid_capture_without_witness_proof(
 
     assert resolution is None
     assert refusal is not None and refusal.startswith(UNWITNESSED)
+
+
+def test_refuses_witnessed_capture_without_sba_workflow_attestation(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = tmp_path / "records"
+    manifest_path = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=_bundle_bytes(),
+    )
+    timeline = _timeline(records, (manifest_path, "2026-08-07T13:00:00Z"))
+    monkeypatch.setattr(resolve_pending, "extract_timeline", lambda _records: timeline)
+
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "config", "user.name", "SBA test"], cwd=tmp_path, check=True
+    )
+    subprocess.run(
+        ["git", "config", "user.email", "sba-test@example.com"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(["git", "add", "records"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "Add witnessed SBA capture"],
+        cwd=tmp_path,
+        check=True,
+    )
+    introducing_commit = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    verified: list[str] = []
+
+    def reject_attestation(commit: str) -> str:
+        verified.append(commit)
+        raise resolve_pending.records_provenance.ProvenanceError(
+            "synthetic missing attestation"
+        )
+
+    monkeypatch.setattr(
+        resolve_pending,
+        "_sba_verify_capture_attestation",
+        reject_attestation,
+    )
+
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2024,
+    )
+
+    assert resolution is None
+    assert verified == [introducing_commit]
+    assert refusal == (
+        "SBA CUSTODY UNATTESTED (refusing): capture introducing commit is "
+        "not attested by .github/workflows/witness-sba-pdf.yml"
+    )
 
 
 @pytest.mark.parametrize("series", tuple(REPORTS))
@@ -282,6 +357,8 @@ def test_resolves_each_series_from_real_witnessed_zip_and_pdf(
         "memberPath",
         "memberSha256",
         "custodyRootSha256",
+        "introducingCommit",
+        "attestationSigner",
         "witnessDigest",
         "earliestWitnessedAt",
         "tsaGenTime",
@@ -308,6 +385,8 @@ def test_resolves_each_series_from_real_witnessed_zip_and_pdf(
         == hashlib.sha256((FIXTURES / REPORTS[series]).read_bytes()).hexdigest()
     )
     assert provenance["custodyRootSha256"] == root_hash
+    assert provenance["introducingCommit"] == ATTESTED_COMMIT
+    assert provenance["attestationSigner"] == ATTESTATION_SIGNER
     assert provenance["witnessDigest"] == root_proof["witnessDigest"]
     assert provenance["earliestWitnessedAt"] == "2026-08-07T13:00:00Z"
     assert provenance["tsaGenTime"] == "2026-08-07T13:00:00Z"
@@ -674,6 +753,7 @@ def test_pending_adapter_refs_routes_sba_fiscal_year() -> None:
 def test_resolution_workflow_installs_the_sba_pdf_parser() -> None:
     workflow = (ROOT / ".github/workflows/resolve-and-rebuild.yml").read_text()
     assert "pip install --user xlrd==2.0.1 pypdf==6.14.2" in workflow
+    assert "fetch-depth: 0" in workflow
 
 
 def test_main_allows_closed_bound_only_to_reach_witnessed_custody(

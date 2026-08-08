@@ -61,6 +61,29 @@ def test_cert_identity_pattern_admits_only_allowlisted_main_workflows() -> None:
         assert not pattern.fullmatch(identity), identity
 
 
+def test_cert_identity_pattern_can_narrow_to_the_sba_witness_workflow() -> None:
+    import re as re_module
+
+    workflow = ".github/workflows/witness-sba-pdf.yml"
+    pattern = re_module.compile(
+        provenance.cert_identity_pattern("ThesisInstitute/thesis", {workflow})
+    )
+    assert pattern.fullmatch(
+        "https://github.com/ThesisInstitute/thesis/.github/workflows/"
+        "witness-sba-pdf.yml@refs/heads/main"
+    )
+    assert not pattern.fullmatch(
+        "https://github.com/ThesisInstitute/thesis/.github/workflows/"
+        "record-forecasts.yml@refs/heads/main"
+    )
+    with pytest.raises(provenance.ProvenanceError, match="allowlist is empty"):
+        provenance.cert_identity_pattern("ThesisInstitute/thesis", set())
+    with pytest.raises(provenance.ProvenanceError, match="not globally allowlisted"):
+        provenance.cert_identity_pattern(
+            "ThesisInstitute/thesis", {".github/workflows/ci.yml"}
+        )
+
+
 def test_certificate_identity_extraction_ignores_statement_fields() -> None:
     payload = {
         "verificationResult": {
@@ -141,6 +164,46 @@ def test_verify_commit_delegates_identity_to_gh_and_fails_closed(
     )
     with pytest.raises(provenance.ProvenanceError, match="no valid attestation"):
         provenance.verify_commit(commit, "MaxGhenis/brier")
+
+
+def test_verify_commit_passes_the_narrowed_workflow_identity_to_gh(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    commit = "c" * 40
+    workflow = ".github/workflows/witness-sba-pdf.yml"
+    monkeypatch.setattr(provenance, "commit_age_seconds", lambda _c: 10**9)
+    seen: list = []
+    good = {
+        "verificationResult": {
+            "signature": {
+                "certificate": {
+                    "buildSignerURI": (
+                        "https://github.com/ThesisInstitute/thesis/"
+                        ".github/workflows/witness-sba-pdf.yml@refs/heads/main"
+                    ),
+                    "sourceRepositoryIdentifier": "1113415529",
+                }
+            }
+        }
+    }
+    monkeypatch.setattr(
+        provenance.subprocess,
+        "run",
+        _fake_gh(good, seen=seen),
+    )
+
+    identity = provenance.verify_commit(
+        commit,
+        "ThesisInstitute/thesis",
+        allowed_workflows={workflow},
+    )
+
+    assert "witness-sba-pdf.yml@refs/heads/main" in identity
+    args = seen[0]
+    flag_index = args.index("--cert-identity-regex")
+    assert args[flag_index + 1] == provenance.cert_identity_pattern(
+        "ThesisInstitute/thesis", {workflow}
+    )
 
 
 def test_allowlist_covers_exactly_the_records_pushing_workflows() -> None:

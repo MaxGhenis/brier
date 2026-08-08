@@ -51,7 +51,7 @@ import urllib.parse
 import urllib.request
 import zipfile
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from html import unescape
 from html.parser import HTMLParser
@@ -59,6 +59,7 @@ from typing import Any
 from urllib.parse import quote, urlparse
 from xml.etree import ElementTree as ET
 
+import verify_records_attestations as records_provenance
 from canonical_json import canonical_bytes, canonical_sha256
 from ledger_release_chain import (
     DEFAULT_CLOCK_SKEW_SECONDS,
@@ -117,12 +118,14 @@ PRODUCER_SIGNING_KEY_ENV = "LEDGER_PRODUCER_SIGNING_KEY"
 
 SBA_CUSTODY_ABSENT = "SBA CUSTODY ABSENT (refusing):"
 SBA_CUSTODY_UNWITNESSED = "SBA CUSTODY UNWITNESSED (refusing):"
+SBA_CUSTODY_UNATTESTED = "SBA CUSTODY UNATTESTED (refusing):"
 SBA_CUSTODY_INVALID = "SBA CUSTODY INVALID (refusing):"
 SBA_EARLIEST_CAPTURE_AMBIGUOUS = (
     "SBA EARLIEST CAPTURE AMBIGUOUS (refusing):"
 )
 SBA_WITNESS_SCHEMA = "thesis_sba_pdf_witness_run_v1"
 SBA_WITNESS_RUN_MODE = "sba_pdf_witness"
+SBA_WITNESS_WORKFLOW = ".github/workflows/witness-sba-pdf.yml"
 SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v1"
 SBA_ENTRY_URL = (
     "https://www.sba.gov/document/"
@@ -191,6 +194,8 @@ class _SbaPdfCandidate:
     custody_root_sha256: str
     proof: dict[str, Any] | None
     partial_only: bool
+    introducing_commit: str | None = None
+    attestation_signer: str | None = None
 
 
 TSA_ENDPOINTS = {
@@ -4218,6 +4223,96 @@ def _sba_manifest(run_dir: pathlib.Path) -> dict[str, Any]:
     return manifest
 
 
+def _sba_capture_introducing_commit(
+    records: pathlib.Path,
+    run_dir: pathlib.Path,
+) -> str:
+    """Bind the current custody run to the sole commit that introduced it."""
+
+    repo_root = records.resolve().parent
+    try:
+        run_relative = run_dir.resolve().relative_to(repo_root).as_posix()
+    except ValueError as exc:
+        raise ValueError("capture directory is outside the repository") from exc
+    manifest_relative = f"{run_relative}/manifest.json"
+    completed = subprocess.run(
+        [
+            "git",
+            "log",
+            "--full-history",
+            "--diff-filter=A",
+            "--format=%H",
+            "HEAD",
+            "--",
+            manifest_relative,
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or f"git exited {completed.returncode}"
+        raise ValueError(f"cannot inspect capture history: {detail}")
+    commits = [line for line in completed.stdout.splitlines() if line]
+    if len(commits) != 1 or not re.fullmatch(r"[0-9a-f]{40}", commits[0]):
+        raise ValueError(
+            "capture manifest must have exactly one introducing commit on "
+            f"HEAD history; found {len(commits)}"
+        )
+    introducing_commit = commits[0]
+
+    committed = subprocess.run(
+        ["git", "show", f"{introducing_commit}:{manifest_relative}"],
+        cwd=repo_root,
+        capture_output=True,
+        check=False,
+    )
+    if committed.returncode != 0:
+        detail = committed.stderr.decode(errors="replace").strip()
+        raise ValueError(f"cannot read introducing capture manifest: {detail}")
+    try:
+        current_manifest = (run_dir / "manifest.json").read_bytes()
+    except OSError as exc:
+        raise ValueError(f"cannot read current capture manifest: {exc}") from exc
+    if committed.stdout != current_manifest:
+        raise ValueError("current capture manifest differs from its introducing commit")
+
+    unchanged = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--quiet",
+            introducing_commit,
+            "HEAD",
+            "--",
+            run_relative,
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=False,
+    )
+    if unchanged.returncode == 1:
+        raise ValueError("capture run changed after its introducing commit")
+    if unchanged.returncode != 0:
+        detail = unchanged.stderr.decode(errors="replace").strip()
+        raise ValueError(f"cannot compare capture history: {detail}")
+    return introducing_commit
+
+
+def _sba_verify_capture_attestation(commit: str) -> str:
+    """Require the SBA witness workflow's attestation for one exact commit."""
+
+    repository = records_provenance.repository_slug()
+    era = records_provenance.era_repository(commit, repository)
+    return records_provenance.verify_commit(
+        commit,
+        repository,
+        era,
+        allowed_workflows={SBA_WITNESS_WORKFLOW},
+    )
+
+
 def _sba_proof_time(proof: Mapping[str, Any]) -> dt.datetime:
     earliest = proof.get("earliestWitnessedAt")
     tsa_time = proof.get("tsaGenTime")
@@ -4366,6 +4461,14 @@ def _replay_sba_candidate(
         return _sba_refusal(
             SBA_CUSTODY_UNWITNESSED, "capture lacks an available timeline proof"
         )
+    if (
+        candidate.introducing_commit is None
+        or candidate.attestation_signer is None
+    ):
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID,
+            "capture reached replay without its commit attestation binding",
+        )
 
     fetch_path = _sba_archive_path(
         candidate.run_dir, candidate.manifest.get("fetchEventPath")
@@ -4387,6 +4490,8 @@ def _replay_sba_candidate(
         "memberPath": member_path,
         "memberSha256": report.get("memberSha256"),
         "custodyRootSha256": candidate.custody_root_sha256,
+        "introducingCommit": candidate.introducing_commit,
+        "attestationSigner": candidate.attestation_signer,
         "witnessDigest": proof.get("witnessDigest"),
         "earliestWitnessedAt": proof.get("earliestWitnessedAt"),
         "tsaGenTime": proof.get("tsaGenTime"),
@@ -4546,8 +4651,40 @@ def resolve_sba_pdf_first_print(
     except ValueError as exc:
         return _sba_refusal(SBA_CUSTODY_INVALID, f"timeline proof is invalid: {exc}")
 
-    replayed: list[SbaPdfResolution] = []
+    attested_earliest: list[_SbaPdfCandidate] = []
     for candidate in sorted(earliest, key=lambda item: item.run_directory):
+        try:
+            introducing_commit = _sba_capture_introducing_commit(
+                records, candidate.run_dir
+            )
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            return _sba_refusal(
+                SBA_CUSTODY_INVALID,
+                f"capture introducing-commit binding failed: {exc}",
+            )
+        try:
+            signer = _sba_verify_capture_attestation(introducing_commit)
+        except (
+            OSError,
+            records_provenance.ProvenanceError,
+            subprocess.SubprocessError,
+            ValueError,
+        ):
+            return _sba_refusal(
+                SBA_CUSTODY_UNATTESTED,
+                "capture introducing commit is not attested by "
+                f"{SBA_WITNESS_WORKFLOW}",
+            )
+        attested_earliest.append(
+            replace(
+                candidate,
+                introducing_commit=introducing_commit,
+                attestation_signer=signer,
+            )
+        )
+
+    replayed: list[SbaPdfResolution] = []
+    for candidate in attested_earliest:
         resolution, refusal = _replay_sba_candidate(
             candidate, series=series, fiscal_year=fiscal_year
         )
@@ -4576,6 +4713,8 @@ def resolve_sba_pdf_first_print(
                     "zipSha256",
                     "memberSha256",
                     "custodyRootSha256",
+                    "introducingCommit",
+                    "attestationSigner",
                     "witnessDigest",
                 )
             }
