@@ -304,6 +304,13 @@ export type ReasoningStep =
   | { kind: "math"; text: string } // styled equation/weighting line
   | { kind: "forecast"; point: number; ciLow: number; ciHigh: number };
 
+export interface ExternalSubmissionAttribution {
+  /** Challenger identity: the GitHub account that submitted, e.g. "github:khs". */
+  challenger: string;
+  /** Self-declared per open-challenge rule 2; leaderboards segment by it. */
+  systemType: "ai" | "human" | "hybrid";
+}
+
 export interface ForecastComparisonRun {
   variantId: string;
   label: string;
@@ -316,6 +323,7 @@ export interface ForecastComparisonRun {
   predictionRun: PredictionRunMetadata;
   predictionDistribution?: PredictionDistribution;
   reasoning: ReasoningStep[];
+  externalSubmission?: ExternalSubmissionAttribution;
 }
 
 export interface ForecastCell {
@@ -371,6 +379,7 @@ export interface ForecastRunEntry {
   packSet?: PredictionPackSet;
   predictionDistribution: PredictionDistribution;
   reasoning: ReasoningStep[];
+  externalSubmission?: ExternalSubmissionAttribution;
 }
 
 export type ForecastRuntimeKind = "live-api" | "agent-run" | "static-mock";
@@ -452,6 +461,7 @@ export function getForecastRunEntries(
             ciHigh: run.ciHigh,
           }),
         reasoning: run.reasoning,
+        externalSubmission: run.externalSubmission,
       }),
     ),
   ];
@@ -5658,6 +5668,10 @@ const FORECAST_COMPARISON_RUN_AUGMENTS: Record<
       variantId:
         "jolts-hires-rate-june-2026-challenge-github-pavelmakarchuk-2026-07-31t14-00-26z",
       label: "PavelMakarchuk challenge submission",
+      externalSubmission: {
+        challenger: "github:PavelMakarchuk",
+        systemType: "ai",
+      },
       description:
         "Published challenge forecast recorded in records/2026-07-31/digest-30648581183-1.json.",
       pointEstimate: 3.3,
@@ -5718,6 +5732,10 @@ const FORECAST_COMPARISON_RUN_AUGMENTS: Record<
       variantId:
         "u6-underemployment-rate-july-2026-challenge-github-khs-2026-07-31t14-05-19z",
       label: "khs challenge submission",
+      externalSubmission: {
+        challenger: "github:khs",
+        systemType: "ai",
+      },
       description:
         "Published challenge forecast recorded in records/2026-07-31/digest-30648581183-1.json.",
       pointEstimate: 7.9,

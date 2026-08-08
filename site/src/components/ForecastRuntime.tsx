@@ -711,6 +711,14 @@ function ForecastRunLane({
             <span>{agentLabel}</span>
             <span>{modelLabel}</span>
             <span>{formatRunRecordedAt(run)}</span>
+            {run.externalSubmission && (
+              <span
+                className="rounded-full border border-[#A94E80] px-2 py-[1px] text-[#A94E80]"
+                title={`Open-challenge submission by ${run.externalSubmission.challenger} (self-declared ${run.externalSubmission.systemType}). Reasoning: not published.`}
+              >
+                external · {run.externalSubmission.systemType}
+              </span>
+            )}
             {agentOrdinal && agentOrdinal.count > 1 && (
               <span className="rounded-full border border-[var(--theme-border)] px-2 py-[1px]">
                 update {agentOrdinal.index}/{agentOrdinal.count}

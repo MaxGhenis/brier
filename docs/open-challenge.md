@@ -129,6 +129,7 @@ the witnessed intake commit is the clock.
 | `scripts/validate_challenge_submission.py` + tests | done |
 | Intake workflow (`challenge-intake.yml`) | staged — cross-model review first (privileged writer + PR-triggered = the risky pair) |
 | Attestation allowlist entry for the intake workflow | with the workflow |
-| Site: scoring ingestion of `records/challenge/`, external flag on leaderboards | next |
-| `/challenge` page: rules, how to enter, live external scores | next |
+| Site: external flag on scored rows + leaderboards (`externalSubmission` through run entries → reward rows → agent leaderboard) | done 2026-08-07 — accepted inbox submissions already score through `getForecastRunEntries`, so the flag rides the identical pipeline |
+| Site: scoring ingestion of `records/challenge/` (replaces the hand-wired augment map + `site/src/data/challenge.ts` registry with generated output) | open — follows the intake workflow |
+| `/challenge` page: rules, how to enter, live submissions + records digests | done 2026-08-07 — scores surface on `/calibration` once targets resolve |
 | Outreach (Preseen, Mantic, FutureSearch, Metaculus bot authors) | after the lane is live-fired end to end |

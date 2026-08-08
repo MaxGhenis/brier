@@ -479,6 +479,14 @@ export default async function CalibrationPage() {
                             baseline
                           </span>
                         ) : null}
+                        {row.external ? (
+                          <span
+                            className="ml-2 rounded-full border border-[#A94E80] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.1em] text-[#A94E80]"
+                            title="Open-challenge submission scored through the identical pipeline; reasoning not published."
+                          >
+                            external
+                          </span>
+                        ) : null}
                       </td>
                       <td
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"

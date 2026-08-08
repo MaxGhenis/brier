@@ -1,4 +1,5 @@
 import type {
+  ExternalSubmissionAttribution,
   ForecastCell,
   PredictionPreSubmitReviewWorkflow,
 } from "./forecast-cells";
@@ -75,6 +76,8 @@ export interface BrierRewardRow {
   runLabel: string;
   runVariantId: string;
   runAt?: string;
+  /** Present on open-challenge rows: the external submitter's identity. */
+  externalSubmission?: ExternalSubmissionAttribution;
   distributionProvenance: DistributionProvenance;
   transformVersion: string;
   resolutionDate: string;
@@ -125,6 +128,8 @@ export interface BrierRewardRow {
 export interface BrierAgentLeaderboardRow {
   agent: string;
   model?: string;
+  /** True when every run in the group is an open-challenge submission. */
+  external: boolean;
   scoredRuns: number;
   totalRuns: number;
   unpairedMeanReward: number | null;
@@ -461,6 +466,7 @@ function buildRewardRow({
     runLabel: run.label,
     runVariantId: run.variantId,
     runAt: run.predictionRun?.runAt,
+    externalSubmission: run.externalSubmission,
     distributionProvenance: run.predictionDistribution.provenance,
     transformVersion: getDistributionTransformVersion(
       run.predictionDistribution,
@@ -541,6 +547,7 @@ export function buildBrierAgentLeaderboard(
   return [...groups.entries()]
     .map(([key, group]) => {
       const [agent, model] = key.split("\u0000");
+      const external = group.every((row) => Boolean(row.externalSubmission));
       const rawScoredRows = group.filter(
         (row) => row.reward.components.crps !== null,
       );
@@ -561,6 +568,7 @@ export function buildBrierAgentLeaderboard(
       return {
         agent,
         model: model || undefined,
+        external,
         scoredRuns: rawScoredRows.length,
         totalRuns: group.length,
         unpairedMeanReward: mean(
