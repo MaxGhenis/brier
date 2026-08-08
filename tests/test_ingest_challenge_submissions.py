@@ -156,13 +156,12 @@ def test_valid_submission_is_included_with_verbatim_quantiles_and_provenance(
     }
 
 
-def test_duplicate_target_submissions_from_one_challenger_all_reject(
+def test_second_shot_rejects_while_first_accepted_survives(
     submission_repo: dict[str, Any],
 ) -> None:
-    # One shot per (challenger, target): a second file naming the same
-    # dataPointId has no trusted order against the first (generatedAtUtc
-    # is a claim), so the whole group rejects fail-closed while other
-    # challengers' rows survive.
+    # One shot per (challenger, target): git history orders acceptance,
+    # so the first accepted content IS the forecast; a later divergent
+    # file rejects while the original and rival challengers survive.
     duplicate = dict(submission_repo["submission"])
     duplicate["pointEstimate"] = 3.1
     write_json(
@@ -181,14 +180,20 @@ def test_duplicate_target_submissions_from_one_challenger_all_reject(
     records = run_ingest(submission_repo)
 
     challengers = sorted(record["challenger"] for record in records)
-    assert challengers == ["github:other-user"]
+    assert challengers == ["github:fixture-user", "github:other-user"]
+    fixture_rows = [
+        record for record in records if record["challenger"] == "github:fixture-user"
+    ]
+    assert len(fixture_rows) == 1
+    assert fixture_rows[0]["pointEstimate"] == 3.0
 
 
 def test_case_variant_challenger_cannot_double_enter(
     submission_repo: dict[str, Any],
 ) -> None:
     # GitHub logins are case-insensitive: GITHUB:FIXTURE-USER is the same
-    # challenger, so both files reject as a duplicated one-shot group.
+    # challenger, so the variant rejects against the first accepted
+    # content while the original forecast survives.
     variant = dict(submission_repo["submission"])
     variant["challenger"] = "github:FIXTURE-USER"
     write_json(
@@ -197,7 +202,43 @@ def test_case_variant_challenger_cannot_double_enter(
     )
     commit_all(submission_repo["repo"], "Add case-variant duplicate")
 
+    records = run_ingest(submission_repo)
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+
+
+def test_rename_plus_edit_cannot_replace_the_forecast(
+    submission_repo: dict[str, Any],
+) -> None:
+    # The round-3 bypass: delete the accepted file and re-add it under a
+    # new name with a changed forecast. Canonical content is keyed to
+    # (challenger, dataPointId) across history, so the replacement
+    # rejects and nothing survives for the key until the challenger's PR
+    # restores the accepted content.
+    edited = dict(submission_repo["submission"])
+    edited["pointEstimate"] = 3.2
+    submission_repo["submission_path"].unlink()
+    write_json(
+        submission_repo["inbox_dir"] / "fixture-user" / "renamed-shot.json",
+        edited,
+    )
+    commit_all(submission_repo["repo"], "Rename and edit the submission")
+
     assert run_ingest(submission_repo) == []
+
+
+def test_pure_rename_of_accepted_content_survives(
+    submission_repo: dict[str, Any],
+) -> None:
+    # A byte-identical file at a new path is the same forecast.
+    original_bytes = submission_repo["submission_path"].read_bytes()
+    submission_repo["submission_path"].unlink()
+    new_path = submission_repo["inbox_dir"] / "fixture-user" / "renamed.json"
+    new_path.write_bytes(original_bytes)
+    commit_all(submission_repo["repo"], "Rename the submission unchanged")
+
+    records = run_ingest(submission_repo)
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+    assert records[0]["pointEstimate"] == 3.0
 
 
 def test_edited_accepted_submission_is_refused(

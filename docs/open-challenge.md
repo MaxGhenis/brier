@@ -128,10 +128,11 @@ plus no prizes; revisit with any prize design.
 `quantiles` is required: exactly the seven rungs above
 (p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95) with strictly increasing
 values — the intake (`scripts/ingest_challenge_submissions.py`) rejects
-anything else, and enforces one shot per (challenger, dataPointId) by
-rejecting every file in a duplicated group, keyed case-insensitively
-(GitHub logins are case-insensitive), and refusing any accepted file
-whose content later changes. `generatedAtUtc` is the challenger's
+anything else. One shot per (challenger, dataPointId): the first
+accepted content is canonical forever, keyed case-insensitively across
+the whole inbox history (GitHub logins are case-insensitive), so edits,
+renames, delete-and-readd, and surplus copies all reject while the
+canonical forecast survives. `generatedAtUtc` is the challenger's
 claim; under the current inbox intake the score carries claimed-time
 chronology (labeled, reward-excluded). The records-path intake will
 bind chronology to a witnessed commit instead.
