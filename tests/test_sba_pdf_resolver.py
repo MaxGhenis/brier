@@ -918,6 +918,47 @@ def test_earliest_retained_parse_failure_blocks_later_valid_bundle(
     assert refusal == f"{LAYOUT_REFUSAL} strict PDF parsing failed"
 
 
+def test_split_prefixed_first_capture_conserves_coverage(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # A PKWARE single-segment split archive (PK00 prefix) is a valid ZIP;
+    # its coverage must be conserved so a later revision cannot resolve
+    # in its place (the round-4 fall-forward reproduction).
+    records = tmp_path / "records"
+    first = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=b"PK00" + _bundle_bytes(marker="first"),
+    )
+    second = _capture(
+        records,
+        retrieved_at="2026-08-08T12:00:00Z",
+        bundle=_bundle_bytes(marker="second"),
+    )
+
+    assert _manifest(first)["outcome"] == "bootstrap"
+    assert _manifest(second)["outcome"] == "changed"
+
+    _install_timeline(
+        monkeypatch,
+        _timeline(
+            records,
+            (first, "2026-08-07T13:00:00Z"),
+            (second, "2026-08-08T13:00:00Z"),
+        ),
+    )
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2024,
+    )
+
+    assert refusal is None
+    assert resolution is not None
+    assert str(resolution.run_directory) == str(first.parent.relative_to(tmp_path))
+
+
 def test_non_zip_error_body_never_blocks_later_valid_bundle(
     tmp_path: pathlib.Path,
     monkeypatch: pytest.MonkeyPatch,

@@ -185,6 +185,54 @@ def test_valid_zip_with_octet_stream_header_is_captured(
     assert _manifest(manifest_path)["outcome"] == "bootstrap"
 
 
+def test_split_single_segment_zip_is_captured(
+    tmp_path: pathlib.Path,
+) -> None:
+    # PKWARE APPNOTE 8.5.4: a split archive with only one segment starts
+    # with the PK00 marker before the first local file header. The bundle
+    # validator parses it, so asset validation must accept it too — the
+    # shared _require_zip_bytes boundary makes disagreement impossible.
+    records = tmp_path / "records"
+    landing = _landing_bytes(ASSET_URL)
+    manifest_path = witness.capture_sba_pdf(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        fetcher=_fetcher(
+            _landing_success(landing),
+            _success(ASSET_URL, b"PK00" + _bundle_bytes(), "application/zip"),
+        ),
+    )
+    assert _manifest(manifest_path)["outcome"] == "bootstrap"
+
+
+def test_empty_zip_retains_as_bundle_validation_failure(
+    tmp_path: pathlib.Path,
+) -> None:
+    # An empty archive IS a parseable ZIP, so it crosses the shared
+    # non-ZIP boundary and fails inside bundle validation, where the
+    # capture retains and blocks later revisions. This pins the boundary
+    # decision: only bodies that are not ZIPs at all escape retention.
+    records = tmp_path / "records"
+    empty = io.BytesIO()
+    with zipfile.ZipFile(empty, "w"):
+        pass
+    landing = _landing_bytes(ASSET_URL)
+    manifest_path = witness.capture_sba_pdf(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        fetcher=_fetcher(
+            _landing_success(landing),
+            _success(ASSET_URL, empty.getvalue(), "application/zip"),
+        ),
+    )
+    manifest = _manifest(manifest_path)
+    assert manifest["outcome"] == "failed"
+    failure = manifest["failure"]
+    assert isinstance(failure, dict)
+    assert failure["stage"] == "bundle validation"
+    assert isinstance(manifest.get("bundle"), dict)
+
+
 def test_non_zip_bytes_with_zip_header_are_refused(
     tmp_path: pathlib.Path,
 ) -> None:

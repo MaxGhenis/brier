@@ -450,15 +450,36 @@ def _captured_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
     }
 
 
+def _require_zip_bytes(raw: bytes) -> zipfile.ZipFile:
+    """The single non-ZIP boundary shared by asset and bundle validation.
+
+    A body that fails here is not a ZIP artifact at all (an error page, a
+    WAF block, truncated garbage) and must never acquire period coverage;
+    a body that parses is a real ZIP, and every later failure retains the
+    capture and blocks later revisions. Both stages call this one
+    predicate so they cannot disagree about the boundary — a ZIP the
+    bundle validator would accept (including PKWARE single-segment split
+    archives prefixed PK00) can never be refused upstream of it.
+    """
+
+    if not raw.startswith(b"PK"):
+        raise SbaCaptureError(
+            "asset body is not a ZIP archive (no PK signature); "
+            "refusing without coverage"
+        )
+    try:
+        return zipfile.ZipFile(io.BytesIO(raw))
+    except (zipfile.BadZipFile, zipfile.LargeZipFile) as exc:
+        raise SbaCaptureError(
+            f"asset body is not a ZIP archive (unparseable: {exc}); "
+            "refusing without coverage"
+        ) from exc
+
+
 def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
     """Replay ZIP structure and the three reviewed report parsers."""
 
-    if not raw.startswith(b"PK"):
-        raise SbaCaptureError("asset response does not have a ZIP signature")
-    try:
-        archive = zipfile.ZipFile(io.BytesIO(raw))
-    except (zipfile.BadZipFile, zipfile.LargeZipFile) as exc:
-        raise SbaCaptureError("asset is not a valid ZIP archive") from exc
+    archive = _require_zip_bytes(raw)
 
     root = f"WebsiteReports_{identity.label}"
     inventory: list[dict[str, Any]] = []
@@ -890,17 +911,17 @@ def capture_sba_pdf(
         # The Content-Type header is recorded but never load-bearing:
         # servers drift between application/zip and application/octet-stream
         # for the same asset. Classification is by bytes, in two classes:
-        # a body that is not a ZIP at all (an error page, a WAF block, a
-        # truncated proxy response) fails HERE, at asset validation, with
-        # no bundle and no period coverage — nothing official was
-        # retrieved, so it must never enter the covered-capture blocking
-        # set. A PK-prefixed body proceeds to bundle validation, where a
-        # failure RETAINS the capture and blocks later revisions — a
-        # malformed real bundle is exactly what fail-closed protects.
-        if not asset_raw.startswith(b"PK\x03\x04"):
-            raise SbaCaptureError(
-                "asset body is not a ZIP archive; refusing without coverage"
-            )
+        # a body that is not a parseable ZIP at all (an error page, a WAF
+        # block, a truncated proxy response) fails HERE, at asset
+        # validation, with no bundle and no period coverage — nothing
+        # official was retrieved, so it must never enter the
+        # covered-capture blocking set. A parseable ZIP proceeds to
+        # bundle validation, where a failure RETAINS the capture and
+        # blocks later revisions — a malformed real bundle is exactly
+        # what fail-closed protects. Both stages share the one
+        # _require_zip_bytes boundary so no ZIP the bundle validator
+        # accepts can ever be refused here.
+        _require_zip_bytes(asset_raw)
         raw_sha = _sha256(asset_raw)
         bundle = _captured_bundle(asset_raw, identity=identity)
         if (
