@@ -2,16 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { listChallengeSubmissions } from "@/data/challenge";
-import { FORECAST_CELLS, formatValue } from "@/data/forecast-cells";
+import {
+  FORECAST_CELLS,
+  formatValue,
+  getForecastRunEntries,
+} from "@/data/forecast-cells";
 import {
   loadPolicyEngineLedger,
+  scoreResolvedForecastRun,
   withResolvedOutcomes,
 } from "@/data/thesis-log";
 
 export const metadata: Metadata = {
   title: "Open challenge — Thesis Institute",
   description:
-    "Any external system may forecast any open registered target. Submissions inherit the same custody, witnessed chronology, and scoring as Thesis's own agents.",
+    "Any external system may forecast any open registered target. Submissions enter the same records chain, resolve against the same first prints, and are scored by the same code as Thesis's own agents.",
 };
 
 const REPO_URL = "https://github.com/ThesisInstitute/thesis";
@@ -27,9 +32,11 @@ const SUBMISSION_EXAMPLE = `{
   "ciHigh": 3.45,
   "quantiles": [
     { "p": 0.05, "value": 3.05 },
+    { "p": 0.1, "value": 3.1 },
     { "p": 0.25, "value": 3.2 },
     { "p": 0.5, "value": 3.3 },
     { "p": 0.75, "value": 3.4 },
+    { "p": 0.9, "value": 3.45 },
     { "p": 0.95, "value": 3.5 }
   ],
   "generatedAtUtc": "2026-07-20T14:00:00Z",
@@ -43,23 +50,23 @@ const RULES: { title: string; body: string }[] = [
   },
   {
     title: "Any system may enter",
-    body: "Participants self-declare ai, human, or hybrid; leaderboards segment by declaration. Identity is the GitHub account that submits — one account is one challenger.",
+    body: "Participants self-declare ai, human, or hybrid; the declaration is recorded with every submission and external rows are labeled with it on the calibration board. Identity is the GitHub account that submits — one account is one challenger.",
   },
   {
     title: "One shot per target",
-    body: "Your first valid submission for a target is final; later submissions for the same target are rejected. This matches our agents' one-registered-run discipline and blocks last-minute-information advantage.",
+    body: "Your first valid submission for a target is final; the intake rejects a challenger's later files for the same target. This matches our agents' one-registered-run discipline and blocks last-minute-information advantage. (Horizon-matched multi-update scoring is a possible v2; it would never change v1 scores retroactively.)",
   },
   {
     title: "Chronology is inherited, not negotiated",
-    body: "Accepted submissions enter the public records chain and are externally witnessed like any records commit. Witnessed before the observation → headline-eligible; claimed-time-only → below the fold; on or after the observation → violated. No special cases.",
+    body: "Accepted submissions enter the public records chain, and the tiers apply verbatim: witnessed before the observation → headline-eligible; claimed-time-only → below the fold, excluded from reward; on or after the observation → violated. Today's inbox intake yields claimed-time chronology — honest tier labels, not headline eligibility — until the records-path intake lands.",
   },
   {
     title: "Distributions, not vibes",
-    body: "Minimum: a point estimate plus an 80% central interval. Encouraged: a quantile grid, scored as a piecewise-linear CDF exactly like agent-native distributions.",
+    body: "A point estimate, an 80% central interval, and the full seven-rung quantile grid (p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, strictly increasing values) are all required; the grid is scored as a piecewise-linear CDF exactly like agent-native distributions.",
   },
   {
     title: "No trace requirement — visibly",
-    body: "Our agents publish full reasoning traces; challengers don't have to. External cells are exempt from the trace rubric and render with the reasoning gap labeled instead of papered over.",
+    body: "Our agents publish full reasoning traces; challengers don't have to. External cells render the submission record (drivers, quantiles, notes) and are exempt from the trace rubric — the difference is labeled instead of papered over.",
   },
   {
     title: "Identical scoring",
@@ -74,7 +81,19 @@ const RULES: { title: string; body: string }[] = [
 export default async function ChallengePage() {
   const ledger = await loadPolicyEngineLedger();
   const resolvedCells = withResolvedOutcomes(FORECAST_CELLS, ledger);
-  const submissions = listChallengeSubmissions(resolvedCells);
+  const submissions = listChallengeSubmissions(resolvedCells).map(
+    (submission) => {
+      // Status comes from the canonical per-run scorer — the same code
+      // that scores every agent run — never from page-side judgment.
+      const entry = getForecastRunEntries(submission.cell).find(
+        (candidate) => candidate.variantId === submission.variantId,
+      );
+      const score = entry
+        ? scoreResolvedForecastRun(submission.cell, entry, ledger)
+        : undefined;
+      return { ...submission, score };
+    },
+  );
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--theme-bg)" }}>
@@ -85,7 +104,7 @@ export default async function ChallengePage() {
         </h1>
         <p className="mt-4 max-w-[640px] leading-[1.65] text-[var(--theme-text-muted)]">
           Any external system may forecast any open registered target. A
-          submission enters the same witnessed records chain, resolves against
+          submission enters the same public records chain, resolves against
           the same official first prints, and is scored by the same code as
           Thesis&apos;s own agents — so a challenger who wins earns a claim
           nobody can dispute, including us.
@@ -145,7 +164,9 @@ export default async function ChallengePage() {
             <code className="text-[0.85em]">
               thesis_challenge_submission_v1
             </code>
-            , example below).
+            , example below). The seven-rung quantile grid is required —
+            exactly p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, with
+            strictly increasing values consistent with your interval.
           </li>
           <li>
             Open a pull request to{" "}
@@ -225,11 +246,18 @@ export default async function ChallengePage() {
             </thead>
             <tbody>
               {submissions.map((submission) => {
-                const { cell, run } = submission;
+                const { cell, run, score } = submission;
                 const outcome = cell.resolvedOutcome;
-                const inInterval = outcome
-                  ? outcome.value >= run.ciLow && outcome.value <= run.ciHigh
-                  : undefined;
+                const chronology = score?.chronology;
+                const statusLabel = !outcome
+                  ? "awaiting resolution"
+                  : chronology === "witness_verified"
+                    ? "scored — witnessed"
+                    : chronology === "claimed_time_verified"
+                      ? "scored below the fold — claimed-time chronology, reward-excluded"
+                      : chronology === "violated"
+                        ? "chronology violated"
+                        : "resolved — scoring pending";
                 return (
                   <tr
                     key={submission.variantId}
@@ -295,19 +323,15 @@ export default async function ChallengePage() {
                         <>
                           {formatValue(outcome.value, cell.unit)}
                           <div
-                            className="mt-1 text-[0.68rem]"
-                            style={{
-                              color: inInterval ? "#2F7D4F" : "#A94E80",
-                            }}
+                            className="mt-1 max-w-[14rem] text-[0.68rem]"
+                            style={{ color: "var(--theme-text-dim)" }}
                           >
-                            {inInterval
-                              ? "inside 80% interval"
-                              : "outside 80% interval"}
+                            {statusLabel}
                           </div>
                         </>
                       ) : (
                         <span style={{ color: "var(--theme-text-dim)" }}>
-                          awaiting resolution
+                          {statusLabel}
                         </span>
                       )}
                     </td>
@@ -321,8 +345,9 @@ export default async function ChallengePage() {
           className="mt-4 max-w-[680px] text-[0.8rem] leading-[1.6]"
           style={{ color: "var(--theme-text-dim)" }}
         >
-          External submissions do not publish reasoning traces; their cells
-          render that gap explicitly rather than hiding it. Full design and
+          External submissions publish their submission record (drivers,
+          quantiles, notes) but are not required to publish a reasoning
+          trace; cells label the difference explicitly. Full design and
           rationale:{" "}
           <a
             href={`${REPO_URL}/blob/main/docs/open-challenge.md`}

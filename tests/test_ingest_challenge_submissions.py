@@ -156,6 +156,34 @@ def test_valid_submission_is_included_with_verbatim_quantiles_and_provenance(
     }
 
 
+def test_duplicate_target_submissions_from_one_challenger_all_reject(
+    submission_repo: dict[str, Any],
+) -> None:
+    # One shot per (challenger, target): a second file naming the same
+    # dataPointId has no trusted order against the first (generatedAtUtc
+    # is a claim), so the whole group rejects fail-closed while other
+    # challengers' rows survive.
+    duplicate = dict(submission_repo["submission"])
+    duplicate["pointEstimate"] = 3.1
+    write_json(
+        submission_repo["inbox_dir"] / "fixture-user" / "second-shot.json",
+        duplicate,
+    )
+    other = dict(submission_repo["submission"])
+    other["challenger"] = "github:other-user"
+    other["systemName"] = "Other Forecaster"
+    write_json(
+        submission_repo["inbox_dir"] / "other-user" / "fixture-rate.json",
+        other,
+    )
+    commit_all(submission_repo["repo"], "Add duplicate and rival submissions")
+
+    records = run_ingest(submission_repo)
+
+    challengers = sorted(record["challenger"] for record in records)
+    assert challengers == ["github:other-user"]
+
+
 def test_non_registered_submission_is_skipped(
     submission_repo: dict[str, Any],
     caplog: pytest.LogCaptureFixture,

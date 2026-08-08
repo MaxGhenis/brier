@@ -130,6 +130,8 @@ export interface BrierAgentLeaderboardRow {
   model?: string;
   /** True when every run in the group is an open-challenge submission. */
   external: boolean;
+  /** Self-declared system types present in an external group's rows. */
+  externalSystemTypes?: ExternalSubmissionAttribution["systemType"][];
   scoredRuns: number;
   totalRuns: number;
   unpairedMeanReward: number | null;
@@ -547,7 +549,25 @@ export function buildBrierAgentLeaderboard(
   return [...groups.entries()]
     .map(([key, group]) => {
       const [agent, model] = key.split("\u0000");
-      const external = group.every((row) => Boolean(row.externalSubmission));
+      const externalRows = group.filter((row) => Boolean(row.externalSubmission));
+      // A group mixing internal and external rows means one agent
+      // identity is being used by both the lab and a challenger; that is
+      // an integrity anomaly, not a display choice — fail the build.
+      if (externalRows.length > 0 && externalRows.length < group.length) {
+        throw new Error(
+          `leaderboard group ${agent} mixes internal and external rows`,
+        );
+      }
+      const external = externalRows.length === group.length && group.length > 0;
+      const externalSystemTypes = external
+        ? [
+            ...new Set(
+              externalRows.flatMap((row) =>
+                row.externalSubmission ? [row.externalSubmission.systemType] : [],
+              ),
+            ),
+          ].sort()
+        : undefined;
       const rawScoredRows = group.filter(
         (row) => row.reward.components.crps !== null,
       );
@@ -569,6 +589,7 @@ export function buildBrierAgentLeaderboard(
         agent,
         model: model || undefined,
         external,
+        externalSystemTypes,
         scoredRuns: rawScoredRows.length,
         totalRuns: group.length,
         unpairedMeanReward: mean(

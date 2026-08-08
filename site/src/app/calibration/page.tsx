@@ -482,9 +482,12 @@ export default async function CalibrationPage() {
                         {row.external ? (
                           <span
                             className="ml-2 rounded-full border border-[#A94E80] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.1em] text-[#A94E80]"
-                            title="Open-challenge submission scored through the identical pipeline; reasoning not published."
+                            title="Open-challenge submission scored through the identical pipeline; the submission record is published, a reasoning trace is not required."
                           >
                             external
+                            {row.externalSystemTypes?.length
+                              ? ` · ${row.externalSystemTypes.join("/")}`
+                              : ""}
                           </span>
                         ) : null}
                       </td>

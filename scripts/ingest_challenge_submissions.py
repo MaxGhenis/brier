@@ -351,7 +351,47 @@ def ingest_challenge_submissions(
             LOGGER.warning("Skipping challenge submission %s: %s", display_path, error)
             continue
         records.append(record)
-    return records
+    return _reject_duplicate_targets(records)
+
+
+def _reject_duplicate_targets(
+    records: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Enforce one shot per (challenger, target).
+
+    The inbox path shape gives one file per challenger per catalog cell,
+    but nothing stops a challenger directory from naming the same
+    dataPointId from two files. There is no trustworthy order between
+    such files (generatedAtUtc is an untrusted claim), so the rule is
+    fail-closed: every file in a duplicated (challenger, dataPointId)
+    group is rejected until the challenger's PR removes all but one.
+    """
+
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for record in records:
+        key = (str(record.get("challenger")), str(record.get("dataPointId")))
+        groups.setdefault(key, []).append(record)
+    kept: list[dict[str, Any]] = []
+    for (challenger, data_point_id), group in groups.items():
+        if len(group) > 1:
+            paths = sorted(
+                str(record.get("provenance", {}).get("submissionPath", "?"))
+                for record in group
+            )
+            LOGGER.warning(
+                "Rejecting %d submissions from %s for %s: one shot per "
+                "target, and there is no trusted order between %s",
+                len(group),
+                challenger,
+                data_point_id,
+                ", ".join(paths),
+            )
+            continue
+        kept.extend(group)
+    kept.sort(
+        key=lambda record: str(record.get("provenance", {}).get("submissionPath", ""))
+    )
+    return kept
 
 
 def main() -> int:

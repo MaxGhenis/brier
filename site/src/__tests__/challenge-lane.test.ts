@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CHALLENGE_SUBMISSIONS,
@@ -9,8 +11,15 @@ import {
 } from "@/data/forecast-cells";
 import {
   buildBrierAgentLeaderboard,
+  buildBrierRewardExport,
   type BrierRewardRow,
 } from "@/data/brier-lab";
+import {
+  buildPredictionSpecs,
+  buildRecordedPredictionRunRecords,
+} from "@/data/prediction-specs";
+
+const REPO_ROOT = path.resolve(__dirname, "../../..");
 
 const externalRuns = FORECAST_CELLS.flatMap((cell) =>
   (cell.comparisonRuns ?? [])
@@ -36,6 +45,31 @@ describe("challenge registry", () => {
       externalRuns.map(({ run }) => run.variantId),
     );
     expect(flaggedVariantIds).toEqual(registryVariantIds);
+  });
+
+  it("matches the merged inbox files — the ground truth, not a copy", () => {
+    for (const record of CHALLENGE_SUBMISSIONS) {
+      const inboxFile = path.join(REPO_ROOT, record.inboxPath);
+      const submission = JSON.parse(fs.readFileSync(inboxFile, "utf8")) as {
+        schemaVersion: string;
+        challenger: string;
+        systemType: string;
+        systemName: string;
+        dataPointId: string;
+      };
+      expect(submission.schemaVersion).toBe("thesis_challenge_submission_v1");
+      expect(submission.challenger).toBe(record.challenger);
+      expect(submission.systemType).toBe(record.systemType);
+      expect(submission.systemName).toBe(record.systemName);
+      expect(submission.dataPointId).toBe(record.dataPointId);
+    }
+  });
+
+  it("names records digests that exist in the public chain", () => {
+    for (const record of CHALLENGE_SUBMISSIONS) {
+      const digestFile = path.join(REPO_ROOT, record.recordsDigest);
+      expect(fs.existsSync(digestFile), record.recordsDigest).toBe(true);
+    }
   });
 
   it("matches each cell's registered target and the run's claims", () => {
@@ -76,7 +110,44 @@ describe("external attribution propagation", () => {
     }
   });
 
-  it("marks leaderboard groups external only when every row is", () => {
+  it("carries attribution through the real reward export", () => {
+    // The identical construction the calibration page performs — if the
+    // buildRewardRow copy of externalSubmission disappears, this fails.
+    const specs = buildPredictionSpecs(FORECAST_CELLS);
+    const runs = buildRecordedPredictionRunRecords(FORECAST_CELLS, specs);
+    const rewardExport = buildBrierRewardExport({
+      forecasts: FORECAST_CELLS,
+      specs,
+      runs,
+      ledger: [],
+    });
+    const externalVariantIds = new Set(
+      CHALLENGE_SUBMISSIONS.map((record) => record.variantId),
+    );
+    const externalRows = rewardExport.rewardRows.filter((row) =>
+      externalVariantIds.has(row.runVariantId),
+    );
+    expect(externalRows).toHaveLength(CHALLENGE_SUBMISSIONS.length);
+    for (const row of externalRows) {
+      expect(row.externalSubmission).toBeDefined();
+      expect(row.externalSubmission?.systemType).toBe("ai");
+    }
+    const externalLeaderboardRows = rewardExport.leaderboard.filter(
+      (row) => row.external,
+    );
+    const flaggedAgents = new Set(
+      externalLeaderboardRows.map((row) => row.agent),
+    );
+    for (const row of externalRows) {
+      expect(row.agent).toBeDefined();
+      expect(flaggedAgents.has(row.agent ?? "")).toBe(true);
+    }
+    for (const row of externalLeaderboardRows) {
+      expect(row.externalSystemTypes).toEqual(["ai"]);
+    }
+  });
+
+  it("fails loudly when a group mixes internal and external rows", () => {
     const base = (
       overrides: Partial<BrierRewardRow> & { runId: string },
     ): BrierRewardRow =>
@@ -124,27 +195,33 @@ describe("external attribution propagation", () => {
         ...overrides,
       }) as BrierRewardRow;
 
-    const rows = [
-      base({ runId: "r1", agent: "github:ext" }),
+    const pure = buildBrierAgentLeaderboard([
       base({
-        runId: "r2",
-        agent: "github:ext",
-        externalSubmission: { challenger: "github:ext", systemType: "ai" },
-      }),
-      base({
-        runId: "r3",
+        runId: "r1",
         agent: "github:pure-ext",
-        externalSubmission: {
-          challenger: "github:pure-ext",
-          systemType: "ai",
-        },
+        externalSubmission: { challenger: "github:pure-ext", systemType: "ai" },
       }),
-      base({ runId: "r4", agent: "thesis.analyst" }),
-    ];
-    const leaderboard = buildBrierAgentLeaderboard(rows);
-    const byAgent = new Map(leaderboard.map((row) => [row.agent, row]));
-    expect(byAgent.get("github:ext")?.external).toBe(false);
+      base({ runId: "r2", agent: "thesis.analyst" }),
+    ]);
+    const byAgent = new Map(pure.map((row) => [row.agent, row]));
     expect(byAgent.get("github:pure-ext")?.external).toBe(true);
+    expect(byAgent.get("github:pure-ext")?.externalSystemTypes).toEqual([
+      "ai",
+    ]);
     expect(byAgent.get("thesis.analyst")?.external).toBe(false);
+
+    expect(() =>
+      buildBrierAgentLeaderboard([
+        base({ runId: "r3", agent: "github:mixed" }),
+        base({
+          runId: "r4",
+          agent: "github:mixed",
+          externalSubmission: {
+            challenger: "github:mixed",
+            systemType: "ai",
+          },
+        }),
+      ]),
+    ).toThrow(/mixes internal and external rows/);
   });
 });
