@@ -358,9 +358,7 @@ def test_refuses_witnessed_capture_without_sba_workflow_attestation(
     monkeypatch.setattr(resolve_pending, "extract_timeline", lambda _records: timeline)
 
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    subprocess.run(
-        ["git", "config", "user.name", "SBA test"], cwd=tmp_path, check=True
-    )
+    subprocess.run(["git", "config", "user.name", "SBA test"], cwd=tmp_path, check=True)
     subprocess.run(
         ["git", "config", "user.email", "sba-test@example.com"],
         cwd=tmp_path,
@@ -646,9 +644,7 @@ def test_completed_q4_capture_resolves_current_fiscal_year(
     assert isinstance(captured, dict)
     reports = captured["reports"]
     assert isinstance(reports, list)
-    assert {report["completionStatus"] for report in reports} == {
-        COMPLETION_COMPLETED
-    }
+    assert {report["completionStatus"] for report in reports} == {COMPLETION_COMPLETED}
     assert {report["partialFiscalYear"] for report in reports} == {None}
     assert captured["reportAsOf"] == "2025-09-30"
     assert verify_run(manifest_path.parent).run_succeeded is True
@@ -712,9 +708,7 @@ def test_q4_partial_yields_to_q1_capture_that_completes_prior_fiscal_year(
         assert {report["completionStatus"] for report in reports} == {
             COMPLETION_PARTIAL
         }
-        assert {report["partialFiscalYear"] for report in reports} == {
-            partial_year
-        }
+        assert {report["partialFiscalYear"] for report in reports} == {partial_year}
     _install_timeline(
         monkeypatch,
         _timeline(
@@ -734,9 +728,10 @@ def test_q4_partial_yields_to_q1_capture_that_completes_prior_fiscal_year(
     assert resolution is not None
     assert (resolution.value, resolution.unit) == (299_971_326, "usd")
     assert resolution.raw_bundle == q1_bundle
-    assert resolution.run_directory == q1.parent.relative_to(
-        records.parent.resolve()
-    ).as_posix()
+    assert (
+        resolution.run_directory
+        == q1.parent.relative_to(records.parent.resolve()).as_posix()
+    )
     assert resolution.source_url == Q1_ASSET_URL
     assert resolution.provenance["reportCompletionStatus"] == COMPLETION_PARTIAL
     assert resolution.provenance["partialFiscalYear"] == 2026
@@ -921,6 +916,52 @@ def test_earliest_retained_parse_failure_blocks_later_valid_bundle(
 
     assert resolution is None
     assert refusal == f"{LAYOUT_REFUSAL} strict PDF parsing failed"
+
+
+def test_non_zip_error_body_never_blocks_later_valid_bundle(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = tmp_path / "records"
+    error_body = b"<html><body>502 Bad Gateway</body></html>"
+    failed = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=error_body,
+    )
+    valid = _capture(
+        records,
+        retrieved_at="2026-08-08T12:00:00Z",
+        bundle=_bundle_bytes(),
+    )
+
+    failed_manifest = _manifest(failed)
+    assert failed_manifest["outcome"] == "failed"
+    failure = failed_manifest["failure"]
+    assert failure["stage"] == "asset validation"
+    assert "not a ZIP archive" in failure["reason"]
+    # No bundle means no period coverage: an error page retrieved nothing
+    # official, so it must never enter the covered-capture blocking set.
+    assert failed_manifest.get("bundle") is None
+    assert _manifest(valid)["outcome"] == "bootstrap"
+
+    _install_timeline(
+        monkeypatch,
+        _timeline(
+            records,
+            (failed, "2026-08-07T13:00:00Z"),
+            (valid, "2026-08-08T13:00:00Z"),
+        ),
+    )
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2024,
+    )
+
+    assert refusal is None
+    assert resolution is not None
+    assert str(resolution.run_directory) == str(valid.parent.relative_to(tmp_path))
 
 
 def test_selects_by_earliest_witness_not_claimed_retrieval_time(
@@ -1256,9 +1297,7 @@ def test_main_allows_closed_bound_only_to_reach_witnessed_custody(
     monkeypatch.setattr(
         resolve_pending, "registration_contracts", lambda: {ref: registration}
     )
-    monkeypatch.setattr(
-        resolve_pending, "utc_now", lambda: "2026-08-07T12:00:00Z"
-    )
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: "2026-08-07T12:00:00Z")
     monkeypatch.setattr(
         resolve_pending,
         "extract_timeline",
@@ -1281,9 +1320,7 @@ def test_main_allows_closed_bound_only_to_reach_witnessed_custody(
     def unexpected_network(*_args: object, **_kwargs: object) -> None:
         raise AssertionError("SBA resolver attempted a live network fetch")
 
-    monkeypatch.setattr(
-        resolve_pending, "resolve_sba_pdf_first_print", custody_only
-    )
+    monkeypatch.setattr(resolve_pending, "resolve_sba_pdf_first_print", custody_only)
     monkeypatch.setattr(resolve_pending.urllib.request, "urlopen", unexpected_network)
     monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
 

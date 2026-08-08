@@ -202,8 +202,11 @@ def test_non_zip_bytes_with_zip_header_are_refused(
     assert manifest["outcome"] == "failed"
     failure = manifest["failure"]
     assert isinstance(failure, dict)
-    assert failure["stage"] == "bundle validation"
-    assert "does not have a ZIP signature" in str(failure["reason"])
+    # Non-ZIP bodies fail at ASSET validation with no bundle: they carry
+    # no period coverage and must never block a later real capture.
+    assert failure["stage"] == "asset validation"
+    assert "not a ZIP archive" in str(failure["reason"])
+    assert manifest.get("bundle") is None
 
 
 def test_bootstrap_capture_seals_and_strictly_replays_official_reports(
@@ -639,8 +642,8 @@ def test_capture_refuses_unapproved_or_ambiguous_page_links(
         ),
         (_bundle_with_duplicate_member(), "duplicate ZIP member path"),
         (_bundle_with_encrypted_flag(), "encrypted ZIP member"),
-        (b"PK malformed", "not a valid ZIP archive"),
-        (b"not a ZIP", "does not have a ZIP signature"),
+        (b"PK malformed", "not a ZIP archive"),
+        (b"not a ZIP", "not a ZIP archive"),
     ],
 )
 def test_capture_refuses_unsafe_or_incomplete_zip(

@@ -889,9 +889,18 @@ def capture_sba_pdf(
         active_stage = "asset validation"
         # The Content-Type header is recorded but never load-bearing:
         # servers drift between application/zip and application/octet-stream
-        # for the same asset, and refusing on header metadata would discard
-        # a covered capture and let a later revision resolve in its place.
-        # The byte-level ZIP validation below is the sole classifier.
+        # for the same asset. Classification is by bytes, in two classes:
+        # a body that is not a ZIP at all (an error page, a WAF block, a
+        # truncated proxy response) fails HERE, at asset validation, with
+        # no bundle and no period coverage — nothing official was
+        # retrieved, so it must never enter the covered-capture blocking
+        # set. A PK-prefixed body proceeds to bundle validation, where a
+        # failure RETAINS the capture and blocks later revisions — a
+        # malformed real bundle is exactly what fail-closed protects.
+        if not asset_raw.startswith(b"PK\x03\x04"):
+            raise SbaCaptureError(
+                "asset body is not a ZIP archive; refusing without coverage"
+            )
         raw_sha = _sha256(asset_raw)
         bundle = _captured_bundle(asset_raw, identity=identity)
         if (
