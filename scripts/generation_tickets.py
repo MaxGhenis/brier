@@ -443,6 +443,7 @@ def _require_superseding_targets(
     new_by_id = _by_id(successor["targets"])
     if set(old_by_id) != set(new_by_id):
         raise _identical_refusal()
+    changed = 0
     source = (
         repo_root
         / register_targets.GENERATED_TARGETS.relative_to(register_targets.ROOT)
@@ -451,6 +452,7 @@ def _require_superseding_targets(
         old_target = old_by_id[data_point_id]
         if canonical_bytes(new_target) == canonical_bytes(old_target):
             continue
+        changed += 1
         if _target_identity(new_target) != _target_identity(old_target):
             raise _identical_refusal()
         if require_current:
@@ -463,29 +465,21 @@ def _require_superseding_targets(
                     f"supersede {predecessor['ticketId']}: {data_point_id} "
                     "does not match the current registered contract"
                 )
-        else:
-            # Later in history the registry may have moved again; the
-            # time-stable fact is that the successor's contract was a
-            # real committed registration.
-            _require_committed_snapshot(
-                successor,
-                predecessor,
-                data_point_id,
-                new_target.get("targetContentHash"),
-                repo_root=repo_root,
-                side="successor",
-            )
-        _require_committed_snapshot(
+        _require_supersession_lineage(
             successor,
             predecessor,
             data_point_id,
-            old_target.get("targetContentHash"),
+            old_target,
+            new_target,
             repo_root=repo_root,
-            side="predecessor",
         )
+    if changed == 0:
+        # Byte-identical targets with a differing registrationSetHash is
+        # inconsistent accounting, not a supersession.
+        raise _identical_refusal()
 
 
-def _require_committed_snapshot(
+def _committed_introduction(
     successor: dict[str, Any],
     predecessor: dict[str, Any],
     data_point_id: str,
@@ -493,9 +487,11 @@ def _require_committed_snapshot(
     *,
     repo_root: pathlib.Path,
     side: str,
-) -> None:
-    """One side of an authenticated supersession must be a committed
-    registration: its snapshot has exactly one introduction in history."""
+) -> tuple[str, str, bytes]:
+    """Return (introducing_commit, snapshot_relpath, snapshot_bytes) for a
+    contract that must be a committed registration: exactly one snapshot
+    introduction in history, whose committed bytes hash back to the
+    claimed content hash."""
 
     if not isinstance(content_hash, str) or not re.fullmatch(
         r"[0-9a-f]{64}", content_hash
@@ -506,12 +502,13 @@ def _require_committed_snapshot(
             "lacks a content hash"
         )
     try:
-        introducing = subprocess.run(
+        entries = subprocess.run(
             [
                 "git",
                 "log",
                 "--diff-filter=A",
                 "--format=%H",
+                "--name-only",
                 "--",
                 f"records/targets/*-{content_hash}.json",
             ],
@@ -526,11 +523,135 @@ def _require_committed_snapshot(
             f"{predecessor['ticketId']}: cannot replay {data_point_id} "
             f"{side} registration history: {exc}"
         ) from exc
-    if len(introducing) != 1:
+    commits = [line for line in entries if re.fullmatch(r"[0-9a-f]{40}", line)]
+    paths = [line for line in entries if line.startswith("records/targets/")]
+    if len(commits) != 1 or len(paths) != 1:
         raise TicketError(
             f"generation ticket {successor['ticketId']} cannot supersede "
             f"{predecessor['ticketId']}: {data_point_id} {side} "
             "contract is not a committed registration"
+        )
+    try:
+        snapshot_bytes = subprocess.run(
+            ["git", "show", f"{commits[0]}:{paths[0]}"],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: cannot replay {data_point_id} "
+            f"{side} snapshot bytes: {exc}"
+        ) from exc
+    return commits[0], paths[0], snapshot_bytes
+
+
+def _require_supersession_lineage(
+    successor: dict[str, Any],
+    predecessor: dict[str, Any],
+    data_point_id: str,
+    old_target: dict[str, Any],
+    new_target: dict[str, Any],
+    *,
+    repo_root: pathlib.Path,
+) -> None:
+    """Prove the old->new transition is a real registration supersession.
+
+    Both contracts must be committed registrations whose snapshot bytes
+    hash to the sealed content hashes and whose single targets equal the
+    sealed ticket targets outside registration metadata; the old
+    introduction must be an ancestor of the new; and the commit that
+    introduced the new snapshot must replace the generated-registry block
+    old->new in that same step. Independent parallel registrations for
+    one dataPointId cannot satisfy the replace transition."""
+
+    import register_targets
+
+    def _refuse(detail: str) -> TicketError:
+        return TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: {data_point_id} {detail}"
+        )
+
+    sides = {}
+    for side, target in (("predecessor", old_target), ("successor", new_target)):
+        content_hash = target.get("targetContentHash")
+        commit, relpath, snapshot_bytes = _committed_introduction(
+            successor,
+            predecessor,
+            data_point_id,
+            content_hash,
+            repo_root=repo_root,
+            side=side,
+        )
+        try:
+            snapshot = json.loads(snapshot_bytes)
+        except json.JSONDecodeError as exc:
+            raise _refuse(f"{side} snapshot is not JSON: {exc}") from exc
+        if register_targets.registration_content_hash(snapshot) != content_hash:
+            raise _refuse(f"{side} snapshot bytes do not hash to the sealed contract")
+        targets = snapshot.get("targets")
+        if not isinstance(targets, list) or len(targets) != 1:
+            raise _refuse(f"{side} snapshot does not register exactly one target")
+        sealed_contract = {
+            key: value
+            for key, value in target.items()
+            if key not in REGISTRATION_METADATA_KEYS
+        }
+        if canonical_bytes(targets[0]) != canonical_bytes(sealed_contract):
+            raise _refuse(f"{side} sealed target does not match its committed snapshot")
+        sides[side] = commit
+
+    try:
+        subprocess.run(
+            [
+                "git",
+                "merge-base",
+                "--is-ancestor",
+                sides["predecessor"],
+                sides["successor"],
+            ],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        raise _refuse(
+            "predecessor registration is not an ancestor of its successor"
+        ) from None
+
+    generated_relpath = register_targets.GENERATED_TARGETS.relative_to(
+        register_targets.ROOT
+    ).as_posix()
+
+    def _block_hash_at(commit: str) -> Any:
+        try:
+            source = subprocess.run(
+                ["git", "show", f"{commit}:{generated_relpath}"],
+                cwd=repo_root,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise _refuse(
+                f"cannot replay the generated registry at {commit[:12]}: {exc}"
+            ) from exc
+        block = register_targets._generated_block(source, data_point_id)
+        return (
+            register_targets._block_value(block, "targetContentHash") if block else None
+        )
+
+    new_commit = sides["successor"]
+    if _block_hash_at(new_commit) != new_target.get("targetContentHash"):
+        raise _refuse(
+            "the successor's introducing commit does not register its contract"
+        )
+    if _block_hash_at(f"{new_commit}^") != old_target.get("targetContentHash"):
+        raise _refuse(
+            "the successor's introducing commit does not replace the "
+            "predecessor's registration"
         )
 
 

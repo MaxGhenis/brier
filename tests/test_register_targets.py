@@ -1952,7 +1952,7 @@ def _committed_supersession_state(
         "-m",
     ]
 
-    old_contract = _supersede_contract()
+    old_contract = {**_supersede_contract(), "conditional": "Synthetic condition"}
     old_reg = _registration(old_contract, "2026-07-10T05:03:56Z", _pin("b" * 40, 127))
     old_hash = old_reg["targetContentHash"]
     targets_dir = tmp_path / "records" / "targets"
@@ -2020,6 +2020,84 @@ def _committed_supersession_state(
     )
 
 
+def test_ticket_supersession_refuses_hash_only_mismatch(tmp_path, monkeypatch) -> None:
+    # Byte-identical targets with a differing registrationSetHash is
+    # corrupt accounting, never a supersession — nothing changed to
+    # authenticate.
+    old_target, _ = _committed_supersession_state(tmp_path, monkeypatch)
+    with pytest.raises(generation_tickets.TicketError, match="must be identical"):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [dict(old_target)]},
+            {"ticketId": "predecessor", "targets": [dict(old_target)]},
+            repo_root=tmp_path,
+        )
+
+
+def test_ticket_supersession_refuses_independent_parallel_registration(
+    tmp_path, monkeypatch
+) -> None:
+    # A second registration for the same id committed WITHOUT replacing
+    # the registry block is not a supersession lineage and must refuse.
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    laundered_contract = json.loads(
+        json.dumps(
+            {
+                key: value
+                for key, value in new_target.items()
+                if key not in generation_tickets.REGISTRATION_METADATA_KEYS
+            }
+        )
+    )
+    laundered_contract["sourceBinding"]["sourceUrl"] = (
+        "https://mirror.example.gov/statistics/labour"
+    )
+    laundered_reg = _registration(
+        laundered_contract, "2026-07-12T05:03:56Z", _pin("d" * 40, 129)
+    )
+    laundered_hash = laundered_reg["targetContentHash"]
+    laundered_path = (
+        tmp_path / "records" / "targets" / f"2026-07-12-{laundered_hash}.json"
+    )
+    laundered_path.write_bytes(canonical_bytes(laundered_reg["snapshot"]) + b"\n")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.com",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-q",
+            "-m",
+            "independent parallel registration",
+        ],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    laundered_target = {
+        **laundered_contract,
+        "targetContentHash": laundered_hash,
+        "registeredAtUtc": "2026-07-12T05:03:56Z",
+        "registrationCommit": "b" * 40,
+        "registrationState": "preregistered",
+        "targetRegistrationPath": (f"records/targets/2026-07-12-{laundered_hash}.json"),
+    }
+    with pytest.raises(
+        generation_tickets.TicketError,
+        match="does not register its contract",
+    ):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [laundered_target]},
+            {"ticketId": "predecessor", "targets": [old_target]},
+            repo_root=tmp_path,
+            require_current=False,
+        )
+
+
 def test_find_ticket_successor_accepts_authenticated_cross_supersession(
     tmp_path, monkeypatch
 ) -> None:
@@ -2027,8 +2105,6 @@ def test_find_ticket_successor_accepts_authenticated_cross_supersession(
     # binding-only supersession that mint admits, via the time-stable
     # committed-introduction test on both sides.
     old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
-    old_target = {**old_target, "conditional": "Synthetic condition"}
-    new_target = {**new_target, "conditional": "Synthetic condition"}
 
     predecessor = generation_tickets.mint_ticket(
         [old_target],
