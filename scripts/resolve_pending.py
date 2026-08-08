@@ -122,15 +122,23 @@ SBA_CUSTODY_ABSENT = "SBA CUSTODY ABSENT (refusing):"
 SBA_CUSTODY_UNWITNESSED = "SBA CUSTODY UNWITNESSED (refusing):"
 SBA_CUSTODY_UNATTESTED = "SBA CUSTODY UNATTESTED (refusing):"
 SBA_CUSTODY_INVALID = "SBA CUSTODY INVALID (refusing):"
-SBA_EARLIEST_CAPTURE_AMBIGUOUS = (
-    "SBA EARLIEST CAPTURE AMBIGUOUS (refusing):"
-)
+SBA_EARLIEST_CAPTURE_AMBIGUOUS = "SBA EARLIEST CAPTURE AMBIGUOUS (refusing):"
 SBA_WITNESS_SCHEMA = "thesis_sba_pdf_witness_run_v1"
 SBA_WITNESS_RUN_MODE = "sba_pdf_witness"
 SBA_WITNESS_WORKFLOW = ".github/workflows/witness-sba-pdf.yml"
 SBA_PARSER_CONTRACT = "scripts/sba_loan_performance.py:SBA_REPORT_SPECS:v3"
 SBA_ENTRY_URL = (
     "https://www.sba.gov/document/"
+    "report-small-business-administration-loan-program-performance"
+)
+# The registration binding's sourceUrl doubles as the resolve-by-bound
+# ANNOUNCEMENT page, which the attested lane fetches through the
+# no-redirect announcement MCP. www.sba.gov 302-redirects this document
+# to legacy.sba.gov, so the binding names the redirect-free page; the
+# witness capture keeps entering at SBA_ENTRY_URL and records the
+# redirect chain as evidence.
+SBA_ANNOUNCEMENT_URL = (
+    "https://legacy.sba.gov/document/"
     "report-small-business-administration-loan-program-performance"
 )
 SBA_BINDING_ADAPTER = "sba-loan-program-performance-pdf"
@@ -224,14 +232,10 @@ class RepositoryTree:
 
 def _validate_timestamp_timeout(value: float) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise LedgerProposalError(
-            "timeout_seconds must be a finite positive number"
-        )
+        raise LedgerProposalError("timeout_seconds must be a finite positive number")
     result = float(value)
     if not math.isfinite(result) or result <= 0:
-        raise LedgerProposalError(
-            "timeout_seconds must be a finite positive number"
-        )
+        raise LedgerProposalError("timeout_seconds must be a finite positive number")
     return result
 
 
@@ -474,9 +478,7 @@ def parse_fred_vintage_csv(
     rows: dict[str, float] = {}
     for row in csv.DictReader(io.StringIO(raw.decode())):
         date = row.get("observation_date") or row.get("DATE")
-        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(
-            series_id
-        )
+        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(series_id)
         if date and value not in (None, "", "."):
             rows[date] = float(value)
     return rows
@@ -817,9 +819,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "round": 1,
         "label": "US international trade deficit in goods and services",
         "source_name": "bea_census_trade",
-        "source_table": (
-            "U.S. International Trade in Goods and Services, Exhibit 1"
-        ),
+        "source_table": ("U.S. International Trade in Goods and Services, Exhibit 1"),
         "concept_authority": "bea",
     },
     "bls.import_price_index.all_imports_mom": {
@@ -866,8 +866,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "transform": "pct_change_1d",
         "unit": "percent_growth",
         "label": (
-            "US employment cost index, private wages and salaries, "
-            "quarterly change"
+            "US employment cost index, private wages and salaries, quarterly change"
         ),
         "source_name": "bls_eci",
         "source_table": "Employment Cost Index, Table 2",
@@ -893,9 +892,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "round": 1,
         "label": "US total consumer credit, annual rate of change",
         "source_name": "federal_reserve_g19",
-        "source_table": (
-            "G.19 Consumer Credit, outstanding, seasonally adjusted"
-        ),
+        "source_table": ("G.19 Consumer Credit, outstanding, seasonally adjusted"),
         "concept_authority": "federal_reserve",
     },
     "fed.g19.consumer_credit_revolving_annual_rate": {
@@ -905,9 +902,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "round": 1,
         "label": "US revolving consumer credit, annual rate of change",
         "source_name": "federal_reserve_g19",
-        "source_table": (
-            "G.19 Consumer Credit, outstanding, seasonally adjusted"
-        ),
+        "source_table": ("G.19 Consumer Credit, outstanding, seasonally adjusted"),
         "concept_authority": "federal_reserve",
     },
     "fed.g19.consumer_credit_nonrevolving_annual_rate": {
@@ -917,9 +912,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "round": 1,
         "label": "US nonrevolving consumer credit, annual rate of change",
         "source_name": "federal_reserve_g19",
-        "source_table": (
-            "G.19 Consumer Credit, outstanding, seasonally adjusted"
-        ),
+        "source_table": ("G.19 Consumer Credit, outstanding, seasonally adjusted"),
         "concept_authority": "federal_reserve",
     },
     "bls.cpi.shelter_mom": {
@@ -929,8 +922,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US CPI shelter, monthly change",
         "source_name": "bls_cpi",
         "source_table": (
-            "Consumer Price Index, U.S. city average, monthly "
-            "seasonally adjusted"
+            "Consumer Price Index, U.S. city average, monthly seasonally adjusted"
         ),
         "concept_authority": "bls",
     },
@@ -941,8 +933,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US CPI rent of primary residence, monthly change",
         "source_name": "bls_cpi",
         "source_table": (
-            "Consumer Price Index, U.S. city average, monthly "
-            "seasonally adjusted"
+            "Consumer Price Index, U.S. city average, monthly seasonally adjusted"
         ),
         "concept_authority": "bls",
     },
@@ -953,8 +944,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US CPI owners' equivalent rent, monthly change",
         "source_name": "bls_cpi",
         "source_table": (
-            "Consumer Price Index, U.S. city average, monthly "
-            "seasonally adjusted"
+            "Consumer Price Index, U.S. city average, monthly seasonally adjusted"
         ),
         "concept_authority": "bls",
     },
@@ -965,8 +955,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US CPI services less energy services, monthly change",
         "source_name": "bls_cpi",
         "source_table": (
-            "Consumer Price Index, U.S. city average, monthly "
-            "seasonally adjusted"
+            "Consumer Price Index, U.S. city average, monthly seasonally adjusted"
         ),
         "concept_authority": "bls",
     },
@@ -977,8 +966,7 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US CPI services less rent of shelter, monthly change",
         "source_name": "bls_cpi",
         "source_table": (
-            "Consumer Price Index, U.S. city average, monthly "
-            "seasonally adjusted"
+            "Consumer Price Index, U.S. city average, monthly seasonally adjusted"
         ),
         "concept_authority": "bls",
     },
@@ -1035,8 +1023,7 @@ ALFRED_HISTORY_MIRRORS: dict[str, dict[str, Any]] = {
         "label": "US private nonresidential fixed investment, nominal SAAR",
         "source_name": "bea",
         "source_table": (
-            "Gross Domestic Product, Table 5.3.5 "
-            "(private fixed investment by type)"
+            "Gross Domestic Product, Table 5.3.5 (private fixed investment by type)"
         ),
         "concept_authority": "bea",
     },
@@ -1044,13 +1031,10 @@ ALFRED_HISTORY_MIRRORS: dict[str, dict[str, Any]] = {
         "fred": "Y006RC1Q027SBEA",
         "transform": "level",
         "unit": "usd_billions",
-        "label": (
-            "US private research and development fixed investment, nominal SAAR"
-        ),
+        "label": ("US private research and development fixed investment, nominal SAAR"),
         "source_name": "bea",
         "source_table": (
-            "Gross Domestic Product, Table 5.6.5 "
-            "(private R&D fixed investment)"
+            "Gross Domestic Product, Table 5.6.5 (private R&D fixed investment)"
         ),
         "concept_authority": "bea",
     },
@@ -1100,9 +1084,7 @@ BEA_RELEASE_ADAPTERS: dict[str, dict[str, Any]] = {
         "transform": "level",
         "value_transform": {"operation": "multiply", "factor": 0.001},
         "unit": "usd_billions",
-        "label": (
-            "US private research and development fixed investment, nominal SAAR"
-        ),
+        "label": ("US private research and development fixed investment, nominal SAAR"),
         "source_name": "bea",
         "source_table": (
             "Gross Domestic Product advance release, NIPA Table 5.3.5, "
@@ -1144,9 +1126,7 @@ def bea_release_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def bea_release_binding_matches_spec(
-    binding: Any, spec: Mapping[str, Any]
-) -> bool:
+def bea_release_binding_matches_spec(binding: Any, spec: Mapping[str, Any]) -> bool:
     """Authenticate the complete binding before touching either BEA host."""
 
     if not isinstance(binding, dict):
@@ -1166,9 +1146,7 @@ def bea_release_binding_matches_spec(
         or not host_set <= BEA_RELEASE_ALLOWED_HOSTS
     ):
         return False
-    projection = {
-        key: binding[key] for key in BEA_RELEASE_BINDING_TEMPLATE_KEYS
-    }
+    projection = {key: binding[key] for key in BEA_RELEASE_BINDING_TEMPLATE_KEYS}
     return canonical_bytes(projection) == canonical_bytes(
         bea_release_binding_template(spec)
     )
@@ -1189,10 +1167,7 @@ def bea_advance_release_url(period: str, release_day: dt.date) -> str:
     suffix = f"{ordinal}-quarter-{year}"
     if quarter == 4:
         suffix = f"{ordinal}-quarter-and-year-{year}"
-    return (
-        f"https://www.bea.gov/news/{release_day.year}/"
-        f"gdp-advance-estimate-{suffix}"
-    )
+    return f"https://www.bea.gov/news/{release_day.year}/gdp-advance-estimate-{suffix}"
 
 
 def _bea_release_title(period: str) -> str:
@@ -1216,28 +1191,22 @@ def bea_release_page_refusal(
     page = re.sub(r"<style\b[^>]*>.*?</style>", " ", page, flags=re.I | re.S)
     visible = " ".join(unescape(re.sub(r"<[^>]+>", " ", page)).split())
     title = _bea_release_title(period)
-    date_text = (
-        f"{release_day.strftime('%B')} {release_day.day}, {release_day.year}"
-    )
+    date_text = f"{release_day.strftime('%B')} {release_day.day}, {release_day.year}"
     if title not in visible:
         return f"release page does not contain expected title {title!r}"
     embargo = re.search(
-        r"EMBARGOED UNTIL RELEASE AT\s+.{1,100}?"
-        + re.escape(date_text),
+        r"EMBARGOED UNTIL RELEASE AT\s+.{1,100}?" + re.escape(date_text),
         visible,
         flags=re.I,
     )
     if embargo is None:
         return (
-            "release page embargo line does not contain registered date "
-            f"{date_text!r}"
+            f"release page embargo line does not contain registered date {date_text!r}"
         )
     return None
 
 
-def bea_itable_request_body(
-    spec: Mapping[str, Any], period: str
-) -> dict[str, Any]:
+def bea_itable_request_body(spec: Mapping[str, Any], period: str) -> dict[str, Any]:
     year, _quarter = _bea_quarter(period)
     return {
         "appid": 19,
@@ -1333,8 +1302,7 @@ def bea_itable_value(
     columns = [
         index
         for index in range(2, min(len(year_cells), len(quarter_cells)))
-        if year_cells[index] == str(year)
-        and quarter_cells[index] == f"Q{quarter}"
+        if year_cells[index] == str(year) and quarter_cells[index] == f"Q{quarter}"
     ]
     if len(columns) != 1:
         return None, (
@@ -1456,6 +1424,7 @@ def bea_release_snapshot_envelope(
     }
     return canonical_bytes(envelope) + b"\n"
 
+
 # CPS Table A-19 detail rows have no FRED mirror, so they resolve from an
 # immutable Wayback Machine snapshot of the cells' OWN bound source page
 # (bls.gov blocks non-browser fetches; web.archive.org serves the exact
@@ -1473,9 +1442,7 @@ A19_ROW_LABELS: dict[str, str] = {
     "business_financial_operations": "Business and financial operations occupations",
     "computer_mathematical": "Computer and mathematical occupations",
     "healthcare_support": "Healthcare support occupations",
-    "office_administrative_support": (
-        "Office and administrative support occupations"
-    ),
+    "office_administrative_support": ("Office and administrative support occupations"),
     "production": "Production occupations",
     "transportation_material_moving": (
         "Transportation and material moving occupations"
@@ -1544,8 +1511,7 @@ BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US ship and boat building employment (SA)",
         "source_name": "bls_ces",
         "source_table": (
-            "Current Employment Statistics, all employees, ship and boat "
-            "building (SA)"
+            "Current Employment Statistics, all employees, ship and boat building (SA)"
         ),
         "concept_authority": "bls",
         "source_concept": "CES3133660001",
@@ -1727,8 +1693,7 @@ CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
             "statement-on-supplemental-poverty-measure.html"
         ),
         "publications_url": (
-            "https://www.census.gov/topics/income-poverty/library/"
-            "publications.html"
+            "https://www.census.gov/topics/income-poverty/library/publications.html"
         ),
         "allowed_hosts": ("www.census.gov", "www2.census.gov"),
         "series_id": "census.spm.child_poverty_rate",
@@ -1760,8 +1725,7 @@ CENSUS_SPM_ADAPTERS: dict[str, dict[str, Any]] = {
         "source_name": "census",
         "concept_authority": "census",
         "source_concept": (
-            "Supplemental Poverty Measure Table B-2; Under 18 years; "
-            "Percent in poverty"
+            "Supplemental Poverty Measure Table B-2; Under 18 years; Percent in poverty"
         ),
         "evidence_notes": (
             "CY{period} child Supplemental Poverty Measure rate under the "
@@ -2034,9 +1998,7 @@ CMS_PROVIDER_DATA_ADAPTERS: dict[str, dict[str, Any]] = {
         ),
         "state_row": "NATION",
         "row_column": "State or Nation",
-        "value_column": (
-            "Reported Total Nurse Staffing Hours per Resident per Day"
-        ),
+        "value_column": ("Reported Total Nurse Staffing Hours per Resident per Day"),
         "processing_date_column": "Processing Date",
         "unit": "ratio",
         "round": 3,
@@ -2050,9 +2012,7 @@ CMS_PROVIDER_DATA_ADAPTERS: dict[str, dict[str, Any]] = {
             "(NH_StateUSAverages)"
         ),
         "concept_authority": "cms",
-        "source_concept": (
-            "Reported Total Nurse Staffing Hours per Resident per Day"
-        ),
+        "source_concept": ("Reported Total Nurse Staffing Hours per Resident per Day"),
         # Fail-closed sanity range: reported national total nurse staffing
         # HPRD has printed in the high-3s for years; anything outside this
         # band is a wrong column, wrong row, or upstream restructuring.
@@ -2190,9 +2150,7 @@ def cms_provider_data_value(
     if aggregate:
         numerator_column = aggregate["numerator_column"]
         denominator_column = aggregate["denominator_column"]
-        if numerator_column not in fieldnames or (
-            denominator_column not in fieldnames
-        ):
+        if numerator_column not in fieldnames or (denominator_column not in fieldnames):
             return None, (
                 f"columns {numerator_column!r}/{denominator_column!r} not "
                 "both present; upstream file restructured"
@@ -2209,9 +2167,7 @@ def cms_provider_data_value(
                     return None, mismatch
             try:
                 numerator = float((row.get(numerator_column) or "").strip())
-                denominator = float(
-                    (row.get(denominator_column) or "").strip()
-                )
+                denominator = float((row.get(denominator_column) or "").strip())
             except ValueError:
                 continue
             numerator_total += numerator
@@ -2225,9 +2181,7 @@ def cms_provider_data_value(
             )
         if denominator_total <= 0:
             return None, "denominator sum is not positive"
-        value = (
-            numerator_total / denominator_total * aggregate.get("scale", 1.0)
-        )
+        value = numerator_total / denominator_total * aggregate.get("scale", 1.0)
     else:
         row_column = spec["row_column"]
         value_column = spec["value_column"]
@@ -2237,11 +2191,7 @@ def cms_provider_data_value(
                 "upstream file restructured"
             )
         target_row = next(
-            (
-                row
-                for row in reader
-                if row.get(row_column) == spec["state_row"]
-            ),
+            (row for row in reader if row.get(row_column) == spec["state_row"]),
             None,
         )
         if target_row is None:
@@ -2261,6 +2211,7 @@ def cms_provider_data_value(
             "row/column or upstream restructuring"
         )
     return round(value, spec.get("round", 4)), None
+
 
 MONTH_NUMBERS = {
     name: number
@@ -2307,7 +2258,9 @@ MONTH_ABBREVIATION_NUMBERS = {
 #     A19_SNAPSHOT_URLS. Eurostat HICP flash additionally requires the
 #     target period to still carry its provisional/estimated status flag,
 #     so a post-final fetch can never masquerade as the flash print.
-INTL_USER_AGENT = "Mozilla/5.0 (compatible; thesis-resolver/1.0; +https://app.thesisinstitute.org)"
+INTL_USER_AGENT = (
+    "Mozilla/5.0 (compatible; thesis-resolver/1.0; +https://app.thesisinstitute.org)"
+)
 
 US_GEOGRAPHY = {
     "level": "country",
@@ -2335,8 +2288,7 @@ INTL_GEOGRAPHY = {
 }
 
 STATCAN_WDS_LATEST = (
-    "https://www150.statcan.gc.ca/t1/wds/rest/"
-    "getDataFromVectorsAndLatestNPeriods"
+    "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
 )
 ABS_DATA_URL = (
     "https://data.api.abs.gov.au/rest/data/{flow}/{key}"
@@ -2531,8 +2483,7 @@ _STATCAN_LFS_UR_SPEC = {
     "label": "Canada unemployment rate (SA)",
     "source_name": "statcan",
     "source_table": (
-        "Labour Force Survey, Table 14-10-0287-01 "
-        "(unemployment rate, Canada, SA)"
+        "Labour Force Survey, Table 14-10-0287-01 (unemployment rate, Canada, SA)"
     ),
     "concept_authority": "statcan",
     "source_concept": "v2062815",
@@ -2937,9 +2888,7 @@ _ONS_RETAIL_SPEC = {
     "series_id": "ons-j5ec-drsi",
     "source_file": "ONS v1 time-series JSON",
     "extension": "json",
-    "uri": (
-        "/businessindustryandtrade/retailindustry/timeseries/j5ec/drsi"
-    ),
+    "uri": ("/businessindustryandtrade/retailindustry/timeseries/j5ec/drsi"),
     "transform": "level",
     "round": 1,
     "unit": "percent_growth",
@@ -3186,8 +3135,7 @@ USASPENDING_API_ROOT = "https://api.usaspending.gov/api/v2"
 USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
     "usaspending.dod.prime_award_obligations": {
         "url_template": (
-            f"{USASPENDING_API_ROOT}/agency/097/awards/"
-            "?fiscal_year={fiscal_year}"
+            f"{USASPENDING_API_ROOT}/agency/097/awards/?fiscal_year={{fiscal_year}}"
         ),
         "field": "obligations",
         "series_id": "usaspending.agency.097.awards.obligations",
@@ -3210,9 +3158,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "?fiscal_year={fiscal_year}"
         ),
         "field": "results[category=contracts].aggregated_amount",
-        "series_id": (
-            "usaspending.agency.097.obligations_by_award_category.contracts"
-        ),
+        "series_id": ("usaspending.agency.097.obligations_by_award_category.contracts"),
         "label": "US DoD prime contract obligations, fiscal year to date",
         "unit": "billions USD",
         "scale": 1e-9,
@@ -3240,16 +3186,14 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "transform": {"operation": "multiply", "factor": 1e-6},
         "source_name": "usaspending_api",
         "source_table": (
-            "USAspending API v2, agency 097 (DoD) new award count, fiscal "
-            "year to date"
+            "USAspending API v2, agency 097 (DoD) new award count, fiscal year to date"
         ),
         "concept_authority": "usaspending",
         "source_concept": "new_award_count",
     },
     "usaspending.dod.prime_award_transactions": {
         "url_template": (
-            f"{USASPENDING_API_ROOT}/agency/097/awards/"
-            "?fiscal_year={fiscal_year}"
+            f"{USASPENDING_API_ROOT}/agency/097/awards/?fiscal_year={{fiscal_year}}"
         ),
         "field": "transaction_count",
         "series_id": "usaspending.agency.097.awards.transaction_count",
@@ -3272,8 +3216,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         ),
         "field": "results[].recipient_id",
         "series_id": (
-            "usaspending.search.spending_by_category.recipient."
-            "dod.contracts.distinct"
+            "usaspending.search.spending_by_category.recipient.dod.contracts.distinct"
         ),
         "label": (
             "Unique identifiable recipients of US DoD prime-contract "
@@ -3309,9 +3252,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     "usaspending.dod.small_business_contract_obligation_share": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
-        "field": (
-            "results[time_period.fiscal_year={fiscal_year}].aggregated_amount"
-        ),
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
             "usaspending.search.spending_over_time.dod.contracts."
             "small_business_obligation_share"
@@ -3347,22 +3288,17 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         ),
         "concept_authority": "usaspending",
         "source_concept": (
-            "100 * small_business contract obligations / all contract "
-            "obligations"
+            "100 * small_business contract obligations / all contract obligations"
         ),
     },
     "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
-        "field": (
-            "results[time_period.fiscal_year={fiscal_year}].aggregated_amount"
-        ),
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
             "usaspending.search.spending_over_time.dhs.title_vi."
             "award_transaction_obligations"
         ),
-        "label": (
-            "DHS Title VI award-transaction obligations, fiscal year total"
-        ),
+        "label": ("DHS Title VI award-transaction obligations, fiscal year total"),
         "unit": "usd",
         "scale": 1,
         "round": 2,
@@ -3499,10 +3435,7 @@ def usaspending_binding_matches_spec(
         != USASPENDING_BINDING_TEMPLATE_KEYS
     ):
         return False
-    projection = {
-        key: binding[key]
-        for key in USASPENDING_BINDING_TEMPLATE_KEYS
-    }
+    projection = {key: binding[key] for key in USASPENDING_BINDING_TEMPLATE_KEYS}
     return canonical_bytes(projection) == canonical_bytes(
         usaspending_binding_template(spec)
     )
@@ -3591,9 +3524,8 @@ def usaspending_fiscal_year_post_body(
             raise ValueError("registered USAspending TAS component is malformed")
         if not all(isinstance(value, str) for value in component.values()):
             raise ValueError("registered USAspending TAS component is malformed")
-        if (
-            not re.fullmatch(r"\d{3}", component["aid"])
-            or not re.fullmatch(r"\d{4}", component["main"])
+        if not re.fullmatch(r"\d{3}", component["aid"]) or not re.fullmatch(
+            r"\d{4}", component["main"]
         ):
             raise ValueError("registered USAspending TAS component is malformed")
         if "bpoa" in component and (
@@ -3859,7 +3791,7 @@ def fetch_usaspending_json(
 
 
 def snapshot_window_state(today: dt.date, window: Any) -> str:
-    """"pending" | "open" | "missed" | "invalid" for a snapshot window."""
+    """ "pending" | "open" | "missed" | "invalid" for a snapshot window."""
     if not isinstance(window, dict):
         return "invalid"
     try:
@@ -3909,8 +3841,7 @@ def effective_resolution_date_basis(
             return None, f"unsupported {label} basis {value!r}"
     if registered_present and declared_present and registered != declared:
         return None, (
-            f"registered basis {registered!r} disagrees with adapter basis "
-            f"{declared!r}"
+            f"registered basis {registered!r} disagrees with adapter basis {declared!r}"
         )
     if registered_present:
         return str(registered), None
@@ -3944,8 +3875,7 @@ def bounded_resolution_window_gate(
         return state, f"  NO REGISTERED RELEASE WINDOW (refusing): {ref}"
     if state == "pending":
         return state, (
-            f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens "
-            f"{window['start']}"
+            f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens {window['start']}"
         )
     if state == "missed":
         return state, (
@@ -4038,9 +3968,7 @@ LEGACY_INTL_EXECUTOR_CONTRACTS: dict[str, dict[str, Any]] = {
     "cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b": {
         "catalogSlug": "australia-unemployment-rate-july-2026",
         "country": "AU",
-        "dataPointId": (
-            "abs.labour.unemployment_rate.australia.july_2026.first_print"
-        ),
+        "dataPointId": ("abs.labour.unemployment_rate.australia.july_2026.first_print"),
         "period": "2026-07",
         "series": "abs.labour.unemployment_rate",
         "sourceBinding": {
@@ -4070,9 +3998,7 @@ LEGACY_INTL_EXECUTOR_CONTRACTS: dict[str, dict[str, Any]] = {
 }
 
 
-def longest_adapter_stem(
-    ref: str, adapters: dict[str, dict[str, Any]]
-) -> str | None:
+def longest_adapter_stem(ref: str, adapters: dict[str, dict[str, Any]]) -> str | None:
     """Return the most-specific matching stem, independent of dict order."""
     matches = [stem for stem in adapters if ref.startswith(stem + ".")]
     return max(matches, key=len, default=None)
@@ -4100,18 +4026,14 @@ def intl_binding_template(spec: dict[str, Any]) -> dict[str, Any]:
     return binding
 
 
-def intl_binding_mismatches(
-    spec: dict[str, Any], binding: dict[str, Any]
-) -> list[str]:
+def intl_binding_mismatches(spec: dict[str, Any], binding: dict[str, Any]) -> list[str]:
     """Return registry/adapter drift before any source request is made."""
     try:
         expected = intl_binding_template(spec)
     except ValueError:
         return ["adapterTemplate"]
     mismatches = [
-        key
-        for key in sorted(INTL_BINDING_KEYS)
-        if binding.get(key) != expected[key]
+        key for key in sorted(INTL_BINDING_KEYS) if binding.get(key) != expected[key]
     ]
     allowed = set(binding.get("allowedHosts") or [])
     if not set(spec["allowed_hosts"]).issubset(allowed):
@@ -4173,7 +4095,7 @@ def sba_pdf_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
 
     return {
         "adapter": SBA_BINDING_ADAPTER,
-        "sourceUrl": SBA_ENTRY_URL,
+        "sourceUrl": SBA_ANNOUNCEMENT_URL,
         "sourceSeriesId": spec["series_id"],
         "field": spec["field"],
         "table": spec["source_table"],
@@ -4192,9 +4114,7 @@ def sba_pdf_binding_matches_spec(
     if set(binding) - SBA_BINDING_DERIVED_KEYS != SBA_BINDING_TEMPLATE_KEYS:
         return False
     projected = {key: binding[key] for key in SBA_BINDING_TEMPLATE_KEYS}
-    return canonical_bytes(projected) == canonical_bytes(
-        sba_pdf_binding_template(spec)
-    )
+    return canonical_bytes(projected) == canonical_bytes(sba_pdf_binding_template(spec))
 
 
 def _sba_refusal(prefix: str, reason: str) -> tuple[None, str]:
@@ -4413,9 +4333,7 @@ def _sba_report_completed_years(
         else []
     )
     if len(matching) != 1:
-        raise ValueError(
-            f"capture has {len(matching)} report entries for {series}"
-        )
+        raise ValueError(f"capture has {len(matching)} report entries for {series}")
     report = matching[0]
     header_years = report.get("headerYears")
     if (
@@ -4476,10 +4394,9 @@ def _replay_sba_candidate(
         raw_bundle = gzip.decompress(archive_path.read_bytes())
     except (OSError, EOFError, gzip.BadGzipFile, ValueError) as exc:
         return _sba_refusal(SBA_CUSTODY_INVALID, f"ZIP archive replay failed: {exc}")
-    if (
-        hashlib.sha256(raw_bundle).hexdigest() != archive.get("rawSha256")
-        or len(raw_bundle) != archive.get("rawBytes")
-    ):
+    if hashlib.sha256(raw_bundle).hexdigest() != archive.get("rawSha256") or len(
+        raw_bundle
+    ) != archive.get("rawBytes"):
         return _sba_refusal(
             SBA_CUSTODY_INVALID, "replayed ZIP bytes disagree with the manifest"
         )
@@ -4531,10 +4448,9 @@ def _replay_sba_candidate(
             member = archive_zip.read(member_path)
     except (KeyError, OSError, RuntimeError, ValueError, zipfile.BadZipFile) as exc:
         return _sba_refusal(SBA_CUSTODY_INVALID, f"PDF member replay failed: {exc}")
-    if (
-        hashlib.sha256(member).hexdigest() != report.get("memberSha256")
-        or len(member) != report.get("memberBytes")
-    ):
+    if hashlib.sha256(member).hexdigest() != report.get("memberSha256") or len(
+        member
+    ) != report.get("memberBytes"):
         return _sba_refusal(
             SBA_CUSTODY_INVALID, "replayed PDF bytes disagree with the manifest"
         )
@@ -4574,10 +4490,7 @@ def _replay_sba_candidate(
         return _sba_refusal(
             SBA_CUSTODY_UNWITNESSED, "capture lacks an available timeline proof"
         )
-    if (
-        candidate.introducing_commit is None
-        or candidate.attestation_signer is None
-    ):
+    if candidate.introducing_commit is None or candidate.attestation_signer is None:
         return _sba_refusal(
             SBA_CUSTODY_INVALID,
             "capture reached replay without its commit attestation binding",
@@ -4801,8 +4714,7 @@ def resolve_sba_pdf_first_print(
         ):
             return _sba_refusal(
                 SBA_CUSTODY_UNATTESTED,
-                "capture introducing commit is not attested by "
-                f"{SBA_WITNESS_WORKFLOW}",
+                f"capture introducing commit is not attested by {SBA_WITNESS_WORKFLOW}",
             )
         attested_earliest.append(
             replace(
@@ -4908,9 +4820,7 @@ class _PinnedRedirectHandler(urllib.request.HTTPRedirectHandler):
         newurl: str,
     ) -> urllib.request.Request | None:
         _require_allowed_host(newurl, self.allowed_hosts)
-        return super().redirect_request(
-            req, fp, code, msg, headers, newurl
-        )
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def http_request(
@@ -4922,9 +4832,7 @@ def http_request(
     """Fetch raw bytes while pinning both request and redirect destinations."""
     _require_allowed_host(request.full_url, allowed_hosts)
     retrieved_at = utc_now()
-    opener = urllib.request.build_opener(
-        _PinnedRedirectHandler(allowed_hosts)
-    )
+    opener = urllib.request.build_opener(_PinnedRedirectHandler(allowed_hosts))
     with opener.open(request, timeout=timeout) as response:
         final_url = response.geturl()
         _require_allowed_host(final_url, allowed_hosts)
@@ -4949,9 +4857,7 @@ def fetch_first(
     last_error: Exception | None = None
     for url in urls:
         try:
-            raw, retrieved_at, final_url = http_get(
-                url, allowed_hosts=allowed_hosts
-            )
+            raw, retrieved_at, final_url = http_get(url, allowed_hosts=allowed_hosts)
             return raw, final_url, retrieved_at
         except Exception as exc:  # noqa: BLE001 - next pin is the fallback
             last_error = exc
@@ -4977,9 +4883,7 @@ def statcan_series_from_payload(raw: bytes, vector: int) -> dict[str, float]:
             if isinstance(response_object, dict)
             else None
         )
-        raise ValueError(
-            f"WDS returned vector {got!r}, expected {vector}"
-        )
+        raise ValueError(f"WDS returned vector {got!r}, expected {vector}")
     points = response_object.get("vectorDataPoint")
     if not isinstance(points, list):
         raise ValueError(f"WDS vector {vector} has no data points")
@@ -5010,9 +4914,7 @@ def statcan_series(
         },
         method="POST",
     )
-    raw, retrieved_at, url = http_request(
-        request, allowed_hosts=allowed_hosts
-    )
+    raw, retrieved_at, url = http_request(request, allowed_hosts=allowed_hosts)
     return statcan_series_from_payload(raw, vector), raw, url, retrieved_at
 
 
@@ -5020,10 +4922,7 @@ def normalize_sdmx_period(period: str) -> str:
     """Normalize monthly/quarterly SDMX periods to the ledger's YYYY-MM key."""
     quarter = re.fullmatch(r"(\d{4})-Q([1-4])", period)
     if quarter:
-        return (
-            f"{quarter.group(1)}-"
-            f"{(int(quarter.group(2)) - 1) * 3 + 1:02d}"
-        )
+        return f"{quarter.group(1)}-{(int(quarter.group(2)) - 1) * 3 + 1:02d}"
     if re.fullmatch(r"\d{4}-\d{2}", period):
         return period
     raise ValueError(f"unsupported SDMX period {period!r}")
@@ -5054,9 +4953,8 @@ def abs_series_from_payload(raw: bytes, flow: str, key: str) -> dict[str, float]
     series_index, series_payload = next(iter(all_series.items()))
     series_dimensions = structure["dimensions"].get("series")
     indexes = series_index.split(":")
-    if (
-        not isinstance(series_dimensions, list)
-        or len(series_dimensions) != len(indexes)
+    if not isinstance(series_dimensions, list) or len(series_dimensions) != len(
+        indexes
     ):
         raise ValueError(f"ABS key {flow}/{key}: series dimensions drifted")
     actual_key_parts: list[str] = []
@@ -5070,9 +4968,7 @@ def abs_series_from_payload(raw: bytes, flow: str, key: str) -> dict[str, float]
             ) from exc
     actual_key = ".".join(actual_key_parts)
     if actual_key != key:
-        raise ValueError(
-            f"ABS returned key {actual_key!r}, expected {key!r}"
-        )
+        raise ValueError(f"ABS returned key {actual_key!r}, expected {key!r}")
     time_dimensions = [
         dim
         for dim in structure["dimensions"].get("observation") or []
@@ -5098,9 +4994,7 @@ def abs_series(
 ) -> tuple[dict[str, float], bytes, str, str]:
     """ABS Data API (SDMX-JSON 2.0) single-series values."""
     url = ABS_DATA_URL.format(flow=flow, key=key, last_n=latest_n)
-    raw, retrieved_at, final_url = http_get(
-        url, allowed_hosts=allowed_hosts
-    )
+    raw, retrieved_at, final_url = http_get(url, allowed_hosts=allowed_hosts)
     series = abs_series_from_payload(raw, flow, key)
     return series, raw, final_url, retrieved_at
 
@@ -5113,33 +5007,23 @@ def eurostat_series_from_payload(
     if "dimension" not in payload:
         raise ValueError(f"eurostat {dataset}/{key}: {str(payload)[:160]}")
     extension = payload.get("extension")
-    response_dataset = (
-        extension.get("id") if isinstance(extension, dict) else None
-    )
+    response_dataset = extension.get("id") if isinstance(extension, dict) else None
     if str(response_dataset or "").lower() != dataset.lower():
         raise ValueError(
-            f"Eurostat returned dataset {response_dataset!r}, "
-            f"expected {dataset!r}"
+            f"Eurostat returned dataset {response_dataset!r}, expected {dataset!r}"
         )
     dimension_ids = payload.get("id")
     if not isinstance(dimension_ids, list) or "time" not in dimension_ids:
         raise ValueError(f"Eurostat {dataset}/{key}: dimension ids drifted")
     series_dimension_ids = [
-        dimension_id
-        for dimension_id in dimension_ids
-        if dimension_id != "time"
+        dimension_id for dimension_id in dimension_ids if dimension_id != "time"
     ]
     key_parts = key.split(".")
     if len(series_dimension_ids) != len(key_parts):
         raise ValueError(f"Eurostat {dataset}/{key}: key shape drifted")
-    for dimension_id, expected in zip(
-        series_dimension_ids, key_parts, strict=True
-    ):
+    for dimension_id, expected in zip(series_dimension_ids, key_parts, strict=True):
         index = (
-            payload["dimension"]
-            .get(dimension_id, {})
-            .get("category", {})
-            .get("index")
+            payload["dimension"].get(dimension_id, {}).get("category", {}).get("index")
         )
         if not isinstance(index, dict) or set(index) != {expected}:
             actual = sorted(index) if isinstance(index, dict) else index
@@ -5173,12 +5057,8 @@ def eurostat_series(
     allowed_hosts: list[str] | tuple[str, ...],
 ) -> tuple[dict[str, float], dict[str, str], bytes, str, str]:
     """Eurostat dissemination API JSON-stat values and status flags."""
-    url = EUROSTAT_DATA_URL.format(
-        dataset=dataset, key=key, last_n=latest_n
-    )
-    raw, retrieved_at, final_url = http_get(
-        url, allowed_hosts=allowed_hosts
-    )
+    url = EUROSTAT_DATA_URL.format(dataset=dataset, key=key, last_n=latest_n)
+    raw, retrieved_at, final_url = http_get(url, allowed_hosts=allowed_hosts)
     series, flags = eurostat_series_from_payload(raw, dataset, key)
     return series, flags, raw, final_url, retrieved_at
 
@@ -5195,17 +5075,13 @@ def ons_series_from_payload(raw: bytes, series_id: str) -> dict[str, float]:
             continue
         date_label = str(point.get("date") or "").strip().upper()
         match = re.fullmatch(r"(\d{4}) ([A-Z]{3})", date_label)
-        if (
-            not match
-            or match.group(2).lower() not in MONTH_ABBREVIATION_NUMBERS
-        ):
+        if not match or match.group(2).lower() not in MONTH_ABBREVIATION_NUMBERS:
             continue
         raw_value = point.get("value")
         if raw_value in (None, "", ".."):
             continue
         series[
-            f"{match.group(1)}-"
-            f"{MONTH_ABBREVIATION_NUMBERS[match.group(2).lower()]:02d}"
+            f"{match.group(1)}-{MONTH_ABBREVIATION_NUMBERS[match.group(2).lower()]:02d}"
         ] = float(str(raw_value).replace(",", ""))
     if not series:
         raise ValueError(f"ONS {series_id}: no numeric monthly observations")
@@ -5220,9 +5096,7 @@ def ons_series(
 ) -> tuple[dict[str, float], bytes, str, str]:
     """Fetch one keyless ONS v1 time-series JSON document."""
     url = ONS_DATA_URL.format(uri=uri)
-    raw, retrieved_at, final_url = http_get(
-        url, allowed_hosts=allowed_hosts
-    )
+    raw, retrieved_at, final_url = http_get(url, allowed_hosts=allowed_hosts)
     return ons_series_from_payload(raw, series_id), raw, final_url, retrieved_at
 
 
@@ -5298,9 +5172,7 @@ def intl_transformed_value(
     return round(value, 4) + 0.0
 
 
-def intl_anchor_failures(
-    spec: dict[str, Any], series: dict[str, float]
-) -> list[str]:
+def intl_anchor_failures(spec: dict[str, Any], series: dict[str, float]) -> list[str]:
     """Anchor periods whose recorded first prints the fetch cannot reproduce.
 
     Failing closed here is the core safety property: a candidate series that
@@ -5362,9 +5234,7 @@ def intl_fetch(
                 raw, retrieved_at, url = http_get(
                     str(request_url), allowed_hosts=spec["allowed_hosts"]
                 )
-                series = abs_series_from_payload(
-                    raw, spec["flow"], spec["key"]
-                )
+                series = abs_series_from_payload(raw, spec["flow"], spec["key"])
             else:
                 series, raw, url, retrieved_at = abs_series(
                     spec["flow"],
@@ -5557,9 +5427,7 @@ def apply_transform(
     return round(value, 4) + 0.0
 
 
-def value_plausible(
-    value: float, forecast_entry: dict[str, Any] | None
-) -> bool:
+def value_plausible(value: float, forecast_entry: dict[str, Any] | None) -> bool:
     """Bounded unit-scale gate: a fetched value wildly outside the cell's
     own interval means a wrong series or transform (thousands-vs-millions
     class), never a legitimate outcome. Bounded at 4 interval-widths so a
@@ -5695,9 +5563,7 @@ def sba_pdf_fact(
             ),
         },
         "source_row_keys": ["section:Disaster", "row:Disaster"],
-        "source_cell_keys": [
-            f"{resolution.member_path}::Fiscal Year {fiscal_year}"
-        ],
+        "source_cell_keys": [f"{resolution.member_path}::Fiscal Year {fiscal_year}"],
     }
 
 
@@ -5782,8 +5648,7 @@ def bls_anchor_mismatches(
             continue
         if abs(state["value"] - expected) > BLS_ANCHOR_TOLERANCE * abs(expected):
             problems.append(
-                f"{anchor_period}={state['value']} (recorded first print "
-                f"{expected})"
+                f"{anchor_period}={state['value']} (recorded first print {expected})"
             )
     return problems
 
@@ -5899,17 +5764,12 @@ def fsa_crp_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def fsa_crp_binding_matches_spec(
-    binding: Any, spec: Mapping[str, Any]
-) -> bool:
+def fsa_crp_binding_matches_spec(binding: Any, spec: Mapping[str, Any]) -> bool:
     """Require the registered seven keys to match the executor exactly."""
 
     if not isinstance(binding, dict):
         return False
-    if (
-        set(binding) - FSA_CRP_BINDING_DERIVED_KEYS
-        != FSA_CRP_BINDING_TEMPLATE_KEYS
-    ):
+    if set(binding) - FSA_CRP_BINDING_DERIVED_KEYS != FSA_CRP_BINDING_TEMPLATE_KEYS:
         return False
     allowed_hosts = binding.get("allowedHosts")
     if allowed_hosts is not None and (
@@ -5917,9 +5777,7 @@ def fsa_crp_binding_matches_spec(
         or sorted(allowed_hosts) != sorted(spec["allowed_hosts"])
     ):
         return False
-    projection = {
-        key: binding[key] for key in FSA_CRP_BINDING_TEMPLATE_KEYS
-    }
+    projection = {key: binding[key] for key in FSA_CRP_BINDING_TEMPLATE_KEYS}
     return canonical_bytes(projection) == canonical_bytes(
         fsa_crp_binding_template(spec)
     )
@@ -5934,17 +5792,11 @@ class _FsaCrpLinkParser(HTMLParser):
         self._href: str | None = None
         self._text: list[str] = []
 
-    def handle_starttag(
-        self, tag: str, attrs: list[tuple[str, str | None]]
-    ) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag.lower() != "a":
             return
         self._href = next(
-            (
-                value
-                for name, value in attrs
-                if name.lower() == "href" and value
-            ),
+            (value for name, value in attrs if name.lower() == "href" and value),
             None,
         )
         self._text = []
@@ -6030,16 +5882,16 @@ def fsa_crp_summary_pdf_url(
     return next(iter(matches)), None
 
 
-def fsa_crp_value_from_text(
-    text: str, period: str
-) -> tuple[float | None, str | None]:
+def fsa_crp_value_from_text(text: str, period: str) -> tuple[float | None, str | None]:
     """Read the TOTAL CRP row's Acres column from layout-preserved text."""
 
     if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
         raise ValueError(f"FSA CRP period must be YYYY-MM, got {period!r}")
     if not re.search(
         r"\b(?:CRP|CONSERVATION\s+RESERVE\s+PROGRAM)\b[\s\S]{0,120}?"
-        r"\bMONTHLY\s+SUMMARY\b", text, re.IGNORECASE
+        r"\bMONTHLY\s+SUMMARY\b",
+        text,
+        re.IGNORECASE,
     ):
         # The published header spells out the program name on its own line
         # above "MONTHLY SUMMARY — <MONTH> <YEAR>"; the acronym form is
@@ -6056,9 +5908,7 @@ def fsa_crp_value_from_text(
         return None, f"PDF text does not identify target month {period}"
 
     rows: list[tuple[int, list[str]]] = []
-    lines = (
-        text.replace("\r\n", "\n").replace("\r", "\n").splitlines()
-    )
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").splitlines()
     for index, line in enumerate(lines):
         cells = re.split(r"\s{2,}", line.strip()) if line.strip() else []
         if cells and _fsa_crp_normalized_text(cells[0]) == "total crp":
@@ -6070,9 +5920,7 @@ def fsa_crp_value_from_text(
     header_matches: list[tuple[int, list[str]]] = []
     for index in range(max(0, row_index - 30), row_index):
         cells = re.split(r"\s{2,}", lines[index].strip())
-        if "acres" in {
-            _fsa_crp_normalized_text(cell) for cell in cells
-        }:
+        if "acres" in {_fsa_crp_normalized_text(cell) for cell in cells}:
             header_matches.append((index, cells))
     if len(header_matches) != 1:
         return None, (
@@ -6089,9 +5937,7 @@ def fsa_crp_value_from_text(
         return None, "TOTAL CRP row does not align with one Acres column"
     raw_value = row[acres_indices[0]].strip()
     if not re.fullmatch(r"\d{1,3}(?:,\d{3})*|\d+", raw_value):
-        return None, (
-            f"TOTAL CRP Acres value is not an integer: {raw_value!r}"
-        )
+        return None, (f"TOTAL CRP Acres value is not an integer: {raw_value!r}")
     value = float(raw_value.replace(",", ""))
     if not math.isfinite(value) or value <= 0 or not value.is_integer():
         return None, "TOTAL CRP Acres value is not a positive integer"
@@ -6120,9 +5966,7 @@ def fsa_crp_pdf_text(raw: bytes) -> tuple[str | None, str | None]:
     except (OSError, subprocess.TimeoutExpired) as exc:
         return None, f"pdftotext failed: {exc}"
     if completed.returncode != 0:
-        detail = completed.stderr.decode(
-            "utf-8", errors="replace"
-        ).strip()
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
         return (
             None,
             f"pdftotext exited {completed.returncode}: {detail[:200]}",
@@ -6154,9 +5998,7 @@ def fsa_crp_verified_anchors(
             r"\d{4}-(0[1-9]|1[0-2])", period
         ):
             return None
-        if isinstance(expected, bool) or not isinstance(
-            expected, (int, float)
-        ):
+        if isinstance(expected, bool) or not isinstance(expected, (int, float)):
             return None
         value = float(expected)
         if not math.isfinite(value) or value <= 0 or not value.is_integer():
@@ -6250,9 +6092,7 @@ def census_spm_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def census_spm_binding_matches_spec(
-    binding: Any, spec: Mapping[str, Any]
-) -> bool:
+def census_spm_binding_matches_spec(binding: Any, spec: Mapping[str, Any]) -> bool:
     """Require the registered Census SPM binding to match the executor."""
 
     if not isinstance(binding, dict):
@@ -6268,9 +6108,7 @@ def census_spm_binding_matches_spec(
         or sorted(allowed_hosts) != sorted(spec["allowed_hosts"])
     ):
         return False
-    projected = {
-        key: binding[key] for key in CENSUS_SPM_BINDING_TEMPLATE_KEYS
-    }
+    projected = {key: binding[key] for key in CENSUS_SPM_BINDING_TEMPLATE_KEYS}
     return canonical_bytes(projected) == canonical_bytes(
         census_spm_binding_template(spec)
     )
@@ -6287,9 +6125,7 @@ class _CensusSpmPageParser(HTMLParser):
         self._link_text: list[str] = []
         self._ignored_depth = 0
 
-    def handle_starttag(
-        self, tag: str, attrs: list[tuple[str, str | None]]
-    ) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         lowered = tag.lower()
         if lowered in {"script", "style"}:
             self._ignored_depth += 1
@@ -6297,11 +6133,7 @@ class _CensusSpmPageParser(HTMLParser):
         if lowered != "a" or self._ignored_depth:
             return
         self._href = next(
-            (
-                value
-                for name, value in attrs
-                if name.lower() == "href" and value
-            ),
+            (value for name, value in attrs if name.lower() == "href" and value),
             None,
         )
         self._link_text = []
@@ -6397,9 +6229,7 @@ def census_spm_report_url(
         if match is None:
             continue
         report_year = int(match.group(1))
-        _identity, identity_refusal = _census_spm_report_identity(
-            url, str(report_year)
-        )
+        _identity, identity_refusal = _census_spm_report_identity(url, str(report_year))
         if identity_refusal:
             return None, (
                 "Census annual report link does not match the reviewed "
@@ -6450,8 +6280,7 @@ def census_spm_table_url(
     )
     if expected_title not in page_text:
         return None, (
-            f"report page does not identify {expected_title!r}; wrong annual "
-            "artifact"
+            f"report page does not identify {expected_title!r}; wrong annual artifact"
         )
 
     matches: set[str] = set()
@@ -6555,9 +6384,7 @@ def census_spm_report_publication_date(
         # around the month/day/year while excluding footer revision dates.
         following = visible[index + 1 : index + 9]
         for width in range(1, min(3, len(following)) + 1):
-            normalized = _census_spm_normalized_text(
-                " ".join(following[:width])
-            )
+            normalized = _census_spm_normalized_text(" ".join(following[:width]))
             match = date_pattern.fullmatch(normalized)
             if match is None:
                 continue
@@ -6698,13 +6525,10 @@ def census_spm_xlsx_grid(
                     or ".." in member_path.parts
                 ):
                     return None, (
-                        "Census workbook contains an unsafe ZIP member path: "
-                        f"{name!r}"
+                        f"Census workbook contains an unsafe ZIP member path: {name!r}"
                     )
             workbook = _xlsx_xml(archive, "xl/workbook.xml")
-            relationships = _xlsx_xml(
-                archive, "xl/_rels/workbook.xml.rels"
-            )
+            relationships = _xlsx_xml(archive, "xl/_rels/workbook.xml.rels")
             accepted_name = _census_spm_normalized_text(spec["sheet_name"])
             sheets = [
                 sheet
@@ -6779,19 +6603,13 @@ def census_spm_xlsx_grid(
                 key = (row_index, column_index)
                 if key in cells:
                     return None, f"duplicate XLSX cell reference {reference!r}"
-                if any(
-                    _xlsx_local_name(node.tag) == "f" for node in cell
-                ):
+                if any(_xlsx_local_name(node.tag) == "f" for node in cell):
                     return None, (
                         f"formula cell {reference!r} is not admissible in "
                         "resolution data"
                     )
                 value_node = next(
-                    (
-                        node
-                        for node in cell
-                        if _xlsx_local_name(node.tag) == "v"
-                    ),
+                    (node for node in cell if _xlsx_local_name(node.tag) == "v"),
                     None,
                 )
                 cell_type = cell.attrib.get("t")
@@ -6814,9 +6632,7 @@ def census_spm_xlsx_grid(
                     else:
                         value = float(text)
                 except (IndexError, TypeError, ValueError) as exc:
-                    return None, (
-                        f"invalid value in XLSX cell {reference!r}: {exc}"
-                    )
+                    return None, (f"invalid value in XLSX cell {reference!r}: {exc}")
                 cells[key] = value
                 max_row = max(max_row, row_index)
                 max_column = max(max_column, column_index)
@@ -6866,12 +6682,8 @@ def census_spm_xlsx_grid(
     return grid, None
 
 
-_CENSUS_SPM_SUPERSCRIPT_DIGITS = str.maketrans(
-    "⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"
-)
-_CENSUS_SPM_REQUIRED_ANCHOR_YEARS = {
-    str(year) for year in range(2019, 2025)
-}
+_CENSUS_SPM_SUPERSCRIPT_DIGITS = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
+_CENSUS_SPM_REQUIRED_ANCHOR_YEARS = {str(year) for year in range(2019, 2025)}
 _CENSUS_SPM_LEGACY_TRANSITION_VALUES = {
     "2019": {12.5, 12.6},
     "2020": {9.7},
@@ -6938,8 +6750,7 @@ def census_spm_rate_from_grid(
         for row in grid[:7]
         for cell in row
         if isinstance(cell, str)
-        and "supplemental poverty measure"
-        in _census_spm_normalized_text(cell)
+        and "supplemental poverty measure" in _census_spm_normalized_text(cell)
     ]
     if len(set(title_candidates)) != 1:
         return None, (
@@ -6947,9 +6758,10 @@ def census_spm_rate_from_grid(
             f"found {len(set(title_candidates))}"
         )
     title = title_candidates[0]
-    if "table b 2" not in title or re.search(
-        rf"\bto {re.escape(report_year)}(?: ?\d{{1,2}})?$", title
-    ) is None:
+    if (
+        "table b 2" not in title
+        or re.search(rf"\bto {re.escape(report_year)}(?: ?\d{{1,2}})?$", title) is None
+    ):
         return None, (
             "Table B-2 title is not the Supplemental Poverty Measure range "
             f"ending in report year {report_year}; wrong or later workbook"
@@ -6982,16 +6794,13 @@ def census_spm_rate_from_grid(
     def unique_header_column(
         path_key: str, description: str
     ) -> tuple[int | None, str | None]:
-        header_path = {
-            _census_spm_normalized_text(label) for label in spec[path_key]
-        }
+        header_path = {_census_spm_normalized_text(label) for label in spec[path_key]}
         candidate_columns: list[int] = []
         for column_index in range(column_count):
             column_headers = {
                 _census_spm_normalized_text(row[column_index])
                 for row in grid[:section_row]
-                if column_index < len(row)
-                and isinstance(row[column_index], str)
+                if column_index < len(row) and isinstance(row[column_index], str)
             }
             if header_path.issubset(column_headers):
                 candidate_columns.append(column_index)
@@ -7050,13 +6859,8 @@ def census_spm_rate_from_grid(
     elif len(row_hits) == 1:
         data_row = row_hits[0][0]
     else:
-        return None, (
-            f"expected exactly one {year} row inside ALL RACES, found "
-            "0"
-        )
-    required_column = max(
-        percent_column, total_column, poverty_count_column
-    )
+        return None, (f"expected exactly one {year} row inside ALL RACES, found 0")
+    required_column = max(percent_column, total_column, poverty_count_column)
     if required_column >= len(grid[data_row]):
         return None, "ALL RACES year row is shorter than the required child columns"
     value = grid[data_row][percent_column]
@@ -7102,8 +6906,12 @@ def census_spm_fetch_year(
     """Fetch one annual report's Table B-2 and parse the child SPM rate."""
 
     if not re.fullmatch(r"\d{4}", year):
-        return None, None, str(spec["source_url"]), utc_now(), (
-            f"Census SPM period must be YYYY, got {year!r}"
+        return (
+            None,
+            None,
+            str(spec["source_url"]),
+            utc_now(),
+            (f"Census SPM period must be YYYY, got {year!r}"),
         )
     publications_url = str(spec["publications_url"])
     try:
@@ -7111,8 +6919,12 @@ def census_spm_fetch_year(
             publications_url, allowed_hosts=spec["allowed_hosts"]
         )
     except (OSError, ValueError) as exc:
-        return None, None, publications_url, utc_now(), (
-            f"Census publications index fetch failed: {exc}"
+        return (
+            None,
+            None,
+            publications_url,
+            utc_now(),
+            (f"Census publications index fetch failed: {exc}"),
         )
     report_url, refusal = census_spm_report_url(
         index_raw,
@@ -7130,22 +6942,30 @@ def census_spm_fetch_year(
             report_url, allowed_hosts=spec["allowed_hosts"]
         )
     except (OSError, ValueError) as exc:
-        return None, None, report_url, utc_now(), (
-            f"Census annual report page fetch failed: {exc}"
+        return (
+            None,
+            None,
+            report_url,
+            utc_now(),
+            (f"Census annual report page fetch failed: {exc}"),
         )
     if final_report_url != report_url:
-        return None, None, final_report_url, report_retrieved_at, (
-            "Census annual report fetch redirected away from the exact "
-            f"indexed P60 artifact: {report_url!r} -> {final_report_url!r}"
+        return (
+            None,
+            None,
+            final_report_url,
+            report_retrieved_at,
+            (
+                "Census annual report fetch redirected away from the exact "
+                f"indexed P60 artifact: {report_url!r} -> {final_report_url!r}"
+            ),
         )
     publication_day, refusal = census_spm_report_publication_date(
         report_raw, year, report_url=final_report_url
     )
     if refusal or publication_day is None:
         return None, None, final_report_url, report_retrieved_at, refusal
-    report_capture_day, refusal = census_spm_effective_capture_day(
-        report_retrieved_at
-    )
+    report_capture_day, refusal = census_spm_effective_capture_day(report_retrieved_at)
     if refusal or report_capture_day is None:
         return None, None, final_report_url, report_retrieved_at, refusal
     refusal = census_spm_first_print_gate(
@@ -7171,14 +6991,24 @@ def census_spm_fetch_year(
             table_url, allowed_hosts=spec["allowed_hosts"]
         )
     except (OSError, ValueError) as exc:
-        return None, None, table_url, utc_now(), (
-            f"Census Table B-2 fetch failed: {exc}"
+        return (
+            None,
+            None,
+            table_url,
+            utc_now(),
+            (f"Census Table B-2 fetch failed: {exc}"),
         )
     final_name = urllib.parse.urlparse(final_url).path.rsplit("/", 1)[-1]
     if final_url != table_url:
-        return None, raw, final_url, retrieved_at, (
-            "Census Table B-2 fetch redirected away from the reviewed exact "
-            f"artifact URL: {table_url!r} -> {final_url!r}"
+        return (
+            None,
+            raw,
+            final_url,
+            retrieved_at,
+            (
+                "Census Table B-2 fetch redirected away from the reviewed exact "
+                f"artifact URL: {table_url!r} -> {final_url!r}"
+            ),
         )
     table_capture_day, refusal = census_spm_effective_capture_day(retrieved_at)
     if refusal or table_capture_day is None:
@@ -7191,9 +7021,15 @@ def census_spm_fetch_year(
     if refusal:
         return None, raw, final_url, retrieved_at, refusal
     if final_name.lower() != str(spec["table_filename"]).lower():
-        return None, raw, final_url, retrieved_at, (
-            f"fetched filename {final_name!r} is not the reviewed "
-            f"{spec['table_filename']!r}"
+        return (
+            None,
+            raw,
+            final_url,
+            retrieved_at,
+            (
+                f"fetched filename {final_name!r} is not the reviewed "
+                f"{spec['table_filename']!r}"
+            ),
         )
     grid, refusal = census_spm_xlsx_grid(raw, spec)
     if refusal or grid is None:
@@ -7243,8 +7079,7 @@ def census_spm_anchor_mismatches(
 
     if set(anchors) != _CENSUS_SPM_REQUIRED_ANCHOR_YEARS:
         return [
-            "verified anchors must cover exactly 2019-2024; got "
-            f"{sorted(anchors)!r}"
+            f"verified anchors must cover exactly 2019-2024; got {sorted(anchors)!r}"
         ]
     problems = []
     for year, expected in sorted(anchors.items()):
@@ -7295,9 +7130,7 @@ def irs_soi_pub1304_binding_matches_spec(
         != IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS
     ):
         return False
-    projected = {
-        key: binding[key] for key in IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS
-    }
+    projected = {key: binding[key] for key in IRS_SOI_PUB1304_BINDING_TEMPLATE_KEYS}
     return canonical_bytes(projected) == canonical_bytes(
         irs_soi_pub1304_binding_template(spec)
     )
@@ -7371,8 +7204,7 @@ def irs_soi_pub1304_count_from_grid(
         marker_row, marker_column = marker_cell
         actual_marker = (
             grid[marker_row][marker_column]
-            if marker_row < len(grid)
-            and marker_column < len(grid[marker_row])
+            if marker_row < len(grid) and marker_column < len(grid[marker_row])
             else None
         )
         if (
@@ -7385,16 +7217,11 @@ def irs_soi_pub1304_count_from_grid(
                 f"{actual_marker!r}"
             )
 
-    accepted = {
-        _irs_soi_normalized_text(label) for label in spec["column_labels"]
-    }
+    accepted = {_irs_soi_normalized_text(label) for label in spec["column_labels"]}
     header_hits: list[tuple[int, int]] = []
     for row_index, row in enumerate(grid[:12]):
         for col_index, cell in enumerate(row):
-            if (
-                isinstance(cell, str)
-                and _irs_soi_normalized_text(cell) in accepted
-            ):
+            if isinstance(cell, str) and _irs_soi_normalized_text(cell) in accepted:
                 header_hits.append((row_index, col_index))
     if len(header_hits) != 1:
         return None, (
@@ -7427,8 +7254,7 @@ def irs_soi_pub1304_count_from_grid(
     ]
     if len(row_hits) != 1:
         return None, (
-            f"expected exactly one {spec['row_label']!r} row, found "
-            f"{len(row_hits)}"
+            f"expected exactly one {spec['row_label']!r} row, found {len(row_hits)}"
         )
     row_values = grid[row_hits[0]]
     if len(row_values) <= column:
@@ -7495,10 +7321,7 @@ def irs_soi_pub1304_identity_refusal(
     ]
     token = f"tax year {year}"
     if not any(token in cell for cell in title_cells):
-        return (
-            f"workbook title does not name {token!r}; wrong or relabeled "
-            "print"
-        )
+        return f"workbook title does not name {token!r}; wrong or relabeled print"
     return None
 
 
@@ -7514,8 +7337,12 @@ def irs_soi_pub1304_fetch_year(
     """
 
     if not re.fullmatch(r"\d{4}", year):
-        return None, None, str(spec["source_url"]), utc_now(), (
-            f"tax year must be YYYY, got {year!r}"
+        return (
+            None,
+            None,
+            str(spec["source_url"]),
+            utc_now(),
+            (f"tax year must be YYYY, got {year!r}"),
         )
     template = str(spec["file_url_template"])
     yy = int(year) % 100
@@ -7531,9 +7358,12 @@ def irs_soi_pub1304_fetch_year(
         except (OSError, ValueError):
             # Neither format exists: the print is not yet published.
             return None, None, xls_url, utc_now(), None
-        return None, None, xlsx_url, utc_now(), (
-            "IRS published Table 3.3 as .xlsx; extend the adapter before "
-            "resolving"
+        return (
+            None,
+            None,
+            xlsx_url,
+            utc_now(),
+            ("IRS published Table 3.3 as .xlsx; extend the adapter before resolving"),
         )
     grid, refusal = irs_soi_pub1304_grid(raw, spec)
     if refusal or grid is None:
@@ -7550,9 +7380,7 @@ def irs_soi_pub1304_fetch_normalized_year(
 ) -> tuple[float | None, bytes | None, str, str, str | None]:
     """Fetch one year and return its value in the registered target unit."""
 
-    value, raw, url, retrieved_at, refusal = irs_soi_pub1304_fetch_year(
-        spec, year
-    )
+    value, raw, url, retrieved_at, refusal = irs_soi_pub1304_fetch_year(spec, year)
     if refusal:
         return None, raw, url, retrieved_at, refusal
     return (
@@ -7887,11 +7715,7 @@ def pending_adapter_refs(
                 )
             continue
         usaspending_stem = next(
-            (
-                stem
-                for stem in USASPENDING_ADAPTERS
-                if ref.startswith(stem + ".")
-            ),
+            (stem for stem in USASPENDING_ADAPTERS if ref.startswith(stem + ".")),
             None,
         )
         if usaspending_stem:
@@ -7927,11 +7751,7 @@ def pending_adapter_refs(
                 )
             continue
         bls_stem = next(
-            (
-                stem
-                for stem in BLS_API_ADAPTERS
-                if ref.startswith(stem + ".")
-            ),
+            (stem for stem in BLS_API_ADAPTERS if ref.startswith(stem + ".")),
             None,
         )
         if bls_stem:
@@ -7984,11 +7804,7 @@ def pending_adapter_refs(
                 )
             continue
         census_spm_stem = next(
-            (
-                stem
-                for stem in CENSUS_SPM_ADAPTERS
-                if ref.startswith(stem + ".")
-            ),
+            (stem for stem in CENSUS_SPM_ADAPTERS if ref.startswith(stem + ".")),
             None,
         )
         if census_spm_stem:
@@ -8013,11 +7829,7 @@ def pending_adapter_refs(
                 )
             continue
         irs_soi_stem = next(
-            (
-                stem
-                for stem in IRS_SOI_PUB1304_ADAPTERS
-                if ref.startswith(stem + ".")
-            ),
+            (stem for stem in IRS_SOI_PUB1304_ADAPTERS if ref.startswith(stem + ".")),
             None,
         )
         if irs_soi_stem:
@@ -8062,11 +7874,7 @@ def pending_adapter_refs(
                 )
             continue
         cms_stem = next(
-            (
-                stem
-                for stem in CMS_PROVIDER_DATA_ADAPTERS
-                if ref.startswith(stem + ".")
-            ),
+            (stem for stem in CMS_PROVIDER_DATA_ADAPTERS if ref.startswith(stem + ".")),
             None,
         )
         if cms_stem:
@@ -8272,9 +8080,7 @@ def _prepare_release_files(
 
     timeout = _validate_timestamp_timeout(timeout_seconds)
     if type(clock_skew_seconds) is not int or clock_skew_seconds < 0:
-        raise LedgerProposalError(
-            "clock_skew_seconds must be a non-negative integer"
-        )
+        raise LedgerProposalError("clock_skew_seconds must be a non-negative integer")
     with tempfile.TemporaryDirectory(prefix="thesis-ledger-proposal-") as name:
         stage = pathlib.Path(name)
         _materialize_repository_tree(stage, tree)
@@ -8688,9 +8494,7 @@ def _publish_proposal_commit(
             input_body={"base_tree": base_tree_sha, "tree": tree_entries},
         )
     )
-    candidate_tree_sha = _git_object_sha(
-        tree_response.get("sha"), "created tree SHA"
-    )
+    candidate_tree_sha = _git_object_sha(tree_response.get("sha"), "created tree SHA")
     commit_response = json.loads(
         _gh_api(
             "-X",
@@ -8718,9 +8522,7 @@ def _is_github_not_found(error: Exception) -> bool:
 
 def _proposal_ref_sha(repo: str, proposal: str) -> str | None:
     try:
-        payload = json.loads(
-            _gh_api(f"repos/{repo}/git/ref/heads/{proposal}")
-        )
+        payload = json.loads(_gh_api(f"repos/{repo}/git/ref/heads/{proposal}"))
     except RuntimeError as exc:
         if _is_github_not_found(exc):
             return None
@@ -9011,9 +8813,7 @@ def propose_ledger_append(
                 _gh_api(f"repos/{repo}/commits/{proposal_commit}/check-runs")
             ).get("check_runs", [])
             gate_runs = [run for run in runs if run.get("name") == "Append gate"]
-            if gate_runs and all(
-                run.get("status") == "completed" for run in gate_runs
-            ):
+            if gate_runs and all(run.get("status") == "completed" for run in gate_runs):
                 gate_passed = append_gate_verdict(gate_runs)
                 break
             time.sleep(poll_seconds)
@@ -9649,19 +9449,13 @@ def main() -> int:
     # witnessed SBA PDF custody. Shared official responses are cached so
     # multiple cells from one release archive the same bytes.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
-    bea_release_page_cache: dict[
-        str, tuple[bytes | None, str, str]
-    ] = {}
-    bea_itable_cache: dict[
-        bytes, tuple[bytes | None, str, dict[str, Any], str]
-    ] = {}
+    bea_release_page_cache: dict[str, tuple[bytes | None, str, str]] = {}
+    bea_itable_cache: dict[bytes, tuple[bytes | None, str, dict[str, Any], str]] = {}
     usaspending_cache: dict[
         tuple[str, bytes | None], tuple[Any, bytes | None, str]
     ] = {}
     usaspending_contracts: dict[str, dict[str, Any]] | None = None
-    bls_cache: dict[
-        tuple[str, int, int], tuple[dict, bytes | None, str, str]
-    ] = {}
+    bls_cache: dict[tuple[str, int, int], tuple[dict, bytes | None, str, str]] = {}
     fsa_crp_cache: dict[
         str,
         tuple[float | None, bytes | None, str, str, str | None],
@@ -9697,9 +9491,7 @@ def main() -> int:
     sba_timeline_error: str | None = None
     sba_timeline_loaded = False
     loop_contracts = registration_contracts()
-    for ref, kind, spec, period_type, period, source_vintage, forecast in (
-        adapter_todo
-    ):
+    for ref, kind, spec, period_type, period, source_vintage, forecast in adapter_todo:
         if ref in existing_ids:
             print(f"  already recorded: {ref}")
             continue
@@ -9710,8 +9502,7 @@ def main() -> int:
         )
         if basis_refusal:
             print(
-                f"  RESOLUTION-DATE BASIS MISMATCH (refusing): {ref} — "
-                f"{basis_refusal}"
+                f"  RESOLUTION-DATE BASIS MISMATCH (refusing): {ref} — {basis_refusal}"
             )
             continue
         # A resolve-by date is an outer bound, not a claimed release day. Its
@@ -9784,9 +9575,7 @@ def main() -> int:
             # longer establish the first print. SBA is the reviewed exception:
             # this leg never fetches live bytes and may resolve after the bound
             # only from versioned, externally witnessed custody.
-            if window_verdict and not (
-                kind == "sba_pdf" and window_state == "missed"
-            ):
+            if window_verdict and not (kind == "sba_pdf" and window_state == "missed"):
                 print(window_verdict)
                 continue
         sba_resolution: SbaPdfResolution | None = None
@@ -9823,9 +9612,7 @@ def main() -> int:
             source_file = posixpath.basename(urlparse(source_url).path)
             series_id = SBA_ARCHIVE_SERIES_ID
             retrieved_at = utc_now()
-            archive_vintage = str(
-                sba_resolution.provenance["earliestWitnessedAt"]
-            )[:10]
+            archive_vintage = str(sba_resolution.provenance["earliestWitnessedAt"])[:10]
             extension = "zip"
         elif kind == "intl":
             registration = target_contracts.get(ref)
@@ -9851,8 +9638,7 @@ def main() -> int:
                 window_state = snapshot_window_state(today, release_window)
                 if window_state != "open":
                     print(
-                        f"  FIRST-PRINT WINDOW {window_state.upper()} "
-                        f"(refusing): {ref}"
+                        f"  FIRST-PRINT WINDOW {window_state.upper()} (refusing): {ref}"
                     )
                     continue
                 spec = execution_spec
@@ -9939,21 +9725,16 @@ def main() -> int:
             if release_raw is None:
                 print(f"  BEA RELEASE fetch failed (deferring): {ref}")
                 continue
-            release_refusal = bea_release_page_refusal(
-                release_raw, period, release_day
-            )
+            release_refusal = bea_release_page_refusal(release_raw, period, release_day)
             if release_refusal:
                 print(
-                    f"  BEA RELEASE PAGE REFUSAL (refusing): {ref} — "
-                    f"{release_refusal}"
+                    f"  BEA RELEASE PAGE REFUSAL (refusing): {ref} — {release_refusal}"
                 )
                 continue
             table_body = bea_itable_request_body(spec, period)
             table_cache_key = canonical_bytes(table_body)
             if table_cache_key not in bea_itable_cache:
-                bea_itable_cache[table_cache_key] = fetch_bea_itable_table(
-                    spec, period
-                )
+                bea_itable_cache[table_cache_key] = fetch_bea_itable_table(spec, period)
             table_raw, table_url, fetched_table_body, table_retrieved_at = (
                 bea_itable_cache[table_cache_key]
             )
@@ -9976,10 +9757,7 @@ def main() -> int:
                 table_raw, spec, period, release_day
             )
             if table_refusal:
-                print(
-                    f"  BEA iTABLE PARSE REFUSAL (refusing): {ref} — "
-                    f"{table_refusal}"
-                )
+                print(f"  BEA iTABLE PARSE REFUSAL (refusing): {ref} — {table_refusal}")
                 continue
             assert value is not None
             raw = bea_release_snapshot_envelope(
@@ -9995,9 +9773,7 @@ def main() -> int:
                 table_retrieved_at=table_retrieved_at,
             )
             source_url = fetched_release_url
-            source_file = (
-                "GDP advance release HTML + NIPA Table 5.3.5 iTable JSON"
-            )
+            source_file = "GDP advance release HTML + NIPA Table 5.3.5 iTable JSON"
             series_id = str(spec["series_id"]).replace(":", "-")
             retrieved_at = max(release_retrieved_at, table_retrieved_at)
             extension = "json"
@@ -10078,9 +9854,7 @@ def main() -> int:
             if anchor_fetch_failed:
                 print(f"  FSA CRP anchor fetch/parse failed (deferring): {ref}")
                 continue
-            mismatches = fsa_crp_anchor_mismatches(
-                anchor_values, verified_anchors
-            )
+            mismatches = fsa_crp_anchor_mismatches(anchor_values, verified_anchors)
             if mismatches:
                 print(
                     f"  ANCHOR MISMATCH (refusing, wrong FSA CRP row?): {ref} — "
@@ -10123,9 +9897,7 @@ def main() -> int:
                 census_spm_cache[cache_key] = census_spm_fetch_year(
                     spec, period, require_latest=True
                 )
-            value, raw, fetched_url, retrieved_at, refusal = census_spm_cache[
-                cache_key
-            ]
+            value, raw, fetched_url, retrieved_at, refusal = census_spm_cache[cache_key]
             if refusal:
                 print(f"  CENSUS SPM PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
@@ -10133,8 +9905,7 @@ def main() -> int:
                 grid, grid_refusal = census_spm_xlsx_grid(raw, spec)
                 if grid_refusal or grid is None:
                     print(
-                        f"  CENSUS SPM PARSE REFUSAL (refusing): {ref} — "
-                        f"{grid_refusal}"
+                        f"  CENSUS SPM PARSE REFUSAL (refusing): {ref} — {grid_refusal}"
                     )
                     continue
                 anchor_values = {
@@ -10223,9 +9994,7 @@ def main() -> int:
                 cache_key
             ]
             if refusal and "xlrd is unavailable" in refusal:
-                print(
-                    f"  IRS SOI ENVIRONMENT FAILURE (fatal): {ref} — {refusal}"
-                )
+                print(f"  IRS SOI ENVIRONMENT FAILURE (fatal): {ref} — {refusal}")
                 environment_failures.append(f"{ref}: {refusal}")
                 continue
             if refusal:
@@ -10336,8 +10105,8 @@ def main() -> int:
             metastore_key = spec["metastore_url"]
             if metastore_key not in cms_metastore_cache:
                 try:
-                    cms_metastore_cache[metastore_key] = (
-                        cms_provider_data_metastore(spec)
+                    cms_metastore_cache[metastore_key] = cms_provider_data_metastore(
+                        spec
                     )
                 except Exception as exc:  # noqa: BLE001 - defer, don't crash
                     print(f"  CMS metastore fetch failed (deferring): {ref} — {exc}")
@@ -10412,10 +10181,7 @@ def main() -> int:
             allowed = binding.get("allowedHosts") or []
             host = urllib.parse.urlparse(snapshot_url).hostname
             if host not in allowed:
-                print(
-                    f"  HOST NOT IN REGISTERED ALLOWLIST (refusing): {ref} — "
-                    f"{host}"
-                )
+                print(f"  HOST NOT IN REGISTERED ALLOWLIST (refusing): {ref} — {host}")
                 continue
 
             def cached_usaspending_request(
@@ -10463,14 +10229,9 @@ def main() -> int:
                         binding["transform"],
                     )
                 except ValueError as exc:
-                    print(
-                        f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — "
-                        f"{exc}"
-                    )
+                    print(f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — {exc}")
                     continue
-                payload, response_raw, retrieved_at = (
-                    cached_usaspending_request(body)
-                )
+                payload, response_raw, retrieved_at = cached_usaspending_request(body)
                 if response_raw is None:
                     continue
                 raw_value = usaspending_fiscal_year_amount(payload, period)
@@ -10502,13 +10263,12 @@ def main() -> int:
                         )
                     except ValueError as exc:
                         print(
-                            f"  REGISTERED QUERY PLAN INVALID (refusing): "
-                            f"{ref} — {exc}"
+                            f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — {exc}"
                         )
                         malformed_page = True
                         break
-                    payload, page_raw, page_retrieved_at = (
-                        cached_usaspending_request(body)
+                    payload, page_raw, page_retrieved_at = cached_usaspending_request(
+                        body
                     )
                     if page_raw is None:
                         malformed_page = True
@@ -10519,9 +10279,7 @@ def main() -> int:
                         else None
                     )
                     has_next = (
-                        metadata.get("hasNext")
-                        if isinstance(metadata, dict)
-                        else None
+                        metadata.get("hasNext") if isinstance(metadata, dict) else None
                     )
                     if (
                         not isinstance(metadata, dict)
@@ -10529,9 +10287,7 @@ def main() -> int:
                         or metadata.get("page") != page_number
                         or not isinstance(has_next, bool)
                     ):
-                        print(
-                            f"  MALFORMED PAGINATION RESPONSE (refusing): {ref}"
-                        )
+                        print(f"  MALFORMED PAGINATION RESPONSE (refusing): {ref}")
                         malformed_page = True
                         break
                     pages.append(payload)
@@ -10539,9 +10295,7 @@ def main() -> int:
                     if not has_next:
                         break
                 else:
-                    print(
-                        f"  PAGINATION LIMIT EXCEEDED (refusing): {ref}"
-                    )
+                    print(f"  PAGINATION LIMIT EXCEEDED (refusing): {ref}")
                     malformed_page = True
                 if malformed_page:
                     continue
@@ -10550,9 +10304,7 @@ def main() -> int:
                     binding["transform"],
                 )
                 if recipient_count is None:
-                    print(
-                        f"  RECIPIENT COUNT DERIVATION FAILED (refusing): {ref}"
-                    )
+                    print(f"  RECIPIENT COUNT DERIVATION FAILED (refusing): {ref}")
                     continue
                 raw_value = float(recipient_count)
                 retrieved_at = exchanges[0][2]
@@ -10572,10 +10324,7 @@ def main() -> int:
                         binding["transform"],
                     )
                 except ValueError as exc:
-                    print(
-                        f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — "
-                        f"{exc}"
-                    )
+                    print(f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — {exc}")
                     continue
                 ratio_exchanges: list[tuple[dict[str, Any], bytes, str]] = []
                 ratio_payloads: list[Any] = []
@@ -10588,9 +10337,7 @@ def main() -> int:
                         ratio_fetch_failed = True
                         break
                     ratio_payloads.append(payload)
-                    ratio_exchanges.append(
-                        (body, response_raw, response_retrieved_at)
-                    )
+                    ratio_exchanges.append((body, response_raw, response_retrieved_at))
                 if ratio_fetch_failed:
                     continue
                 denominator_payload, numerator_payload = ratio_payloads
@@ -10600,9 +10347,7 @@ def main() -> int:
                     period,
                 )
                 if raw_value is None:
-                    print(
-                        f"  OBLIGATION SHARE DERIVATION FAILED (refusing): {ref}"
-                    )
+                    print(f"  OBLIGATION SHARE DERIVATION FAILED (refusing): {ref}")
                     continue
                 numerator_amount = usaspending_fiscal_year_amount(
                     numerator_payload,
@@ -10626,8 +10371,7 @@ def main() -> int:
                 )
             else:
                 print(
-                    f"  UNKNOWN REGISTERED QUERY KIND (refusing): {ref} — "
-                    f"{query_kind}"
+                    f"  UNKNOWN REGISTERED QUERY KIND (refusing): {ref} — {query_kind}"
                 )
                 continue
             value = round(raw_value * spec.get("scale", 1), spec.get("round", 4))
@@ -10636,9 +10380,7 @@ def main() -> int:
             # snapshot window.
             release_day = dt.date.fromisoformat(retrieved_at[:10])
             series_id = spec["series_id"]
-            source_file = (
-                "registered query snapshot (USAspending API v2)"
-            )
+            source_file = "registered query snapshot (USAspending API v2)"
             extension = "json"
         else:
             snapshot_url = A19_SNAPSHOT_URLS.get(period)

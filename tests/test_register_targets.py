@@ -1929,6 +1929,308 @@ def _commit_v3_supersede_history(
     return path
 
 
+def _committed_supersession_state(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> tuple[dict, dict]:
+    """Commit an old registration, then commit its binding-only successor.
+
+    Returns (predecessor_target, successor_target) shaped like sealed
+    ticket targets for the same dataPointId.
+    """
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    commit_args = [
+        "git",
+        "-c",
+        "user.name=test",
+        "-c",
+        "user.email=test@example.com",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-q",
+        "-m",
+    ]
+
+    old_contract = {**_supersede_contract(), "conditional": "Synthetic condition"}
+    old_reg = _registration(old_contract, "2026-07-10T05:03:56Z", _pin("b" * 40, 127))
+    old_hash = old_reg["targetContentHash"]
+    targets_dir = tmp_path / "records" / "targets"
+    targets_dir.mkdir(parents=True, exist_ok=True)
+    (targets_dir / f"2026-07-10-{old_hash}.json").write_bytes(
+        canonical_bytes(old_reg["snapshot"]) + b"\n"
+    )
+    _write_block(
+        generated,
+        register_targets.ts_literal(
+            register_targets._entry_for(
+                old_contract, old_hash, "2026-07-10T05:03:56Z", None
+            )
+        ),
+    )
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        [*commit_args, "old registration"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    new_contract = json.loads(json.dumps(old_contract))
+    new_contract["sourceBinding"]["sourceUrl"] = (
+        "https://legacy.abs.gov.au/statistics/labour"
+    )
+    new_reg = _registration(new_contract, "2026-07-11T05:03:56Z", _pin("c" * 40, 128))
+    new_hash = new_reg["targetContentHash"]
+    (targets_dir / f"2026-07-11-{new_hash}.json").write_bytes(
+        canonical_bytes(new_reg["snapshot"]) + b"\n"
+    )
+    old_block = register_targets._generated_block(
+        generated.read_text(), old_contract["dataPointId"]
+    )
+    new_block = register_targets.ts_literal(
+        register_targets._entry_for(
+            new_contract, new_hash, "2026-07-11T05:03:56Z", None
+        )
+    )
+    generated.write_text(generated.read_text().replace(old_block, new_block, 1))
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        [*commit_args, "supersede binding"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    def _sealed(contract: dict, content_hash: str, registered_at: str) -> dict:
+        # Mirror the live hydrated ticket-target shape: unit surfaces as
+        # targetUnit and the binding window lifts to the top level.
+        hydrated = json.loads(json.dumps(contract))
+        hydrated["targetUnit"] = hydrated.pop("unit")
+        hydrated["expectedReleaseWindow"] = hydrated["sourceBinding"][
+            "expectedReleaseWindow"
+        ]
+        return {
+            **hydrated,
+            "targetContentHash": content_hash,
+            "registeredAtUtc": registered_at,
+            "registrationCommit": "b" * 40,
+            "registrationState": "preregistered",
+            "targetRegistrationPath": (
+                f"records/targets/{registered_at[:10]}-{content_hash}.json"
+            ),
+        }
+
+    return (
+        _sealed(old_contract, old_hash, "2026-07-10T05:03:56Z"),
+        _sealed(new_contract, new_hash, "2026-07-11T05:03:56Z"),
+    )
+
+
+def test_ticket_supersession_refuses_hash_only_mismatch(tmp_path, monkeypatch) -> None:
+    # Byte-identical targets with a differing registrationSetHash is
+    # corrupt accounting, never a supersession — nothing changed to
+    # authenticate.
+    old_target, _ = _committed_supersession_state(tmp_path, monkeypatch)
+    with pytest.raises(generation_tickets.TicketError, match="must be identical"):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [dict(old_target)]},
+            {"ticketId": "predecessor", "targets": [dict(old_target)]},
+            repo_root=tmp_path,
+        )
+
+
+def test_ticket_supersession_refuses_independent_parallel_registration(
+    tmp_path, monkeypatch
+) -> None:
+    # A second registration for the same id committed WITHOUT replacing
+    # the registry block is not a supersession lineage and must refuse.
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    laundered_contract = {
+        **_supersede_contract(),
+        "conditional": "Synthetic condition",
+    }
+    laundered_contract = json.loads(json.dumps(laundered_contract))
+    laundered_contract["sourceBinding"]["sourceUrl"] = (
+        "https://mirror.example.gov/statistics/labour"
+    )
+    laundered_reg = _registration(
+        laundered_contract, "2026-07-12T05:03:56Z", _pin("d" * 40, 129)
+    )
+    laundered_hash = laundered_reg["targetContentHash"]
+    laundered_path = (
+        tmp_path / "records" / "targets" / f"2026-07-12-{laundered_hash}.json"
+    )
+    laundered_path.write_bytes(canonical_bytes(laundered_reg["snapshot"]) + b"\n")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.com",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-q",
+            "-m",
+            "independent parallel registration",
+        ],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    hydrated = json.loads(json.dumps(laundered_contract))
+    hydrated["targetUnit"] = hydrated.pop("unit")
+    hydrated["expectedReleaseWindow"] = hydrated["sourceBinding"][
+        "expectedReleaseWindow"
+    ]
+    laundered_target = {
+        **hydrated,
+        "targetContentHash": laundered_hash,
+        "registeredAtUtc": "2026-07-12T05:03:56Z",
+        "registrationCommit": "b" * 40,
+        "registrationState": "preregistered",
+        "targetRegistrationPath": (f"records/targets/2026-07-12-{laundered_hash}.json"),
+    }
+    with pytest.raises(
+        generation_tickets.TicketError,
+        match="does not register its contract",
+    ):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [laundered_target]},
+            {"ticketId": "predecessor", "targets": [old_target]},
+            repo_root=tmp_path,
+            require_current=False,
+        )
+
+
+def test_find_ticket_successor_accepts_authenticated_cross_supersession(
+    tmp_path, monkeypatch
+) -> None:
+    # The post-commit successor scan must admit the same authenticated
+    # binding-only supersession that mint admits, via the time-stable
+    # committed-introduction test on both sides.
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+
+    predecessor = generation_tickets.mint_ticket(
+        [old_target],
+        {
+            "promptMode": "fast",
+            "codexModel": "gpt-5.5",
+            "codexReasoningEffort": "low",
+            "codexSandbox": "read-only",
+            "codexNetwork": False,
+            "reviewCodexModel": "gpt-5.5",
+            "reviewCodexSearch": False,
+            "timeoutSeconds": 3600,
+        },
+        nonce="a" * 64,
+        minted_at_utc="2026-07-12T00:00:00Z",
+        expires_hours=24,
+        attempt=1,
+        registration_set_hash="d" * 64,
+    )
+    successor = generation_tickets.mint_ticket(
+        [new_target],
+        {
+            "promptMode": "fast",
+            "codexModel": "gpt-5.5",
+            "codexReasoningEffort": "high",
+            "codexSandbox": "read-only",
+            "codexNetwork": False,
+            "reviewCodexModel": "gpt-5.5",
+            "reviewCodexSearch": False,
+            "timeoutSeconds": 3600,
+        },
+        nonce="b" * 64,
+        minted_at_utc="2026-07-12T06:00:00Z",
+        expires_hours=24,
+        attempt=2,
+        supersedes=predecessor["ticketId"],
+        superseded_outcome={
+            "outcome": "failed",
+            "reason": "announcement fetch structurally impossible",
+        },
+        registration_set_hash="e" * 64,
+        predecessor_ticket=predecessor,
+        repo_root=tmp_path,
+    )
+
+    for ticket in (predecessor, successor):
+        path = tmp_path.joinpath(
+            *generation_tickets.ticket_record_path(ticket["ticketId"]).parts
+        )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(ticket, sort_keys=True) + "\n")
+
+    found = generation_tickets.find_ticket_successor(predecessor["ticketId"], tmp_path)
+    assert found is not None
+    assert successor["ticketId"] in found
+
+
+def test_ticket_supersession_accepts_binding_only_registration_supersession(
+    tmp_path, monkeypatch
+) -> None:
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    generation_tickets._require_superseding_targets(
+        {"ticketId": "successor", "targets": [new_target]},
+        {"ticketId": "predecessor", "targets": [old_target]},
+        repo_root=tmp_path,
+    )
+
+
+def test_ticket_supersession_refuses_identity_changes(tmp_path, monkeypatch) -> None:
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    new_target = json.loads(json.dumps(new_target))
+    new_target["period"] = "2026-08"
+    with pytest.raises(generation_tickets.TicketError, match="must be identical"):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [new_target]},
+            {"ticketId": "predecessor", "targets": [old_target]},
+            repo_root=tmp_path,
+        )
+
+
+def test_ticket_supersession_refuses_stale_successor_contract(
+    tmp_path, monkeypatch
+) -> None:
+    # Successor sealing a contract that is NOT the current registration
+    # (hash drifted again after sealing) must refuse.
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    stale = json.loads(json.dumps(new_target))
+    stale["targetContentHash"] = "e" * 64
+    with pytest.raises(
+        generation_tickets.TicketError,
+        match="does not match the current registered contract",
+    ):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [stale]},
+            {"ticketId": "predecessor", "targets": [old_target]},
+            repo_root=tmp_path,
+        )
+
+
+def test_ticket_supersession_refuses_uncommitted_predecessor(
+    tmp_path, monkeypatch
+) -> None:
+    # A predecessor hash with no committed snapshot is an invention, not
+    # a superseded registration.
+    old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
+    invented = json.loads(json.dumps(old_target))
+    invented["targetContentHash"] = "f" * 64
+    with pytest.raises(
+        generation_tickets.TicketError,
+        match="not a committed registration",
+    ):
+        generation_tickets._require_superseding_targets(
+            {"ticketId": "successor", "targets": [new_target]},
+            {"ticketId": "predecessor", "targets": [invented]},
+            repo_root=tmp_path,
+        )
+
+
 def test_pre_rename_pin_is_superseded_by_canonical_pin(tmp_path, monkeypatch) -> None:
     # Registrations recorded before the 2026-08-07 rename pin
     # PolicyEngine/ledger; an advancing reroll pinning the canonical

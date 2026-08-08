@@ -373,6 +373,322 @@ def validate_ticket(ticket: Any) -> dict[str, Any]:
     return ticket
 
 
+# Sealed target fields that registration supersession necessarily rewrites.
+# Everything else — series, period, unit, window, anchors, resolution
+# terms — is the target's identity and may never change between attempts.
+REGISTRATION_METADATA_KEYS = frozenset(
+    {
+        "registeredAt",
+        "registeredAtUtc",
+        "registrationCommit",
+        "registrationState",
+        "targetContentHash",
+        "targetRegistrationPath",
+    }
+)
+
+
+def _target_identity(target: dict[str, Any]) -> bytes:
+    stripped = {
+        key: value
+        for key, value in target.items()
+        if key not in REGISTRATION_METADATA_KEYS and key != "sourceBinding"
+    }
+    return canonical_bytes(stripped)
+
+
+def _require_superseding_targets(
+    successor: dict[str, Any],
+    predecessor: dict[str, Any],
+    *,
+    repo_root: pathlib.Path,
+    require_current: bool = True,
+) -> None:
+    """Authenticate an attempt whose targets crossed registration supersession.
+
+    A retry is normally byte-identical to its predecessor. When a failed
+    attempt exposed a defective sourceBinding, the registry supersedes the
+    preregistrations (register_targets restricts that to binding-only
+    changes against the committed template), and the next attempt must
+    seal the corrected contracts. This helper admits exactly that case:
+    the dataPointId set is unchanged; every changed target differs from
+    its predecessor only in sourceBinding and registration metadata; the
+    successor equals the CURRENT registered contract at the trusted mint
+    checkout; and the predecessor's snapshot exists in committed history,
+    proving the old contract was a real registration that was superseded
+    rather than invented. Anything else refuses.
+    """
+
+    import register_targets
+
+    def _identical_refusal() -> TicketError:
+        return TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: registrationSetHash and targets "
+            "must be identical"
+        )
+
+    def _by_id(targets: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        mapped: dict[str, dict[str, Any]] = {}
+        for target in targets:
+            data_point_id = target.get("dataPointId")
+            if not isinstance(data_point_id, str) or not data_point_id:
+                raise _identical_refusal()
+            if data_point_id in mapped:
+                raise _identical_refusal()
+            mapped[data_point_id] = target
+        return mapped
+
+    old_by_id = _by_id(predecessor["targets"])
+    new_by_id = _by_id(successor["targets"])
+    if set(old_by_id) != set(new_by_id):
+        raise _identical_refusal()
+    changed = 0
+    source = (
+        repo_root
+        / register_targets.GENERATED_TARGETS.relative_to(register_targets.ROOT)
+    ).read_text()
+    for data_point_id, new_target in new_by_id.items():
+        old_target = old_by_id[data_point_id]
+        if canonical_bytes(new_target) == canonical_bytes(old_target):
+            continue
+        changed += 1
+        if _target_identity(new_target) != _target_identity(old_target):
+            raise _identical_refusal()
+        if require_current:
+            block = register_targets._generated_block(source, data_point_id)
+            if not block or register_targets._block_value(
+                block, "targetContentHash"
+            ) != new_target.get("targetContentHash"):
+                raise TicketError(
+                    f"generation ticket {successor['ticketId']} cannot "
+                    f"supersede {predecessor['ticketId']}: {data_point_id} "
+                    "does not match the current registered contract"
+                )
+        _require_supersession_lineage(
+            successor,
+            predecessor,
+            data_point_id,
+            old_target,
+            new_target,
+            repo_root=repo_root,
+        )
+    if changed == 0:
+        # Byte-identical targets with a differing registrationSetHash is
+        # inconsistent accounting, not a supersession.
+        raise _identical_refusal()
+
+
+def _committed_introduction(
+    successor: dict[str, Any],
+    predecessor: dict[str, Any],
+    data_point_id: str,
+    content_hash: Any,
+    *,
+    repo_root: pathlib.Path,
+    side: str,
+) -> tuple[str, str, bytes]:
+    """Return (introducing_commit, snapshot_relpath, snapshot_bytes) for a
+    contract that must be a committed registration: exactly one snapshot
+    introduction in history, whose committed bytes hash back to the
+    claimed content hash."""
+
+    if not isinstance(content_hash, str) or not re.fullmatch(
+        r"[0-9a-f]{64}", content_hash
+    ):
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: {data_point_id} {side} "
+            "lacks a content hash"
+        )
+    try:
+        entries = subprocess.run(
+            [
+                "git",
+                "log",
+                "--diff-filter=A",
+                "--format=%H",
+                "--name-only",
+                "--",
+                f"records/targets/*-{content_hash}.json",
+            ],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.split()
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: cannot replay {data_point_id} "
+            f"{side} registration history: {exc}"
+        ) from exc
+    commits = [line for line in entries if re.fullmatch(r"[0-9a-f]{40}", line)]
+    paths = [line for line in entries if line.startswith("records/targets/")]
+    if len(commits) != 1 or len(paths) != 1:
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: {data_point_id} {side} "
+            "contract is not a committed registration"
+        )
+    try:
+        snapshot_bytes = subprocess.run(
+            ["git", "show", f"{commits[0]}:{paths[0]}"],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: cannot replay {data_point_id} "
+            f"{side} snapshot bytes: {exc}"
+        ) from exc
+    return commits[0], paths[0], snapshot_bytes
+
+
+def _require_supersession_lineage(
+    successor: dict[str, Any],
+    predecessor: dict[str, Any],
+    data_point_id: str,
+    old_target: dict[str, Any],
+    new_target: dict[str, Any],
+    *,
+    repo_root: pathlib.Path,
+) -> None:
+    """Prove the old->new transition is a real registration supersession.
+
+    Both contracts must be committed registrations whose snapshot bytes
+    hash to the sealed content hashes and whose single targets equal the
+    sealed ticket targets outside registration metadata; the old
+    introduction must be an ancestor of the new; and the commit that
+    introduced the new snapshot must replace the generated-registry block
+    old->new in that same step. Independent parallel registrations for
+    one dataPointId cannot satisfy the replace transition."""
+
+    import register_targets
+
+    def _refuse(detail: str) -> TicketError:
+        return TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: {data_point_id} {detail}"
+        )
+
+    sides = {}
+    for side, target in (("predecessor", old_target), ("successor", new_target)):
+        content_hash = target.get("targetContentHash")
+        commit, relpath, snapshot_bytes = _committed_introduction(
+            successor,
+            predecessor,
+            data_point_id,
+            content_hash,
+            repo_root=repo_root,
+            side=side,
+        )
+        try:
+            snapshot = json.loads(snapshot_bytes)
+        except json.JSONDecodeError as exc:
+            raise _refuse(f"{side} snapshot is not JSON: {exc}") from exc
+        if snapshot_bytes != canonical_bytes(snapshot) + b"\n":
+            raise _refuse(f"{side} snapshot bytes are not canonical")
+        if register_targets.registration_content_hash(snapshot) != content_hash:
+            raise _refuse(f"{side} snapshot bytes do not hash to the sealed contract")
+        targets = snapshot.get("targets")
+        if not isinstance(targets, list) or len(targets) != 1:
+            raise _refuse(f"{side} snapshot does not register exactly one target")
+        contract = targets[0]
+        if not isinstance(contract, dict):
+            raise _refuse(f"{side} snapshot contract is not an object")
+        sealed = {
+            key: value
+            for key, value in target.items()
+            if key not in REGISTRATION_METADATA_KEYS
+        }
+        # Sealed ticket targets are hydrated docket selections, not raw
+        # contracts (verified against the live SBA ticket): unit
+        # surfaces as targetUnit, the binding's expectedReleaseWindow is
+        # lifted to the top level, and anchors ride along — anchors are
+        # covered by the predecessor/successor identity check. Every
+        # other divergence refuses.
+        hydrated_only = {"anchors", "expectedReleaseWindow", "targetUnit"}
+        contract_only = set(contract) - set(sealed)
+        unexplained = set(sealed) - set(contract) - hydrated_only
+        if contract_only - {"unit"} or unexplained:
+            raise _refuse(
+                f"{side} sealed target shape does not match its committed snapshot"
+            )
+        shared_mismatch = [
+            key
+            for key in set(sealed) & set(contract)
+            if canonical_bytes(sealed[key]) != canonical_bytes(contract[key])
+        ]
+        binding = contract.get("sourceBinding")
+        hydrated_window = (
+            binding.get("expectedReleaseWindow") if isinstance(binding, dict) else None
+        )
+        unit_mismatch = "targetUnit" in sealed and sealed["targetUnit"] != contract.get(
+            "unit"
+        )
+        window_mismatch = (
+            "expectedReleaseWindow" in sealed
+            and sealed["expectedReleaseWindow"] != hydrated_window
+        )
+        if shared_mismatch or unit_mismatch or window_mismatch:
+            raise _refuse(f"{side} sealed target does not match its committed snapshot")
+        sides[side] = commit
+
+    try:
+        subprocess.run(
+            [
+                "git",
+                "merge-base",
+                "--is-ancestor",
+                sides["predecessor"],
+                sides["successor"],
+            ],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        raise _refuse(
+            "predecessor registration is not an ancestor of its successor"
+        ) from None
+
+    generated_relpath = register_targets.GENERATED_TARGETS.relative_to(
+        register_targets.ROOT
+    ).as_posix()
+
+    def _block_hash_at(commit: str) -> Any:
+        try:
+            source = subprocess.run(
+                ["git", "show", f"{commit}:{generated_relpath}"],
+                cwd=repo_root,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise _refuse(
+                f"cannot replay the generated registry at {commit[:12]}: {exc}"
+            ) from exc
+        block = register_targets._generated_block(source, data_point_id)
+        return (
+            register_targets._block_value(block, "targetContentHash") if block else None
+        )
+
+    new_commit = sides["successor"]
+    if _block_hash_at(new_commit) != new_target.get("targetContentHash"):
+        raise _refuse(
+            "the successor's introducing commit does not register its contract"
+        )
+    if _block_hash_at(f"{new_commit}^") != old_target.get("targetContentHash"):
+        raise _refuse(
+            "the successor's introducing commit does not replace the "
+            "predecessor's registration"
+        )
+
+
 def mint_ticket(
     targets: list[dict[str, Any]],
     policy: dict[str, Any],
@@ -385,6 +701,7 @@ def mint_ticket(
     superseded_outcome: dict[str, str] | None = None,
     registration_set_hash: str,
     predecessor_ticket: dict[str, Any] | None = None,
+    repo_root: pathlib.Path = ROOT,
 ) -> dict[str, Any]:
     """Build a validated ticket from trusted registration and policy inputs."""
 
@@ -439,17 +756,12 @@ def mint_ticket(
                 f"{supersedes}: validated predecessor is "
                 f"{predecessor['ticketId']}"
             )
-        if (
-            validated["registrationSetHash"]
-            != predecessor["registrationSetHash"]
-            or canonical_bytes(validated["targets"])
-            != canonical_bytes(predecessor["targets"])
+        if validated["registrationSetHash"] != predecessor[
+            "registrationSetHash"
+        ] or canonical_bytes(validated["targets"]) != canonical_bytes(
+            predecessor["targets"]
         ):
-            raise TicketError(
-                f"generation ticket {validated['ticketId']} cannot supersede "
-                f"{predecessor['ticketId']}: registrationSetHash and targets "
-                "must be identical"
-            )
+            _require_superseding_targets(validated, predecessor, repo_root=repo_root)
     elif predecessor_ticket is not None:
         raise TicketError(
             f"generation ticket {validated['ticketId']} has a predecessor ticket "
@@ -587,21 +899,29 @@ def find_ticket_successor(ticket_id: str, repo_root: str | pathlib.Path) -> str 
                     f"generation ticket {ticket['ticketId']} has corrupt retry "
                     f"accounting for {ticket_id}: predecessor identity differs"
                 )
-            if (
-                ticket["registrationSetHash"]
-                != predecessor["registrationSetHash"]
-            ):
-                raise TicketError(
-                    f"generation ticket {ticket['ticketId']} has corrupt retry "
-                    f"accounting for {ticket_id}: registrationSetHash differs"
-                )
-            if canonical_bytes(ticket["targets"]) != canonical_bytes(
+            if ticket["registrationSetHash"] != predecessor[
+                "registrationSetHash"
+            ] or canonical_bytes(ticket["targets"]) != canonical_bytes(
                 predecessor["targets"]
             ):
-                raise TicketError(
-                    f"generation ticket {ticket['ticketId']} has corrupt retry "
-                    f"accounting for {ticket_id}: targets differ"
+                mismatch = (
+                    "registrationSetHash differs"
+                    if ticket["registrationSetHash"]
+                    != predecessor["registrationSetHash"]
+                    else "targets differ"
                 )
+                try:
+                    _require_superseding_targets(
+                        ticket,
+                        predecessor,
+                        repo_root=root,
+                        require_current=False,
+                    )
+                except TicketError:
+                    raise TicketError(
+                        f"generation ticket {ticket['ticketId']} has corrupt "
+                        f"retry accounting for {ticket_id}: {mismatch}"
+                    ) from None
             matches.append(path)
     if not matches:
         return None
@@ -905,9 +1225,7 @@ def _check_supersession_command(args: argparse.Namespace) -> dict[str, Any]:
     )
     return {
         "predecessorTicketId": predecessor["ticketId"],
-        "predecessorPath": ticket_record_path(
-            predecessor["ticketId"]
-        ).as_posix(),
+        "predecessorPath": ticket_record_path(predecessor["ticketId"]).as_posix(),
     }
 
 
@@ -965,6 +1283,7 @@ def _mint_command(args: argparse.Namespace) -> dict[str, Any]:
         superseded_outcome=outcome,
         registration_set_hash=registration_set_hash,
         predecessor_ticket=predecessor,
+        repo_root=args.repo_root,
     )
     ticket_path = write_minted_ticket(ticket, args.repo_root)
     return {"ticketId": ticket["ticketId"], "ticketPath": ticket_path}

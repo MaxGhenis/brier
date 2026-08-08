@@ -159,9 +159,7 @@ def test_wave1_bea_first_print_fixtures_are_hash_pinned_and_parse(
                 "fred": "PNFI",
                 "transform": "level",
                 "unit": "usd_billions",
-                "label": (
-                    "US private nonresidential fixed investment, nominal SAAR"
-                ),
+                "label": ("US private nonresidential fixed investment, nominal SAAR"),
                 "source_name": "bea",
                 "source_table": (
                     "Gross Domestic Product, Table 5.3.5 "
@@ -177,13 +175,11 @@ def test_wave1_bea_first_print_fixtures_are_hash_pinned_and_parse(
                 "transform": "level",
                 "unit": "usd_billions",
                 "label": (
-                    "US private research and development fixed investment, "
-                    "nominal SAAR"
+                    "US private research and development fixed investment, nominal SAAR"
                 ),
                 "source_name": "bea",
                 "source_table": (
-                    "Gross Domestic Product, Table 5.6.5 "
-                    "(private R&D fixed investment)"
+                    "Gross Domestic Product, Table 5.6.5 (private R&D fixed investment)"
                 ),
                 "concept_authority": "bea",
             },
@@ -409,9 +405,7 @@ def test_main_gates_a_non_irs_bounded_adapter_before_network(
     monkeypatch.setattr(
         resolve_pending, "registration_contracts", lambda: {ref: registration}
     )
-    monkeypatch.setattr(
-        resolve_pending, "utc_now", lambda: "2030-01-31T23:59:59Z"
-    )
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: "2030-01-31T23:59:59Z")
 
     def unexpected_fetch(*_args, **_kwargs):
         raise AssertionError("bounded adapter fetched before its window opened")
@@ -421,33 +415,51 @@ def test_main_gates_a_non_irs_bounded_adapter_before_network(
 
     assert resolve_pending.main() == 0
     output = capsys.readouterr().out
-    assert (
-        f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens 2030-02-01"
-        in output
-    )
+    assert f"  RELEASE WINDOW NOT OPEN (deferring): {ref} — opens 2030-02-01" in output
     assert "nothing new to record" in output
 
 
 def test_parse_ref_period_handles_all_dialects() -> None:
     cases = [
-        ("bls.cps.unemployment_rate.june_2026.first_print",
-         "bls.cps.unemployment_rate", ("month", "2026-06")),
-        ("us.bea.core_pce.mom_sa.2026-05", "us.bea.core_pce.mom_sa",
-         ("month", "2026-05")),
-        ("bea.real_gdp.saar.q1_2026.third_estimate", "bea.real_gdp.saar",
-         ("quarter", "2026-01")),
-        ("bea.real_gdp.saar.2026_q3.advance_estimate", "bea.real_gdp.saar",
-         ("quarter", "2026-07")),
-        ("bls.cpi.u.annual_pct_change.2026",
-         "bls.cpi.u.annual_pct_change", ("year", "2026")),
-        ("census.official_poverty_rate.2025.first_print",
-         "census.official_poverty_rate", ("year", "2025")),
+        (
+            "bls.cps.unemployment_rate.june_2026.first_print",
+            "bls.cps.unemployment_rate",
+            ("month", "2026-06"),
+        ),
+        (
+            "us.bea.core_pce.mom_sa.2026-05",
+            "us.bea.core_pce.mom_sa",
+            ("month", "2026-05"),
+        ),
+        (
+            "bea.real_gdp.saar.q1_2026.third_estimate",
+            "bea.real_gdp.saar",
+            ("quarter", "2026-01"),
+        ),
+        (
+            "bea.real_gdp.saar.2026_q3.advance_estimate",
+            "bea.real_gdp.saar",
+            ("quarter", "2026-07"),
+        ),
+        (
+            "bls.cpi.u.annual_pct_change.2026",
+            "bls.cpi.u.annual_pct_change",
+            ("year", "2026"),
+        ),
+        (
+            "census.official_poverty_rate.2025.first_print",
+            "census.official_poverty_rate",
+            ("year", "2025"),
+        ),
     ]
     for ref, stem, expected in cases:
         assert resolve_pending.parse_ref_period(ref, stem) == expected
-    assert resolve_pending.parse_ref_period(
-        "bls.cps.unemployment_rate.sometime", "bls.cps.unemployment_rate"
-    ) is None
+    assert (
+        resolve_pending.parse_ref_period(
+            "bls.cps.unemployment_rate.sometime", "bls.cps.unemployment_rate"
+        )
+        is None
+    )
 
 
 def test_parse_ref_period_handles_every_catalog_annual_id() -> None:
@@ -470,6 +482,13 @@ def test_parse_ref_period_handles_every_catalog_annual_id() -> None:
         "census.spm.child_poverty_rate.2028",
         "census.spm.poverty_rate_65_plus.2025.first_print",
         "hhs.aspe.poverty_guideline.household_size_4.48dc.2027",
+        # Reviewed 2026-08-08: the three SBA custody-family fy2026 seeds
+        # preregistered by the attested-lane mint; bare SBA years route
+        # as fiscal_year through the registered contract
+        # (test_bare_year_registration_routes_as_sba_fiscal_year).
+        "sba.disaster.loan_program.charge_off_amount.2026.first_print",
+        "sba.disaster.loan_program.charge_off_rate_upb.2026.first_print",
+        ("sba.disaster.loan_program.post_charge_off_recovery.2026.first_print"),
         (
             "ssa.annual_statistical_supplement.table_6b5."
             "retired_worker_awards.share_claimed_age_62.2025.first_print"
@@ -501,23 +520,40 @@ def test_prior_period_date_supports_years_and_validates_shapes() -> None:
 
 def test_apply_transform_level_diff_and_pct() -> None:
     rows = {"2026-05-01": 100.0, "2026-06-01": 102.0}
-    assert resolve_pending.apply_transform(
-        rows, {"transform": "level"}, "month", "2026-06"
-    ) == 102.0
-    assert resolve_pending.apply_transform(
-        rows, {"transform": "mom_diff"}, "month", "2026-06"
-    ) == 2.0
-    assert resolve_pending.apply_transform(
-        rows, {"transform": "pct_change_1d"}, "month", "2026-06"
-    ) == 2.0
-    assert resolve_pending.apply_transform(
-        rows, {"transform": "level", "scale": 0.001, "round": 3},
-        "month", "2026-06",
-    ) == 0.102
+    assert (
+        resolve_pending.apply_transform(
+            rows, {"transform": "level"}, "month", "2026-06"
+        )
+        == 102.0
+    )
+    assert (
+        resolve_pending.apply_transform(
+            rows, {"transform": "mom_diff"}, "month", "2026-06"
+        )
+        == 2.0
+    )
+    assert (
+        resolve_pending.apply_transform(
+            rows, {"transform": "pct_change_1d"}, "month", "2026-06"
+        )
+        == 2.0
+    )
+    assert (
+        resolve_pending.apply_transform(
+            rows,
+            {"transform": "level", "scale": 0.001, "round": 3},
+            "month",
+            "2026-06",
+        )
+        == 0.102
+    )
     # Missing prior period fails closed rather than fabricating a change.
-    assert resolve_pending.apply_transform(
-        {"2026-06-01": 102.0}, {"transform": "mom_diff"}, "month", "2026-06"
-    ) is None
+    assert (
+        resolve_pending.apply_transform(
+            {"2026-06-01": 102.0}, {"transform": "mom_diff"}, "month", "2026-06"
+        )
+        is None
+    )
 
 
 def test_value_plausibility_gate_blocks_scale_blunders() -> None:
@@ -544,33 +580,45 @@ def test_a19_parse_reads_current_month_column() -> None:
 def test_pending_adapter_refs_maps_and_gates_units() -> None:
     log = {
         "entries": [
-            {"kind": "prediction_recorded", "forecastSlug": "a",
-             "resolutionDate": "2026-07-02", "unit": "thousands",
-             "interval80": {"lower": 35, "upper": 245}},
-            {"kind": "prediction_recorded", "forecastSlug": "b",
-             "resolutionDate": "2026-07-02", "unit": "percent",
-             "interval80": {"lower": 4.1, "upper": 4.5}},
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "a",
+                "resolutionDate": "2026-07-02",
+                "unit": "thousands",
+                "interval80": {"lower": 35, "upper": 245},
+            },
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "b",
+                "resolutionDate": "2026-07-02",
+                "unit": "percent",
+                "interval80": {"lower": 4.1, "upper": 4.5},
+            },
         ],
         "resolutionLinks": [
-            {"status": "pending", "forecastSlug": "a",
-             "targetFactRef":
-                 "bls.ces.total_nonfarm_payroll_change.june_2026.first_print"},
-            {"status": "pending", "forecastSlug": "b",
-             "targetFactRef":
-                 "bls.cps.employed_people_by_occupation.healthcare_support"
-                 ".june_2026.first_print"},
-            {"status": "pending", "forecastSlug": "b",
-             "targetFactRef": "statcan.cpi.allitems.yoy.2026-05"},
+            {
+                "status": "pending",
+                "forecastSlug": "a",
+                "targetFactRef": "bls.ces.total_nonfarm_payroll_change.june_2026.first_print",
+            },
+            {
+                "status": "pending",
+                "forecastSlug": "b",
+                "targetFactRef": "bls.cps.employed_people_by_occupation.healthcare_support"
+                ".june_2026.first_print",
+            },
+            {
+                "status": "pending",
+                "forecastSlug": "b",
+                "targetFactRef": "statcan.cpi.allitems.yoy.2026-05",
+            },
         ],
     }
     todo = resolve_pending.pending_adapter_refs(log)
     refs = {item[0]: item for item in todo}
-    assert (
-        "bls.ces.total_nonfarm_payroll_change.june_2026.first_print" in refs
-    )
+    assert "bls.ces.total_nonfarm_payroll_change.june_2026.first_print" in refs
     a19 = refs[
-        "bls.cps.employed_people_by_occupation.healthcare_support"
-        ".june_2026.first_print"
+        "bls.cps.employed_people_by_occupation.healthcare_support.june_2026.first_print"
     ]
     assert a19[1] == "a19" and a19[4] == "2026-06"
     # International series route to the native-source adapters.
@@ -597,8 +645,7 @@ def test_alfred_docket_templates_match_specs_and_route_by_cadence() -> None:
         assert binding["sourceSeriesId"] == spec["fred"]
         assert binding["field"] == spec["fred"]
         assert binding["sourceUrl"] == (
-            "https://alfred.stlouisfed.org/graph/"
-            f"alfredgraph.csv?id={spec['fred']}"
+            f"https://alfred.stlouisfed.org/graph/alfredgraph.csv?id={spec['fred']}"
         )
         assert binding["table"] == spec["source_table"]
         assert binding["transform"] == {
@@ -666,17 +713,24 @@ def test_manifest_dedupes_shared_response_archives(tmp_path) -> None:
             "ledgerBranch": "test",
             "ledgerRepoSha": "0" * 40,
             "facts": [
-                {"dataPointId": "bea.pce.core_mom.may_2026.first_print",
-                 "sourceVintage": "2026-06-25", "retrievedAt": "t",
-                 "responseArchive": archive},
-                {"dataPointId": "us.bea.core_pce.mom_sa.2026-05",
-                 "sourceVintage": "2026-06-25", "retrievedAt": "t",
-                 "responseArchive": archive},
+                {
+                    "dataPointId": "bea.pce.core_mom.may_2026.first_print",
+                    "sourceVintage": "2026-06-25",
+                    "retrievedAt": "t",
+                    "responseArchive": archive,
+                },
+                {
+                    "dataPointId": "us.bea.core_pce.mom_sa.2026-05",
+                    "sourceVintage": "2026-06-25",
+                    "retrievedAt": "t",
+                    "responseArchive": archive,
+                },
             ],
         }
         sealed = resolve_pending.finalize_resolution_manifest(run_dir, manifest)
         responses = [
-            ref for ref in sealed["artifacts"]
+            ref
+            for ref in sealed["artifacts"]
             if ref["artifactType"] == "resolver_response"
         ]
         assert len(responses) == 1
@@ -1509,15 +1563,15 @@ def _release_fixture_tree(
     tsa_root = tmp_path / "release_tsa"
     shutil.copytree(ROOT / "tests" / "fixtures" / "release_tsa", tsa_root)
     anchor_dir = tsa_root / "anchors"
-    producer_private_key, signing_key_pem = _generate_test_producer_keypair(
-        tsa_root
-    )
+    producer_private_key, signing_key_pem = _generate_test_producer_keypair(tsa_root)
     requester = _local_timestamp_requester(tsa_root)
     ledger = b'{"source_record_id":"fixture.base","value":0}\n'
     immutable_prefix = b'{"prefixLineCount":0}\n'
     created_at = (
-        dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2)
-    ).isoformat(timespec="seconds").replace("+00:00", "Z")
+        (dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2))
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
+    )
     manifest = {
         "schemaVersion": "thesis_ledger_release_v1",
         "releaseIndex": 0,
@@ -1768,13 +1822,16 @@ def test_append_proposal_builds_byte_correct_verified_release(
     assert pathlib.PurePosixPath(manifest_path).name == (
         ledger_release_chain.manifest_filename(1, manifest_raw)
     )
-    assert manifest["previousManifestSha256"] == hashlib.sha256(
-        next(
-            payload
-            for path, payload in tree.files.items()
-            if path.startswith("releases/manifests/") and path.endswith(".json")
-        )
-    ).hexdigest()
+    assert (
+        manifest["previousManifestSha256"]
+        == hashlib.sha256(
+            next(
+                payload
+                for path, payload in tree.files.items()
+                if path.startswith("releases/manifests/") and path.endswith(".json")
+            )
+        ).hexdigest()
+    )
     assert manifest["append"] == {
         "previousLineCount": 1,
         "appendedRowCount": 1,
@@ -2059,9 +2116,7 @@ def test_append_proposal_tsa_failure_has_no_remote_mutation(
 def test_postmerge_state_is_fully_reverified(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
-    base_tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(
-        tmp_path
-    )
+    base_tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(tmp_path)
     monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key_pem)
     path = "ledger/official_observations.jsonl"
     candidate = (
@@ -2269,11 +2324,7 @@ def test_append_proposal_recovers_ambiguous_successful_merge(monkeypatch) -> Non
         if "/merge" in joined:
             merge_attempted = True
             raise RuntimeError("merge response lost after server success")
-        if (
-            merge_attempted
-            and joined.endswith("/pulls/7")
-            and "PATCH" not in args
-        ):
+        if merge_attempted and joined.endswith("/pulls/7") and "PATCH" not in args:
             return json.dumps(
                 {
                     "merged": True,
@@ -2560,7 +2611,9 @@ def test_fetch_git_blob_binds_response_and_bytes_to_requested_sha(monkeypatch) -
     }
     monkeypatch.setattr(resolve_pending, "_gh_api", lambda *_args: json.dumps(payload))
 
-    assert resolve_pending._fetch_git_blob("PolicyEngine/chronicle", requested_sha) == raw
+    assert (
+        resolve_pending._fetch_git_blob("PolicyEngine/chronicle", requested_sha) == raw
+    )
 
     payload["sha"] = "0" * 40
     with pytest.raises(resolve_pending.LedgerProposalError, match="requested blob"):
@@ -2648,9 +2701,7 @@ def test_fetch_repository_tree_rejects_swapped_commit_response(monkeypatch) -> N
     monkeypatch.setattr(
         resolve_pending,
         "_gh_api",
-        lambda *_args: json.dumps(
-            {"sha": "b" * 40, "tree": {"sha": "c" * 40}}
-        ),
+        lambda *_args: json.dumps({"sha": "b" * 40, "tree": {"sha": "c" * 40}}),
     )
 
     with pytest.raises(resolve_pending.LedgerProposalError, match="requested commit"):
@@ -2670,12 +2721,8 @@ def test_fetch_repository_tree_rejects_partial_tree_with_claimed_sha(
     def api(*args: str, input_body=None) -> str:
         del input_body
         if "/git/commits/" in args[-1]:
-            return json.dumps(
-                {"sha": commit_sha, "tree": {"sha": claimed_tree_sha}}
-            )
-        return json.dumps(
-            {"sha": claimed_tree_sha, "tree": [], "truncated": False}
-        )
+            return json.dumps({"sha": commit_sha, "tree": {"sha": claimed_tree_sha}})
+        return json.dumps({"sha": claimed_tree_sha, "tree": [], "truncated": False})
 
     monkeypatch.setattr(resolve_pending, "_gh_api", api)
 
@@ -2747,6 +2794,8 @@ def test_assertion_version_binds_measure_mapping_and_lineage() -> None:
     for override in variants:
         changed = resolve_pending.assertion_version({**base, **override})["id"]
         assert changed != base_id, f"av2 did not change for {override}"
+
+
 # --------------------------------------------------------------------------
 # International native-source adapters
 
@@ -2767,8 +2816,11 @@ def test_parse_ref_period_handles_international_dialects() -> None:
             "statcan.cpi.all_items_annual_rate.canada",
             ("month", "2026-05"),
         ),
-        ("statcan.cpi.allitems.yoy.2026-05", "statcan.cpi.allitems.yoy",
-         ("month", "2026-05")),
+        (
+            "statcan.cpi.allitems.yoy.2026-05",
+            "statcan.cpi.allitems.yoy",
+            ("month", "2026-05"),
+        ),
         (
             "statcan.36-10-0434-01.all_industries.month_to_month_percent_change"
             ".2026-05.first_print",
@@ -2789,15 +2841,20 @@ def test_parse_ref_period_handles_international_dialects() -> None:
     for ref, stem, expected in cases:
         assert resolve_pending.parse_ref_period(ref, stem) == expected
     # A final-first-print dialect is NOT silently claimed as the flash.
-    assert resolve_pending.parse_ref_period(
-        "eurostat.hicp.all_items_annual_rate.euro_area.may_2026"
-        ".final_first_print",
-        "eurostat.hicp.all_items_annual_rate.euro_area",
-    ) is None
-    assert resolve_pending.parse_ref_period(
-        "statcan.cpi.allitems.yoy.2026_13.first_print",
-        "statcan.cpi.allitems.yoy",
-    ) is None
+    assert (
+        resolve_pending.parse_ref_period(
+            "eurostat.hicp.all_items_annual_rate.euro_area.may_2026.final_first_print",
+            "eurostat.hicp.all_items_annual_rate.euro_area",
+        )
+        is None
+    )
+    assert (
+        resolve_pending.parse_ref_period(
+            "statcan.cpi.allitems.yoy.2026_13.first_print",
+            "statcan.cpi.allitems.yoy",
+        )
+        is None
+    )
 
 
 def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
@@ -2811,24 +2868,22 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
         }
 
     refs_and_units = [
-        ("statcan.cpi.all_items_annual_rate.canada.may_2026.first_print",
-         "percent"),
+        ("statcan.cpi.all_items_annual_rate.canada.may_2026.first_print", "percent"),
         ("statcan.cpi.allitems.yoy.2026-05", "percent"),
-        ("statcan.gdp_by_industry.monthly_growth.april_2026.first_print",
-         "percent_growth"),
+        (
+            "statcan.gdp_by_industry.monthly_growth.april_2026.first_print",
+            "percent_growth",
+        ),
         ("abs.cpi.all_groups.yoy.2026-06.first_print", "percent"),
-        ("abs.labour.unemployment_rate.australia.may_2026.first_print",
-         "percent"),
-        ("eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash",
-         "percent"),
+        ("abs.labour.unemployment_rate.australia.may_2026.first_print", "percent"),
+        ("eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash", "percent"),
         ("eurostat.ea.hicp.flash.yoy.2026-06", "percent"),
     ]
     blocked_refs = [
         "statcan.employment_insurance.regular_beneficiaries.canada"
         ".may_2026.first_print",
         "abs.labour.employment_change.australia.may_2026.first_print",
-        "abs.building_approvals.total_dwellings_mom.australia.may_2026"
-        ".first_print",
+        "abs.building_approvals.total_dwellings_mom.australia.may_2026.first_print",
         "statjp.cpi.tokyo_all_items_annual_rate.june_2026.preliminary",
         "eurostat.unemployment_rate.euro_area.may_2026.first_print",
         "ons.cpi.annual_rate.may_2026.first_print",
@@ -2838,12 +2893,10 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
     ]
     log = {
         "entries": [
-            entry(f"cell-{i}", unit)
-            for i, (_, unit) in enumerate(refs_and_units)
+            entry(f"cell-{i}", unit) for i, (_, unit) in enumerate(refs_and_units)
         ],
         "resolutionLinks": [
-            {"status": "pending", "forecastSlug": f"cell-{i}",
-             "targetFactRef": ref}
+            {"status": "pending", "forecastSlug": f"cell-{i}", "targetFactRef": ref}
             for i, (ref, _) in enumerate(refs_and_units)
         ]
         + [
@@ -2857,10 +2910,12 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
         + [
             # Belgium is owned by its own lane; the euro-area stems must
             # not claim it.
-            {"status": "pending", "forecastSlug": "cell-0",
-             "targetFactRef":
-                 "eurostat.une_rt_m.unemployment_rate.belgium.2026_06"
-                 ".first_print"},
+            {
+                "status": "pending",
+                "forecastSlug": "cell-0",
+                "targetFactRef": "eurostat.une_rt_m.unemployment_rate.belgium.2026_06"
+                ".first_print",
+            },
         ],
     }
     todo = resolve_pending.pending_adapter_refs(log)
@@ -2874,8 +2929,7 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
         # the resolution loop refuses on any mismatch.
         assert spec["unit"] == unit, ref
     assert (
-        "eurostat.une_rt_m.unemployment_rate.belgium.2026_06.first_print"
-        not in claimed
+        "eurostat.une_rt_m.unemployment_rate.belgium.2026_06.first_print" not in claimed
     )
     assert not set(blocked_refs) & set(claimed)
 
@@ -2886,16 +2940,13 @@ def _international_fixture(name: str) -> bytes:
 
 def test_recorded_international_fixtures_reproduce_admitted_anchors() -> None:
     unique_specs = {
-        spec["series_id"]: spec
-        for spec in resolve_pending.INTL_ADAPTERS.values()
+        spec["series_id"]: spec for spec in resolve_pending.INTL_ADAPTERS.values()
     }
     for spec in unique_specs.values():
         raw = _international_fixture(spec["admission_fixture"])
         flags: dict[str, str] = {}
         if spec["kind"] == "statcan":
-            series = resolve_pending.statcan_series_from_payload(
-                raw, spec["vector"]
-            )
+            series = resolve_pending.statcan_series_from_payload(raw, spec["vector"])
         elif spec["kind"] == "abs":
             series = resolve_pending.abs_series_from_payload(
                 raw, spec["flow"], spec["key"]
@@ -2907,9 +2958,7 @@ def test_recorded_international_fixtures_reproduce_admitted_anchors() -> None:
         else:
             raise AssertionError(f"unhandled admitted kind {spec['kind']}")
         got = {
-            period: resolve_pending.intl_transformed_value(
-                spec, series, period
-            )
+            period: resolve_pending.intl_transformed_value(spec, series, period)
             for period in spec["verified_anchors"]
         }
         assert got == spec["verified_anchors"]
@@ -2918,9 +2967,7 @@ def test_recorded_international_fixtures_reproduce_admitted_anchors() -> None:
 
 
 def test_international_parsers_refuse_wrong_source_identity() -> None:
-    statcan_spec = resolve_pending.INTL_ADAPTERS[
-        "statcan.cpi.allitems.yoy"
-    ]
+    statcan_spec = resolve_pending.INTL_ADAPTERS["statcan.cpi.allitems.yoy"]
     statcan_payload = json.loads(
         _international_fixture(statcan_spec["admission_fixture"])
     )
@@ -2930,25 +2977,17 @@ def test_international_parsers_refuse_wrong_source_identity() -> None:
             json.dumps(statcan_payload).encode(), statcan_spec["vector"]
         )
 
-    abs_spec = resolve_pending.INTL_ADAPTERS[
-        "abs.labour.unemployment_rate"
-    ]
+    abs_spec = resolve_pending.INTL_ADAPTERS["abs.labour.unemployment_rate"]
     abs_raw = _international_fixture(abs_spec["admission_fixture"])
     with pytest.raises(ValueError, match="not dataflow"):
-        resolve_pending.abs_series_from_payload(
-            abs_raw, "CPI", abs_spec["key"]
-        )
+        resolve_pending.abs_series_from_payload(abs_raw, "CPI", abs_spec["key"])
     with pytest.raises(ValueError, match="returned key"):
         resolve_pending.abs_series_from_payload(
             abs_raw, abs_spec["flow"], "M13.3.1599.20.NSW.M"
         )
 
-    eurostat_spec = resolve_pending.INTL_ADAPTERS[
-        "eurostat.hicp.flash.yoy"
-    ]
-    eurostat_raw = _international_fixture(
-        eurostat_spec["admission_fixture"]
-    )
+    eurostat_spec = resolve_pending.INTL_ADAPTERS["eurostat.hicp.flash.yoy"]
+    eurostat_raw = _international_fixture(eurostat_spec["admission_fixture"])
     with pytest.raises(ValueError, match="returned dataset"):
         resolve_pending.eurostat_series_from_payload(
             eurostat_raw, "une_rt_m", eurostat_spec["key"]
@@ -2978,8 +3017,7 @@ def test_admitted_international_specs_have_three_anchors_and_calendars() -> None
         )
         assert spec["allowed_hosts"]
     for spec in {
-        id(spec): spec
-        for spec in resolve_pending.INTL_BLOCKED_ADAPTERS.values()
+        id(spec): spec for spec in resolve_pending.INTL_BLOCKED_ADAPTERS.values()
     }.values():
         assert "verified_anchors" not in spec
         assert "admission_fixture" not in spec
@@ -2995,9 +3033,7 @@ def test_only_reviewed_legacy_international_contract_gets_native_executor(
         "targetContentHash": content_hash,
         "contract": contract,
     }
-    spec = resolve_pending.INTL_ADAPTERS[
-        "abs.labour.unemployment_rate.australia"
-    ]
+    spec = resolve_pending.INTL_ADAPTERS["abs.labour.unemployment_rate.australia"]
     execution = resolve_pending.intl_execution_spec(registration, spec)
     assert execution is not None
     assert execution["request_url"] == contract["sourceBinding"]["sourceUrl"]
@@ -3008,14 +3044,12 @@ def test_only_reviewed_legacy_international_contract_gets_native_executor(
 
     def fake_http_get(url, *, allowed_hosts, timeout=120):
         calls.append(url)
-        assert set(allowed_hosts) == set(
-            contract["sourceBinding"]["allowedHosts"]
-        )
+        assert set(allowed_hosts) == set(contract["sourceBinding"]["allowedHosts"])
         return raw, "2026-08-20T01:30:00Z", url
 
     monkeypatch.setattr(resolve_pending, "http_get", fake_http_get)
-    series, flags, got_raw, source_url, retrieved_at = (
-        resolve_pending.intl_fetch(execution, "2026-07", {})
+    series, flags, got_raw, source_url, retrieved_at = resolve_pending.intl_fetch(
+        execution, "2026-07", {}
     )
     assert calls == [contract["sourceBinding"]["sourceUrl"]]
     assert series["2026-05"] == pytest.approx(4.35594887)
@@ -3041,13 +3075,9 @@ def test_only_reviewed_legacy_international_contract_gets_native_executor(
 
 
 def test_current_native_executor_requires_exact_registry_series_spec_pair() -> None:
-    spec = resolve_pending.INTL_REGISTRY_ADAPTERS[
-        "abs.labour.unemployment_rate"
-    ]
+    spec = resolve_pending.INTL_REGISTRY_ADAPTERS["abs.labour.unemployment_rate"]
     binding = {
-        **json.loads(
-            json.dumps(resolve_pending.intl_binding_template(spec))
-        ),
+        **json.loads(json.dumps(resolve_pending.intl_binding_template(spec))),
         "allowedHosts": list(spec["allowed_hosts"]),
         "expectedReleaseWindow": {
             "start": "2026-09-24",
@@ -3068,18 +3098,13 @@ def test_current_native_executor_requires_exact_registry_series_spec_pair() -> N
     assert resolve_pending.intl_execution_spec(borrowed, spec) is None
 
 
-def test_existing_legacy_international_targets_fail_closed_except_reviewed_one(
-) -> None:
+def test_existing_legacy_international_targets_fail_closed_except_reviewed_one() -> (
+    None
+):
     expected = {
         "abs.cpi.all_groups.yoy.2026-07.first_print": False,
-        (
-            "abs.cpi.all_groups_annual_rate.australia."
-            "june_2026.first_print"
-        ): False,
-        (
-            "abs.labour.unemployment_rate.australia."
-            "july_2026.first_print"
-        ): True,
+        ("abs.cpi.all_groups_annual_rate.australia.june_2026.first_print"): False,
+        ("abs.labour.unemployment_rate.australia.july_2026.first_print"): True,
         (
             "statcan.36-10-0434-01.all_industries."
             "month_to_month_percent_change.2026-06.first_print"
@@ -3103,9 +3128,7 @@ def test_existing_legacy_international_targets_fail_closed_except_reviewed_one(
 
 
 def test_docket_and_admitted_adapter_bindings_are_byte_identical() -> None:
-    docket = json.loads(
-        (ROOT / "scripts" / "docket_series.json").read_text()
-    )["series"]
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())["series"]
     registered = {
         entry["series"]: entry["extras"]["sourceBinding"]
         for entry in docket
@@ -3128,9 +3151,7 @@ def test_docket_and_admitted_adapter_bindings_are_byte_identical() -> None:
 def test_international_unit_host_binding_and_window_refusals() -> None:
     spec = resolve_pending.INTL_ADAPTERS["abs.labour.unemployment_rate"]
     assert resolve_pending.adapter_unit_matches(spec, {"unit": "percent"})
-    assert not resolve_pending.adapter_unit_matches(
-        spec, {"unit": "percentage_points"}
-    )
+    assert not resolve_pending.adapter_unit_matches(spec, {"unit": "percentage_points"})
     assert not resolve_pending.adapter_unit_matches(spec, None)
     assert resolve_pending.intl_value_valid(spec, 4.4)
     assert not resolve_pending.intl_value_valid(spec, 4400)
@@ -3149,9 +3170,7 @@ def test_international_unit_host_binding_and_window_refusals() -> None:
             "http://data.api.abs.gov.au/rest/data/LF/example",
             spec["allowed_hosts"],
         )
-    redirects = resolve_pending._PinnedRedirectHandler(
-        spec["allowed_hosts"]
-    )
+    redirects = resolve_pending._PinnedRedirectHandler(spec["allowed_hosts"])
     request = resolve_pending.urllib.request.Request(
         "https://data.api.abs.gov.au/rest/data/LF/example"
     )
@@ -3184,16 +3203,11 @@ def test_international_unit_host_binding_and_window_refusals() -> None:
     )
     window = {"start": "2026-07-23", "end": "2026-07-23"}
     assert (
-        resolve_pending.snapshot_window_state(dt.date(2026, 7, 22), window)
-        == "pending"
+        resolve_pending.snapshot_window_state(dt.date(2026, 7, 22), window) == "pending"
     )
+    assert resolve_pending.snapshot_window_state(dt.date(2026, 7, 23), window) == "open"
     assert (
-        resolve_pending.snapshot_window_state(dt.date(2026, 7, 23), window)
-        == "open"
-    )
-    assert (
-        resolve_pending.snapshot_window_state(dt.date(2026, 7, 24), window)
-        == "missed"
+        resolve_pending.snapshot_window_state(dt.date(2026, 7, 24), window) == "missed"
     )
 
 
@@ -3233,16 +3247,11 @@ def test_intl_transforms_reproduce_published_rounding() -> None:
     # Level with persons->thousands scaling (StatCan EI beneficiaries).
     spec = {"transform": "level", "scale": 0.001, "round": 2}
     series = {"2026-04": 544440.0}
-    assert (
-        resolve_pending.intl_transformed_value(spec, series, "2026-04")
-        == 544.44
-    )
+    assert resolve_pending.intl_transformed_value(spec, series, "2026-04") == 544.44
     # Missing prior periods fail closed rather than fabricating a change.
     spec = {"transform": "yoy_from_index", "round": 1}
     assert (
-        resolve_pending.intl_transformed_value(
-            spec, {"2026-05": 169.6}, "2026-05"
-        )
+        resolve_pending.intl_transformed_value(spec, {"2026-05": 169.6}, "2026-05")
         is None
     )
     # A declared quarterly adapter steps back three months, not one.
@@ -3251,11 +3260,14 @@ def test_intl_transforms_reproduce_published_rounding() -> None:
         "period_type": "quarter",
         "round": 1,
     }
-    assert resolve_pending.intl_transformed_value(
-        spec,
-        {"2026-01": 95.0, "2026-03": 98.0, "2026-04": 100.0},
-        "2026-04",
-    ) == 5.0
+    assert (
+        resolve_pending.intl_transformed_value(
+            spec,
+            {"2026-01": 95.0, "2026-03": 98.0, "2026-04": 100.0},
+            "2026-04",
+        )
+        == 5.0
+    )
 
 
 def test_ons_parser_handles_real_three_letter_month_labels() -> None:
@@ -3277,9 +3289,7 @@ def test_ons_parser_handles_real_three_letter_month_labels() -> None:
     }
     with pytest.raises(ValueError, match="no numeric monthly observations"):
         resolve_pending.ons_series_from_payload(
-            json.dumps(
-                {"months": [{"date": "2026 APR", "value": ".."}]}
-            ).encode(),
+            json.dumps({"months": [{"date": "2026 APR", "value": ".."}]}).encode(),
             "D7G7",
         )
 
@@ -3308,12 +3318,15 @@ def test_intl_anchor_gate_refuses_series_that_cannot_reproduce_history() -> None
         "anchors": {"2026-05": 14738.8},
         "anchor_tolerance": 60.0,
     }
-    assert resolve_pending.intl_anchor_failures(raw_spec, good | {
-        "2026-05": 14738.83914046
-    }) == []
-    assert resolve_pending.intl_anchor_failures(
-        raw_spec, {"2026-05": 14698.5 - 200}
-    ) != []
+    assert (
+        resolve_pending.intl_anchor_failures(
+            raw_spec, good | {"2026-05": 14738.83914046}
+        )
+        == []
+    )
+    assert (
+        resolve_pending.intl_anchor_failures(raw_spec, {"2026-05": 14698.5 - 200}) != []
+    )
 
 
 def test_intl_plausibility_gate_blocks_per_adapter_scale_blunders() -> None:
@@ -3340,9 +3353,7 @@ def test_intl_plausibility_gate_blocks_per_adapter_scale_blunders() -> None:
 def test_eurostat_flash_flag_gate() -> None:
     spec = {"require_flag": True}
     # June still flagged as estimate: the flash vintage is retrievable.
-    assert not resolve_pending.flash_vintage_missing(
-        spec, {"2026-06": "e"}, "2026-06"
-    )
+    assert not resolve_pending.flash_vintage_missing(spec, {"2026-06": "e"}, "2026-06")
     # Finals published: the flag is gone and the flash must not resolve
     # from this endpoint anymore.
     assert resolve_pending.flash_vintage_missing(spec, {}, "2026-06")
@@ -3393,9 +3404,7 @@ def test_intl_fact_rows_carry_country_geography_and_concept() -> None:
     assert row["measure"]["unit"] == "percent"
     assert row["source_row_keys"] == ["2026-05", "2025-05"]
 
-    gdp_spec = resolve_pending.INTL_ADAPTERS[
-        "statcan.gdp_by_industry.monthly_growth"
-    ]
+    gdp_spec = resolve_pending.INTL_ADAPTERS["statcan.gdp_by_industry.monthly_growth"]
     gdp_row = resolve_pending.generic_fact(
         "statcan.gdp_by_industry.monthly_growth.2026-04.first_print",
         gdp_spec,
@@ -3443,20 +3452,25 @@ def test_intl_fact_rows_carry_country_geography_and_concept() -> None:
 
 def test_intl_dialects_share_one_spec_so_dialects_share_archives() -> None:
     adapters = resolve_pending.INTL_ADAPTERS
-    assert adapters["statcan.cpi.all_items_annual_rate.canada"] is (
-        adapters["statcan.cpi.allitems.yoy"]
+    assert (
+        adapters["statcan.cpi.all_items_annual_rate.canada"]
+        is (adapters["statcan.cpi.allitems.yoy"])
     )
-    assert adapters["eurostat.hicp.all_items_annual_rate.euro_area"] is (
-        adapters["eurostat.ea.hicp.flash.yoy"]
+    assert (
+        adapters["eurostat.hicp.all_items_annual_rate.euro_area"]
+        is (adapters["eurostat.ea.hicp.flash.yoy"])
     )
-    assert adapters["abs.cpi.all_groups_annual_rate.australia"] is (
-        adapters["abs.cpi_indicator.allgroups.yoy"]
+    assert (
+        adapters["abs.cpi.all_groups_annual_rate.australia"]
+        is (adapters["abs.cpi_indicator.allgroups.yoy"])
     )
-    assert adapters["statcan.gdp_by_industry.monthly_growth"] is (
-        adapters[
-            "statcan.36-10-0434-01.all_industries"
-            ".month_to_month_percent_change"
-        ]
+    assert (
+        adapters["statcan.gdp_by_industry.monthly_growth"]
+        is (
+            adapters[
+                "statcan.36-10-0434-01.all_industries.month_to_month_percent_change"
+            ]
+        )
     )
 
 
@@ -3514,8 +3528,8 @@ CMS_CSV = (
     '"State or Nation","Overall Rating",'
     '"Reported Total Nurse Staffing Hours per Resident per Day",'
     '"Processing Date"\n'
-    'NATION,3.0,3.87157,2026-07-01\n'
-    'AK,3.3,6.92970,2026-07-01\n'
+    "NATION,3.0,3.87157,2026-07-01\n"
+    "AK,3.3,6.92970,2026-07-01\n"
 ).encode()
 
 
