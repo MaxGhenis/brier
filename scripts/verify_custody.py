@@ -83,6 +83,21 @@ LEDGER_REPO = "PolicyEngine/chronicle"
 # slug. Verification accepts either alias in STORED records while all
 # new URL construction uses the canonical LEDGER_REPO above.
 LEDGER_REPO_ALIASES = ("PolicyEngine/chronicle", "PolicyEngine/ledger")
+
+
+def same_ledger_repo(left: object, right: object) -> bool:
+    """Closed-set equivalence across the 2026-08-07 rename.
+
+    Two repo slugs denote the same upstream iff they are equal or both
+    members of the documented alias set. Anything outside the set never
+    unifies with anything.
+    """
+
+    if left == right:
+        return True
+    return left in LEDGER_REPO_ALIASES and right in LEDGER_REPO_ALIASES
+
+
 LEDGER_BRANCH = "codex/thesis-ledger-facts"
 LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
 LEDGER_CATALOG_PATH = "ledger/series_catalog.json"
@@ -690,9 +705,7 @@ def _named_ledger_archive(
     return archived
 
 
-def _require_ledger_tree_url(
-    record: dict[str, Any], tree_sha: str, label: str
-) -> None:
+def _require_ledger_tree_url(record: dict[str, Any], tree_sha: str, label: str) -> None:
     expected = {
         f"https://api.github.com/repos/{repo}/git/trees/{tree_sha}"
         for repo in LEDGER_REPO_ALIASES
@@ -904,8 +917,7 @@ def _verify_ledger_release_archive(
             or source.name in {"", ".", ".."}
         ):
             raise CustodyError(
-                f"releaseArchive file {number} is not a canonical direct "
-                "manifest child"
+                f"releaseArchive file {number} is not a canonical direct manifest child"
             )
         basename = source.name
         if basename in files_by_basename:
@@ -1233,10 +1245,10 @@ def _verify_ledger_witness_v2(
                     "ledger series catalog observations_sha256 does not match "
                     "the witnessed JSONL"
                 )
-            if (
-                type(catalog_payload.get("observation_rows")) is not int
-                or catalog_payload["observation_rows"]
-                != jsonl_claim.get("lineCount")
+            if type(
+                catalog_payload.get("observation_rows")
+            ) is not int or catalog_payload["observation_rows"] != jsonl_claim.get(
+                "lineCount"
             ):
                 raise CustodyError(
                     "ledger series catalog observation_rows does not match "
@@ -1803,23 +1815,28 @@ def _verify_sba_pdf_witness_v2(
                 "failed SBA bundle retention disagrees with its failure stage"
             )
         state_matches = (
-            stage == "landing fetch"
-            and landing["outcome"] == "failed"
-            and asset is None
-        ) or (
-            stage == "landing validation"
-            and landing["outcome"] == "success"
-            and asset is None
-        ) or (
-            stage == "asset fetch"
-            and landing["outcome"] == "success"
-            and asset is not None
-            and asset["outcome"] == "failed"
-        ) or (
-            stage in {"asset validation", "bundle validation"}
-            and landing["outcome"] == "success"
-            and asset is not None
-            and asset["outcome"] == "success"
+            (
+                stage == "landing fetch"
+                and landing["outcome"] == "failed"
+                and asset is None
+            )
+            or (
+                stage == "landing validation"
+                and landing["outcome"] == "success"
+                and asset is None
+            )
+            or (
+                stage == "asset fetch"
+                and landing["outcome"] == "success"
+                and asset is not None
+                and asset["outcome"] == "failed"
+            )
+            or (
+                stage in {"asset validation", "bundle validation"}
+                and landing["outcome"] == "success"
+                and asset is not None
+                and asset["outcome"] == "success"
+            )
         )
         if not state_matches:
             raise CustodyError("SBA capture failure stage disagrees with fetch state")
@@ -1866,9 +1883,7 @@ def _verify_sba_pdf_witness_v2(
             try:
                 identity = _linked_bundle(landing_raw, page_url=landing["finalUrl"])
             except SbaCaptureError as exc:
-                raise CustodyError(
-                    f"SBA failed landing replay refused: {exc}"
-                ) from exc
+                raise CustodyError(f"SBA failed landing replay refused: {exc}") from exc
             if asset["requestedUrl"] != identity.linked_url:
                 raise CustodyError(
                     "SBA failed ZIP was not fetched from the archived page link"
@@ -1887,9 +1902,7 @@ def _verify_sba_pdf_witness_v2(
             except SbaCaptureError as exc:
                 replayed_reason = f"{CAPTURE_REFUSAL} {exc}"
             else:
-                raise CustodyError(
-                    "SBA retained failed bundle passes strict replay"
-                )
+                raise CustodyError("SBA retained failed bundle passes strict replay")
             if failure["reason"] != replayed_reason:
                 raise CustodyError(
                     "SBA retained failed bundle refusal does not match replay"

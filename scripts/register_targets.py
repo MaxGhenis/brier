@@ -27,6 +27,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
+from verify_custody import same_ledger_repo
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 GENERATED_TARGETS = ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"
@@ -124,10 +125,7 @@ def is_calendar_gated_source(adapter: Any, series: Any) -> bool:
     remain on that separate path even though their resolver is ALFRED.
     """
 
-    return (
-        adapter in CALENDAR_GATED_SOURCE_ADAPTERS
-        and series not in SERIES_BINDINGS
-    )
+    return adapter in CALENDAR_GATED_SOURCE_ADAPTERS and series not in SERIES_BINDINGS
 
 
 class RegistrationError(ValueError):
@@ -184,13 +182,9 @@ def validate_ledger_pin_binding(pin: Any) -> dict[str, Any]:
         if type(pin["catalogSha256"]) is not str or not re.fullmatch(
             r"[0-9a-f]{64}", pin["catalogSha256"]
         ):
-            raise RegistrationError(
-                "ledgerPin catalogSha256 is not a SHA-256 digest"
-            )
+            raise RegistrationError("ledgerPin catalogSha256 is not a SHA-256 digest")
         if type(pin["catalogBytes"]) is not int or pin["catalogBytes"] < 0:
-            raise RegistrationError(
-                "ledgerPin catalogBytes must be a non-negative int"
-            )
+            raise RegistrationError("ledgerPin catalogBytes must be a non-negative int")
     if not pin["repo"] or not pin["branch"]:
         raise RegistrationError("ledgerPin repo/branch must be non-empty")
     return pin
@@ -252,9 +246,7 @@ def registration_hash_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
     for index, target in enumerate(targets):
         binding = target.get("sourceBinding")
         window = (
-            binding.get("expectedReleaseWindow")
-            if isinstance(binding, dict)
-            else None
+            binding.get("expectedReleaseWindow") if isinstance(binding, dict) else None
         )
         validate_resolution_date_semantics(
             target.get("resolutionDateBasis", DEFAULT_RESOLUTION_DATE_BASIS),
@@ -489,15 +481,9 @@ def expected_release_window(
 ) -> dict[str, str]:
     supplied = target.get("expectedReleaseWindow")
     seed_binding = source_binding_seed(target, previous)
-    adapter = (
-        seed_binding.get("adapter")
-        if isinstance(seed_binding, dict)
-        else None
-    )
+    adapter = seed_binding.get("adapter") if isinstance(seed_binding, dict) else None
     has_explicit_window = bool(
-        isinstance(supplied, dict)
-        and supplied.get("start")
-        and supplied.get("end")
+        isinstance(supplied, dict) and supplied.get("start") and supplied.get("end")
     )
     if is_calendar_gated_source(adapter, target.get("series")):
         calendar_url = target.get("releaseCalendarUrl")
@@ -507,8 +493,7 @@ def expected_release_window(
             or not urlparse(calendar_url).hostname
         ):
             raise RegistrationError(
-                "calendar-gated target requires an HTTPS "
-                "releaseCalendarUrl"
+                "calendar-gated target requires an HTTPS releaseCalendarUrl"
             )
         if not has_explicit_window and not target.get("expectedReleaseDate"):
             raise RegistrationError(
@@ -590,9 +575,7 @@ def derive_data_point_id(
         return f"{series}.{suffix}"
     seed_binding = source_binding_seed(target, previous)
     seed_adapter = (
-        seed_binding.get("adapter")
-        if isinstance(seed_binding, dict)
-        else None
+        seed_binding.get("adapter") if isinstance(seed_binding, dict) else None
     )
     if seed_adapter in NATIVE_INTL_SOURCE_ADAPTERS:
         # Do not perpetuate a legacy descriptive alias from the previous
@@ -963,9 +946,7 @@ def _generated_entries(source: str) -> list[str]:
             continue
 
         line_start = source.rfind("\n", marker.end(), index) + 1
-        entry_start = (
-            line_start if not source[line_start:index].strip() else index
-        )
+        entry_start = line_start if not source[line_start:index].strip() else index
         depth = 1
         cursor = index + 1
         quote: str | None = None
@@ -1135,9 +1116,10 @@ def validate_committed_calendar_contract(
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
     seed_period = contract.get("seedPeriod")
     is_recurring_seed = seed_period is not None
-    if not is_calendar_gated_source(
-        adapter, contract.get("series")
-    ) and not is_recurring_seed:
+    if (
+        not is_calendar_gated_source(adapter, contract.get("series"))
+        and not is_recurring_seed
+    ):
         return
     if is_recurring_seed and (
         not isinstance(seed_period, str)
@@ -1145,18 +1127,12 @@ def validate_committed_calendar_contract(
         or docket_entry.get("seedPeriod") != seed_period
     ):
         raise RegistrationError(
-            "recurring seed registration disagrees with the committed "
-            "docket seedPeriod"
+            "recurring seed registration disagrees with the committed docket seedPeriod"
         )
-    if (
-        is_recurring_seed
-        and contract.get("resolutionDateBasis") == "resolve-by-bound"
-    ):
+    if is_recurring_seed and contract.get("resolutionDateBasis") == "resolve-by-bound":
         extras = docket_entry.get("extras")
         expected_window = (
-            extras.get("expectedReleaseWindow")
-            if isinstance(extras, dict)
-            else None
+            extras.get("expectedReleaseWindow") if isinstance(extras, dict) else None
         )
         if (
             not isinstance(expected_window, dict)
@@ -1164,8 +1140,7 @@ def validate_committed_calendar_contract(
             or binding.get("expectedReleaseWindow") != expected_window
         ):
             raise RegistrationError(
-                "bounded seed release window disagrees with the committed "
-                "docket window"
+                "bounded seed release window disagrees with the committed docket window"
             )
         if (
             extras.get("resolutionDate") != contract.get("resolutionDate")
@@ -1191,13 +1166,11 @@ def validate_committed_calendar_contract(
     expected_window = {"start": release_date, "end": release_date}
     if binding.get("expectedReleaseWindow") != expected_window:
         raise RegistrationError(
-            "target release window disagrees with the committed "
-            "docket calendar"
+            "target release window disagrees with the committed docket calendar"
         )
     if target.get("releaseCalendarUrl") != calendar_url:
         raise RegistrationError(
-            "target releaseCalendarUrl disagrees with the committed "
-            "docket calendar"
+            "target releaseCalendarUrl disagrees with the committed docket calendar"
         )
 
 
@@ -1226,15 +1199,13 @@ def require_seed_docket_template(
         return
     if len(template_matches) != 1:
         raise RegistrationError(
-            "recurring seed target requires exactly one committed docket "
-            "template"
+            "recurring seed target requires exactly one committed docket template"
         )
     extras = template_matches[0].get("extras")
     template = extras.get("sourceBinding") if isinstance(extras, dict) else None
     if not isinstance(template, dict):
         raise RegistrationError(
-            "recurring seed target requires a committed sourceBinding "
-            "template"
+            "recurring seed target requires a committed sourceBinding template"
         )
     if contract.get("resolutionDateBasis") != "resolve-by-bound":
         return
@@ -1286,15 +1257,13 @@ def require_seed_docket_template(
         rebuilt = build_contract(reconstructed_target, registered_date)
     except RegistrationError as exc:
         raise RegistrationError(
-            "committed bounded seed no longer regenerates a valid contract "
-            f"({exc})"
+            f"committed bounded seed no longer regenerates a valid contract ({exc})"
         ) from exc
     if canonical_bytes(rebuilt) != canonical_bytes(contract):
         drifted = sorted(
             key
             for key in set(rebuilt) | set(contract)
-            if canonical_bytes(rebuilt.get(key))
-            != canonical_bytes(contract.get(key))
+            if canonical_bytes(rebuilt.get(key)) != canonical_bytes(contract.get(key))
         )
         raise RegistrationError(
             "committed bounded seed no longer regenerates the registered "
@@ -1322,14 +1291,14 @@ def require_seed_docket_template(
             "registrationCommit",
         }
         keys = (
-            set(comparable_target) | set(batch_target)
-        ) - enrichment - {"sourceBinding"}
+            (set(comparable_target) | set(batch_target))
+            - enrichment
+            - {"sourceBinding"}
+        )
         context_drifted = sorted(
             key
             for key in keys
-            if canonical_bytes(
-                [key in comparable_target, comparable_target.get(key)]
-            )
+            if canonical_bytes([key in comparable_target, comparable_target.get(key)])
             != canonical_bytes([key in batch_target, batch_target.get(key)])
         )
         if context_drifted:
@@ -1362,9 +1331,7 @@ def require_conditional_docket_template(
     publication.
     """
 
-    label = (
-        f"{contract.get('dataPointId')} in series {contract.get('series')}"
-    )
+    label = f"{contract.get('dataPointId')} in series {contract.get('series')}"
     conditional = contract.get("conditional")
     pair = (
         template_matches[0].get("conditionalPair")
@@ -1377,8 +1344,7 @@ def require_conditional_docket_template(
         # registry state can never launder an unconditional contract past
         # the conditional-only rule.
         if any(
-            isinstance(entry, dict)
-            and entry.get("conditionalPair") is not None
+            isinstance(entry, dict) and entry.get("conditionalPair") is not None
             for entry in template_matches
         ):
             raise RegistrationError(
@@ -1388,24 +1354,18 @@ def require_conditional_docket_template(
         return
     if len(template_matches) != 1:
         raise RegistrationError(
-            "conditional target requires exactly one committed docket "
-            f"entry: {label}"
+            f"conditional target requires exactly one committed docket entry: {label}"
         )
     entry = template_matches[0]
     extras = entry.get("extras")
     if not isinstance(arms, list) or len(arms) != 2:
         raise RegistrationError(
-            "committed docket entry has no two-arm conditionalPair: "
-            f"{label}"
+            f"committed docket entry has no two-arm conditionalPair: {label}"
         )
     if not isinstance(extras, dict):
-        raise RegistrationError(
-            f"committed conditional entry lacks extras: {label}"
-        )
+        raise RegistrationError(f"committed conditional entry lacks extras: {label}")
     for field in ("catalogSlug", "dataPointId", "conditional", "conditionId"):
-        values = [
-            arm.get(field) if isinstance(arm, dict) else None for arm in arms
-        ]
+        values = [arm.get(field) if isinstance(arm, dict) else None for arm in arms]
         if len(set(map(str, values))) != 2 or not all(
             isinstance(value, str) and value.strip() for value in values
         ):
@@ -1543,14 +1503,14 @@ def require_conditional_docket_template(
             comparable_target = dict(reconstructed_target)
             comparable_target.pop("resolutionDateBasis", None)
         keys = (
-            set(comparable_target) | set(batch_target)
-        ) - enrichment - {"sourceBinding"}
+            (set(comparable_target) | set(batch_target))
+            - enrichment
+            - {"sourceBinding"}
+        )
         drifted = sorted(
             key
             for key in keys
-            if canonical_bytes(
-                [key in comparable_target, comparable_target.get(key)]
-            )
+            if canonical_bytes([key in comparable_target, comparable_target.get(key)])
             != canonical_bytes([key in batch_target, batch_target.get(key)])
         )
         if drifted:
@@ -1584,9 +1544,7 @@ def require_calendar_gated_docket_template(
         )
 
 
-def _binding_is_committed_template(
-    contract: dict[str, Any], head_commit: str
-) -> bool:
+def _binding_is_committed_template(contract: dict[str, Any], head_commit: str) -> bool:
     """Authorize a source binding only from its series template at trusted HEAD."""
 
     try:
@@ -1621,9 +1579,7 @@ def _may_supersede(
             return False
 
         generated_relpath = GENERATED_TARGETS.relative_to(ROOT).as_posix()
-        committed_source = _git_output(
-            "show", f"{head_commit}:{generated_relpath}"
-        )
+        committed_source = _git_output("show", f"{head_commit}:{generated_relpath}")
         committed_blocks = _generated_blocks(committed_source, data_point_id)
         if len(committed_blocks) != 1 or committed_blocks[0] != existing_block:
             return False
@@ -1660,9 +1616,7 @@ def _may_supersede(
         if len(introducing_commits) != 1:
             return False
         introducing_commit = introducing_commits[0]
-        _git_output(
-            "merge-base", "--is-ancestor", introducing_commit, head_commit
-        )
+        _git_output("merge-base", "--is-ancestor", introducing_commit, head_commit)
         committed_snapshot_bytes = subprocess.check_output(
             ["git", "show", f"{introducing_commit}:{snapshot_relpath}"],
             cwd=ROOT,
@@ -1720,7 +1674,7 @@ def _may_supersede(
             old_has_catalog = LEDGER_PIN_CATALOG_BINDING_KEYS.issubset(old_pin)
             new_has_catalog = LEDGER_PIN_CATALOG_BINDING_KEYS.issubset(new_pin)
             if (
-                new_pin["repo"] != old_pin["repo"]
+                not same_ledger_repo(new_pin["repo"], old_pin["repo"])
                 or new_pin["branch"] != old_pin["branch"]
                 or (old_has_catalog and not new_has_catalog)
                 or new_pin["lineCount"] < old_pin["lineCount"]
@@ -1789,9 +1743,10 @@ def render_generated_targets(
                 ):
                     entry_count = len(_generated_entries(source))
                     source = source.replace(existing_block, expected_block, 1)
-                    if _generated_blocks(source, data_point_id) != [
-                        expected_block
-                    ] or len(_generated_entries(source)) != entry_count:
+                    if (
+                        _generated_blocks(source, data_point_id) != [expected_block]
+                        or len(_generated_entries(source)) != entry_count
+                    ):
                         # A raw byte replacement can be misdirected by block
                         # bytes sitting outside the parsed array (for example
                         # inside a comment); refuse rather than emit a file
@@ -1869,10 +1824,9 @@ def _plan_registration(
     if candidates:
         path = candidates[0]
         existing_snapshot = _load_snapshot(path)
-        if (
-            registration_content_hash(existing_snapshot) != content_hash
-            or existing_snapshot["targets"] != [contract]
-        ):
+        if registration_content_hash(
+            existing_snapshot
+        ) != content_hash or existing_snapshot["targets"] != [contract]:
             raise RegistrationError(f"registration snapshot hash collision: {path}")
         snapshot = existing_snapshot
         contract = existing_snapshot["targets"][0]
@@ -2019,9 +1973,7 @@ def register(
                 "--reuse-existing-only refused target(s) without an existing "
                 "immutable registration: " + ", ".join(unregistered)
             )
-        generated_source = render_generated_targets(
-            registrations, allow_published=True
-        )
+        generated_source = render_generated_targets(registrations, allow_published=True)
     else:
         generated_source = render_generated_targets(
             registrations, allow_published=True, allow_supersede=True
@@ -2093,10 +2045,9 @@ def bind_registration_commits(
         path = ROOT.joinpath(*relative.parts)
         snapshot = _load_snapshot(path)
         content_hash = registration_content_hash(snapshot)
-        if (
-            content_hash != target.get("targetContentHash")
-            or not relative.name.endswith(f"-{content_hash}.json")
-        ):
+        if content_hash != target.get(
+            "targetContentHash"
+        ) or not relative.name.endswith(f"-{content_hash}.json"):
             raise RegistrationError(f"target content hash mismatch: {relative}")
         contract = next(
             (
@@ -2262,9 +2213,7 @@ def registration_metadata(registrations: list[dict[str, Any]]) -> dict[str, Any]
             "catalogSlug": registration["contract"]["catalogSlug"],
             "registeredAtUtc": registration["registeredAtUtc"],
             "targetContentHash": registration["targetContentHash"],
-            "targetRegistrationPath": registration["path"]
-            .relative_to(ROOT)
-            .as_posix(),
+            "targetRegistrationPath": registration["path"].relative_to(ROOT).as_posix(),
             "existing": registration["existing"],
         }
         for registration in registrations
@@ -2273,9 +2222,7 @@ def registration_metadata(registrations: list[dict[str, Any]]) -> dict[str, Any]
     return {
         "schemaVersion": REGISTRATION_SET_SCHEMA,
         "registrationSetHash": canonical_sha256(rows),
-        "targetContentHashes": sorted(
-            {str(row["targetContentHash"]) for row in rows}
-        ),
+        "targetContentHashes": sorted({str(row["targetContentHash"]) for row in rows}),
         "targets": rows,
     }
 
@@ -2336,9 +2283,8 @@ def registration_for_cell(cell: dict[str, Any]) -> dict[str, Any]:
     path = ROOT.joinpath(*pathlib.PurePosixPath(relative).parts)
     snapshot = _load_snapshot(path)
     content_hash = registration_content_hash(snapshot)
-    if (
-        cell.get("targetContentHash") != content_hash
-        or not relative.endswith(f"-{content_hash}.json")
+    if cell.get("targetContentHash") != content_hash or not relative.endswith(
+        f"-{content_hash}.json"
     ):
         raise RegistrationError(f"cell target registration hash mismatch: {relative}")
     if len(snapshot["targets"]) != 1:
