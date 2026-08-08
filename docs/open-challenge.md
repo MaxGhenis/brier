@@ -129,10 +129,13 @@ plus no prizes; revisit with any prize design.
 (p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95) with strictly increasing
 values — the intake (`scripts/ingest_challenge_submissions.py`) rejects
 anything else. One shot per (challenger, dataPointId): the first
-accepted content is canonical forever, keyed case-insensitively across
-the whole inbox history (GitHub logins are case-insensitive), so edits,
-renames, delete-and-readd, and surplus copies all reject while the
-canonical forecast survives. `generatedAtUtc` is the challenger's
+content accepted onto the mainline (first-parent order, so merge-borne
+files count at their merge) is canonical forever, keyed
+case-insensitively across the whole inbox history (GitHub logins are
+case-insensitive). Edits, renamed rewrites, delete-and-readd
+replacements, and surplus divergent copies all reject while the
+canonical forecast survives; a byte-identical rename carries the
+forecast unchanged. `generatedAtUtc` is the challenger's
 claim; under the current inbox intake the score carries claimed-time
 chronology (labeled, reward-excluded). The records-path intake will
 bind chronology to a witnessed commit instead.

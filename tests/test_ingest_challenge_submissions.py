@@ -226,6 +226,100 @@ def test_rename_plus_edit_cannot_replace_the_forecast(
     assert run_ingest(submission_repo) == []
 
 
+def test_merge_introduced_forecast_is_canonical_and_immutable(
+    submission_repo: dict[str, Any],
+) -> None:
+    # A forecast accepted via a merge commit (branch -> mainline) must
+    # enter the canonical map at the merge, so a later rename-plus-edit
+    # still rejects.
+    repo = submission_repo["repo"]
+    git(repo, "checkout", "-q", "-b", "side")
+    other = dict(submission_repo["submission"])
+    other["challenger"] = "github:merge-user"
+    path = submission_repo["inbox_dir"] / "merge-user" / "fixture-rate.json"
+    write_json(path, other)
+    commit_all(repo, "Side-branch submission")
+    git(repo, "checkout", "-q", "-")
+    git(
+        repo,
+        "-c",
+        "user.name=Challenge Adapter Test",
+        "-c",
+        "user.email=challenge-adapter@example.com",
+        "-c",
+        "commit.gpgsign=false",
+        "merge",
+        "--no-ff",
+        "-q",
+        "-m",
+        "Accept side submission",
+        "side",
+    )
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == [
+        "github:fixture-user",
+        "github:merge-user",
+    ]
+
+    edited = dict(other)
+    edited["pointEstimate"] = 3.3
+    path.unlink()
+    write_json(submission_repo["inbox_dir"] / "merge-user" / "renamed.json", edited)
+    commit_all(repo, "Rename and edit the merged submission")
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == ["github:fixture-user"]
+
+
+def test_stale_branch_merged_later_cannot_predate_the_first_forecast(
+    submission_repo: dict[str, Any],
+) -> None:
+    # Acceptance order is the first-parent chain: a divergent draft
+    # committed on an old side branch and merged AFTER the real
+    # submission landed must not become canonical.
+    repo = submission_repo["repo"]
+    # The side branch forks from the CURRENT tip and carries a divergent
+    # draft for the fixture challenger's target at a different path.
+    git(repo, "checkout", "-q", "-b", "stale")
+    draft = dict(submission_repo["submission"])
+    draft["pointEstimate"] = 9.9
+    write_json(submission_repo["inbox_dir"] / "fixture-user" / "draft.json", draft)
+    commit_all(repo, "Stale divergent draft")
+    git(repo, "checkout", "-q", "-")
+    git(
+        repo,
+        "-c",
+        "user.name=Challenge Adapter Test",
+        "-c",
+        "user.email=challenge-adapter@example.com",
+        "-c",
+        "commit.gpgsign=false",
+        "merge",
+        "--no-ff",
+        "-q",
+        "-m",
+        "Merge stale draft later",
+        "stale",
+    )
+    records = run_ingest(submission_repo)
+    # The mainline submission stays canonical; the draft is a divergent
+    # surplus and rejects.
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+    assert records[0]["pointEstimate"] == 3.0
+
+
+def test_undecodable_history_does_not_abort_the_batch(
+    submission_repo: dict[str, Any],
+) -> None:
+    bad = submission_repo["inbox_dir"] / "fixture-user" / "garbled.json"
+    bad.write_bytes(b"\xff\xfe{ not json")
+    commit_all(submission_repo["repo"], "Add undecodable file")
+    bad.unlink()
+    commit_all(submission_repo["repo"], "Remove undecodable file")
+
+    records = run_ingest(submission_repo)
+    assert [record["challenger"] for record in records] == ["github:fixture-user"]
+
+
 def test_pure_rename_of_accepted_content_survives(
     submission_repo: dict[str, Any],
 ) -> None:

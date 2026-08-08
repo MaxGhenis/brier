@@ -54,7 +54,7 @@ const RULES: { title: string; body: string }[] = [
   },
   {
     title: "One shot per target",
-    body: "Your first accepted submission for a target is canonical forever — later files, edits, and renames for the same target are rejected against it. This matches our agents' one-registered-run discipline and blocks last-minute-information advantage. (Horizon-matched multi-update scoring is a possible v2; it would never change v1 scores retroactively.)",
+    body: "Your first accepted submission for a target is canonical forever — later files, edits, and renamed rewrites are rejected against it (a byte-identical rename carries the same forecast). This matches our agents' one-registered-run discipline and blocks last-minute-information advantage. (Horizon-matched multi-update scoring is a possible v2; it would never change v1 scores retroactively.)",
   },
   {
     title: "Chronology is inherited, not negotiated",

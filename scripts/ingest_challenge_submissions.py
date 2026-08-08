@@ -234,11 +234,20 @@ def first_accepted_content(
         .as_posix()
     )
     try:
+        # Acceptance order is the FIRST-PARENT chain: a file counts as
+        # accepted when it lands on the mainline, whether by a direct
+        # commit or inside a merge result (-m diffs merges against their
+        # first parent, so branch-introduced files appear as additions at
+        # the merge that accepted them). Plain --reverse would walk the
+        # whole DAG, letting a stale side branch merged later pre-date
+        # the true first forecast.
         log = subprocess.run(
             [
                 "git",
                 "log",
                 "--reverse",
+                "--first-parent",
+                "-m",
                 "--format=%H",
                 "--name-status",
                 "--diff-filter=A",
@@ -276,7 +285,10 @@ def first_accepted_content(
             continue
         try:
             payload = json.loads(raw)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Undecodable or unparseable history was never an accepted
+            # forecast; it must not define canonical content or abort
+            # the batch.
             continue
         if not isinstance(payload, dict):
             continue
