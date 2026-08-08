@@ -234,13 +234,16 @@ def first_accepted_content(
         .as_posix()
     )
     try:
-        # Acceptance order is the FIRST-PARENT chain: a file counts as
+        # Acceptance order is the FIRST-PARENT chain: content counts as
         # accepted when it lands on the mainline, whether by a direct
         # commit or inside a merge result (-m diffs merges against their
-        # first parent, so branch-introduced files appear as additions at
-        # the merge that accepted them). Plain --reverse would walk the
-        # whole DAG, letting a stale side branch merged later pre-date
-        # the true first forecast.
+        # first parent). Every change type is walked — not just
+        # additions — because the first ACCEPTED FORECAST for a key may
+        # arrive as a modification (e.g. an undecodable file later fixed
+        # in place); filtering to additions would leave such keys with
+        # no canonical content and one-shot fail-open. Plain --reverse
+        # would walk the whole DAG, letting a stale side branch merged
+        # later pre-date the true first forecast.
         log = subprocess.run(
             [
                 "git",
@@ -250,7 +253,6 @@ def first_accepted_content(
                 "-m",
                 "--format=%H",
                 "--name-status",
-                "--diff-filter=A",
                 "--",
                 inbox_rel,
             ],
@@ -269,9 +271,15 @@ def first_accepted_content(
         if _COMMIT_RE.fullmatch(line.strip()):
             commit = line.strip()
             continue
-        if not line.startswith("A\t"):
+        fields = line.split("\t")
+        if len(fields) < 2 or not fields[0]:
             continue
-        added = line.split("\t", 1)[1]
+        status = fields[0][0]
+        if status == "D":
+            continue
+        # A/M/T use the single path; renames (R) and copies (C) land the
+        # content at their DESTINATION path.
+        added = fields[-1]
         if not added.endswith(".json") or added.endswith(".sigstore.json"):
             continue
         try:

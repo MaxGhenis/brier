@@ -307,6 +307,39 @@ def test_stale_branch_merged_later_cannot_predate_the_first_forecast(
     assert records[0]["pointEstimate"] == 3.0
 
 
+def test_fixed_in_place_file_canonicalizes_and_then_locks(
+    submission_repo: dict[str, Any],
+) -> None:
+    # Round-5 finding: an undecodable ADD followed by a valid
+    # modification must canonicalize the first valid content — the key
+    # must not stay fail-open. The fixed content survives, and a later
+    # rewrite rejects against it.
+    repo = submission_repo["repo"]
+    path = submission_repo["inbox_dir"] / "fix-user" / "fixture-rate.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"\xff\xfe{ not json")
+    commit_all(repo, "Add undecodable submission")
+
+    fixed = dict(submission_repo["submission"])
+    fixed["challenger"] = "github:fix-user"
+    write_json(path, fixed)
+    commit_all(repo, "Fix the submission in place")
+
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == [
+        "github:fix-user",
+        "github:fixture-user",
+    ]
+
+    rewritten = dict(fixed)
+    rewritten["pointEstimate"] = 3.4
+    write_json(path, rewritten)
+    commit_all(repo, "Rewrite after acceptance")
+
+    records = run_ingest(submission_repo)
+    assert sorted(record["challenger"] for record in records) == ["github:fixture-user"]
+
+
 def test_undecodable_history_does_not_abort_the_batch(
     submission_repo: dict[str, Any],
 ) -> None:
