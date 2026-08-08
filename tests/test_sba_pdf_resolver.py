@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 import gzip
 import hashlib
 import io
@@ -16,6 +17,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import register_targets  # noqa: E402
 import resolve_pending  # noqa: E402
 import witness_sba_pdf as witness  # noqa: E402
 from sba_loan_performance import (  # noqa: E402
@@ -809,6 +811,120 @@ def test_pending_adapter_refs_routes_sba_fiscal_year() -> None:
             forecast,
         )
     ]
+
+
+def test_bare_year_registration_routes_as_sba_fiscal_year(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = resolve_pending.SBA_PDF_ADAPTERS[CHARGE_OFF_AMOUNT_SERIES]
+    contract = register_targets.build_contract(
+        {
+            "series": CHARGE_OFF_AMOUNT_SERIES,
+            "period": "2027",
+            "catalogSlug": "sba-charge-offs-fy2027",
+            "targetUnit": "usd",
+            "valueScale": 1,
+            "expectedReleaseWindow": {
+                "start": "2027-10-01",
+                "end": "2027-12-31",
+            },
+            "sourceBinding": resolve_pending.sba_pdf_binding_template(spec),
+        },
+        dt.date(2026, 8, 7),
+    )
+    ref = contract["dataPointId"]
+    assert ref == f"{CHARGE_OFF_AMOUNT_SERIES}.2027.first_print"
+
+    forecast = {
+        "kind": "prediction_recorded",
+        "forecastSlug": contract["catalogSlug"],
+        "resolutionDate": "2027-12-31",
+        "unit": contract["unit"],
+    }
+    log = {
+        "entries": [forecast],
+        "resolutionLinks": [
+            {
+                "forecastSlug": forecast["forecastSlug"],
+                "targetFactRef": ref,
+                "status": "pending",
+            }
+        ],
+    }
+    monkeypatch.setattr(
+        resolve_pending,
+        "registration_contracts",
+        lambda: {ref: {"contract": contract}},
+    )
+
+    assert resolve_pending.pending_adapter_refs(log) == [
+        (
+            ref,
+            "sba_pdf",
+            spec,
+            "fiscal_year",
+            "2027",
+            "2027-12-31",
+            forecast,
+        )
+    ]
+
+
+def test_bare_year_sba_routing_requires_the_registered_sba_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = resolve_pending.SBA_PDF_ADAPTERS[CHARGE_OFF_AMOUNT_SERIES]
+    contract = register_targets.build_contract(
+        {
+            "series": CHARGE_OFF_AMOUNT_SERIES,
+            "period": "2027",
+            "catalogSlug": "sba-charge-offs-fy2027",
+            "targetUnit": "usd",
+            "expectedReleaseWindow": {
+                "start": "2027-10-01",
+                "end": "2027-12-31",
+            },
+            "sourceBinding": resolve_pending.sba_pdf_binding_template(spec),
+        },
+        dt.date(2026, 8, 7),
+    )
+    ref = contract["dataPointId"]
+    forecast = {
+        "kind": "prediction_recorded",
+        "forecastSlug": contract["catalogSlug"],
+        "resolutionDate": "2027-12-31",
+        "unit": contract["unit"],
+    }
+    log = {
+        "entries": [forecast],
+        "resolutionLinks": [
+            {
+                "forecastSlug": forecast["forecastSlug"],
+                "targetFactRef": ref,
+                "status": "pending",
+            }
+        ],
+    }
+    wrong_binding = {
+        **contract,
+        "sourceBinding": {
+            **contract["sourceBinding"],
+            "adapter": "generic-url",
+        },
+    }
+    invalid_registrations = [
+        {},
+        {ref: {"contract": {**contract, "period": "2028"}}},
+        {ref: {"contract": wrong_binding}},
+    ]
+
+    for registrations in invalid_registrations:
+        monkeypatch.setattr(
+            resolve_pending,
+            "registration_contracts",
+            lambda registrations=registrations: registrations,
+        )
+        assert resolve_pending.pending_adapter_refs(log) == []
 
 
 def test_resolution_workflow_installs_the_sba_pdf_parser() -> None:

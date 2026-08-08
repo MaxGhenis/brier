@@ -5394,6 +5394,42 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     return None
 
 
+def _registered_sba_fiscal_year(
+    ref: str,
+    stem: str,
+    spec: Mapping[str, Any],
+    registration: Mapping[str, Any] | None,
+) -> str | None:
+    """Recover SBA's annual period semantics from its registered contract.
+
+    A normal annual registration emits a bare ``.<YYYY>.first_print`` suffix,
+    which is intentionally ambiguous to the generic reference parser.  The
+    immutable contract supplies the missing meaning: this SBA series' annual
+    period is a fiscal year.  Keep explicit ``fy_YYYY`` legacy references on
+    the generic-parser path, and require the registered identity and period to
+    agree before reclassifying a bare year.
+    """
+
+    contract = (registration or {}).get("contract")
+    if not isinstance(contract, Mapping):
+        return None
+    period = contract.get("period")
+    binding = contract.get("sourceBinding")
+    if (
+        contract.get("dataPointId") != ref
+        or contract.get("series") != stem
+        or not isinstance(period, str)
+        or re.fullmatch(r"\d{4}", period) is None
+        or not isinstance(binding, Mapping)
+        or not sba_pdf_binding_matches_spec(binding, spec)
+    ):
+        return None
+    parsed = parse_ref_period(ref, stem)
+    if parsed != ("year", period):
+        return None
+    return period
+
+
 def prior_period_date(period_date: str, period_type: str) -> str:
     if period_type in {"year", "fiscal_year"}:
         if not re.fullmatch(r"\d{4}", period_date):
@@ -7710,6 +7746,7 @@ def pending_adapter_refs(
         if entry.get("kind") == "prediction_recorded" and entry.get("forecastSlug")
     }
     out = []
+    sba_registrations: dict[str, dict[str, Any]] | None = None
     for link in log["resolutionLinks"]:
         if link.get("status") != "pending":
             continue
@@ -7723,6 +7760,17 @@ def pending_adapter_refs(
         sba_stem = longest_adapter_stem(ref, SBA_PDF_ADAPTERS)
         if sba_stem:
             parsed = parse_ref_period(ref, sba_stem)
+            if parsed and parsed[0] == "year":
+                if sba_registrations is None:
+                    sba_registrations = registration_contracts()
+                fiscal_year = _registered_sba_fiscal_year(
+                    ref,
+                    sba_stem,
+                    SBA_PDF_ADAPTERS[sba_stem],
+                    sba_registrations.get(ref),
+                )
+                if fiscal_year is not None:
+                    parsed = ("fiscal_year", fiscal_year)
             if parsed and parsed[0] == "fiscal_year":
                 out.append(
                     (
