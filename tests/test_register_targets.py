@@ -2003,8 +2003,15 @@ def _committed_supersession_state(
     )
 
     def _sealed(contract: dict, content_hash: str, registered_at: str) -> dict:
+        # Mirror the live hydrated ticket-target shape: unit surfaces as
+        # targetUnit and the binding window lifts to the top level.
+        hydrated = json.loads(json.dumps(contract))
+        hydrated["targetUnit"] = hydrated.pop("unit")
+        hydrated["expectedReleaseWindow"] = hydrated["sourceBinding"][
+            "expectedReleaseWindow"
+        ]
         return {
-            **json.loads(json.dumps(contract)),
+            **hydrated,
             "targetContentHash": content_hash,
             "registeredAtUtc": registered_at,
             "registrationCommit": "b" * 40,
@@ -2039,15 +2046,11 @@ def test_ticket_supersession_refuses_independent_parallel_registration(
     # A second registration for the same id committed WITHOUT replacing
     # the registry block is not a supersession lineage and must refuse.
     old_target, new_target = _committed_supersession_state(tmp_path, monkeypatch)
-    laundered_contract = json.loads(
-        json.dumps(
-            {
-                key: value
-                for key, value in new_target.items()
-                if key not in generation_tickets.REGISTRATION_METADATA_KEYS
-            }
-        )
-    )
+    laundered_contract = {
+        **_supersede_contract(),
+        "conditional": "Synthetic condition",
+    }
+    laundered_contract = json.loads(json.dumps(laundered_contract))
     laundered_contract["sourceBinding"]["sourceUrl"] = (
         "https://mirror.example.gov/statistics/labour"
     )
@@ -2078,8 +2081,13 @@ def test_ticket_supersession_refuses_independent_parallel_registration(
         check=True,
         capture_output=True,
     )
+    hydrated = json.loads(json.dumps(laundered_contract))
+    hydrated["targetUnit"] = hydrated.pop("unit")
+    hydrated["expectedReleaseWindow"] = hydrated["sourceBinding"][
+        "expectedReleaseWindow"
+    ]
     laundered_target = {
-        **laundered_contract,
+        **hydrated,
         "targetContentHash": laundered_hash,
         "registeredAtUtc": "2026-07-12T05:03:56Z",
         "registrationCommit": "b" * 40,

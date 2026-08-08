@@ -589,17 +589,51 @@ def _require_supersession_lineage(
             snapshot = json.loads(snapshot_bytes)
         except json.JSONDecodeError as exc:
             raise _refuse(f"{side} snapshot is not JSON: {exc}") from exc
+        if snapshot_bytes != canonical_bytes(snapshot) + b"\n":
+            raise _refuse(f"{side} snapshot bytes are not canonical")
         if register_targets.registration_content_hash(snapshot) != content_hash:
             raise _refuse(f"{side} snapshot bytes do not hash to the sealed contract")
         targets = snapshot.get("targets")
         if not isinstance(targets, list) or len(targets) != 1:
             raise _refuse(f"{side} snapshot does not register exactly one target")
-        sealed_contract = {
+        contract = targets[0]
+        if not isinstance(contract, dict):
+            raise _refuse(f"{side} snapshot contract is not an object")
+        sealed = {
             key: value
             for key, value in target.items()
             if key not in REGISTRATION_METADATA_KEYS
         }
-        if canonical_bytes(targets[0]) != canonical_bytes(sealed_contract):
+        # Sealed ticket targets are hydrated docket selections, not raw
+        # contracts (verified against the live SBA ticket): unit
+        # surfaces as targetUnit, the binding's expectedReleaseWindow is
+        # lifted to the top level, and anchors ride along — anchors are
+        # covered by the predecessor/successor identity check. Every
+        # other divergence refuses.
+        hydrated_only = {"anchors", "expectedReleaseWindow", "targetUnit"}
+        contract_only = set(contract) - set(sealed)
+        unexplained = set(sealed) - set(contract) - hydrated_only
+        if contract_only - {"unit"} or unexplained:
+            raise _refuse(
+                f"{side} sealed target shape does not match its committed snapshot"
+            )
+        shared_mismatch = [
+            key
+            for key in set(sealed) & set(contract)
+            if canonical_bytes(sealed[key]) != canonical_bytes(contract[key])
+        ]
+        binding = contract.get("sourceBinding")
+        hydrated_window = (
+            binding.get("expectedReleaseWindow") if isinstance(binding, dict) else None
+        )
+        unit_mismatch = "targetUnit" in sealed and sealed["targetUnit"] != contract.get(
+            "unit"
+        )
+        window_mismatch = (
+            "expectedReleaseWindow" in sealed
+            and sealed["expectedReleaseWindow"] != hydrated_window
+        )
+        if shared_mismatch or unit_mismatch or window_mismatch:
             raise _refuse(f"{side} sealed target does not match its committed snapshot")
         sides[side] = commit
 
