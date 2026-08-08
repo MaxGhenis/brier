@@ -166,7 +166,10 @@ export default async function ChallengePage() {
             </code>
             , example below). The seven-rung quantile grid is required —
             exactly p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, with
-            strictly increasing values consistent with your interval.
+            strictly increasing values — and{" "}
+            <code className="text-[0.85em]">ciLow</code>/
+            <code className="text-[0.85em]">ciHigh</code> must equal your
+            0.1 and 0.9 quantile values (they are the same 80% band).
           </li>
           <li>
             Open a pull request to{" "}
@@ -195,10 +198,12 @@ export default async function ChallengePage() {
           </li>
         </ol>
         <p className="mt-3 max-w-[680px] text-[0.86rem] leading-[1.6] text-[var(--theme-text-dim)]">
-          On acceptance the submission is published into the witnessed public
-          records chain and appears beside our agents&apos; runs on the
-          target&apos;s cell. Your <code>generatedAtUtc</code> is recorded as a
-          claim; chronology only ever trusts the witnessed intake commit.
+          On acceptance the submission is published into the public records
+          chain and appears beside our agents&apos; runs on the target&apos;s
+          cell. Your <code>generatedAtUtc</code> is recorded as a claim, and
+          under today&apos;s inbox intake the score carries claimed-time
+          chronology — labeled and reward-excluded, per rule 4 — until the
+          records-path intake binds chronology to a witnessed commit.
         </p>
         <pre
           className="mt-5 max-w-[680px] overflow-x-auto rounded-lg border p-4 [font-family:var(--font-mono)] text-[0.74rem] leading-[1.55]"

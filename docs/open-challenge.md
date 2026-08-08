@@ -129,16 +129,19 @@ plus no prizes; revisit with any prize design.
 (p = 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95) with strictly increasing
 values — the intake (`scripts/ingest_challenge_submissions.py`) rejects
 anything else, and enforces one shot per (challenger, dataPointId) by
-rejecting every file in a duplicated group. `generatedAtUtc` is the
-challenger's claim; chronology never trusts it — the witnessed intake
-commit is the clock.
+rejecting every file in a duplicated group, keyed case-insensitively
+(GitHub logins are case-insensitive), and refusing any accepted file
+whose content later changes. `generatedAtUtc` is the challenger's
+claim; under the current inbox intake the score carries claimed-time
+chronology (labeled, reward-excluded). The records-path intake will
+bind chronology to a witnessed commit instead.
 
 ## Build plan
 
 | Piece | Status |
 |---|---|
 | Design (this doc) | done |
-| `scripts/validate_challenge_submission.py` + tests | done |
+| `scripts/validate_challenge_submission.py` + tests | retired — deleted with the 2026-07-20 hold; the shipped inbox path validates via `scripts/ingest_challenge_submissions.py` |
 | Intake workflow (`challenge-intake.yml`) | staged — cross-model review first (privileged writer + PR-triggered = the risky pair) |
 | Attestation allowlist entry for the intake workflow | with the workflow |
 | Site: external flag on scored rows + leaderboards (`externalSubmission` through run entries → reward rows → agent leaderboard) | done 2026-08-07 — accepted inbox submissions already score through `getForecastRunEntries`, so the flag rides the identical pipeline |

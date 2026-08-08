@@ -184,6 +184,50 @@ def test_duplicate_target_submissions_from_one_challenger_all_reject(
     assert challengers == ["github:other-user"]
 
 
+def test_case_variant_challenger_cannot_double_enter(
+    submission_repo: dict[str, Any],
+) -> None:
+    # GitHub logins are case-insensitive: GITHUB:FIXTURE-USER is the same
+    # challenger, so both files reject as a duplicated one-shot group.
+    variant = dict(submission_repo["submission"])
+    variant["challenger"] = "github:FIXTURE-USER"
+    write_json(
+        submission_repo["inbox_dir"] / "fixture-user-alias" / "same-target.json",
+        variant,
+    )
+    commit_all(submission_repo["repo"], "Add case-variant duplicate")
+
+    assert run_ingest(submission_repo) == []
+
+
+def test_edited_accepted_submission_is_refused(
+    submission_repo: dict[str, Any],
+) -> None:
+    # One shot per target includes the content: editing the accepted file
+    # in a later commit must not replace the forecast.
+    edited = dict(submission_repo["submission"])
+    edited["pointEstimate"] = 3.05
+    rewrite_and_commit(submission_repo, edited, "Nudge the point estimate")
+
+    assert run_ingest(submission_repo) == []
+
+
+def test_interval_must_equal_q10_and_q90(
+    submission_repo: dict[str, Any],
+) -> None:
+    inconsistent = dict(submission_repo["submission"])
+    inconsistent["ciLow"] = 2.75
+    write_json(
+        submission_repo["inbox_dir"] / "other-user" / "inconsistent.json",
+        {**inconsistent, "challenger": "github:other-user"},
+    )
+    commit_all(submission_repo["repo"], "Add interval-inconsistent submission")
+
+    records = run_ingest(submission_repo)
+    challengers = sorted(record["challenger"] for record in records)
+    assert challengers == ["github:fixture-user"]
+
+
 def test_non_registered_submission_is_skipped(
     submission_repo: dict[str, Any],
     caplog: pytest.LogCaptureFixture,

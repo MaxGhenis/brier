@@ -47,6 +47,29 @@ describe("challenge registry", () => {
     expect(flaggedVariantIds).toEqual(registryVariantIds);
   });
 
+  it("covers every merged inbox submission — none can vanish silently", () => {
+    // Completeness: enumerate the inbox itself, so removing a registry
+    // row together with its augment still fails here.
+    const inboxDir = path.join(REPO_ROOT, "challenge", "inbox");
+    const inboxFiles = fs
+      .readdirSync(inboxDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .flatMap((dir) =>
+        fs
+          .readdirSync(path.join(inboxDir, dir.name))
+          .filter(
+            (name) =>
+              name.endsWith(".json") && !name.endsWith(".sigstore.json"),
+          )
+          .map((name) => path.posix.join("challenge/inbox", dir.name, name)),
+      )
+      .sort();
+    const registryPaths = CHALLENGE_SUBMISSIONS.map(
+      (record) => record.inboxPath,
+    ).sort();
+    expect(registryPaths).toEqual(inboxFiles);
+  });
+
   it("matches the merged inbox files — the ground truth, not a copy", () => {
     for (const record of CHALLENGE_SUBMISSIONS) {
       const inboxFile = path.join(REPO_ROOT, record.inboxPath);
@@ -65,10 +88,17 @@ describe("challenge registry", () => {
     }
   });
 
-  it("names records digests that exist in the public chain", () => {
+  it("names records digests that actually publish each submission", () => {
     for (const record of CHALLENGE_SUBMISSIONS) {
       const digestFile = path.join(REPO_ROOT, record.recordsDigest);
       expect(fs.existsSync(digestFile), record.recordsDigest).toBe(true);
+      // Content binding, not just existence: the digest must carry this
+      // challenger's row for this target.
+      const digest = fs.readFileSync(digestFile, "utf8");
+      expect(digest, `${record.recordsDigest} names ${record.challenger}`)
+        .toContain(record.challenger);
+      expect(digest, `${record.recordsDigest} names ${record.dataPointId}`)
+        .toContain(record.dataPointId);
     }
   });
 

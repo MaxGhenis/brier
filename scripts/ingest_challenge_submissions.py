@@ -215,6 +215,41 @@ def submission_path(path: Path, repo_root: Path) -> str:
         ) from error
 
 
+def _require_unchanged_since_acceptance(path: Path, repo_root: Path) -> None:
+    """One shot per target includes the content: an accepted file whose
+    bytes later change would silently replace the forecast, so any drift
+    from the first committed version is refused fail-closed."""
+
+    relative = submission_path(path, repo_root)
+    try:
+        log = subprocess.run(
+            ["git", "log", "--reverse", "--format=%H", "--", relative],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        first_commit = log.stdout.split()[0] if log.stdout.split() else ""
+        if not _COMMIT_RE.fullmatch(first_commit):
+            raise ChallengeSubmissionError(
+                f"cannot resolve the introducing commit for {relative}"
+            )
+        original = subprocess.run(
+            ["git", "show", f"{first_commit}:{relative}"],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ChallengeSubmissionError(
+            f"cannot replay the accepted version of {relative}: {error}"
+        ) from error
+    if path.read_bytes() != original:
+        raise ChallengeSubmissionError(
+            "submission content changed after acceptance; one shot per target is final"
+        )
+
+
 def merge_commit_for(path: Path, repo_root: Path) -> str:
     """Return the exact commit requested by the challenge provenance contract."""
 
@@ -276,6 +311,15 @@ def adapt_submission(
 
     point_estimate = _finite_number(payload.get("pointEstimate"), field="pointEstimate")
     quantiles = validate_quantiles(payload)
+    # ciLow/ciHigh and the 0.1/0.9 rungs describe the same 80% band; a
+    # submission that disagrees with itself is refused rather than
+    # silently resolved in favor of the grid.
+    ci_low = _finite_number(payload.get("ciLow"), field="ciLow")
+    ci_high = _finite_number(payload.get("ciHigh"), field="ciHigh")
+    if ci_low != quantiles[1]["value"] or ci_high != quantiles[5]["value"]:
+        raise ChallengeSubmissionError(
+            "ciLow/ciHigh must equal the 0.1 and 0.9 quantile values"
+        )
     generated_value = _required_string(payload, "generatedAtUtc")
     generated_at = parse_utc_datetime(generated_value, field="generatedAtUtc")
     if generated_at >= target.release_at:
@@ -289,6 +333,7 @@ def adapt_submission(
         raise ChallengeSubmissionError("notes must be a string when present")
 
     relative = submission_path(path, repo_root)
+    _require_unchanged_since_acceptance(path, repo_root)
     record: dict[str, Any] = {
         "forecastSlug": target.catalog_slug,
         "dataPointId": data_point_id,
@@ -369,7 +414,12 @@ def _reject_duplicate_targets(
 
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for record in records:
-        key = (str(record.get("challenger")), str(record.get("dataPointId")))
+        # GitHub logins are case-insensitive; a case variant is the same
+        # challenger, not a second entrant.
+        key = (
+            str(record.get("challenger")).lower(),
+            str(record.get("dataPointId")),
+        )
         groups.setdefault(key, []).append(record)
     kept: list[dict[str, Any]] = []
     for (challenger, data_point_id), group in groups.items():
