@@ -417,6 +417,37 @@ def _expected_as_of(identity: BundleIdentity) -> dt.date:
     return dt.date(identity.fiscal_year, *month_day)
 
 
+def _period_coverage(identity: BundleIdentity) -> dict[str, Any]:
+    """Derive the ten displayed years before inspecting any report PDF."""
+
+    displayed = list(range(identity.fiscal_year - 9, identity.fiscal_year + 1))
+    completed_stop = (
+        identity.fiscal_year + 1 if identity.quarter == 4 else identity.fiscal_year
+    )
+    return {
+        "periodType": "fiscal_year",
+        "displayedFiscalYears": displayed,
+        "possibleCompletedFiscalYears": list(
+            range(identity.fiscal_year - 9, completed_stop)
+        ),
+    }
+
+
+def _captured_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
+    """Bind fetched bytes to their page-derived identity before PDF parsing."""
+
+    return {
+        "label": identity.label,
+        "fiscalYear": identity.fiscal_year,
+        "quarter": identity.quarter,
+        "assetUrl": identity.linked_url,
+        "rawSha256": _sha256(raw),
+        "rawBytes": len(raw),
+        "periodCoverage": _period_coverage(identity),
+        "parserContract": PARSER_CONTRACT,
+    }
+
+
 def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
     """Replay ZIP structure and the three reviewed report parsers."""
 
@@ -550,16 +581,10 @@ def _inspect_bundle(raw: bytes, *, identity: BundleIdentity) -> dict[str, Any]:
         raise SbaCaptureError("required reports do not share one reviewed as-of date")
 
     return {
-        "label": identity.label,
-        "fiscalYear": identity.fiscal_year,
-        "quarter": identity.quarter,
-        "assetUrl": identity.linked_url,
-        "rawSha256": _sha256(raw),
-        "rawBytes": len(raw),
+        **_captured_bundle(raw, identity=identity),
         "reportAsOf": expected_as_of.isoformat(),
         "memberInventory": inventory,
         "reports": reports,
-        "parserContract": PARSER_CONTRACT,
     }
 
 
@@ -688,7 +713,10 @@ def _seal_run(
         _write_exclusive(landing_path, landing_gzip)
         archive_paths.append(("landing_archive", landing_path))
 
-    if outcome in {"bootstrap", "changed"}:
+    archive_bundle = outcome in {"bootstrap", "changed"} or (
+        outcome == "failed" and bundle is not None
+    )
+    if archive_bundle:
         assert (
             landing.body is not None
             and landing_path is not None
@@ -842,6 +870,7 @@ def capture_sba_pdf(
         if asset_type != "application/zip":
             raise SbaCaptureError(f"content type {asset_type!r} is not application/zip")
         raw_sha = _sha256(asset_raw)
+        bundle = _captured_bundle(asset_raw, identity=identity)
         if (
             previous is not None
             and previous["bundleSha256"] == raw_sha
@@ -856,6 +885,7 @@ def capture_sba_pdf(
                 "assetUrl": identity.linked_url,
                 "rawSha256": raw_sha,
                 "rawBytes": len(asset_raw),
+                "periodCoverage": _period_coverage(identity),
                 "reportAsOf": previous["reportAsOf"],
                 "parserContract": PARSER_CONTRACT,
             }
@@ -870,7 +900,8 @@ def capture_sba_pdf(
         detail = reason.removeprefix(prefix)
         failure_stage = active_stage
         failure_reason = f"{CAPTURE_REFUSAL} {detail}"
-        bundle = None
+        if active_stage != "bundle validation":
+            bundle = None
         previous_reference = None
 
     return _seal_run(

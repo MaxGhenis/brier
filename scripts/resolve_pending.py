@@ -4368,6 +4368,32 @@ def _sba_archive_path(run_dir: pathlib.Path, logical: Any) -> pathlib.Path:
     return path
 
 
+def _sba_bundle_period_coverage(
+    bundle: Mapping[str, Any],
+) -> tuple[set[int], set[int]]:
+    """Validate filename-derived coverage without consulting parsed PDF cells."""
+
+    bundle_year = bundle.get("fiscalYear")
+    quarter = bundle.get("quarter")
+    if (
+        type(bundle_year) is not int
+        or type(quarter) is not int
+        or quarter not in range(1, 5)
+    ):
+        raise ValueError("capture has an unrecognized bundle identity")
+    displayed = list(range(bundle_year - 9, bundle_year + 1))
+    completed_stop = bundle_year + 1 if quarter == 4 else bundle_year
+    possible_completed = list(range(bundle_year - 9, completed_stop))
+    expected = {
+        "periodType": "fiscal_year",
+        "displayedFiscalYears": displayed,
+        "possibleCompletedFiscalYears": possible_completed,
+    }
+    if bundle.get("periodCoverage") != expected:
+        raise ValueError("capture period coverage disagrees with its bundle identity")
+    return set(displayed), set(possible_completed)
+
+
 def _replay_sba_candidate(
     candidate: _SbaPdfCandidate,
     *,
@@ -4403,6 +4429,22 @@ def _replay_sba_candidate(
     ):
         return _sba_refusal(
             SBA_CUSTODY_INVALID, "replayed ZIP bytes disagree with the manifest"
+        )
+
+    if candidate.manifest.get("outcome") == "failed":
+        failure = candidate.manifest.get("failure")
+        reason = failure.get("reason") if isinstance(failure, dict) else None
+        if not isinstance(reason, str):
+            return _sba_refusal(
+                SBA_CUSTODY_INVALID,
+                "retained failed capture lacks its replayed refusal",
+            )
+        for prefix in (SBA_LAYOUT_REFUSAL, SBA_PARTIAL_REFUSAL, SBA_PARSER_REFUSAL):
+            if prefix in reason:
+                return None, reason[reason.index(prefix) :]
+        return _sba_refusal(
+            SBA_CUSTODY_INVALID,
+            "earliest covered capture failed strict bundle validation: " + reason,
         )
 
     reports = bundle.get("reports")
@@ -4528,7 +4570,7 @@ def resolve_sba_pdf_first_print(
     fiscal_year: int,
     timeline: Mapping[str, Any] | None = None,
 ) -> tuple[SbaPdfResolution | None, str | None]:
-    """Replay the earliest witnessed complete SBA PDF capture, never live bytes."""
+    """Replay the earliest witnessed covered SBA ZIP, never later/live bytes."""
 
     if series not in SBA_PDF_ADAPTERS:
         raise ValueError(f"unsupported SBA loan-performance series {series!r}")
@@ -4561,26 +4603,32 @@ def resolve_sba_pdf_first_print(
             return _sba_refusal(
                 SBA_CUSTODY_INVALID, f"capture verification failed: {run_dir}: {exc}"
             )
-        if (
-            verification.run_mode != SBA_WITNESS_RUN_MODE
-            or manifest.get("outcome") not in {"bootstrap", "changed"}
-            or manifest.get("ok") is not True
-        ):
+        if verification.run_mode != SBA_WITNESS_RUN_MODE:
+            continue
+        outcome = manifest.get("outcome")
+        successful_bundle = outcome in {"bootstrap", "changed"} and (
+            manifest.get("ok") is True
+        )
+        failure = manifest.get("failure")
+        retained_failed_bundle = (
+            outcome == "failed"
+            and manifest.get("ok") is False
+            and isinstance(failure, dict)
+            and failure.get("stage") == "bundle validation"
+            and isinstance(manifest.get("bundle"), dict)
+        )
+        if not successful_bundle and not retained_failed_bundle:
             continue
         bundle = manifest.get("bundle")
         if not isinstance(bundle, dict):
-            return _sba_refusal(SBA_CUSTODY_INVALID, "complete capture lacks a bundle")
-        bundle_year = bundle.get("fiscalYear")
-        quarter = bundle.get("quarter")
-        if (
-            type(bundle_year) is not int
-            or type(quarter) is not int
-            or quarter not in range(1, 5)
-        ):
+            return _sba_refusal(SBA_CUSTODY_INVALID, "covered capture lacks a bundle")
+        try:
+            displayed, possible_completed = _sba_bundle_period_coverage(bundle)
+        except ValueError as exc:
             return _sba_refusal(
-                SBA_CUSTODY_INVALID, "capture has an unrecognized bundle identity"
+                SBA_CUSTODY_INVALID, str(exc)
             )
-        if not (bundle_year - 9 <= fiscal_year <= bundle_year):
+        if fiscal_year not in displayed:
             continue
         run_directory = run_dir.relative_to(records.parent).as_posix()
         physical.append(
@@ -4590,13 +4638,13 @@ def resolve_sba_pdf_first_print(
                 manifest=manifest,
                 custody_root_sha256=verification.custody_root_sha256,
                 proof=None,
-                partial_only=quarter < 4 and fiscal_year == bundle_year,
+                partial_only=fiscal_year not in possible_completed,
             )
         )
     if not physical:
         return _sba_refusal(
             SBA_CUSTODY_ABSENT,
-            f"no complete capture covers {series} fiscal year {fiscal_year}",
+            f"no retained capture covers {series} fiscal year {fiscal_year}",
         )
 
     candidates: list[_SbaPdfCandidate] = []

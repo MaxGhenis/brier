@@ -1495,8 +1495,10 @@ def _verify_sba_pdf_witness_v2(
         ENTRY_URL,
         PARSER_CONTRACT,
         SbaCaptureError,
+        _captured_bundle,
         _inspect_bundle,
         _linked_bundle,
+        _period_coverage,
     )
 
     _exact_object(
@@ -1583,7 +1585,10 @@ def _verify_sba_pdf_witness_v2(
             path="upstream/landing-page.html.gz",
             label="SBA landing event archive",
         )
-    if outcome in {"bootstrap", "changed"}:
+    retained_failed_bundle = outcome == "failed" and isinstance(
+        manifest["bundle"], dict
+    )
+    if outcome in {"bootstrap", "changed"} or retained_failed_bundle:
         expected_artifacts["upstream/loan-program-performance.zip.gz"] = (
             "bundle_archive"
         )
@@ -1616,6 +1621,7 @@ def _verify_sba_pdf_witness_v2(
                 "assetUrl",
                 "rawSha256",
                 "rawBytes",
+                "periodCoverage",
                 "reportAsOf",
                 "memberInventory",
                 "reports",
@@ -1679,6 +1685,7 @@ def _verify_sba_pdf_witness_v2(
                 "assetUrl",
                 "rawSha256",
                 "rawBytes",
+                "periodCoverage",
                 "reportAsOf",
                 "parserContract",
             },
@@ -1751,6 +1758,7 @@ def _verify_sba_pdf_witness_v2(
             bundle["label"] != identity.label
             or bundle["fiscalYear"] != identity.fiscal_year
             or bundle["quarter"] != identity.quarter
+            or bundle["periodCoverage"] != _period_coverage(identity)
             or bundle["parserContract"] != PARSER_CONTRACT
             or bundle["rawSha256"] != asset["bodySha256"]
             or bundle["rawBytes"] != asset["bodyBytes"]
@@ -1768,7 +1776,6 @@ def _verify_sba_pdf_witness_v2(
         )
         if (
             manifest["ok"] is not False
-            or manifest["bundle"] is not None
             or manifest["previousCompleteCapture"] is not None
             or not isinstance(failure["stage"], str)
             or not failure["stage"]
@@ -1777,6 +1784,10 @@ def _verify_sba_pdf_witness_v2(
         ):
             raise CustodyError("failed SBA capture has an invalid refusal state")
         stage = failure["stage"]
+        if (stage == "bundle validation") != retained_failed_bundle:
+            raise CustodyError(
+                "failed SBA bundle retention disagrees with its failure stage"
+            )
         state_matches = (
             stage == "landing fetch"
             and landing["outcome"] == "failed"
@@ -1798,6 +1809,77 @@ def _verify_sba_pdf_witness_v2(
         )
         if not state_matches:
             raise CustodyError("SBA capture failure stage disagrees with fetch state")
+        if retained_failed_bundle:
+            assert asset is not None
+            bundle = _exact_object(
+                manifest["bundle"],
+                {
+                    "label",
+                    "fiscalYear",
+                    "quarter",
+                    "assetUrl",
+                    "rawSha256",
+                    "rawBytes",
+                    "periodCoverage",
+                    "parserContract",
+                    "landingArchive",
+                    "zipArchive",
+                },
+                "SBA retained failed bundle",
+            )
+            archived_landing_raw, _ = _verify_sba_archive(
+                run_dir,
+                bundle["landingArchive"],
+                expected_path="upstream/landing-page.html.gz",
+                label="SBA failed landing archive",
+            )
+            zip_raw, _ = _verify_sba_archive(
+                run_dir,
+                bundle["zipArchive"],
+                expected_path="upstream/loan-program-performance.zip.gz",
+                label="SBA failed ZIP archive",
+            )
+            if (
+                landing_raw is None
+                or archived_landing_raw != landing_raw
+                or asset["bodySha256"] != _sha256(zip_raw)
+                or asset["bodyBytes"] != len(zip_raw)
+            ):
+                raise CustodyError(
+                    "SBA failed fetch-event body commitments do not replay"
+                )
+            assert isinstance(landing["finalUrl"], str)
+            try:
+                identity = _linked_bundle(landing_raw, page_url=landing["finalUrl"])
+            except SbaCaptureError as exc:
+                raise CustodyError(
+                    f"SBA failed landing replay refused: {exc}"
+                ) from exc
+            if asset["requestedUrl"] != identity.linked_url:
+                raise CustodyError(
+                    "SBA failed ZIP was not fetched from the archived page link"
+                )
+            claimed = {
+                name: value
+                for name, value in bundle.items()
+                if name not in {"landingArchive", "zipArchive"}
+            }
+            if claimed != _captured_bundle(zip_raw, identity=identity):
+                raise CustodyError(
+                    "SBA retained failed bundle identity does not match replay"
+                )
+            try:
+                _inspect_bundle(zip_raw, identity=identity)
+            except SbaCaptureError as exc:
+                replayed_reason = f"{CAPTURE_REFUSAL} {exc}"
+            else:
+                raise CustodyError(
+                    "SBA retained failed bundle passes strict replay"
+                )
+            if failure["reason"] != replayed_reason:
+                raise CustodyError(
+                    "SBA retained failed bundle refusal does not match replay"
+                )
 
 
 def _verified_constituent_runs(

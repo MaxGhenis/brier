@@ -583,6 +583,67 @@ def test_propagates_strict_parser_layout_refusal(
     assert refusal == refusal_message
 
 
+def test_earliest_retained_parse_failure_blocks_later_valid_bundle(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records = tmp_path / "records"
+    report_name = REPORTS[CHARGE_OFF_AMOUNT_SERIES]
+    invalid_pdf = b"%PDF-1.4\ninvalid layout\n%%EOF\n"
+    failed_bundle = _bundle_bytes(overrides={report_name: invalid_pdf})
+    failed = _capture(
+        records,
+        retrieved_at="2026-08-07T12:00:00Z",
+        bundle=failed_bundle,
+    )
+    valid_bundle = _bundle_bytes()
+    valid = _capture(
+        records,
+        retrieved_at="2026-08-08T12:00:00Z",
+        bundle=valid_bundle,
+    )
+
+    failed_manifest = _manifest(failed)
+    assert failed_manifest["outcome"] == "failed"
+    assert failed_manifest["failure"] == {
+        "stage": "bundle validation",
+        "reason": (
+            f"{witness.CAPTURE_REFUSAL} WebsiteReports_FY25Q3/{report_name}: "
+            f"{LAYOUT_REFUSAL} strict PDF parsing failed"
+        ),
+    }
+    retained = failed_manifest["bundle"]
+    assert isinstance(retained, dict)
+    assert retained["periodCoverage"] == {
+        "periodType": "fiscal_year",
+        "displayedFiscalYears": list(range(2016, 2026)),
+        "possibleCompletedFiscalYears": list(range(2016, 2025)),
+    }
+    archive = failed.parent / str(retained["zipArchive"]["path"])
+    assert gzip.decompress(archive.read_bytes()) == failed_bundle
+    verification = verify_run(failed.parent)
+    assert verification.run_succeeded is False
+    assert verification.artifact_count == 3
+    assert _manifest(valid)["outcome"] == "bootstrap"
+
+    _install_timeline(
+        monkeypatch,
+        _timeline(
+            records,
+            (failed, "2026-08-07T13:00:00Z"),
+            (valid, "2026-08-08T13:00:00Z"),
+        ),
+    )
+    resolution, refusal = resolve_pending.resolve_sba_pdf_first_print(
+        records,
+        series=CHARGE_OFF_AMOUNT_SERIES,
+        fiscal_year=2024,
+    )
+
+    assert resolution is None
+    assert refusal == f"{LAYOUT_REFUSAL} strict PDF parsing failed"
+
+
 def test_selects_by_earliest_witness_not_claimed_retrieval_time(
     tmp_path: pathlib.Path,
     monkeypatch: pytest.MonkeyPatch,

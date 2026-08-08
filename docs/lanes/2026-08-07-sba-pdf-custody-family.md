@@ -95,9 +95,11 @@ Each attempt lives permanently at
 `schemaVersion: thesis_sba_pdf_witness_run_v1` and
 `runMode: sba_pdf_witness`, and contains `manifest.json`,
 `custody_root.json`, and a structured fetch-event artifact. Successful changed
-or bootstrap attempts additionally retain the landing-page and ZIP bytes under
-that run directory. The timestamp in the path is organizational metadata, not
-the trusted clock.
+or bootstrap attempts retain the landing-page and ZIP bytes under that run
+directory. A successfully fetched ZIP reached through a recognized SBA bundle
+link retains those bytes and its filename-derived period coverage even when
+strict bundle or PDF validation fails. The timestamp in the path is
+organizational metadata, not the trusted clock.
 
 Each never-overwritten capture run must:
 
@@ -132,10 +134,12 @@ attempt contains the complete page and ZIP archives above. An unchanged attempt
 contains the fresh structured fetch event, the observed full-byte hash and
 size, and an exact custody-root/hash reference to the prior complete capture.
 A failed attempt contains the structured error/status/redirect evidence that
-was available. All four outcomes are custody-rooted and enter the witnessed
-record chain; only bootstrap and changed runs containing complete bytes are
-resolution candidates. This permanent attempt sequence makes a missed day or
-failed poll auditable without duplicating an unchanged ZIP on every checkout.
+was available. When fetch and asset validation reached a recognized ZIP, it
+also contains the exact ZIP and pre-parse coverage identity; that retained run
+participates in earliest-capture selection so its parse failure can block a
+later revision. All four outcomes are custody-rooted and enter the witnessed
+record chain. This permanent attempt sequence makes a missed day or failed poll
+auditable without duplicating an unchanged ZIP on every checkout.
 
 The existing record-chain machinery then supplies the clock. A recorder digest
 commits the verified custody root; [`witness_snapshot.py`](../../scripts/witness_snapshot.py)
@@ -235,9 +239,10 @@ an allowlisted publisher, then receive an available record-chain witness. An
 unchanged daily attempt records its fresh fetch event and prior-capture
 reference but does not become another candidate. A new period or changed ZIP is
 not eligible until its complete bytes are archived. Network failure, a 404, an
-unlinked asset, layout drift, or a missed recorder witness must leave a durable
-non-admissible attempt run; it must not advance the family's earliest-capture
-state.
+unlinked asset, or a missed recorder witness leaves a durable non-candidate
+attempt. A recognized ZIP with layout drift is archived and, once witnessed,
+advances the earliest covered-capture state as a blocking parse failure; it can
+never be skipped in favor of later revised bytes.
 
 The cadence minimizes the gap between SBA publication and Thesis custody but
 does not erase it. If SBA publishes and revises between successful captures,
