@@ -2165,6 +2165,114 @@
         "uuid": "37841d30-5bd6-42a0-aea7-fc7b6d32dbcc",
         "concept": "census.spm.child_poverty_rate"
       }
+    },
+    {
+      "series": "sba.disaster.loan_program.charge_off_amount",
+      "cadence": "annual",
+      "period": "2026",
+      "seedPeriod": "2026",
+      "slug": "sba-disaster-loan-program-charge-off-amount-fy{period}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "usd",
+        "country": "US",
+        "resolutionDate": "2028-12-31",
+        "expectedReleaseWindow": {
+          "start": "2026-10-01",
+          "end": "2028-12-31"
+        },
+        "anchors": {
+          "2024": 299971326
+        },
+        "sourceBinding": {
+          "adapter": "sba-loan-program-performance-pdf",
+          "sourceUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+          "sourceSeriesId": "sba.disaster.loan_program.charge_off_amount",
+          "field": "Disaster / Disaster",
+          "table": "Table 5 - Charge Off Amount by Program",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "c0b2e780-847d-4780-8671-c8b38f0ad3d6",
+        "concept": "sba.disaster.loan_program.charge_off_amount"
+      }
+    },
+    {
+      "series": "sba.disaster.loan_program.charge_off_rate_upb",
+      "cadence": "annual",
+      "period": "2026",
+      "seedPeriod": "2026",
+      "slug": "sba-disaster-loan-program-charge-off-rate-upb-fy{period}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "percent",
+        "country": "US",
+        "resolutionDate": "2028-12-31",
+        "expectedReleaseWindow": {
+          "start": "2026-10-01",
+          "end": "2028-12-31"
+        },
+        "anchors": {
+          "2024": 3.06
+        },
+        "sourceBinding": {
+          "adapter": "sba-loan-program-performance-pdf",
+          "sourceUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+          "sourceSeriesId": "sba.disaster.loan_program.charge_off_rate_upb",
+          "field": "Disaster / Disaster",
+          "table": "Table 9 - Charge Off Rates as a Percent of Unpaid Principal Balance (UPB) Amount by Program",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "0b925fe8-b841-4d0e-84f7-65bef6fc611c",
+        "concept": "sba.disaster.loan_program.charge_off_rate_upb"
+      }
+    },
+    {
+      "series": "sba.disaster.loan_program.post_charge_off_recovery",
+      "cadence": "annual",
+      "period": "2026",
+      "seedPeriod": "2026",
+      "slug": "sba-disaster-loan-program-post-charge-off-recovery-fy{period}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "usd",
+        "country": "US",
+        "resolutionDate": "2028-12-31",
+        "expectedReleaseWindow": {
+          "start": "2026-10-01",
+          "end": "2028-12-31"
+        },
+        "anchors": {
+          "2024": 126510000
+        },
+        "sourceBinding": {
+          "adapter": "sba-loan-program-performance-pdf",
+          "sourceUrl": "https://www.sba.gov/document/report-small-business-administration-loan-program-performance",
+          "sourceSeriesId": "sba.disaster.loan_program.post_charge_off_recovery",
+          "field": "Disaster / Disaster",
+          "table": "Table 7 - Post-Charge Off Recovery Amount by Program",
+          "transform": {
+            "operation": "identity",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      },
+      "ledger": {
+        "uuid": "282e0e7a-6290-4114-aaf8-caaf96b99418",
+        "concept": "sba.disaster.loan_program.post_charge_off_recovery"
+      }
     }
   ]
 }
