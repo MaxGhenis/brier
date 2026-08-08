@@ -373,6 +373,130 @@ def validate_ticket(ticket: Any) -> dict[str, Any]:
     return ticket
 
 
+# Sealed target fields that registration supersession necessarily rewrites.
+# Everything else — series, period, unit, window, anchors, resolution
+# terms — is the target's identity and may never change between attempts.
+REGISTRATION_METADATA_KEYS = frozenset(
+    {
+        "registeredAt",
+        "registeredAtUtc",
+        "registrationCommit",
+        "registrationState",
+        "targetContentHash",
+        "targetRegistrationPath",
+    }
+)
+
+
+def _target_identity(target: dict[str, Any]) -> bytes:
+    stripped = {
+        key: value
+        for key, value in target.items()
+        if key not in REGISTRATION_METADATA_KEYS and key != "sourceBinding"
+    }
+    return canonical_bytes(stripped)
+
+
+def _require_superseding_targets(
+    successor: dict[str, Any],
+    predecessor: dict[str, Any],
+    *,
+    repo_root: pathlib.Path,
+) -> None:
+    """Authenticate an attempt whose targets crossed registration supersession.
+
+    A retry is normally byte-identical to its predecessor. When a failed
+    attempt exposed a defective sourceBinding, the registry supersedes the
+    preregistrations (register_targets restricts that to binding-only
+    changes against the committed template), and the next attempt must
+    seal the corrected contracts. This helper admits exactly that case:
+    the dataPointId set is unchanged; every changed target differs from
+    its predecessor only in sourceBinding and registration metadata; the
+    successor equals the CURRENT registered contract at the trusted mint
+    checkout; and the predecessor's snapshot exists in committed history,
+    proving the old contract was a real registration that was superseded
+    rather than invented. Anything else refuses.
+    """
+
+    import register_targets
+
+    def _identical_refusal() -> TicketError:
+        return TicketError(
+            f"generation ticket {successor['ticketId']} cannot supersede "
+            f"{predecessor['ticketId']}: registrationSetHash and targets "
+            "must be identical"
+        )
+
+    def _by_id(targets: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        mapped: dict[str, dict[str, Any]] = {}
+        for target in targets:
+            data_point_id = target.get("dataPointId")
+            if not isinstance(data_point_id, str) or not data_point_id:
+                raise _identical_refusal()
+            if data_point_id in mapped:
+                raise _identical_refusal()
+            mapped[data_point_id] = target
+        return mapped
+
+    old_by_id = _by_id(predecessor["targets"])
+    new_by_id = _by_id(successor["targets"])
+    if set(old_by_id) != set(new_by_id):
+        raise _identical_refusal()
+    source = (
+        repo_root
+        / register_targets.GENERATED_TARGETS.relative_to(register_targets.ROOT)
+    ).read_text()
+    for data_point_id, new_target in new_by_id.items():
+        old_target = old_by_id[data_point_id]
+        if canonical_bytes(new_target) == canonical_bytes(old_target):
+            continue
+        if _target_identity(new_target) != _target_identity(old_target):
+            raise _identical_refusal()
+        block = register_targets._generated_block(source, data_point_id)
+        if not block or register_targets._block_value(
+            block, "targetContentHash"
+        ) != new_target.get("targetContentHash"):
+            raise TicketError(
+                f"generation ticket {successor['ticketId']} cannot supersede "
+                f"{predecessor['ticketId']}: {data_point_id} does not "
+                "match the current registered contract"
+            )
+        old_hash = old_target.get("targetContentHash")
+        if not isinstance(old_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", old_hash):
+            raise TicketError(
+                f"generation ticket {successor['ticketId']} cannot supersede "
+                f"{predecessor['ticketId']}: {data_point_id} predecessor "
+                "lacks a content hash"
+            )
+        try:
+            introducing = subprocess.run(
+                [
+                    "git",
+                    "log",
+                    "--diff-filter=A",
+                    "--format=%H",
+                    "--",
+                    f"records/targets/*-{old_hash}.json",
+                ],
+                cwd=repo_root,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.split()
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise TicketError(
+                f"generation ticket {successor['ticketId']} cannot supersede "
+                f"{predecessor['ticketId']}: cannot replay {data_point_id} "
+                f"predecessor registration history: {exc}"
+            ) from exc
+        if len(introducing) != 1:
+            raise TicketError(
+                f"generation ticket {successor['ticketId']} cannot supersede "
+                f"{predecessor['ticketId']}: {data_point_id} predecessor "
+                "contract is not a committed registration"
+            )
+
+
 def mint_ticket(
     targets: list[dict[str, Any]],
     policy: dict[str, Any],
@@ -385,6 +509,7 @@ def mint_ticket(
     superseded_outcome: dict[str, str] | None = None,
     registration_set_hash: str,
     predecessor_ticket: dict[str, Any] | None = None,
+    repo_root: pathlib.Path = ROOT,
 ) -> dict[str, Any]:
     """Build a validated ticket from trusted registration and policy inputs."""
 
@@ -439,17 +564,12 @@ def mint_ticket(
                 f"{supersedes}: validated predecessor is "
                 f"{predecessor['ticketId']}"
             )
-        if (
-            validated["registrationSetHash"]
-            != predecessor["registrationSetHash"]
-            or canonical_bytes(validated["targets"])
-            != canonical_bytes(predecessor["targets"])
+        if validated["registrationSetHash"] != predecessor[
+            "registrationSetHash"
+        ] or canonical_bytes(validated["targets"]) != canonical_bytes(
+            predecessor["targets"]
         ):
-            raise TicketError(
-                f"generation ticket {validated['ticketId']} cannot supersede "
-                f"{predecessor['ticketId']}: registrationSetHash and targets "
-                "must be identical"
-            )
+            _require_superseding_targets(validated, predecessor, repo_root=repo_root)
     elif predecessor_ticket is not None:
         raise TicketError(
             f"generation ticket {validated['ticketId']} has a predecessor ticket "
@@ -587,10 +707,7 @@ def find_ticket_successor(ticket_id: str, repo_root: str | pathlib.Path) -> str 
                     f"generation ticket {ticket['ticketId']} has corrupt retry "
                     f"accounting for {ticket_id}: predecessor identity differs"
                 )
-            if (
-                ticket["registrationSetHash"]
-                != predecessor["registrationSetHash"]
-            ):
+            if ticket["registrationSetHash"] != predecessor["registrationSetHash"]:
                 raise TicketError(
                     f"generation ticket {ticket['ticketId']} has corrupt retry "
                     f"accounting for {ticket_id}: registrationSetHash differs"
@@ -905,9 +1022,7 @@ def _check_supersession_command(args: argparse.Namespace) -> dict[str, Any]:
     )
     return {
         "predecessorTicketId": predecessor["ticketId"],
-        "predecessorPath": ticket_record_path(
-            predecessor["ticketId"]
-        ).as_posix(),
+        "predecessorPath": ticket_record_path(predecessor["ticketId"]).as_posix(),
     }
 
 
@@ -965,6 +1080,7 @@ def _mint_command(args: argparse.Namespace) -> dict[str, Any]:
         superseded_outcome=outcome,
         registration_set_hash=registration_set_hash,
         predecessor_ticket=predecessor,
+        repo_root=args.repo_root,
     )
     ticket_path = write_minted_ticket(ticket, args.repo_root)
     return {"ticketId": ticket["ticketId"], "ticketPath": ticket_path}
