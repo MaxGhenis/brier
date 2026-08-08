@@ -1,0 +1,63 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: sba.disaster.loan_program.post_charge_off_recovery
+- period: 2026
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "sba-disaster-loan-program-post-charge-off-recovery-fy2026"
+- country: "US"
+- targetUnit: "usd"
+- dataPointId: "sba.disaster.loan_program.post_charge_off_recovery.2026.first_print"
+- resolutionDate: "2028-12-31"
+- resolutionDateBasis: "resolve-by-bound"
+- expectedReleaseWindow: {"end": "2028-12-31", "start": "2026-10-01"}
+- sourceBinding: {"adapter": "sba-loan-program-performance-pdf", "allowedHosts": ["legacy.sba.gov", "www.sba.gov"], "expectedReleaseWindow": {"end": "2028-12-31", "start": "2026-10-01"}, "field": "Disaster / Disaster", "releasePolicy": "first_print", "sourceSeriesId": "sba.disaster.loan_program.post_charge_off_recovery", "sourceUrl": "https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance", "table": "Table 7 - Post-Charge Off Recovery Amount by Program", "transform": {"factor": 1, "operation": "identity"}}
+- targetRegistrationPath: "records/targets/2026-08-08-b45924a96911924b1bba90d314423a18025113699e0ce7bf9ccc4a5f46cbd063.json"
+- targetContentHash: "b45924a96911924b1bba90d314423a18025113699e0ce7bf9ccc4a5f46cbd063"
+- registrationCommit: "f71dfe6fa8d7fff8803423814942573b7502ac0b"
+- registeredAtUtc: "2026-08-08T10:26:30Z"
+
+# Resolve-by-bound target contract (machine checked)
+- registeredResolveByBound: "2028-12-31"
+- officialAnnouncementUrl: "https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance"
+The bound and expected release window are Thesis lab commitments, not timing claims made by the announcement. The announcement authenticates methodology identity only; it does not establish the bound or expected release window. This is an outer bound, not a scheduled release day. resolutionDate must byte-echo the registered resolve-by bound; never infer a more specific day from cadence.
+resolutionSourceUrl must byte-echo officialAnnouncementUrl. Call `thesis_announcement_fetch.fetch_official_announcement` with that exact URL. The publisher authenticates the structured draft/final tool event; a reasoning-token claim, search result, same-host page, or prose citation cannot substitute for it.
+Base rate during a methodology transition: while NO official print under the announced revised methodology exists — including revised historical or backcast estimates — the CURRENT official series is the admissible base rate: fetch it from its official source, name its vintage explicitly, and state the announced transition as the regime consideration in the sigma step. Do not refuse for lack of the unpublished revised series, and do not fabricate or pre-apply revision adjustments. The moment any revised-methodology official print exists, revised prints are required and old-methodology history stops being admissible.
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+83c2f1736a1a10f9b7c27905929ad81f577bc1eda8190a163baa74cd62565756
+
+# Draft forecast response
+{"slug":"sba-disaster-loan-program-post-charge-off-recovery-fy2026","country":"US","type":"data","title":"SBA disaster post-charge-off recoveries FY2026","question":"What will SBA first print as FY2026 post-charge-off recovery amount for the Disaster / Disaster program in Table 7, dollars, under the Small Business Administration Loan Program Performance release?","unit":"usd","pointEstimate":103333333,"ciLow":63333333,"ciHigh":150000000,"confidence":0.8,"resolutionDate":"2028-12-31","resolutionSource":"U.S. Small Business Administration Loan Program Performance, Table 7 - Post-Charge Off Recovery Amount by Program","resolutionSourceUrl":"https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance","resolutionRule":"Resolve to the first official SBA print for fiscal year 2026 in Table 7 - Post-Charge Off Recovery Amount by Program, row Disaster under the Disaster section, column 2026, in dollars. Use the first printed value only; later data updates or revisions do not change resolution. If the first print is formatted with dollar signs and commas, remove formatting and keep whole-dollar precision.","dataPointId":"sba.disaster.loan_program.post_charge_off_recovery.2026.first_print","historicalContext":[{"label":"FY2023 Disaster / Disaster post-charge-off recovery amount","value":96563005},{"label":"FY2024 Disaster / Disaster post-charge-off recovery amount","value":126510000},{"label":"FY2025 Q3 Disaster / Disaster post-charge-off recovery amount as of 2025-06-30","value":85429990},{"label":"FY2025 Q3 Disaster / Disaster charge-off amount as of 2025-06-30","value":107714599},{"label":"FY2025 Q3 Disaster / Disaster UPB as of 2025-06-30","value":11976493088}],"drivers":["FY2025 Q3 recoveries already reached $85.43 million, implying a full-year run rate near $114 million if receipts continue proportionally","FY2023 and FY2024 recoveries of $96.56 million and $126.51 million show the current old-methodology base rate is elevated versus 2016-2022","FY2025 Q3 charge-offs of $107.71 million are lower than FY2023-FY2024 but still support a substantial recovery pipeline","FY2025 Q3 UPB of $11.98 billion leaves a large recoverable disaster-loan stock","No revised-methodology official print was available, so current official series history is the admissible base rate"],"sourceContext":["https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance","https://legacy.sba.gov/sites/default/files/2025-09/WebsiteReports_FY25Q3.zip","https://catalog.data.gov/dataset/small-business-administration-sba-loan-program-performance"],"runAt":"2026-08-08T10:36:12Z","thresholdLadder":{"thresholds":[50000000,60000000,70000000,80000000,90000000,100000000,105000000,110000000,120000000,130000000,145000000,155000000,175000000],"cumulativeProbabilities":[0.04,0.08,0.14,0.23,0.34,0.46,0.52,0.59,0.7,0.79,0.88,0.92,0.97]},"reasoning":[{"kind":"heading","text":"SBA Disaster / Disaster FY2026 post-charge-off recovery forecast"},{"kind":"text","text":"Framing and exact resolver: this forecast is tied to the registered resolve-by-bound target. ResolutionDate byte-echoes the Thesis bound 2028-12-31, not an inferred SBA release day. ResolutionSourceUrl byte-echoes the official announcement URL. The resolving field is Table 7 - Post-Charge Off Recovery Amount by Program, Disaster section, Disaster row, FY2026 column, first official print, whole dollars."},{"kind":"text","text":"Official announcement fetch: the registered SBA methodology page was fetched with the required thesis_announcement_fetch tool at https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance and returned HTTP 200 with 37099 response bytes. That page authenticates the SBA Loan Program Performance source identity only; it does not establish the lab-committed release window or bound."},{"kind":"tool","tool":"official.lookup","call":"Fetched the SBA Loan Program Performance landing page and the linked FY25Q3 WebsiteReports zip from legacy.sba.gov, then read WDS_PostChargeOffRecovery_Report_20250630.pdf Table 7.","result":"Fetched Table 7 values for Disaster / Disaster post-charge-off recovery amount: FY2021 $24,299,527; FY2022 $62,832,738; FY2023 $96,563,005; FY2024 $126,510,000; FY2025 as of 06/30/2025 $85,429,990."},{"kind":"tool","tool":"official.lookup","call":"Fetched the same SBA FY25Q3 zip and read WDS_ChargeOffAmount_Report_20250630.pdf Table 5 for matching Disaster / Disaster charge-off amounts.","result":"Fetched Disaster / Disaster charge-off amounts: FY2022 $180,342,594; FY2023 $322,632,623; FY2024 $299,971,326; FY2025 as of 06/30/2025 $107,714,599; COVID EIDL FY2025 as of 06/30/2025 was separately $4,381,745,489 and is not the resolving row."},{"kind":"tool","tool":"official.lookup","call":"Fetched the same SBA FY25Q3 zip and read WDS_UPB_Report_20250630.pdf Table 1 for matching Disaster / Disaster unpaid principal balance context.","result":"Fetched Disaster / Disaster UPB: FY2022 $9,155,822,926; FY2023 $9,379,479,606; FY2024 $9,789,692,235; FY2025 as of 06/30/2025 $11,976,493,088; COVID EIDL FY2025 UPB was separately $267,078,761,650."},{"kind":"text","text":"Base rate / reference class: while no official print under a revised methodology exists, the current official SBA series is the admissible base rate. The most relevant current-vintage history is the Disaster / Disaster row, not COVID EIDL: $96.56 million in FY2023, $126.51 million in FY2024, and $85.43 million through FY2025 Q3. The announced transition is a regime consideration, so I widen the interval rather than fabricating a revision adjustment."},{"kind":"text","text":"Variant check: all anchors use the same variant as the resolver: gross dollar post-charge-off recovery amount, not recovery rate, not charge-off amount, not UPB, and the Disaster / Disaster row excluding the separate COVID EIDL row."},{"kind":"math","text":"Prior/update/interval: persistence prior is the current official Disaster / Disaster reference class centered on FY2023-FY2025Q3, with FY2025Q3 annualized only as a noisy momentum guide ($85,429,990 over three quarters implies about $113.9 million if linear). Level component anchors near $100-$120 million; momentum pulls slightly below FY2024's $126.51 million; charge-off flow of $107.71 million through FY2025Q3 and UPB of $11.98 billion support ongoing recoveries; methodology-transition risk widens both tails. The 80% interval is read from the elicited ladder, not chosen as a round band."},{"kind":"math","text":"Ladder: P(X <= 50000000) = 0.04; P(X <= 60000000) = 0.08; P(X <= 70000000) = 0.14; P(X <= 80000000) = 0.23; P(X <= 90000000) = 0.34; P(X <= 100000000) = 0.46; P(X <= 105000000) = 0.52; P(X <= 110000000) = 0.59; P(X <= 120000000) = 0.70; P(X <= 130000000) = 0.79; P(X <= 145000000) = 0.88; P(X <= 155000000) = 0.92; P(X <= 175000000) = 0.97. Linear interpolation gives 10th percentile at 63333333, median at 103333333, and 90th percentile at 150000000."},{"kind":"text","text":"Counter-considerations: upside risk comes from unusually strong Treasury Cross Servicing receipts or catch-up recoveries from older disaster charge-offs and would land above the interval if FY2026 exceeds $150,000,000. Downside risk comes from a rapid decline in collectible charged-off Disaster balances, timing slippage of recoveries after FY2025 Q3, or methodology changes that allocate less to the Disaster row and would land below the interval if FY2026 is under $63,333,333. A COVID EIDL surge is outside the interval only if it is reclassified into the Disaster / Disaster row, which the current table structure does not do."},{"kind":"forecast","point":103333333,"ciLow":63333333,"ciHigh":150000000}]}

@@ -1,0 +1,413 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-08T10:35:56Z",
+  "runStartedAt": "2026-08-08T10:35:56Z",
+  "sealedAt": "2026-08-08T10:38:51Z",
+  "series": "sba.disaster.loan_program.post_charge_off_recovery",
+  "period": "2026",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2024": 126510000
+    },
+    "catalogSlug": "sba-disaster-loan-program-post-charge-off-recovery-fy2026",
+    "country": "US",
+    "dataPointId": "sba.disaster.loan_program.post_charge_off_recovery.2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2028-12-31",
+      "start": "2026-10-01"
+    },
+    "period": "2026",
+    "registeredAt": "2026-08-08T10:26:30Z",
+    "registeredAtUtc": "2026-08-08T10:26:30Z",
+    "registrationCommit": "f71dfe6fa8d7fff8803423814942573b7502ac0b",
+    "registrationState": "preregistered",
+    "resolutionDate": "2028-12-31",
+    "resolutionDateBasis": "resolve-by-bound",
+    "seedPeriod": "2026",
+    "series": "sba.disaster.loan_program.post_charge_off_recovery",
+    "sourceBinding": {
+      "adapter": "sba-loan-program-performance-pdf",
+      "allowedHosts": [
+        "legacy.sba.gov",
+        "www.sba.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2028-12-31",
+        "start": "2026-10-01"
+      },
+      "field": "Disaster / Disaster",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "sba.disaster.loan_program.post_charge_off_recovery",
+      "sourceUrl": "https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance",
+      "table": "Table 7 - Post-Charge Off Recovery Amount by Program",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "b45924a96911924b1bba90d314423a18025113699e0ce7bf9ccc4a5f46cbd063",
+    "targetRegistrationPath": "records/targets/2026-08-08-b45924a96911924b1bba90d314423a18025113699e0ce7bf9ccc4a5f46cbd063.json",
+    "targetUnit": "usd",
+    "valueScale": 1
+  },
+  "registrationCommit": "f71dfe6fa8d7fff8803423814942573b7502ac0b",
+  "targetContentHash": "b45924a96911924b1bba90d314423a18025113699e0ce7bf9ccc4a5f46cbd063",
+  "targetRegistrationPath": "records/targets/2026-08-08-b45924a96911924b1bba90d314423a18025113699e0ce7bf9ccc4a5f46cbd063.json",
+  "registeredAtUtc": "2026-08-08T10:26:30Z",
+  "promptMode": "ladder_v2",
+  "agent": {
+    "agent": "thesis.analyst.ladder_v2",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-08T10:35:56Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d6a423ac9a245c596222cc0be89ae0fe3d59627a4690a3465c029e3f4dd4856f"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The reasoning says the required thesis_announcement_fetch tool was used, but the draft only shows an official.lookup entry, not a structured thesis_announcement_fetch.fetch_official_announcement event for the exact officialAnnouncementUrl.",
+        "actionRequested": "Ensure the trace contains a successful structured call to thesis_announcement_fetch.fetch_official_announcement with https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance exactly; do not rely on prose or the official.lookup citation as a substitute."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is attributed to the elicited ladder, but the interval-size justification does not quantify realized volatility or explicitly state why the ladder alone is the uncertainty method.",
+        "actionRequested": "Add one compact sentence naming the historical sample used for uncertainty and either a realized-volatility check or an explicit statement that the ladder-derived 10th/90th percentiles are the interval method with methodology-transition widening."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention whether any newer SBA FY2025 annual or FY2026 interim old-methodology print was checked and excluded, since the run date is 2026-08-08."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the point estimate is the ladder median, not a mean, if the schema expects pointEstimate to be interpreted that way."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique by including the structured thesis_announcement_fetch.fetch_official_announcement event for the exact registered URL, and accepted the interval critique by clarifying that the ladder-derived 10th and 90th percentiles are the uncertainty method with transition-risk widening. No critique items were rejected.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique by including the structured thesis_announcement_fetch.fetch_official_announcement event for the exact registered URL, and accepted the interval critique by clarifying that the ladder-derived 10th and 90th percentiles are the uncertainty method with transition-risk widening. No critique items were rejected.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critique by including the structured thesis_announcement_fetch.fetch_official_announcement event for the exact registered URL, and accepted the interval critique by clarifying that the ladder-derived 10th and 90th percentiles are the uncertainty method with transition-risk widening. No critique items were rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critique by including the structured thesis_announcement_fetch.fetch_official_announcement event for the exact registered URL, and accepted the interval critique by clarifying that the ladder-derived 10th and 90th percentiles are the uncertainty method with transition-risk widening. No critique items were rejected.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent, but publication should confirm the required structured announcement-fetch event and tighten the interval-method language around volatility versus ladder elicitation."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/prompt.md",
+      "sha256": "83c2f1736a1a10f9b7c27905929ad81f577bc1eda8190a163baa74cd62565756",
+      "bytes": 12482,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_command.json",
+      "sha256": "8d9e9c05bc5a169b2bbd9f235bc18d8a3c2c73674666d918880308b31f7fd267",
+      "bytes": 2152,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_codex_stdout.jsonl",
+      "sha256": "6d57c7d0db6677b056af630e8c34d964c40cde7346f8afc82b81df9686b6e917",
+      "bytes": 91698,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_codex_events.jsonl",
+      "sha256": "0ed4856e8cb2d33b0dfcacb87c45c5afa62849be394cbb3dc5d5f98a6556c817",
+      "bytes": 91958,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_codex_last_message.txt",
+      "sha256": "0de3fc76cd80c3d0b96226cbe74c3844ba55b878bc663ba59863c2c3a6305b48",
+      "bytes": 7736,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_codex_trace.json",
+      "sha256": "2549a31666e7a89b0ef2ee90b85f712098fbc442be8edc6f8eab2ae0b98bc5d3",
+      "bytes": 566,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_stdout.txt",
+      "sha256": "0de3fc76cd80c3d0b96226cbe74c3844ba55b878bc663ba59863c2c3a6305b48",
+      "bytes": 7736,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_prompt.md",
+      "sha256": "44d49c2d81729c28e85d0bcd4f07775b1da93d440b3703a274bcbfdcf7397cc3",
+      "bytes": 12621,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_command.json",
+      "sha256": "9ac0389487e8cafa0b84ec5129862f4c88ba1c75bde243d5dd20d9ed2b6b117f",
+      "bytes": 1174,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "b1f04439cebe567b3ad900c66ae679d56678636ee73a0d740e5baf991e6c3bf9",
+      "bytes": 2019,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "2ec0a3205ddcf0710dca9edbd9ffbe894ad5e53ba6ac54991f1271c50a34182d",
+      "bytes": 2041,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "a511aec8e03e120151954d8967c40608905166dc3905d457590f9f47e3141bfe",
+      "bytes": 1658,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_codex_trace.json",
+      "sha256": "de42e1e30aec814c4d695c9be307876b203111e9f7270fc213cc4abdb28f25a8",
+      "bytes": 561,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_stdout.txt",
+      "sha256": "a511aec8e03e120151954d8967c40608905166dc3905d457590f9f47e3141bfe",
+      "bytes": 1658,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/revision_prompt.md",
+      "sha256": "ae0c78dec0fe2df85afedd4a75deaa749d00273a2b083dbc5148fbfe4596d8d6",
+      "bytes": 22812,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/command.json",
+      "sha256": "12be42c0c800dd397760103dbb7731c25f3555125b57891e087ea620a63a661e",
+      "bytes": 2146,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/codex_stdout.jsonl",
+      "sha256": "93b38716c965501ccb930421999a1486fe11928c32dc486355cd4ebafc07a341",
+      "bytes": 50068,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/codex_events.jsonl",
+      "sha256": "410c2aa250ce611ebd177b31288a3aaf8d8326cb4f2e92a27fe8273f6f7aaad3",
+      "bytes": 50137,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/codex_last_message.txt",
+      "sha256": "d4278109c937976a3bfd9347198564b03522aff084658530ad36a7b1f8305b8f",
+      "bytes": 8339,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/codex_trace.json",
+      "sha256": "19d2f5acc52407c2a97eef98d6036b5f79ed763e222ed24a654ac763e03cd0c4",
+      "bytes": 562,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/stdout.txt",
+      "sha256": "d4278109c937976a3bfd9347198564b03522aff084658530ad36a7b1f8305b8f",
+      "bytes": 8339,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/raw_response.txt",
+      "sha256": "d4278109c937976a3bfd9347198564b03522aff084658530ad36a7b1f8305b8f",
+      "bytes": 8339,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/parsed_cells.json",
+      "sha256": "d14eac654002fd8a3e324ae11759fe796ef52c0cfa2e12d1c14074928391109c",
+      "bytes": 9531,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/normalized_cells.json",
+      "sha256": "81180705e42b8a770573ca3d3c53da254df91fe2bb143429b9e89fa165e4793a",
+      "bytes": 29538,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/distribution.json",
+      "sha256": "5314277832c7149b77b2d74585fcb621060605376143f3f81ada390f5fe2fbb2",
+      "bytes": 16218,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/validation.json",
+      "sha256": "995e328ac5508e3f1268998a7bd30507ff36013a989430ad51c5d539c4a178a6",
+      "bytes": 158,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/cells.with_activity.json",
+      "sha256": "e9afaab57c5d9652c3600566c1d33e0694e8dc3213d2bfaa697494dbf78e2ff8",
+      "bytes": 46445,
+      "createdAt": "2026-08-08T10:35:56Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-35-56z-sba-disaster-loan-program-post-charge-off-recovery-2026/manifest.json",
+      "sha256": "0506c56bafa110bc8909d45a1c9501d208687035cc1b1fa60b142b370e450d81",
+      "bytes": 17735,
+      "createdAt": "2026-08-08T10:35:56Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "sba-disaster-loan-program-post-charge-off-recovery-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "8314022e8e50320fb43871c1567c9cf1d4326623",
+  "generationTicket": {
+    "ticketId": "2026-08-08-0f89261369bdb0dd9889f661e4ba4c238ad2a3a35fdd90e3a0a8d060c7c5cb3a",
+    "ticketPath": "records/tickets/2026-08-08/2026-08-08-0f89261369bdb0dd9889f661e4ba4c238ad2a3a35fdd90e3a0a8d060c7c5cb3a.json",
+    "nonceSha256": "1ca6c6d2deb683fca375faf7de93a8b75779760264a4c4a8f4f97a433d20e916"
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "60c25d5452d01ff4d78387a5699d6b65e72a5de7b8d5ebc4c9c4380591d3c4dc"
+}

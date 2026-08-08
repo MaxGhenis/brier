@@ -1,0 +1,387 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-08T10:33:07Z",
+  "runStartedAt": "2026-08-08T10:33:07Z",
+  "sealedAt": "2026-08-08T10:35:56Z",
+  "series": "sba.disaster.loan_program.charge_off_rate_upb",
+  "period": "2026",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2024": 3.06
+    },
+    "catalogSlug": "sba-disaster-loan-program-charge-off-rate-upb-fy2026",
+    "country": "US",
+    "dataPointId": "sba.disaster.loan_program.charge_off_rate_upb.2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2028-12-31",
+      "start": "2026-10-01"
+    },
+    "period": "2026",
+    "registeredAt": "2026-08-08T10:26:30Z",
+    "registeredAtUtc": "2026-08-08T10:26:30Z",
+    "registrationCommit": "f71dfe6fa8d7fff8803423814942573b7502ac0b",
+    "registrationState": "preregistered",
+    "resolutionDate": "2028-12-31",
+    "resolutionDateBasis": "resolve-by-bound",
+    "seedPeriod": "2026",
+    "series": "sba.disaster.loan_program.charge_off_rate_upb",
+    "sourceBinding": {
+      "adapter": "sba-loan-program-performance-pdf",
+      "allowedHosts": [
+        "legacy.sba.gov",
+        "www.sba.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2028-12-31",
+        "start": "2026-10-01"
+      },
+      "field": "Disaster / Disaster",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "sba.disaster.loan_program.charge_off_rate_upb",
+      "sourceUrl": "https://legacy.sba.gov/document/report-small-business-administration-loan-program-performance",
+      "table": "Table 9 - Charge Off Rates as a Percent of Unpaid Principal Balance (UPB) Amount by Program",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "906824b00a5ed65ceace2ba302641e64074ee35726253ca6a0dafb1a5fb77b39",
+    "targetRegistrationPath": "records/targets/2026-08-08-906824b00a5ed65ceace2ba302641e64074ee35726253ca6a0dafb1a5fb77b39.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "f71dfe6fa8d7fff8803423814942573b7502ac0b",
+  "targetContentHash": "906824b00a5ed65ceace2ba302641e64074ee35726253ca6a0dafb1a5fb77b39",
+  "targetRegistrationPath": "records/targets/2026-08-08-906824b00a5ed65ceace2ba302641e64074ee35726253ca6a0dafb1a5fb77b39.json",
+  "registeredAtUtc": "2026-08-08T10:26:30Z",
+  "promptMode": "ladder_v2",
+  "agent": {
+    "agent": "thesis.analyst.ladder_v2",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-08T10:33:07Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "3aa359ded6a0b3ef7380fb819f11e783481a3aec81becebf92d4f83e6bb4a72f"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the exact SBA FY25Q3 file vintage/date in the historicalContext label or reasoning, since the sourceContext zip URL alone is less explicit than the extracted PDF names."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that CRS default and recovery assumptions are directional context rather than direct inputs to the Table 9 charge-off-rate calculation."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted both optional reviewer suggestions by naming the FY2025 Q3 vintage date more explicitly and clarifying that CRS default and recovery assumptions are directional context rather than direct Table 9 inputs; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted both optional reviewer suggestions by naming the FY2025 Q3 vintage date more explicitly and clarifying that CRS default and recovery assumptions are directional context rather than direct Table 9 inputs; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with a mostly complete resolver, prior, update, interval, and leakage discipline; only minor tightening would improve auditability."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/prompt.md",
+      "sha256": "d8d9cc0a9a32ca3f490a5aaa939a5f00969fce617bad10098b9251409a2b6a42",
+      "bytes": 12505,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_command.json",
+      "sha256": "636b5455d03687453919076f5857b6a54b36d685f167dc04e06ad2a99a21ca73",
+      "bytes": 2147,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_codex_stdout.jsonl",
+      "sha256": "0059b9ba615dbd2a654be731d2628554060de15b2062a1a4eb617dd66b86ff5d",
+      "bytes": 75244,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_codex_events.jsonl",
+      "sha256": "71fce276d8378275e677fde3c56aa14de2cd7310245e6b5adc90269ace4e8ddd",
+      "bytes": 75480,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_codex_last_message.txt",
+      "sha256": "ab198b77a8ec819b3fb9ce49718f4cf49ca86806a3e774b6a3e8c0a1691d13ce",
+      "bytes": 6524,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_codex_trace.json",
+      "sha256": "28db337ce540c90cc010071df983098fc6f2acb0a638f0ee0c689d0217bd874d",
+      "bytes": 566,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_stdout.txt",
+      "sha256": "ab198b77a8ec819b3fb9ce49718f4cf49ca86806a3e774b6a3e8c0a1691d13ce",
+      "bytes": 6524,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_prompt.md",
+      "sha256": "a9dd60dade86af87ccd0904221c9b00f91d267be6d4b2c317ef2bc6e9a78889e",
+      "bytes": 11432,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_command.json",
+      "sha256": "5f9dc8ecb749a776056064b6b3c30bb2d04a205364c262d91bac39a25a3536e6",
+      "bytes": 1169,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "fd59abdd09849cbc1db1bcba530dbd821d17bdd8d31a3c7250d33972bdcb199d",
+      "bytes": 893,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "b88aea4e977e6c672b022b533e0a86e10845846f3d246cf2227162caf22047f3",
+      "bytes": 915,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "f409925851ac8a4fb9acd84c3366a5ebcc5c7eb783ed0b60c67c7ca8587860c5",
+      "bytes": 557,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_codex_trace.json",
+      "sha256": "4b36ffe35a5783f72f8116f54f8d049f45b502e09bbda99d5e2dde70d33d4e8c",
+      "bytes": 561,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_stdout.txt",
+      "sha256": "f409925851ac8a4fb9acd84c3366a5ebcc5c7eb783ed0b60c67c7ca8587860c5",
+      "bytes": 557,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/revision_prompt.md",
+      "sha256": "32c222e32328e9764bcf753f0c24262d2c57ee00eedf33caa5a729f955dd6e89",
+      "bytes": 20522,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/command.json",
+      "sha256": "67deffae116d0772c1a56a011778eb1aa91be646e1fff21c7799416713eebb6c",
+      "bytes": 2141,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/codex_stdout.jsonl",
+      "sha256": "f2cea605ecb448b98c8f0ba2577d1e483122d90376772b00042e2f626631a038",
+      "bytes": 7478,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/codex_events.jsonl",
+      "sha256": "6b40ce4e094b81d15d3898ae8e1a79f6c867318463be41c0dcfdcc677a9a968b",
+      "bytes": 7500,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/codex_last_message.txt",
+      "sha256": "398481465c66f82d46d54f8d84c1ebb8eb42af591013609367a489ac98fa3055",
+      "bytes": 6908,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/codex_trace.json",
+      "sha256": "182f24db22107bc3c7c93008e5b7360c1e6ab34fa88382224c902d50a2c0843c",
+      "bytes": 561,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/stdout.txt",
+      "sha256": "398481465c66f82d46d54f8d84c1ebb8eb42af591013609367a489ac98fa3055",
+      "bytes": 6908,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/raw_response.txt",
+      "sha256": "398481465c66f82d46d54f8d84c1ebb8eb42af591013609367a489ac98fa3055",
+      "bytes": 6908,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/parsed_cells.json",
+      "sha256": "5e2f974ae034795e9ab06c08a46fac7b3303ef58b5b71cbd31d6babc26c99015",
+      "bytes": 8093,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/normalized_cells.json",
+      "sha256": "14313305b06edeef8e4e1467e3ce201c94b0ff4a1ba6ca6536943821ce21737b",
+      "bytes": 25970,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/distribution.json",
+      "sha256": "3b3c797c72e0cbc5b5d1036474856ce4ca7d02f9ffcc564027b93854b1de449c",
+      "bytes": 14088,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/validation.json",
+      "sha256": "17021897bc1acf54effdf4f725c59f5669f26b9f4592efc0877c74f0de38c2a2",
+      "bytes": 153,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/cells.with_activity.json",
+      "sha256": "2f929188d242bbc8cff92f3de3a30f34e6f04a3d69f3a61a7874e82b47f689eb",
+      "bytes": 40126,
+      "createdAt": "2026-08-08T10:33:07Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-08/2026-08-08t10-33-07z-sba-disaster-loan-program-charge-off-rate-upb-2026/manifest.json",
+      "sha256": "fad2f24e0e18928688f7bdddf1a73c46fbe893c6c1db00aecaa9a35faaf80c6c",
+      "bytes": 15270,
+      "createdAt": "2026-08-08T10:33:07Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "sba-disaster-loan-program-charge-off-rate-upb-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "8314022e8e50320fb43871c1567c9cf1d4326623",
+  "generationTicket": {
+    "ticketId": "2026-08-08-0f89261369bdb0dd9889f661e4ba4c238ad2a3a35fdd90e3a0a8d060c7c5cb3a",
+    "ticketPath": "records/tickets/2026-08-08/2026-08-08-0f89261369bdb0dd9889f661e4ba4c238ad2a3a35fdd90e3a0a8d060c7c5cb3a.json",
+    "nonceSha256": "1ca6c6d2deb683fca375faf7de93a8b75779760264a4c4a8f4f97a433d20e916"
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "09611198fb7c2c5bbc38b6bac097f27435e088fdea7f686c1a026bc5a9a43817"
+}
