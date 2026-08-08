@@ -82,6 +82,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T06:06:00Z",
       "witnessDigest": "records/2026-07-10/digest-29072912548-1.json"
     },
+    "09611198fb7c2c5bbc38b6bac097f27435e088fdea7f686c1a026bc5a9a43817": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-08-08T10:59:55Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-08-08T10:59:55Z",
+      "witnessDigest": "records/2026-08-08/digest-31253898650-1.json"
+    },
     "09b4ad77aa3c833186674f1144bcc1c689c2009fd50c6a206d70c785109ca757": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -1369,6 +1378,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T18:15:13Z",
       "witnessDigest": "records/2026-07-10/digest-29113794300-1.json"
     },
+    "60c25d5452d01ff4d78387a5699d6b65e72a5de7b8d5ebc4c9c4380591d3c4dc": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-08-08T10:59:55Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-08-08T10:59:55Z",
+      "witnessDigest": "records/2026-08-08/digest-31253898650-1.json"
+    },
     "614f9191015ee083947b2f26d79909507c843a36075101e51625b44791fd4bd9": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -2007,6 +2025,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "inventoryStatus": "complete",
       "tsaGenTime": "2026-07-10T15:29:57Z",
       "witnessDigest": "records/2026-07-10/digest-29103805372-1.json"
+    },
+    "8fd6fc27340197ef8b0bc100f2e1ecd3f2acd2eeb3697ba8907c8e5084f6443e": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-08-08T10:59:55Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-08-08T10:59:55Z",
+      "witnessDigest": "records/2026-08-08/digest-31253898650-1.json"
     },
     "913645ceb5e8e44f63606144afa870267a8512f7788d27ff89104d2b021c2245": {
       "coverage": "direct",
