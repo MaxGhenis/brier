@@ -262,6 +262,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T16:34:10Z",
       "witnessDigest": "records/2026-07-10/digest-29107787946-1.json"
     },
+    "1277a56ab21f3f3a3fd30addd1ab654a5b1a141b9f2e3f8b0b8823974153a9e3": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-08-09T13:57:14Z",
+      "headlineEligible": false,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-08-09T13:57:14Z",
+      "witnessDigest": "records/2026-08-09/digest-31317046135-1.json"
+    },
     "13245621651243a9836bed2d20c74f049134a71b584cb091c453466309012db9": {
       "coverage": "direct",
       "custodyInventoryVersion": 1,
