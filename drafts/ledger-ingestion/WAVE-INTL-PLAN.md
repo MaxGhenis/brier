@@ -55,7 +55,7 @@ and self-consistent):
   (public sources disagree 2030 vs 2034 — quote what the captured text
   actually says, flag the discrepancy if unresolved).
 
-- [ ] 3. gh-vfm-office-certificates.json — concept
+- [x] 3. gh-vfm-office-certificates.json — concept
   gh.vfm_office.certificates_issued (count, annual), the VfM Office's
   own reporting once it exists. This is a FUTURE-VENUE request: no
   print exists yet. Verify what CAN be verified today: the Act's
