@@ -69,7 +69,7 @@ and self-consistent):
   honestly (needs a defined official signal: commencement instrument
   or first certificate).
 
-- [ ] 4. bw-old-age-pension-monthly-amount.json — concept
+- [x] 4. bw-old-age-pension-monthly-amount.json — concept
   bw.gov.old_age_pension.monthly_amount, unit BWP, cadence annual
   (budget-driven). Venue: Botswana official prints — the DailyNews
   announcement (https://dailynews.gov.bw/news-detail/84506) and the
