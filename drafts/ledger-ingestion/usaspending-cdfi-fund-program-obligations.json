@@ -1,0 +1,372 @@
+{
+  "proposed_concept": "usaspending.cdfi_fund.award_transaction_obligations",
+  "status": "verified",
+  "unit": "usd",
+  "cadence": "annual",
+  "proposedFrom": "stress-119s2718is",
+  "metricText": "USAspending aggregated_amount of CDFI Fund awarding-subagency financial-assistance award transactions for a complete federal fiscal year.",
+  "note": "VERIFIED, NARROW SCOPE: the exact FY2025 query returned $319,455,176.00 in net award-transaction obligations. This is a broader CDFI Fund context series, not all CDFI Fund financial-account obligations or outlays and not the purchases, guarantees, loan-loss reserves, or other assistance that S. 2718 would authorize under amended section 113.",
+  "adapterFamily": "usaspending-api",
+  "billSlugs": [
+    "stress-119s2718is"
+  ],
+  "publisher": "U.S. Department of the Treasury, USAspending",
+  "statisticalProduct": "USAspending API v2 advanced search, financial-assistance award transactions filtered to the Community Development Financial Institutions Fund awarding subagency and grouped by fiscal year",
+  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-10T22:13:01Z",
+    "reason": "The exact CDFI Fund awarding-subagency query returns one complete FY2025 row. A complete hasNext=false Assistance Listing breakdown returns eight FY2025 rows whose signed amounts sum to the same $319,455,176.00, and adding those eight program_numbers to the aggregate query returns a byte-identical response. The data therefore verify only the CDFI Fund financial-assistance award-transaction aggregate; they do not isolate future S. 2718 section 113 activity or measure all obligations in CDFI Fund financial accounts.",
+    "scope": {
+      "verifiedConcept": "Net federal_action_obligation aggregated across prime financial-assistance award transactions whose awarding subtier is Community Development Financial Institutions Fund, grouped by federal fiscal year.",
+      "contextForBill": "This recurring aggregate is contextual CDFI Fund implementation spending. S. 2718 is not enacted, and no API field identifies assistance under the bill's proposed amended section 113.",
+      "excludes": [
+        "non-award financial-account obligations",
+        "outlays",
+        "a bill-specific amended-section-113 subset",
+        "CDFI loan originations, liquidity, competitiveness, or other downstream outcomes"
+      ]
+    },
+    "query": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "field": "results[time_period.fiscal_year=2025].aggregated_amount",
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Community Development Financial Institutions Fund",
+              "tier": "subtier",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      }
+    },
+    "fetchedEvidence": {
+      "retrievedAtUtc": "2026-08-10T22:13:01Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "responseSha256": "ed1225baa11ce0e294590cab40927060f62ebea1df9ea094909b797a0f06f0f1",
+      "responseByteLength": 1137,
+      "resultRows": [
+        {
+          "aggregated_amount": 319455176.0,
+          "time_period": {
+            "fiscal_year": "2025"
+          },
+          "Contract_Obligations": 0,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 319023557.0,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 431619.0,
+          "Other_Obligations": 0,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        }
+      ]
+    },
+    "agencyIdentityEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+      "retrievedAtUtc": "2026-08-10T22:08:51Z",
+      "httpStatus": 200,
+      "body": {
+        "search_text": "Community Development Financial Institutions Fund"
+      },
+      "responseSha256": "02581e007d5489322e26cf941ffc02c756333b19307e0893e6e3eb31c9b7b435",
+      "responseByteLength": 321,
+      "matchedRow": {
+        "id": 495,
+        "toptier_flag": false,
+        "toptier_agency": {
+          "toptier_code": "020",
+          "abbreviation": "TREAS",
+          "name": "Department of the Treasury"
+        },
+        "subtier_agency": {
+          "abbreviation": null,
+          "name": "Community Development Financial Institutions Fund"
+        }
+      },
+      "messages": [
+        "This endpoint is DEPRECATED. Please refer to the api contracts."
+      ]
+    },
+    "assistanceListingAutocompleteEvidence": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:08:06Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "Community Development Financial Institutions"
+        },
+        "responseSha256": "3cb202975301ebc5194fc13d5ce21c90fa690227af4f2f8af3587f8758b07000",
+        "responseByteLength": 786,
+        "resultRows": [
+          {
+            "program_number": "21.014",
+            "program_title": "Community Development Financial Institutions Bond Guarantee Program",
+            "popular_name": "BGP"
+          },
+          {
+            "program_number": "21.020",
+            "program_title": "Community Development Financial Institutions Program",
+            "popular_name": "CDFI Program"
+          },
+          {
+            "program_number": "21.024",
+            "program_title": "Community Development Financial Institutions Rapid Response Program (CDFI RRP)",
+            "popular_name": "CDFI Rapid Response Program (CDFI RRP)"
+          },
+          {
+            "program_number": "21.033",
+            "program_title": "Community Development Financial Institutions Fund Equitable Recovery Program (CDFI ERP)",
+            "popular_name": "CDFI Equitable Recovery Program (CDFI ERP)"
+          },
+          {
+            "program_number": "21.035",
+            "program_title": "Community Development Financial Institutions Program Loan",
+            "popular_name": "CDFI Program"
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:08:06Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "21.020"
+        },
+        "responseSha256": "fbe0d6ae548f46745174ce8920be436140899b48f0dcfb96ef050662536e3eda",
+        "responseByteLength": 142,
+        "matchedRow": {
+          "program_number": "21.020",
+          "program_title": "Community Development Financial Institutions Program",
+          "popular_name": "CDFI Program"
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:08:06Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "21.021"
+        },
+        "responseSha256": "6badc5a2b13828e5597061b04738043f47281252fd50b24fea3263a9dddae98d",
+        "responseByteLength": 118,
+        "matchedRow": {
+          "program_number": "21.021",
+          "program_title": "Bank Enterprise Award Program",
+          "popular_name": "BEA Program"
+        }
+      }
+    ],
+    "assistanceListingBreakdownEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/cfda/",
+      "retrievedAtUtc": "2026-08-10T22:09:52Z",
+      "httpStatus": 200,
+      "body": {
+        "category": "cfda",
+        "filters": {
+          "agencies": [
+            {
+              "name": "Community Development Financial Institutions Fund",
+              "tier": "subtier",
+              "toptier_name": "Department of the Treasury",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "fe2e831ed398ecd1ae7d73d80dfb7ec313c3f7ff018f234cc274e244e5178260",
+      "responseByteLength": 1608,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "resultRows": [
+        {
+          "id": 1198,
+          "code": "21.011",
+          "name": "Capital Magnet Fund",
+          "amount": 246385000.0,
+          "total_outlays": null
+        },
+        {
+          "id": 1203,
+          "code": "21.020",
+          "name": "Community Development Financial Institutions Program",
+          "amount": 72206686.0,
+          "total_outlays": null
+        },
+        {
+          "id": 1199,
+          "code": "21.012",
+          "name": "Native Initiatives",
+          "amount": 5271000.0,
+          "total_outlays": null
+        },
+        {
+          "id": 6559,
+          "code": "21.035",
+          "name": "Community Development Financial Institutions Program Loan",
+          "amount": 431619.0,
+          "total_outlays": null
+        },
+        {
+          "id": 1204,
+          "code": "21.021",
+          "name": "Bank Enterprise Award Program",
+          "amount": 0.0,
+          "total_outlays": null
+        },
+        {
+          "id": 3239,
+          "code": "21.025",
+          "name": "Small Dollar Loan Program",
+          "amount": 0.0,
+          "total_outlays": null
+        },
+        {
+          "id": 3219,
+          "code": "21.024",
+          "name": "Community Development Financial Institutions Rapid Response Program (CDFI RRP)",
+          "amount": 0.0,
+          "total_outlays": null
+        },
+        {
+          "id": 3379,
+          "code": "21.033",
+          "name": "Community Development Financial Institutions Fund Equitable Recovery Program (CDFI ERP)",
+          "amount": -4839129.0,
+          "total_outlays": null
+        }
+      ],
+      "signedAmountSum": 319455176.0
+    },
+    "exactListingUnionCrossCheck": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "retrievedAtUtc": "2026-08-10T22:10:41Z",
+      "httpStatus": 200,
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Community Development Financial Institutions Fund",
+              "tier": "subtier",
+              "toptier_name": "Department of the Treasury",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "21.011",
+            "21.012",
+            "21.020",
+            "21.021",
+            "21.024",
+            "21.025",
+            "21.033",
+            "21.035"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      },
+      "responseSha256": "ed1225baa11ce0e294590cab40927060f62ebea1df9ea094909b797a0f06f0f1",
+      "responseByteLength": 1137,
+      "byteIdenticalToPrimaryQuery": true,
+      "aggregated_amount": 319455176.0
+    },
+    "firstPrint": {
+      "status": "registered_query_snapshot_required",
+      "basis": "USAspending revises continuously. The retrospective FY2025 fetch verifies the query shape and historical value but is not first-print evidence. A forecast target must define the outcome as the exact registered query response captured inside a preregistered post-fiscal-year snapshot window and archive the complete response bytes, following the existing USAspending adapter custody rule."
+    },
+    "adapterDisposition": {
+      "family": "usaspending-api",
+      "disposition": "extend_existing",
+      "requiredWork": "Generalize the existing fiscal_year_post_scalar request-plan builder to accept the already-used agency filter for an awarding-subtier scalar query; preserve the registered-query snapshot release policy and exact raw-response custody. No new source family is required."
+    },
+    "parseNotes": [
+      "Use the exact CDFI Fund awarding-subtier filter for the registered series instead of freezing the eight Assistance Listings observed in FY2025; 21.014 appears in title autocomplete but not in the FY2025 hasNext=false category rows, so the eight-code list is a period cross-check rather than a timeless program inventory.",
+      "The FY2025 aggregate is signed net award-transaction obligations: the category response includes -4,839,129.0 for 21.033, and the main response decomposes 319,455,176.0 into 319,023,557.0 Grant_Obligations plus 431,619.0 Loan_Obligations.",
+      "Do not relabel aggregated_amount as outlays, all-account obligations, awards authorized by S. 2718, or downstream CDFI liquidity and competitiveness."
+    ]
+  }
+}

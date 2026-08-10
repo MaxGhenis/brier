@@ -16,7 +16,7 @@ conventions — read the DHS ADMITTED draft, not just proposed ones).
 
 Work items (ONE per session; [x] when the request file is written):
 
-- [ ] 1. usaspending-cdfi-fund-program-obligations.json — bill
+- [x] 1. usaspending-cdfi-fund-program-obligations.json — bill
   stress-119s2718is (S. 2718, CDFI). Concept
   usaspending.cdfi_fund.award_transaction_obligations (usd, annual
   fiscal-year). Live-verify: USAspending advanced-search /
