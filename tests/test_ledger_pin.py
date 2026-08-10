@@ -2407,3 +2407,140 @@ def test_lineage_scan_refuses_shallow_clone(
         pin_ledger._walked_lineage_declares_registry(
             shallow, _git(shallow, "rev-parse", "HEAD")
         )
+
+
+def _declare_then_downgrade(repo: pathlib.Path) -> tuple[str, str, str]:
+    """Commit a declaration, then a downgrade; return (base, declared, head)."""
+
+    base_sha = _git(repo, "rev-parse", "HEAD")
+    registry = _registry_bytes()
+    _declare_registry(
+        repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="declare uuid registry",
+    )
+    declared_sha = _git(repo, "rev-parse", "HEAD")
+    catalog_path = repo / pin_ledger.LEDGER_CATALOG_PATH
+    catalog = json.loads(catalog_path.read_text())
+    catalog.pop("uuid_registry_sha256", None)
+    catalog_path.write_text(json.dumps(catalog, separators=(",", ":")) + "\n")
+    (repo / pin_ledger.LEDGER_REGISTRY_PATH).unlink()
+    head_sha = _commit(repo, "downgrade after declaring")
+    return base_sha, declared_sha, head_sha
+
+
+def test_lineage_scan_sees_through_replace_graft(
+    release_repo: ReleaseRepo,
+) -> None:
+    # Round-4 residual, variant (a): `git replace --graft` leaves
+    # --is-shallow-repository false yet reparents the head past the
+    # declaring commit, so an unhardened rev-list never listed the
+    # declaration and an end-to-end rebuild crossed a declaration→
+    # downgrade history. The replacement here also swaps the head's tree
+    # for the declaring commit's, so a replacement-honoring HEAD read
+    # would see a forged declaration where the committed catalog has
+    # none. The scan reads with --no-replace-objects and must refuse.
+    repo = release_repo.repo
+    base_sha, declared_sha, head_sha = _declare_then_downgrade(repo)
+
+    declared_tree = _git(repo, "rev-parse", f"{declared_sha}^{{tree}}")
+    forged = _git(
+        repo, "commit-tree", declared_tree, "-p", base_sha, "-m", "forged head twin"
+    )
+    _git(repo, "replace", head_sha, forged)
+    # The replacement is live: a plain walk no longer lists the declaring
+    # commit, a plain read shows the forged declaring catalog at HEAD,
+    # and the repository still does not register as shallow.
+    assert declared_sha not in _git(repo, "rev-list", head_sha).splitlines()
+    forged_view = json.loads(
+        _git(repo, "show", f"{head_sha}:{pin_ledger.LEDGER_CATALOG_PATH}")
+    )
+    assert "uuid_registry_sha256" in forged_view
+    assert _git(repo, "rev-parse", "--is-shallow-repository") == "false"
+
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger._walked_lineage_declares_registry(repo, head_sha)
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger.rebuild_from_history(repo, "HEAD")
+
+
+def test_lineage_scan_sees_through_replaced_declaring_commit(
+    release_repo: ReleaseRepo,
+) -> None:
+    # Round-4 residual, content variant: a replacement over the declaring
+    # commit swaps its tree for the downgraded head's, so every
+    # replacement-honoring read of the ancestry sees an undeclared
+    # catalog and the latch never engages. The per-commit reads run with
+    # --no-replace-objects and must still find the committed declaration
+    # and refuse the downgraded head.
+    repo = release_repo.repo
+    base_sha, declared_sha, head_sha = _declare_then_downgrade(repo)
+
+    head_tree = _git(repo, "rev-parse", f"{head_sha}^{{tree}}")
+    forged = _git(
+        repo,
+        "commit-tree",
+        head_tree,
+        "-p",
+        base_sha,
+        "-m",
+        "forged declaring twin",
+    )
+    _git(repo, "replace", declared_sha, forged)
+    # A plain read of the declaring commit now shows no declaration.
+    forged_view = json.loads(
+        _git(repo, "show", f"{declared_sha}:{pin_ledger.LEDGER_CATALOG_PATH}")
+    )
+    assert "uuid_registry_sha256" not in forged_view
+    assert _git(repo, "rev-parse", "--is-shallow-repository") == "false"
+
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger._walked_lineage_declares_registry(repo, head_sha)
+    with pytest.raises(pin_ledger.PinError, match="downgraded away"):
+        pin_ledger.rebuild_from_history(repo, "HEAD")
+
+
+def test_lineage_scan_refuses_legacy_grafts_file(
+    release_repo: ReleaseRepo,
+) -> None:
+    # Round-4 residual, variant (b): a legacy info/grafts file rewrites
+    # parenthood at a layer --no-replace-objects does not cover, while
+    # the repository still reads as non-shallow. The scan must refuse it
+    # outright, like a shallow clone.
+    repo = release_repo.repo
+    base_sha, declared_sha, head_sha = _declare_then_downgrade(repo)
+
+    grafts_file = repo / _git(repo, "rev-parse", "--git-path", "info/grafts")
+    grafts_file.parent.mkdir(parents=True, exist_ok=True)
+    grafts_file.write_text(f"{head_sha} {base_sha}\n")
+    # The graft is live: a plain walk no longer lists the declaring
+    # commit, and the repository still does not register as shallow.
+    assert declared_sha not in _git(repo, "rev-list", head_sha).splitlines()
+    assert _git(repo, "rev-parse", "--is-shallow-repository") == "false"
+
+    with pytest.raises(pin_ledger.PinError, match="grafts"):
+        pin_ledger._walked_lineage_declares_registry(repo, head_sha)
+    with pytest.raises(pin_ledger.PinError, match="grafts"):
+        pin_ledger.rebuild_from_history(repo, "HEAD")
+
+
+def test_lineage_scan_unchanged_without_replacement_objects(
+    release_repo: ReleaseRepo,
+) -> None:
+    # The hardening must not disturb ordinary repositories: with no
+    # replacement objects present, never-declared history still reports
+    # False and a declared head still reports True.
+    repo = release_repo.repo
+    head_sha = _git(repo, "rev-parse", "HEAD")
+    assert pin_ledger._walked_lineage_declares_registry(repo, head_sha) is False
+
+    registry = _registry_bytes()
+    _declare_registry(
+        repo,
+        registry=registry,
+        declared_digest=hashlib.sha256(registry).hexdigest(),
+        message="declare uuid registry",
+    )
+    declared_sha = _git(repo, "rev-parse", "HEAD")
+    assert pin_ledger._walked_lineage_declares_registry(repo, declared_sha) is True
