@@ -26,7 +26,7 @@ Work items (ONE per session; [x] when the request file is written):
   assistance-listing endpoints and record what the DATA proves);
   capture a full FY (e.g. FY2025) obligations total with the exact
   request JSON + response sha. Scope honestly per DHS precedent.
-- [ ] 2. usaspending-ondcp-hidta-program-obligations.json — bill
+- [x] 2. usaspending-ondcp-hidta-program-obligations.json — bill
   stress-119s767is (HIDTA Enhancement). Concept
   usaspending.ondcp.hidta.award_transaction_obligations (usd, annual).
   Wave-1 REJECTED the §707(s)-supplemental-specific series (AL 95.001
