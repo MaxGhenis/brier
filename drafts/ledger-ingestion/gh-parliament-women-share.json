@@ -1,147 +1,151 @@
 {
-  "proposed_concept": "gh.parliament.women_share",
-  "status": "proposed",
-  "unit": "percent",
-  "cadence": "irregular",
-  "proposedFrom": "gh-act-1121-affirmative-action",
-  "metricText": "Women as a percentage of filled seats in Ghana's single parliamentary chamber for a fixed IPU monthly-ranking snapshot.",
-  "note": "PROPOSED: The official IPU August 2026 ranking prints 276 filled seats, 40 women, and 14.5% women for Ghana, but admission requires a reviewed ipu-parline parser, a fixed annual snapshot rule with election-linked resolution, and authenticated first-print custody. Act 1121's First Schedule ends at 2034, despite a conflicting 2030 statement in an official Parliament transcript. The all-seat IPU share is an accountability context series, not by itself Act 1121's statutory compliance denominator. gh-act-1121-affirmative-action is a reserved future bills/ slug; no such entry exists yet.",
-  "adapterFamily": "ipu-parline",
-  "billSlugs": [
-    "gh-act-1121-affirmative-action"
-  ],
-  "publisher": "Inter-Parliamentary Union",
-  "statisticalProduct": "IPU Parline, Monthly ranking of women in national parliaments",
-  "likelyUrlPattern": "https://api.data.ipu.org/v1/reports/women-ranking?month={month}&year={year}",
-  "verification": {
-    "schemaVersion": "ledger_ingestion_verification_v1",
-    "outcome": "proposed",
-    "verifiedAtUtc": "2026-08-10T04:16:08Z",
-    "reason": "The official IPU ranking API returns one unambiguous Ghana lower-or-single-chamber row for the requested month, but this is a new adapter family and one current fetch does not authenticate an annual or election-linked first print. The captured Act scan also shows that overall elected-seat share is contextual rather than the direct denominator named by sections 18 and 20.",
-    "sourcePageUrl": "https://data.ipu.org/parliament/GH/GH-LC01/data-on-women/",
-    "artifact": {
-      "url": "https://api.data.ipu.org/v1/reports/women-ranking?month=8&year=2026",
-      "retrievedAtUtc": "2026-08-10T04:11:38Z",
-      "sha256": "6027740af2a2051144c6d9fba107db43d68f2926e939d8739d6dbb98190573ab",
-      "byteLength": 125041,
-      "mediaType": "application/json",
-      "reportTitle": "Monthly ranking of women in national parliaments",
-      "reportDate": "2026-08-01T04:11:38.225Z",
-      "country": "Ghana",
-      "countryCode": "GH",
-      "chamber": "Lower or single House",
-      "electionDate": "2024-12-07",
-      "rank": 150,
-      "printedFields": {
-        "lower_chamber_current_members_number": 276,
-        "lower_chamber_current_women_number": 40,
-        "lower_chamber_percent_women": "14.5"
-      },
-      "fetchedValue": 14.5,
-      "printedValue": "14.5",
-      "printedUnit": "% W",
-      "normalizedValue": 14.5,
-      "normalizedUnit": "percent",
-      "rowAvailabilityFlag": {
-        "lower_data_missing": false
-      }
-    },
-    "statutoryAnchor": {
-      "url": "https://faolex.fao.org/docs/pdf/gha239061.pdf",
-      "retrievedAtUtc": "2026-08-10T04:14:51Z",
-      "sha256": "6854bded907289fe39f5858d8837ae2d9c2ab425623abbd052cc09c41b051f76",
-      "byteLength": 41267797,
-      "mediaType": "application/pdf",
-      "sourceClassification": "Primary enacted statutory text in a scan hosted by the secondary FAOLEX legal repository; not a Ghana-government origin URL.",
-      "title": "Affirmative Action (Gender Equity) Act, 2024 (Act 1121)",
-      "schedule": "FIRST SCHEDULE",
-      "paragraph": "1(b)",
-      "pdfPage": 21,
-      "printedPage": 20,
-      "printedHeading": "Progressive Achievements from 2024 to 2034",
-      "printedColumns": [
-        "FROM",
-        "TO",
-        "PERCENTAGE"
-      ],
-      "printedRows": [
-        [
-          "2024",
-          "2026",
-          "30"
-        ],
-        [
-          "2027",
-          "2028",
-          "35"
-        ],
-        [
-          "2029",
-          "2034",
-          "50"
-        ]
-      ],
-      "scope": {
-        "section18": {
-          "citation": "18(1)",
-          "pdfPage": 12,
-          "printedPage": 11,
-          "relationship": "The First Schedule applies to appointments to Parliament leadership positions and Committees of Parliament."
-        },
-        "section20": {
-          "citations": [
-            "20(1)",
-            "20(3)"
-          ],
-          "pdfPages": [
-            12,
-            13
-          ],
-          "printedPages": [
-            11,
-            12
-          ],
-          "relationship": "The First Schedule applies to participation and representation in party politics, including candidate sponsorship and party officials."
-        },
-        "seriesRelationship": "IPU's share of all filled parliamentary seats is a related accountability measure, not a direct statutory-compliance denominator stated in these sections."
-      }
-    },
-    "officialMinistrySummary": {
-      "url": "https://www.mogcsp.gov.gh/mogcsp-holds-sensitization-workshop-on-affirmative-action-gender-equity-act-2024/",
-      "retrievedAtUtc": "2026-08-10T04:12:35Z",
-      "sha256": "5f03b44b761ad8662a102d6f7943710e67bd6eca2f1877325c2354fd46e77784",
-      "byteLength": 108809,
-      "mediaType": "text/html",
-      "sourceClassification": "Official Ghana Ministry communication summarizing the Act; not the enacted instrument.",
-      "printedScheduleExcerpt": "30 per cent women representation in decision-making from 2024 to 2026, 35 per cent from 2027 to 2028, and 50 per cent by 2034"
-    },
-    "publicSourceDiscrepancy": {
-      "status": "resolved_for_statutory_schedule",
-      "resolution": "The captured enacted-text scan and official Ministry summary say 2034. The following official Parliament transcript preserves a member's conflicting 2030 statement but is not the enacted legal text.",
-      "conflictingArtifact": {
-        "url": "https://www.parliament.gh/floor?dis=113",
-        "retrievedAtUtc": "2026-08-10T04:14:20Z",
-        "sha256": "7e6a5b574eb4f0e595f4820544a1c468808975ac6c2bcd39f39f6fb25bc4aabd",
-        "byteLength": 55916,
-        "mediaType": "text/html",
-        "sourceClassification": "Official Parliament transcript of a member's statement; not enacted-law text.",
-        "speaker": "Hon Emmanuel Kwasi Bedzrah",
-        "printedExcerpt": "from 30 per cent in 2026 to 50 per cent by the year 2030"
-      }
-    },
-    "firstPrint": {
-      "status": "not_authenticated",
-      "blocker": "A post-release fetch of a requested monthly ranking does not prove the first IPU response for a registered annual or election-linked snapshot, preserve later corrections, or establish reviewed capture custody."
-    },
-    "requiredWork": [
-      "Implement and review an ipu-parline parser that selects country_code GH, requires lower_data_missing false, and extracts filled seats, women, and percent women from one fixed monthly-ranking response.",
-      "Define the annual snapshot month and election-linked resolution rule, then add release-time witnessed or versioned custody and genuine historical pins before admission.",
-      "Keep the IPU all-seat share labeled as an accountability context series rather than a direct Act 1121 compliance denominator."
+ "proposed_concept": "gh.parliament.women_share",
+ "status": "proposed",
+ "unit": "percent",
+ "cadence": "irregular",
+ "proposedFrom": "gh-act-1121-affirmative-action",
+ "metricText": "Women as a percentage of filled seats in Ghana's single parliamentary chamber for a fixed IPU monthly-ranking snapshot.",
+ "note": "PROPOSED: The official IPU August 2026 ranking prints 276 filled seats, 40 women, and 14.5% women for Ghana, but admission requires a reviewed ipu-parline parser, a fixed annual snapshot rule with election-linked resolution, and authenticated first-print custody. Act 1121's First Schedule ends at 2034, despite a conflicting 2030 statement in an official Parliament transcript. The all-seat IPU share is an accountability context series, not by itself Act 1121's statutory compliance denominator. gh-act-1121-affirmative-action is a reserved future bills/ slug; no such entry exists yet.",
+ "adapterFamily": "ipu-parline",
+ "billSlugs": [
+  "gh-act-1121-affirmative-action"
+ ],
+ "publisher": "Inter-Parliamentary Union",
+ "statisticalProduct": "IPU Parline, Monthly ranking of women in national parliaments",
+ "likelyUrlPattern": "https://api.data.ipu.org/v1/reports/women-ranking?month={month}&year={year}",
+ "verification": {
+  "schemaVersion": "ledger_ingestion_verification_v1",
+  "outcome": "proposed",
+  "verifiedAtUtc": "2026-08-10T04:16:08Z",
+  "reason": "The official IPU ranking API returns one unambiguous Ghana lower-or-single-chamber row for the requested month, but this is a new adapter family and one current fetch does not authenticate an annual or election-linked first print. The captured Act scan also shows that overall elected-seat share is contextual rather than the direct denominator named by sections 18 and 20.",
+  "sourcePageUrl": "https://data.ipu.org/parliament/GH/GH-LC01/data-on-women/",
+  "artifact": {
+   "url": "https://api.data.ipu.org/v1/reports/women-ranking?month=8&year=2026",
+   "retrievedAtUtc": "2026-08-10T04:11:38Z",
+   "sha256": "6027740af2a2051144c6d9fba107db43d68f2926e939d8739d6dbb98190573ab",
+   "byteLength": 125041,
+   "mediaType": "application/json",
+   "reportTitle": "Monthly ranking of women in national parliaments",
+   "reportDate": "2026-08-01T04:11:38.225Z",
+   "country": "Ghana",
+   "countryCode": "GH",
+   "chamber": "Lower or single House",
+   "electionDate": "2024-12-07",
+   "rank": 150,
+   "printedFields": {
+    "lower_chamber_current_members_number": 276,
+    "lower_chamber_current_women_number": 40,
+    "lower_chamber_percent_women": "14.5"
+   },
+   "fetchedValue": 14.5,
+   "printedValue": "14.5",
+   "printedUnit": "% W",
+   "normalizedValue": 14.5,
+   "normalizedUnit": "percent",
+   "rowAvailabilityFlag": {
+    "lower_data_missing": false
+   },
+   "byteStability": "NOT byte-stable: the endpoint embeds a volatile meta.report_date stamped per request, so sha256 above is the capture AS FETCHED at retrievedAtUtc and an exact-URL refetch yields a different digest. Value-level verification (276 members / 40 women / 14.5%) is the stable check; the ipu-parline adapter family must take capture-time custody rather than rely on byte-identical refetch.",
+   "normalizedSha256": "b5145050045665a8045eb641120ed702c4832dcc97b417b33c22f25f6b9792eb",
+   "normalizedByteLength": 125000,
+   "normalization": "JSON parsed, every 'report_date' key removed recursively, objects key-sorted, serialized compact (separators ',' ':', ensure_ascii false, sort_keys true), UTF-8"
+  },
+  "statutoryAnchor": {
+   "url": "https://faolex.fao.org/docs/pdf/gha239061.pdf",
+   "retrievedAtUtc": "2026-08-10T04:14:51Z",
+   "sha256": "6854bded907289fe39f5858d8837ae2d9c2ab425623abbd052cc09c41b051f76",
+   "byteLength": 41267797,
+   "mediaType": "application/pdf",
+   "sourceClassification": "Primary enacted statutory text in a scan hosted by the secondary FAOLEX legal repository; not a Ghana-government origin URL.",
+   "title": "Affirmative Action (Gender Equity) Act, 2024 (Act 1121)",
+   "schedule": "FIRST SCHEDULE",
+   "paragraph": "1(b)",
+   "pdfPage": 21,
+   "printedPage": 20,
+   "printedHeading": "Progressive Achievements from 2024 to 2034",
+   "printedColumns": [
+    "FROM",
+    "TO",
+    "PERCENTAGE"
+   ],
+   "printedRows": [
+    [
+     "2024",
+     "2026",
+     "30"
     ],
-    "parseNotes": [
-      "Use the lower-or-single-chamber fields; Ghana has no upper-chamber values in the captured row.",
-      "Preserve IPU's printed one-decimal percentage and cross-check it against 100 times women divided by filled seats, allowing only the displayed rounding.",
-      "The underlying representation changes irregularly and is election-driven; operational registration should use an annual observation with an election-linked resolution rather than claiming a naturally annual source cadence."
+    [
+     "2027",
+     "2028",
+     "35"
+    ],
+    [
+     "2029",
+     "2034",
+     "50"
     ]
-  }
+   ],
+   "scope": {
+    "section18": {
+     "citation": "18(1)",
+     "pdfPage": 12,
+     "printedPage": 11,
+     "relationship": "The First Schedule applies to appointments to Parliament leadership positions and Committees of Parliament."
+    },
+    "section20": {
+     "citations": [
+      "20(1)",
+      "20(3)"
+     ],
+     "pdfPages": [
+      12,
+      13
+     ],
+     "printedPages": [
+      11,
+      12
+     ],
+     "relationship": "The First Schedule applies to participation and representation in party politics, including candidate sponsorship and party officials."
+    },
+    "seriesRelationship": "IPU's share of all filled parliamentary seats is a related accountability measure, not a direct statutory-compliance denominator stated in these sections."
+   }
+  },
+  "officialMinistrySummary": {
+   "url": "https://www.mogcsp.gov.gh/mogcsp-holds-sensitization-workshop-on-affirmative-action-gender-equity-act-2024/",
+   "retrievedAtUtc": "2026-08-10T04:12:35Z",
+   "sha256": "5f03b44b761ad8662a102d6f7943710e67bd6eca2f1877325c2354fd46e77784",
+   "byteLength": 108809,
+   "mediaType": "text/html",
+   "sourceClassification": "Official Ghana Ministry communication summarizing the Act; not the enacted instrument.",
+   "printedScheduleExcerpt": "30 per cent women representation in decision-making from 2024 to 2026, 35 per cent from 2027 to 2028, and 50 per cent by 2034"
+  },
+  "publicSourceDiscrepancy": {
+   "status": "resolved_for_statutory_schedule",
+   "resolution": "The captured enacted-text scan and official Ministry summary say 2034. The following official Parliament transcript preserves a member's conflicting 2030 statement but is not the enacted legal text.",
+   "conflictingArtifact": {
+    "url": "https://www.parliament.gh/floor?dis=113",
+    "retrievedAtUtc": "2026-08-10T04:14:20Z",
+    "sha256": "7e6a5b574eb4f0e595f4820544a1c468808975ac6c2bcd39f39f6fb25bc4aabd",
+    "byteLength": 55916,
+    "mediaType": "text/html",
+    "sourceClassification": "Official Parliament transcript of a member's statement; not enacted-law text.",
+    "speaker": "Hon Emmanuel Kwasi Bedzrah",
+    "printedExcerpt": "from 30 per cent in 2026 to 50 per cent by the year 2030"
+   }
+  },
+  "firstPrint": {
+   "status": "not_authenticated",
+   "blocker": "A post-release fetch of a requested monthly ranking does not prove the first IPU response for a registered annual or election-linked snapshot, preserve later corrections, or establish reviewed capture custody."
+  },
+  "requiredWork": [
+   "Implement and review an ipu-parline parser that selects country_code GH, requires lower_data_missing false, and extracts filled seats, women, and percent women from one fixed monthly-ranking response.",
+   "Define the annual snapshot month and election-linked resolution rule, then add release-time witnessed or versioned custody and genuine historical pins before admission.",
+   "Keep the IPU all-seat share labeled as an accountability context series rather than a direct Act 1121 compliance denominator."
+  ],
+  "parseNotes": [
+   "Use the lower-or-single-chamber fields; Ghana has no upper-chamber values in the captured row.",
+   "Preserve IPU's printed one-decimal percentage and cross-check it against 100 times women divided by filled seats, allowing only the displayed rounding.",
+   "The underlying representation changes irregularly and is election-driven; operational registration should use an annual observation with an election-linked resolution rather than claiming a naturally annual source cadence."
+  ]
+ }
 }
