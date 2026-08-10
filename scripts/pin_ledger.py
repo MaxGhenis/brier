@@ -1439,12 +1439,20 @@ def _local_catalog_at_commit(
     sha: str,
     *,
     required: bool,
+    no_replace: bool = False,
 ) -> bytes | None:
-    """Read the optional catalog from one local commit and bind its Git blob."""
+    """Read the optional catalog from one local commit and bind its Git blob.
 
+    With ``no_replace``, replacement objects (``git replace``) are ignored
+    so the bytes read are the ones actually committed — the lineage scan
+    needs this, because a local replacement can otherwise swap a commit's
+    tree and forge or hide a registry declaration.
+    """
+
+    git = ["git", "--no-replace-objects"] if no_replace else ["git"]
     try:
         listing = subprocess.check_output(
-            ["git", "ls-tree", "-z", sha, "--", LEDGER_CATALOG_PATH],
+            [*git, "ls-tree", "-z", sha, "--", LEDGER_CATALOG_PATH],
             cwd=ledger_git,
         )
     except subprocess.CalledProcessError as exc:
@@ -1473,7 +1481,7 @@ def _local_catalog_at_commit(
         raise PinError(f"{LEDGER_CATALOG_PATH} at {sha} is not a regular Git blob")
     try:
         raw = subprocess.check_output(
-            ["git", "show", f"{sha}:{LEDGER_CATALOG_PATH}"], cwd=ledger_git
+            [*git, "show", f"{sha}:{LEDGER_CATALOG_PATH}"], cwd=ledger_git
         )
     except subprocess.CalledProcessError as exc:
         raise PinError(f"cannot read {LEDGER_CATALOG_PATH} at {sha}") from exc
@@ -1553,16 +1561,40 @@ def _walked_lineage_declares_registry(ledger_git: pathlib.Path, head_sha: str) -
     A shallow clone is refused outright: git treats the shallow boundary
     as a root, so ``rev-list`` silently omits everything behind it and an
     ancestor declaration would vanish without any error — fail open.
+
+    Replacement objects are a second way to rewrite perceived ancestry
+    without tripping the shallow check: ``git replace --graft`` leaves
+    ``--is-shallow-repository`` false yet reparents a commit (hiding an
+    ancestor declaration from ``rev-list``) and a replacement can even
+    swap a commit's tree (forging the catalog bytes ``git show``
+    returns). Every git invocation in this scan therefore runs with
+    ``--no-replace-objects`` so only real committed history is read. A
+    legacy ``info/grafts`` file rewrites parenthood at a layer that flag
+    does not cover, so its presence is refused outright, like a shallow
+    clone.
     """
-    shallow = _git(ledger_git, "rev-parse", "--is-shallow-repository")
+    shallow = _git(
+        ledger_git, "--no-replace-objects", "rev-parse", "--is-shallow-repository"
+    )
     if shallow.strip() == "true":
         raise PinError(
             "ledger clone is shallow — the shallow boundary poses as a "
             "root, so the ancestry scan cannot prove the registry "
             "ratchet; run `git fetch --unshallow` first"
         )
+    grafts_file = ledger_git / _git(
+        ledger_git, "--no-replace-objects", "rev-parse", "--git-path", "info/grafts"
+    )
+    if grafts_file.exists():
+        raise PinError(
+            "ledger clone has a legacy git grafts file — grafts rewrite "
+            "perceived ancestry without registering as shallow, so the "
+            "ancestry scan cannot prove the registry ratchet; remove "
+            f"{grafts_file} first"
+        )
     listing = _git(
         ledger_git,
+        "--no-replace-objects",
         "rev-list",
         "--full-history",
         head_sha,
@@ -1571,13 +1603,17 @@ def _walked_lineage_declares_registry(ledger_git: pathlib.Path, head_sha: str) -
     )
     declaring_commit = None
     for commit in [line for line in listing.splitlines() if line]:
-        catalog_raw = _local_catalog_at_commit(ledger_git, commit, required=False)
+        catalog_raw = _local_catalog_at_commit(
+            ledger_git, commit, required=False, no_replace=True
+        )
         if _declares_registry(catalog_raw):
             declaring_commit = commit
             break
     if declaring_commit is None:
         return False
-    head_catalog = _local_catalog_at_commit(ledger_git, head_sha, required=False)
+    head_catalog = _local_catalog_at_commit(
+        ledger_git, head_sha, required=False, no_replace=True
+    )
     if not _declares_registry(head_catalog):
         raise PinError(
             f"catalog at {head_sha} lacks the UUID registry declaration "
