@@ -82,7 +82,7 @@ and self-consistent):
   "does a future budget print reach P1,800"). proposedFrom:
   bw-udc-pension-promise (reserved slug, no bills/ entry yet).
 
-- [ ] 5. WAVE-INTL-REPORT.md — a short report in the same directory:
+- [x] 5. WAVE-INTL-REPORT.md — a short report in the same directory:
   table of the four requests, outcomes (all proposed expected),
   per-request the strongest verification artifact captured, open
   questions (GHS/BWP units in the site Unit union; bills/ entries for
