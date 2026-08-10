@@ -1,0 +1,73 @@
+{
+  "proposed_concept": "gh.audit_service.annual_report.total_irregularities",
+  "status": "proposed",
+  "unit": "GHS",
+  "cadence": "annual",
+  "proposedFrom": "gh-vfm-office-act-2026",
+  "metricText": "Total financial irregularities printed by the Ghana Audit Service in the consolidated Ministries, Departments and Other Agencies annual report for a fixed audited year.",
+  "note": "PROPOSED: The official 2025 MDA report prints an unambiguous total, but admission requires a new gh-audit-annual-report-pdf parser and authenticated release-time capture custody. The plan's ghaudit.org URL redirected away from the agency during verification, so the request pins the current official audit.gov.gh venue printed in the report itself. gh-vfm-office-act-2026 is a reserved future bills/ slug; no such entry exists yet. GHS may need an entry in the site Unit union at registration time; that registration concern is not a blocker for this request.",
+  "adapterFamily": "gh-audit-annual-report-pdf",
+  "billSlugs": [
+    "gh-vfm-office-act-2026"
+  ],
+  "publisher": "Ghana Audit Service",
+  "statisticalProduct": "Consolidated Report of the Auditor-General on the Public Accounts of Ghana: Ministries, Departments and Other Agencies (MDAs)",
+  "likelyUrlPattern": "https://audit.gov.gh/files/audit_reports/{report-specific-filename}.pdf",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "proposed",
+    "verifiedAtUtc": "2026-08-10T04:05:34Z",
+    "reason": "The current official annual PDF prints one total financial-irregularities amount for audited year 2025 in paragraph 14 and confirms it in Table 1A. This one post-release fetch supplies parser evidence but does not authenticate first-print bytes or establish a reviewed adapter family.",
+    "sourcePageUrl": "https://audit.gov.gh/3/latest-reports-of-the-auditor-general",
+    "listingArtifact": {
+      "url": "https://audit.gov.gh/ags_reports/fetch.php",
+      "requestMethod": "POST",
+      "requestBody": "reportYear=2025",
+      "retrievedAtUtc": "2026-08-10T04:07:15Z",
+      "sha256": "f77ac790da9900351ae34f76dfe692837c1b256a81ee4e7f483bc209872e2c3b",
+      "byteLength": 23386,
+      "mediaType": "text/html",
+      "printedReportTitle": "Report of the Auditor-General on the Public Accounts of Ghana – Ministries, Departments and other Agencies for the year ended 31 December 2025"
+    },
+    "artifact": {
+      "url": "https://audit.gov.gh/files/audit_reports/Report_of_the_Auditor-General_on_the_Public_Accounts_of_Ghana_%E2%80%93_Ministries,_Departments_and_other_Agencies_for_the_year_ended_31_December_2025.pdf",
+      "retrievedAtUtc": "2026-08-10T04:05:34Z",
+      "sha256": "d77e10c4ac3e121cf229122548a26dc256f5c80fab0f53a8cb596c4d8841b77c",
+      "byteLength": 14752705,
+      "mediaType": "application/pdf",
+      "coverDescriptor": "CONSOLIDATED",
+      "reportTitle": "REPORT OF THE AUDITOR-GENERAL ON THE PUBLIC ACCOUNTS OF GHANA: MINISTRIES, DEPARTMENTS AND OTHER AGENCIES (MDAs) FOR THE YEAR ENDED 31 DECEMBER 2025",
+      "auditedYear": "2025",
+      "pdfPage": 9,
+      "printedPage": 7,
+      "section": "SUMMARY OF IRREGULARITIES / Audit Results",
+      "paragraph": 14,
+      "printedSentence": "The overall financial impact of weaknesses and irregularities identified in the course of the audit amounted to GH¢5,266,315,079. A summary is provided below as Table ‘1A’.",
+      "fetchedValue": 5266315079,
+      "printedValue": "GH¢5,266,315,079",
+      "printedUnit": "GH¢",
+      "normalizedValue": 5266315079,
+      "normalizedUnit": "GHS",
+      "tableConfirmation": {
+        "pdfPage": 10,
+        "printedPage": 8,
+        "table": "Table 1A: Summary of Financial Irregularities for 2025",
+        "row": "Total",
+        "column": "TOTAL GH¢",
+        "printedValue": "5,266,315,079"
+      }
+    },
+    "firstPrint": {
+      "status": "not_authenticated",
+      "blocker": "A current fetch of a one-shot annual PDF does not prove the release-time first print or preserve later replacements under authenticated custody."
+    },
+    "requiredWork": [
+      "Implement and review a Ghana Audit Service annual-report PDF parser that selects the fixed audited year and extracts the Table 1A Total GH¢ value with paragraph 14 as a cross-check.",
+      "Add release-time witnessed or versioned capture custody for each annual PDF before admission, with genuine annual-edition pins used to validate title, page, row, currency, and revision handling."
+    ],
+    "parseNotes": [
+      "Use the printed Total in the TOTAL GH¢ column after incorporating the report's stated Bank of Ghana conversion of any US-dollar irregularities; do not use the pre-conversion GH¢ subtotal.",
+      "The report-printed page is 7 for paragraph 14 and 8 for Table 1A; the corresponding one-indexed physical PDF pages are 9 and 10."
+    ]
+  }
+}
