@@ -34,7 +34,7 @@ Work items (ONE per session; [x] when the request file is written):
   request is the BROADER honestly-scoped total HIDTA program
   obligations under AL 95.001, explicitly framed as the aggregate the
   data proves (cite the wave-1 rejection and the distinction).
-- [ ] 3. usaspending-ntia-broadband-program-obligations.json — bill
+- [x] 3. usaspending-ntia-broadband-program-obligations.json — bill
   stress-119hr2449ih (FUTURE Networks / FCC 6G Task Force). The bill's
   own metrics are report-deadline execution items with no recurring
   series, so this is a CONTEXT series, labeled as such: NTIA (or FCC)
