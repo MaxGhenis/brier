@@ -37,7 +37,7 @@ and self-consistent):
   capture custody are prerequisites, mirroring the original SBA
   proposed drafts).
 
-- [ ] 2. gh-parliament-women-share.json — concept
+- [x] 2. gh-parliament-women-share.json — concept
   gh.parliament.women_share, unit percent, cadence irregular
   (election-driven; treat as annual-with-election-resolution and note
   it). Venue: IPU Parline (https://data.ipu.org/parliament/GH — find
