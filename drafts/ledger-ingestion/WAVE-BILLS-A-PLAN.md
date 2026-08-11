@@ -49,7 +49,7 @@ Work items (ONE per session; [x] when the request file is written):
   Commerce ITA/BIS) AI-related account obligations — live
   investigation; honest scoping or honest rejection with the search
   trail.
-- [ ] 5. usaspending-usfs-superior-nf-obligations.json — bill
+- [x] 5. usaspending-usfs-superior-nf-obligations.json — bill
   stress-119hr978ih (Superior NF). Context: Forest Service obligations
   scoped to Minnesota / the Superior NF place-of-performance if the
   API's geographic filters prove it cleanly; else honest rejection

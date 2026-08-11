@@ -1,0 +1,660 @@
+{
+  "proposed_concept": "usaspending.usfs.minnesota.award_transaction_obligations",
+  "status": "verified",
+  "unit": "usd",
+  "cadence": "annual",
+  "proposedFrom": "stress-119hr978ih",
+  "metricText": "USAspending aggregated_amount of prime award transactions made by the Forest Service awarding subagency with a reported place of performance in Minnesota for a complete federal fiscal year.",
+  "note": "VERIFIED, CONTEXT ONLY, MINNESOTA SCOPE: the exact FY2025 query returned $46,832,556.79 in net award-transaction obligations. USAspending does not expose a named-national-forest or polygon place-of-performance key, so this series is not Superior National Forest obligations, is not confined to the bill's covered lands, and does not measure any H.R. 978 implementation deadline or mineral instrument.",
+  "adapterFamily": "usaspending-api",
+  "billSlugs": [
+    "stress-119hr978ih"
+  ],
+  "publisher": "U.S. Department of the Treasury, USAspending",
+  "statisticalProduct": "USAspending API v2 advanced search, prime award transactions filtered to the Forest Service awarding subagency and Minnesota place of performance and grouped by fiscal year",
+  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-11T04:37:33Z",
+    "reason": "The exact Forest Service awarding-subagency plus Minnesota place-of-performance query returns one complete FY2025 row of $46,832,556.79, and an independent complete state-category response prints the identical Minnesota amount. A four-year query returns nonzero FY2022-FY2025 observations, and a same-session replay of the primary query is byte-identical. The official location autocomplete recognizes Minnesota but returns count=0 for Superior National Forest; the official search-filter contract enumerates only country, state, county, city, congressional-district, and ZIP keys. A text-keyword probe returns $2,241,795.07 but the contract leaves the searched backend fields unspecified, so that probe cannot define a national-forest geography. The evidence therefore verifies only the recurring Minnesota award-transaction context series, never an exact Superior National Forest or bill-effect series.",
+    "scope": {
+      "verifiedConcept": "Signed net federal_action_obligation aggregated across prime award transactions whose awarding subtier is Forest Service and whose reported place of performance has country=USA and state=MN, grouped by action-date federal fiscal year.",
+      "contextForBill": "H.R. 978 concerns legal and administrative actions on lands within Superior National Forest. This preexisting Minnesota-wide Forest Service award aggregate is only adjacent spending context; no value is attributed to the bill or to the covered forest lands.",
+      "excludes": [
+        "an exact Superior National Forest boundary or named-land-unit filter",
+        "Forest Service award activity in Minnesota attributable specifically to H.R. 978",
+        "withdrawal-order status, mine-plan reviews, permits, mineral leases, prospecting permits, preference-right leases, or deadline compliance",
+        "all Forest Service financial-account obligations, appropriations, budget authority, and outlays",
+        "awards whose reported place of performance is outside Minnesota or lacks Minnesota as the state even if activity may benefit Superior National Forest"
+      ]
+    },
+    "query": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "field": "results[time_period.fiscal_year=2025].aggregated_amount",
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "place_of_performance_locations": [
+            {
+              "country": "USA",
+              "state": "MN"
+            }
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      }
+    },
+    "fetchedEvidence": {
+      "retrievedAtUtc": "2026-08-11T04:35:03Z",
+      "httpStatus": 200,
+      "responseSha256": "685c55dd28dc9824d018ce6ebb960d612e3a1d66fb9beb77862b381b47282f20",
+      "responseByteLength": 1150,
+      "responseGroup": "fiscal_year",
+      "responseSpendingLevel": "transactions",
+      "resultRows": [
+        {
+          "aggregated_amount": 46832556.79,
+          "time_period": {
+            "fiscal_year": "2025"
+          },
+          "Contract_Obligations": 15398331.29,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 21158670.82,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 10275554.68,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        }
+      ]
+    },
+    "agencyIdentityEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+      "retrievedAtUtc": "2026-08-11T04:34:07Z",
+      "httpStatus": 200,
+      "body": {
+        "search_text": "Forest Service"
+      },
+      "responseSha256": "46b37dad95f3b68d8b61da8fb21641e613c9e2ed187da66b3388b658dcde3882",
+      "responseByteLength": 284,
+      "matchedRow": {
+        "id": 110,
+        "toptier_flag": false,
+        "toptier_agency": {
+          "toptier_code": "012",
+          "abbreviation": "USDA",
+          "name": "Department of Agriculture"
+        },
+        "subtier_agency": {
+          "abbreviation": "FS",
+          "name": "Forest Service"
+        }
+      },
+      "messages": [
+        "This endpoint is DEPRECATED. Please refer to the api contracts."
+      ]
+    },
+    "locationAutocompleteEvidence": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/location/",
+        "retrievedAtUtc": "2026-08-11T04:34:50Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 20,
+          "search_text": "Minnesota"
+        },
+        "responseSha256": "71bf2a94a2fa4eb5493fa31b39a95e9d9caef369908259105c57299a4d048272",
+        "responseByteLength": 1079,
+        "responseCount": 12,
+        "matchedStateRow": {
+          "state_name": "MINNESOTA",
+          "country_name": "UNITED STATES"
+        }
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/location/",
+        "retrievedAtUtc": "2026-08-11T04:34:51Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 20,
+          "search_text": "Superior National Forest"
+        },
+        "responseSha256": "0af637732b6540331905f706c751f32ec71b7f55a96180a8fd95af596028a416",
+        "responseByteLength": 40,
+        "responseCount": 0,
+        "verbatimResults": {},
+        "disposition": "not_a_supported_location_identity"
+      }
+    ],
+    "locationContractEvidence": {
+      "method": "GET",
+      "endpoint": "https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/search_filters.md",
+      "retrievedAtUtc": "2026-08-11T04:36:36Z",
+      "httpStatus": 200,
+      "responseSha256": "843353f954e8524296dfaf7369ff04996702a03dfb30ad2caa108489bc7be776",
+      "responseByteLength": 19747,
+      "verbatimDocumentedLocationKeys": [
+        "country",
+        "state",
+        "county",
+        "city",
+        "district_original",
+        "district_current",
+        "zip"
+      ],
+      "verbatimKeywordContract": [
+        "**Description:** Search is based on a list of string inputs.",
+        "**TODO:**",
+        "1. Determine what backend fields are being searched against."
+      ],
+      "inference": "The exhaustive documented Standard Location Object has no national-forest, named-land-unit, forest-unit, or polygon key. The contract also does not define which backend fields a keyword searches, so a keyword hit cannot substitute for a geographic identity."
+    },
+    "annualHistoryEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "retrievedAtUtc": "2026-08-11T04:37:07Z",
+      "httpStatus": 200,
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "place_of_performance_locations": [
+            {
+              "country": "USA",
+              "state": "MN"
+            }
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2021-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      },
+      "responseSha256": "efd4447ba1ca3385e08ca1bcbbf090d77905b9534b8f1f09ee765024f6ef9e5a",
+      "responseByteLength": 2299,
+      "resultRows": [
+        {
+          "aggregated_amount": 34095876.2,
+          "time_period": {
+            "fiscal_year": "2022"
+          },
+          "Contract_Obligations": 17610864.77,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 5567484.25,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 10917527.18,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        },
+        {
+          "aggregated_amount": 49958929.089999996,
+          "time_period": {
+            "fiscal_year": "2023"
+          },
+          "Contract_Obligations": 18811973.0,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 16072128.27,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 15074827.82,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        },
+        {
+          "aggregated_amount": 68717828.09,
+          "time_period": {
+            "fiscal_year": "2024"
+          },
+          "Contract_Obligations": 12247972.58,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 38307135.4,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 18162720.11,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        },
+        {
+          "aggregated_amount": 46832556.79,
+          "time_period": {
+            "fiscal_year": "2025"
+          },
+          "Contract_Obligations": 15398331.29,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 21158670.82,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 10275554.68,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        }
+      ]
+    },
+    "stateCategoryCrossCheck": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/state_territory/",
+      "retrievedAtUtc": "2026-08-11T04:37:33Z",
+      "httpStatus": 200,
+      "body": {
+        "category": "state_territory",
+        "filters": {
+          "agencies": [
+            {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "37ac540be66ba35618e76e19b909cc162cbfc262b180d7d8a57c00ba5603b4de",
+      "responseByteLength": 5716,
+      "responseResultCount": 60,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "matchedRow": {
+        "id": null,
+        "code": "MN",
+        "name": "Minnesota",
+        "amount": 46832556.79,
+        "total_outlays": null
+      },
+      "matchesPrimaryAggregatedAmount": true
+    },
+    "countyBoundaryProbe": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/county/",
+      "retrievedAtUtc": "2026-08-11T04:35:50Z",
+      "httpStatus": 200,
+      "body": {
+        "category": "county",
+        "filters": {
+          "agencies": [
+            {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "place_of_performance_locations": [
+            {
+              "country": "USA",
+              "state": "MN"
+            }
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "0051afc068b0524a94b59fffb53b6c94895eae469dbdbf3b8e0be92eef1c7bc6",
+      "responseByteLength": 2212,
+      "responseResultCount": 18,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "billNamedCountyRows": [
+        {
+          "id": null,
+          "code": "137",
+          "name": "ST. LOUIS COUNTY",
+          "amount": 8747819.73,
+          "total_outlays": null
+        },
+        {
+          "id": null,
+          "code": "031",
+          "name": "COOK COUNTY",
+          "amount": 3446083.27,
+          "total_outlays": null
+        },
+        {
+          "id": null,
+          "code": "075",
+          "name": "LAKE COUNTY",
+          "amount": 426541.0,
+          "total_outlays": null
+        }
+      ],
+      "disposition": "not_selected",
+      "reason": "County is an administrative place-of-performance key, not a National Forest polygon. Cook, Lake, and St. Louis Counties contain land outside Superior National Forest, while a forest boundary does not necessarily align with reported award place-of-performance county fields. Unioning these rows would therefore create a three-county series, not Superior National Forest obligations."
+    },
+    "forestNameKeywordProbe": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "retrievedAtUtc": "2026-08-11T04:36:21Z",
+      "httpStatus": 200,
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "keywords": [
+            "Superior National Forest"
+          ],
+          "place_of_performance_locations": [
+            {
+              "country": "USA",
+              "state": "MN"
+            }
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      },
+      "responseSha256": "c9f74c182e6322c491f77dd57a23709d28bf1883fc0fbbcccb0efc54578c4a2d",
+      "responseByteLength": 1143,
+      "resultRows": [
+        {
+          "aggregated_amount": 2241795.07,
+          "time_period": {
+            "fiscal_year": "2025"
+          },
+          "Contract_Obligations": 1434374.39,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 225000.0,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 582420.68,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        }
+      ],
+      "disposition": "not_selected_unstable_text_filter",
+      "reason": "The exact phrase returns a nonzero amount, but keywords are not a place-of-performance identity and the official contract does not specify which backend fields are searched. The query can omit forest activity whose award text lacks the phrase and can include text mentions that do not establish performance within the forest."
+    },
+    "byteIdenticalReplay": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "retrievedAtUtc": "2026-08-11T04:35:49Z",
+      "httpStatus": 200,
+      "body": {
+        "filters": {
+          "agencies": [
+            {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "A",
+            "B",
+            "C",
+            "D",
+            "IDV_A",
+            "IDV_B",
+            "IDV_B_A",
+            "IDV_B_B",
+            "IDV_B_C",
+            "IDV_C",
+            "IDV_D",
+            "IDV_E"
+          ],
+          "place_of_performance_locations": [
+            {
+              "country": "USA",
+              "state": "MN"
+            }
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      },
+      "responseSha256": "685c55dd28dc9824d018ce6ebb960d612e3a1d66fb9beb77862b381b47282f20",
+      "responseByteLength": 1150,
+      "byteIdenticalToPrimaryQuery": true
+    },
+    "firstPrint": {
+      "status": "registered_query_snapshot_required",
+      "basis": "USAspending revises continuously. The retrospective FY2025 fetch verifies the query shape and historical value but is not first-print evidence. A forecast target must define the outcome as the exact registered query response captured inside a preregistered post-fiscal-year snapshot window and archive the complete response bytes, following the existing USAspending adapter custody rule."
+    },
+    "adapterDisposition": {
+      "family": "usaspending-api",
+      "disposition": "extend_existing",
+      "requiredWork": "Extend the existing fiscal_year_post_scalar registered-query builder to accept sealed awarding-subagency and placeOfPerformanceLocations transforms and emit the exact agencies and place_of_performance_locations filters above; add the series binding and parser tests while preserving the registered_query_snapshot release policy and complete raw-response custody. No new source family is required."
+    },
+    "parseNotes": [
+      "The registered series identity must be exactly Forest Service as awarding subtier under Department of Agriculture plus place_of_performance_locations=[{country: USA, state: MN}]. The request filename and bill context must never be interpreted as a Superior National Forest filter.",
+      "The FY2025 response reports 46,832,556.79 as 15,398,331.29 Contract_Obligations plus 21,158,670.82 Grant_Obligations plus 10,275,554.68 Other_Obligations; every other obligation bucket is zero and all outlay fields are null.",
+      "Treat aggregated_amount as signed net award-transaction obligations and retain future deobligations. Do not relabel it as all Forest Service obligations, account spending, appropriations, budget authority, outlays, or bill-caused spending.",
+      "Do not substitute the $2,241,795.07 keyword probe or a Cook/Lake/St. Louis county union for the registered Minnesota series. Neither identifies the Superior National Forest boundary.",
+      "The local environment presented a self-signed TLS interception chain, so the successful live calls used curl --insecure against the exact official HTTPS URLs; every recorded hash and byte length is for the returned HTTP 200 response body bytes.",
+      "The primary FY2025 response and its same-session replay are byte-identical at 1,150 bytes and SHA-256 685c55dd28dc9824d018ce6ebb960d612e3a1d66fb9beb77862b381b47282f20."
+    ]
+  }
+}
