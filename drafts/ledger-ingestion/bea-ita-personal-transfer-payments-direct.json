@@ -1,0 +1,264 @@
+{
+  "proposed_concept": "bea.ita.personal_transfer_payments",
+  "status": "verified",
+  "unit": "usd_millions",
+  "cadence": "quarterly",
+  "proposedFrom": "stress-119hr5595ih",
+  "metricText": "BEA U.S. International Transactions Table 5.1 line 18 seasonally adjusted personal-transfer payments as a broad remittance-flow proxy.",
+  "note": "VERIFIED DIRECT FROM BEA, BROAD PROXY ONLY: the exact official ITA Table 5.1 line 18 query prints 18,511 million dollars for 2026 Q1. This does not reverse the Wave-1 ALFRED rejection, and it does not measure the section 4475 taxable transfer base, citizenship or nationality, funding instrument, provider qualification, excise-tax liability, or section 36C credit recovery.",
+  "adapterFamily": "bea-release (ITA sibling variant required)",
+  "billSlugs": [
+    "stress-119hr5595ih"
+  ],
+  "publisher": "U.S. Bureau of Economic Analysis",
+  "statisticalProduct": "U.S. International Transactions, Table 5.1, line 18, personal transfers, quarterly seasonally adjusted",
+  "likelyUrlPattern": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-11T04:59:20Z",
+    "reason": "A fresh official BEA iTable-core fetch identified product 1 as International Transactions (ITA), table-list key 62 as Table 5.1 with A, QSA, and QNSA views, and returned the exact selected 2026 Q1 QSA line 18 row. The response prints the table title, million-dollar unit, seasonally adjusted basis, period, row label, and value 18,511. The concept and current public retrieval path are exact. A separate exact /api/data probe using BEA's public sample identity was rejected as inactive and is retained only as negative transport evidence, not as verification. The retrospective successful fetch does not prove release-time custody, and the existing bea-release implementation is hard-coded to a GDP release page and NIPA Table 5.3.5 response shape, so admission requires an ITA sibling variant rather than unchanged reuse.",
+    "scope": {
+      "verifiedConcept": "BEA ITA Table 5.1 line 18 personal-transfer payments for all U.S. international counterparties, quarterly seasonally adjusted, in millions of dollars.",
+      "contextForBill": "This is the recurring broad personal-transfer proxy named by the H.R. 5595 bill mapper. It may provide contextual evidence about aggregate remittance-like flows but cannot directly test the bill's tax base, exemptions, collections, credits, reporting, or causal effect.",
+      "excludes": [
+        "the section 4475 remittance-transfer excise-tax base, including its funding-instrument rules",
+        "sender citizenship or nationality",
+        "qualified-provider status or provider verification activity",
+        "tax paid, tax remitted, gross tax liability, or Treasury receipts",
+        "section 36C claims, eligibility, or refundable-credit recovery",
+        "transfers caused by, attributable to, or conditional on H.R. 5595"
+      ]
+    },
+    "wave1AlfredRejection": {
+      "request": "drafts/ledger-ingestion/bea-ita-personal-transfer-payments.json",
+      "outcome": "rejected",
+      "blocker": "no_exact_alfred_series",
+      "distinction": "That rejection stands for the alfred-fred family: IEAMSIRN is the broader secondary-income payment aggregate and BOPGR is broader and discontinued. This request verifies the exact concept through BEA's direct official table API instead of relabeling either FRED mismatch."
+    },
+    "datasetIdentityEvidence": {
+      "method": "GET",
+      "endpoint": "https://apps.bea.gov/iTablecore/data/app/62",
+      "retrievedAtUtc": "2026-08-11T04:59:20Z",
+      "httpStatus": 200,
+      "mediaType": "text/plain; charset=utf-8",
+      "responseSha256": "af7264adfcf41f21287a9bc17b756268961632995532fa531a27859ecc691f90",
+      "responseByteLength": 919,
+      "applicationId": 62,
+      "applicationNameVerbatim": "International Transactions, International Services, and International Investment Position Tables",
+      "matchedProductRowVerbatim": {
+        "RowID": "1",
+        "tabletitle": "International Transactions (ITA)",
+        "Levels": "0",
+        "nolink": ""
+      }
+    },
+    "tableIdentityEvidence": {
+      "method": "POST",
+      "endpoint": "https://apps.bea.gov/iTablecore/data/app/GetStep",
+      "retrievedAtUtc": "2026-08-11T04:59:20Z",
+      "httpStatus": 200,
+      "mediaType": "application/json; charset=utf-8",
+      "body": {
+        "appid": 62,
+        "stepnum": 1,
+        "data": [
+          [
+            "Product",
+            "1"
+          ]
+        ]
+      },
+      "responseSha256": "0a4caf785255d563e1af31ded566f096d9c0b207229a6735cb3cffbb47f36e1c",
+      "responseByteLength": 10912,
+      "matchedTableRowVerbatim": {
+        "RowID": "62",
+        "tabletitle": "Table 5.1. U.S. International Transactions in Secondary Income<span class=\"text-muted\"> ((A, QSA, QNSA) (1999-present))</span>",
+        "Levels": "0",
+        "nolink": "",
+        "listlink": "0",
+        "SortOrder": "6.200000000000000e+001"
+      }
+    },
+    "registeredDataApiProbe": {
+      "purpose": "Record the exact registered BEA Data API candidate separately from the successful public iTable-core request. This response does not verify the candidate indicator or value because BEA rejected the public sample identity before serving data.",
+      "method": "GET",
+      "endpoint": "https://apps.bea.gov/api/data/",
+      "retrievedAtUtc": "2026-08-11T05:07:20Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "queryParameters": {
+        "UserID": "samplekey",
+        "method": "GetData",
+        "DataSetName": "ITA",
+        "Indicator": "SecIncPayPersonal",
+        "AreaOrCountry": "AllCountries",
+        "Frequency": "QSA",
+        "Year": "2026",
+        "ResultFormat": "JSON"
+      },
+      "exactUrl": "https://apps.bea.gov/api/data/?UserID=samplekey&method=GetData&DataSetName=ITA&Indicator=SecIncPayPersonal&AreaOrCountry=AllCountries&Frequency=QSA&Year=2026&ResultFormat=JSON",
+      "responseSha256": "26690aac5a9dcef4b9bae8b579511dc1f4ad79b707c079d13ced0a4790bf7661",
+      "responseByteLength": 624,
+      "errorCodeVerbatim": "4",
+      "errorDescriptionVerbatim": "This UserId is not active. Please activate it and try again.",
+      "disposition": "not_value_evidence; no BEA Data API credential was available, so no authenticated /api/data row is claimed"
+    },
+    "query": {
+      "method": "POST",
+      "endpoint": "https://apps.bea.gov/iTablecore/data/app/GetStep",
+      "headers": {
+        "Accept": "application/json, text/plain",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "appid": 62,
+        "stepnum": 2,
+        "data": [
+          [
+            "Product",
+            "1"
+          ],
+          [
+            "TableList",
+            "62"
+          ],
+          [
+            "Filter_#1",
+            "1"
+          ],
+          [
+            "Filter_#2",
+            "1"
+          ],
+          [
+            "Filter_#3",
+            "18"
+          ]
+        ]
+      },
+      "selectionMeaning": {
+        "appid": "International Transactions, International Services, and International Investment Position Tables",
+        "Product=1": "International Transactions (ITA)",
+        "TableList=62": "Table 5.1. U.S. International Transactions in Secondary Income",
+        "Filter_#1=1": "2026 in the fetched prompt catalog",
+        "Filter_#2=1": "Quarterly seasonally adjusted",
+        "Filter_#3=18": "Line 18 Personal transfers"
+      },
+      "field": "Prompts[Name=TheTableFlexibleIipIta].PromtData.Table.TD cells at line 18 under the 2026 Q1 seasonally adjusted header"
+    },
+    "fetchedEvidence": {
+      "retrievedAtUtc": "2026-08-11T04:59:20Z",
+      "httpStatus": 200,
+      "mediaType": "application/json; charset=utf-8",
+      "responseSha256": "d482e10713b19c01824882b6e6f7ee01d06619222d35b27cb6f97fa95fdf0f35",
+      "responseByteLength": 16089,
+      "responseEncoding": "The HTTP body is a JSON string whose contents are the response object; PromtData and Table are nested JSON strings.",
+      "promptName": "TheTableFlexibleIipIta",
+      "tableDescriptionVerbatim": "Release Date: June 24, 2026 - Next Release Date: September 24, 2026",
+      "tableTitleVerbatim": "Table 5.1. U.S. International Transactions in Secondary Income",
+      "tableSubtitleVerbatim": "[Millions of dollars]",
+      "headerCellsVerbatim": [
+        "Seasonally adjusted",
+        "2026",
+        "Q1"
+      ],
+      "selectedRowCellsVerbatim": {
+        "line": "18",
+        "label": "Personal transfers <sup>3</sup>",
+        "value": "18,511"
+      },
+      "fetchedValue": 18511,
+      "normalizedValue": 18511,
+      "normalizedUnit": "usd_millions",
+      "ancestorRowsReturnedVerbatim": [
+        {
+          "line": "11",
+          "label": "Secondary income (current transfer) payments (table 1.1, line 16)",
+          "value": "105,899"
+        },
+        {
+          "line": "17",
+          "label": "Private transfer payments",
+          "value": "94,285"
+        }
+      ]
+    },
+    "releaseNoticeEvidence": {
+      "url": "https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-1st-quarter-2026-and-annual-update",
+      "retrievedAtUtc": "2026-08-11T04:59:20Z",
+      "httpStatus": 200,
+      "mediaType": "text/html; charset=UTF-8",
+      "sha256": "617c9229ac39ded608b64a71bc30c3c10d713cb1885ee53344d6fb3bc4dd227d",
+      "byteLength": 58604,
+      "titleVerbatim": "U.S. International Transactions and Investment Position, 1st Quarter 2026 and Annual Update",
+      "embargoLineVerbatim": "EMBARGOED UNTIL RELEASE AT 8:30 a.m. EDT, Wednesday, June 24, 2026",
+      "tableLink": "https://apps.bea.gov/iTable/?reqid=62&step=6&isuri=1&tablelist=62&product=1",
+      "nextReleaseVerbatim": "Next release: September 24, 2026, at 8:30 a.m. EDT",
+      "custodyWarning": "The notice says the first-quarter data will be superseded when second-quarter statistics are released and that the original data will then be available in BEA's Data Archive. The live table must therefore be captured and authenticated on the registered release day rather than treated as immutable."
+    },
+    "releaseCalendarEvidence": {
+      "url": "https://www.bea.gov/news/schedule",
+      "retrievedAtUtc": "2026-08-11T04:59:21Z",
+      "httpStatus": 200,
+      "mediaType": "text/html; charset=UTF-8",
+      "sha256": "4b5c2bb5fbb902cb3f05ddc99dc2753afb66894f9307463f606d218f15b96198",
+      "byteLength": 78063,
+      "suggestedSeedPeriod": "2026-Q2",
+      "suggestedResolutionDate": "2026-09-24",
+      "scheduledReleaseVerbatim": "U.S. International Transactions and Investment Position, 2nd Quarter 2026",
+      "scheduledDateVerbatim": "September 24",
+      "scheduledTimeVerbatim": "8:30 AM"
+    },
+    "match": {
+      "concept": "exact for BEA ITA Table 5.1 line 18 personal-transfer payments; broad and non-causal relative to H.R. 5595",
+      "unit": "exact: usd_millions",
+      "cadence": "exact: quarterly",
+      "seasonalBasis": "exact: seasonally adjusted",
+      "period": "exact: 2026-Q1"
+    },
+    "firstPrint": {
+      "status": "release_day_capture_required",
+      "basis": "The 2026-08-11 fetch verifies the exact current BEA path and value but does not prove what bytes were served at 8:30 a.m. EDT on 2026-06-24. A forecast must use the official release-calendar day, authenticate the matching ITA/IIP release notice, capture the complete exact-query response inside the registered window, and refuse a late mutable-table fetch. BEA's later Data Archive can support historical checks but does not replace prospective release-time custody."
+    },
+    "adapterSpecProposal": {
+      "adapter": "bea-release",
+      "variant": "ita-itable",
+      "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+      "dataEndpoint": "https://apps.bea.gov/iTablecore/data/app/GetStep",
+      "applicationId": 62,
+      "productId": "1",
+      "dataset": "ITA",
+      "tableList": "62",
+      "table": "Table 5.1. U.S. International Transactions in Secondary Income",
+      "lineNumber": "18",
+      "rowLabel": "Personal transfers",
+      "frequency": "QSA",
+      "promptName": "TheTableFlexibleIipIta",
+      "valueTransform": {
+        "operation": "identity"
+      },
+      "unit": "usd_millions",
+      "label": "U.S. personal-transfer payments, quarterly seasonally adjusted",
+      "source_name": "bea",
+      "source_table": "U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted",
+      "concept_authority": "bea",
+      "releasePolicy": "first_print",
+      "historyMirror": null
+    },
+    "adapterDisposition": {
+      "family": "bea-release",
+      "disposition": "extend_existing",
+      "variantRequired": "ita-itable",
+      "requiredWork": "Add a sibling ITA path under the BEA official-release family. It must authenticate the U.S. International Transactions and Investment Position release page rather than a GDP advance-release page; fetch the app-62 prompt catalog and derive the requested year's current ListKey instead of assuming Filter_#1=1 forever; seal product 1, table-list 62, QSA, and line 18; parse TheTableFlexibleIipIta's nested TD-cell response rather than the NIPA Data_Rows shape; verify the displayed year, quarter, unit, seasonal basis, line number, and normalized row label; and preserve complete release-page and table-response bytes with release-day refusal behavior. No unrelated new source family is required, but the current NIPA parser cannot be reused unchanged."
+    },
+    "parseNotes": [
+      "The line filter returns ancestor lines 11 and 17 as well as selected line 18. Select the exact line-number and normalized Personal transfers label pair; never read the parent secondary-income or private-transfer totals.",
+      "Filter_#1 values are prompt-catalog ListKeys, not literal years. The fetched catalog maps key 1 to 2026, but a resolver must derive and verify this mapping for each run.",
+      "Filter_#2=1 means quarterly seasonally adjusted. Do not substitute annual or quarterly not-seasonally-adjusted values.",
+      "The table already prints millions of dollars, so the normalized usd_millions value uses an identity transform; do not apply the NIPA family's 0.001 conversion.",
+      "The Wave-1 ALFRED rejection remains evidence that no exact history mirror is available. Do not attach IEAMSIRN or BOPGR as if either were the same series.",
+      "Do not relabel this broad personal-transfer flow as the section 4475 taxable base, tax collections, exempt transfers, section 36C claims, or an effect of H.R. 5595."
+    ]
+  }
+}

@@ -62,7 +62,7 @@ Work items (ONE per session; [x] when the request file is written):
   ALFRED vintages like the wave-1 BEA requests. If no FRED mirror
   exists, document and mark for a direct-BLS-QCEW family in Wave B
   (outcome proposed with that requiredWork).
-- [ ] 7. bea-ita-personal-transfer-payments-direct.json — bill
+- [x] 7. bea-ita-personal-transfer-payments-direct.json — bill
   stress-119hr5595ih (REMIT). The bill mapper names BEA ITA Table 5.1
   line 18 personal-transfer payments. Wave-1 rejected the FRED route
   (no exact mirror); this request uses the DIRECT BEA API (the
