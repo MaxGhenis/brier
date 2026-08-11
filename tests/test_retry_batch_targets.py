@@ -564,7 +564,9 @@ def test_workflow_wires_the_retry_grace_flag() -> None:
     # retry mode and bind the retry input through env, and the register
     # job must skip adoption and both registration write steps.
     workflow = (ROOT / ".github" / "workflows" / "roll-docket.yml").read_text()
-    assert "--enforce-run-grace" in workflow
+    # Match the executable line, not prose: a comment mentioning the flag
+    # must not satisfy this pin.
+    assert 'args+=(--enforce-run-grace)' in workflow
     assert workflow.count("RETRY_BATCH: ${{ github.event.inputs.retry_batch }}") >= 2
     assert (
         workflow.count("github.event.inputs.retry_batch == ''") >= 3
