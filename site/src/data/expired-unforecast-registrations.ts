@@ -44,6 +44,23 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   "census.mtis.total_business_inventories_level.may_2026.first_print",
   "bls.ces.average_hourly_earnings_private.june_2026.first_print",
   "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print",
+  // The 2026-08-03 Farm Bill CRP conditional-pair registrations
+  // (ticket …7916cf57) could never be forecast: every documented
+  // attempt failed closed and published nothing. The two August 3 rolls
+  // made four generation attempts (runs 30783158439 and 30840402885:
+  // two failed before producing run manifests, two produced candidate
+  // cells that failed anchor validation), and the 2026-08-04 ticketed
+  // local run refused when FSA's statistics site — the pair's sole
+  // registered source — failed to serve the official summary. FSA was
+  // unreachable that day and still unreachable at the published grace
+  // deadline (2026-08-10 18:15 UTC). The minted ticket and the refusal
+  // report on issue #128 are public; the raw refusal trace is retained
+  // off-repo. The 2027-09 first print is far in the future, but the
+  // registrations pin an information set from August 3 and their grace
+  // has passed; both arms terminate together, honestly, on the record.
+  // A fresh pair may be registered if the source recovers.
+  "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.ceiling_27_million",
+  "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.no_fy2027_31_ceiling",
 ] as const;
 
 export const EXPIRED_UNFORECAST_SET: ReadonlySet<string> = new Set(
