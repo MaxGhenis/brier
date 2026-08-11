@@ -29,6 +29,7 @@ APEL_SERIES = {
     "usaspending.dod.small_business_contract_obligation_share",
     "usaspending.dhs.title_vi.award_transaction_obligations",
 }
+WAVE_B1_SPEC_ONLY_SERIES = {"usaspending.cdfi.program_obligations"}
 
 
 def apel_templates() -> list[dict]:
@@ -76,7 +77,8 @@ def test_apel_templates_carry_exactly_the_template_keys() -> None:
 def test_registry_and_resolver_specs_match_bidirectionally_on_all_seven_keys() -> None:
     registry = {entry["series"]: entry for entry in apel_templates()}
     specs = resolve_pending.USASPENDING_ADAPTERS
-    assert set(registry) == set(specs) == APEL_SERIES
+    assert set(registry) == APEL_SERIES
+    assert set(specs) == APEL_SERIES | WAVE_B1_SPEC_ONLY_SERIES
 
     for series, entry in registry.items():
         spec = specs[series]
@@ -130,6 +132,12 @@ def share_transform() -> dict:
 def dhs_award_transaction_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
         "usaspending.dhs.title_vi.award_transaction_obligations"
+    ]["transform"]
+
+
+def cdfi_program_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.cdfi.program_obligations"
     ]["transform"]
 
 
@@ -292,6 +300,74 @@ def test_dhs_post_body_is_the_exact_award_transaction_query() -> None:
     assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
         "340c6f761a86878475118a2dea32711986652d2d019c6cbd4bed2c2efdb3fb56"
     )
+
+
+def test_cdfi_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-cdfi-fund-program-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.cdfi.program_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        cdfi_program_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 315
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "55b613d18a2f4763b68355f01d37a02f07700c0330320b658f2bd676a22b1543"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "ed1225baa11ce0e294590cab40927060f62ebea1df9ea094909b797a0f06f0f1"
+    )
+    assert evidence["responseByteLength"] == 1_137
+    assert resolve_pending.usaspending_fiscal_year_amount(
+        {"results": evidence["resultRows"]},
+        "2025",
+    ) == 319_455_176.0
+
+
+def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.cdfi.program_obligations"
+    ]
+    assert spec["label"] == (
+        "CDFI Fund financial-assistance award-transaction obligations, "
+        "fiscal year total"
+    )
+    assert "signed net federal_action_obligation" in spec["source_concept"]
+    assert "non-award financial-account obligations and outlays" in spec[
+        "evidence_notes"
+    ]
+    assert "bill-specific amended-section-113 activity" in spec["evidence_notes"]
+
+
+def test_fiscal_year_post_body_rejects_mixed_or_malformed_scope_filters() -> None:
+    mixed = copy.deepcopy(cdfi_program_transform())
+    mixed["treasuryAccountComponents"] = copy.deepcopy(
+        dhs_award_transaction_transform()["treasuryAccountComponents"]
+    )
+    with pytest.raises(ValueError, match="fiscal-year POST plan"):
+        resolve_pending.usaspending_fiscal_year_post_body("2025", mixed)
+
+    malformed = copy.deepcopy(cdfi_program_transform())
+    malformed["agency"]["tier"] = "toptier"
+    with pytest.raises(ValueError, match="awarding-subtier"):
+        resolve_pending.usaspending_fiscal_year_post_body("2025", malformed)
 
 
 def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> None:

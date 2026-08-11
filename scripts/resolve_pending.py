@@ -3291,6 +3291,69 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "100 * small_business contract obligations / all contract obligations"
         ),
     },
+    "usaspending.cdfi.program_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.cdfi.program_obligations"
+        ),
+        "label": (
+            "CDFI Fund financial-assistance award-transaction obligations, "
+            "fiscal year total"
+        ),
+        "unit": "usd",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "agency": {
+                "name": "Community Development Financial Institutions Fund",
+                "tier": "subtier",
+                "type": "awarding",
+            },
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+            ],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, CDFI Fund awarding-subagency "
+            "financial-assistance award transactions, obligations by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime financial-assistance "
+            "award transactions whose awarding subtier is Community Development "
+            "Financial Institutions Fund"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is signed net federal_action_obligation across prime "
+            "financial-assistance award transactions whose awarding subtier is the "
+            "Community Development Financial Institutions Fund. It excludes "
+            "non-award financial-account obligations and outlays and does not "
+            "identify purchases, guarantees, loan-loss reserves, or any "
+            "bill-specific amended-section-113 activity."
+        ),
+    },
     "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
@@ -3388,12 +3451,13 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
     },
 }
 for _spec in USASPENDING_ADAPTERS.values():
-    _spec["evidence_notes"] = (
+    _spec.setdefault(
+        "evidence_notes",
         "Registered-query snapshot for {period} captured from {source_url} "
         "inside the preregistered snapshot window. USAspending revises "
         "continuously, so the outcome is defined as the value the pinned "
         "query returned on the registered capture date; the full response "
-        "bytes are archived as evidence."
+        "bytes are archived as evidence.",
     )
 
 USASPENDING_BINDING_TEMPLATE_KEYS = {
@@ -3491,11 +3555,29 @@ def usaspending_fiscal_year_post_body(
     fiscal_year: str,
     transform: Mapping[str, Any],
 ) -> dict[str, Any]:
-    """Build one bound spending-over-time request for registered TAS filters."""
+    """Build one bound spending-over-time request for a registered scope."""
 
     award_codes = transform.get("awardTypeCodes")
     components = transform.get("treasuryAccountComponents")
+    agency = transform.get("agency")
     factor = transform.get("factor")
+    common_keys = {
+        "operation",
+        "factor",
+        "requestMethod",
+        "fiscalYear",
+        "group",
+        "spendingLevel",
+        "awardTypeCodes",
+    }
+    scope_keys = {
+        key
+        for key, value in (
+            ("treasuryAccountComponents", components),
+            ("agency", agency),
+        )
+        if value is not None
+    }
     if (
         transform.get("operation") != "multiply"
         or isinstance(factor, bool)
@@ -3510,9 +3592,29 @@ def usaspending_fiscal_year_post_body(
         or not award_codes
         or not all(isinstance(code, str) and code for code in award_codes)
         or len(set(award_codes)) != len(award_codes)
-        or not isinstance(components, list)
-        or not components
+        or len(scope_keys) != 1
+        or set(transform) != common_keys | scope_keys
     ):
+        raise ValueError("registered USAspending fiscal-year POST plan is malformed")
+
+    if agency is not None:
+        if (
+            not isinstance(agency, dict)
+            or set(agency) != {"type", "tier", "name"}
+            or agency.get("type") != "awarding"
+            or agency.get("tier") != "subtier"
+            or not isinstance(agency.get("name"), str)
+            or not agency["name"]
+        ):
+            raise ValueError("registered USAspending awarding-subtier is malformed")
+        filters = _usaspending_advanced_filters(fiscal_year, transform)
+        return {
+            "filters": filters,
+            "group": "fiscal_year",
+            "spending_level": "transactions",
+        }
+
+    if not isinstance(components, list) or not components:
         raise ValueError("registered USAspending TAS plan is malformed")
 
     normalized_components: list[dict[str, str]] = []

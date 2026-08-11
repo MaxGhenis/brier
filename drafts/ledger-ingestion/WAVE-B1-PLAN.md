@@ -13,7 +13,7 @@ Docket entries: mirror the us-dod-*-fy2026 registered_query_snapshot
 annual entries in scripts/docket_series.json — and NEVER add
 extras.resolutionDate to a calendar entry (the docket lint refuses it).
 
-- [ ] 1. CDFI Fund (S. 2718): spec `usaspending.cdfi.program_obligations`
+- [x] 1. CDFI Fund (S. 2718): spec `usaspending.cdfi.program_obligations`
   + awarding-subtier assistance filter support in the fiscal-year POST
   builder + tests pinning the exact Wave-A body
   (usaspending-cdfi-fund-program-obligations.json; FY2025
