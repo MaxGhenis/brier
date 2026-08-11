@@ -3414,6 +3414,73 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "budget authority, authorization, or bill-caused spending."
         ),
     },
+    "usaspending.ntia.broadband_program_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.ntia."
+            "broadband_program_obligations"
+        ),
+        "label": (
+            "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
+            "Fund financial-assistance award-transaction obligations, fiscal "
+            "year total"
+        ),
+        "unit": "usd",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+            ],
+            "programNumbers": ["11.038"],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, financial-assistance award "
+            "transactions filtered to Assistance Listing 11.038, obligations "
+            "by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime financial-assistance "
+            "award transactions whose Assistance Listing is 11.038, grouped by "
+            "action-date federal fiscal year"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is the whole Assistance Listing 11.038 signed net "
+            "award-transaction aggregate; no awarding-agency, awarding-subagency, "
+            "Treasury-account, title-text, description-text, broadband-program-union, "
+            "or FCC filter is applied. This preexisting advanced-wireless grant "
+            "aggregate is context only. It does not measure establishment, "
+            "membership, work, draft or final reports, the public-comment process, "
+            "recommendations, or outcomes of the proposed 6G Task Force; spending "
+            "caused or authorized by H.R. 2449; all NTIA, NIST, Commerce, or FCC "
+            "obligations; or all obligations or outlays of federal account "
+            "013-0565. It also excludes non-award financial-account obligations, "
+            "appropriations, budget authority, and outlays."
+        ),
+    },
     "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),

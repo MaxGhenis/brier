@@ -32,6 +32,7 @@ APEL_SERIES = {
 WAVE_B1_SPEC_ONLY_SERIES = {
     "usaspending.cdfi.program_obligations",
     "usaspending.ondcp.hidta_program_obligations",
+    "usaspending.ntia.broadband_program_obligations",
 }
 
 
@@ -147,6 +148,12 @@ def cdfi_program_transform() -> dict:
 def hidta_program_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
         "usaspending.ondcp.hidta_program_obligations"
+    ]["transform"]
+
+
+def ntia_broadband_program_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ntia.broadband_program_obligations"
     ]["transform"]
 
 
@@ -422,6 +429,67 @@ def test_hidta_spec_preserves_the_wave_a_scope_caveats() -> None:
         "evidence_notes"
     ]
     assert "bill-caused spending" in spec["evidence_notes"]
+
+
+def test_ntia_broadband_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-ntia-broadband-program-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ntia.broadband_program_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        ntia_broadband_program_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 235
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "232ff1c92f7ee2a962a8e54cc1779b1bee1e46976551fc71664b81a9dee5f205"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "bcda917cb217ca7fb442ff3b32aa291e11696326043d3a33205b66b9ef13cf64"
+    )
+    assert evidence["responseByteLength"] == 1_132
+    assert resolve_pending.usaspending_fiscal_year_amount(
+        {"results": evidence["resultRows"]},
+        "2025",
+    ) == 409_852_406.47
+
+
+def test_ntia_broadband_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ntia.broadband_program_obligations"
+    ]
+    assert spec["label"] == (
+        "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
+        "Fund financial-assistance award-transaction obligations, fiscal year total"
+    )
+    assert spec["transform"]["programNumbers"] == ["11.038"]
+    assert "agency" not in spec["transform"]
+    assert "treasuryAccountComponents" not in spec["transform"]
+    assert "signed net federal_action_obligation" in spec["source_concept"]
+    assert "whole Assistance Listing 11.038" in spec["evidence_notes"]
+    assert "no awarding-agency, awarding-subagency" in spec["evidence_notes"]
+    assert "outcomes of the proposed 6G Task Force" in spec["evidence_notes"]
+    assert "spending caused or authorized by H.R. 2449" in spec["evidence_notes"]
+    assert "all NTIA, NIST, Commerce, or FCC obligations" in spec["evidence_notes"]
+    assert "all obligations or outlays of federal account 013-0565" in spec[
+        "evidence_notes"
+    ]
 
 
 def test_fiscal_year_post_body_rejects_mixed_or_malformed_scope_filters() -> None:

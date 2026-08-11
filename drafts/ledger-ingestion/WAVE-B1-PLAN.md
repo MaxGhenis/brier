@@ -22,7 +22,7 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   + sealed program_numbers filter (AL 95.001) + tests
   (usaspending-ondcp-hidta-program-obligations.json; FY2025
   $271,657,675.60).
-- [ ] 3. NTIA broadband (H.R. 2449): spec
+- [x] 3. NTIA broadband (H.R. 2449): spec
   `usaspending.ntia.broadband_program_obligations` reusing the
   program_numbers filter (AL 11.038) + tests
   (usaspending-ntia-broadband-program-obligations.json; FY2025
