@@ -1,0 +1,296 @@
+{
+  "proposed_concept": "bls.qcew.child_day_care_services.annual_avg_employment",
+  "status": "proposed",
+  "unit": "count",
+  "cadence": "annual",
+  "proposedFrom": "farm-bill-2-0",
+  "metricText": "BLS QCEW annual average of monthly employment for NAICS 624410 Child care services in U.S. private establishments.",
+  "note": "PROPOSED FOR DIRECT BLS QCEW, NOT ALFRED: BLS directly prints the U.S. private-ownership annual average, but the exact ENU series has no FRED/ALFRED mirror. This national private-employment series is narrower than the bill report's fixed rural-county, all-covered-employment panel and must not be described as rural employment, all ownerships, child-care slots, affordability, or bill-attributable employment.",
+  "adapterFamily": "bls-qcew (annual variant required)",
+  "billSlugs": [
+    "farm-bill-2-0"
+  ],
+  "publisher": "U.S. Bureau of Labor Statistics",
+  "statisticalProduct": "Quarterly Census of Employment and Wages annual-average industry slice, U.S. private ownership, NAICS 624410 Child care services",
+  "likelyUrlPattern": "https://data.bls.gov/cew/data/api/{year}/a/industry/624410.csv",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "proposed",
+    "verifiedAtUtc": "2026-08-11T04:50:47Z",
+    "reason": "Fresh FRED searches found six NAICS 624410 series, all from BLS Industry Productivity, and zero results when either 624410 or the exact child-day-care wording was filtered to FRED's QCEW tag. The BLS-derived private QCEW series ID ENUUS000105624410 returns 36 monthly rows from the official BLS timeseries API for 2023-2025, while both its FRED CSV URL and ALFRED series URL return 404. The official BLS annual industry slices separately print private annual_avg_emplvl values of 954,796 for 2023, 983,412 for 2024, and 991,735 for 2025. The concept is therefore source-valid but cannot use the alfred-fred family; Wave B must extend the existing direct BLS QCEW family to annual slices and first-print custody.",
+    "blocker": "no_exact_alfred_series",
+    "scope": {
+      "billMappedMetric": "QCEW annual-average child-day-care establishments and employment in a preregistered fixed rural-county panel.",
+      "proposedNarrowerSeries": "U.S. total geography (area_fips US000), private ownership only (own_code 5), NAICS 624410, annual_avg_emplvl.",
+      "whyNarrower": "The direct national industry slice prints one clean recurring private row. It does not identify the bill report's rural-county panel, and the BLS timeseries API reports that the constructed total-covered series ENUUS000100624410 does not exist.",
+      "excludes": [
+        "Federal, State, and local government employment",
+        "a fixed rural-county panel or any rural/non-rural split",
+        "self-employed providers and other workers outside QCEW unemployment-insurance coverage",
+        "child-care slots, enrollment, capacity, prices, affordability, quality, or provider counts",
+        "employment caused by, attributable to, or conditional on enactment of the bill"
+      ]
+    },
+    "blsTimeseriesQueryEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/",
+      "body": {
+        "seriesid": [
+          "ENUUS000105624410",
+          "ENUUS000100624410"
+        ],
+        "startyear": "2023",
+        "endyear": "2025"
+      },
+      "retrievedAtUtc": "2026-08-11T04:50:47Z",
+      "httpStatus": 200,
+      "responseSha256": "4ea554188fc7ac87b89c459db16fc43af0fe0d5d9c56769f83969b80e7c32e68",
+      "responseByteLength": 3751,
+      "responseStatus": "REQUEST_SUCCEEDED",
+      "privateSeries": {
+        "seriesId": "ENUUS000105624410",
+        "rowCount": 36,
+        "newestVerbatim": {
+          "year": "2025",
+          "period": "M12",
+          "periodName": "December",
+          "value": "985947",
+          "footnoteCode": "P",
+          "footnoteText": "Preliminary."
+        }
+      },
+      "totalCoveredSeries": {
+        "seriesId": "ENUUS000100624410",
+        "rowCount": 0,
+        "messageVerbatim": "Series does not exist for Series ENUUS000100624410"
+      }
+    },
+    "authoritativeDirectEvidence": {
+      "queryTemplate": {
+        "method": "GET",
+        "endpoint": "https://data.bls.gov/cew/data/api/{year}/a/industry/624410.csv",
+        "exactRowFilter": {
+          "area_fips": "US000",
+          "own_code": "5",
+          "industry_code": "624410",
+          "agglvl_code": "18",
+          "size_code": "0",
+          "year": "{year}",
+          "qtr": "A",
+          "disclosure_code": ""
+        },
+        "field": "annual_avg_emplvl"
+      },
+      "classificationEvidence": [
+        {
+          "url": "https://data.bls.gov/cew/doc/titles/industry/industry_titles.csv",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "sha256": "facc122ef582f3efdbb5294f103331894d8fdab694de38e4ee7bff1b941ab8e1",
+          "byteLength": 164248,
+          "matchedRowVerbatim": "\"624410\",\"NAICS 624410 Child care services\""
+        },
+        {
+          "url": "https://data.bls.gov/cew/doc/titles/ownership/ownership_titles.csv",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "sha256": "9586b30199a494e1add8615998638801b58cc7d52dacacd5e62b41feab5b11b6",
+          "byteLength": 230,
+          "matchedRowVerbatim": "5,\"Private\""
+        },
+        {
+          "url": "https://data.bls.gov/cew/doc/titles/area/area_titles.csv",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "sha256": "92ec00f591bd986cd46e027a05e35b33b0d2d724f3b76c96969f0e73145698d6",
+          "byteLength": 343559,
+          "matchedRowVerbatim": "\"US000\",\"U.S. TOTAL\""
+        }
+      ],
+      "currentPrintAnchors": [
+        {
+          "year": "2023",
+          "url": "https://data.bls.gov/cew/data/api/2023/a/industry/624410.csv",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "sha256": "57418afd99c331b3921f0dcd4223363b8dff33ced09fb1be88d6683c41be1ee7",
+          "byteLength": 622882,
+          "rowVerbatim": "\"US000\",\"5\",\"624410\",\"18\",\"0\",\"2023\",\"A\",\"\",78107,954796,30311804130,13497770573,209817098,611,31747,\"\",1.00,1.00,1.00,1.00,1.00,1.00,1.00,\"\",2011,2.6,63979,7.2,3289514313,12.2,1202751003,9.8,11108755,5.6,28,4.8,1413,4.7",
+          "fetchedValue": 954796,
+          "field": "annual_avg_emplvl"
+        },
+        {
+          "year": "2024",
+          "url": "https://data.bls.gov/cew/data/api/2024/a/industry/624410.csv",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "sha256": "8b1901d7e70f1b7427ff4ce0c62c809c77bdd74a226ca021d2e41cce7b63e940",
+          "byteLength": 609279,
+          "rowVerbatim": "\"US000\",\"5\",\"624410\",\"18\",\"0\",\"2024\",\"A\",\"\",78926,983412,32054015762,14140646676,218893484,627,32595,\"\",1.00,1.00,1.00,1.00,1.00,1.00,1.00,\"\",819,1.0,28616,3.0,1742211632,5.7,642876103,4.8,9076386,4.3,16,2.6,848,2.7",
+          "fetchedValue": 983412,
+          "field": "annual_avg_emplvl"
+        },
+        {
+          "year": "2025",
+          "url": "https://data.bls.gov/cew/data/api/2025/a/industry/624410.csv",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "sha256": "a4ebb81ec1159b1c3faa1670a32dc77598cf51178d9e17c630cb289ea568c3a9",
+          "byteLength": 537503,
+          "rowVerbatim": "\"US000\",\"5\",\"624410\",\"18\",\"0\",\"2025\",\"A\",\"\",79523,991735,33048847303,14386627683,222223718,641,33324,\"\",1.00,1.00,1.00,1.00,1.00,1.00,1.00,\"\",597,0.8,8323,0.8,994831541,3.1,245981007,1.7,3330234,1.5,14,2.2,729,2.2",
+          "fetchedValue": 991735,
+          "field": "annual_avg_emplvl"
+        }
+      ],
+      "monthlyCrossCheck": [
+        {
+          "year": "2023",
+          "monthlyObservationCount": 12,
+          "monthlyValueSum": 11457554,
+          "arithmeticMean": 954796.1666666666,
+          "printedAnnualAverage": 954796
+        },
+        {
+          "year": "2024",
+          "monthlyObservationCount": 12,
+          "monthlyValueSum": 11800938,
+          "arithmeticMean": 983411.5,
+          "printedAnnualAverage": 983412
+        },
+        {
+          "year": "2025",
+          "monthlyObservationCount": 12,
+          "monthlyValueSum": 11900824,
+          "arithmeticMean": 991735.3333333334,
+          "printedAnnualAverage": 991735,
+          "currentMonthlyFootnote": "Preliminary."
+        }
+      ],
+      "anchorLimitation": "These are live current-print selector anchors, not authenticated historical first prints. They prove the exact direct-BLS path and row identity but do not establish first-print custody."
+    },
+    "fredMirrorSearchEvidence": {
+      "searches": [
+        {
+          "url": "https://fred.stlouisfed.org/searchresults?st=624410",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "responseSha256": "71b91ef897c99c4b5b5ac8c1ad95097a0752ce88ed80049411f9b3ef83da4ce6",
+          "responseByteLength": 52071,
+          "resultCount": 6,
+          "resultSeriesIds": [
+            "IPURN624410L010000000",
+            "IPURN624410L200000000",
+            "IPURN624410L201000000",
+            "IPURN624410W010000000",
+            "IPURN624410W200000000",
+            "IPURN624410W201000000"
+          ],
+          "qcewSeriesFound": false
+        },
+        {
+          "url": "https://fred.stlouisfed.org/searchresults?st=624410&t=qcew",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "responseSha256": "da9bf2b2438ee3f2d611410d6810617f09ff7ee61f389ab85e0131c70c28f0f5",
+          "responseByteLength": 44499,
+          "resultCount": 0
+        },
+        {
+          "url": "https://fred.stlouisfed.org/searchresults?st=child%20day%20care%20services&t=qcew",
+          "retrievedAtUtc": "2026-08-11T04:50:47Z",
+          "httpStatus": 200,
+          "responseSha256": "3c116030c902b07beb3d53f0bb7f02253c4ca8b6ef5e2fc13bcc8a135f67fabf",
+          "responseByteLength": 44715,
+          "resultCount": 0
+        }
+      ],
+      "directIdChecks": [
+        {
+          "seriesId": "ENUUS000105624410",
+          "scope": "U.S. private QCEW all employees, NAICS 624410",
+          "fredUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=ENUUS000105624410",
+          "fredHttpStatus": 404,
+          "fredResponseSha256": "47cb3807d8c84e769b074325b17f23e7e63b9f130863f3cb9e296a2caa90ec38",
+          "fredResponseByteLength": 28932,
+          "alfredUrl": "https://alfred.stlouisfed.org/series?seid=ENUUS000105624410",
+          "alfredHttpStatus": 404,
+          "alfredResponseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "alfredResponseByteLength": 0
+        },
+        {
+          "seriesId": "ENUUS000100624410",
+          "scope": "constructed U.S. total-covered QCEW all employees, NAICS 624410",
+          "fredUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=ENUUS000100624410",
+          "fredHttpStatus": 404,
+          "fredResponseSha256": "47cb3807d8c84e769b074325b17f23e7e63b9f130863f3cb9e296a2caa90ec38",
+          "fredResponseByteLength": 28932,
+          "alfredUrl": "https://alfred.stlouisfed.org/series?seid=ENUUS000100624410",
+          "alfredHttpStatus": 404,
+          "alfredResponseSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "alfredResponseByteLength": 0
+        }
+      ],
+      "enuPositiveControl": {
+        "reason": "Confirms that FRED and ALFRED do carry some ENU-prefixed QCEW series; failure of the exact target IDs is not a blanket ENU transport failure.",
+        "seriesId": "ENU4709320510",
+        "title": "Number of Private Establishments for All Industries in Knox County, TN",
+        "release": "Quarterly Census of Employment and Wages",
+        "fredUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=ENU4709320510",
+        "fredHttpStatus": 200,
+        "fredResponseSha256": "10bb966c8514f700581ede0eb280be7d49ca8a615505a1873f104e3d1cd6f08c",
+        "fredResponseByteLength": 2427,
+        "firstDataRowVerbatim": "1990-01-01,8001",
+        "alfredUrl": "https://alfred.stlouisfed.org/series?seid=ENU4709320510",
+        "alfredHttpStatus": 200,
+        "alfredResponseSha256": "682278cbff0e0198e078ca41718eea16dc02162d4b5f0bf622344fa7f5ff9211",
+        "alfredResponseByteLength": 69879
+      }
+    },
+    "closestNonMatchEvidence": {
+      "fredId": "IPURN624410W200000000",
+      "title": "Employment for Health Care and Social Assistance: Child Day Care Services (NAICS 624410) in the United States",
+      "release": "Industry Productivity",
+      "units": "Thousands of Jobs",
+      "frequency": "Annual",
+      "seasonalAdjustment": "Not Seasonally Adjusted",
+      "scopeVerbatim": "Employment is the total number of wage and salary workers, unincorporated self-employed workers, and unpaid family workers working within business establishments. An individual who works multiple jobs at separate establishments would have each job included in the number of employees.",
+      "mismatch": "This is BLS Industry Productivity employment, not QCEW UI-covered private employment. It explicitly includes unincorporated self-employed and unpaid family workers, and its 2025 value of 1,361.5 thousand jobs does not equal the direct QCEW private annual_avg_emplvl of 991,735.",
+      "fredMetadataUrl": "https://fred.stlouisfed.org/series/IPURN624410W200000000",
+      "fredMetadataSha256": "4a06004567d65874412936ea8290147f1a5ff87973a741c8accdec164513ce57",
+      "fredMetadataByteLength": 78754,
+      "alfredMetadataUrl": "https://alfred.stlouisfed.org/series?seid=IPURN624410W200000000",
+      "alfredMetadataSha256": "940bad8ef4af01bcb48328d8bbd21d6df2a1f6f28876c27a098c9be93bf2b9de",
+      "alfredMetadataByteLength": 70344,
+      "currentValueUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IPURN624410W200000000&cosd=2025-01-01&coed=2025-01-01",
+      "currentValueSha256": "952facf805a79c4aee12dfdf85ce1e378ecbc51d474483c347995b735dd0efb6",
+      "currentValueByteLength": 57,
+      "currentValueRowVerbatim": "2025-01-01,1361.5",
+      "mismatchedVintageUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IPURN624410W200000000&vintage_date=2026-06-03&cosd=2025-01-01&coed=2025-01-01",
+      "mismatchedVintageSha256": "6ea6eb9714007e8bbb71959158496868606a7f2e99b5e02789267fc3184e8c93",
+      "mismatchedVintageByteLength": 66,
+      "mismatchedVintageRowVerbatim": "2025-01-01,1361.5"
+    },
+    "match": {
+      "concept": "exact at BLS for the explicitly narrower U.S. private-ownership QCEW series; not the bill report's rural panel and not all ownerships",
+      "unit": "exact: count",
+      "cadence": "exact: annual",
+      "field": "exact: annual_avg_emplvl"
+    },
+    "vintageEvidence": {
+      "conceptMatchedAlfredVintageAvailable": false,
+      "firstPrintAnchorsPinned": 0,
+      "reason": "The exact BLS QCEW series has no FRED/ALFRED mirror, so no concept-matched ALFRED vintages can be pinned. The one fetched ALFRED vintage is retained only as evidence that the closest catalog result is the wrong Industry Productivity concept."
+    },
+    "firstPrint": {
+      "status": "capture_window_required",
+      "basis": "The annual BLS industry-slice URLs are stable current-print endpoints and can revise. Admission must bind an official annual QCEW release day or reviewed conservative window and capture the exact annual CSV during that window; the three current-print anchors above do not authenticate historical first prints."
+    },
+    "requiredWork": [
+      "Route this request to Wave B and extend the existing direct bls-qcew family from quarterly qtrly_estabs rows to annual /a/ industry slices and field annual_avg_emplvl.",
+      "Hard-code and test the narrower selector area_fips=US000, own_code=5, industry_code=624410, agglvl_code=18, size_code=0, qtr=A, blank disclosure_code; label the result U.S. private employment and never the bill report's rural panel or all-covered employment.",
+      "Integrator-reproduce at least three official current-print anchors and record them in docs/anchor-verifications.md; the 2023-2025 values and exact response hashes above are candidates, not an admission by themselves.",
+      "Authenticate the official annual-release timing without inferring a day from cadence, define first-print capture/refusal behavior for the revisable stable URL, and add source-linked resolver tests before docket admission."
+    ],
+    "requiredNextFamily": "direct BLS QCEW annual industry-slice extension"
+  }
+}

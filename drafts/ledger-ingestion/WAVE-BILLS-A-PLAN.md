@@ -54,7 +54,7 @@ Work items (ONE per session; [x] when the request file is written):
   scoped to Minnesota / the Superior NF place-of-performance if the
   API's geographic filters prove it cleanly; else honest rejection
   with trail.
-- [ ] 6. alfred-qcew-childcare-employment.json — bill farm-bill-2-0
+- [x] 6. alfred-qcew-childcare-employment.json — bill farm-bill-2-0
   (childcare title; the bill mapper names QCEW NAICS 624410). Concept
   bls.qcew.child_day_care_services.annual_avg_employment. Live-verify
   a FRED/ALFRED series for QCEW NAICS 624410 US annual average
