@@ -1,0 +1,966 @@
+{
+  "proposed_concept": "usaspending.ntia.public_wireless_supply_chain_innovation_fund.award_transaction_obligations",
+  "status": "verified",
+  "unit": "usd",
+  "cadence": "annual",
+  "proposedFrom": "stress-119hr2449ih",
+  "metricText": "USAspending aggregated_amount of Assistance Listing 11.038 Public Wireless Supply Chain Innovation Fund Grant Program prime financial-assistance award transactions for a complete federal fiscal year.",
+  "note": "VERIFIED, CONTEXT ONLY, NARROW AL SCOPE: the exact FY2025 Assistance Listing 11.038 query returned $409,852,406.47 in net award-transaction obligations. This advanced-wireless grant aggregate is context for H.R. 2449, not a metric of the bill's proposed 6G Task Force or reports, not an NTIA awarding-subagency total, and not all obligations or outlays of NTIA account 013-0565.",
+  "adapterFamily": "usaspending-api",
+  "billSlugs": [
+    "stress-119hr2449ih"
+  ],
+  "publisher": "U.S. Department of the Treasury, USAspending",
+  "statisticalProduct": "USAspending API v2 advanced search, financial-assistance award transactions filtered to Assistance Listing 11.038 and grouped by fiscal year",
+  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "verified",
+    "verifiedAtUtc": "2026-08-10T22:42:33Z",
+    "reason": "Fresh official searches returned no Assistance Listing for either '6G' or 'advanced communications'. They did return 11.038, Public Wireless Supply Chain Innovation Fund Grant Program, for both 'wireless' and the exact listing number. The exact transaction-level query returns three nonzero annual rows for FY2023-FY2025 and one complete FY2025 row of $409,852,406.47; a same-session replay was byte-identical, and a complete hasNext=false listing-category response reproduces the FY2025 amount. The official federal-account catalog separately identifies 013-0565 as Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce, but the account and AL totals are not equal, and the AL awarding-subagency category assigns the awards to NIST. The verified series is therefore only the AL-wide award-transaction aggregate. It is a recurring advanced-wireless context series, not a bill execution metric and not an account-obligation series.",
+    "scope": {
+      "verifiedConcept": "Signed net federal_action_obligation aggregated across prime financial-assistance award transactions whose Assistance Listing is 11.038, grouped by action-date federal fiscal year.",
+      "contextForBill": "H.R. 2449 proposes a one-time FCC 6G Task Force and draft/final reports, with no recurring numeric series or spending authorization. AL 11.038 is a preexisting advanced-wireless supply-chain grant program and is included only as contextual federal activity in an adjacent domain.",
+      "excludes": [
+        "establishment, membership, work, draft report, final report, public-comment process, or recommendations of the proposed 6G Task Force",
+        "6G standards progress, spectrum allocation, network deployment, adoption, reliability, cybersecurity, or supply-chain outcomes",
+        "awards or spending caused or authorized by H.R. 2449",
+        "all NTIA, NIST, Commerce, or FCC obligations",
+        "all obligations or outlays of federal account 013-0565",
+        "appropriations, budget authority, non-award financial-account obligations, and outlays"
+      ]
+    },
+    "query": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "field": "results[time_period.fiscal_year=2025].aggregated_amount",
+      "body": {
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "11.038"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      }
+    },
+    "fetchedEvidence": {
+      "retrievedAtUtc": "2026-08-10T22:40:44Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "responseSha256": "bcda917cb217ca7fb442ff3b32aa291e11696326043d3a33205b66b9ef13cf64",
+      "responseByteLength": 1132,
+      "responseGroup": "fiscal_year",
+      "responseSpendingLevel": "transactions",
+      "resultRows": [
+        {
+          "aggregated_amount": 409852406.47,
+          "time_period": {
+            "fiscal_year": "2025"
+          },
+          "Contract_Obligations": 0,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 409852406.47,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 0,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        }
+      ]
+    },
+    "agencyAutocompleteSearch": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "search_text": "National Telecommunications and Information Administration"
+        },
+        "responseSha256": "297054615d52c1006646d7e18daa864188dcbb9cb348a2beada6d11dbb48c800",
+        "responseByteLength": 326,
+        "resultRows": [
+          {
+            "id": 196,
+            "toptier_flag": false,
+            "toptier_agency": {
+              "toptier_code": "013",
+              "abbreviation": "DOC",
+              "name": "Department of Commerce"
+            },
+            "subtier_agency": {
+              "abbreviation": "NTIA",
+              "name": "National Telecommunications and Information Administration"
+            }
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "search_text": "Federal Communications Commission"
+        },
+        "responseSha256": "65606a79dab84a986e333e3ad4c80cf0b0fa7a0110cd42aa1150eb82f09cb7a1",
+        "responseByteLength": 310,
+        "resultRows": [
+          {
+            "id": 538,
+            "toptier_flag": true,
+            "toptier_agency": {
+              "toptier_code": "027",
+              "abbreviation": "FCC",
+              "name": "Federal Communications Commission"
+            },
+            "subtier_agency": {
+              "abbreviation": "FCC",
+              "name": "Federal Communications Commission"
+            }
+          }
+        ]
+      }
+    ],
+    "assistanceListingSearchTrail": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "spectrum"
+        },
+        "responseSha256": "8a1742e020e42757fa1bb3013da8a4780a5b1023936b18e1e5a3e9e39e47a6d0",
+        "responseByteLength": 115,
+        "resultRows": [
+          {
+            "program_number": "11.014",
+            "program_title": "Band 14 Incumbent Spectrum Relocation",
+            "popular_name": ""
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "wireless"
+        },
+        "responseSha256": "30485d695d939433716289c09fc3e80f1a804784a3c094b1f22e59543e39cf27",
+        "responseByteLength": 151,
+        "resultRows": [
+          {
+            "program_number": "11.038",
+            "program_title": "Public Wireless Supply Chain Innovation Fund Grant Program",
+            "popular_name": "Innovation Fund"
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "advanced communications"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "responseByteLength": 14,
+        "resultRows": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "6G"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "responseByteLength": 14,
+        "resultRows": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "broadband"
+        },
+        "responseSha256": "78c3d0dec2028e695f1e26f32402e6f2b29e9bef583a7001e94e143848fd39e1",
+        "responseByteLength": 1167,
+        "resultRows": [
+          {
+            "program_number": "10.787",
+            "program_title": "Broadband Initiatives Program",
+            "popular_name": "Broadband Initiatives Program (BIP)"
+          },
+          {
+            "program_number": "10.886",
+            "program_title": "Rural Broadband Access Loans",
+            "popular_name": "Farm Bill Broadband Loans & Loan Guarantees"
+          },
+          {
+            "program_number": "11.029",
+            "program_title": "Tribal Broadband Connectivity Program",
+            "popular_name": "Tribal Broadband Connectivity Program"
+          },
+          {
+            "program_number": "11.031",
+            "program_title": "Broadband Infrastructure Program",
+            "popular_name": "Broadband Infrastructure Program"
+          },
+          {
+            "program_number": "11.033",
+            "program_title": "Middle Mile (Broadband) Grant Program",
+            "popular_name": "Middle Mile Grant Program"
+          },
+          {
+            "program_number": "11.035",
+            "program_title": "Broadband Equity, Access, and Deployment Program",
+            "popular_name": "Broadband Equity, Access, and Deployment Program"
+          },
+          {
+            "program_number": "11.557",
+            "program_title": "Broadband Technology Opportunities Program (BTOP)",
+            "popular_name": "Broadband Technology Opportunities Program (BTOP)  - INACTIVE\r\n\r\nFunding for this program has ended."
+          },
+          {
+            "program_number": "11.558",
+            "program_title": "State Broadband Data and Development Grant Program",
+            "popular_name": ""
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "Public Wireless Supply Chain Innovation Fund"
+        },
+        "responseSha256": "30485d695d939433716289c09fc3e80f1a804784a3c094b1f22e59543e39cf27",
+        "responseByteLength": 151,
+        "resultRows": [
+          {
+            "program_number": "11.038",
+            "program_title": "Public Wireless Supply Chain Innovation Fund Grant Program",
+            "popular_name": "Innovation Fund"
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-10T22:40:03Z",
+        "httpStatus": 200,
+        "body": {
+          "limit": 100,
+          "search_text": "11.038"
+        },
+        "responseSha256": "30485d695d939433716289c09fc3e80f1a804784a3c094b1f22e59543e39cf27",
+        "responseByteLength": 151,
+        "resultRows": [
+          {
+            "program_number": "11.038",
+            "program_title": "Public Wireless Supply Chain Innovation Fund Grant Program",
+            "popular_name": "Innovation Fund"
+          }
+        ]
+      }
+    ],
+    "federalAccountCatalogSearch": [
+      {
+        "method": "GET",
+        "endpoint": "https://api.usaspending.gov/api/v2/agency/013/federal_account/?fiscal_year=2025&page=1&limit=100",
+        "retrievedAtUtc": "2026-08-10T22:40:22Z",
+        "httpStatus": 200,
+        "responseSha256": "684dec440c360b015fe9129bb191111b09195701c2bfbbc15d76ffdd717d03c8",
+        "responseByteLength": 45002,
+        "page_metadata": {
+          "page": 1,
+          "total": 52,
+          "limit": 100,
+          "next": null,
+          "previous": null,
+          "hasNext": false,
+          "hasPrevious": false
+        },
+        "matchedRow": {
+          "code": "013-0565",
+          "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+          "children": [
+            {
+              "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+              "code": "013-2023/2032-0565-000",
+              "obligated_amount": 295950188.67,
+              "gross_outlay_amount": 99162344.67
+            },
+            {
+              "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+              "code": "013-2022/2031-0565-000",
+              "obligated_amount": 127295481.0,
+              "gross_outlay_amount": 38915439.18
+            }
+          ],
+          "obligated_amount": 423245669.67,
+          "gross_outlay_amount": 138077783.85
+        }
+      },
+      {
+        "method": "GET",
+        "endpoint": "https://api.usaspending.gov/api/v2/agency/027/federal_account/?fiscal_year=2025&page=1&limit=100",
+        "retrievedAtUtc": "2026-08-10T22:40:22Z",
+        "httpStatus": 200,
+        "responseSha256": "5c4db36fdb9c2ab9e363570cb607873f527f3233295527076f0549420cefe2d2",
+        "responseByteLength": 3698,
+        "page_metadata": {
+          "page": 1,
+          "total": 8,
+          "limit": 100,
+          "next": null,
+          "previous": null,
+          "hasNext": false,
+          "hasPrevious": false
+        },
+        "matchedRow": {
+          "code": "027-0300",
+          "name": "Spectrum Auction Program Account, Federal Communications Commission",
+          "children": [
+            {
+              "name": "Spectrum Auction Program Account, Federal Communications Commission",
+              "code": "027-X-0300-000",
+              "obligated_amount": 300946.43,
+              "gross_outlay_amount": 290952.04
+            }
+          ],
+          "obligated_amount": 300946.43,
+          "gross_outlay_amount": 290952.04
+        }
+      }
+    ],
+    "annualHistoryEvidence": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "retrievedAtUtc": "2026-08-10T22:40:44Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "body": {
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "11.038"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2022-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      },
+      "responseSha256": "ad1929bc2e9d890d9045c1763e011dba3dd1b71d3dbc1622c6c266a12b6aaf41",
+      "responseByteLength": 1854,
+      "resultRows": [
+        {
+          "aggregated_amount": 5482052.0,
+          "time_period": {
+            "fiscal_year": "2023"
+          },
+          "Contract_Obligations": 0,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 5482052.0,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 0,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        },
+        {
+          "aggregated_amount": 134961165.87,
+          "time_period": {
+            "fiscal_year": "2024"
+          },
+          "Contract_Obligations": 0,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 134961165.87,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 0,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        },
+        {
+          "aggregated_amount": 409852406.47,
+          "time_period": {
+            "fiscal_year": "2025"
+          },
+          "Contract_Obligations": 0,
+          "Direct_Obligations": 0,
+          "Grant_Obligations": 409852406.47,
+          "Idv_Obligations": 0,
+          "Loan_Obligations": 0,
+          "Other_Obligations": 0,
+          "total_outlays": null,
+          "Contract_Outlays": null,
+          "Direct_Outlays": null,
+          "Grant_Outlays": null,
+          "Idv_Outlays": null,
+          "Loan_Outlays": null,
+          "Other_Outlays": null
+        }
+      ]
+    },
+    "assistanceListingCategoryCrossCheck": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/cfda/",
+      "retrievedAtUtc": "2026-08-10T22:41:53Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "body": {
+        "category": "cfda",
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "11.038"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "42cfb365664dea72f0b10ad7010500c583ce708d1cf65f201d8900c2a0d64a3d",
+      "responseByteLength": 773,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "resultRows": [
+        {
+          "id": 3689,
+          "code": "11.038",
+          "name": "Public Wireless Supply Chain Innovation Fund Grant Program",
+          "amount": 409852406.47,
+          "total_outlays": null
+        }
+      ],
+      "signedAmountSum": 409852406.47
+    },
+    "awardingSubagencyCrossCheck": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/awarding_subagency/",
+      "retrievedAtUtc": "2026-08-10T22:41:53Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "body": {
+        "category": "awarding_subagency",
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "11.038"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "9955e94bae6180c39d8a1755e4037fbeadde20fc74d16fd9d1bfb1c6c72e2e2b",
+      "responseByteLength": 959,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "resultRows": [
+        {
+          "id": 197,
+          "code": "NIST",
+          "name": "National Institute of Standards and Technology",
+          "agency_id": 15,
+          "agency_abbreviation": "DOC",
+          "agency_name": "Department of Commerce",
+          "agency_slug": "department-of-commerce",
+          "subagency_slug": "national-institute-of-standards-and-technology",
+          "amount": 409852406.47,
+          "total_outlays": null
+        }
+      ],
+      "signedAmountSum": 409852406.47
+    },
+    "accountBoundaryEvidence": {
+      "reason": "The account search identifies an adjacent NTIA financial account, but the official responses print four distinct FY2025 quantities. They must not be conflated with the registered AL aggregate.",
+      "federalAccountCategoryCrossCheck": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/federal_account/",
+        "retrievedAtUtc": "2026-08-10T22:41:35Z",
+        "httpStatus": 200,
+        "body": {
+          "category": "federal_account",
+          "filters": {
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11"
+            ],
+            "program_numbers": [
+              "11.038"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2024-10-01"
+              }
+            ]
+          },
+          "limit": 100,
+          "page": 1,
+          "spending_level": "transactions"
+        },
+        "responseSha256": "979fb53cc497dc41ab071d6878eb82689f202dd397062d91ba049f916593cfd4",
+        "responseByteLength": 842,
+        "page_metadata": {
+          "page": 1,
+          "next": null,
+          "previous": null,
+          "hasNext": false,
+          "hasPrevious": false
+        },
+        "resultRows": [
+          {
+            "amount": 374889560.72,
+            "id": 6480,
+            "code": "013-0565",
+            "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+            "total_outlays": null
+          }
+        ]
+      },
+      "accountAssistanceAwardQuery": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "retrievedAtUtc": "2026-08-10T22:41:23Z",
+        "httpStatus": 200,
+        "body": {
+          "filters": {
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2024-10-01"
+              }
+            ],
+            "treasury_account_components": [
+              {
+                "aid": "013",
+                "bpoa": "2023",
+                "epoa": "2032",
+                "main": "0565",
+                "sub": "000"
+              },
+              {
+                "aid": "013",
+                "bpoa": "2022",
+                "epoa": "2031",
+                "main": "0565",
+                "sub": "000"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        },
+        "responseSha256": "f2d66da4d1126a692e7976965c448b63dd624f4040ecf1d5ebfcf9b6c981022c",
+        "responseByteLength": 1132,
+        "resultRows": [
+          {
+            "aggregated_amount": 374889560.72,
+            "time_period": {
+              "fiscal_year": "2025"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 374889560.72,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          }
+        ]
+      },
+      "accountAllAwardQuery": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "retrievedAtUtc": "2026-08-10T22:41:23Z",
+        "httpStatus": 200,
+        "body": {
+          "filters": {
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2024-10-01"
+              }
+            ],
+            "treasury_account_components": [
+              {
+                "aid": "013",
+                "bpoa": "2023",
+                "epoa": "2032",
+                "main": "0565",
+                "sub": "000"
+              },
+              {
+                "aid": "013",
+                "bpoa": "2022",
+                "epoa": "2031",
+                "main": "0565",
+                "sub": "000"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        },
+        "responseSha256": "b7c0380d3e1e8e77f8138a1db55c8afb353fbea831171047c1e6f88a8bc4f666",
+        "responseByteLength": 1147,
+        "resultRows": [
+          {
+            "aggregated_amount": 384755096.19000006,
+            "time_period": {
+              "fiscal_year": "2025"
+            },
+            "Contract_Obligations": 9865535.47,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 374889560.72,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          }
+        ]
+      },
+      "printedQuantityDistinction": {
+        "assistanceListingAwardTransactionObligations": 409852406.47,
+        "accountAssociatedAssistanceAwardTransactionObligations": 374889560.72,
+        "accountAssociatedAllAwardTransactionObligations": 384755096.19000006,
+        "federalAccountCatalogObligatedAmount": 423245669.67
+      }
+    },
+    "alternativeCandidateChecks": [
+      {
+        "candidate": "Assistance Listing 11.014 Band 14 Incumbent Spectrum Relocation",
+        "disposition": "not_selected_zero_recent_award_transaction_series",
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "retrievedAtUtc": "2026-08-10T22:42:33Z",
+        "httpStatus": 200,
+        "body": {
+          "filters": {
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11"
+            ],
+            "program_numbers": [
+              "11.014"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2022-10-01"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        },
+        "responseSha256": "8cb37d726bb8d0237db2e7ae48fb3b4c93db1d8150d7195fdb213769f8d43d93",
+        "responseByteLength": 1794,
+        "verbatimAnnualAggregatedAmounts": [
+          {
+            "fiscal_year": "2023",
+            "aggregated_amount": 0
+          },
+          {
+            "fiscal_year": "2024",
+            "aggregated_amount": 0
+          },
+          {
+            "fiscal_year": "2025",
+            "aggregated_amount": 0
+          }
+        ]
+      },
+      {
+        "candidate": "FCC federal account 027-0300 Spectrum Auction Program Account",
+        "disposition": "not_selected_zero_fy2025_award_transaction_total",
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "retrievedAtUtc": "2026-08-10T22:42:33Z",
+        "httpStatus": 200,
+        "body": {
+          "filters": {
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2024-10-01"
+              }
+            ],
+            "treasury_account_components": [
+              {
+                "aid": "027",
+                "main": "0300",
+                "sub": "000"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        },
+        "responseSha256": "7c35569a2dfbe4244e7eb1ad193b1b819065edb069e0a22a60274b483426a51a",
+        "responseByteLength": 1110,
+        "verbatimAnnualAggregatedAmounts": [
+          {
+            "fiscal_year": "2025",
+            "aggregated_amount": 0
+          }
+        ]
+      }
+    ],
+    "byteIdenticalReplay": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "retrievedAtUtc": "2026-08-10T22:41:53Z",
+      "httpStatus": 200,
+      "body": {
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "11.038"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "group": "fiscal_year",
+        "spending_level": "transactions"
+      },
+      "responseSha256": "bcda917cb217ca7fb442ff3b32aa291e11696326043d3a33205b66b9ef13cf64",
+      "responseByteLength": 1132,
+      "byteIdenticalToPrimaryQuery": true
+    },
+    "firstPrint": {
+      "status": "registered_query_snapshot_required",
+      "basis": "USAspending revises continuously. The retrospective FY2025 fetch verifies the query shape and historical values but is not first-print evidence. A forecast target must define the outcome as the exact registered query response captured inside a preregistered post-fiscal-year snapshot window and archive the complete response bytes, following the existing USAspending adapter custody rule."
+    },
+    "adapterDisposition": {
+      "family": "usaspending-api",
+      "disposition": "extend_existing",
+      "requiredWork": "Extend the existing fiscal_year_post_scalar registered-query builder to accept a sealed programNumbers transform and emit filters.program_numbers=[\"11.038\"]; add the series binding and parser tests while preserving registered_query_snapshot release policy and complete raw-response custody. No new source family is required."
+    },
+    "parseNotes": [
+      "Use program_numbers=[\"11.038\"] as the complete registered series identity. Do not add an awarding-agency, awarding-subagency, Treasury-account, title-text, description-text, broadband-program union, or FCC filter.",
+      "The NTIA concept namespace identifies the official 013-0565 account/program context, not an awarding-subagency filter. The complete FY2025 awarding-subagency category response assigns all $409,852,406.47 to National Institute of Standards and Technology; filtering to NTIA would therefore change or erase the proved aggregate.",
+      "Do not equate the AL-wide FY2025 value of 409,852,406.47 with the exact 013-0565-account financial-assistance award value of 374,889,560.72, all-award value of 384,755,096.19000006, or federal-account-catalog obligated_amount of 423,245,669.67. The official endpoints print distinct quantities, and this request admits only the first.",
+      "The FY2025 AL response reports 409,852,406.47 entirely in Grant_Obligations, with every other obligation bucket equal to zero and all outlay fields null. Treat aggregated_amount as signed net award-transaction obligations and retain future deobligations.",
+      "Do not relabel the series as broadband deployment, spectrum-auction spending, 6G spending, FCC operations, Task Force execution, a report milestone, an H.R. 2449 effect, all-account obligations, appropriations, budget authority, or outlays."
+    ]
+  }
+}
