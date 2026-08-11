@@ -3291,6 +3291,283 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "100 * small_business contract obligations / all contract obligations"
         ),
     },
+    "usaspending.cdfi.assistance_transaction_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.cdfi.program_obligations"
+        ),
+        "label": (
+            "CDFI Fund financial-assistance award-transaction obligations, "
+            "fiscal year total"
+        ),
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1e-6,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "agency": {
+                "name": "Community Development Financial Institutions Fund",
+                "tier": "subtier",
+                "type": "awarding",
+            },
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+            ],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, CDFI Fund awarding-subagency "
+            "financial-assistance award transactions, obligations by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime financial-assistance "
+            "award transactions whose awarding subtier is Community Development "
+            "Financial Institutions Fund"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is signed net federal_action_obligation across prime "
+            "financial-assistance award transactions whose awarding subtier is the "
+            "Community Development Financial Institutions Fund. It excludes "
+            "non-award financial-account obligations and outlays and does not "
+            "identify purchases, guarantees, loan-loss reserves, or any "
+            "bill-specific amended-section-113 activity; it says nothing "
+            "about CDFI loan originations, liquidity, competitiveness, or "
+            "other downstream outcomes."
+        ),
+    },
+    "usaspending.ondcp.hidta_al95001_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.ondcp.hidta_program_obligations"
+        ),
+        "label": (
+            "HIDTA Assistance Listing 95.001 financial-assistance "
+            "award-transaction obligations, fiscal year total"
+        ),
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1e-6,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+            ],
+            "programNumbers": ["95.001"],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, financial-assistance award "
+            "transactions filtered to Assistance Listing 95.001, obligations "
+            "by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime financial-assistance "
+            "award transactions whose Assistance Listing is 95.001, grouped by "
+            "action-date federal fiscal year"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is the whole Assistance Listing 95.001 signed net "
+            "award-transaction aggregate; no awarding-subagency filter is applied. "
+            "It does not isolate section 707(s) supplemental competitive grants or "
+            "spending under any newly permitted purpose, and it does not measure "
+            "all HIDTA financial-account obligations, outlays, appropriations, "
+            "budget authority, authorization, or bill-caused spending."
+        ),
+    },
+    "usaspending.ntia.broadband_al11038_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.ntia."
+            "broadband_program_obligations"
+        ),
+        "label": (
+            "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
+            "Fund financial-assistance award-transaction obligations, fiscal "
+            "year total"
+        ),
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1e-6,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+            ],
+            "programNumbers": ["11.038"],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, financial-assistance award "
+            "transactions filtered to Assistance Listing 11.038, obligations "
+            "by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime financial-assistance "
+            "award transactions whose Assistance Listing is 11.038, grouped by "
+            "action-date federal fiscal year"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is the whole Assistance Listing 11.038 signed net "
+            "award-transaction aggregate; no awarding-agency, awarding-subagency, "
+            "Treasury-account, title-text, description-text, broadband-program-union, "
+            "or FCC filter is applied. This preexisting advanced-wireless grant "
+            "aggregate is context only. It does not measure establishment, "
+            "membership, work, draft or final reports, the public-comment process, "
+            "recommendations, or outcomes of the proposed 6G Task Force; spending "
+            "caused or authorized by H.R. 2449; all NTIA, NIST, Commerce, or FCC "
+            "obligations; or all obligations or outlays of federal account "
+            "013-0565. It also excludes non-award financial-account obligations, "
+            "appropriations, budget authority, and outlays."
+        ),
+    },
+    "usaspending.usfs.minnesota_place_of_performance_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.usfs.minnesota_obligations"
+        ),
+        "label": (
+            "Minnesota-wide Forest Service award-transaction obligations "
+            "(context only), fiscal year total"
+        ),
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1e-6,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "agency": {
+                "name": "Forest Service",
+                "tier": "subtier",
+                "toptier_name": "Department of Agriculture",
+                "type": "awarding",
+            },
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+                "A",
+                "B",
+                "C",
+                "D",
+                "IDV_A",
+                "IDV_B",
+                "IDV_B_A",
+                "IDV_B_B",
+                "IDV_B_C",
+                "IDV_C",
+                "IDV_D",
+                "IDV_E",
+            ],
+            "placeOfPerformanceLocations": [{"country": "USA", "state": "MN"}],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, prime award transactions "
+            "filtered to the Forest Service awarding subagency and Minnesota "
+            "place of performance, obligations by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime award transactions "
+            "whose awarding subtier is Forest Service and whose reported place of "
+            "performance has country USA and state MN, grouped by action-date "
+            "federal fiscal year"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is signed net federal_action_obligation across prime award "
+            "transactions whose awarding subtier is Forest Service and whose "
+            "reported place of performance has country=USA and state=MN. This is "
+            "Minnesota-wide spending context only, not Superior National Forest "
+            "obligations or activity confined to H.R. 978's covered forest lands. "
+            "No value is attributed to H.R. 978. The series excludes an exact "
+            "named-land-unit or forest-boundary filter; withdrawal-order status, "
+            "mine-plan reviews, permits, mineral leases, prospecting permits, "
+            "preference-right leases, or deadline compliance; all Forest Service "
+            "financial-account obligations, appropriations, budget authority, and "
+            "outlays; awards outside Minnesota or without Minnesota as their "
+            "reported state; and bill-caused spending."
+        ),
+    },
     "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
@@ -3388,12 +3665,13 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
     },
 }
 for _spec in USASPENDING_ADAPTERS.values():
-    _spec["evidence_notes"] = (
+    _spec.setdefault(
+        "evidence_notes",
         "Registered-query snapshot for {period} captured from {source_url} "
         "inside the preregistered snapshot window. USAspending revises "
         "continuously, so the outcome is defined as the value the pinned "
         "query returned on the registered capture date; the full response "
-        "bytes are archived as evidence."
+        "bytes are archived as evidence.",
     )
 
 USASPENDING_BINDING_TEMPLATE_KEYS = {
@@ -3491,11 +3769,37 @@ def usaspending_fiscal_year_post_body(
     fiscal_year: str,
     transform: Mapping[str, Any],
 ) -> dict[str, Any]:
-    """Build one bound spending-over-time request for registered TAS filters."""
+    """Build one bound spending-over-time request for a registered scope."""
 
     award_codes = transform.get("awardTypeCodes")
     components = transform.get("treasuryAccountComponents")
+    agency = transform.get("agency")
+    program_numbers = transform.get("programNumbers")
+    place_of_performance_locations = transform.get("placeOfPerformanceLocations")
     factor = transform.get("factor")
+    common_keys = {
+        "operation",
+        "factor",
+        "requestMethod",
+        "fiscalYear",
+        "group",
+        "spendingLevel",
+        "awardTypeCodes",
+    }
+    scope_keys = {
+        key
+        for key, value in (
+            ("treasuryAccountComponents", components),
+            ("agency", agency),
+            ("programNumbers", program_numbers),
+        )
+        if value is not None
+    }
+    location_keys = (
+        {"placeOfPerformanceLocations"}
+        if place_of_performance_locations is not None
+        else set()
+    )
     if (
         transform.get("operation") != "multiply"
         or isinstance(factor, bool)
@@ -3510,9 +3814,64 @@ def usaspending_fiscal_year_post_body(
         or not award_codes
         or not all(isinstance(code, str) and code for code in award_codes)
         or len(set(award_codes)) != len(award_codes)
-        or not isinstance(components, list)
-        or not components
+        or len(scope_keys) != 1
+        or (place_of_performance_locations is not None and agency is None)
+        or set(transform) != common_keys | scope_keys | location_keys
     ):
+        raise ValueError("registered USAspending fiscal-year POST plan is malformed")
+
+    if agency is not None:
+        if (
+            not isinstance(agency, dict)
+            or set(agency)
+            not in (
+                {"type", "tier", "name"},
+                {"type", "tier", "name", "toptier_name"},
+            )
+            or agency.get("type") != "awarding"
+            or agency.get("tier") != "subtier"
+            or not isinstance(agency.get("name"), str)
+            or not agency["name"]
+            or (
+                "toptier_name" in agency
+                and (
+                    not isinstance(agency["toptier_name"], str)
+                    or not agency["toptier_name"]
+                )
+            )
+        ):
+            raise ValueError("registered USAspending awarding-subtier is malformed")
+        filters = _usaspending_advanced_filters(fiscal_year, transform)
+        return {
+            "filters": filters,
+            "group": "fiscal_year",
+            "spending_level": "transactions",
+        }
+
+    if program_numbers is not None:
+        if (
+            not isinstance(program_numbers, list)
+            or not program_numbers
+            or not all(
+                isinstance(program_number, str)
+                and re.fullmatch(r"\d{2}\.\d{3}", program_number)
+                for program_number in program_numbers
+            )
+            or len(set(program_numbers)) != len(program_numbers)
+        ):
+            raise ValueError("registered USAspending program numbers are malformed")
+        start, end = usaspending_fiscal_year_dates(fiscal_year)
+        return {
+            "filters": {
+                "award_type_codes": list(award_codes),
+                "program_numbers": list(program_numbers),
+                "time_period": [{"end_date": end, "start_date": start}],
+            },
+            "group": "fiscal_year",
+            "spending_level": "transactions",
+        }
+
+    if not isinstance(components, list) or not components:
         raise ValueError("registered USAspending TAS plan is malformed")
 
     normalized_components: list[dict[str, str]] = []
@@ -3566,7 +3925,11 @@ def _usaspending_advanced_filters(
     award_codes = transform.get("awardTypeCodes")
     if (
         not isinstance(agency, dict)
-        or set(agency) != {"type", "tier", "name"}
+        or set(agency)
+        not in (
+            {"type", "tier", "name"},
+            {"type", "tier", "name", "toptier_name"},
+        )
         or not isinstance(award_codes, list)
         or not award_codes
         or not all(isinstance(code, str) and code for code in award_codes)
@@ -3587,6 +3950,34 @@ def _usaspending_advanced_filters(
             )
         if recipient_type_names:
             filters["recipient_type_names"] = list(recipient_type_names)
+    place_of_performance_locations = transform.get("placeOfPerformanceLocations")
+    if place_of_performance_locations is not None:
+        if (
+            not isinstance(place_of_performance_locations, list)
+            or not place_of_performance_locations
+            or not all(
+                isinstance(location, dict)
+                and set(location) == {"country", "state"}
+                and isinstance(location.get("country"), str)
+                and re.fullmatch(r"[A-Z]{3}", location["country"])
+                and isinstance(location.get("state"), str)
+                and re.fullmatch(r"[A-Z]{2}", location["state"])
+                for location in place_of_performance_locations
+            )
+            or len(
+                {
+                    canonical_bytes(location)
+                    for location in place_of_performance_locations
+                }
+            )
+            != len(place_of_performance_locations)
+        ):
+            raise ValueError(
+                "registered USAspending place-of-performance locations are malformed"
+            )
+        filters["place_of_performance_locations"] = copy.deepcopy(
+            place_of_performance_locations
+        )
     return filters
 
 

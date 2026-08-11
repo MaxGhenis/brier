@@ -74,6 +74,83 @@ export function getPendingConditionals(billSlug: string): PendingConditional[] {
   return PENDING_CONDITIONALS.filter((p) => p.billSlug === billSlug);
 }
 
+/**
+ * Links a bill page to registered UNCONDITIONAL context series: series
+ * the docket tracks because the bill made them worth watching. A
+ * context series is forecast regardless of the bill and never resolves
+ * any bill metric — that boundary is carried in scopeNote and rendered
+ * on the page next to the cell, not buried in a code comment. Populate
+ * only for series admitted to the docket; seriesConcept is the
+ * canonical Chronicle concept, which cell dataPointIds extend.
+ */
+export interface BillContextSeriesLink {
+  billSlug: string;
+  /** Canonical series concept; matched as a dataPointId prefix. */
+  seriesConcept: string;
+  /** Short display label for the series. */
+  label: string;
+  /** Verbatim-rendered scope boundary: what this series is NOT. */
+  scopeNote: string;
+}
+
+export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
+  {
+    billSlug: "cdfi-fund-s2718-119",
+    seriesConcept: "usaspending.cdfi.assistance_transaction_obligations",
+    label: "CDFI Fund assistance-transaction obligations (FY2026)",
+    scopeNote:
+      "USAspending award-transaction aggregate for the CDFI Fund awarding " +
+      "subtier. Not all CDFI Fund financial-account obligations or outlays; " +
+      "not purchases, guarantees, loan-loss reserves, or other assistance " +
+      "authorized by S. 2718; not CDFI loan originations, liquidity, " +
+      "competitiveness, or other downstream outcomes; and no spending is " +
+      "attributed to the bill or amended section 113.",
+  },
+  {
+    billSlug: "hidta-enhancement-s767-119",
+    seriesConcept: "usaspending.ondcp.hidta_al95001_obligations",
+    label: "HIDTA award-transaction obligations, AL 95.001 (FY2026)",
+    scopeNote:
+      "The whole Assistance Listing 95.001 award-transaction aggregate. Not " +
+      "section 707(s) supplemental competitive grants or spending under a " +
+      "newly permitted purpose; not all HIDTA financial-account " +
+      "obligations, outlays, appropriations, budget authority, or " +
+      "authorization; and no spending is attributed to S. 767.",
+  },
+  {
+    billSlug: "future-networks-hr2449-119",
+    seriesConcept: "usaspending.ntia.broadband_al11038_obligations",
+    label: "Advanced-wireless grant obligations, AL 11.038 (FY2026)",
+    scopeNote:
+      "The Assistance Listing 11.038 award-transaction aggregate (FY2025 " +
+      "awards under this listing were assigned to NIST). Not the proposed " +
+      "6G Task Force, its work, reports, recommendations, or outcomes; not " +
+      "all NTIA, NIST, Commerce, or FCC obligations or account 013-0565; " +
+      "and no spending is attributed to or treated as caused or authorized " +
+      "by H.R. 2449.",
+  },
+  {
+    billSlug: "superior-national-forest-hr978-119",
+    seriesConcept:
+      "usaspending.usfs.minnesota_place_of_performance_obligations",
+    label:
+      "Forest Service award-transaction obligations, Minnesota place of " +
+      "performance (FY2026)",
+    scopeNote:
+      "Minnesota-wide award-transaction context only, not Superior National " +
+      "Forest obligations or activity confined to the bill's covered lands; " +
+      "not H.R. 978 implementation, mineral instruments, or deadline " +
+      "compliance; and no spending is attributed to or treated as caused by " +
+      "H.R. 978.",
+  },
+];
+
+export function getBillContextSeriesLinks(
+  billSlug: string,
+): BillContextSeriesLink[] {
+  return BILL_CONTEXT_SERIES_LINKS.filter((l) => l.billSlug === billSlug);
+}
+
 export interface BillForecastGroup {
   metricLabel: string;
   resolved: ResolvedConditionalGroup;

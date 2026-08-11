@@ -21,6 +21,7 @@ from adopt_proven_series import (  # noqa: E402
 from canonical_json import canonical_bytes  # noqa: E402
 
 APEL_SERIES = {
+    "usaspending.cdfi.assistance_transaction_obligations",
     "usaspending.dod.prime_award_obligations",
     "usaspending.dod.prime_contract_obligations",
     "usaspending.dod.new_prime_awards",
@@ -28,6 +29,9 @@ APEL_SERIES = {
     "usaspending.dod.unique_prime_contract_recipients",
     "usaspending.dod.small_business_contract_obligation_share",
     "usaspending.dhs.title_vi.award_transaction_obligations",
+    "usaspending.ondcp.hidta_al95001_obligations",
+    "usaspending.ntia.broadband_al11038_obligations",
+    "usaspending.usfs.minnesota_place_of_performance_obligations",
 }
 
 
@@ -76,7 +80,8 @@ def test_apel_templates_carry_exactly_the_template_keys() -> None:
 def test_registry_and_resolver_specs_match_bidirectionally_on_all_seven_keys() -> None:
     registry = {entry["series"]: entry for entry in apel_templates()}
     specs = resolve_pending.USASPENDING_ADAPTERS
-    assert set(registry) == set(specs) == APEL_SERIES
+    assert set(registry) == APEL_SERIES
+    assert set(specs) == APEL_SERIES
 
     for series, entry in registry.items():
         spec = specs[series]
@@ -115,6 +120,28 @@ def test_registry_and_resolver_specs_match_bidirectionally_on_all_seven_keys() -
         )
 
 
+def test_wave_b1_specs_resolve_in_chronicle_usd_millions() -> None:
+    raw_anchors = {
+        "usaspending.cdfi.assistance_transaction_obligations": 319_455_176.0,
+        "usaspending.ondcp.hidta_al95001_obligations": 271_657_675.6,
+        "usaspending.ntia.broadband_al11038_obligations": 409_852_406.47,
+        "usaspending.usfs.minnesota_place_of_performance_obligations": (
+            46_832_556.79
+        ),
+    }
+    registry = {entry["series"]: entry for entry in apel_templates()}
+
+    for series, raw_anchor in raw_anchors.items():
+        spec = resolve_pending.USASPENDING_ADAPTERS[series]
+        entry = registry[series]
+        assert spec["unit"] == "usd_millions"
+        assert spec["scale"] == 1e-6
+        assert spec["round"] == 8
+        assert round(raw_anchor * spec["scale"], spec["round"]) == (
+            entry["extras"]["anchors"]["2025"]
+        )
+
+
 def recipient_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
         "usaspending.dod.unique_prime_contract_recipients"
@@ -130,6 +157,30 @@ def share_transform() -> dict:
 def dhs_award_transaction_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
         "usaspending.dhs.title_vi.award_transaction_obligations"
+    ]["transform"]
+
+
+def cdfi_program_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.cdfi.assistance_transaction_obligations"
+    ]["transform"]
+
+
+def hidta_program_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ondcp.hidta_al95001_obligations"
+    ]["transform"]
+
+
+def ntia_broadband_program_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ntia.broadband_al11038_obligations"
+    ]["transform"]
+
+
+def usfs_minnesota_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.usfs.minnesota_place_of_performance_obligations"
     ]["transform"]
 
 
@@ -292,6 +343,316 @@ def test_dhs_post_body_is_the_exact_award_transaction_query() -> None:
     assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
         "340c6f761a86878475118a2dea32711986652d2d019c6cbd4bed2c2efdb3fb56"
     )
+
+
+def test_cdfi_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-cdfi-fund-program-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.cdfi.assistance_transaction_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        cdfi_program_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 315
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "55b613d18a2f4763b68355f01d37a02f07700c0330320b658f2bd676a22b1543"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "ed1225baa11ce0e294590cab40927060f62ebea1df9ea094909b797a0f06f0f1"
+    )
+    assert evidence["responseByteLength"] == 1_137
+    assert resolve_pending.usaspending_fiscal_year_amount(
+        {"results": evidence["resultRows"]},
+        "2025",
+    ) == 319_455_176.0
+
+
+def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.cdfi.assistance_transaction_obligations"
+    ]
+    assert spec["label"] == (
+        "CDFI Fund financial-assistance award-transaction obligations, "
+        "fiscal year total"
+    )
+    assert "signed net federal_action_obligation" in spec["source_concept"]
+    assert "non-award financial-account obligations and outlays" in spec[
+        "evidence_notes"
+    ]
+    assert "bill-specific amended-section-113 activity" in spec["evidence_notes"]
+    # The Wave A exclusion review round 1 found dropped: the series says
+    # nothing about downstream CDFI outcomes.
+    assert "downstream outcomes" in spec["evidence_notes"]
+
+
+def test_hidta_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-ondcp-hidta-program-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ondcp.hidta_al95001_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        hidta_program_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 235
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "df29835ff171f2649aaf7f33b4e6f2fc41f3efca5f8e92ae5e9e2ee16dec2c67"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "5caa8207b4160327a16411454468ccf7383dbde16f47312e311ac7a798898b95"
+    )
+    assert evidence["responseByteLength"] == 1_130
+    assert resolve_pending.usaspending_fiscal_year_amount(
+        {"results": evidence["resultRows"]},
+        "2025",
+    ) == 271_657_675.6
+
+
+def test_hidta_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ondcp.hidta_al95001_obligations"
+    ]
+    assert spec["label"] == (
+        "HIDTA Assistance Listing 95.001 financial-assistance "
+        "award-transaction obligations, fiscal year total"
+    )
+    assert spec["transform"]["programNumbers"] == ["95.001"]
+    assert "agency" not in spec["transform"]
+    assert "whole Assistance Listing 95.001" in spec["evidence_notes"]
+    assert "section 707(s) supplemental competitive grants" in spec[
+        "evidence_notes"
+    ]
+    assert "all HIDTA financial-account obligations, outlays" in spec[
+        "evidence_notes"
+    ]
+    assert "bill-caused spending" in spec["evidence_notes"]
+
+
+def test_ntia_broadband_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-ntia-broadband-program-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ntia.broadband_al11038_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        ntia_broadband_program_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 235
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "232ff1c92f7ee2a962a8e54cc1779b1bee1e46976551fc71664b81a9dee5f205"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "bcda917cb217ca7fb442ff3b32aa291e11696326043d3a33205b66b9ef13cf64"
+    )
+    assert evidence["responseByteLength"] == 1_132
+    assert resolve_pending.usaspending_fiscal_year_amount(
+        {"results": evidence["resultRows"]},
+        "2025",
+    ) == 409_852_406.47
+
+
+def test_ntia_broadband_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ntia.broadband_al11038_obligations"
+    ]
+    assert spec["label"] == (
+        "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
+        "Fund financial-assistance award-transaction obligations, fiscal year total"
+    )
+    assert spec["transform"]["programNumbers"] == ["11.038"]
+    assert "agency" not in spec["transform"]
+    assert "treasuryAccountComponents" not in spec["transform"]
+    assert "signed net federal_action_obligation" in spec["source_concept"]
+    assert "whole Assistance Listing 11.038" in spec["evidence_notes"]
+    assert "no awarding-agency, awarding-subagency" in spec["evidence_notes"]
+    assert "outcomes of the proposed 6G Task Force" in spec["evidence_notes"]
+    assert "spending caused or authorized by H.R. 2449" in spec["evidence_notes"]
+    assert "all NTIA, NIST, Commerce, or FCC obligations" in spec["evidence_notes"]
+    assert "all obligations or outlays of federal account 013-0565" in spec[
+        "evidence_notes"
+    ]
+
+
+def test_usfs_minnesota_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-usfs-superior-nf-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.usfs.minnesota_place_of_performance_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        usfs_minnesota_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 475
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "59c5a37d550b6d3cbff5a845d3e2b0f994056e81c7c506d71fcf81c55faa6f2a"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "685c55dd28dc9824d018ce6ebb960d612e3a1d66fb9beb77862b381b47282f20"
+    )
+    assert evidence["responseByteLength"] == 1_150
+    assert (
+        resolve_pending.usaspending_fiscal_year_amount(
+            {"results": evidence["resultRows"]},
+            "2025",
+        )
+        == 46_832_556.79
+    )
+
+
+def test_usfs_minnesota_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.usfs.minnesota_place_of_performance_obligations"
+    ]
+    assert spec["label"] == (
+        "Minnesota-wide Forest Service award-transaction obligations "
+        "(context only), fiscal year total"
+    )
+    assert "Superior National Forest" not in spec["label"]
+    assert spec["transform"]["agency"] == {
+        "name": "Forest Service",
+        "tier": "subtier",
+        "toptier_name": "Department of Agriculture",
+        "type": "awarding",
+    }
+    assert spec["transform"]["placeOfPerformanceLocations"] == [
+        {"country": "USA", "state": "MN"}
+    ]
+    assert "signed net federal_action_obligation" in spec["source_concept"]
+    assert "Minnesota-wide spending context only" in spec["evidence_notes"]
+    assert "not Superior National Forest obligations" in spec["evidence_notes"]
+    assert "No value is attributed to H.R. 978" in spec["evidence_notes"]
+    assert "mine-plan reviews, permits, mineral leases" in spec["evidence_notes"]
+    assert "financial-account obligations, appropriations" in spec["evidence_notes"]
+    assert "bill-caused spending" in spec["evidence_notes"]
+
+
+def test_fiscal_year_post_body_rejects_mixed_or_malformed_scope_filters() -> None:
+    mixed = copy.deepcopy(cdfi_program_transform())
+    mixed["treasuryAccountComponents"] = copy.deepcopy(
+        dhs_award_transaction_transform()["treasuryAccountComponents"]
+    )
+    with pytest.raises(ValueError, match="fiscal-year POST plan"):
+        resolve_pending.usaspending_fiscal_year_post_body("2025", mixed)
+
+    malformed = copy.deepcopy(cdfi_program_transform())
+    malformed["agency"]["tier"] = "toptier"
+    with pytest.raises(ValueError, match="awarding-subtier"):
+        resolve_pending.usaspending_fiscal_year_post_body("2025", malformed)
+
+    mixed_program = copy.deepcopy(hidta_program_transform())
+    mixed_program["agency"] = copy.deepcopy(cdfi_program_transform()["agency"])
+    with pytest.raises(ValueError, match="fiscal-year POST plan"):
+        resolve_pending.usaspending_fiscal_year_post_body("2025", mixed_program)
+
+    for bad_program_numbers in ([], ["95.1"], ["95.001", "95.001"], [95.001]):
+        malformed_program = copy.deepcopy(hidta_program_transform())
+        malformed_program["programNumbers"] = bad_program_numbers
+        with pytest.raises(ValueError, match="program numbers"):
+            resolve_pending.usaspending_fiscal_year_post_body(
+                "2025",
+                malformed_program,
+            )
+
+    malformed_toptier = copy.deepcopy(usfs_minnesota_transform())
+    malformed_toptier["agency"]["toptier_name"] = ""
+    with pytest.raises(ValueError, match="awarding-subtier"):
+        resolve_pending.usaspending_fiscal_year_post_body(
+            "2025",
+            malformed_toptier,
+        )
+
+    for bad_locations in (
+        [],
+        [{"country": "USA"}],
+        [{"country": "US", "state": "MN"}],
+        [{"country": "USA", "state": "Minnesota"}],
+        [
+            {"country": "USA", "state": "MN"},
+            {"country": "USA", "state": "MN"},
+        ],
+    ):
+        malformed_location = copy.deepcopy(usfs_minnesota_transform())
+        malformed_location["placeOfPerformanceLocations"] = bad_locations
+        with pytest.raises(ValueError, match="place-of-performance"):
+            resolve_pending.usaspending_fiscal_year_post_body(
+                "2025",
+                malformed_location,
+            )
+
+    unpaired_location = copy.deepcopy(hidta_program_transform())
+    unpaired_location["placeOfPerformanceLocations"] = [
+        {"country": "USA", "state": "MN"}
+    ]
+    with pytest.raises(ValueError, match="fiscal-year POST plan"):
+        resolve_pending.usaspending_fiscal_year_post_body(
+            "2025",
+            unpaired_location,
+        )
 
 
 def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> None:
