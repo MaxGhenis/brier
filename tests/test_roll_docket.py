@@ -1087,6 +1087,54 @@ def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
     )
 
 
+def test_docket_never_pins_resolution_date_on_calendar_entries() -> None:
+    # build_contract writes resolutionDate only for resolve-by-bound targets;
+    # the bind step then requires presence parity with the batch projection.
+    # A calendar entry carrying extras.resolutionDate therefore registers
+    # cleanly but deterministically fails --bind-registration-commits (the
+    # 2026-08-10 roll-docket outage: the CRP pair's pre-basis leftover).
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    offenders = [
+        entry["slug"]
+        for entry in docket["series"]
+        if isinstance(entry.get("extras"), dict)
+        and "resolutionDate" in entry["extras"]
+        and entry["extras"].get("resolutionDateBasis") != "resolve-by-bound"
+    ]
+    assert offenders == []
+
+
+def test_calendar_pair_with_pinned_resolution_date_fails_bind_projection() -> None:
+    # The exact incident shape, kept as a tripwire: re-pin the CRP entry's
+    # old calendar-side resolutionDate and the roll projection diverges from
+    # the registered contract at the bind step's presence check.
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = copy.deepcopy(
+        next(
+            row
+            for row in docket["series"]
+            if row["series"] == "usda.fsa.crp.enrolled_acres_total"
+        )
+    )
+    entry["extras"]["resolutionDate"] = "2027-12-31"
+
+    targets = roll_docket.conditional_pair_seed_targets(
+        entry, set(), dt.date(2026, 8, 2)
+    )
+    assert targets and all(
+        target["resolutionDate"] == "2027-12-31" for target in targets
+    )
+    for target in targets:
+        contract = build_contract(target, dt.date(2026, 8, 2))
+        assert "resolutionDate" not in contract
+        with pytest.raises(
+            RegistrationError, match="contract mismatch for resolutionDate"
+        ):
+            register_targets.validate_target_resolution_projection(
+                contract, target, label="repro"
+            )
+
+
 def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
     entry = conditional_pair_entry()
     published = {"additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar"}
