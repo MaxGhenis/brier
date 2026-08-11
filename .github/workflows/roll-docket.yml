@@ -88,6 +88,10 @@ jobs:
           persist-credentials: false
 
       - name: Adopt proven series into the registry
+        # Skipped in retry mode: adoption writes docket_series.json, and
+        # retry skips the commit steps — a pending adoption would leave a
+        # dirty tree that aborts the sync step and burns the grace window.
+        if: github.event.inputs.retry_batch == ''
         run: python3 scripts/adopt_proven_series.py
 
       - name: Compute targets with trusted repository code
@@ -291,6 +295,28 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Re-check retry grace before spending generation time
+        # Advisory fail-fast (the trusted gate is --enforce-run-grace at
+        # publication): re-running the selector here refuses the whole
+        # batch if any target's grace lapsed between dispatch and this
+        # job starting, instead of burning analyst runs that publication
+        # will reject.
+        if: github.event.inputs.retry_batch != ''
+        env:
+          RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
+          RETRY_SLUGS: ${{ github.event.inputs.retry_slugs }}
+        run: |
+          set -euo pipefail
+          args=(
+            python3 scripts/retry_batch_targets.py
+            --batch "$RETRY_BATCH"
+            --out /tmp/retry-grace-recheck.json
+          )
+          if [ -n "$RETRY_SLUGS" ]; then
+            args+=(--slugs "$RETRY_SLUGS")
+          fi
+          "${args[@]}"
+
       - name: Install codex CLI
         run: bun add -g @openai/codex@0.144.0
 
@@ -413,15 +439,25 @@ jobs:
         if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         env:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
+          RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
         run: |
           VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          python3 scripts/docket_publication.py validate \
-            --bundle-dir /tmp/docket-publication \
-            --batch "$BATCH_MANIFEST" \
-            --trusted-targets /tmp/trusted-registration/roll-targets.json \
-            --publish-validated-at-utc "$VALIDATED_AT" \
-            --allow-published-wave \
+          args=(
+            python3 scripts/docket_publication.py validate
+            --bundle-dir /tmp/docket-publication
+            --batch "$BATCH_MANIFEST"
+            --trusted-targets /tmp/trusted-registration/roll-targets.json
+            --publish-validated-at-utc "$VALIDATED_AT"
+            --allow-published-wave
             --apply
+          )
+          if [ -n "$RETRY_BATCH" ]; then
+            # Trusted grace gate: a retried run that started or sealed
+            # after its registration's orphan grace deadline is refused
+            # here regardless of what selection approved earlier.
+            args+=(--enforce-run-grace)
+          fi
+          "${args[@]}"
 
       - name: Verify complete record chain and custody graph
         if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'

@@ -821,6 +821,42 @@ def validate_run_file_inventory(
         )
 
 
+# Must equal TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS in
+# site/src/data/ledger-targets.ts (pinned by test).
+ORPHAN_GRACE_DAYS = 7
+
+
+def require_run_within_grace(
+    target: dict[str, Any],
+    run_start: dt.datetime,
+    cells: list[dict[str, Any]],
+) -> None:
+    """Refuse runs that started or sealed after the registration's grace.
+
+    Selection-time grace approval (the retry lane's selector) cannot
+    cover a generation job that runs long past the deadline; this is the
+    trusted re-check at publication time, against the authenticated run
+    manifest start and each sealed cell's runAt.
+    """
+
+    registered = parse_instant(
+        target.get("registeredAtUtc"), "target registeredAtUtc"
+    )
+    deadline = registered + dt.timedelta(days=ORPHAN_GRACE_DAYS)
+    if run_start >= deadline:
+        raise PublicationError(
+            "run started after the registration's orphan grace deadline "
+            f"({run_start.isoformat()} >= {deadline.isoformat()}); the "
+            "honest terminal state is the expired-unforecast ratchet"
+        )
+    for cell in cells:
+        cell_run_at = parse_instant(cell.get("runAt"), "cell runAt")
+        if cell_run_at >= deadline:
+            raise PublicationError(
+                "cell sealed after the registration's orphan grace deadline"
+            )
+
+
 def validate_run_binding(
     repo: pathlib.Path,
     result: dict[str, Any],
@@ -828,6 +864,7 @@ def validate_run_binding(
     cells: list[dict[str, Any]],
     *,
     require_git_binding: bool,
+    enforce_run_grace: bool = False,
 ) -> None:
     target = result["target"]
     if not require_git_binding:
@@ -846,6 +883,8 @@ def validate_run_binding(
         if not canonical_equal(manifest.get(field), target.get(field)):
             raise PublicationError(f"run manifest target identity mismatch: {field}")
     run_start = parse_instant(run_started_at, "run manifest runStartedAt")
+    if enforce_run_grace:
+        require_run_within_grace(target, run_start, cells)
     manifest_relative = relative_repo_path(str(result.get("manifestPath") or ""))
     run_dir_stamp = manifest_relative.parent.name[:20]
     try:
@@ -893,6 +932,7 @@ def validate_cells(
     batch_relative: str,
     *,
     require_git_binding: bool = False,
+    enforce_run_grace: bool = False,
     collision_exclusion: pathlib.Path | None = None,
     publish_validated_at_utc: str | None = None,
 ) -> None:
@@ -1002,6 +1042,7 @@ def validate_cells(
                 manifest,
                 cells,
                 require_git_binding=require_git_binding,
+                enforce_run_grace=enforce_run_grace,
             )
         else:
             validate_target_registration(repo, target)
@@ -1083,6 +1124,7 @@ def validate(args: argparse.Namespace) -> None:
         repo,
         args.batch,
         require_git_binding=bool(args.trusted_targets),
+        enforce_run_grace=bool(getattr(args, "enforce_run_grace", False)),
         collision_exclusion=collision_exclusion,
         publish_validated_at_utc=args.publish_validated_at_utc,
     )
@@ -1127,6 +1169,14 @@ def parse_args() -> argparse.Namespace:
     validate_parser.add_argument("--trusted-targets")
     validate_parser.add_argument("--publish-validated-at-utc")
     validate_parser.add_argument("--allow-published-wave", action="store_true")
+    validate_parser.add_argument(
+        "--enforce-run-grace",
+        action="store_true",
+        help=(
+            "refuse any run that started or sealed after its registration's "
+            "orphan grace deadline (the retry lane's trusted publication gate)"
+        ),
+    )
     validate_parser.add_argument("--apply", action="store_true")
     validate_parser.set_defaults(func=validate)
 

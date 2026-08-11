@@ -6,25 +6,34 @@ target whose analyst run fails validation (a unit-string mismatch, a
 provenance slip, a transient fetch) keeps its immutable registration but
 never receives a cell, and after TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS
 the registration can only terminate in the expired-unforecast ratchet.
-This selector closes that gap: it reconstructs the exact batch-target
-dicts the failed runs consumed — from the committed, immutable batch
-manifest, not from any mutable input — so the roll workflow can rerun
-generation against the original registrations while their grace window
-is still open.
+This selector closes that gap: the roll workflow can rerun generation
+against the original registrations while their grace window is open.
 
 Trust properties:
-- Input is a committed manifest (``records/thesis-analyst/batches/…``);
-  every selected target must name a registration snapshot that exists in
-  the tree and whose content hash matches both the target dict and the
-  snapshot filename. Registration is then re-verified by the workflow via
-  ``register_targets.py --reuse-existing-only`` and the usual
-  ``--bind-registration-commits`` passes; this script adds no authority.
-- Only targets whose recorded run failed are eligible by default;
-  ``--slugs`` narrows (never widens past the manifest) and refuses slugs
-  whose recorded run succeeded unless ``--allow-succeeded`` is given.
-- A target outside its orphan grace window is refused outright: past
-  grace the honest terminal state is the expired-unforecast ratchet, not
-  a late run against a stale information set.
+- The committed manifest only NAMES which targets failed and where their
+  registration snapshots live. Every emitted batch target is
+  reconstructed from the registration snapshot itself — the immutable,
+  content-hashed record — via the same field mapping the registration
+  writer uses (`register_targets._target_registration_fields`). Nothing
+  else from the manifest row survives, so a tampered manifest cannot
+  smuggle prompt- or validation-affecting fields (resolution overrides,
+  anchors, comparison flags) into the rerun. The snapshot's content hash
+  is recomputed from its bytes and must match both the manifest row and
+  the snapshot filename.
+- This mode is restricted to the ordinary release-calendar lane:
+  manifests carrying a generation ticket, targets whose contracts are
+  resolve-by-bound, and manifest rows carrying comparison/anchored/
+  cursor context (`comparisonTarget`, `anchors`, `previousTarget`,
+  `expectedReleaseDate`) are refused outright. Bounded targets belong to
+  the attested local lane; rows whose original run context cannot be
+  reconstructed from trusted state alone are not retryable here.
+- A target outside its orphan grace window — or registered in the
+  future — is refused outright: past grace the honest terminal state is
+  the expired-unforecast ratchet, not a late run against a stale
+  information set. The workflow re-enforces grace at trusted
+  publication time against the authenticated run timestamps
+  (docket_publication.py --enforce-run-grace), so selection-time
+  approval cannot leak past the deadline.
 """
 
 from __future__ import annotations
@@ -36,6 +45,10 @@ import pathlib
 import re
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+
+import register_targets  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 BATCH_MANIFEST_SCHEMA = "thesis_batch_manifest_v1"
@@ -45,6 +58,39 @@ BATCH_MANIFEST_SCHEMA = "thesis_batch_manifest_v1"
 # every build, and tests/test_retry_batch_targets.py pins the two
 # constants together.
 ORPHAN_GRACE_DAYS = 7
+
+# The complete key population an ordinary release-calendar registration
+# contract may carry (register_targets.build_contract). A snapshot with
+# any other key is from a lane this selector does not understand and is
+# refused rather than partially reconstructed.
+KNOWN_CONTRACT_KEYS = frozenset(
+    {
+        "series",
+        "period",
+        "catalogSlug",
+        "dataPointId",
+        "country",
+        "unit",
+        "valueScale",
+        "sourceBinding",
+        "conditional",
+        "conditionId",
+        "conditionDeadline",
+        "resolutionDate",
+        "resolutionDateBasis",
+    }
+)
+
+# Manifest-row context that affected the original run but cannot be
+# reconstructed from trusted state by this selector. Rows carrying any
+# of these are refused (not silently stripped) so the rerun can never
+# quietly differ from the recorded run's contract.
+UNRECONSTRUCTABLE_ROW_KEYS = (
+    "comparisonTarget",
+    "anchors",
+    "previousTarget",
+    "expectedReleaseDate",
+)
 
 
 class RetrySelectionError(Exception):
@@ -80,33 +126,109 @@ def load_manifest(path: pathlib.Path) -> dict:
             "batch manifest schemaVersion must be "
             f"{BATCH_MANIFEST_SCHEMA!r}, got {manifest.get('schemaVersion')!r}"
         )
+    if "generationTicket" in manifest:
+        raise RetrySelectionError(
+            "batch manifest carries a generation ticket; ticketed runs "
+            "belong to the attested local lane and are never retried here"
+        )
     results = manifest.get("results")
     if not isinstance(results, list) or not results:
         raise RetrySelectionError("batch manifest has no results")
     return manifest
 
 
-def verify_registration_binding(target: dict, *, label: str) -> None:
-    relative = target.get("targetRegistrationPath")
-    content_hash = target.get("targetContentHash")
-    if not isinstance(relative, str) or not isinstance(content_hash, str):
+def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
+    """Reconstruct the trusted batch target from its registration snapshot.
+
+    The manifest row contributes only the snapshot's location and the
+    claimed content hash; every emitted field comes from the snapshot
+    contract through the registration writer's own field mapping.
+    """
+
+    for key in UNRECONSTRUCTABLE_ROW_KEYS:
+        if key in row_target:
+            raise RetrySelectionError(
+                f"{label} carries {key!r}, run context this selector cannot "
+                "reconstruct from trusted state; not retryable here"
+            )
+    relative = row_target.get("targetRegistrationPath")
+    claimed_hash = row_target.get("targetContentHash")
+    if not isinstance(relative, str) or not isinstance(claimed_hash, str):
         raise RetrySelectionError(
             f"{label} lacks targetRegistrationPath/targetContentHash"
         )
-    if not re.fullmatch(r"[0-9a-f]{64}", content_hash):
+    if not re.fullmatch(r"[0-9a-f]{64}", claimed_hash):
         raise RetrySelectionError(f"{label} content hash is not 64-hex")
     parts = pathlib.PurePosixPath(relative)
-    if parts.is_absolute() or ".." in parts.parts:
+    if (
+        parts.is_absolute()
+        or ".." in parts.parts
+        or pathlib.PurePosixPath("records/targets") not in parts.parents
+    ):
         raise RetrySelectionError(f"{label} has an unsafe registration path")
     snapshot_path = ROOT.joinpath(*parts.parts)
     if not snapshot_path.is_file():
         raise RetrySelectionError(
             f"{label} registration snapshot missing from tree: {relative}"
         )
+    snapshot = json.loads(snapshot_path.read_text())
+    content_hash = register_targets.registration_content_hash(snapshot)
+    if content_hash != claimed_hash:
+        raise RetrySelectionError(
+            f"{label} snapshot bytes hash to {content_hash[:12]}…, not the "
+            "manifest's recorded content hash"
+        )
     if not parts.name.endswith(f"-{content_hash}.json"):
         raise RetrySelectionError(
             f"{label} registration filename does not carry its content hash"
         )
+    targets = snapshot.get("targets")
+    if not isinstance(targets, list) or len(targets) != 1:
+        raise RetrySelectionError(
+            f"{label} registration must contain exactly one target: {relative}"
+        )
+    contract = targets[0]
+    unknown = set(contract) - KNOWN_CONTRACT_KEYS
+    if unknown:
+        raise RetrySelectionError(
+            f"{label} contract carries unknown field(s) {sorted(unknown)}; "
+            "refusing to reconstruct a run context this selector does not "
+            "understand"
+        )
+    if contract.get("resolutionDateBasis") not in (None, "release-calendar"):
+        raise RetrySelectionError(
+            f"{label} is a {contract.get('resolutionDateBasis')!r} target; "
+            "bounded targets belong to the attested generation-ticket lane"
+        )
+    if contract.get("catalogSlug") != row_target.get("catalogSlug"):
+        raise RetrySelectionError(
+            f"{label} snapshot binds {contract.get('catalogSlug')!r}, not the "
+            "manifest row's slug"
+        )
+    registered_at = snapshot.get("registeredAtUtc")
+    if row_target.get("registeredAtUtc") not in (None, registered_at):
+        raise RetrySelectionError(
+            f"{label} manifest registeredAtUtc disagrees with the snapshot"
+        )
+    rebuilt = {
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+    }
+    rebuilt.update(
+        register_targets._target_registration_fields(
+            {
+                "contract": contract,
+                "registeredAtUtc": registered_at,
+                "targetContentHash": content_hash,
+                "path": snapshot_path,
+            }
+        )
+    )
+    for key in ("conditional", "conditionId", "conditionDeadline"):
+        if key in contract:
+            rebuilt[key] = contract[key]
+    return rebuilt
 
 
 def select_retry_targets(
@@ -150,12 +272,17 @@ def select_retry_targets(
 
     targets = []
     for slug in chosen:
-        target = by_slug[slug]["target"]
         label = f"target {slug}"
-        registered_at = target.get("registeredAtUtc")
-        if not registered_at:
-            raise RetrySelectionError(f"{label} lacks registeredAtUtc")
-        registered = _parse_utc(registered_at, label=f"{label} registeredAtUtc")
+        rebuilt = rebuild_target_from_snapshot(
+            by_slug[slug]["target"], label=label
+        )
+        registered = _parse_utc(
+            rebuilt["registeredAtUtc"], label=f"{label} registeredAtUtc"
+        )
+        if registered > now_utc:
+            raise RetrySelectionError(
+                f"{label} claims a future registration instant; refusing"
+            )
         deadline = registered + dt.timedelta(days=ORPHAN_GRACE_DAYS)
         if now_utc >= deadline:
             raise RetrySelectionError(
@@ -164,8 +291,7 @@ def select_retry_targets(
                 "terminal state is the expired-unforecast ratchet, not a "
                 "late rerun"
             )
-        verify_registration_binding(target, label=label)
-        targets.append(target)
+        targets.append(rebuilt)
     return targets
 
 
