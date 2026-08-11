@@ -3351,7 +3351,9 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "Community Development Financial Institutions Fund. It excludes "
             "non-award financial-account obligations and outlays and does not "
             "identify purchases, guarantees, loan-loss reserves, or any "
-            "bill-specific amended-section-113 activity."
+            "bill-specific amended-section-113 activity; it says nothing "
+            "about CDFI loan originations, liquidity, competitiveness, or "
+            "other downstream outcomes."
         ),
     },
     "usaspending.ondcp.hidta_al95001_obligations": {

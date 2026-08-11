@@ -10,6 +10,7 @@ import { ComputeCard } from "@/components/ComputeCard";
 import { ProvisionAnalysis } from "@/components/ProvisionAnalysis";
 import {
   getBillForecastGroups,
+  getBillContextSeriesLinks,
   getPendingConditionals,
 } from "@/data/bill-forecasts";
 import {
@@ -179,6 +180,13 @@ export default async function BillDetailPage({
     }
   }
   const unconditionalCells = [...cellSources.values()];
+  // Explicitly context-only linkage: registered series the docket
+  // tracks because this bill made them worth watching. Never a
+  // resolution of a bill metric — each link's scopeNote is rendered
+  // verbatim so the boundary lives on the page.
+  const contextSeriesLinks = getBillContextSeriesLinks(slug).map(
+    (link) => ({ link, cell: resolveMetricCell(link.seriesConcept) }),
+  );
   const computeRows = entry.provisions.flatMap((p) => p.compute ?? []);
   // Honest empty-state inputs: how many candidate metrics the analysis
   // found, and how many name an admitted series (series_hints are verified
@@ -366,6 +374,79 @@ export default async function BillDetailPage({
                     </Link>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {contextSeriesLinks.length > 0 && (
+            <div className="mt-5">
+              <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
+                Registered context series — forecast regardless of this bill
+              </h3>
+              <p className="m-0 mb-3 max-w-[680px] text-[0.8rem] leading-[1.6] text-[var(--theme-text-muted)]">
+                These series are tracked because the bill made them worth
+                watching. They are not resolutions of any bill metric; each
+                entry states what the series is not.
+              </p>
+              <div className="divide-y divide-[var(--theme-border)] rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]">
+                {contextSeriesLinks.map(({ link, cell }) => (
+                  <div key={link.seriesConcept} className="px-5 py-4">
+                    {cell ? (
+                      <Link
+                        href={`/${cell.slug}?from=/bills/${slug}`}
+                        className="grid grid-cols-[minmax(0,1fr)_240px] items-center gap-8 text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline max-md:grid-cols-1 max-md:gap-3"
+                      >
+                        <div>
+                          <p className="m-0 text-[0.95rem] font-medium leading-[1.5]">
+                            {cell.title}
+                          </p>
+                          <p className="m-0 mt-1 max-w-[640px] text-[0.85rem] leading-[1.55] text-[var(--theme-text-muted)]">
+                            {cell.question}
+                          </p>
+                        </div>
+                        <div>
+                          <div className="flex items-baseline justify-between gap-3">
+                            <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                              Current forecast
+                            </span>
+                            <span className="[font-family:var(--font-display)] text-[1.35rem] font-normal leading-none">
+                              {cell.pointLabel}
+                            </span>
+                          </div>
+                          <div className="mt-1.5 flex items-baseline justify-between gap-3">
+                            <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                              80% interval
+                            </span>
+                            <span className="[font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-muted)]">
+                              {cell.ciLabel}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-baseline justify-between gap-3">
+                            <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                              Resolves
+                            </span>
+                            <span className="[font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-muted)]">
+                              {cell.resolutionDate} →
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ) : (
+                      <div>
+                        <p className="m-0 text-[0.95rem] font-medium leading-[1.5]">
+                          {link.label}
+                        </p>
+                        <p className="m-0 mt-1 text-[0.8rem] leading-[1.55] text-[var(--theme-text-muted)]">
+                          Admitted to the docket — the first registered
+                          forecast arrives with the next roll.
+                        </p>
+                      </div>
+                    )}
+                    <p className="m-0 mt-2 max-w-[680px] text-[0.75rem] leading-[1.6] text-[var(--theme-text-dim)]">
+                      {link.scopeNote}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
