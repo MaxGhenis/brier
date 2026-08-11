@@ -27,7 +27,7 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   program_numbers filter (AL 11.038) + tests
   (usaspending-ntia-broadband-program-obligations.json; FY2025
   $409,852,406.47).
-- [ ] 4. Forest Service MN (H.R. 978): spec
+- [x] 4. Forest Service MN (H.R. 978): spec
   `usaspending.usfs.minnesota_obligations` + awarding-subagency +
   place-of-performance filter support + tests
   (usaspending-usfs-superior-nf-obligations.json; FY2025

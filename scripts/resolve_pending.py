@@ -3481,6 +3481,91 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "appropriations, budget authority, and outlays."
         ),
     },
+    "usaspending.usfs.minnesota_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.usfs.minnesota_obligations"
+        ),
+        "label": (
+            "Minnesota-wide Forest Service award-transaction obligations "
+            "(context only), fiscal year total"
+        ),
+        "unit": "usd",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "agency": {
+                "name": "Forest Service",
+                "tier": "subtier",
+                "toptier_name": "Department of Agriculture",
+                "type": "awarding",
+            },
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+                "A",
+                "B",
+                "C",
+                "D",
+                "IDV_A",
+                "IDV_B",
+                "IDV_B_A",
+                "IDV_B_B",
+                "IDV_B_C",
+                "IDV_C",
+                "IDV_D",
+                "IDV_E",
+            ],
+            "placeOfPerformanceLocations": [{"country": "USA", "state": "MN"}],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, prime award transactions "
+            "filtered to the Forest Service awarding subagency and Minnesota "
+            "place of performance, obligations by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime award transactions "
+            "whose awarding subtier is Forest Service and whose reported place of "
+            "performance has country USA and state MN, grouped by action-date "
+            "federal fiscal year"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is signed net federal_action_obligation across prime award "
+            "transactions whose awarding subtier is Forest Service and whose "
+            "reported place of performance has country=USA and state=MN. This is "
+            "Minnesota-wide spending context only, not Superior National Forest "
+            "obligations or activity confined to H.R. 978's covered forest lands. "
+            "No value is attributed to H.R. 978. The series excludes an exact "
+            "named-land-unit or forest-boundary filter; withdrawal-order status, "
+            "mine-plan reviews, permits, mineral leases, prospecting permits, "
+            "preference-right leases, or deadline compliance; all Forest Service "
+            "financial-account obligations, appropriations, budget authority, and "
+            "outlays; awards outside Minnesota or without Minnesota as their "
+            "reported state; and bill-caused spending."
+        ),
+    },
     "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
@@ -3688,6 +3773,7 @@ def usaspending_fiscal_year_post_body(
     components = transform.get("treasuryAccountComponents")
     agency = transform.get("agency")
     program_numbers = transform.get("programNumbers")
+    place_of_performance_locations = transform.get("placeOfPerformanceLocations")
     factor = transform.get("factor")
     common_keys = {
         "operation",
@@ -3707,6 +3793,11 @@ def usaspending_fiscal_year_post_body(
         )
         if value is not None
     }
+    location_keys = (
+        {"placeOfPerformanceLocations"}
+        if place_of_performance_locations is not None
+        else set()
+    )
     if (
         transform.get("operation") != "multiply"
         or isinstance(factor, bool)
@@ -3722,18 +3813,30 @@ def usaspending_fiscal_year_post_body(
         or not all(isinstance(code, str) and code for code in award_codes)
         or len(set(award_codes)) != len(award_codes)
         or len(scope_keys) != 1
-        or set(transform) != common_keys | scope_keys
+        or (place_of_performance_locations is not None and agency is None)
+        or set(transform) != common_keys | scope_keys | location_keys
     ):
         raise ValueError("registered USAspending fiscal-year POST plan is malformed")
 
     if agency is not None:
         if (
             not isinstance(agency, dict)
-            or set(agency) != {"type", "tier", "name"}
+            or set(agency)
+            not in (
+                {"type", "tier", "name"},
+                {"type", "tier", "name", "toptier_name"},
+            )
             or agency.get("type") != "awarding"
             or agency.get("tier") != "subtier"
             or not isinstance(agency.get("name"), str)
             or not agency["name"]
+            or (
+                "toptier_name" in agency
+                and (
+                    not isinstance(agency["toptier_name"], str)
+                    or not agency["toptier_name"]
+                )
+            )
         ):
             raise ValueError("registered USAspending awarding-subtier is malformed")
         filters = _usaspending_advanced_filters(fiscal_year, transform)
@@ -3820,7 +3923,11 @@ def _usaspending_advanced_filters(
     award_codes = transform.get("awardTypeCodes")
     if (
         not isinstance(agency, dict)
-        or set(agency) != {"type", "tier", "name"}
+        or set(agency)
+        not in (
+            {"type", "tier", "name"},
+            {"type", "tier", "name", "toptier_name"},
+        )
         or not isinstance(award_codes, list)
         or not award_codes
         or not all(isinstance(code, str) and code for code in award_codes)
@@ -3841,6 +3948,34 @@ def _usaspending_advanced_filters(
             )
         if recipient_type_names:
             filters["recipient_type_names"] = list(recipient_type_names)
+    place_of_performance_locations = transform.get("placeOfPerformanceLocations")
+    if place_of_performance_locations is not None:
+        if (
+            not isinstance(place_of_performance_locations, list)
+            or not place_of_performance_locations
+            or not all(
+                isinstance(location, dict)
+                and set(location) == {"country", "state"}
+                and isinstance(location.get("country"), str)
+                and re.fullmatch(r"[A-Z]{3}", location["country"])
+                and isinstance(location.get("state"), str)
+                and re.fullmatch(r"[A-Z]{2}", location["state"])
+                for location in place_of_performance_locations
+            )
+            or len(
+                {
+                    canonical_bytes(location)
+                    for location in place_of_performance_locations
+                }
+            )
+            != len(place_of_performance_locations)
+        ):
+            raise ValueError(
+                "registered USAspending place-of-performance locations are malformed"
+            )
+        filters["place_of_performance_locations"] = copy.deepcopy(
+            place_of_performance_locations
+        )
     return filters
 
 
