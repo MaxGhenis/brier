@@ -73,6 +73,7 @@ KNOWN_CONTRACT_KEYS = frozenset(
         "unit",
         "valueScale",
         "sourceBinding",
+        "seedPeriod",
         "conditional",
         "conditionId",
         "conditionDeadline",
@@ -137,20 +138,11 @@ def load_manifest(path: pathlib.Path) -> dict:
     return manifest
 
 
-def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
-    """Reconstruct the trusted batch target from its registration snapshot.
+def load_verified_snapshot(
+    row_target: dict, *, label: str
+) -> tuple[dict, pathlib.Path]:
+    """Load a row's registration snapshot, proving path and content hash."""
 
-    The manifest row contributes only the snapshot's location and the
-    claimed content hash; every emitted field comes from the snapshot
-    contract through the registration writer's own field mapping.
-    """
-
-    for key in UNRECONSTRUCTABLE_ROW_KEYS:
-        if key in row_target:
-            raise RetrySelectionError(
-                f"{label} carries {key!r}, run context this selector cannot "
-                "reconstruct from trusted state; not retryable here"
-            )
     relative = row_target.get("targetRegistrationPath")
     claimed_hash = row_target.get("targetContentHash")
     if not isinstance(relative, str) or not isinstance(claimed_hash, str):
@@ -182,6 +174,24 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
         raise RetrySelectionError(
             f"{label} registration filename does not carry its content hash"
         )
+    return snapshot, snapshot_path
+
+
+def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
+    """Reconstruct the trusted batch target from its registration snapshot.
+
+    The manifest row contributes only the snapshot's location and the
+    claimed content hash; every emitted field comes from the snapshot
+    contract through the registration writer's own field mapping.
+    """
+
+    for key in UNRECONSTRUCTABLE_ROW_KEYS:
+        if key in row_target:
+            raise RetrySelectionError(
+                f"{label} carries {key!r}, run context this selector cannot "
+                "reconstruct from trusted state; not retryable here"
+            )
+    snapshot, snapshot_path = load_verified_snapshot(row_target, label=label)
     targets = snapshot.get("targets")
     if not isinstance(targets, list) or len(targets) != 1:
         raise RetrySelectionError(
@@ -210,25 +220,9 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
         raise RetrySelectionError(
             f"{label} manifest registeredAtUtc disagrees with the snapshot"
         )
-    rebuilt = {
-        "series": contract["series"],
-        "period": contract["period"],
-        "catalogSlug": contract["catalogSlug"],
-    }
-    rebuilt.update(
-        register_targets._target_registration_fields(
-            {
-                "contract": contract,
-                "registeredAtUtc": registered_at,
-                "targetContentHash": content_hash,
-                "path": snapshot_path,
-            }
-        )
+    return register_targets.rebuild_registered_target(
+        snapshot, path=snapshot_path, root=ROOT
     )
-    for key in ("conditional", "conditionId", "conditionDeadline"):
-        if key in contract:
-            rebuilt[key] = contract[key]
-    return rebuilt
 
 
 def select_retry_targets(
@@ -271,6 +265,7 @@ def select_retry_targets(
             chosen.append(slug)
 
     targets = []
+    rebuilt_by_slug: dict[str, dict] = {}
     for slug in chosen:
         label = f"target {slug}"
         rebuilt = rebuild_target_from_snapshot(
@@ -291,7 +286,46 @@ def select_retry_targets(
                 "terminal state is the expired-unforecast ratchet, not a "
                 "late rerun"
             )
+        rebuilt_by_slug[slug] = rebuilt
         targets.append(rebuilt)
+
+    # Pair atomicity (roll_docket F10): a conditional pair's unpublished
+    # arms are one unit — publishing one arm ahead of a sibling that also
+    # remains unpublished would hand the later arm extra information.
+    # Retrying a lone failed arm is valid only when every sibling in the
+    # recorded batch succeeded (published); otherwise the retry must
+    # carry the whole failed set together. Arm-ness of BOTH sides comes
+    # from verified registration snapshots — manifest rows contribute
+    # only membership and recorded outcomes, so omitting fields from a
+    # sibling row cannot hide the pair.
+    if any(rebuilt.get("conditional") is not None for rebuilt in targets):
+        contract_by_slug = {
+            slug: load_verified_snapshot(
+                result["target"], label=f"target {slug}"
+            )[0]["targets"][0]
+            for slug, result in by_slug.items()
+        }
+        for slug, rebuilt in rebuilt_by_slug.items():
+            if rebuilt.get("conditional") is None:
+                continue
+            for sibling, sibling_result in by_slug.items():
+                sibling_contract = contract_by_slug[sibling]
+                if (
+                    sibling == slug
+                    or sibling_contract.get("conditional") is None
+                    or sibling_contract.get("series") != rebuilt.get("series")
+                    or sibling_contract.get("period") != rebuilt.get("period")
+                ):
+                    continue
+                if (
+                    not sibling_result.get("ok")
+                    and sibling not in rebuilt_by_slug
+                ):
+                    raise RetrySelectionError(
+                        f"target {slug} is a conditional arm whose sibling "
+                        f"{sibling} also failed and is not selected; "
+                        "unpublished pair arms retry together or not at all"
+                    )
     return targets
 
 

@@ -338,6 +338,231 @@ def test_publication_grace_gate_refuses_late_runs() -> None:
     assert "enforce_run_grace" in binding_source
 
 
+def test_select_output_is_immune_to_forged_manifest_rows() -> None:
+    # Mutation pin for the reconstruction boundary at the SELECT level: if
+    # a future edit re-merges manifest-row fields after reconstruction,
+    # forged rows would leak into the output and this equality breaks.
+    clean = select_retry_targets(
+        real_manifest(), slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
+    )
+    forged_manifest = real_manifest()
+    for result in forged_manifest["results"]:
+        if not result.get("ok"):
+            result["target"]["resolutionSource"] = "attacker"
+            result["target"]["resolutionRule"] = "attacker rule"
+            result["target"]["targetUnit"] = "attacker unit"
+    forged = select_retry_targets(
+        forged_manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
+    )
+    assert forged == clean
+
+
+def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
+    # Derive two conditional-arm registrations from a real committed
+    # snapshot so the fixture inherits the live schema and ledger-pin
+    # shape; only the contract's identity and conditional fields change.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from register_targets import registration_content_hash
+    finally:
+        sys.path.pop(0)
+
+    base_row = failed_row(real_manifest())["target"]
+    base_snapshot = json.loads(
+        (ROOT / base_row["targetRegistrationPath"]).read_text()
+    )
+    registered_at = base_snapshot["registeredAtUtc"]
+
+    reg_dir = tmp_path / "records" / "targets"
+    reg_dir.mkdir(parents=True)
+    rows = []
+    slugs = []
+    for cond_id in ("enacted", "current-law"):
+        slug = f"test-pair-{cond_id}"
+        snapshot = copy.deepcopy(base_snapshot)
+        contract = snapshot["targets"][0]
+        contract["series"] = "test.pair.series"
+        contract["period"] = "2027-09"
+        contract["catalogSlug"] = slug
+        contract["dataPointId"] = (
+            f"test.pair.series.2027_09.first_print.{cond_id.replace('-', '_')}"
+        )
+        contract["conditional"] = f"condition {cond_id} holds"
+        contract["conditionId"] = f"cond.test.{cond_id}"
+        contract["conditionDeadline"] = "2027-09-30"
+        content_hash = registration_content_hash(snapshot)
+        name = f"2026-08-07-{content_hash}.json"
+        (reg_dir / name).write_text(json.dumps(snapshot))
+        rows.append(
+            {
+                "ok": False,
+                "target": {
+                    "catalogSlug": slug,
+                    "targetRegistrationPath": f"records/targets/{name}",
+                    "targetContentHash": content_hash,
+                    "registeredAtUtc": registered_at,
+                },
+            }
+        )
+        slugs.append(slug)
+    manifest = {
+        "schemaVersion": "thesis_batch_manifest_v1",
+        "results": rows,
+    }
+    return manifest, slugs[0], slugs[1]
+
+
+def test_narrowing_to_one_unpublished_pair_arm_is_refused(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest, arm_a, arm_b = _fake_pair_tree(tmp_path)
+    monkeypatch.setattr(retry_batch_targets, "ROOT", tmp_path)
+    with pytest.raises(RetrySelectionError, match="retry together or not at all"):
+        select_retry_targets(
+            manifest, slugs=[arm_a], allow_succeeded=False, now_utc=WITHIN_GRACE
+        )
+    # Both arms together: fine (and the default failed-set selection
+    # naturally includes both).
+    both = select_retry_targets(
+        manifest,
+        slugs=[arm_a, arm_b],
+        allow_succeeded=False,
+        now_utc=WITHIN_GRACE,
+    )
+    assert sorted(t["catalogSlug"] for t in both) == sorted([arm_a, arm_b])
+    default = select_retry_targets(
+        manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
+    )
+    assert sorted(t["catalogSlug"] for t in default) == sorted([arm_a, arm_b])
+
+
+def test_lone_failed_arm_with_published_sibling_is_retryable(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest, arm_a, arm_b = _fake_pair_tree(tmp_path)
+    for row in manifest["results"]:
+        if row["target"]["catalogSlug"] == arm_b:
+            row["ok"] = True
+    monkeypatch.setattr(retry_batch_targets, "ROOT", tmp_path)
+    targets = select_retry_targets(
+        manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
+    )
+    assert [t["catalogSlug"] for t in targets] == [arm_a]
+    assert targets[0]["conditional"] == "condition enacted holds"
+
+
+def test_seed_contracts_reconstruct_with_their_seed_period() -> None:
+    # Ordinary release-calendar seeds carry seedPeriod in the contract and
+    # the sync bind compares it; the projection must emit it.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        import register_targets
+    finally:
+        sys.path.pop(0)
+    seed_path = ROOT / (
+        "records/targets/"
+        "2026-07-26-270b7d2d593a239ac3373efdb5ec9fa3809df3e9eb60f5b3e1bc8120e239921b.json"
+    )
+    snapshot = json.loads(seed_path.read_text())
+    contract = snapshot["targets"][0]
+    assert "seedPeriod" in contract, "fixture registration is no longer a seed"
+    assert set(contract) <= retry_batch_targets.KNOWN_CONTRACT_KEYS
+    rebuilt = register_targets.rebuild_registered_target(
+        snapshot, path=seed_path
+    )
+    assert rebuilt["seedPeriod"] == contract["seedPeriod"]
+    assert rebuilt["registeredAtUtc"] == snapshot["registeredAtUtc"]
+
+
+def test_enforce_run_grace_cli_flag_reaches_the_binding_check(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        import docket_publication
+    finally:
+        sys.path.pop(0)
+
+    # CLI: the flag parses.
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "docket_publication.py",
+            "validate",
+            "--bundle-dir",
+            str(tmp_path),
+            "--batch",
+            "records/thesis-analyst/batches/2026-08-07/x.json",
+            "--enforce-run-grace",
+        ],
+    )
+    args = docket_publication.parse_args()
+    assert args.enforce_run_grace is True
+
+    # validate() forwards it into validate_cells.
+    captured: dict = {}
+
+    def fake_load_bundle(bundle, batch, trusted):
+        return tmp_path, {"schemaVersion": "x"}
+
+    def fake_validate_cells(repo, batch, **kwargs):
+        captured.update(kwargs)
+
+    monkeypatch.setattr(docket_publication, "load_bundle", fake_load_bundle)
+    monkeypatch.setattr(docket_publication, "validate_cells", fake_validate_cells)
+    monkeypatch.setattr(
+        docket_publication, "validate_batch_path", lambda batch: batch
+    )
+    args.apply = False
+    args.allow_published_wave = False
+    args.trusted_targets = "trusted.json"
+    args.publish_validated_at_utc = None
+    docket_publication.validate(args)
+    assert captured.get("enforce_run_grace") is True
+
+    # The real validate_run_binding enforces it before any git-bound
+    # work: a grace-late run manifest dies at the grace check with the
+    # flag on, and passes that point (failing later, differently) with
+    # it off.
+    target = {
+        "registeredAtUtc": "2026-08-07T17:54:06Z",
+        "series": "s",
+        "period": "p",
+    }
+    late_manifest = {
+        "schemaVersion": "thesis_analyst_run_manifest_v1",
+        "targetContext": target,
+        "runStartedAt": "2026-08-20T00:00:00Z",
+        "createdAt": "2026-08-20T00:00:00Z",
+        "series": "s",
+        "period": "p",
+        "conditional": None,
+    }
+    result = {"target": target, "manifestPath": "bad"}
+    with pytest.raises(
+        docket_publication.PublicationError, match="orphan grace deadline"
+    ):
+        docket_publication.validate_run_binding(
+            tmp_path,
+            result,
+            late_manifest,
+            [],
+            require_git_binding=True,
+            enforce_run_grace=True,
+        )
+    with pytest.raises(docket_publication.PublicationError) as excinfo:
+        docket_publication.validate_run_binding(
+            tmp_path,
+            result,
+            late_manifest,
+            [],
+            require_git_binding=True,
+            enforce_run_grace=False,
+        )
+    assert "orphan grace deadline" not in str(excinfo.value)
+
+
 def test_output_envelope_matches_the_roll_selector(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
