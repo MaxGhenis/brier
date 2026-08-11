@@ -148,6 +148,48 @@ def test_anchored_targets_reconstruct_with_docket_anchors() -> None:
         assert target["anchors"] == expected
 
 
+def test_bind_refuses_stale_or_absent_anchors(tmp_path: pathlib.Path) -> None:
+    # The round-four TOCTOU: selection reads the docket before the sync
+    # rebase, so binding must independently authenticate anchors against
+    # the committed docket at ITS head — presence and value. A tampered
+    # value and a stripped anchor must both fail the bind closed.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        import register_targets
+    finally:
+        sys.path.pop(0)
+
+    manifest = load_manifest(B1_MANIFEST)
+    targets = select_retry_targets(
+        manifest, slugs=None, allow_succeeded=False, now_utc=B1_WITHIN_GRACE
+    )
+
+    good = tmp_path / "good.json"
+    good.write_text(json.dumps({"targets": targets}, indent=1) + "\n")
+    bound = register_targets.bind_registration_commits(good, "HEAD")
+    assert len(bound["targets"]) == 3
+
+    tampered = copy.deepcopy(targets)
+    tampered[0]["anchors"] = {"2025": 999.0}
+    bad_value = tmp_path / "bad-value.json"
+    bad_value.write_text(json.dumps({"targets": tampered}, indent=1) + "\n")
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="anchors disagree with the committed docket",
+    ):
+        register_targets.bind_registration_commits(bad_value, "HEAD")
+
+    stripped = copy.deepcopy(targets)
+    del stripped[0]["anchors"]
+    bad_absent = tmp_path / "bad-absent.json"
+    bad_absent.write_text(json.dumps({"targets": stripped}, indent=1) + "\n")
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="anchors disagree with the committed docket",
+    ):
+        register_targets.bind_registration_commits(bad_absent, "HEAD")
+
+
 def test_row_anchors_disagreeing_with_the_docket_are_refused() -> None:
     manifest = load_manifest(B1_MANIFEST)
     forged = copy.deepcopy(failed_row(manifest)["target"])

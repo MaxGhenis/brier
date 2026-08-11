@@ -2170,6 +2170,23 @@ def bind_registration_commits(
                     "committed docket sourceBinding template is malformed for "
                     f"{data_point_id} in series {series}"
                 )
+            # Validation anchors are part of the run context binding
+            # authenticates: a docket-backed target must carry exactly the
+            # committed entry's extras.anchors at THIS head — presence and
+            # value. Selection happens before the sync rebase, so a docket
+            # anchors change landing in between must fail the bind closed
+            # (stale-or-absent anchors reaching generation was the retry
+            # lane's round-four finding, and fresh rolls shared the race).
+            docket_anchors = (
+                extras.get("anchors") if isinstance(extras, dict) else None
+            )
+            if canonical_bytes(target.get("anchors")) != canonical_bytes(
+                docket_anchors
+            ):
+                raise RegistrationError(
+                    "target anchors disagree with the committed docket "
+                    f"for {data_point_id} in series {series}"
+                )
             if isinstance(extras, dict) and "sourceBinding" in extras:
                 template = extras["sourceBinding"]
                 if not isinstance(template, dict):
