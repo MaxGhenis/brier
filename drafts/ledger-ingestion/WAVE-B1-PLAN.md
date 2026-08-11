@@ -33,7 +33,13 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   (usaspending-usfs-superior-nf-obligations.json; FY2025
   $46,832,556.79; label/docs must state MN-wide context, NOT Superior
   NF).
-- [ ] 5. Docket entries for all four as fy2026 registered_query_snapshot
+- [ ] 5. FIRST re-freeze tests/fixtures/ledger_series_catalog.json from
+  the merged ledger branch (chronicle#158 landed, catalog 216 series:
+  fetch ledger/series_catalog.json from PolicyEngine/chronicle branch
+  codex/thesis-ledger-facts at or after commit 89ae436 — the
+  'Re-freeze the ledger catalog' precedent commit f5562a57 shows the
+  shape). THEN docket entries for all four as fy2026
+  registered_query_snapshot
   — BIND THE CHRONICLE IDENTITIES (PolicyEngine/chronicle#158):
   usaspending.cdfi.assistance_transaction_obligations
   (uuid from ledger/series_uuid_registry.jsonl on the ledger branch),
