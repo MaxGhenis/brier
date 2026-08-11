@@ -3301,13 +3301,13 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "CDFI Fund financial-assistance award-transaction obligations, "
             "fiscal year total"
         ),
-        "unit": "usd",
-        "scale": 1,
-        "round": 2,
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
         "query_kind": "fiscal_year_post_scalar",
         "transform": {
             "operation": "multiply",
-            "factor": 1,
+            "factor": 1e-6,
             "requestMethod": "POST",
             "fiscalYear": "{fiscal_year}",
             "group": "fiscal_year",
@@ -3364,13 +3364,13 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "HIDTA Assistance Listing 95.001 financial-assistance "
             "award-transaction obligations, fiscal year total"
         ),
-        "unit": "usd",
-        "scale": 1,
-        "round": 2,
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
         "query_kind": "fiscal_year_post_scalar",
         "transform": {
             "operation": "multiply",
-            "factor": 1,
+            "factor": 1e-6,
             "requestMethod": "POST",
             "fiscalYear": "{fiscal_year}",
             "group": "fiscal_year",
@@ -3426,13 +3426,13 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "Fund financial-assistance award-transaction obligations, fiscal "
             "year total"
         ),
-        "unit": "usd",
-        "scale": 1,
-        "round": 2,
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
         "query_kind": "fiscal_year_post_scalar",
         "transform": {
             "operation": "multiply",
-            "factor": 1,
+            "factor": 1e-6,
             "requestMethod": "POST",
             "fiscalYear": "{fiscal_year}",
             "group": "fiscal_year",
@@ -3491,13 +3491,13 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "Minnesota-wide Forest Service award-transaction obligations "
             "(context only), fiscal year total"
         ),
-        "unit": "usd",
-        "scale": 1,
-        "round": 2,
+        "unit": "usd_millions",
+        "scale": 1e-6,
+        "round": 8,
         "query_kind": "fiscal_year_post_scalar",
         "transform": {
             "operation": "multiply",
-            "factor": 1,
+            "factor": 1e-6,
             "requestMethod": "POST",
             "fiscalYear": "{fiscal_year}",
             "group": "fiscal_year",

@@ -21,6 +21,7 @@ from adopt_proven_series import (  # noqa: E402
 from canonical_json import canonical_bytes  # noqa: E402
 
 APEL_SERIES = {
+    "usaspending.cdfi.assistance_transaction_obligations",
     "usaspending.dod.prime_award_obligations",
     "usaspending.dod.prime_contract_obligations",
     "usaspending.dod.new_prime_awards",
@@ -28,9 +29,6 @@ APEL_SERIES = {
     "usaspending.dod.unique_prime_contract_recipients",
     "usaspending.dod.small_business_contract_obligation_share",
     "usaspending.dhs.title_vi.award_transaction_obligations",
-}
-WAVE_B1_SPEC_ONLY_SERIES = {
-    "usaspending.cdfi.assistance_transaction_obligations",
     "usaspending.ondcp.hidta_al95001_obligations",
     "usaspending.ntia.broadband_al11038_obligations",
     "usaspending.usfs.minnesota_place_of_performance_obligations",
@@ -83,7 +81,7 @@ def test_registry_and_resolver_specs_match_bidirectionally_on_all_seven_keys() -
     registry = {entry["series"]: entry for entry in apel_templates()}
     specs = resolve_pending.USASPENDING_ADAPTERS
     assert set(registry) == APEL_SERIES
-    assert set(specs) == APEL_SERIES | WAVE_B1_SPEC_ONLY_SERIES
+    assert set(specs) == APEL_SERIES
 
     for series, entry in registry.items():
         spec = specs[series]
@@ -119,6 +117,28 @@ def test_registry_and_resolver_specs_match_bidirectionally_on_all_seven_keys() -
         assert not resolve_pending.usaspending_binding_matches_spec(
             {**binding, "unreviewedQueryOption": True},
             spec,
+        )
+
+
+def test_wave_b1_specs_resolve_in_chronicle_usd_millions() -> None:
+    raw_anchors = {
+        "usaspending.cdfi.assistance_transaction_obligations": 319_455_176.0,
+        "usaspending.ondcp.hidta_al95001_obligations": 271_657_675.6,
+        "usaspending.ntia.broadband_al11038_obligations": 409_852_406.47,
+        "usaspending.usfs.minnesota_place_of_performance_obligations": (
+            46_832_556.79
+        ),
+    }
+    registry = {entry["series"]: entry for entry in apel_templates()}
+
+    for series, raw_anchor in raw_anchors.items():
+        spec = resolve_pending.USASPENDING_ADAPTERS[series]
+        entry = registry[series]
+        assert spec["unit"] == "usd_millions"
+        assert spec["scale"] == 1e-6
+        assert spec["round"] == 8
+        assert round(raw_anchor * spec["scale"], spec["round"]) == (
+            entry["extras"]["anchors"]["2025"]
         )
 
 

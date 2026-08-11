@@ -845,9 +845,9 @@ def apel_snapshot_entries() -> list[dict]:
     ]
 
 
-def test_real_apel_seeds_build_seven_preregistered_snapshot_contracts() -> None:
+def test_real_apel_seeds_build_eleven_preregistered_snapshot_contracts() -> None:
     entries = apel_snapshot_entries()
-    assert len(entries) == 7
+    assert len(entries) == 11
 
     for entry in entries:
         assert entry["cadence"] == "annual"
@@ -880,6 +880,44 @@ def test_real_apel_seeds_build_seven_preregistered_snapshot_contracts() -> None:
             == (entry["extras"]["expectedReleaseWindow"])
         )
         assert contract["sourceBinding"]["allowedHosts"] == ["api.usaspending.gov"]
+
+
+def test_wave_b1_apel_seeds_bind_chronicle_identities_and_scaled_anchors() -> None:
+    expected = {
+        "usaspending.cdfi.assistance_transaction_obligations": (
+            "69834e1f-1fbf-432c-9913-6b391321b3a8",
+            319.455176,
+            "CDFI Fund awarding-subagency financial-assistance award transactions",
+        ),
+        "usaspending.ondcp.hidta_al95001_obligations": (
+            "02662bfc-b77d-48f3-938b-7a5b2f9e5c73",
+            271.6576756,
+            "Assistance Listing 95.001",
+        ),
+        "usaspending.ntia.broadband_al11038_obligations": (
+            "f37307e0-91c6-49ee-afc7-2021e33ea863",
+            409.85240647,
+            "Assistance Listing 11.038",
+        ),
+        "usaspending.usfs.minnesota_place_of_performance_obligations": (
+            "720be189-a4a5-4b0c-a25c-49233ff388a4",
+            46.83255679,
+            "Minnesota place of performance",
+        ),
+    }
+    entries = {entry["series"]: entry for entry in apel_snapshot_entries()}
+
+    for series, (uuid, anchor, scope_text) in expected.items():
+        entry = entries[series]
+        extras = entry["extras"]
+        binding = extras["sourceBinding"]
+        assert entry["ledger"] == {"uuid": uuid, "concept": series}
+        assert extras["targetUnit"] == "usd_millions"
+        assert extras["valueScale"] == 1e-6
+        assert extras["anchors"] == {"2025": anchor}
+        assert binding["transform"]["factor"] == 1e-6
+        assert scope_text in binding["table"]
+        assert "resolutionDate" not in extras
 
 
 @pytest.mark.parametrize(

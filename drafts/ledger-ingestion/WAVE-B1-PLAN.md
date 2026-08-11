@@ -33,7 +33,7 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   (usaspending-usfs-superior-nf-obligations.json; FY2025
   $46,832,556.79; label/docs must state MN-wide context, NOT Superior
   NF).
-- [ ] 5. FIRST re-freeze tests/fixtures/ledger_series_catalog.json from
+- [x] 5. FIRST re-freeze tests/fixtures/ledger_series_catalog.json from
   the merged ledger branch (chronicle#158 landed, catalog 216 series:
   fetch ledger/series_catalog.json from PolicyEngine/chronicle branch
   codex/thesis-ledger-facts at or after commit 89ae436 — the
