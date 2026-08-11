@@ -34,6 +34,14 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   $46,832,556.79; label/docs must state MN-wide context, NOT Superior
   NF).
 - [ ] 5. Docket entries for all four as fy2026 registered_query_snapshot
+  — BIND THE CHRONICLE IDENTITIES (PolicyEngine/chronicle#158):
+  usaspending.cdfi.assistance_transaction_obligations
+  (uuid from ledger/series_uuid_registry.jsonl on the ledger branch),
+  usaspending.ondcp.hidta_al95001_obligations,
+  usaspending.ntia.broadband_al11038_obligations,
+  usaspending.usfs.minnesota_place_of_performance_obligations.
+  The Wave-A request files' proposed_concept spellings are DRAFTS and
+  differ — the chronicle names are canonical. Entries mirror
   annual seeds (us-dod pattern: cadence annual, one explicit period,
   capture window, sourceBinding template in extras, anchors = the
   FY2025 values); run
