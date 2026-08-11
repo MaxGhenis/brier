@@ -117,6 +117,66 @@ def valid_generation_ticket_context(value: object) -> bool:
     )
 
 
+def registration_authenticated_unit(target_context: dict | None) -> str | None:
+    """The registration-proven unit for this context, or None.
+
+    Trusting a bare ``targetUnit`` claim would let any forged context
+    smuggle an arbitrary unit past ALLOWED_UNITS. The context must name a
+    registration snapshot inside ``records/targets`` whose bytes hash to
+    the recorded content hash (which the filename must also carry), whose
+    single contract binds the same catalog slug when the context names
+    one, and whose contract unit equals the claimed targetUnit. Any
+    failure returns None and the exploratory allowlist applies unchanged.
+    """
+
+    if not isinstance(target_context, dict):
+        return None
+    claimed = target_context.get("targetUnit")
+    relative = target_context.get("targetRegistrationPath")
+    content_hash = target_context.get("targetContentHash")
+    if not (
+        isinstance(claimed, str)
+        and claimed
+        and isinstance(relative, str)
+        and isinstance(content_hash, str)
+        and re.fullmatch(r"[0-9a-f]{64}", content_hash)
+    ):
+        return None
+    parts = pathlib.PurePosixPath(relative)
+    if (
+        parts.is_absolute()
+        or ".." in parts.parts
+        or pathlib.PurePosixPath("records/targets") not in parts.parents
+        or not parts.name.endswith(f"-{content_hash}.json")
+    ):
+        return None
+    snapshot_path = ROOT.joinpath(*parts.parts)
+    if not snapshot_path.is_file():
+        return None
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from register_targets import RegistrationError, registration_content_hash
+    finally:
+        sys.path.pop(0)
+    try:
+        snapshot = json.loads(snapshot_path.read_text())
+        actual_hash = registration_content_hash(snapshot)
+    except (OSError, ValueError, RegistrationError):
+        return None
+    if actual_hash != content_hash:
+        return None
+    targets = snapshot.get("targets")
+    if not isinstance(targets, list) or len(targets) != 1:
+        return None
+    contract = targets[0]
+    context_slug = target_context.get("catalogSlug")
+    if context_slug is not None and contract.get("catalogSlug") != context_slug:
+        return None
+    if contract.get("unit") != claimed:
+        return None
+    return claimed
+
+
 def validate(
     cell: dict,
     taken: set[str],
@@ -141,7 +201,16 @@ def validate(
     if cell["slug"] in taken:
         errs.append("slug collides with existing catalog")
     if cell["unit"] not in ALLOWED_UNITS:
-        errs.append(f"unit {cell['unit']!r} not allowed")
+        # A registered target's unit is part of the immutable contract and
+        # must be echoed byte-for-byte even when it is not a member of the
+        # exploratory allowlist (the 2026-08-07 DoD pair's "billions USD").
+        # The exemption admits exactly the registration-authenticated
+        # string and nothing else — a bare context claiming a matching
+        # targetUnit is not trusted; the named snapshot must exist, hash
+        # to the recorded content hash, and carry the claimed unit.
+        registered_unit = registration_authenticated_unit(target_context)
+        if not (registered_unit and cell["unit"] == registered_unit):
+            errs.append(f"unit {cell['unit']!r} not allowed")
     if cell["country"] not in ALLOWED_COUNTRIES:
         errs.append(f"country {cell['country']!r} not allowed")
     if cell["type"] not in ALLOWED_TYPES:

@@ -16,7 +16,7 @@ later scoring and Brier training.
   "type": "data|policy|conditional",
   "title": "Short display title",
   "question": "Resolution-grade: exact series, period, adjustment, first print",
-  "unit": "count|percent|usd|usd_millions|usd_billions|usd_monthly|thousands|millions|ratio|percent_growth|gbp_billions|per_1000_live_births",
+  "unit": "for a registered target: the registered targetUnit, byte-for-byte; otherwise one of count|percent|usd|usd_millions|usd_billions|usd_monthly|thousands|millions|ratio|percent_growth|gbp_billions|per_1000_live_births",
   "pointEstimate": 0,
   "ciLow": 0,
   "ciHigh": 0,
