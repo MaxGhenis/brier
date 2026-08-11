@@ -397,6 +397,9 @@ def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
         "evidence_notes"
     ]
     assert "bill-specific amended-section-113 activity" in spec["evidence_notes"]
+    # The Wave A exclusion review round 1 found dropped: the series says
+    # nothing about downstream CDFI outcomes.
+    assert "downstream outcomes" in spec["evidence_notes"]
 
 
 def test_hidta_post_body_byte_matches_wave_a_capture_and_anchor() -> None:

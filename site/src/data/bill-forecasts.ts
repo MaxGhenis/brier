@@ -99,45 +99,49 @@ export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
     seriesConcept: "usaspending.cdfi.assistance_transaction_obligations",
     label: "CDFI Fund assistance-transaction obligations (FY2026)",
     scopeNote:
-      "USAspending award-transaction context for the CDFI Fund awarding " +
-      "subtier. Not all CDFI Fund account obligations or outlays; not " +
-      "purchases, guarantees, loan-loss reserves, or other assistance " +
-      "S. 2718 would authorize; not CDFI loan originations, liquidity, " +
-      "competitiveness, or other downstream outcomes; no spending is " +
-      "attributed to the bill.",
+      "USAspending award-transaction aggregate for the CDFI Fund awarding " +
+      "subtier. Not all CDFI Fund financial-account obligations or outlays; " +
+      "not purchases, guarantees, loan-loss reserves, or other assistance " +
+      "authorized by S. 2718; not CDFI loan originations, liquidity, " +
+      "competitiveness, or other downstream outcomes; and no spending is " +
+      "attributed to the bill or amended section 113.",
   },
   {
     billSlug: "hidta-enhancement-s767-119",
     seriesConcept: "usaspending.ondcp.hidta_al95001_obligations",
-    label: "HIDTA program obligations, AL 95.001 (FY2026)",
+    label: "HIDTA award-transaction obligations, AL 95.001 (FY2026)",
     scopeNote:
-      "The whole Assistance Listing 95.001 award-transaction aggregate. " +
-      "Not section 707(s) supplemental grants or spending under any newly " +
-      "permitted purpose; not HIDTA account obligations, outlays, " +
-      "appropriations, or budget authority; no spending is attributed to " +
-      "S. 767.",
+      "The whole Assistance Listing 95.001 award-transaction aggregate. Not " +
+      "section 707(s) supplemental competitive grants or spending under a " +
+      "newly permitted purpose; not all HIDTA financial-account " +
+      "obligations, outlays, appropriations, budget authority, or " +
+      "authorization; and no spending is attributed to S. 767.",
   },
   {
     billSlug: "future-networks-hr2449-119",
     seriesConcept: "usaspending.ntia.broadband_al11038_obligations",
-    label: "NTIA advanced-wireless grant obligations, AL 11.038 (FY2026)",
+    label: "Advanced-wireless grant obligations, AL 11.038 (FY2026)",
     scopeNote:
-      "The Assistance Listing 11.038 award-transaction aggregate. Not the " +
-      "proposed 6G Task Force, its reports, or outcomes; not all NTIA, " +
-      "Commerce, or FCC obligations; no spending is attributed to " +
-      "H.R. 2449.",
+      "The Assistance Listing 11.038 award-transaction aggregate (FY2025 " +
+      "awards under this listing were assigned to NIST). Not the proposed " +
+      "6G Task Force, its work, reports, recommendations, or outcomes; not " +
+      "all NTIA, NIST, Commerce, or FCC obligations or account 013-0565; " +
+      "and no spending is attributed to or treated as caused or authorized " +
+      "by H.R. 2449.",
   },
   {
     billSlug: "superior-national-forest-hr978-119",
     seriesConcept:
       "usaspending.usfs.minnesota_place_of_performance_obligations",
     label:
-      "Forest Service obligations, Minnesota place of performance (FY2026)",
+      "Forest Service award-transaction obligations, Minnesota place of " +
+      "performance (FY2026)",
     scopeNote:
-      "Minnesota-wide context only — USAspending has no named-forest " +
-      "filter, so this is NOT Superior National Forest obligations, " +
-      "H.R. 978 implementation, mineral instruments, or deadline " +
-      "compliance; no spending is attributed to the bill.",
+      "Minnesota-wide award-transaction context only, not Superior National " +
+      "Forest obligations or activity confined to the bill's covered lands; " +
+      "not H.R. 978 implementation, mineral instruments, or deadline " +
+      "compliance; and no spending is attributed to or treated as caused by " +
+      "H.R. 978.",
   },
 ];
 
