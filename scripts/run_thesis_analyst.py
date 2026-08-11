@@ -522,12 +522,17 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "registeredAtUtc",
         "conditional",
     ]
+    unit_sentence = (
+        "The cell's unit must equal targetUnit below byte-for-byte, even "
+        "when it is not a member of the contract's exploratory unit menu. "
+        if target_context.get("targetUnit")
+        else ""
+    )
     lines = [
         "# Canonical ledger target context",
         "Use these ledger fields as the target contract for slug, unit, "
-        "dataPointId, resolutionDate, and resolver text. The cell's unit "
-        "must equal targetUnit below byte-for-byte, even when it is not a "
-        "member of the contract's exploratory unit menu. If you find a "
+        f"dataPointId, resolutionDate, and resolver text. {unit_sentence}"
+        "If you find a "
         "concrete ledger error, keep the forecast tied to the same target and "
         "state the discrepancy in reasoning rather than silently changing the "
         "target.",

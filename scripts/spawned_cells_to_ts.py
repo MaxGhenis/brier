@@ -141,7 +141,18 @@ def validate(
     if cell["slug"] in taken:
         errs.append("slug collides with existing catalog")
     if cell["unit"] not in ALLOWED_UNITS:
-        errs.append(f"unit {cell['unit']!r} not allowed")
+        # A registered target's unit is part of the immutable contract and
+        # must be echoed byte-for-byte even when it is not a member of the
+        # exploratory allowlist (the 2026-08-07 DoD pair's "billions USD").
+        # The exemption admits exactly the registered string and nothing
+        # else; unregistered runs keep the full allowlist.
+        registered_unit = (
+            target_context.get("targetUnit")
+            if isinstance(target_context, dict)
+            else None
+        )
+        if not (registered_unit and cell["unit"] == registered_unit):
+            errs.append(f"unit {cell['unit']!r} not allowed")
     if cell["country"] not in ALLOWED_COUNTRIES:
         errs.append(f"country {cell['country']!r} not allowed")
     if cell["type"] not in ALLOWED_TYPES:

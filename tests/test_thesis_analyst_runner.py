@@ -259,6 +259,40 @@ def test_fast_prompt_includes_target_context():
     assert "percent|count|thousands" not in result.stdout
 
 
+def test_partial_context_without_target_unit_keeps_the_menu():
+    # run_thesis_batch --target builds partial contexts; one without
+    # targetUnit must not claim "targetUnit below" and must keep the
+    # exploratory menu.
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "dataPointId": "test.ledger_series.2030_01.first_print",
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "# Canonical ledger target context" in result.stdout
+    assert "targetUnit below" not in result.stdout
+    assert "the registered targetUnit, byte-for-byte" not in result.stdout
+    assert "percent|count|thousands" in result.stdout
+
+
 def test_fast_prompt_offers_the_unit_menu_only_without_a_registration():
     result = subprocess.run(
         [

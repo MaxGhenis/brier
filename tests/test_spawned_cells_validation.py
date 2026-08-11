@@ -63,6 +63,29 @@ def test_leakage_gate_fires_on_fresh_cells_with_top_level_run_at() -> None:
     assert not any("leakage" in error for error in errors_ok), errors_ok
 
 
+def test_registered_unit_is_exempt_from_the_exploratory_allowlist() -> None:
+    # The 2026-08-07 DoD pair's registered unit "billions USD" is not an
+    # ALLOWED_UNITS member; a registered run must still pass by echoing
+    # the registered targetUnit byte-for-byte, while the same unit on an
+    # unregistered run — or any non-matching off-list unit — stays
+    # refused.
+    cell = probe_cell("2026-07-17")
+    cell["unit"] = "billions USD"
+
+    unregistered = spawned_cells_to_ts.validate(cell, set())
+    assert any("not allowed" in error for error in unregistered), unregistered
+
+    registered = spawned_cells_to_ts.validate(
+        cell, set(), target_context={"targetUnit": "billions USD"}
+    )
+    assert not any("not allowed" in error for error in registered), registered
+
+    mismatched = spawned_cells_to_ts.validate(
+        cell, set(), target_context={"targetUnit": "usd_billions"}
+    )
+    assert any("not allowed" in error for error in mismatched), mismatched
+
+
 def bounded_context(start: str = "2026-07-11") -> dict:
     return {
         "resolutionDateBasis": "resolve-by-bound",
