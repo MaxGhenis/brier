@@ -42,6 +42,18 @@ on:
       timeout_seconds:
         description: "Per-run analyst timeout in seconds"
         default: "540"
+      retry_batch:
+        description: >-
+          Committed batch manifest path (records/thesis-analyst/batches/…)
+          whose failed targets should be rerun against their original
+          registrations. Within orphan grace only; skips selection and
+          registration entirely. Overrides cadence/series/max_targets.
+        default: ""
+      retry_slugs:
+        description: >-
+          Optional comma-separated catalog slugs from retry_batch (default:
+          every failed target in the manifest)
+        default: ""
 
 permissions:
   contents: read
@@ -84,18 +96,37 @@ jobs:
           CADENCE: ${{ github.event.inputs.cadence }}
           SERIES: ${{ github.event.inputs.series }}
           MAX_TARGETS: ${{ github.event.inputs.max_targets || 10 }}
+          RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
+          RETRY_SLUGS: ${{ github.event.inputs.retry_slugs }}
         run: |
           set -euo pipefail
-          args=(
-            python3 scripts/roll_docket.py
-            --max-targets "$MAX_TARGETS"
-            --out /tmp/roll-targets.json
-          )
-          if [ -n "$CADENCE" ]; then
-            args+=(--cadence "$CADENCE")
-          fi
-          if [ -n "$SERIES" ]; then
-            args+=(--series "$SERIES")
+          if [ -n "$RETRY_BATCH" ]; then
+            # Retry mode: rebuild the trusted targets file from a committed
+            # batch manifest (failed targets, within orphan grace). The
+            # registrations already exist on main, so the registration
+            # write steps are skipped below; the sync step's full
+            # --bind-registration-commits pass still re-verifies every
+            # target before generation.
+            args=(
+              python3 scripts/retry_batch_targets.py
+              --batch "$RETRY_BATCH"
+              --out /tmp/roll-targets.json
+            )
+            if [ -n "$RETRY_SLUGS" ]; then
+              args+=(--slugs "$RETRY_SLUGS")
+            fi
+          else
+            args=(
+              python3 scripts/roll_docket.py
+              --max-targets "$MAX_TARGETS"
+              --out /tmp/roll-targets.json
+            )
+            if [ -n "$CADENCE" ]; then
+              args+=(--cadence "$CADENCE")
+            fi
+            if [ -n "$SERIES" ]; then
+              args+=(--series "$SERIES")
+            fi
           fi
           "${args[@]}"
           COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/roll-targets.json'))['targets']))")
@@ -108,7 +139,11 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Create immutable target registrations
-        if: steps.targets.outputs.count != '0'
+        # Skipped in retry mode: the targets already carry immutable
+        # registrations on main (register() plans snapshot paths under
+        # today's date, so a week-old registration would read as new).
+        # The sync step's bind pass is the re-verification.
+        if: steps.targets.outputs.count != '0' && github.event.inputs.retry_batch == ''
         run: |
           set -euo pipefail
           REGISTERED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -120,7 +155,7 @@ jobs:
             --metadata-out /tmp/registration-before-commit.json
 
       - name: Commit trusted preregistration
-        if: steps.targets.outputs.count != '0'
+        if: steps.targets.outputs.count != '0' && github.event.inputs.retry_batch == ''
         id: registration_commit
         run: |
           set -euo pipefail
