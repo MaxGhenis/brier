@@ -109,7 +109,6 @@ def test_unreconstructable_row_context_is_refused_not_stripped() -> None:
     manifest = real_manifest()
     for key, value in (
         ("comparisonTarget", True),
-        ("anchors", {"2024": 1.0}),
         ("previousTarget", {"dataPointId": "x"}),
         ("expectedReleaseDate", "2026-09-01"),
     ):
@@ -119,6 +118,44 @@ def test_unreconstructable_row_context_is_refused_not_stripped() -> None:
             retry_batch_targets.rebuild_target_from_snapshot(
                 forged, label=f"forged-{key}"
             )
+
+
+B1_MANIFEST = (
+    ROOT
+    / "records"
+    / "thesis-analyst"
+    / "batches"
+    / "2026-08-11"
+    / "auto-roll-31533876109-a1.json"
+)
+B1_WITHIN_GRACE = dt.datetime(2026, 8, 12, 12, 0, tzinfo=dt.timezone.utc)
+
+
+def test_anchored_targets_reconstruct_with_docket_anchors() -> None:
+    # The 2026-08-11 B1 batch's failed targets carry anchors — the shape
+    # the first live retry refused. Anchors now reconstruct from the
+    # committed docket entry (never the manifest row), so the retry
+    # emits them equal to the docket's extras.anchors.
+    manifest = load_manifest(B1_MANIFEST)
+    targets = select_retry_targets(
+        manifest, slugs=None, allow_succeeded=False, now_utc=B1_WITHIN_GRACE
+    )
+    assert len(targets) == 3
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    by_series = {row.get("series"): row for row in docket["series"]}
+    for target in targets:
+        expected = by_series[target["series"]]["extras"]["anchors"]
+        assert target["anchors"] == expected
+
+
+def test_row_anchors_disagreeing_with_the_docket_are_refused() -> None:
+    manifest = load_manifest(B1_MANIFEST)
+    forged = copy.deepcopy(failed_row(manifest)["target"])
+    forged["anchors"] = {"2025": 999.0}
+    with pytest.raises(RetrySelectionError, match="disagree with the committed docket"):
+        retry_batch_targets.rebuild_target_from_snapshot(
+            forged, label="forged-anchors"
+        )
 
 
 def test_ticketed_manifests_are_refused(tmp_path: pathlib.Path) -> None:
@@ -375,6 +412,11 @@ def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
 
     reg_dir = tmp_path / "records" / "targets"
     reg_dir.mkdir(parents=True)
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir(parents=True)
+    (scripts_dir / "docket_series.json").write_text(
+        json.dumps({"series": []})
+    )
     rows = []
     slugs = []
     for cond_id in ("enacted", "current-law"):
