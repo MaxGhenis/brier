@@ -525,7 +525,9 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
     lines = [
         "# Canonical ledger target context",
         "Use these ledger fields as the target contract for slug, unit, "
-        "dataPointId, resolutionDate, and resolver text. If you find a "
+        "dataPointId, resolutionDate, and resolver text. The cell's unit "
+        "must equal targetUnit below byte-for-byte, even when it is not a "
+        "member of the contract's exploratory unit menu. If you find a "
         "concrete ledger error, keep the forecast tied to the same target and "
         "state the discrepancy in reasoning rather than silently changing the "
         "target.",
@@ -687,9 +689,18 @@ def build_fast_prompt(
         ),
         "title": "Short display title",
         "question": "Exact agency series, period, adjustment, first print",
+        # A preregistered target's unit is part of the immutable contract
+        # and validation requires the cell to echo it exactly. The enum is
+        # only a menu for unregistered exploratory runs — presenting it to
+        # a registered run whose unit is not a member (the 2026-08-07 DoD
+        # pair's "billions USD") instructs the model to fail validation.
         "unit": (
-            "percent|count|thousands|millions|usd|usd_millions|usd_billions|"
-            "gbp_billions|ratio|percent_growth"
+            "the registered targetUnit, byte-for-byte"
+            if target_context and target_context.get("targetUnit")
+            else (
+                "percent|count|thousands|millions|usd|usd_millions|"
+                "usd_billions|gbp_billions|ratio|percent_growth"
+            )
         ),
         "pointEstimate": 0,
         "ciLow": 0,
