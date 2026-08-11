@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-11T13:11:04Z",
+  "runStartedAt": "2026-08-11T13:11:04Z",
+  "sealedAt": "2026-08-11T13:13:19Z",
+  "series": "bea.core_pce.mom",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-core-pce-mom-august-2026",
+    "country": "US",
+    "dataPointId": "us.bea.core_pce.mom_sa.2026-08",
+    "expectedReleaseWindow": {
+      "end": "2026-09-30",
+      "start": "2026-09-22"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-11T12:50:27Z",
+    "registeredAtUtc": "2026-08-11T12:50:27Z",
+    "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+    "registrationState": "preregistered",
+    "series": "bea.core_pce.mom",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bea.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-30",
+        "start": "2026-09-22"
+      },
+      "field": "bea.core_pce.mom",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bea.core_pce.mom",
+      "sourceUrl": "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+      "table": "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c",
+    "targetRegistrationPath": "records/targets/2026-08-11-a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "targetContentHash": "a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c",
+  "targetRegistrationPath": "records/targets/2026-08-11-a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c.json",
+  "registeredAtUtc": "2026-08-11T12:50:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-11T13:11:04Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "17465b670cdcd31c8b510b10be0f86bc5123cd95138959461af32084df9af1c3"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the interval is based on only six one-decimal first-print observations, so the realized-sigma estimate is fragile."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider aligning the resolutionSourceUrl with the canonical BEA data page if the publication pipeline expects the registered sourceBinding URL rather than the future release URL."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to note the six-observation sigma fragility and aligned the resolutionSourceUrl with the registered BEA core PCE series page; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to note the six-observation sigma fragility and aligned the resolutionSourceUrl with the registered BEA core PCE series page; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready under the rubric, with clear resolver handling, prior/update/interval math, concrete tails, and no evident leakage or unit ambiguity."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/prompt.md",
+      "sha256": "40e3d8644fc5713bffbb8a3b078734d88257ed9f9a6122a1e357b2ed6c2bae84",
+      "bytes": 8975,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_command.json",
+      "sha256": "0cefc003f789605e0458600f5a0eb8e19f9db2370a3bf01e2b2b80dbb06a2c72",
+      "bytes": 746,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "e49767dfeafb7ac7c7d54c37f04ba1d0fbab5fac6309cc31b3c2a33b250c169b",
+      "bytes": 10983,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_codex_stderr.log",
+      "sha256": "11b792d9ae7668496a7ab41ac2ffa974c9d395e61e92ccd3fd8d93410bcd6857",
+      "bytes": 233,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_codex_events.jsonl",
+      "sha256": "0332ce03bdac9d533d7e603b1c47ee6a601a0658d65043196835be010f64628e",
+      "bytes": 11002,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_codex_last_message.txt",
+      "sha256": "1a6462af213f2b29b43918ea968ee14e851806aff5dcefba71f04084dd474368",
+      "bytes": 5722,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_codex_trace.json",
+      "sha256": "38934d61d09b8adac751500c415f8eb5ad987b044cb7908406d1948f5517d787",
+      "bytes": 558,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_stdout.txt",
+      "sha256": "1a6462af213f2b29b43918ea968ee14e851806aff5dcefba71f04084dd474368",
+      "bytes": 5722,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/draft_stderr.txt",
+      "sha256": "8ac2dad79f072ecdf7eac5e28b6d285cab5d7bea342bd3adfc3017bf4622b519",
+      "bytes": 248,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_prompt.md",
+      "sha256": "dc5fac0087b62a88a8c81883fd31e6e5edc4c9842d5853ff82623de7fb46f7d9",
+      "bytes": 8838,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_command.json",
+      "sha256": "017a8bfcbfc360f75bae812bf3810949a095572bb18339a2196d57adf12ceeb5",
+      "bytes": 742,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "31be64300feb820a38579974ba1b254466452808a6f8a647333fcdb75153e1ec",
+      "bytes": 870,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "d5df1793cae8683f9c68f20ac06b1fabcaa810f40f3d0cd0609cb40dfc9b8250",
+      "bytes": 233,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "3527f440cdf5df8ab6d744a1d906e514df6e8c81aa2c34eb5263475f2491943d",
+      "bytes": 892,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "c12f90e58ad918c5c5920e54fab1cb86f61144c68080c6e73f83f9340962b616",
+      "bytes": 541,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "a773f3724e15e94543f916405d789511f9687b6b933261708f34eb57d7d6f9af",
+      "bytes": 555,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "c12f90e58ad918c5c5920e54fab1cb86f61144c68080c6e73f83f9340962b616",
+      "bytes": 541,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "213650c8491230a9f97ffda3b4f856b1b56f442957fe0062656ed2ebdc703a4a",
+      "bytes": 248,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/revision_prompt.md",
+      "sha256": "38ba8548bb4305341bf4edb106ff33122fe192cb306bde0ef3cf746531b388fc",
+      "bytes": 16174,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/command.json",
+      "sha256": "96c6c3f4643bf2eae65a372033a08e8ee6708595d62a53926e2e3b29e1a011dd",
+      "bytes": 740,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/codex_stdout.jsonl",
+      "sha256": "87a8f4286a11f0e6797af450eab51cf6f02edcbae21a78fc53d3b817f1320ed0",
+      "bytes": 6635,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/codex_stderr.log",
+      "sha256": "c67cedd54c4208bbd665946b12c4f9142f7f129b0e66f0ce2797233c8bf5f9b1",
+      "bytes": 233,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/codex_events.jsonl",
+      "sha256": "1a6f4759369b352bfe03c6d0a50f86acc2fb70af1723d973d0427e014990f50a",
+      "bytes": 6657,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/codex_last_message.txt",
+      "sha256": "1df366f8aaadc4b6f09cc9a956ab02277e14f46ff8d5df4a2033391e03005b6b",
+      "bytes": 6069,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/codex_trace.json",
+      "sha256": "7012b6bdfcb124791190409b1611acf2cb88a7c89d233251b1b80a808c972fed",
+      "bytes": 555,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/stdout.txt",
+      "sha256": "1df366f8aaadc4b6f09cc9a956ab02277e14f46ff8d5df4a2033391e03005b6b",
+      "bytes": 6069,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/stderr.txt",
+      "sha256": "4f68daec9ae23cb75cba1aead8a215aec8030e4ce6588deecc3ec8a56b1b74d9",
+      "bytes": 248,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/raw_response.txt",
+      "sha256": "1df366f8aaadc4b6f09cc9a956ab02277e14f46ff8d5df4a2033391e03005b6b",
+      "bytes": 6069,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/parsed_cells.json",
+      "sha256": "4ed1308b361e0bc9284d0584566f3f7b9ad44c2723b1bae9acc579cbdb838d95",
+      "bytes": 6987,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/normalized_cells.json",
+      "sha256": "329e6c6afafeed3a59ce45b2adb0fc3a1d428cc1b7bc302ecf64dcf648207d1d",
+      "bytes": 24339,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/distribution.json",
+      "sha256": "d4893492b99f10d75ec6d51897d6cfafb76c411fb26b6e1d9018965e4ecf20f4",
+      "bytes": 13568,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/validation.json",
+      "sha256": "5dea3a82470e9e0fb65cc3b2cad2cef320aaf800ed1aa8ac965473dc2eab023a",
+      "bytes": 128,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/cells.with_activity.json",
+      "sha256": "92bcaaaf6303b30e3b36630fb11a2805a3c270c9da186466d54da8659e0f0fca",
+      "bytes": 37470,
+      "createdAt": "2026-08-11T13:11:04Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t13-11-04z-bea-core-pce-mom-2026-08/manifest.json",
+      "sha256": "9cfcc504ffb287a66480f9be5971def6248956454a1ba9e37f6db591ec337412",
+      "bytes": 13474,
+      "createdAt": "2026-08-11T13:11:04Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-core-pce-mom-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "8a2a1e6365954a9f3d6af362387121fd747b05bc8f55f416ceb105f41c1be7bb"
+}

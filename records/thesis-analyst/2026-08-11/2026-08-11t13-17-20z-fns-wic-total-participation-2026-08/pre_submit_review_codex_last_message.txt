@@ -1,0 +1,28 @@
+{
+  "summary": "Draft is structurally coherent but relies on stale recent-history evidence for an August 2026 forecast and should refresh the prior/update from the latest pre-run official WIC prints.",
+  "requiredFixes": [
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The forecast run is dated 2026-08-11 but the latest monthly evidence used is April 2025, leaving roughly 15 months of potentially available pre-target WIC prints unused.",
+      "actionRequested": "Refresh the evidence with the latest USDA FNS WIC monthly totals available before 2026-08-11, then restate whether those data move the forecast from the persistence prior."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The compact step is clear, but its prior starts from April 2025 rather than the latest available pre-run observation, so the seasonal bridge and interval are anchored too far back.",
+      "actionRequested": "Recompute the prior/update/interval step from the latest official pre-run WIC print, naming the historical sample, seasonal adjustment, nonseasonal adjustment, interval method, and final implied bounds."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval uses one-month volatility from only Aug 2024-Apr 2025 and then applies a judgmental widening; this may understate uncertainty over the full gap to August 2026 if newer data are unavailable or volatile.",
+      "actionRequested": "Use a longer same-series monthly-change sample if available, or explicitly justify why the selected volatility sample and 2.1x widening cover the forecast horizon."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the resolver, unit conversion, first-print rule, dataPointId, and 2026-11-26 resolutionDate as written; they match the ledger contract.",
+    "Replace the unsupported phrase 'FY 2025 average participation around 6.9 million' with an official cited value or remove it.",
+    "Make tail scenarios slightly more quantitative by tying upside/downside cases to recent year-over-year growth or monthly-change magnitudes."
+  ]
+}

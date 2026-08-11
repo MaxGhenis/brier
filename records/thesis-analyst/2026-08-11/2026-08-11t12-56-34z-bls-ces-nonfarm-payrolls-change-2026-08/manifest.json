@@ -1,0 +1,359 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-11T12:56:34Z",
+  "runStartedAt": "2026-08-11T12:56:34Z",
+  "sealedAt": "2026-08-11T12:59:29Z",
+  "series": "bls.ces.nonfarm_payrolls.change",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "nonfarm-payrolls-august-2026",
+    "country": "US",
+    "dataPointId": "bls.ces.total_nonfarm.payroll_employment.change.sa.2026-08.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-11",
+      "start": "2026-09-03"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-11T12:50:27Z",
+    "registeredAtUtc": "2026-08-11T12:50:27Z",
+    "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+    "registrationState": "preregistered",
+    "series": "bls.ces.nonfarm_payrolls.change",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-11",
+        "start": "2026-09-03"
+      },
+      "field": "bls.ces.nonfarm_payrolls.change",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.ces.nonfarm_payrolls.change",
+      "sourceUrl": "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "table": "Official agency release",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "54376e2b403296fbe00a7087626388a7b47b6967974cb1856a1d50f1ce4cdda2",
+    "targetRegistrationPath": "records/targets/2026-08-11-54376e2b403296fbe00a7087626388a7b47b6967974cb1856a1d50f1ce4cdda2.json",
+    "targetUnit": "thousands",
+    "valueScale": 1
+  },
+  "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "targetContentHash": "54376e2b403296fbe00a7087626388a7b47b6967974cb1856a1d50f1ce4cdda2",
+  "targetRegistrationPath": "records/targets/2026-08-11-54376e2b403296fbe00a7087626388a7b47b6967974cb1856a1d50f1ce4cdda2.json",
+  "registeredAtUtc": "2026-08-11T12:50:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-11T12:56:34Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "4bad6930eff43a934dc8ff4daf07036b1021770ac0d93d9963447e3caa6da9f4"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the 80% interval uses current-vintage monthly-change volatility as a proxy rather than a first-print-only volatility sample."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestion to clarify that the interval volatility uses current-vintage monthly-change dispersion as a proxy rather than a first-print-only volatility sample; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable: resolver, first-print handling, priors, evidence updates, uncertainty method, tails, and JSON fields are coherent with the target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/prompt.md",
+      "sha256": "7d6736566cef4d9f6caeaada19ecedd35dc932206830946c8b3dc02bfe90fab0",
+      "bytes": 8969,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_command.json",
+      "sha256": "3b5c467000ac3de9b7c3e8dadb2e3f6b592dc9ae27b07bc6f598d8d8c44f98e8",
+      "bytes": 761,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "0c37ed6fa61078f4dc48df8667ea0f5a792b82f6f24a096abbe5a0551f08a8ab",
+      "bytes": 14044,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_codex_stderr.log",
+      "sha256": "e2710dbb5774bee117accaf21d3dee4f1ed6ac94e2072ff8aa51263375d28597",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_codex_events.jsonl",
+      "sha256": "eb7ea73da301c350acf0d66e45de32a682c93c55faf040c01cefbbd05099b472",
+      "bytes": 14033,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_codex_last_message.txt",
+      "sha256": "7d8af40d65abc6312d5be7336ab3533af9535d9a54be942db01aa041d1e398f7",
+      "bytes": 6370,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_codex_trace.json",
+      "sha256": "fc3c008bb1a83163edfade09c12cfcd0d415ae0bb9d9e8f394ccf1e7eb6ee8ce",
+      "bytes": 558,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_stdout.txt",
+      "sha256": "7d8af40d65abc6312d5be7336ab3533af9535d9a54be942db01aa041d1e398f7",
+      "bytes": 6370,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/draft_stderr.txt",
+      "sha256": "483ac9f643e4c6b7ec418b4af346f0cb5968b563c49e2b365290b10875357f26",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_prompt.md",
+      "sha256": "fe7e51bd735b87939817d19ad3d579e6e6ca313fcc945d58193a6ef1f14186ec",
+      "bytes": 9480,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_command.json",
+      "sha256": "6f51a7496d8588d159f5284869c006056e23ff50dd3598de85961575de807d78",
+      "bytes": 757,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "5b2098502ec1928ce984a0b1069b70603aed279611c62f843c09576e89edb601",
+      "bytes": 681,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "4f79381bf0b262d364d0a07d440f0663a1166c7c587c61cb458afc4bc2552145",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "38ec1d78598f13f92896089d36c47ec28d4eed81aa1cf3fc5d2ff16e2a3fcaea",
+      "bytes": 703,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "57b5a0434a7bd65f672df5e98075d48a008da402cf01c9077d5b08c97b0e15e0",
+      "bytes": 357,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "62d186b95eef92518dfe3775ee0ed041cc36b35cf5a426c520e57eeaa88b5d80",
+      "bytes": 552,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "57b5a0434a7bd65f672df5e98075d48a008da402cf01c9077d5b08c97b0e15e0",
+      "bytes": 357,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "dbaaa2267a01b063b5791ef98b8354808ea1b8cb00e1596c600a1915148bd155",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/revision_prompt.md",
+      "sha256": "4ad5bfbe3a2cdaff21efa5f4890616bcd61e370ac319f889ed5af26dd43fe63e",
+      "bytes": 16632,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/command.json",
+      "sha256": "e66bee31640ec26554894a80e125773826d09899c38f6d6b44907e623872fcff",
+      "bytes": 755,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/codex_stdout.jsonl",
+      "sha256": "f080f062aec041c9f7d98e8cd33509b5e356525d9c934955d3bb756d471a5698",
+      "bytes": 7186,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/codex_stderr.log",
+      "sha256": "f67a0b12661705f0bab08f92f83748e4497b6122ec0fdc015fe4bdcea91f3520",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/codex_events.jsonl",
+      "sha256": "c442413cba17537fef49419653e5ee0e4f7ac7cb6dddeb68b38c58cab7b81331",
+      "bytes": 7208,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/codex_last_message.txt",
+      "sha256": "a02e7cfaf869c559a5dccd1e1686d9dc218575b37d935b8022386da4afd030f9",
+      "bytes": 6605,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/codex_trace.json",
+      "sha256": "cccbfa6b51998a1d6b2ef596d5465492156cd25e4b71a9b8dd59eff48a83314d",
+      "bytes": 556,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/stdout.txt",
+      "sha256": "a02e7cfaf869c559a5dccd1e1686d9dc218575b37d935b8022386da4afd030f9",
+      "bytes": 6605,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/stderr.txt",
+      "sha256": "6f193c368447a709bcf02ce5dfa7d588958cf231a54385660badcc97f6171868",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/raw_response.txt",
+      "sha256": "a02e7cfaf869c559a5dccd1e1686d9dc218575b37d935b8022386da4afd030f9",
+      "bytes": 6605,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/parsed_cells.json",
+      "sha256": "63812c946940d173532bd4386a4061e78d3f0b1ff6a5df8ce62818c416f678b6",
+      "bytes": 7563,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/normalized_cells.json",
+      "sha256": "124bba51d6fe04068e40267b91a3ace878478bc86dfac98d8d7edac0cd46ca20",
+      "bytes": 25069,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/distribution.json",
+      "sha256": "b30220ec629381a77af9009b2074fc15edbc344e7ab368afe1bda803d7be63e2",
+      "bytes": 13722,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/validation.json",
+      "sha256": "11c193bbb1c46165c388589a53da3e51ee5ef18d62ac4dae2a893c3af18220fc",
+      "bytes": 129,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/cells.with_activity.json",
+      "sha256": "cd626ffd2d47979a62a211d1d4f0a93d1199e75ca78e918ff1d89b29b51ca0ca",
+      "bytes": 38038,
+      "createdAt": "2026-08-11T12:56:34Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-56-34z-bls-ces-nonfarm-payrolls-change-2026-08/manifest.json",
+      "sha256": "4723834e45b2ad55919798a80c84b5064cb8a9caead01b8d9e0eb265d3a48308",
+      "bytes": 13484,
+      "createdAt": "2026-08-11T12:56:34Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "nonfarm-payrolls-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "a80bcae23e88cc852d0c8f0f502c5cb1551e3ae84e3d31c044c0805fc1ac7590"
+}

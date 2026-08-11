@@ -1,0 +1,54 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bea.core_pce.mom
+- period: 2026-08
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-core-pce-mom-august-2026"
+- country: "US"
+- targetUnit: "percent_growth"
+- dataPointId: "us.bea.core_pce.mom_sa.2026-08"
+- expectedReleaseWindow: {"end": "2026-09-30", "start": "2026-09-22"}
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.bea.gov"], "expectedReleaseWindow": {"end": "2026-09-30", "start": "2026-09-22"}, "field": "bea.core_pce.mom", "releasePolicy": "first_print", "sourceSeriesId": "bea.core_pce.mom", "sourceUrl": "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy", "table": "U.S. Bureau of Economic Analysis, Personal Income and Outlays", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-08-11-a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c.json"
+- targetContentHash: "a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c"
+- registrationCommit: "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0"
+- registeredAtUtc: "2026-08-11T12:50:27Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+40e3d8644fc5713bffbb8a3b078734d88257ed9f9a6122a1e357b2ed6c2bae84
+
+# Draft forecast response
+{"slug":"us-core-pce-mom-august-2026","country":"US","type":"data","title":"US Core PCE MoM, Aug 2026","question":"What will the first-print seasonally adjusted month-over-month percent change in the BEA PCE price index excluding food and energy be for August 2026?","unit":"percent_growth","pointEstimate":0.27,"ciLow":0.13,"ciHigh":0.41,"confidence":0.8,"resolutionDate":"2026-09-30","resolutionSource":"U.S. Bureau of Economic Analysis, Personal Income and Outlays, August 2026","resolutionSourceUrl":"https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026","resolutionRule":"Resolve to the first official BEA Personal Income and Outlays release for August 2026, using the seasonally adjusted percent change from the preceding month for the PCE price index excluding food and energy. Use the initially published one-decimal percent value for the first print; ignore later revisions or annual-update back revisions after that first print.","dataPointId":"us.bea.core_pce.mom_sa.2026-08","historicalContext":[{"label":"2026-06 core PCE MoM SA first print","value":0.1},{"label":"2026-05 core PCE MoM SA first print","value":0.3},{"label":"2026-04 core PCE MoM SA first print","value":0.3},{"label":"2026-03 core PCE MoM SA first print","value":0.3},{"label":"2026-02 core PCE MoM SA first print","value":0.4},{"label":"2026-01 core PCE MoM SA first print","value":0.4}],"drivers":["recent core PCE first prints slowed from 0.3-0.4 to 0.1 in June","June core CPI was flat while shelter rose only 0.1","two-month horizon leaves room for July and August services rebound","September 30 BEA annual update raises first-print process risk but not the resolver"],"sourceContext":["https://www.bea.gov/news/schedule/full","https://www.bea.gov/node/43001","https://www.bea.gov/news/2026/personal-income-and-outlays-june-2026","https://www.bea.gov/index.php/news/2026/personal-income-and-outlays-may-2026","https://www.bea.gov/news/2026/personal-income-and-outlays-march-2026","https://www.bea.gov/news/2026/personal-income-and-outlays-january-2026","https://www.bls.gov/news.release/cpi.htm?lv=true","https://www.bea.gov/information-updates-national-regional-economic-accounts","https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy"],"runAt":"2026-08-11T13:11:33Z","reasoning":[{"kind":"heading","text":"US core PCE month-over-month forecast for August 2026"},{"kind":"text","text":"The target is the BEA PCE price index excluding food and energy, seasonally adjusted, percent change from the preceding month, for August 2026. All historical anchors below use that same core PCE MoM SA variant, not headline PCE, CPI, market-based PCE, year-over-year inflation, or later revised vintages."},{"kind":"tool","tool":"official.lookup","call":"Checked the BEA full release schedule and BEA 26-34 schedule node for the August 2026 Personal Income and Outlays release.","result":"BEA schedule fetched: Personal Income and Outlays, August 2026 is scheduled for September 30, 2026 at 8:30 AM; the preceding July 2026 PIO release is scheduled for August 26, 2026 at 8:30 AM."},{"kind":"tool","tool":"official.lookup","call":"Fetched recent BEA Personal Income and Outlays releases for core PCE percent change from preceding month.","result":"BEA fetched core PCE MoM SA values: January 2026 0.4, February 2026 0.4, March 2026 0.3, April 2026 0.3, May 2026 0.3, June 2026 0.1; June headline PCE was -0.1 and June core PCE year-over-year was 3.3."},{"kind":"tool","tool":"official.lookup","call":"Checked the BLS June 2026 CPI release for contemporaneous price momentum relevant to PCE source data.","result":"BLS fetched June 2026 values: CPI-U all items -0.4 month-over-month, all items less food and energy 0.0, shelter 0.1, owners' equivalent rent 0.2, energy -5.7, and 12-month core CPI 2.6."},{"kind":"tool","tool":"official.lookup","call":"Checked BEA's 2026 annual update notice because the August 2026 first print is scheduled on the same day as the annual update.","result":"BEA fetched annual-update timing: 2026 annual updates begin September 30, 2026; the National Economic Accounts annual update open revision period is first quarter 2021 through first quarter 2026; the reference year remains 2017."},{"kind":"text","text":"Reference class/base rate: the Jan-Jun 2026 official first-print core PCE MoM SA sample has values 0.4, 0.4, 0.3, 0.3, 0.3, and 0.1, with a mean base rate of 0.30 percent growth. The latest June print is below that base rate, but a two-month-ahead August forecast should not fully chase one soft month."},{"kind":"math","text":"Prior/update/interval: persistence prior is the Jan-Jun 2026 BEA first-print mean of 0.30 from the historical sample 0.4, 0.4, 0.3, 0.3, 0.3, 0.1; adjustment components are -0.02 for June core CPI at 0.0 and soft shelter at 0.1, -0.02 for latest BEA core PCE momentum at 0.1, and +0.01 for sticky services and two-month mean reversion, giving 0.30 - 0.02 - 0.02 + 0.01 = 0.27. Interval method uses realized dispersion of the fetched core PCE MoM values themselves: sample sigma = 0.11 percentage point, so 1.28*sigma = 0.14; final 80% bounds are 0.27 - 0.14 = 0.13 and 0.27 + 0.14 = 0.41."},{"kind":"text","text":"Upside risk is that July and August services prices rebound after June's flat CPI core reading, pushing core PCE to 0.4 or higher; downside risk is another month of weak medical, apparel, vehicles, or communication prices plus soft shelter, which would land below the interval near 0.1 or less. An outside the interval high outcome would likely require broad services acceleration rather than energy, because food and energy are excluded."},{"kind":"forecast","point":0.27,"ciLow":0.13,"ciHigh":0.41}]}

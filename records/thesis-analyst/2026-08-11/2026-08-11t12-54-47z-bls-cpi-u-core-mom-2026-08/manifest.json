@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-11T12:54:47Z",
+  "runStartedAt": "2026-08-11T12:54:47Z",
+  "sealedAt": "2026-08-11T12:56:34Z",
+  "series": "bls.cpi.u.core_mom",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-core-cpi-mom-august-2026",
+    "country": "US",
+    "dataPointId": "bls.cpi.u.core_mom.august_2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-16",
+      "start": "2026-09-08"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-11T12:50:27Z",
+    "registeredAtUtc": "2026-08-11T12:50:27Z",
+    "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+    "registrationState": "preregistered",
+    "series": "bls.cpi.u.core_mom",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-16",
+        "start": "2026-09-08"
+      },
+      "field": "bls.cpi.u.core_mom",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.cpi.u.core_mom",
+      "sourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "table": "U.S. Bureau of Labor Statistics Consumer Price Index news release",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "7f06e063b1a3cfb4fc7b99061e8dd2223e358084787c4cee16f470e22eaf5e12",
+    "targetRegistrationPath": "records/targets/2026-08-11-7f06e063b1a3cfb4fc7b99061e8dd2223e358084787c4cee16f470e22eaf5e12.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "targetContentHash": "7f06e063b1a3cfb4fc7b99061e8dd2223e358084787c4cee16f470e22eaf5e12",
+  "targetRegistrationPath": "records/targets/2026-08-11-7f06e063b1a3cfb4fc7b99061e8dd2223e358084787c4cee16f470e22eaf5e12.json",
+  "registeredAtUtc": "2026-08-11T12:50:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-11T12:54:47Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "60d21527fb24b8544241692d83e9fab399fc27f5d62de251584b93e943ff0ac2"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add one sentence explicitly stating that no separate formal time-series model was used beyond the short BLS Table A persistence prior, or briefly describe why that prior is preferred for this cell."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the exact 2026-09-11 release date is inside the ledger expectedReleaseWindow of 2026-09-08 to 2026-09-16."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to state that the prior is a transparent short BLS Table A persistence prior rather than a separate formal model, and to note that the verified 2026-09-11 BLS release date falls inside the ledger expectedReleaseWindow.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to state that the prior is a transparent short BLS Table A persistence prior rather than a separate formal model, and to note that the verified 2026-09-11 BLS release date falls inside the ledger expectedReleaseWindow.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with one minor clarification recommended around the model prior; resolver, first-print rule, interval math, tails, and JSON fields are coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/prompt.md",
+      "sha256": "f76b0459167b252a8e61a6268d7981f9c53c2adc9b075a1e8d45218a5a58174f",
+      "bytes": 8945,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_command.json",
+      "sha256": "57d231d4b3ddf2a1a3f4b5e18fcf0a6a851d5a703dbb238a415f41d7d9490ffd",
+      "bytes": 748,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "963cc27d02e20caf2000767635a3f6eb06d972ad23d91e2377d29cca81d7c1a5",
+      "bytes": 10527,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_codex_stderr.log",
+      "sha256": "0f914da2708cf3d952dc57a893aaf54a453a6c1bc91093908406004248e757c1",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_codex_events.jsonl",
+      "sha256": "501b6fceacd67556d460d79b3f2bc96ee71a189384bf7a5177e9eac1fe518313",
+      "bytes": 10519,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_codex_last_message.txt",
+      "sha256": "711734f17bbafc493f7a7476da6e06cb58a0e986f9e0060788c07033f92b057b",
+      "bytes": 5061,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_codex_trace.json",
+      "sha256": "b2d30598a9a9bbedc453d4eea99717f3bf370ed50de4d06a3537f4dcfccb9801",
+      "bytes": 558,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_stdout.txt",
+      "sha256": "711734f17bbafc493f7a7476da6e06cb58a0e986f9e0060788c07033f92b057b",
+      "bytes": 5061,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/draft_stderr.txt",
+      "sha256": "dbf42797c41e432b6d014eae621eab70f630cc731087d54ef8b35a418f8306ad",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_prompt.md",
+      "sha256": "2a861bfa3ef292ed7ced8a8c6a0056293b5f01d888f7dd9c6e2eb0b5188a31b9",
+      "bytes": 8147,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_command.json",
+      "sha256": "63326ae57b0a119e05fc498f8f0536f650cf6fec79843b059145550f64ac84c8",
+      "bytes": 744,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "923a58253256c57183d62e5a3a3171c97de9aadfe5e78f2b274e8fe0b10c3bea",
+      "bytes": 1512,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "204c0f524bc30f89e12bd8e5d7a2095f2e038f690509a4f3342159822caa8b58",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "dd97ca9319d8bc1a14dc0ac29ecd4526213f45975cf7d1a647b97ce403e869be",
+      "bytes": 1532,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "598fcae8422f298b9d375de68bd24adffcaf208a057b1c02c2375b1d592ab0c3",
+      "bytes": 577,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "50918450b42ed066b7395accc486c6b5650523eab68a0a2654fbca49326c382b",
+      "bytes": 552,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "598fcae8422f298b9d375de68bd24adffcaf208a057b1c02c2375b1d592ab0c3",
+      "bytes": 577,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "48287c7e2e1edb24dc832627fd28a84eff776a98d29312dcea91a454238db035",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/revision_prompt.md",
+      "sha256": "592ad7c88d1e1cd2de66db0f1de46a8280a3ba0720748f1eb415c95e7239c3da",
+      "bytes": 15519,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/command.json",
+      "sha256": "b7840e5352eb50d3a30ba835f773ee3151b104ec1dfd99b9f2170cbbcb238a2d",
+      "bytes": 742,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/codex_stdout.jsonl",
+      "sha256": "32a0ddf3471b5a6259577253fb7dcf5fd7e769ac685b9b26ac4fa6fcf49881c9",
+      "bytes": 6119,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/codex_stderr.log",
+      "sha256": "c1151a5405dd3f905df557b23e52e8c2f5698e1372ebaa4bd16c3efebdd1733a",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/codex_events.jsonl",
+      "sha256": "805b2ca959e535e73807c192932e7ccd799b0a46ffe76fd09ba93f36defbc168",
+      "bytes": 6141,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/codex_last_message.txt",
+      "sha256": "c887d79c01746260e26ad3356a7984a5b08d74f707c853326e7eda56540a7098",
+      "bytes": 5579,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/codex_trace.json",
+      "sha256": "b9f1a712ead8a3e31fffb12bdf97626a518a6e034c1362b34b13a06cc8af3667",
+      "bytes": 555,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/stdout.txt",
+      "sha256": "c887d79c01746260e26ad3356a7984a5b08d74f707c853326e7eda56540a7098",
+      "bytes": 5579,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/stderr.txt",
+      "sha256": "163dde117be65f614cb809394a79a98cbeda61b333c0b34176cac6005b8876bc",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/raw_response.txt",
+      "sha256": "c887d79c01746260e26ad3356a7984a5b08d74f707c853326e7eda56540a7098",
+      "bytes": 5579,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/parsed_cells.json",
+      "sha256": "828081a247745e6ef277b89d5477e97e2cbcdd3d22c67747ace125b9f2a02d80",
+      "bytes": 6399,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/normalized_cells.json",
+      "sha256": "8116ebe1833632747703118cd44f9f41563986495e7a81c55183a8db9760f7df",
+      "bytes": 23644,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/distribution.json",
+      "sha256": "3565c8a8bab770cfd71972a2bfaaad90f3e58ced1cf0daaad6754fa4dd7acb5f",
+      "bytes": 13461,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/validation.json",
+      "sha256": "6e5fe8ba5d3afe935aca0f22df389633dbb93e0d53411e779ec623850f096165",
+      "bytes": 128,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/cells.with_activity.json",
+      "sha256": "102eed322d53898cf52f2232fd6f0a4c5e89f8cbf39dd5caedc710e9ae73b5f8",
+      "bytes": 36999,
+      "createdAt": "2026-08-11T12:54:47Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-54-47z-bls-cpi-u-core-mom-2026-08/manifest.json",
+      "sha256": "4bfd155d57fed9f0056db1965fcbb34d6df5247189d23d31a1f905a4a2c2eec1",
+      "bytes": 13676,
+      "createdAt": "2026-08-11T12:54:47Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-core-cpi-mom-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "077a8402911052409a1ab3f69f6b099b9a78766b04829ce245019470b97a7199"
+}

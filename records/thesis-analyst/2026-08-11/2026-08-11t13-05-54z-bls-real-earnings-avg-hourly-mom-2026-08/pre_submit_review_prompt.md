@@ -1,0 +1,54 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.real_earnings.avg_hourly_mom
+- period: 2026-08
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-real-avg-hourly-earnings-mom-august-2026"
+- country: "US"
+- targetUnit: "percent"
+- dataPointId: "bls.real_earnings.avg_hourly_mom.2026-08.first_print"
+- expectedReleaseWindow: {"end": "2026-09-16", "start": "2026-09-08"}
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.bls.gov"], "expectedReleaseWindow": {"end": "2026-09-16", "start": "2026-09-08"}, "field": "bls.real_earnings.avg_hourly_mom", "releasePolicy": "first_print", "sourceSeriesId": "bls.real_earnings.avg_hourly_mom", "sourceUrl": "https://www.bls.gov/news.release/realer.t01.htm", "table": "U.S. Bureau of Labor Statistics Real Earnings Table A-1", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-08-11-d131156b732a5d2eeed80a873f599d8c0a54453f2c8eb3c2ce0d53822486ba73.json"
+- targetContentHash: "d131156b732a5d2eeed80a873f599d8c0a54453f2c8eb3c2ce0d53822486ba73"
+- registrationCommit: "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0"
+- registeredAtUtc: "2026-08-11T12:50:27Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+faf50cd2538be5551e1bb63946b58c397d7a9706e5924a932bf7d600da9ad040
+
+# Draft forecast response
+{"slug":"us-real-avg-hourly-earnings-mom-august-2026","country":"US","type":"data","title":"US real average hourly earnings MoM, August 2026","question":"What will the BLS first print for seasonally adjusted real average hourly earnings of all employees on private nonfarm payrolls, over-the-month percent change, be for August 2026?","unit":"percent","pointEstimate":-0.1,"ciLow":-0.6,"ciHigh":0.4,"confidence":0.8,"resolutionDate":"2026-09-11","resolutionSource":"U.S. Bureau of Labor Statistics Real Earnings Table A-1","resolutionSourceUrl":"https://www.bls.gov/news.release/realer.t01.htm","resolutionRule":"Resolve to the first BLS Real Earnings Table A-1 print for August 2026, row 'Real average hourly earnings' under 'OVER-THE-MONTH PERCENT CHANGE' for all employees on private nonfarm payrolls, seasonally adjusted. Use the value as published in percent, normally to one decimal place, on the scheduled September 11, 2026 release; ignore later revisions.","dataPointId":"bls.real_earnings.avg_hourly_mom.2026-08.first_print","historicalContext":[{"label":"June 2026 real average hourly earnings MoM, latest BLS Table A-1","value":0.8},{"label":"May 2026 real average hourly earnings MoM, latest BLS Table A-1","value":-0.2},{"label":"April 2026 real average hourly earnings MoM, latest BLS Table A-1","value":-0.5},{"label":"July 2026 nominal average hourly earnings, BLS Employment Situation","value":37.62},{"label":"July 2026 unemployment rate, BLS Employment Situation","value":4.1}],"drivers":["Nominal average hourly earnings growth slowed to near flat in July","August CPI is likely to absorb most nominal wage growth","June real-earnings jump was CPI-deflation driven and unlikely to persist","Recent real hourly earnings changes have high month-to-month CPI noise"],"sourceContext":["https://www.bls.gov/schedule/news_release/realer.htm","https://www.bls.gov/news.release/realer.t01.htm","https://www.bls.gov/news.release/archives/realer_02132026.htm","https://www.bls.gov/news.release/archives/realer_03112026.htm","https://www.bls.gov/news.release/archives/realer_04102026.htm","https://www.bls.gov/news.release/archives/realer_06102026.htm","https://www.bls.gov/news.release/archives/realer_09112025.htm","https://www.bls.gov/news.release/archives/realer_12182025.htm","https://www.bls.gov/news.release/empsit.htm"],"runAt":"2026-08-11T13:07:36Z","reasoning":[{"kind":"heading","text":"Forecast for BLS real average hourly earnings MoM, August 2026"},{"kind":"text","text":"Resolver is the all-employees, private nonfarm payrolls, seasonally adjusted variant in BLS Real Earnings Table A-1. The target is the first-print over-the-month percent change for August 2026, not later revised CES or CPI database values."},{"kind":"tool","tool":"official.lookup","call":"BLS Real Earnings release schedule lookup for August 2026 reference month","result":"BLS schedule lists Real Earnings for August 2026 with release date September 11, 2026 and release time 08:30 AM ET; this verifies resolutionDate 2026-09-11."},{"kind":"tool","tool":"official.lookup","call":"BLS current Real Earnings Table A-1 for recent all-employees real hourly earnings and components","result":"Latest Table A-1 shows real average hourly earnings levels of 11.25 in April 2026, 11.23 in May 2026, and 11.32 in June 2026; over-the-month percent changes were -0.5, -0.2, and 0.8; CPI-U changes were 0.6, 0.5, and -0.4; nominal average hourly earnings changes were 0.2, 0.3, and 0.3."},{"kind":"tool","tool":"official.lookup","call":"BLS archived Real Earnings releases for the recent reference class","result":"Archived Table A-1 prints used for the reference class include July 2025 0.2, August 2025 -0.1, September 2025 -0.1, December 2025 -0.3, January 2026 0.3, February 2026 0.2, March 2026 -0.6, April 2026 -0.5, May 2026 -0.2, and June 2026 0.8 percent real average hourly earnings month-over-month."},{"kind":"tool","tool":"official.lookup","call":"BLS July 2026 Employment Situation for nominal wage and labor-market setup before August","result":"The July 2026 Employment Situation reported nonfarm payroll employment -23,000, unemployment rate 4.1 percent, average hourly earnings for all employees on private nonfarm payrolls 37.62 dollars, a +2 cent change, and average weekly hours 34.3."},{"kind":"text","text":"Base rate/reference class: the recent official real-hourly-earnings MoM sample is centered near zero, with a mean around -0.03 percent and median -0.10 percent. Because this is already a change series, the sample values themselves are the realized dispersion input."},{"kind":"math","text":"Prior/update/interval: persistence/reference-class prior is the recent BLS Table A-1 monthly real average hourly earnings change sample [0.2, -0.1, -0.1, -0.3, 0.3, 0.2, -0.6, -0.5, -0.2, 0.8], mean = -0.03 and median = -0.10. Update components: July nominal AHE was only +2 cents to 37.62, suggesting softer wage momentum; for August I assume nominal AHE about +0.25 percent and CPI-U about +0.30 percent, so real hourly earnings is approximately 0.25 - 0.30 = -0.05 percent, rounded to -0.1. Sample dispersion gives sigma = 0.42 percentage points, and 1.28*sigma = 0.54 percentage points; applying that to -0.1 gives about -0.64 to 0.44, rounded to an 80 percent interval of -0.6 to 0.4."},{"kind":"text","text":"Upside risk is a soft August CPI print or a rebound in hourly earnings after July's +2 cents, which would land above the interval if real hourly earnings rose more than 0.4 percent. Downside risk is another hot CPI print or weak mix-adjusted wages, which would land below the interval if the published real change is less than -0.6 percent. Outside the interval would most likely require an energy-driven CPI surprise or a large composition shock in payroll earnings."},{"kind":"forecast","point":-0.1,"ciLow":-0.6,"ciHigh":0.4}]}

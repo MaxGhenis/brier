@@ -1,0 +1,28 @@
+{
+  "summary": "The draft is publishable after tightening the resolver URL/basis and making the interval/update arithmetic less ad hoc.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft uses a more specific FiscalData summary URL instead of the canonical ledger sourceUrl, and it does not explicitly state the registered expectedReleaseWindow.",
+      "actionRequested": "Align resolutionSourceUrl with the ledger dataset URL or explicitly state that the specific summary URL is the resolving table under the registered FiscalData dataset; add the registered 2026-09-13 to 2026-09-21 window."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is based only on five August observations, including one extreme 2023 surplus month, with no sensitivity check or explanation for why that small sample is sufficient.",
+      "actionRequested": "Add one sentence acknowledging the small-sample volatility basis and why the wide 15 to 445 interval is retained despite the 2026 calendar adjustment."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The update components are named, but the +45, -35, and +15 adjustments are judgmental and not tied to comparable historical payment-shift magnitudes or recent fiscal run-rate changes.",
+      "actionRequested": "Briefly justify each adjustment with its empirical anchor or label it explicitly as a judgmental shrinkage adjustment."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention that the forecast is deficit-positive while the official Table 1 line is surplus-positive/deficit-negative to avoid unit-sign ambiguity.",
+    "The tail scenarios are concrete enough; no replacement tails are needed.",
+    "Point, interval, JSON fields, and historical values are internally coherent."
+  ]
+}

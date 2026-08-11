@@ -1,0 +1,145 @@
+# Thesis analyst fast public-release run
+
+Return exactly one JSON object and no Markdown. Do not wrap it in a code fence.
+
+# Context access
+You may inspect the local repository/workspace when useful. This is optional, not required. Useful read-only context can include docs/cell-contract.md, site/src/data/forecast-cells.ts, site/src/data/ledger-targets.ts, prediction packs, generated comparison data, records/thesis-analyst run manifests, full activity artifacts, prior reasoning traces, and model-candidate files. You may run read-only commands such as rg, sed, cat, find, git log/status/show, `date -u +%Y-%m-%dT%H:%M:%SZ`, and short inline arithmetic commands. Local context is admissible only when it is a public repository artifact, a published Thesis record, or a generated file derived from public official sources. Do not use private meeting notes, call transcripts, email/chat content, pasted attachments, personal notes, or other non-public local files as forecast evidence, source context, or tool-call provenance. If such material is present on disk, ignore it; if a prior run cites it, treat that run as tainted for evidence purposes. Do not modify files. Treat prior forecasts as historical forecasts or strategy context, not as ground-truth outcomes. If prior runs affect your forecast, briefly state the update from the previous run; if they do not matter, ignore them. Existing catalog pointEstimate, ciLow, and ciHigh values are not official evidence for a new forecast; use local catalog context to verify target identity/resolver fields only unless explicitly auditing an existing forecast.
+
+Goal: produce one auditable forecast for an automatically resolvable government/public statistical release. Resolve on the first official print unless the series itself is a policy decision level after an announcement.
+
+# Question spec
+- series: bls.cpi.u.headline_mom
+- period: 2026-08
+- conditionalOn: null
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-cpi-u-mom-august-2026"
+- country: "US"
+- targetUnit: "percent_growth"
+- dataPointId: "bls.cpi.u.headline_mom.august_2026.first_print"
+- expectedReleaseWindow: {"end": "2026-09-16", "start": "2026-09-08"}
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.bls.gov"], "expectedReleaseWindow": {"end": "2026-09-16", "start": "2026-09-08"}, "field": "bls.cpi.u.headline_mom", "releasePolicy": "first_print", "sourceSeriesId": "bls.cpi.u.headline_mom", "sourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm", "table": "U.S. Bureau of Labor Statistics Consumer Price Index news release", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-08-11-c51aedd86599c0c9163b11528a567965d96f5338af58949f3b77221f8f502bfc.json"
+- targetContentHash: "c51aedd86599c0c9163b11528a567965d96f5338af58949f3b77221f8f502bfc"
+- registrationCommit: "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0"
+- registeredAtUtc: "2026-08-11T12:50:27Z"
+
+# Source hints
+- Use the official agency release calendar, not inferred cadence.
+- FRED may be used as a history mirror, but resolution cites the agency.
+- For FOMC targets, resolve to the target range upper bound after the announcement.
+- For DOL claims, name the week-ending date and cite the release date.
+
+# Default promoted forecasting practices
+- Resolve the exact first-print target before inside-view evidence.
+- Fetch and state the recent official-source reference class.
+- Anchor on the outside-view base rate before current-release adjustments.
+- Separate level, momentum, one-off, and policy-mechanism effects before combining them.
+- Include one public reasoning step beginning "Prior/update/interval:" that names the model or persistence prior, historical sample, adjustment components, interval method, and final implied bounds.
+- For strict first-print or original-vintage targets, keep the ledger resolver in substance and do not add same-day correction or release-day grace exceptions unless the target rule includes them.
+- Size the 80% interval from realized dispersion and SHOW the arithmetic in the Prior/update/interval step: compute sigma from the fetched history (successive changes for level/rate series; the values themselves for change/flow series), state it literally as "sigma = X", and derive the half-width as roughly 1.28*sigma. If you widen or narrow beyond about 0.75x-1.75x of that half-width, state the regime or mechanism reason in the same step. Never default to a round hedged band.
+- When a release has variants (gross vs smoothed/synthetic, SA vs NSA, flash vs final), the resolution rule must name the variant and every anchor and historical value must come from that same variant; say so once in a text step.
+- resolutionSourceUrl must be the most specific stable page for the exact series (release page, table, or databrowser query with the series code), never a portal or theme landing page; state the series code or table id in a text step when one exists.
+- Name concrete upside, downside, and outside-the-interval scenarios, using the literal phrases "upside risk", "downside risk", and "outside the interval" (or "would land above/below the interval") so the falsification step is machine-checkable.
+
+# Required JSON shape
+{
+  "slug": "kebab-case-unique-vs-catalog",
+  "country": "US|UK|CA|AU|EA|JP",
+  "type": "data",
+  "title": "Short display title",
+  "question": "Exact agency series, period, adjustment, first print",
+  "unit": "percent|count|thousands|millions|usd|usd_millions|usd_billions|gbp_billions|ratio|percent_growth",
+  "pointEstimate": 0,
+  "ciLow": 0,
+  "ciHigh": 0,
+  "confidence": 0.8,
+  "resolutionDate": "YYYY-MM-DD",
+  "resolutionSource": "Official agency release",
+  "resolutionSourceUrl": "https://official-source.example",
+  "resolutionRule": "First-print rule with rounding and revision policy",
+  "dataPointId": "agency.dataset.concept.period.first_print",
+  "historicalContext": [
+    {
+      "label": "latest",
+      "value": 0
+    }
+  ],
+  "drivers": [
+    "short driver phrases"
+  ],
+  "sourceContext": [
+    "https://urls-actually-used"
+  ],
+  "runAt": "date -u +%Y-%m-%dT%H:%M:%SZ",
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "Forecast title"
+    },
+    {
+      "kind": "text",
+      "text": "Framing and exact resolver"
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "source lookup description",
+      "result": "fetched numbers"
+    },
+    {
+      "kind": "math",
+      "text": "point and 80% interval calculation"
+    },
+    {
+      "kind": "forecast",
+      "point": 0,
+      "ciLow": 0,
+      "ciHigh": 0
+    }
+  ]
+}
+
+# Validation rules
+- Use confidence 0.8 exactly.
+- ciLow < pointEstimate < ciHigh, except discrete policy-rate targets may put the modal point at an interval edge if needed.
+- historicalContext must contain at least 3 numeric fetched points.
+- sourceContext must contain at least 2 source URLs actually used.
+- sourceContext, reasoning, drivers, and tool calls must not cite or use private meeting notes, call transcripts, email/chat content, pasted attachments, personal notes, or non-public local files.
+- reasoning must contain at least 7 steps, at least 3 tool steps whose result strings include fetched numbers, one explicit base-rate or reference-class step (literally say "base rate" or "reference class"), one math step, one counter-consideration that states what would land outside the 80% interval (literally use "upside risk", "downside risk", or "outside the interval"), one step beginning Prior/update/interval:, and a final forecast step whose numbers exactly match the cell.
+- Every tool step result must include at least one fetched numeric value — an actual statistic from the source, not just field names or identifiers. Definitional lookups (data dictionaries, field definitions, methodology pages) belong in text steps, as do other qualitative source notes. Numbers may come from official public sources or inspected local run/model artifacts, but the provenance must be clear.
+- resolutionDate must be verified from an official release calendar or announcement schedule this run. Do not infer it from cadence.
+- Do not use existing local catalog point estimates or intervals as forecast evidence. If inspected, treat them only as non-authoritative prior strategy context and keep them out of tool-result evidence.
+- runAt must be the actual UTC date command output from this run.
+- Slug should be stable and descriptive; if the same target already exists, reuse the obvious canonical slug rather than inventing a near-duplicate.
+
+Emit the final JSON object only. (agent thesis.analyst v2.5.7, prompt a954cfd8c691, tools 024388e49298, promptMode fast)
+
+
+# Pre-submit review loop
+
+You already drafted the response below. A reviewer then checked the draft against the Thesis rubric. Produce the final JSON forecast now.
+
+Rules for the final submission:
+- Return exactly one JSON object and no Markdown.
+- Use only pre-resolution public evidence available to the draft.
+- Accept reviewer fixes only when they improve resolver clarity, source grounding, base-rate discipline, uncertainty calibration, or internal coherence.
+- Add a public reasoning text step beginning with "Review disposition:" that states which critique items were accepted or rejected. Keep this concise; do not reveal hidden chain-of-thought.
+- Put the Review disposition text step before the final forecast step.
+- The final reasoning step must be the forecast step, and its numbers must exactly match pointEstimate, ciLow, and ciHigh.
+
+# Draft forecast response
+{"slug":"us-cpi-u-mom-august-2026","country":"US","type":"data","title":"US CPI-U MoM, August 2026","question":"What will the BLS first print for the seasonally adjusted month-over-month percent change in U.S. CPI-U all items, U.S. city average, for August 2026?","unit":"percent_growth","pointEstimate":0.28,"ciLow":-0.12,"ciHigh":0.68,"confidence":0.8,"resolutionDate":"2026-09-11","resolutionSource":"U.S. Bureau of Labor Statistics Consumer Price Index news release","resolutionSourceUrl":"https://www.bls.gov/news.release/cpi.nr0.htm","resolutionRule":"Resolve to the first-published BLS Consumer Price Index news release value for All items CPI-U, U.S. city average, seasonally adjusted percent change from July 2026 to August 2026, as printed in Table A or Table 1 on September 11, 2026 at 08:30 ET. Use the first-print rounded percent value in the release and do not revise for later seasonal-adjustment revisions or subsequent corrections unless the registered target is amended.","dataPointId":"bls.cpi.u.headline_mom.august_2026.first_print","historicalContext":[{"label":"2026-06 CPI-U all items SA MoM first-print","value":-0.4},{"label":"2026-05 CPI-U all items SA MoM first-print","value":0.5},{"label":"2026-04 CPI-U all items SA MoM first-print","value":0.6},{"label":"2026-03 CPI-U all items SA MoM first-print","value":0.9},{"label":"2025-12 CPI-U all items SA MoM first-print","value":0.3}],"drivers":["Recent headline CPI was energy-driven: June fell 0.4 percent after May rose 0.5 percent and April rose 0.6 percent.","Core CPI was flat in June, while food rose 0.2 percent and energy fell 5.7 percent, so another large headline decline requires another large energy drop.","The 2025-2026 observed reference class centers near 0.3 percent monthly but has widened because March-June 2026 energy swings were large.","The target is CPI-U all items, U.S. city average, seasonally adjusted, first print; all anchors use that same variant."],"sourceContext":["https://www.bls.gov/schedule/news_release/cpi.htm","https://www.bls.gov/schedule/2026/09_sched_list.htm","https://www.bls.gov/news.release/cpi.nr0.htm","https://www.bls.gov/news.release/archives/cpi_01132026.htm","https://fred.stlouisfed.org/series/CPIAUCSL"],"runAt":"2026-08-11T12:53:29Z","reasoning":[{"kind":"heading","text":"US CPI-U Headline MoM Forecast For August 2026"},{"kind":"text","text":"Resolver framing: the target is the BLS CPI-U all items, U.S. city average, seasonally adjusted one-month percent change for August 2026, first print only. The BLS series code for the seasonally adjusted all-items index is CUSR0000SA0; FRED mirrors the same BLS source as CPIAUCSL, but final resolution should use the BLS news release URL."},{"kind":"tool","tool":"official.lookup","call":"Checked BLS CPI release calendar and September 2026 selected-release schedule for the August 2026 CPI release date.","result":"BLS schedule lists Consumer Price Index for August 2026 on Friday, September 11, 2026 at 08:30 AM ET; the CPI-by-release page also lists August 2026 release date Sep. 11, 2026 and release time 08:30 AM."},{"kind":"tool","tool":"official.lookup","call":"Fetched latest BLS CPI news release for June 2026 from the official BLS CPI release page.","result":"June 2026 CPI-U all items decreased 0.4 percent seasonally adjusted after rising 0.5 percent in May and 0.6 percent in April; all-items 12-month change was 3.5 percent, food rose 0.2 percent, energy fell 5.7 percent, and all items less food and energy was unchanged at 0.0 percent."},{"kind":"tool","tool":"official.lookup","call":"Fetched BLS archived December 2025 CPI news release for the recent official monthly reference class.","result":"BLS Table A for December 2025 shows all-items seasonally adjusted monthly changes of 0.3 percent in June 2025, 0.2 in July 2025, 0.4 in August 2025, 0.3 in September 2025, and 0.3 in December 2025; the same release notes Oct. and Nov. 2025 all-items data values were unavailable because of the 2025 appropriations lapse."},{"kind":"tool","tool":"public_mirror.lookup","call":"Checked FRED CPIAUCSL mirror of BLS seasonally adjusted CPI-U all-items index levels for recent index arithmetic context.","result":"FRED CPIAUCSL showed May 2026 index 333.979, April 2026 332.407, March 2026 330.293, February 2026 327.460, and January 2026 326.588; another public mirror showed June 2026 index 332.57 and previous May 2026 333.98."},{"kind":"text","text":"Reference class and base rate: using the official first-print rounded monthly changes available from January 2025 through June 2026, excluding missing October-November 2025, the reference class is 0.6, 0.4, 0.2, 0.3, 0.2, 0.3, 0.2, 0.4, 0.3, 0.3, 0.2, 0.3, 0.9, 0.6, 0.5, -0.4. The base rate mean is about 0.33 percent and the median is 0.3 percent."},{"kind":"math","text":"Prior/update/interval: persistence/base-rate model uses the 16 observed official rounded CPI-U all-items SA MoM prints from Jan. 2025-Jun. 2026 as the historical sample; mean = 5.3/16 = 0.331 percent, sample sigma = 0.27 percentage points from the values themselves for this change series, and 1.28*sigma = 1.28*0.27 = 0.35 percentage points. Adjustment components: June's -0.4 headline was dominated by energy at -5.7 and core at 0.0, so I pull the August point below the 0.33 base rate only slightly because two months ahead likely mean-reverts energy while shelter/food keep positive pressure. I use point 0.28 and widen modestly to a 0.40 half-width because the 2026 energy regime produced March 0.9, April 0.6, May 0.5, June -0.4; implied 80 percent interval is 0.28 - 0.40 = -0.12 to 0.28 + 0.40 = 0.68."},{"kind":"text","text":"Counter-considerations: upside risk is a renewed gasoline or utility-energy rebound plus sticky shelter, which would land above the interval if headline CPI prints around 0.7 percent or higher. Downside risk is another broad energy decline combined with flat core goods, which would land outside the interval below -0.12 percent. A policy or methodology surprise is not the resolver; only the first BLS CPI-U all-items SA August print matters."},{"kind":"forecast","point":0.28,"ciLow":-0.12,"ciHigh":0.68}]}
+
+# Reviewer critique
+{
+  "summary": "The draft is publishable with no blocking issues; resolver/date, first-print rule, prior/update/interval math, tails, and JSON fields are internally coherent.",
+  "requiredFixes": [],
+  "optionalSuggestions": [
+    "Consider replacing or downplaying the FRED/public-mirror arithmetic note since the resolver and main evidence are correctly BLS-first-print based.",
+    "Consider stating explicitly that no July 2026 CPI print was available at run time, if true, to make the no-leakage boundary clearer."
+  ]
+}
+
+Emit the final JSON object only.

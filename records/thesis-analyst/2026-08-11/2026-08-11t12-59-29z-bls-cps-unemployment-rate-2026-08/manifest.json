@@ -1,0 +1,397 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-11T12:59:29Z",
+  "runStartedAt": "2026-08-11T12:59:29Z",
+  "sealedAt": "2026-08-11T13:01:38Z",
+  "series": "bls.cps.unemployment_rate",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "unemployment-rate-august-2026",
+    "country": "US",
+    "dataPointId": "bls.cps.unemployment_rate.august_2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-11",
+      "start": "2026-09-03"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-11T12:50:27Z",
+    "registeredAtUtc": "2026-08-11T12:50:27Z",
+    "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+    "registrationState": "preregistered",
+    "series": "bls.cps.unemployment_rate",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-11",
+        "start": "2026-09-03"
+      },
+      "field": "bls.cps.unemployment_rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.cps.unemployment_rate",
+      "sourceUrl": "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "table": "U.S. Bureau of Labor Statistics, Employment Situation (Current Population Survey)",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "ee40ca45dbbd92d41117ea4d5d678fe815ae3a21d5db698050b009e0f27fa0e4",
+    "targetRegistrationPath": "records/targets/2026-08-11-ee40ca45dbbd92d41117ea4d5d678fe815ae3a21d5db698050b009e0f27fa0e4.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "targetContentHash": "ee40ca45dbbd92d41117ea4d5d678fe815ae3a21d5db698050b009e0f27fa0e4",
+  "targetRegistrationPath": "records/targets/2026-08-11-ee40ca45dbbd92d41117ea4d5d678fe815ae3a21d5db698050b009e0f27fa0e4.json",
+  "registeredAtUtc": "2026-08-11T12:50:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.7",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-11T12:59:29Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "a46609cc5e8c3de6dcc477f51826e70fcc407e0f780d64fbadc2a1b6d319705d"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft resolutionSourceUrl points to Table A-1 directly, while the ledger sourceBinding uses the Employment Situation summary URL https://www.bls.gov/news.release/empsit.nr0.htm with the generic-url adapter and resolver table text.",
+        "actionRequested": "Align the resolver/source fields with the ledger contract, or explicitly state why Table A-1 is only the extracting table while the registered resolving source remains the Employment Situation first-print release."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The initial-claims driver is material to the -0.04 update but no public claims source is included in sourceContext.",
+        "actionRequested": "Add the official initial-claims source used, or remove/downweight that update component so every material evidence move is backed by cited public evidence."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State the exact BLS schedule evidence for September 4, 2026 in sourceContext if keeping resolutionDate 2026-09-04."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify the historical volatility sample by listing whether October 2025 is actually unavailable or was omitted for another reason."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver-source critique by making the Employment Situation release page the registered resolving source while naming Table A-1 as the extracting table, accepted the claims-source critique by adding the official DOL claims source and numeric lookup, and clarified the volatility sample note.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver-source critique by making the Employment Situation release page the registered resolving source while naming Table A-1 as the extracting table, accepted the claims-source critique by adding the official DOL claims source and numeric lookup, and clarified the volatility sample note.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-source critique by making the Employment Situation release page the registered resolving source while naming Table A-1 as the extracting table, accepted the claims-source critique by adding the official DOL claims source and numeric lookup, and clarified the volatility sample note.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-source critique by making the Employment Situation release page the registered resolving source while naming Table A-1 as the extracting table, accepted the claims-source critique by adding the official DOL claims source and numeric lookup, and clarified the volatility sample note.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, but it has a target-contract source mismatch and one unsupported evidence driver that should be fixed before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/prompt.md",
+      "sha256": "88810f15b36fbac69dfe76e45c17491d00f359cb366a770606026603a5b275ac",
+      "bytes": 8987,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_command.json",
+      "sha256": "b75b94fd7015f86ff13c1206621f1fa88eb2942cfa2a2ffd274900240df694a7",
+      "bytes": 755,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "fba472c6e31215e681328a1aa50ae88abe3c03bfcc2121810b5f3a964197e3e3",
+      "bytes": 10574,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_codex_stderr.log",
+      "sha256": "23146c206000478de248926192587f5d1bd306b439dc9c3a2f471932671b8141",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_codex_events.jsonl",
+      "sha256": "367e8f735b10637ba78a523fa091834ee056e350aad8f98b756b32f86e279945",
+      "bytes": 10564,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_codex_last_message.txt",
+      "sha256": "40deced7388ea04e3f30dee431211ee7fdb47510f453d731e61cd3104684aa0d",
+      "bytes": 5308,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_codex_trace.json",
+      "sha256": "c6bf4c8a146b9506070f47247cd58e957ff6232e8d376b85189a6ceb74e67e77",
+      "bytes": 559,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_stdout.txt",
+      "sha256": "40deced7388ea04e3f30dee431211ee7fdb47510f453d731e61cd3104684aa0d",
+      "bytes": 5308,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/draft_stderr.txt",
+      "sha256": "68770ed1d3f6cdd3ec1b386922b8f95e1379dcea2c0c8fb572bd936fb386beb8",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_prompt.md",
+      "sha256": "5dcca622c4a1bc8f0e7af63448a6b7b4fb4f2f2216fec5c728936dd1117ffa68",
+      "bytes": 8436,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_command.json",
+      "sha256": "83b0330f87731abea2de7c7d8a9f5e3e887d9e4af084acf1897d52b20e386d3d",
+      "bytes": 751,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "fcda584af363bd03808a72ef7c0bdaa62b31803f88adc18a59b970c6089c676c",
+      "bytes": 1692,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "b0399df66a3fdc3690701e3c8a6a61da3b4c62be60e7dee817eaa3769f207700",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "218126185fc75acd50fe9244a19f521740b96c49ef8998dfd050bf13f107835c",
+      "bytes": 1714,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "9db1d50fc26517a9a6970f0beda82109075e98dfece0d0d4b8f24f85d416fe2c",
+      "bytes": 1334,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "30dfe610b2aadd4b16854b89b6a17a652231d64579a80086d640a344f8568bca",
+      "bytes": 552,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "9db1d50fc26517a9a6970f0beda82109075e98dfece0d0d4b8f24f85d416fe2c",
+      "bytes": 1334,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "cf31317c20380d6f47f1753ccf527362676f536ab5789ae3b867cdffb2226e87",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/revision_prompt.md",
+      "sha256": "7d110887097e545c1eb58f346461d330913967e2471d0541627c1e6135a1ee57",
+      "bytes": 16565,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/command.json",
+      "sha256": "7482bdaca876e1bbf4d513d3b2df00b405a4bdda8c754bdaf1d25697dd3fceb1",
+      "bytes": 749,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/codex_stdout.jsonl",
+      "sha256": "ae078dac67c03156817bac86b5c114130eda313d835e84d4811cf25320b45c4c",
+      "bytes": 6960,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/codex_stderr.log",
+      "sha256": "4f48effffb5a399fbc376c3d05286877c1b7281f8ee568c1fc7dc5f3b656a6f0",
+      "bytes": 233,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/codex_events.jsonl",
+      "sha256": "b01fd2c97db35b5914453b26623426cdff77e9bedc7d2f5321f10cd59a1e1202",
+      "bytes": 6982,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/codex_last_message.txt",
+      "sha256": "2cc857a6bfda86e5021c59b13026f4a098f63a1efa764629ac58c2d94c2744ab",
+      "bytes": 6392,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/codex_trace.json",
+      "sha256": "e130cb7da00f2b126499d9dfcfe2b2690839c17a937194bae25b370005c16350",
+      "bytes": 555,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/stdout.txt",
+      "sha256": "2cc857a6bfda86e5021c59b13026f4a098f63a1efa764629ac58c2d94c2744ab",
+      "bytes": 6392,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/stderr.txt",
+      "sha256": "32eea10d77fb061bd132ad5af6e1074544f742f74704cc26db730dcf22fb5fdd",
+      "bytes": 248,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/raw_response.txt",
+      "sha256": "2cc857a6bfda86e5021c59b13026f4a098f63a1efa764629ac58c2d94c2744ab",
+      "bytes": 6392,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/parsed_cells.json",
+      "sha256": "6b8d47672bb3e9decdb385eb299add98112bb9912247c72e20cbcc06303df725",
+      "bytes": 7302,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/normalized_cells.json",
+      "sha256": "1657a7586f209bf7c966781b331c8a982c6d09119274747dccc2650a0f97a665",
+      "bytes": 24197,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/distribution.json",
+      "sha256": "eec8ee6a0fd37f0e832e8bcb945f2529626ece3c31cef546ac98f84df3306160",
+      "bytes": 13111,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/validation.json",
+      "sha256": "0e0cf5ef6befb10bc991dbcd7a70010b3084c868e2967cd6fca611d0aa79aefa",
+      "bytes": 130,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/cells.with_activity.json",
+      "sha256": "e9af68588259a27e06d5eb7e0354ec576def01d9127f85fc9ee5b0a8088f3e4b",
+      "bytes": 39873,
+      "createdAt": "2026-08-11T12:59:29Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t12-59-29z-bls-cps-unemployment-rate-2026-08/manifest.json",
+      "sha256": "3f0e86587fbcd32ad9c6d6271bf7ad2bc3e01b7744ef845b8414e9b84ff18ab1",
+      "bytes": 15772,
+      "createdAt": "2026-08-11T12:59:29Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "unemployment-rate-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "e8c13ea71f583ab7105a64de5fe4c8594cfcb6d0",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "214b04094edb96c7c51e66ccdbc256924eb6d53ed4693d4c906f2aaaa33612be"
+}
