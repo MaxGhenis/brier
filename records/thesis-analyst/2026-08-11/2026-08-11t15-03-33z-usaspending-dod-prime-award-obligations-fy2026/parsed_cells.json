@@ -1,0 +1,137 @@
+[
+  {
+    "slug": "us-dod-prime-award-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "DoD prime award obligations, FY2026",
+    "question": "What will USAspending API v2 report for Department of Defense agency 097 prime award obligations for fiscal year 2026, in billions of dollars, using the registered query snapshot and first available registered snapshot policy?",
+    "unit": "usd_billions",
+    "pointEstimate": 550,
+    "ciLow": 485,
+    "ciHigh": 615,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2, agency 097 award summary",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+    "resolutionRule": "Resolve from USAspending API v2 endpoint /api/v2/agency/097/awards/?fiscal_year=2026, field obligations, for Department of Defense top-tier agency code 097. Use the registered query snapshot policy and multiply the obligations dollar value by 1e-9 to express it in billions USD. Later API changes after the registered snapshot are irrelevant.",
+    "dataPointId": "usaspending.dod.prime_award_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 129.7
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 148.6
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 212.9
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 217.9
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 245.1
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, latest inspected current total",
+        "value": 246.7
+      }
+    ],
+    "drivers": [
+      "FY2026 DoD budget materially above FY2025",
+      "large acquisition and O&M funding base",
+      "DoD award data lag creates snapshot risk",
+      "late fiscal-year procurement surge",
+      "current USAspending-derived snapshots still below full-year pace"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/docs/endpoints",
+      "https://www.usaspending.gov/agency/department-of-defense",
+      "https://app.g2xchange.com/agencies/9748",
+      "https://g2xchange.com/app/agencies/97CY",
+      "https://www.cbo.gov/publication/62396",
+      "https://www.congress.gov/crs-product/R44027",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-11T15:03:48Z",
+    "activityLog": [],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "DoD FY2026 Prime Award Obligations Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the registered target is USAspending agency 097 prime award obligations for FY2026. The target context gives an expectedReleaseWindow ending 2026-10-22; I use that lab-committed bound as resolutionDate and keep the registered URL template unchanged. The ledger targetUnit is billions USD, represented in the contract as usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.api.docs",
+        "call": "Open USAspending API endpoint documentation and the agency awards endpoint description.",
+        "result": "Fetched USAspending API docs: endpoints do not require authorization; /api/v2/agency/<TOPTIER_AGENCY_CODE>/awards/ returns agency award summary information including transaction_count and obligations. The browsable example response carried fiscal_year=2026, transaction_count=1611371, obligations=146176922599.78 for agency 012."
+      },
+      {
+        "kind": "tool",
+        "tool": "web.search.usaspending_mirror_snapshots",
+        "call": "Search public USAspending-derived agency pages for current DoD award totals and subagency breakdowns.",
+        "result": "Fetched USAspending-derived public snippets with current totals: 129,709,702,780; 148,551,377,687; 212,895,410,643; 217,858,434,553; 245,069,031,666; and 246,670,846,817 dollars across DoD-associated pages."
+      },
+      {
+        "kind": "tool",
+        "tool": "web.search.subagency_breakdown",
+        "call": "Inspect latest DoD subagency breakdown in the public USAspending-derived snippets.",
+        "result": "Latest inspected current total was 246,670,846,817 dollars; listed components included Department of the Navy 72,149,134,174, Department of the Air Force 57,590,357,180, and Department of the Army 53,792,358,774 dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "cbo.defense_budget",
+        "call": "Fetch public FY2026 DoD budget context from CBO and Defense Department summaries.",
+        "result": "CBO/DoD budget context fetched: DoD FY2026 request totaled 961.6 billion dollars; CBO reported total FY2026 acquisition funding of 384 billion dollars and operation/support funding of 558 billion dollars; DoD described the FY2026 request as 13.4 percent above FY2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "crs.usaspending_timing",
+        "call": "Fetch public USAspending timing caveat for DoD award data.",
+        "result": "CRS/USAspending timing context fetched: federal award transactions generally report within 30 days, while Department of Defense data may have a longer lag, generally 90 days."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: no complete prior-year agency 097 final obligations series was available in the draft evidence, so the admissible base rate is the six inspected public USAspending-derived running snapshots, ranging from 129.7 to 246.7 billion dollars, with latest inspected current persistence at 246.7. This is a weak full-year prior because the target resolves after fiscal-year close, so I use current-snapshot persistence plus budget scaling rather than treating 246.7 as the final forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Model candidates under thesis_model_candidate_v1, stated compactly: persistence candidate point 246.7, p10 215, p50 246.7, p90 280, interval_method snapshot empirical, calibration_n 6, train cutoff latest inspected mirror snapshot, rejected because the resolver is the FY2026 registered snapshot after fiscal-year close; budget-scaled candidate point 550, p10 485, p50 550, p90 615, interval_method widened snapshot-change residual, calibration_n 6, train cutoff latest inspected mirror snapshot, selected because FY2026 DoD funding and late fiscal-year award flow imply a much larger post-close snapshot than current YTD mirror persistence."
+      },
+      {
+        "kind": "math",
+        "text": "Quantitative bridge: latest inspected current snapshot = 246.7 billion dollars. The selected point assumes the October registered snapshot reaches 57.2% of the 961.6 billion dollar FY2026 DoD request, equal to 550.0 billion dollars, or 2.23 times the latest inspected current snapshot. I choose 57.2% rather than the raw current 25.7% share because award obligations should accumulate through the fiscal-year close and visible reporting catch-up, while staying well below total DoD budget authority because not all budget authority appears as prime award obligations in the registered API field."
+      },
+      {
+        "kind": "math",
+        "text": "Snapshot changes in billions were 18.8, 64.3, 5.0, 27.2, and 1.6; their sample dispersion is about 25.1. For a post-close registered snapshot with DoD delay and late-year procurement concentration, I use a conservative manual widening for model-error uncertainty: sigma = 50.8, about 2.0 times observed intra-snapshot change dispersion. Half-width = 1.28*sigma = 65.0. Point = 550 based on budget-scaled snapshot prior; 80% interval = 550 - 65 to 550 + 65 = 485 to 615."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior = budget-scaled current USAspending-derived snapshot, historical sample = six inspected DoD current-total snapshots from 129.7 to 246.7 billion dollars plus FY2026 DoD budget context of 961.6 billion dollars total and 384 billion dollars acquisition funding; adjustment components = upward late-fiscal-year award flow and FY2026 defense funding increase, partially offset by 90-day DoD reporting lag that can leave October below the eventual fully reported FY total; interval method = widened snapshot-change residual with sigma = 50.8 and half-width roughly 1.28*sigma = 65.0, implying bounds 485 and 615."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: downside risk would land below the interval if the October registered API snapshot still excludes most late-FY DoD contract actions because of the 90-day delay or if award obligations are shifted into account spending not captured by prime awards. Upside risk would land above the interval if reconciliation-funded acquisition and shipbuilding obligations hit USAspending before the snapshot or if a large September obligation wave is visible earlier than usual."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarity fix by removing the extra rounding instruction; accepted the quantitative bridge by stating the 57.2% of FY2026 DoD request and 2.23x current-snapshot assumptions; accepted the base-rate caveat that no complete prior-year final obligations series was available in the draft evidence; accepted the interval critique by identifying sigma = 50.8 as a conservative manual widening for model-error uncertainty."
+      },
+      {
+        "kind": "forecast",
+        "point": 550,
+        "ciLow": 485,
+        "ciHigh": 615
+      }
+    ]
+  }
+]

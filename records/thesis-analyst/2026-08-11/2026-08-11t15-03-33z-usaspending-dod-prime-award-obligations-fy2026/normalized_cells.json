@@ -1,0 +1,968 @@
+[
+  {
+    "slug": "us-dod-prime-award-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "DoD prime award obligations, FY2026",
+    "question": "What will USAspending API v2 report for Department of Defense agency 097 prime award obligations for fiscal year 2026, in billions of dollars, using the registered query snapshot and first available registered snapshot policy?",
+    "unit": "usd_billions",
+    "pointEstimate": 550,
+    "ciLow": 485,
+    "ciHigh": 615,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2, agency 097 award summary",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+    "resolutionRule": "Resolve from USAspending API v2 endpoint /api/v2/agency/097/awards/?fiscal_year=2026, field obligations, for Department of Defense top-tier agency code 097. Use the registered query snapshot policy and multiply the obligations dollar value by 1e-9 to express it in billions USD. Later API changes after the registered snapshot are irrelevant.",
+    "dataPointId": "usaspending.dod.prime_award_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 129.7
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 148.6
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 212.9
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 217.9
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, current total",
+        "value": 245.1
+      },
+      {
+        "label": "Public USAspending-derived DoD-associated snapshot, latest inspected current total",
+        "value": 246.7
+      }
+    ],
+    "drivers": [
+      "FY2026 DoD budget materially above FY2025",
+      "large acquisition and O&M funding base",
+      "DoD award data lag creates snapshot risk",
+      "late fiscal-year procurement surge",
+      "current USAspending-derived snapshots still below full-year pace"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/docs/endpoints",
+      "https://www.usaspending.gov/agency/department-of-defense",
+      "https://app.g2xchange.com/agencies/9748",
+      "https://g2xchange.com/app/agencies/97CY",
+      "https://www.cbo.gov/publication/62396",
+      "https://www.congress.gov/crs-product/R44027",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-11T15:08:42Z",
+    "activityLog": [],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "DoD FY2026 Prime Award Obligations Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the registered target is USAspending agency 097 prime award obligations for FY2026. The target context gives an expectedReleaseWindow ending 2026-10-22; I use that lab-committed bound as resolutionDate and keep the registered URL template unchanged. The ledger targetUnit is billions USD, represented in the contract as usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.api.docs",
+        "call": "Open USAspending API endpoint documentation and the agency awards endpoint description.",
+        "result": "Fetched USAspending API docs: endpoints do not require authorization; /api/v2/agency/<TOPTIER_AGENCY_CODE>/awards/ returns agency award summary information including transaction_count and obligations. The browsable example response carried fiscal_year=2026, transaction_count=1611371, obligations=146176922599.78 for agency 012."
+      },
+      {
+        "kind": "tool",
+        "tool": "web.search.usaspending_mirror_snapshots",
+        "call": "Search public USAspending-derived agency pages for current DoD award totals and subagency breakdowns.",
+        "result": "Fetched USAspending-derived public snippets with current totals: 129,709,702,780; 148,551,377,687; 212,895,410,643; 217,858,434,553; 245,069,031,666; and 246,670,846,817 dollars across DoD-associated pages."
+      },
+      {
+        "kind": "tool",
+        "tool": "web.search.subagency_breakdown",
+        "call": "Inspect latest DoD subagency breakdown in the public USAspending-derived snippets.",
+        "result": "Latest inspected current total was 246,670,846,817 dollars; listed components included Department of the Navy 72,149,134,174, Department of the Air Force 57,590,357,180, and Department of the Army 53,792,358,774 dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "cbo.defense_budget",
+        "call": "Fetch public FY2026 DoD budget context from CBO and Defense Department summaries.",
+        "result": "CBO/DoD budget context fetched: DoD FY2026 request totaled 961.6 billion dollars; CBO reported total FY2026 acquisition funding of 384 billion dollars and operation/support funding of 558 billion dollars; DoD described the FY2026 request as 13.4 percent above FY2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "crs.usaspending_timing",
+        "call": "Fetch public USAspending timing caveat for DoD award data.",
+        "result": "CRS/USAspending timing context fetched: federal award transactions generally report within 30 days, while Department of Defense data may have a longer lag, generally 90 days."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: no complete prior-year agency 097 final obligations series was available in the draft evidence, so the admissible base rate is the six inspected public USAspending-derived running snapshots, ranging from 129.7 to 246.7 billion dollars, with latest inspected current persistence at 246.7. This is a weak full-year prior because the target resolves after fiscal-year close, so I use current-snapshot persistence plus budget scaling rather than treating 246.7 as the final forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Model candidates under thesis_model_candidate_v1, stated compactly: persistence candidate point 246.7, p10 215, p50 246.7, p90 280, interval_method snapshot empirical, calibration_n 6, train cutoff latest inspected mirror snapshot, rejected because the resolver is the FY2026 registered snapshot after fiscal-year close; budget-scaled candidate point 550, p10 485, p50 550, p90 615, interval_method widened snapshot-change residual, calibration_n 6, train cutoff latest inspected mirror snapshot, selected because FY2026 DoD funding and late fiscal-year award flow imply a much larger post-close snapshot than current YTD mirror persistence."
+      },
+      {
+        "kind": "math",
+        "text": "Quantitative bridge: latest inspected current snapshot = 246.7 billion dollars. The selected point assumes the October registered snapshot reaches 57.2% of the 961.6 billion dollar FY2026 DoD request, equal to 550.0 billion dollars, or 2.23 times the latest inspected current snapshot. I choose 57.2% rather than the raw current 25.7% share because award obligations should accumulate through the fiscal-year close and visible reporting catch-up, while staying well below total DoD budget authority because not all budget authority appears as prime award obligations in the registered API field."
+      },
+      {
+        "kind": "math",
+        "text": "Snapshot changes in billions were 18.8, 64.3, 5.0, 27.2, and 1.6; their sample dispersion is about 25.1. For a post-close registered snapshot with DoD delay and late-year procurement concentration, I use a conservative manual widening for model-error uncertainty: sigma = 50.8, about 2.0 times observed intra-snapshot change dispersion. Half-width = 1.28*sigma = 65.0. Point = 550 based on budget-scaled snapshot prior; 80% interval = 550 - 65 to 550 + 65 = 485 to 615."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior = budget-scaled current USAspending-derived snapshot, historical sample = six inspected DoD current-total snapshots from 129.7 to 246.7 billion dollars plus FY2026 DoD budget context of 961.6 billion dollars total and 384 billion dollars acquisition funding; adjustment components = upward late-fiscal-year award flow and FY2026 defense funding increase, partially offset by 90-day DoD reporting lag that can leave October below the eventual fully reported FY total; interval method = widened snapshot-change residual with sigma = 50.8 and half-width roughly 1.28*sigma = 65.0, implying bounds 485 and 615."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: downside risk would land below the interval if the October registered API snapshot still excludes most late-FY DoD contract actions because of the 90-day delay or if award obligations are shifted into account spending not captured by prime awards. Upside risk would land above the interval if reconciliation-funded acquisition and shipbuilding obligations hit USAspending before the snapshot or if a large September obligation wave is visible earlier than usual."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarity fix by removing the extra rounding instruction; accepted the quantitative bridge by stating the 57.2% of FY2026 DoD request and 2.23x current-snapshot assumptions; accepted the base-rate caveat that no complete prior-year final obligations series was available in the draft evidence; accepted the interval critique by identifying sigma = 50.8 as a conservative manual widening for model-error uncertainty."
+      },
+      {
+        "kind": "forecast",
+        "point": 550,
+        "ciLow": 485,
+        "ciHigh": 615
+      }
+    ],
+    "agentReportedRunAt": "2026-08-11T15:03:48Z",
+    "runStartedAt": "2026-08-11T15:03:33Z",
+    "promptMode": "full",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "targetContentHash": "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907",
+    "targetRegistrationPath": "records/targets/2026-08-07-59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907.json",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 387.5,
+        "upper": 712.5
+      },
+      "points": [
+        {
+          "value": 387.5,
+          "probability": 0.0
+        },
+        {
+          "value": 389.125,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 390.75,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 392.375,
+          "probability": 0.005
+        },
+        {
+          "value": 394.0,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 395.625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 397.25,
+          "probability": 0.01
+        },
+        {
+          "value": 398.875,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 400.5,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 402.125,
+          "probability": 0.015
+        },
+        {
+          "value": 403.75,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 405.375,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 407.0,
+          "probability": 0.02
+        },
+        {
+          "value": 408.625,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 410.25,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 411.875,
+          "probability": 0.025
+        },
+        {
+          "value": 413.5,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 415.125,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 416.75,
+          "probability": 0.03
+        },
+        {
+          "value": 418.375,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 420.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 421.625,
+          "probability": 0.035
+        },
+        {
+          "value": 423.25,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 424.875,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 426.5,
+          "probability": 0.04
+        },
+        {
+          "value": 428.125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 429.75,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 431.375,
+          "probability": 0.045
+        },
+        {
+          "value": 433.0,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 434.625,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 436.25,
+          "probability": 0.05
+        },
+        {
+          "value": 437.875,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 439.5,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 441.125,
+          "probability": 0.055
+        },
+        {
+          "value": 442.75,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 444.375,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 446.0,
+          "probability": 0.06
+        },
+        {
+          "value": 447.625,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 449.25,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 450.875,
+          "probability": 0.065
+        },
+        {
+          "value": 452.5,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 454.125,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 455.75,
+          "probability": 0.07
+        },
+        {
+          "value": 457.375,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 459.0,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 460.625,
+          "probability": 0.075
+        },
+        {
+          "value": 462.25,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 463.875,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 465.5,
+          "probability": 0.08
+        },
+        {
+          "value": 467.125,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 468.75,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 470.375,
+          "probability": 0.085
+        },
+        {
+          "value": 472.0,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 473.625,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 475.25,
+          "probability": 0.09
+        },
+        {
+          "value": 476.875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 478.5,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 480.125,
+          "probability": 0.095
+        },
+        {
+          "value": 481.75,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 483.375,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 485.0,
+          "probability": 0.1
+        },
+        {
+          "value": 486.625,
+          "probability": 0.11
+        },
+        {
+          "value": 488.25,
+          "probability": 0.12
+        },
+        {
+          "value": 489.875,
+          "probability": 0.13
+        },
+        {
+          "value": 491.5,
+          "probability": 0.14
+        },
+        {
+          "value": 493.125,
+          "probability": 0.15
+        },
+        {
+          "value": 494.75,
+          "probability": 0.16
+        },
+        {
+          "value": 496.375,
+          "probability": 0.17
+        },
+        {
+          "value": 498.0,
+          "probability": 0.18
+        },
+        {
+          "value": 499.625,
+          "probability": 0.19
+        },
+        {
+          "value": 501.25,
+          "probability": 0.2
+        },
+        {
+          "value": 502.875,
+          "probability": 0.21
+        },
+        {
+          "value": 504.5,
+          "probability": 0.22
+        },
+        {
+          "value": 506.125,
+          "probability": 0.23
+        },
+        {
+          "value": 507.75,
+          "probability": 0.24
+        },
+        {
+          "value": 509.375,
+          "probability": 0.25
+        },
+        {
+          "value": 511.0,
+          "probability": 0.26
+        },
+        {
+          "value": 512.625,
+          "probability": 0.27
+        },
+        {
+          "value": 514.25,
+          "probability": 0.28
+        },
+        {
+          "value": 515.875,
+          "probability": 0.29
+        },
+        {
+          "value": 517.5,
+          "probability": 0.3
+        },
+        {
+          "value": 519.125,
+          "probability": 0.31
+        },
+        {
+          "value": 520.75,
+          "probability": 0.32
+        },
+        {
+          "value": 522.375,
+          "probability": 0.33
+        },
+        {
+          "value": 524.0,
+          "probability": 0.34
+        },
+        {
+          "value": 525.625,
+          "probability": 0.35
+        },
+        {
+          "value": 527.25,
+          "probability": 0.36
+        },
+        {
+          "value": 528.875,
+          "probability": 0.37
+        },
+        {
+          "value": 530.5,
+          "probability": 0.38
+        },
+        {
+          "value": 532.125,
+          "probability": 0.39
+        },
+        {
+          "value": 533.75,
+          "probability": 0.4
+        },
+        {
+          "value": 535.375,
+          "probability": 0.41
+        },
+        {
+          "value": 537.0,
+          "probability": 0.42
+        },
+        {
+          "value": 538.625,
+          "probability": 0.43
+        },
+        {
+          "value": 540.25,
+          "probability": 0.44
+        },
+        {
+          "value": 541.875,
+          "probability": 0.45
+        },
+        {
+          "value": 543.5,
+          "probability": 0.46
+        },
+        {
+          "value": 545.125,
+          "probability": 0.47
+        },
+        {
+          "value": 546.75,
+          "probability": 0.48
+        },
+        {
+          "value": 548.375,
+          "probability": 0.49
+        },
+        {
+          "value": 550.0,
+          "probability": 0.5
+        },
+        {
+          "value": 551.625,
+          "probability": 0.51
+        },
+        {
+          "value": 553.25,
+          "probability": 0.52
+        },
+        {
+          "value": 554.875,
+          "probability": 0.53
+        },
+        {
+          "value": 556.5,
+          "probability": 0.54
+        },
+        {
+          "value": 558.125,
+          "probability": 0.55
+        },
+        {
+          "value": 559.75,
+          "probability": 0.56
+        },
+        {
+          "value": 561.375,
+          "probability": 0.57
+        },
+        {
+          "value": 563.0,
+          "probability": 0.58
+        },
+        {
+          "value": 564.625,
+          "probability": 0.59
+        },
+        {
+          "value": 566.25,
+          "probability": 0.6
+        },
+        {
+          "value": 567.875,
+          "probability": 0.61
+        },
+        {
+          "value": 569.5,
+          "probability": 0.62
+        },
+        {
+          "value": 571.125,
+          "probability": 0.63
+        },
+        {
+          "value": 572.75,
+          "probability": 0.64
+        },
+        {
+          "value": 574.375,
+          "probability": 0.65
+        },
+        {
+          "value": 576.0,
+          "probability": 0.66
+        },
+        {
+          "value": 577.625,
+          "probability": 0.67
+        },
+        {
+          "value": 579.25,
+          "probability": 0.68
+        },
+        {
+          "value": 580.875,
+          "probability": 0.69
+        },
+        {
+          "value": 582.5,
+          "probability": 0.7
+        },
+        {
+          "value": 584.125,
+          "probability": 0.71
+        },
+        {
+          "value": 585.75,
+          "probability": 0.72
+        },
+        {
+          "value": 587.375,
+          "probability": 0.73
+        },
+        {
+          "value": 589.0,
+          "probability": 0.74
+        },
+        {
+          "value": 590.625,
+          "probability": 0.75
+        },
+        {
+          "value": 592.25,
+          "probability": 0.76
+        },
+        {
+          "value": 593.875,
+          "probability": 0.77
+        },
+        {
+          "value": 595.5,
+          "probability": 0.78
+        },
+        {
+          "value": 597.125,
+          "probability": 0.79
+        },
+        {
+          "value": 598.75,
+          "probability": 0.8
+        },
+        {
+          "value": 600.375,
+          "probability": 0.81
+        },
+        {
+          "value": 602.0,
+          "probability": 0.82
+        },
+        {
+          "value": 603.625,
+          "probability": 0.83
+        },
+        {
+          "value": 605.25,
+          "probability": 0.84
+        },
+        {
+          "value": 606.875,
+          "probability": 0.85
+        },
+        {
+          "value": 608.5,
+          "probability": 0.86
+        },
+        {
+          "value": 610.125,
+          "probability": 0.87
+        },
+        {
+          "value": 611.75,
+          "probability": 0.88
+        },
+        {
+          "value": 613.375,
+          "probability": 0.89
+        },
+        {
+          "value": 615.0,
+          "probability": 0.9
+        },
+        {
+          "value": 616.625,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 618.25,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 619.875,
+          "probability": 0.905
+        },
+        {
+          "value": 621.5,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 623.125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 624.75,
+          "probability": 0.91
+        },
+        {
+          "value": 626.375,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 628.0,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 629.625,
+          "probability": 0.915
+        },
+        {
+          "value": 631.25,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 632.875,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 634.5,
+          "probability": 0.92
+        },
+        {
+          "value": 636.125,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 637.75,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 639.375,
+          "probability": 0.925
+        },
+        {
+          "value": 641.0,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 642.625,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 644.25,
+          "probability": 0.93
+        },
+        {
+          "value": 645.875,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 647.5,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 649.125,
+          "probability": 0.935
+        },
+        {
+          "value": 650.75,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 652.375,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 654.0,
+          "probability": 0.94
+        },
+        {
+          "value": 655.625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 657.25,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 658.875,
+          "probability": 0.945
+        },
+        {
+          "value": 660.5,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 662.125,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 663.75,
+          "probability": 0.95
+        },
+        {
+          "value": 665.375,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 667.0,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 668.625,
+          "probability": 0.955
+        },
+        {
+          "value": 670.25,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 671.875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 673.5,
+          "probability": 0.96
+        },
+        {
+          "value": 675.125,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 676.75,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 678.375,
+          "probability": 0.965
+        },
+        {
+          "value": 680.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 681.625,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 683.25,
+          "probability": 0.97
+        },
+        {
+          "value": 684.875,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 686.5,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 688.125,
+          "probability": 0.975
+        },
+        {
+          "value": 689.75,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 691.375,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 693.0,
+          "probability": 0.98
+        },
+        {
+          "value": 694.625,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 696.25,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 697.875,
+          "probability": 0.985
+        },
+        {
+          "value": 699.5,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 701.125,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 702.75,
+          "probability": 0.99
+        },
+        {
+          "value": 704.375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 706.0,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 707.625,
+          "probability": 0.995
+        },
+        {
+          "value": 709.25,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 710.875,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 712.5,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 550,
+        "median": 550,
+        "interval80": {
+          "lower": 485,
+          "upper": 615
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

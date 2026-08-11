@@ -1,0 +1,9 @@
+No compliant cell emitted.
+
+I could not satisfy the analyst contract in this environment because:
+
+- Local command execution fails before running (`bwrap: loopback: Failed RTM_NEWADDR`), so I cannot produce the required `runAt` from `date -u +%Y-%m-%dT%H:%M:%SZ`.
+- I could fetch the registered USAspending endpoint’s current FY value: contracts `aggregated_amount = 238,617,208,309.69`, and the API docs confirm this endpoint returns obligations by award category for a requested or current fiscal year. ([api.usaspending.gov](https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/))
+- I could not vary `fiscal_year` through the available browser tool to fetch the required recent historical reference class from the same resolver.
+
+Under the honesty rules, that is not enough to ground a forecast cell, so I’m dropping the cell rather than inventing history, model candidates, or `runAt`.

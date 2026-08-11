@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-08-11T15:03:33Z",
+  "finishedAt": "2026-08-11T15:13:43Z",
+  "promptMode": "full",
+  "timeoutSeconds": 540,
+  "targets": 2,
+  "ok": 0,
+  "failed": 2,
+  "results": [
+    {
+      "target": {
+        "catalogSlug": "us-dod-prime-award-obligations-fy2026",
+        "country": "US",
+        "dataPointId": "usaspending.dod.prime_award_obligations.fy2026.registered_query_snapshot",
+        "expectedReleaseWindow": {
+          "end": "2026-10-22",
+          "start": "2026-10-15"
+        },
+        "period": "FY2026",
+        "registeredAt": "2026-08-07T17:54:06Z",
+        "registeredAtUtc": "2026-08-07T17:54:06Z",
+        "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+        "registrationState": "preregistered",
+        "series": "usaspending.dod.prime_award_obligations",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "allowedHosts": [
+            "api.usaspending.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-22",
+            "start": "2026-10-15"
+          },
+          "field": "obligations",
+          "releasePolicy": "registered_query_snapshot",
+          "sourceSeriesId": "usaspending.agency.097.awards.obligations",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+          "table": "USAspending API v2, agency 097 (DoD) award summary, prime award obligations, fiscal year to date",
+          "transform": {
+            "factor": 1e-09,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907",
+        "targetRegistrationPath": "records/targets/2026-08-07-59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907.json",
+        "targetUnit": "billions USD",
+        "valueScale": 1e-09
+      },
+      "startedAt": "2026-08-11T15:03:33Z",
+      "finishedAt": "2026-08-11T15:08:42Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-08-11/2026-08-11t15-03-33z-usaspending-dod-prime-award-obligations-fy2026/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t15-03-33z-usaspending-dod-prime-award-obligations-fy2026/cells.with_activity.json",
+      "stdoutTail": "yst/2026-08-11/2026-08-11t15-03-33z-usaspending-dod-prime-award-obligations-fy2026/distribution.json\",\n      \"sha256\": \"5415b853684ee8bc3215371adececa1a8220c5d6151978b82eb920b4f9ae60f4\",\n      \"bytes\": 13704,\n      \"createdAt\": \"2026-08-11T15:03:33Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-11/2026-08-11t15-03-33z-usaspending-dod-prime-award-obligations-fy2026/validation.json\",\n      \"sha256\": \"8d08b93c2494cdf82e0fe06091891355133c930e7beb40ba1a342a933c573462\",\n      \"bytes\": 233,\n      \"createdAt\": \"2026-08-11T15:03:33Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-11/2026-08-11t15-03-33z-usaspending-dod-prime-award-obligations-fy2026/cells.with_activity.json\",\n      \"sha256\": \"390d593979692046136f88d7591a061e28601ccc82dd1cf044fdbca5ecae2a2c\",\n      \"bytes\": 46324,\n      \"createdAt\": \"2026-08-11T15:03:33Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-11/2026-08-11t15-03-33z-usaspending-dod-prime-award-obligations-fy2026/manifest.json\",\n      \"sha256\": \"adc10a056472ecf315cc2be8bd8c331353af96d2abc467bbf3f4591a017045cb\",\n      \"bytes\": 19079,\n      \"createdAt\": \"2026-08-11T15:03:33Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"us-dod-prime-award-obligations-fy2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"unit 'usd_billions' does not match target context targetUnit 'billions USD'\"\n        ]\n      }\n    ]\n  },\n  \"checkoutSha\": \"8dae552e5371e3b6cafbcb860903fd7405e7ab18\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"d4dc3d98d5bbaf0a42e66fcf687192f1806986d3cf79b3c71f7ae7f9e2605a01\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "unit 'usd_billions' does not match target context targetUnit 'billions USD'"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "us-dod-prime-contract-obligations-fy2026",
+        "country": "US",
+        "dataPointId": "usaspending.dod.prime_contract_obligations.fy2026.registered_query_snapshot",
+        "expectedReleaseWindow": {
+          "end": "2026-10-22",
+          "start": "2026-10-15"
+        },
+        "period": "FY2026",
+        "registeredAt": "2026-08-07T17:54:06Z",
+        "registeredAtUtc": "2026-08-07T17:54:06Z",
+        "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+        "registrationState": "preregistered",
+        "series": "usaspending.dod.prime_contract_obligations",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "allowedHosts": [
+            "api.usaspending.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-22",
+            "start": "2026-10-15"
+          },
+          "field": "results[category=contracts].aggregated_amount",
+          "releasePolicy": "registered_query_snapshot",
+          "sourceSeriesId": "usaspending.agency.097.obligations_by_award_category.contracts",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year={fiscal_year}",
+          "table": "USAspending API v2, agency 097 (DoD) obligations by award category, contracts row, fiscal year to date",
+          "transform": {
+            "factor": 1e-09,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be",
+        "targetRegistrationPath": "records/targets/2026-08-07-8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be.json",
+        "targetUnit": "billions USD",
+        "valueScale": 1e-09
+      },
+      "startedAt": "2026-08-11T15:08:42Z",
+      "finishedAt": "2026-08-11T15:13:43Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-08-11/2026-08-11t15-08-42z-usaspending-dod-prime-contract-obligations-fy2026/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t15-08-42z-usaspending-dod-prime-contract-obligations-fy2026/cells.with_activity.json",
+      "stdoutTail": "2026-08-11t15-08-42z-usaspending-dod-prime-contract-obligations-fy2026/distribution.json\",\n      \"sha256\": \"8ff899b134941d27ccb1921cabd4b4bb6b8e9d05aaff9dd93747b45dad600a46\",\n      \"bytes\": 13704,\n      \"createdAt\": \"2026-08-11T15:08:42Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-11/2026-08-11t15-08-42z-usaspending-dod-prime-contract-obligations-fy2026/validation.json\",\n      \"sha256\": \"f1a3639c8aef387ed9a3d36aa030fd2c259d502415f4715a01bcb2c5c8ff64b2\",\n      \"bytes\": 236,\n      \"createdAt\": \"2026-08-11T15:08:42Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-11/2026-08-11t15-08-42z-usaspending-dod-prime-contract-obligations-fy2026/cells.with_activity.json\",\n      \"sha256\": \"62fdabed59c34a310fa590d424ed424cea4a63c92c785de24dbff7116325275c\",\n      \"bytes\": 44737,\n      \"createdAt\": \"2026-08-11T15:08:42Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-11/2026-08-11t15-08-42z-usaspending-dod-prime-contract-obligations-fy2026/manifest.json\",\n      \"sha256\": \"3057f6e092ee524a08ed9a1e10d53b27718b132e9fb648c94ec595672bee0be0\",\n      \"bytes\": 19716,\n      \"createdAt\": \"2026-08-11T15:08:42Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"us-dod-prime-contract-obligations-fy2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"unit 'usd_billions' does not match target context targetUnit 'billions USD'\"\n        ]\n      }\n    ]\n  },\n  \"checkoutSha\": \"8dae552e5371e3b6cafbcb860903fd7405e7ab18\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"fc89e83a532f6e23cdf35010bdbec026ac8c42a0495b264cefafd7dfa7214e6a\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "unit 'usd_billions' does not match target context targetUnit 'billions USD'"
+      ]
+    }
+  ]
+}

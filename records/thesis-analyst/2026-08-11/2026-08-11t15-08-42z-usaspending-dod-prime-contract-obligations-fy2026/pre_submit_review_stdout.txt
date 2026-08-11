@@ -1,0 +1,45 @@
+{
+  "summary": "The draft is not publishable because it explicitly emits no compliant forecast cell and omits the required forecast reasoning, interval, tails, and JSON fields.",
+  "requiredFixes": [
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "No compliant forecast cell was emitted, so point, interval, final forecast step, and JSON fields are absent.",
+      "actionRequested": "Submit a complete compliant forecast cell tied to the registered target, or keep this as a failed trace outside publication."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "blocking",
+      "summary": "No base-rate or persistence prior is stated before updates.",
+      "actionRequested": "State a prior using an appropriate historical or persistence reference class before applying current-evidence adjustments."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "blocking",
+      "summary": "The draft says historical fiscal-year values could not be fetched and does not use or explicitly rule out a time-series/model prior.",
+      "actionRequested": "Either derive a time-series/model prior from admissible resolver-consistent history or explicitly justify why such a model is ruled out."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "No prediction interval or uncertainty method is provided.",
+      "actionRequested": "Provide an interval whose width is grounded in realized volatility, a stated residual/error model, or explicit uncertainty assumptions."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The compact prior/update/interval step is missing.",
+      "actionRequested": "Add a compact step naming the prior, historical sample, adjustment components, interval method, and implied lower and upper bounds."
+    },
+    {
+      "rubricItem": "tails",
+      "severity": "blocking",
+      "summary": "No concrete downside or upside tail scenarios are tied to FY2026 DoD prime contract obligations.",
+      "actionRequested": "Add target-specific tail scenarios, such as procurement delays, supplemental appropriations, continuing-resolution effects, or large contract timing shifts."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the resolver text aligned with the registered USAspending agency 097 obligations-by-award-category contracts row and the 2026-10-15 to 2026-10-22 expected release window.",
+    "The current FY-to-date value can be cited as inside-view evidence, but it cannot substitute for a prior, interval method, or final forecast cell."
+  ]
+}
