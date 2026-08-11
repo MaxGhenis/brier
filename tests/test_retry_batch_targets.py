@@ -449,6 +449,126 @@ def test_lone_failed_arm_with_published_sibling_is_retryable(
     )
     assert [t["catalogSlug"] for t in targets] == [arm_a]
     assert targets[0]["conditional"] == "condition enacted holds"
+    # The conditional identity fields survive projection intact.
+    assert targets[0]["conditionId"] == "cond.test.enacted"
+    assert targets[0]["conditionDeadline"] == "2027-09-30"
+
+
+def test_sibling_snapshot_substitution_is_refused(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Round-3 attack: keep sibling B's slug and ok:false but point its
+    # row at a valid, hash-consistent, UNRELATED unconditional
+    # registration — the pair scan must refuse the row rather than
+    # conclude no conditional sibling exists.
+    manifest, arm_a, arm_b = _fake_pair_tree(tmp_path)
+    base_row = failed_row(real_manifest())["target"]
+    unrelated_snapshot = json.loads(
+        (ROOT / base_row["targetRegistrationPath"]).read_text()
+    )
+    reg_dir = tmp_path / "records" / "targets"
+    name = pathlib.PurePosixPath(base_row["targetRegistrationPath"]).name
+    (reg_dir / name).write_text(json.dumps(unrelated_snapshot))
+    for row in manifest["results"]:
+        if row["target"]["catalogSlug"] == arm_b:
+            row["target"]["targetRegistrationPath"] = f"records/targets/{name}"
+            row["target"]["targetContentHash"] = base_row["targetContentHash"]
+            row["target"]["registeredAtUtc"] = unrelated_snapshot[
+                "registeredAtUtc"
+            ]
+    monkeypatch.setattr(retry_batch_targets, "ROOT", tmp_path)
+    with pytest.raises(RetrySelectionError, match="not the manifest row's slug"):
+        select_retry_targets(
+            manifest, slugs=[arm_a], allow_succeeded=False, now_utc=WITHIN_GRACE
+        )
+
+
+def test_recorded_outcomes_must_be_booleans() -> None:
+    manifest = real_manifest()
+    failed_row(manifest)["ok"] = "false"
+    with pytest.raises(RetrySelectionError, match="boolean recorded outcome"):
+        select_retry_targets(
+            manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
+        )
+
+
+def test_validate_cells_forwards_the_grace_flag(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Mutation pin for the middle hop the round-3 review flagged:
+    # deleting the enforce_run_grace forwarding at the
+    # validate_cells → validate_run_binding call must fail here.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        import docket_publication
+        import verify_custody
+    finally:
+        sys.path.pop(0)
+
+    day = "2026-08-07"
+    run_dir_name = f"{day}t18-00-00z-test-slug"
+    batch_rel = f"records/thesis-analyst/batches/{day}/hop-pin.json"
+    manifest_rel = f"records/thesis-analyst/{day}/{run_dir_name}/manifest.json"
+    (tmp_path / batch_rel).parent.mkdir(parents=True)
+    (tmp_path / manifest_rel).parent.mkdir(parents=True)
+    (tmp_path / batch_rel).write_text(
+        json.dumps(
+            {
+                "schemaVersion": "thesis_batch_manifest_v1",
+                "promptMode": "fast",
+                "startedAt": f"{day}T17:55:00Z",
+                "finishedAt": f"{day}T19:00:00Z",
+                "results": [
+                    {
+                        "ok": False,
+                        "startedAt": f"{day}T17:56:00Z",
+                        "finishedAt": f"{day}T18:30:00Z",
+                        "target": {"catalogSlug": "test-slug"},
+                        "manifestPath": manifest_rel,
+                        "cellsPath": None,
+                    }
+                ],
+            }
+        )
+    )
+    (tmp_path / manifest_rel).write_text(
+        json.dumps({"ok": False, "cellsPath": None})
+    )
+
+    captured: dict = {}
+
+    def capture_binding(repo, result, manifest, cells, **kwargs):
+        captured.update(kwargs)
+
+    monkeypatch.setattr(
+        docket_publication, "validate_run_binding", capture_binding
+    )
+    monkeypatch.setattr(
+        docket_publication, "validate_run_file_inventory", lambda *a, **k: None
+    )
+    monkeypatch.setattr(verify_custody, "verify_run", lambda *a, **k: None)
+
+    for flag in (True, False):
+        captured.clear()
+        docket_publication.validate_cells(
+            tmp_path,
+            batch_rel,
+            require_git_binding=False,
+            enforce_run_grace=flag,
+        )
+        assert captured.get("enforce_run_grace") is flag
+
+
+def test_workflow_wires_the_retry_grace_flag() -> None:
+    # Coarse but real: the publish step must pass --enforce-run-grace in
+    # retry mode and bind the retry input through env, and the register
+    # job must skip adoption and both registration write steps.
+    workflow = (ROOT / ".github" / "workflows" / "roll-docket.yml").read_text()
+    assert "--enforce-run-grace" in workflow
+    assert workflow.count("RETRY_BATCH: ${{ github.event.inputs.retry_batch }}") >= 2
+    assert (
+        workflow.count("github.event.inputs.retry_batch == ''") >= 3
+    ), "adoption + both registration write steps must skip in retry mode"
 
 
 def test_seed_contracts_reconstruct_with_their_seed_period() -> None:
@@ -561,6 +681,27 @@ def test_enforce_run_grace_cli_flag_reaches_the_binding_check(
             enforce_run_grace=False,
         )
     assert "orphan grace deadline" not in str(excinfo.value)
+
+    # A run that STARTED in grace but sealed a cell after the deadline is
+    # refused through the same real path — replacing the cells argument
+    # with [] at the grace call would let this pass.
+    in_grace_manifest = dict(
+        late_manifest,
+        runStartedAt="2026-08-14T17:00:00Z",
+        createdAt="2026-08-14T17:00:00Z",
+    )
+    late_cell = [{"runAt": "2026-08-14T17:54:06Z"}]
+    with pytest.raises(
+        docket_publication.PublicationError, match="sealed after"
+    ):
+        docket_publication.validate_run_binding(
+            tmp_path,
+            result,
+            in_grace_manifest,
+            late_cell,
+            require_git_binding=True,
+            enforce_run_grace=True,
+        )
 
 
 def test_output_envelope_matches_the_roll_selector(

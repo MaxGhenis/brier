@@ -102,7 +102,9 @@ def _parse_utc(value: str, *, label: str) -> dt.datetime:
     try:
         parsed = dt.datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError as exc:
-        raise RetrySelectionError(f"invalid UTC instant for {label}: {value!r}") from exc
+        raise RetrySelectionError(
+            f"invalid UTC instant for {label}: {value!r}"
+        ) from exc
     if parsed.tzinfo is None:
         raise RetrySelectionError(f"{label} must be timezone-aware: {value!r}")
     return parsed.astimezone(dt.timezone.utc)
@@ -174,6 +176,19 @@ def load_verified_snapshot(
         raise RetrySelectionError(
             f"{label} registration filename does not carry its content hash"
         )
+    targets = snapshot.get("targets")
+    if not isinstance(targets, list) or len(targets) != 1:
+        raise RetrySelectionError(
+            f"{label} registration must contain exactly one target: {relative}"
+        )
+    # Snapshot-to-row identity: a row that names a valid but UNRELATED
+    # registration (the round-3 sibling-substitution attack) is refused
+    # here, for every consumer — reconstruction and pair scans alike.
+    if targets[0].get("catalogSlug") != row_target.get("catalogSlug"):
+        raise RetrySelectionError(
+            f"{label} snapshot binds {targets[0].get('catalogSlug')!r}, not "
+            "the manifest row's slug"
+        )
     return snapshot, snapshot_path
 
 
@@ -192,12 +207,7 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
                 "reconstruct from trusted state; not retryable here"
             )
     snapshot, snapshot_path = load_verified_snapshot(row_target, label=label)
-    targets = snapshot.get("targets")
-    if not isinstance(targets, list) or len(targets) != 1:
-        raise RetrySelectionError(
-            f"{label} registration must contain exactly one target: {relative}"
-        )
-    contract = targets[0]
+    contract = snapshot["targets"][0]
     unknown = set(contract) - KNOWN_CONTRACT_KEYS
     if unknown:
         raise RetrySelectionError(
@@ -209,11 +219,6 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
         raise RetrySelectionError(
             f"{label} is a {contract.get('resolutionDateBasis')!r} target; "
             "bounded targets belong to the attested generation-ticket lane"
-        )
-    if contract.get("catalogSlug") != row_target.get("catalogSlug"):
-        raise RetrySelectionError(
-            f"{label} snapshot binds {contract.get('catalogSlug')!r}, not the "
-            "manifest row's slug"
         )
     registered_at = snapshot.get("registeredAtUtc")
     if row_target.get("registeredAtUtc") not in (None, registered_at):
@@ -238,6 +243,10 @@ def select_retry_targets(
         target = result.get("target")
         if not isinstance(target, dict) or not target.get("catalogSlug"):
             raise RetrySelectionError(f"result {index} lacks a batch target")
+        if not isinstance(result.get("ok"), bool):
+            raise RetrySelectionError(
+                f"result {index} has no boolean recorded outcome"
+            )
         slug = str(target["catalogSlug"])
         if slug in by_slug:
             raise RetrySelectionError(f"duplicate result for {slug}")
