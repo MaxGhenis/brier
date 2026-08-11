@@ -52,7 +52,7 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   capture window, sourceBinding template in extras, anchors = the
   FY2025 values); run
   `uv run --extra dev --extra challenge --extra bills pytest tests/test_roll_docket.py tests/test_docket_ledger_containment.py -q`.
-- [ ] 6. Full verification: `uv run --extra dev --extra challenge --extra bills pytest tests/test_usaspending_adapter.py tests/test_resolve_pending.py tests/test_roll_docket.py -q`
+- [x] 6. Full verification: `uv run --extra dev --extra challenge --extra bills pytest tests/test_usaspending_adapter.py tests/test_resolve_pending.py tests/test_roll_docket.py -q`
   and `cd site && bun run test`; write WAVE-B1-REPORT.md — honest table:
   per transform, what is sealed, what the series is NOT (no bill
   attribution), suite results.
