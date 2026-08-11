@@ -661,24 +661,40 @@ def test_final_push_loops_rebind_after_every_rebase() -> None:
     # The round-four publication TOCTOU: the final push loop rebases
     # again after the initial publish bind, so it must re-run the full
     # registration binding at the rebased HEAD and require the identical
-    # registration set. Executable-line pins for both docket workflows.
+    # registration set ON EVERY ATTEMPT. Ordered containment inside the
+    # isolated final step — moving the bind before the loop, or dropping
+    # the step's own EXPECTED_SET_HASH env, must fail this pin.
     for name, targets_file in (
         ("roll-docket.yml", "roll-targets.json"),
         ("prospect-docket.yml", "prospect-targets.json"),
     ):
         workflow = (ROOT / ".github" / "workflows" / name).read_text()
-        final_push = workflow.split("Rebase, reverify, and push once", 1)[1]
-        assert "--bind-registration-commits" in final_push, name
-        assert targets_file in final_push, name
-        assert (
-            'test "$FINAL_SET_HASH" = "$EXPECTED_SET_HASH"' in final_push
-        ), name
+        after_title = workflow.split("Rebase, reverify, and push once", 1)[1]
+        # Isolate exactly this step: up to the next step declaration.
+        step = after_title.split("- name:", 1)[0]
         assert (
             "EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}"
-            in workflow.split("Rebase, reverify, and push once", 1)[0]
-            or "EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}"
-            in workflow
-        ), name
+            in step
+        ), f"{name}: final step must carry its own EXPECTED_SET_HASH env"
+        body = step.split("run: |", 1)[1]
+        ordered = [
+            "for attempt in",
+            "git pull --rebase origin main",
+            "register_targets.py",
+            targets_file,
+            "--bind-registration-commits",
+            'test "$FINAL_SET_HASH" = "$EXPECTED_SET_HASH"',
+            "push origin main",
+            "done",
+        ]
+        pos = -1
+        for needle in ordered:
+            found = body.find(needle, pos + 1)
+            assert found > pos, (
+                f"{name}: {needle!r} missing or out of order — the rebind "
+                "must run inside the loop, after each rebase, before push"
+            )
+            pos = found
 
 
 def test_seed_contracts_reconstruct_with_their_seed_period() -> None:
