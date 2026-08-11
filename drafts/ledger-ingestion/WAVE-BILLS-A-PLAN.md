@@ -70,7 +70,7 @@ Work items (ONE per session; [x] when the request file is written):
   NIPA — record the exact ITA dataset/table/line request and the
   printed value; note whether the existing family extends or a
   sibling ita variant is needed).
-- [ ] 8. WAVE-BILLS-A-REPORT.md — honest table: per request, outcome,
+- [x] 8. WAVE-BILLS-A-REPORT.md — honest table: per request, outcome,
   strongest artifact, adapter-family disposition (existing / extend /
   new-family-needed / rejected), and the bill each serves. Plus open
   items list for Wave B (army-rdte-jbook-pdf for FLRAA; eia
