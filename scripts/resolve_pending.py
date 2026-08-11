@@ -3354,6 +3354,66 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "bill-specific amended-section-113 activity."
         ),
     },
+    "usaspending.ondcp.hidta_program_obligations": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
+        "series_id": (
+            "usaspending.search.spending_over_time.ondcp.hidta_program_obligations"
+        ),
+        "label": (
+            "HIDTA Assistance Listing 95.001 financial-assistance "
+            "award-transaction obligations, fiscal year total"
+        ),
+        "unit": "usd",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "fiscal_year_post_scalar",
+        "transform": {
+            "operation": "multiply",
+            "factor": 1,
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "awardTypeCodes": [
+                "02",
+                "03",
+                "04",
+                "05",
+                "06",
+                "07",
+                "08",
+                "09",
+                "10",
+                "11",
+            ],
+            "programNumbers": ["95.001"],
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, financial-assistance award "
+            "transactions filtered to Assistance Listing 95.001, obligations "
+            "by fiscal year"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "signed net federal_action_obligation across prime financial-assistance "
+            "award transactions whose Assistance Listing is 95.001, grouped by "
+            "action-date federal fiscal year"
+        ),
+        "evidence_notes": (
+            "Registered-query snapshot for {period} captured from {source_url} "
+            "inside the preregistered snapshot window. USAspending revises "
+            "continuously, so the outcome is the value the pinned query returned "
+            "on the registered capture date; the full response bytes are archived. "
+            "Scope is the whole Assistance Listing 95.001 signed net "
+            "award-transaction aggregate; no awarding-subagency filter is applied. "
+            "It does not isolate section 707(s) supplemental competitive grants or "
+            "spending under any newly permitted purpose, and it does not measure "
+            "all HIDTA financial-account obligations, outlays, appropriations, "
+            "budget authority, authorization, or bill-caused spending."
+        ),
+    },
     "usaspending.dhs.title_vi.award_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
@@ -3560,6 +3620,7 @@ def usaspending_fiscal_year_post_body(
     award_codes = transform.get("awardTypeCodes")
     components = transform.get("treasuryAccountComponents")
     agency = transform.get("agency")
+    program_numbers = transform.get("programNumbers")
     factor = transform.get("factor")
     common_keys = {
         "operation",
@@ -3575,6 +3636,7 @@ def usaspending_fiscal_year_post_body(
         for key, value in (
             ("treasuryAccountComponents", components),
             ("agency", agency),
+            ("programNumbers", program_numbers),
         )
         if value is not None
     }
@@ -3610,6 +3672,29 @@ def usaspending_fiscal_year_post_body(
         filters = _usaspending_advanced_filters(fiscal_year, transform)
         return {
             "filters": filters,
+            "group": "fiscal_year",
+            "spending_level": "transactions",
+        }
+
+    if program_numbers is not None:
+        if (
+            not isinstance(program_numbers, list)
+            or not program_numbers
+            or not all(
+                isinstance(program_number, str)
+                and re.fullmatch(r"\d{2}\.\d{3}", program_number)
+                for program_number in program_numbers
+            )
+            or len(set(program_numbers)) != len(program_numbers)
+        ):
+            raise ValueError("registered USAspending program numbers are malformed")
+        start, end = usaspending_fiscal_year_dates(fiscal_year)
+        return {
+            "filters": {
+                "award_type_codes": list(award_codes),
+                "program_numbers": list(program_numbers),
+                "time_period": [{"end_date": end, "start_date": start}],
+            },
             "group": "fiscal_year",
             "spending_level": "transactions",
         }

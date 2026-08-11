@@ -18,7 +18,7 @@ extras.resolutionDate to a calendar entry (the docket lint refuses it).
   builder + tests pinning the exact Wave-A body
   (usaspending-cdfi-fund-program-obligations.json; FY2025
   $319,455,176.00 anchor).
-- [ ] 2. HIDTA (S. 767): spec `usaspending.ondcp.hidta_program_obligations`
+- [x] 2. HIDTA (S. 767): spec `usaspending.ondcp.hidta_program_obligations`
   + sealed program_numbers filter (AL 95.001) + tests
   (usaspending-ondcp-hidta-program-obligations.json; FY2025
   $271,657,675.60).

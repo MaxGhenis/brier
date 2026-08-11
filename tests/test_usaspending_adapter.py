@@ -29,7 +29,10 @@ APEL_SERIES = {
     "usaspending.dod.small_business_contract_obligation_share",
     "usaspending.dhs.title_vi.award_transaction_obligations",
 }
-WAVE_B1_SPEC_ONLY_SERIES = {"usaspending.cdfi.program_obligations"}
+WAVE_B1_SPEC_ONLY_SERIES = {
+    "usaspending.cdfi.program_obligations",
+    "usaspending.ondcp.hidta_program_obligations",
+}
 
 
 def apel_templates() -> list[dict]:
@@ -138,6 +141,12 @@ def dhs_award_transaction_transform() -> dict:
 def cdfi_program_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
         "usaspending.cdfi.program_obligations"
+    ]["transform"]
+
+
+def hidta_program_transform() -> dict:
+    return resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ondcp.hidta_program_obligations"
     ]["transform"]
 
 
@@ -356,6 +365,65 @@ def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
     assert "bill-specific amended-section-113 activity" in spec["evidence_notes"]
 
 
+def test_hidta_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
+    request = json.loads(
+        (
+            ROOT
+            / "drafts"
+            / "ledger-ingestion"
+            / "usaspending-ondcp-hidta-program-obligations.json"
+        ).read_text()
+    )
+    query = request["verification"]["query"]
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ondcp.hidta_program_obligations"
+    ]
+    actual = resolve_pending.usaspending_fiscal_year_post_body(
+        "2025",
+        hidta_program_transform(),
+    )
+
+    assert query["method"] == "POST"
+    assert query["endpoint"] == spec["url_template"]
+    assert query["field"] == spec["field"].format(fiscal_year="2025")
+    assert actual == query["body"]
+    assert canonical_bytes(actual) == canonical_bytes(query["body"])
+    assert len(canonical_bytes(actual)) == 235
+    assert hashlib.sha256(canonical_bytes(actual)).hexdigest() == (
+        "df29835ff171f2649aaf7f33b4e6f2fc41f3efca5f8e92ae5e9e2ee16dec2c67"
+    )
+
+    evidence = request["verification"]["fetchedEvidence"]
+    assert evidence["responseSha256"] == (
+        "5caa8207b4160327a16411454468ccf7383dbde16f47312e311ac7a798898b95"
+    )
+    assert evidence["responseByteLength"] == 1_130
+    assert resolve_pending.usaspending_fiscal_year_amount(
+        {"results": evidence["resultRows"]},
+        "2025",
+    ) == 271_657_675.6
+
+
+def test_hidta_spec_preserves_the_wave_a_scope_caveats() -> None:
+    spec = resolve_pending.USASPENDING_ADAPTERS[
+        "usaspending.ondcp.hidta_program_obligations"
+    ]
+    assert spec["label"] == (
+        "HIDTA Assistance Listing 95.001 financial-assistance "
+        "award-transaction obligations, fiscal year total"
+    )
+    assert spec["transform"]["programNumbers"] == ["95.001"]
+    assert "agency" not in spec["transform"]
+    assert "whole Assistance Listing 95.001" in spec["evidence_notes"]
+    assert "section 707(s) supplemental competitive grants" in spec[
+        "evidence_notes"
+    ]
+    assert "all HIDTA financial-account obligations, outlays" in spec[
+        "evidence_notes"
+    ]
+    assert "bill-caused spending" in spec["evidence_notes"]
+
+
 def test_fiscal_year_post_body_rejects_mixed_or_malformed_scope_filters() -> None:
     mixed = copy.deepcopy(cdfi_program_transform())
     mixed["treasuryAccountComponents"] = copy.deepcopy(
@@ -368,6 +436,20 @@ def test_fiscal_year_post_body_rejects_mixed_or_malformed_scope_filters() -> Non
     malformed["agency"]["tier"] = "toptier"
     with pytest.raises(ValueError, match="awarding-subtier"):
         resolve_pending.usaspending_fiscal_year_post_body("2025", malformed)
+
+    mixed_program = copy.deepcopy(hidta_program_transform())
+    mixed_program["agency"] = copy.deepcopy(cdfi_program_transform()["agency"])
+    with pytest.raises(ValueError, match="fiscal-year POST plan"):
+        resolve_pending.usaspending_fiscal_year_post_body("2025", mixed_program)
+
+    for bad_program_numbers in ([], ["95.1"], ["95.001", "95.001"], [95.001]):
+        malformed_program = copy.deepcopy(hidta_program_transform())
+        malformed_program["programNumbers"] = bad_program_numbers
+        with pytest.raises(ValueError, match="program numbers"):
+            resolve_pending.usaspending_fiscal_year_post_body(
+                "2025",
+                malformed_program,
+            )
 
 
 def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> None:
