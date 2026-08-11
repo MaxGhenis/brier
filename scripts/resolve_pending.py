@@ -3291,7 +3291,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "100 * small_business contract obligations / all contract obligations"
         ),
     },
-    "usaspending.cdfi.program_obligations": {
+    "usaspending.cdfi.assistance_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
@@ -3354,7 +3354,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "bill-specific amended-section-113 activity."
         ),
     },
-    "usaspending.ondcp.hidta_program_obligations": {
+    "usaspending.ondcp.hidta_al95001_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
@@ -3414,7 +3414,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "budget authority, authorization, or bill-caused spending."
         ),
     },
-    "usaspending.ntia.broadband_program_obligations": {
+    "usaspending.ntia.broadband_al11038_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
@@ -3481,7 +3481,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
             "appropriations, budget authority, and outlays."
         ),
     },
-    "usaspending.usfs.minnesota_obligations": {
+    "usaspending.usfs.minnesota_place_of_performance_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (

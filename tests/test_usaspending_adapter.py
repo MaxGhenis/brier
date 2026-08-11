@@ -30,10 +30,10 @@ APEL_SERIES = {
     "usaspending.dhs.title_vi.award_transaction_obligations",
 }
 WAVE_B1_SPEC_ONLY_SERIES = {
-    "usaspending.cdfi.program_obligations",
-    "usaspending.ondcp.hidta_program_obligations",
-    "usaspending.ntia.broadband_program_obligations",
-    "usaspending.usfs.minnesota_obligations",
+    "usaspending.cdfi.assistance_transaction_obligations",
+    "usaspending.ondcp.hidta_al95001_obligations",
+    "usaspending.ntia.broadband_al11038_obligations",
+    "usaspending.usfs.minnesota_place_of_performance_obligations",
 }
 
 
@@ -142,25 +142,25 @@ def dhs_award_transaction_transform() -> dict:
 
 def cdfi_program_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.cdfi.program_obligations"
+        "usaspending.cdfi.assistance_transaction_obligations"
     ]["transform"]
 
 
 def hidta_program_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.ondcp.hidta_program_obligations"
+        "usaspending.ondcp.hidta_al95001_obligations"
     ]["transform"]
 
 
 def ntia_broadband_program_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.ntia.broadband_program_obligations"
+        "usaspending.ntia.broadband_al11038_obligations"
     ]["transform"]
 
 
 def usfs_minnesota_transform() -> dict:
     return resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.usfs.minnesota_obligations"
+        "usaspending.usfs.minnesota_place_of_performance_obligations"
     ]["transform"]
 
 
@@ -336,7 +336,7 @@ def test_cdfi_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
     )
     query = request["verification"]["query"]
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.cdfi.program_obligations"
+        "usaspending.cdfi.assistance_transaction_obligations"
     ]
     actual = resolve_pending.usaspending_fiscal_year_post_body(
         "2025",
@@ -366,7 +366,7 @@ def test_cdfi_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
 
 def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.cdfi.program_obligations"
+        "usaspending.cdfi.assistance_transaction_obligations"
     ]
     assert spec["label"] == (
         "CDFI Fund financial-assistance award-transaction obligations, "
@@ -390,7 +390,7 @@ def test_hidta_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
     )
     query = request["verification"]["query"]
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.ondcp.hidta_program_obligations"
+        "usaspending.ondcp.hidta_al95001_obligations"
     ]
     actual = resolve_pending.usaspending_fiscal_year_post_body(
         "2025",
@@ -420,7 +420,7 @@ def test_hidta_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
 
 def test_hidta_spec_preserves_the_wave_a_scope_caveats() -> None:
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.ondcp.hidta_program_obligations"
+        "usaspending.ondcp.hidta_al95001_obligations"
     ]
     assert spec["label"] == (
         "HIDTA Assistance Listing 95.001 financial-assistance "
@@ -449,7 +449,7 @@ def test_ntia_broadband_post_body_byte_matches_wave_a_capture_and_anchor() -> No
     )
     query = request["verification"]["query"]
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.ntia.broadband_program_obligations"
+        "usaspending.ntia.broadband_al11038_obligations"
     ]
     actual = resolve_pending.usaspending_fiscal_year_post_body(
         "2025",
@@ -479,7 +479,7 @@ def test_ntia_broadband_post_body_byte_matches_wave_a_capture_and_anchor() -> No
 
 def test_ntia_broadband_spec_preserves_the_wave_a_scope_caveats() -> None:
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.ntia.broadband_program_obligations"
+        "usaspending.ntia.broadband_al11038_obligations"
     ]
     assert spec["label"] == (
         "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
@@ -510,7 +510,7 @@ def test_usfs_minnesota_post_body_byte_matches_wave_a_capture_and_anchor() -> No
     )
     query = request["verification"]["query"]
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.usfs.minnesota_obligations"
+        "usaspending.usfs.minnesota_place_of_performance_obligations"
     ]
     actual = resolve_pending.usaspending_fiscal_year_post_body(
         "2025",
@@ -543,7 +543,7 @@ def test_usfs_minnesota_post_body_byte_matches_wave_a_capture_and_anchor() -> No
 
 def test_usfs_minnesota_spec_preserves_the_wave_a_scope_caveats() -> None:
     spec = resolve_pending.USASPENDING_ADAPTERS[
-        "usaspending.usfs.minnesota_obligations"
+        "usaspending.usfs.minnesota_place_of_performance_obligations"
     ]
     assert spec["label"] == (
         "Minnesota-wide Forest Service award-transaction obligations "
