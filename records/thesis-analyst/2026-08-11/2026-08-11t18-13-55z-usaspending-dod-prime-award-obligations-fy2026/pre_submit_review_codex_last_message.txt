@@ -1,0 +1,28 @@
+{
+  "summary": "Draft is mostly publication-ready on resolver and coherence, but its prior and interval lean too heavily on a non-target FY2024 top-six tutorial example and need clearer support or downgraded claims.",
+  "requiredFixes": [
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The selected 455B prior is based on a FY2024 top-six subagency example from a tutorial, not direct complete target-history observations from the registered USAspending agency 097 awards endpoint.",
+      "actionRequested": "Either fetch/use direct prior-year agency 097 awards endpoint observations for comparable fiscal years, or explicitly state that complete endpoint history was unavailable and that the FY2024 top-six figure is only a weak proxy rather than target-series history."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The sigma value of 58.6B is asserted from a fallback dispersion judgment, but it is not derived from realized target volatility or a reproducible calculation.",
+      "actionRequested": "Add a short explanation for how 58.6B was chosen, or label it as an explicit judgmental uncertainty assumption rather than realized volatility."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The compact prior/update/interval step names the sample and method, but the historical sample is thin and partly non-comparable: one incomplete FY2026 YTD target fetch plus a FY2024 top-six subagency proxy.",
+      "actionRequested": "Clarify that the historical sample is not a complete target-series sample and that this is why the interval is deliberately wide."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the final reasoning, avoid calling the FY2024 tutorial-derived top-six value an official annual floor unless it was fetched directly from USAspending or clearly framed as a public example.",
+    "Keep the resolver fields unchanged; slug, unit, dataPointId, resolutionDate, URL pattern, transform, and snapshot rule match the ledger contract.",
+    "The tail scenarios are concrete enough, but could mention the 90-day DoD contract/IDV delay in both tails for tighter target linkage."
+  ]
+}

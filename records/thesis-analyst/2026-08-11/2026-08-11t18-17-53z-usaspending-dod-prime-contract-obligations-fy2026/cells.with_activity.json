@@ -1,0 +1,1252 @@
+[
+  {
+    "slug": "us-dod-prime-contract-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "FY2026 DoD prime contract obligations",
+    "question": "What will USAspending API v2 report for Department of Defense agency 097 obligations by award category, contracts row, fiscal year 2026, as a registered query snapshot resolving on the first available post-FY2026 closeout snapshot?",
+    "unit": "billions USD",
+    "pointEstimate": 505.0,
+    "ciLow": 456.5,
+    "ciHigh": 553.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2, agency 097 obligations by award category",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year=2026",
+    "resolutionRule": "Resolve from USAspending API v2 endpoint /api/v2/agency/097/obligations_by_award_category/?fiscal_year=2026, using the results row where category=contracts and field aggregated_amount, multiplied by 1e-09 to convert dollars to billions USD. This is a registered_query_snapshot target for FY2026; later revisions after the registered snapshot are not part of the first-print resolution. Round to one decimal billion USD. The Thesis ledger commits the expected release window 2026-10-15 through 2026-10-22 and the resolutionDate is the outer bound 2026-10-22.",
+    "dataPointId": "usaspending.dod.prime_contract_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "FY2022 GAO FPDS defense agencies services plus products, constant FY2022 dollars proxy",
+        "value": 415
+      },
+      {
+        "label": "FY2023 GAO FPDS defense agencies services plus products, constant FY2023 dollars proxy",
+        "value": 456
+      },
+      {
+        "label": "FY2024 GAO FPDS defense agencies services plus products, constant FY2024 dollars proxy",
+        "value": 445
+      },
+      {
+        "label": "FY2025 GAO FPDS defense agencies services plus products, constant FY2025 dollars proxy",
+        "value": 491
+      }
+    ],
+    "drivers": [
+      "FY2025 defense contract level persistence",
+      "FY2026 acquisition funding support",
+      "mandatory reconciliation funding available through 2029",
+      "USAspending snapshot timing and proxy-definition risk"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/docs/endpoints",
+      "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year=2026",
+      "https://files.gao.gov/multimedia/Federal_Government_Contracting-FY2022/index.html",
+      "https://files.gao.gov/multimedia/Federal_Government_Contracting/index.html",
+      "https://files.gao.gov/multimedia/Federal_Government_Contracting-FY2024/index.html",
+      "https://files.gao.gov/multimedia/Federal_Government_Contracting-FY2025/index.html",
+      "https://www.cbo.gov/publication/62396",
+      "https://www.congress.gov/crs-product/IN12641",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-11T18:21:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "FY2026 DoD prime contract obligations"
+      },
+      {
+        "kind": "text",
+        "text": "The registered target is the USAspending API v2 agency 097 obligations_by_award_category contracts row for fiscal_year=2026. The unit, slug, dataPointId, and 2026-10-22 outer-bound resolution date are taken from the canonical ledger target. I attempted the required specs.json check; the hosted fetch returned no visible body, so I kept the ledger-provided slug rather than inventing a replacement."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.docs",
+        "call": "Fetched USAspending API endpoint index for /api/v2/agency/<TOPTIER_AGENCY_CODE>/obligations_by_award_category/ and target code 097 with fiscal_year=2026.",
+        "result": "USAspending API docs list GET /api/v2/agency/<TOPTIER_AGENCY_CODE>/obligations_by_award_category/ as returning obligations by award category within a single fiscal year; target uses TOPTIER_AGENCY_CODE=097 and fiscal_year=2026. The FY2026 live endpoint was used for target identity and endpoint shape, not as an in-year amount input."
+      },
+      {
+        "kind": "tool",
+        "tool": "gao.fpds.dashboard",
+        "call": "Fetched GAO Governmentwide Contracting FY2022 dashboard.",
+        "result": "GAO FPDS FY2022 defense agencies: services $205B, products $210B, total proxy $415B; source states data are GAO analysis of Federal Procurement Data System data as of May 2023."
+      },
+      {
+        "kind": "tool",
+        "tool": "gao.fpds.dashboard",
+        "call": "Fetched GAO Governmentwide Contracting FY2023 and FY2024 dashboards.",
+        "result": "GAO FPDS FY2023 defense agencies: services $230B, products $226B, total proxy $456B. GAO FPDS FY2024 defense agencies: services $240B, products $205B, total proxy $445B."
+      },
+      {
+        "kind": "tool",
+        "tool": "gao.fpds.dashboard",
+        "call": "Fetched GAO Governmentwide Contracting FY2025 dashboard.",
+        "result": "GAO FPDS FY2025 defense agencies: services $238B, products $253B, total proxy $491B; GAO also states governmentwide contract obligations were $793B and other transaction agreements were $18.2B, not included in contract obligations."
+      },
+      {
+        "kind": "tool",
+        "tool": "budget.current_signal",
+        "call": "Fetched CBO FY2026 defense budget analysis and CRS FY2026 NDAA funding summary.",
+        "result": "CBO reports DoD FY2026 acquisition funding in the budget request was $384B, 18% more than appropriated for 2025; CRS reports enacted FY2026 NDAA DOD-Military authorization total $855.7B versus enacted FY2025 $849.9B, with procurement $161.7B and RDT&E $145.7B."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: the recent public FPDS defense-contract proxy totals are FY2022 415, FY2023 456, FY2024 445, FY2025 491 billions. Last-print persistence is 491.0. The simple one-year-change history is +41, -11, +46, so recent realized changes have mean +25.3 and a wide range from -11 to +46. The draft evidence did not include successful FY2022-FY2025 same-endpoint USAspending history fetches, so this proxy is not treated as the resolver series; I carry extra uncertainty for proxy mismatch and first-snapshot timing."
+      },
+      {
+        "kind": "math",
+        "text": "Model candidates under thesis_model_candidate_v1, computed from fetched history: persistence candidate point=491.0, p10=450.6, p50=491.0, p90=531.4, 80% interval 450.6-531.4, 90% interval 439.0-543.0, interval_method=successive-change residual normal, calibration_n=3, train_cutoff=FY2025; mean-change candidate point=516.3, p10=475.9, p50=516.3, p90=556.7, 80% interval 475.9-556.7, calibration_n=3. I select persistence-plus-current-budget-update because the sample is short and FY2026 budget evidence supports only a modest upward move, not the full mean-change rule."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior=last-print persistence 491.0 from FY2025 GAO FPDS defense services+products proxy; historical sample=FY2022-FY2025 values 415,456,445,491; adjustment components=+14.0 for FY2026 acquisition funding support and mandatory reconciliation availability, shrunk because enacted base procurement/RDT&E is not uniformly above FY2025 and funds are available through 2029; point=491.0+14.0=505.0. For uncertainty, successive changes are +41,-11,+46, mean change 25.3, sigma = 31.6; 80% half-width roughly 1.28*sigma = 40.4, widened by 20% to 48.5 for GAO-proxy-to-USAspending-target mismatch and October registered-snapshot reporting lag, so interval is 505.0-48.5=456.5 to 505.0+48.5=553.5."
+      },
+      {
+        "kind": "text",
+        "text": "Sanity check: an 80% band with half-width about $48.5B would have covered FY2023, FY2024, and FY2025 moves around a persistence prior, while adding room for the target-definition and snapshot-timing uncertainty that is not measured by the three GAO proxy changes alone."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: the result would land above the interval if DoD obligates a large share of reconciliation-funded shipbuilding, missiles, and RDT&E-related contract actions before the registered snapshot or if late September closeout awards are reported unusually quickly. Downside risk: the result would land below the interval if FY2026 contract reporting lags past the October snapshot, if procurement execution is delayed, or if large prior-year deobligations hit the contracts row."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that the draft prior used a GAO FPDS proxy rather than same-endpoint USAspending history, so the final trace labels it as a proxy instead of the resolver series, clarifies the FY2026 API fetch was not used as an amount input, and widens the interval 20% for proxy-definition and first-snapshot timing risk. I did not replace the history with unfetched USAspending values."
+      },
+      {
+        "kind": "forecast",
+        "point": 505.0,
+        "ciLow": 456.5,
+        "ciHigh": 553.5
+      }
+    ],
+    "agentReportedRunAt": "2026-08-11T18:18:52Z",
+    "runStartedAt": "2026-08-11T18:17:53Z",
+    "promptMode": "full",
+    "registrationCommit": "a6991688486115b857a52f29c370ed8f884457e3",
+    "targetContentHash": "8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be",
+    "targetRegistrationPath": "records/targets/2026-08-07-8b3a9c297b91e44b81cdda9bca2c64337b021348fba63395c4b5879b6e3e94be.json",
+    "registeredAtUtc": "2026-08-07T17:54:06Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 383.75,
+        "upper": 626.25
+      },
+      "points": [
+        {
+          "value": 383.75,
+          "probability": 0.0
+        },
+        {
+          "value": 384.9625,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 386.175,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 387.3875,
+          "probability": 0.005
+        },
+        {
+          "value": 388.6,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 389.8125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 391.025,
+          "probability": 0.01
+        },
+        {
+          "value": 392.2375,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 393.45,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 394.6625,
+          "probability": 0.015
+        },
+        {
+          "value": 395.875,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 397.0875,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 398.3,
+          "probability": 0.02
+        },
+        {
+          "value": 399.5125,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 400.725,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 401.9375,
+          "probability": 0.025
+        },
+        {
+          "value": 403.15,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 404.3625,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 405.575,
+          "probability": 0.03
+        },
+        {
+          "value": 406.7875,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 408.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 409.2125,
+          "probability": 0.035
+        },
+        {
+          "value": 410.425,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 411.6375,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 412.85,
+          "probability": 0.04
+        },
+        {
+          "value": 414.0625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 415.275,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 416.4875,
+          "probability": 0.045
+        },
+        {
+          "value": 417.7,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 418.9125,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 420.125,
+          "probability": 0.05
+        },
+        {
+          "value": 421.3375,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 422.55,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 423.7625,
+          "probability": 0.055
+        },
+        {
+          "value": 424.975,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 426.1875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 427.4,
+          "probability": 0.06
+        },
+        {
+          "value": 428.6125,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 429.825,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 431.0375,
+          "probability": 0.065
+        },
+        {
+          "value": 432.25,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 433.4625,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 434.675,
+          "probability": 0.07
+        },
+        {
+          "value": 435.8875,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 437.1,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 438.3125,
+          "probability": 0.075
+        },
+        {
+          "value": 439.525,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 440.7375,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 441.95,
+          "probability": 0.08
+        },
+        {
+          "value": 443.1625,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 444.375,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 445.5875,
+          "probability": 0.085
+        },
+        {
+          "value": 446.8,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 448.0125,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 449.225,
+          "probability": 0.09
+        },
+        {
+          "value": 450.4375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 451.65,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 452.8625,
+          "probability": 0.095
+        },
+        {
+          "value": 454.075,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 455.2875,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 456.5,
+          "probability": 0.1
+        },
+        {
+          "value": 457.7125,
+          "probability": 0.11
+        },
+        {
+          "value": 458.925,
+          "probability": 0.12
+        },
+        {
+          "value": 460.1375,
+          "probability": 0.13
+        },
+        {
+          "value": 461.35,
+          "probability": 0.14
+        },
+        {
+          "value": 462.5625,
+          "probability": 0.15
+        },
+        {
+          "value": 463.775,
+          "probability": 0.16
+        },
+        {
+          "value": 464.9875,
+          "probability": 0.17
+        },
+        {
+          "value": 466.2,
+          "probability": 0.18
+        },
+        {
+          "value": 467.4125,
+          "probability": 0.19
+        },
+        {
+          "value": 468.625,
+          "probability": 0.2
+        },
+        {
+          "value": 469.8375,
+          "probability": 0.21
+        },
+        {
+          "value": 471.05,
+          "probability": 0.22
+        },
+        {
+          "value": 472.2625,
+          "probability": 0.23
+        },
+        {
+          "value": 473.475,
+          "probability": 0.24
+        },
+        {
+          "value": 474.6875,
+          "probability": 0.25
+        },
+        {
+          "value": 475.9,
+          "probability": 0.26
+        },
+        {
+          "value": 477.1125,
+          "probability": 0.27
+        },
+        {
+          "value": 478.325,
+          "probability": 0.28
+        },
+        {
+          "value": 479.5375,
+          "probability": 0.29
+        },
+        {
+          "value": 480.75,
+          "probability": 0.3
+        },
+        {
+          "value": 481.9625,
+          "probability": 0.31
+        },
+        {
+          "value": 483.175,
+          "probability": 0.32
+        },
+        {
+          "value": 484.3875,
+          "probability": 0.33
+        },
+        {
+          "value": 485.6,
+          "probability": 0.34
+        },
+        {
+          "value": 486.8125,
+          "probability": 0.35
+        },
+        {
+          "value": 488.025,
+          "probability": 0.36
+        },
+        {
+          "value": 489.2375,
+          "probability": 0.37
+        },
+        {
+          "value": 490.45,
+          "probability": 0.38
+        },
+        {
+          "value": 491.6625,
+          "probability": 0.39
+        },
+        {
+          "value": 492.875,
+          "probability": 0.4
+        },
+        {
+          "value": 494.0875,
+          "probability": 0.41
+        },
+        {
+          "value": 495.3,
+          "probability": 0.42
+        },
+        {
+          "value": 496.5125,
+          "probability": 0.43
+        },
+        {
+          "value": 497.725,
+          "probability": 0.44
+        },
+        {
+          "value": 498.9375,
+          "probability": 0.45
+        },
+        {
+          "value": 500.15,
+          "probability": 0.46
+        },
+        {
+          "value": 501.3625,
+          "probability": 0.47
+        },
+        {
+          "value": 502.575,
+          "probability": 0.48
+        },
+        {
+          "value": 503.7875,
+          "probability": 0.49
+        },
+        {
+          "value": 505.0,
+          "probability": 0.5
+        },
+        {
+          "value": 506.2125,
+          "probability": 0.51
+        },
+        {
+          "value": 507.425,
+          "probability": 0.52
+        },
+        {
+          "value": 508.6375,
+          "probability": 0.53
+        },
+        {
+          "value": 509.85,
+          "probability": 0.54
+        },
+        {
+          "value": 511.0625,
+          "probability": 0.55
+        },
+        {
+          "value": 512.275,
+          "probability": 0.56
+        },
+        {
+          "value": 513.4875,
+          "probability": 0.57
+        },
+        {
+          "value": 514.7,
+          "probability": 0.58
+        },
+        {
+          "value": 515.9125,
+          "probability": 0.59
+        },
+        {
+          "value": 517.125,
+          "probability": 0.6
+        },
+        {
+          "value": 518.3375,
+          "probability": 0.61
+        },
+        {
+          "value": 519.55,
+          "probability": 0.62
+        },
+        {
+          "value": 520.7625,
+          "probability": 0.63
+        },
+        {
+          "value": 521.975,
+          "probability": 0.64
+        },
+        {
+          "value": 523.1875,
+          "probability": 0.65
+        },
+        {
+          "value": 524.4,
+          "probability": 0.66
+        },
+        {
+          "value": 525.6125,
+          "probability": 0.67
+        },
+        {
+          "value": 526.825,
+          "probability": 0.68
+        },
+        {
+          "value": 528.0375,
+          "probability": 0.69
+        },
+        {
+          "value": 529.25,
+          "probability": 0.7
+        },
+        {
+          "value": 530.4625,
+          "probability": 0.71
+        },
+        {
+          "value": 531.675,
+          "probability": 0.72
+        },
+        {
+          "value": 532.8875,
+          "probability": 0.73
+        },
+        {
+          "value": 534.1,
+          "probability": 0.74
+        },
+        {
+          "value": 535.3125,
+          "probability": 0.75
+        },
+        {
+          "value": 536.525,
+          "probability": 0.76
+        },
+        {
+          "value": 537.7375,
+          "probability": 0.77
+        },
+        {
+          "value": 538.95,
+          "probability": 0.78
+        },
+        {
+          "value": 540.1625,
+          "probability": 0.79
+        },
+        {
+          "value": 541.375,
+          "probability": 0.8
+        },
+        {
+          "value": 542.5875,
+          "probability": 0.81
+        },
+        {
+          "value": 543.8,
+          "probability": 0.82
+        },
+        {
+          "value": 545.0125,
+          "probability": 0.83
+        },
+        {
+          "value": 546.225,
+          "probability": 0.84
+        },
+        {
+          "value": 547.4375,
+          "probability": 0.85
+        },
+        {
+          "value": 548.65,
+          "probability": 0.86
+        },
+        {
+          "value": 549.8625,
+          "probability": 0.87
+        },
+        {
+          "value": 551.075,
+          "probability": 0.88
+        },
+        {
+          "value": 552.2875,
+          "probability": 0.89
+        },
+        {
+          "value": 553.5,
+          "probability": 0.9
+        },
+        {
+          "value": 554.7125,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 555.925,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 557.1375,
+          "probability": 0.905
+        },
+        {
+          "value": 558.35,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 559.5625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 560.775,
+          "probability": 0.91
+        },
+        {
+          "value": 561.9875,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 563.2,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 564.4125,
+          "probability": 0.915
+        },
+        {
+          "value": 565.625,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 566.8375,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 568.05,
+          "probability": 0.92
+        },
+        {
+          "value": 569.2625,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 570.475,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 571.6875,
+          "probability": 0.925
+        },
+        {
+          "value": 572.9,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 574.1125,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 575.325,
+          "probability": 0.93
+        },
+        {
+          "value": 576.5375,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 577.75,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 578.9625,
+          "probability": 0.935
+        },
+        {
+          "value": 580.175,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 581.3875,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 582.6,
+          "probability": 0.94
+        },
+        {
+          "value": 583.8125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 585.025,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 586.2375,
+          "probability": 0.945
+        },
+        {
+          "value": 587.45,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 588.6625,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 589.875,
+          "probability": 0.95
+        },
+        {
+          "value": 591.0875,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 592.3,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 593.5125,
+          "probability": 0.955
+        },
+        {
+          "value": 594.725,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 595.9375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 597.15,
+          "probability": 0.96
+        },
+        {
+          "value": 598.3625,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 599.575,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 600.7875,
+          "probability": 0.965
+        },
+        {
+          "value": 602.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 603.2125,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 604.425,
+          "probability": 0.97
+        },
+        {
+          "value": 605.6375,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 606.85,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 608.0625,
+          "probability": 0.975
+        },
+        {
+          "value": 609.275,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 610.4875,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 611.7,
+          "probability": 0.98
+        },
+        {
+          "value": 612.9125,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 614.125,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 615.3375,
+          "probability": 0.985
+        },
+        {
+          "value": 616.55,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 617.7625,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 618.975,
+          "probability": 0.99
+        },
+        {
+          "value": 620.1875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 621.4,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 622.6125,
+          "probability": 0.995
+        },
+        {
+          "value": 623.825,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 625.0375,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 626.25,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 505.0,
+        "median": 505.0,
+        "interval80": {
+          "lower": 456.5,
+          "upper": 553.5
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/prompt.md",
+        "sha256": "0458d0eaf11e40c604848e617b2b51020c8d39aae65e1d65f17f0a112ef17c2b",
+        "bytes": 33481,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_command.json",
+        "sha256": "36f881e55aefd9471e89d1c23172986eee5db79a87d8db8b2a9b2f5c5b57b587",
+        "bytes": 772,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_stdout.jsonl",
+        "sha256": "bf7d7caedf8d15b202a57060858fa60488d27065f815afa359a75e37aa0c886b",
+        "bytes": 24427,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_stderr.log",
+        "sha256": "fa5528477a3ffc8cb5f37639bbc67f0f3868e45eb5e6bc9e4c1582677ca263ff",
+        "bytes": 233,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_events.jsonl",
+        "sha256": "44b37c64848f50fb34d96146b1d182b15b5f65a2c512aa85f1b9f6bddac6c66c",
+        "bytes": 24381,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_last_message.txt",
+        "sha256": "202214021911713309b83647d1f165e94cc1d0067a40fd24a5cffd5972791cc6",
+        "bytes": 8184,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_codex_trace.json",
+        "sha256": "d9d5ad45ba7d5ad93e40593f7498f90a769d77c64ea7cdb34ccec3c83d4ff80d",
+        "bytes": 560,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_stdout.txt",
+        "sha256": "202214021911713309b83647d1f165e94cc1d0067a40fd24a5cffd5972791cc6",
+        "bytes": 8184,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_stderr.txt",
+        "sha256": "1bbe27e9b2d3e76eee34d436d8ebac48aecfdace26cc69a044cf8b7b7f471606",
+        "bytes": 248,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_prompt.md",
+        "sha256": "0c7325f63313d76c264c7d2eba1f3bab9397a3b77ae9eb4e8065622ac33fd42b",
+        "bytes": 11662,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_command.json",
+        "sha256": "cbf09a75d3655e5b638d52cdfa3cd4c122da7e13f2f9307b93459ba897bdb631",
+        "bytes": 768,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "59caabe1481a6b23d1306d8a11a1ecba739c77b1864d1f5d26e00fb62eebb24a",
+        "bytes": 1870,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_stderr.log",
+        "sha256": "9dd4aa083c8438b573bac3a898176ad548f2ae99b888f3b056e34e1f5d2b04c4",
+        "bytes": 233,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "80a091c4da6e48194ac3e3c1bcadc4782a8edc36691809791c6d56a04bbaef87",
+        "bytes": 1892,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "d63f2cbff2033f54670175415360337c5150daff0aa1bc087cdd364f5bfc27d7",
+        "bytes": 1512,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_codex_trace.json",
+        "sha256": "c71b8957b0f8a08befa8413ccfce983c8bc3b4f5004ff81ae0b0b9a9800b007e",
+        "bytes": 553,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_stdout.txt",
+        "sha256": "d63f2cbff2033f54670175415360337c5150daff0aa1bc087cdd364f5bfc27d7",
+        "bytes": 1512,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_stderr.txt",
+        "sha256": "7db9aced1fd1bac28a98ee77d4120612c1845d5ffdff674fbfda718950491095",
+        "bytes": 248,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/revision_prompt.md",
+        "sha256": "35bd9b5b1e16415ae735a344d1831535d13ab534e69442ac0eebc4414809d0b8",
+        "bytes": 44113,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/command.json",
+        "sha256": "7ecd4c95cf0d1ef157722f9e806b29bbe52d51f4a20d446faba1cc725617a7dd",
+        "bytes": 766,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/codex_stdout.jsonl",
+        "sha256": "c0403bef65a5f9ec98c99d4b7fc96e3101ec3940633e717c7608fc54b6b576bf",
+        "bytes": 9737,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/codex_stderr.log",
+        "sha256": "7c5bf02f605bdb069762c15ad8f8e2206cb56a7dd22365b235f50b7b665e866e",
+        "bytes": 233,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/codex_events.jsonl",
+        "sha256": "450ac01d6d70fd1509ad33e61f03761a5f559a16041e8f1b41cdbd4049b256d7",
+        "bytes": 9759,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/codex_last_message.txt",
+        "sha256": "93713cc2d3ee893c1d7252e71eaf00aeffa23ab3a222d87b0f9a09715dfdc25b",
+        "bytes": 9028,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/codex_trace.json",
+        "sha256": "c44f535610b4ae2bac474c3a4e8f0f29cc9a5b66987f56b32365cbac1d2a3cfa",
+        "bytes": 557,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/stdout.txt",
+        "sha256": "93713cc2d3ee893c1d7252e71eaf00aeffa23ab3a222d87b0f9a09715dfdc25b",
+        "bytes": 9028,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/stderr.txt",
+        "sha256": "962ae5d4b8d3b2c8df15212fac303e9dc9c3e6f9a6602263878487ace543f8d0",
+        "bytes": 248,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/raw_response.txt",
+        "sha256": "93713cc2d3ee893c1d7252e71eaf00aeffa23ab3a222d87b0f9a09715dfdc25b",
+        "bytes": 9028,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/parsed_cells.json",
+        "sha256": "6f6853cdbaab9e8ff69625a76e54f34a7bd2e2098c227dcf2a2493b648b7c14e",
+        "bytes": 9278,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/normalized_cells.json",
+        "sha256": "bd3855c69ebae33dce50a7402ad90d416f800c01fbac53527b7354676092eb38",
+        "bytes": 26952,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/distribution.json",
+        "sha256": "e9195e247fa0bab670644e00bb07e5fe0a2f2222fef700a9ae957a5b06e2c8fa",
+        "bytes": 13890,
+        "createdAt": "2026-08-11T18:17:53Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/validation.json",
+        "sha256": "91dcbee5c6fdba26689a23e4b78586887b4e47f939d22c47488d284549cddf6c",
+        "bytes": 141,
+        "createdAt": "2026-08-11T18:17:53Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-11T18:17:53Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "bd76b4f3791fe40ff8d55c5b364247000617c62d244130afb42157230ad3f6c8"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-11/2026-08-11t18-17-53z-usaspending-dod-prime-contract-obligations-fy2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The time-series prior uses GAO FPDS defense services+products proxy totals rather than historical USAspending agency 097 obligations_by_award_category contracts rows from the same resolver endpoint.",
+          "actionRequested": "Fetch FY2022-FY2025, or the available history, from the same USAspending API adapter and either use it as the main persistence/model prior or explicitly state why it is unavailable and quantify the proxy-to-target bridge risk."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval volatility is calculated from only three GAO proxy year-to-year changes, so it may understate uncertainty from target-definition mismatch and USAspending snapshot timing.",
+          "actionRequested": "Add an explicit uncertainty component or caveat for proxy mismatch and first-snapshot reporting lag, or recompute volatility from same-series USAspending historical snapshots if available."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the FY2026 live API fetch was used only to verify endpoint shape or also as an in-year evidence input."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Replace the vague note about specs.json returning no visible body with the exact check outcome or remove it if it is not material to the forecast."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft prior used a GAO FPDS proxy rather than same-endpoint USAspending history, so the final trace labels it as a proxy instead of the resolver series, clarifies the FY2026 API fetch was not used as an amount input, and widens the interval 20% for proxy-definition and first-snapshot timing risk. I did not replace the history with unfetched USAspending values.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft prior used a GAO FPDS proxy rather than same-endpoint USAspending history, so the final trace labels it as a proxy instead of the resolver series, clarifies the FY2026 API fetch was not used as an amount input, and widens the interval 20% for proxy-definition and first-snapshot timing risk. I did not replace the history with unfetched USAspending values.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the draft prior used a GAO FPDS proxy rather than same-endpoint USAspending history, so the final trace labels it as a proxy instead of the resolver series, clarifies the FY2026 API fetch was not used as an amount input, and widens the interval 20% for proxy-definition and first-snapshot timing risk. I did not replace the history with unfetched USAspending values.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the draft prior used a GAO FPDS proxy rather than same-endpoint USAspending history, so the final trace labels it as a proxy instead of the resolver series, clarifies the FY2026 API fetch was not used as an amount input, and widens the interval 20% for proxy-definition and first-snapshot timing risk. I did not replace the history with unfetched USAspending values.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable after tightening the historical prior source: resolver fields match the ledger and the forecast math is coherent, but the prior relies on a GAO FPDS proxy instead of the same USAspending target series."
+    }
+  }
+]
