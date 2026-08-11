@@ -42,6 +42,18 @@ on:
       timeout_seconds:
         description: "Per-run analyst timeout in seconds"
         default: "540"
+      retry_batch:
+        description: >-
+          Committed batch manifest path (records/thesis-analyst/batches/…)
+          whose failed targets should be rerun against their original
+          registrations. Within orphan grace only; skips selection and
+          registration entirely. Overrides cadence/series/max_targets.
+        default: ""
+      retry_slugs:
+        description: >-
+          Optional comma-separated catalog slugs from retry_batch (default:
+          every failed target in the manifest)
+        default: ""
 
 permissions:
   contents: read
@@ -76,6 +88,10 @@ jobs:
           persist-credentials: false
 
       - name: Adopt proven series into the registry
+        # Skipped in retry mode: adoption writes docket_series.json, and
+        # retry skips the commit steps — a pending adoption would leave a
+        # dirty tree that aborts the sync step and burns the grace window.
+        if: github.event.inputs.retry_batch == ''
         run: python3 scripts/adopt_proven_series.py
 
       - name: Compute targets with trusted repository code
@@ -84,18 +100,37 @@ jobs:
           CADENCE: ${{ github.event.inputs.cadence }}
           SERIES: ${{ github.event.inputs.series }}
           MAX_TARGETS: ${{ github.event.inputs.max_targets || 10 }}
+          RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
+          RETRY_SLUGS: ${{ github.event.inputs.retry_slugs }}
         run: |
           set -euo pipefail
-          args=(
-            python3 scripts/roll_docket.py
-            --max-targets "$MAX_TARGETS"
-            --out /tmp/roll-targets.json
-          )
-          if [ -n "$CADENCE" ]; then
-            args+=(--cadence "$CADENCE")
-          fi
-          if [ -n "$SERIES" ]; then
-            args+=(--series "$SERIES")
+          if [ -n "$RETRY_BATCH" ]; then
+            # Retry mode: rebuild the trusted targets file from a committed
+            # batch manifest (failed targets, within orphan grace). The
+            # registrations already exist on main, so the registration
+            # write steps are skipped below; the sync step's full
+            # --bind-registration-commits pass still re-verifies every
+            # target before generation.
+            args=(
+              python3 scripts/retry_batch_targets.py
+              --batch "$RETRY_BATCH"
+              --out /tmp/roll-targets.json
+            )
+            if [ -n "$RETRY_SLUGS" ]; then
+              args+=(--slugs "$RETRY_SLUGS")
+            fi
+          else
+            args=(
+              python3 scripts/roll_docket.py
+              --max-targets "$MAX_TARGETS"
+              --out /tmp/roll-targets.json
+            )
+            if [ -n "$CADENCE" ]; then
+              args+=(--cadence "$CADENCE")
+            fi
+            if [ -n "$SERIES" ]; then
+              args+=(--series "$SERIES")
+            fi
           fi
           "${args[@]}"
           COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/roll-targets.json'))['targets']))")
@@ -108,7 +143,11 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Create immutable target registrations
-        if: steps.targets.outputs.count != '0'
+        # Skipped in retry mode: the targets already carry immutable
+        # registrations on main (register() plans snapshot paths under
+        # today's date, so a week-old registration would read as new).
+        # The sync step's bind pass is the re-verification.
+        if: steps.targets.outputs.count != '0' && github.event.inputs.retry_batch == ''
         run: |
           set -euo pipefail
           REGISTERED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -120,7 +159,7 @@ jobs:
             --metadata-out /tmp/registration-before-commit.json
 
       - name: Commit trusted preregistration
-        if: steps.targets.outputs.count != '0'
+        if: steps.targets.outputs.count != '0' && github.event.inputs.retry_batch == ''
         id: registration_commit
         run: |
           set -euo pipefail
@@ -256,6 +295,28 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Re-check retry grace before spending generation time
+        # Advisory fail-fast (the trusted gate is --enforce-run-grace at
+        # publication): re-running the selector here refuses the whole
+        # batch if any target's grace lapsed between dispatch and this
+        # job starting, instead of burning analyst runs that publication
+        # will reject.
+        if: github.event.inputs.retry_batch != ''
+        env:
+          RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
+          RETRY_SLUGS: ${{ github.event.inputs.retry_slugs }}
+        run: |
+          set -euo pipefail
+          args=(
+            python3 scripts/retry_batch_targets.py
+            --batch "$RETRY_BATCH"
+            --out /tmp/retry-grace-recheck.json
+          )
+          if [ -n "$RETRY_SLUGS" ]; then
+            args+=(--slugs "$RETRY_SLUGS")
+          fi
+          "${args[@]}"
+
       - name: Install codex CLI
         run: bun add -g @openai/codex@0.144.0
 
@@ -378,15 +439,25 @@ jobs:
         if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         env:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
+          RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
         run: |
           VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          python3 scripts/docket_publication.py validate \
-            --bundle-dir /tmp/docket-publication \
-            --batch "$BATCH_MANIFEST" \
-            --trusted-targets /tmp/trusted-registration/roll-targets.json \
-            --publish-validated-at-utc "$VALIDATED_AT" \
-            --allow-published-wave \
+          args=(
+            python3 scripts/docket_publication.py validate
+            --bundle-dir /tmp/docket-publication
+            --batch "$BATCH_MANIFEST"
+            --trusted-targets /tmp/trusted-registration/roll-targets.json
+            --publish-validated-at-utc "$VALIDATED_AT"
+            --allow-published-wave
             --apply
+          )
+          if [ -n "$RETRY_BATCH" ]; then
+            # Trusted grace gate: a retried run that started or sealed
+            # after its registration's orphan grace deadline is refused
+            # here regardless of what selection approved earlier.
+            args+=(--enforce-run-grace)
+          fi
+          "${args[@]}"
 
       - name: Verify complete record chain and custody graph
         if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'

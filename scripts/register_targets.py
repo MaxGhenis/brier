@@ -1846,8 +1846,58 @@ def _plan_registration(
     }
 
 
-def _target_registration_fields(registration: dict[str, Any]) -> dict[str, Any]:
+def rebuild_registered_target(
+    snapshot: dict[str, Any],
+    *,
+    path: pathlib.Path,
+    root: pathlib.Path | None = None,
+) -> dict[str, Any]:
+    """Project a registration snapshot back into its trusted batch target.
+
+    The complete inverse of registration for a single-target snapshot:
+    every emitted field comes from the snapshot contract (identity,
+    binding, seed, conditional, and resolution fields) plus the snapshot
+    registration instant — nothing else. The retry lane uses this so a
+    committed batch manifest can only NAME a registration, never shape
+    the rerun's context; keeping the projection next to build_contract
+    means a new contract field must be handled here or the retry lane's
+    contract-key allowlist refuses it.
+    """
+
+    targets = snapshot.get("targets")
+    if not isinstance(targets, list) or len(targets) != 1:
+        raise RegistrationError(
+            "snapshot projection requires exactly one registered target"
+        )
+    contract = targets[0]
+    rebuilt: dict[str, Any] = {
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+    }
+    rebuilt.update(
+        _target_registration_fields(
+            {
+                "contract": contract,
+                "registeredAtUtc": snapshot["registeredAtUtc"],
+                "targetContentHash": registration_content_hash(snapshot),
+                "path": path,
+            },
+            root=root,
+        )
+    )
+    for key in ("seedPeriod", "conditional", "conditionId", "conditionDeadline"):
+        if key in contract:
+            rebuilt[key] = contract[key]
+    return rebuilt
+
+
+def _target_registration_fields(
+    registration: dict[str, Any], *, root: pathlib.Path | None = None
+) -> dict[str, Any]:
     contract = registration["contract"]
+    if root is None:
+        root = ROOT
     fields = {
         "country": contract["country"],
         "dataPointId": contract["dataPointId"],
@@ -1858,7 +1908,10 @@ def _target_registration_fields(registration: dict[str, Any]) -> dict[str, Any]:
         "registeredAt": registration["registeredAtUtc"],
         "registeredAtUtc": registration["registeredAtUtc"],
         "targetContentHash": registration["targetContentHash"],
-        "targetRegistrationPath": registration["path"].relative_to(ROOT).as_posix(),
+        "targetRegistrationPath": registration["path"]
+        .resolve()
+        .relative_to(root.resolve())
+        .as_posix(),
     }
     if "resolutionDate" in contract:
         fields["resolutionDate"] = contract["resolutionDate"]
