@@ -63,12 +63,31 @@ def test_leakage_gate_fires_on_fresh_cells_with_top_level_run_at() -> None:
     assert not any("leakage" in error for error in errors_ok), errors_ok
 
 
+# The committed 2026-08-07 DoD registration whose immutable unit
+# ("billions USD") is not an ALLOWED_UNITS member — the incident that
+# motivated the registration-authenticated exemption.
+DOD_REGISTRATION_PATH = (
+    "records/targets/"
+    "2026-08-07-59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907.json"
+)
+DOD_CONTENT_HASH = (
+    "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907"
+)
+
+
+def registered_dod_context() -> dict:
+    return {
+        "catalogSlug": "us-dod-prime-award-obligations-fy2026",
+        "targetUnit": "billions USD",
+        "targetRegistrationPath": DOD_REGISTRATION_PATH,
+        "targetContentHash": DOD_CONTENT_HASH,
+    }
+
+
 def test_registered_unit_is_exempt_from_the_exploratory_allowlist() -> None:
-    # The 2026-08-07 DoD pair's registered unit "billions USD" is not an
-    # ALLOWED_UNITS member; a registered run must still pass by echoing
-    # the registered targetUnit byte-for-byte, while the same unit on an
-    # unregistered run — or any non-matching off-list unit — stays
-    # refused.
+    # A registration-authenticated run passes by echoing the registered
+    # targetUnit byte-for-byte; an unregistered run, a mismatched claim,
+    # or an off-list unit with no registration stays refused.
     cell = probe_cell("2026-07-17")
     cell["unit"] = "billions USD"
 
@@ -76,14 +95,49 @@ def test_registered_unit_is_exempt_from_the_exploratory_allowlist() -> None:
     assert any("not allowed" in error for error in unregistered), unregistered
 
     registered = spawned_cells_to_ts.validate(
-        cell, set(), target_context={"targetUnit": "billions USD"}
+        cell, set(), target_context=registered_dod_context()
     )
     assert not any("not allowed" in error for error in registered), registered
 
+    mismatched_context = registered_dod_context()
+    mismatched_context["targetUnit"] = "usd_billions"
     mismatched = spawned_cells_to_ts.validate(
-        cell, set(), target_context={"targetUnit": "usd_billions"}
+        cell, set(), target_context=mismatched_context
     )
     assert any("not allowed" in error for error in mismatched), mismatched
+
+
+def test_forged_contexts_cannot_buy_the_unit_exemption() -> None:
+    # A bare claim, a wrong hash, a foreign slug, or an attacker-shaped
+    # unit matching the cell must all fall back to the allowlist: the
+    # exemption exists only for units the registration snapshot proves.
+    cell = probe_cell("2026-07-17")
+
+    cell["unit"] = "attacker-shaped unit"
+    bare_claim = spawned_cells_to_ts.validate(
+        cell, set(), target_context={"targetUnit": "attacker-shaped unit"}
+    )
+    assert any("not allowed" in error for error in bare_claim), bare_claim
+
+    cell["unit"] = "billions USD"
+    no_snapshot = spawned_cells_to_ts.validate(
+        cell, set(), target_context={"targetUnit": "billions USD"}
+    )
+    assert any("not allowed" in error for error in no_snapshot), no_snapshot
+
+    tampered = registered_dod_context()
+    tampered["targetContentHash"] = "0" * 64
+    wrong_hash = spawned_cells_to_ts.validate(
+        cell, set(), target_context=tampered
+    )
+    assert any("not allowed" in error for error in wrong_hash), wrong_hash
+
+    foreign = registered_dod_context()
+    foreign["catalogSlug"] = "some-other-slug"
+    wrong_slug = spawned_cells_to_ts.validate(
+        cell, set(), target_context=foreign
+    )
+    assert any("not allowed" in error for error in wrong_slug), wrong_slug
 
 
 def bounded_context(start: str = "2026-07-11") -> dict:
