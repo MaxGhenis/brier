@@ -1,1276 +1,3439 @@
 {
-  "proposed_concept": "usaspending.nist.ai_safety.obligations",
-  "status": "rejected",
-  "unit": "usd",
-  "cadence": "annual",
-  "proposedFrom": "frontier-act-hr9925",
-  "metricText": "USAspending obligations attributable specifically to NIST AI-safety activity for a complete federal fiscal year.",
-  "note": "REJECTED: the complete Commerce federal-account catalog and the tested NIST, ITA, and BIS program-activity catalogs expose no structured AI-safety account or activity. A free-text `AI safety` filter returns one $106,412.26 NIST grant under broad Assistance Listing 11.620, but description matching is not a stable recurring series identity and the full listing is not AI-specific. The only Assistance Listing returned for `artificial intelligence`, 81.012, is awarded by the Department of Energy, not Commerce.",
-  "adapterFamily": "usaspending-api",
-  "billSlugs": [
-    "frontier-act-hr9925"
-  ],
-  "publisher": "U.S. Department of the Treasury, USAspending",
-  "statisticalProduct": "USAspending API v2 federal-account submissions and award transactions tested for a structured NIST AI-safety identity",
-  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-  "verification": {
-    "schemaVersion": "ledger_ingestion_verification_v1",
-    "outcome": "rejected",
-    "verifiedAtUtc": "2026-08-11T04:28:19Z",
-    "reason": "No exact structured USAspending identity isolates NIST, ITA, or BIS AI-safety obligations. The complete FY2025 Commerce account page has 52 rows and no account name containing artificial intelligence, intelligence, AI safety, or AI security. The complete program-activity pages for the closest NIST, BIS, and ITA accounts likewise have no AI-specific row. Assistance Listing autocomplete returns no result for AI safety, machine learning, trustworthy artificial intelligence, or frontier; its one artificial-intelligence result is DOE listing 81.012. The closest NIST award evidence is one FY2025 grant found by free-text description matching under broad listing 11.620. Admitting that keyword result would make an unstable text search the series boundary, while admitting all of 11.620 or a whole NIST account would reverse the required narrow-scoping rule by relabeling a broader total as AI safety.",
-    "blocker": "no_exact_structured_ai_program_or_account",
-    "scope": {
-      "requestedConcept": "Annual obligations attributable specifically to NIST AI-safety work, included only as context for frontier-act-hr9925.",
-      "evidenceActuallyProves": [
-        "FY2025 Commerce account 013-0500 had 957608896.45 in obligations, but its identity is all NIST Scientific and Technical Research and Services.",
-        "A free-text AI safety query returned 106412.26 in FY2025 grant obligations and one award row, 70NANB25H073, under broad Assistance Listing 11.620.",
-        "All NIST-awarded FY2025 transactions under Assistance Listing 11.620 totaled 76275845.96, so the listing cannot stand in for the text-matched AI-safety row.",
-        "Assistance Listing 81.012 is explicitly AI-named, but its FY2025 awarding-subagency result is Department of Energy with -937.0 in obligations."
-      ],
-      "rejectedProxies": [
-        "all obligations of NIST account 013-0500 or any other NIST account",
-        "all NIST-awarded Assistance Listing 11.620 obligations",
-        "award-title or award-description keyword matches",
-        "Department of Energy Assistance Listing 81.012",
-        "all ITA or BIS operations and administration obligations"
-      ]
+ "proposed_concept": "usaspending.nist.ai_safety.obligations",
+ "status": "rejected",
+ "unit": "usd",
+ "cadence": "annual",
+ "proposedFrom": "frontier-act-hr9925",
+ "metricText": "USAspending obligations attributable specifically to NIST AI-safety activity for a complete federal fiscal year.",
+ "note": "REJECTED: the complete Commerce federal-account catalog and the tested NIST, ITA, and BIS program-activity catalogs expose no structured AI-safety account or activity. A free-text `AI safety` filter returns one $106,412.26 NIST grant under broad Assistance Listing 11.620, but description matching is not a stable recurring series identity and the full listing is not AI-specific. The only Assistance Listing returned for `artificial intelligence`, 81.012, is awarded by the Department of Energy, not Commerce.",
+ "adapterFamily": "usaspending-api",
+ "billSlugs": [
+  "frontier-act-hr9925"
+ ],
+ "publisher": "U.S. Department of the Treasury, USAspending",
+ "statisticalProduct": "USAspending API v2 federal-account submissions and award transactions tested for a structured NIST AI-safety identity",
+ "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+ "verification": {
+  "schemaVersion": "ledger_ingestion_verification_v1",
+  "outcome": "rejected",
+  "verifiedAtUtc": "2026-08-11T04:28:19Z",
+  "reason": "No exact structured USAspending identity isolates NIST, ITA, or BIS AI-safety obligations. The complete FY2025 Commerce account page has 52 rows and no account name containing artificial intelligence, intelligence, AI safety, or AI security. The complete program-activity pages for the closest NIST, BIS, and ITA accounts likewise have no AI-specific row. Assistance Listing autocomplete returns no result for AI safety, machine learning, trustworthy artificial intelligence, or frontier; its one artificial-intelligence result is DOE listing 81.012. The closest NIST award evidence is one FY2025 grant found by free-text description matching under broad listing 11.620. Admitting that keyword result would make an unstable text search the series boundary, while admitting all of 11.620 or a whole NIST account would reverse the required narrow-scoping rule by relabeling a broader total as AI safety.",
+  "blocker": "no_exact_structured_ai_program_or_account",
+  "scope": {
+   "requestedConcept": "Annual obligations attributable specifically to NIST AI-safety work, included only as context for frontier-act-hr9925.",
+   "evidenceActuallyProves": [
+    "FY2025 Commerce account 013-0500 had 957608896.45 in obligations, but its identity is all NIST Scientific and Technical Research and Services.",
+    "A free-text AI safety query returned 106412.26 in FY2025 grant obligations and one award row, 70NANB25H073, under broad Assistance Listing 11.620.",
+    "All NIST-awarded FY2025 transactions under Assistance Listing 11.620 totaled 76275845.96, so the listing cannot stand in for the text-matched AI-safety row.",
+    "Assistance Listing 81.012 is explicitly AI-named, but its FY2025 awarding-subagency result is Department of Energy with -937.0 in obligations."
+   ],
+   "rejectedProxies": [
+    "all obligations of NIST account 013-0500 or any other NIST account",
+    "all NIST-awarded Assistance Listing 11.620 obligations",
+    "award-title or award-description keyword matches",
+    "Department of Energy Assistance Listing 81.012",
+    "all ITA or BIS operations and administration obligations"
+   ]
+  },
+  "agencyAutocompleteSearch": [
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+    "retrievedAtUtc": "2026-08-11T04:17:16Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "search_text": "National Institute of Standards and Technology"
     },
-    "agencyAutocompleteSearch": [
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
-        "retrievedAtUtc": "2026-08-11T04:17:16Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "search_text": "National Institute of Standards and Technology"
-        },
-        "responseSha256": "6774a9afd794583c0c32cb4356a96f563a61e46b2cc3702b273631b664c5b40a",
-        "responseByteLength": 314,
-        "resultRows": [
-          {
-            "id": 197,
-            "toptier_flag": false,
-            "toptier_agency": {
-              "toptier_code": "013",
-              "abbreviation": "DOC",
-              "name": "Department of Commerce"
-            },
-            "subtier_agency": {
-              "abbreviation": "NIST",
-              "name": "National Institute of Standards and Technology"
-            }
-          }
-        ],
-        "messages": [
-          "This endpoint is DEPRECATED. Please refer to the api contracts."
-        ]
+    "responseSha256": "6774a9afd794583c0c32cb4356a96f563a61e46b2cc3702b273631b664c5b40a",
+    "responseByteLength": 314,
+    "resultRows": [
+     {
+      "id": 197,
+      "toptier_flag": false,
+      "toptier_agency": {
+       "toptier_code": "013",
+       "abbreviation": "DOC",
+       "name": "Department of Commerce"
       },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
-        "retrievedAtUtc": "2026-08-11T04:17:16Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "search_text": "Bureau of Industry and Security"
-        },
-        "responseSha256": "b0a4cec98bfcaaed38fc994c87856bfc5b82a18360b7fb1cb0387abc38ad09e1",
-        "responseByteLength": 93,
-        "resultRows": [],
-        "messages": [
-          "This endpoint is DEPRECATED. Please refer to the api contracts."
-        ]
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
-        "retrievedAtUtc": "2026-08-11T04:17:16Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "search_text": "International Trade Administration"
-        },
-        "responseSha256": "13e857ac5a65803b4974c644ada234ae3cd51e8ec6f58f23ff33823209faaeb2",
-        "responseByteLength": 301,
-        "resultRows": [
-          {
-            "id": 201,
-            "toptier_flag": false,
-            "toptier_agency": {
-              "toptier_code": "013",
-              "abbreviation": "DOC",
-              "name": "Department of Commerce"
-            },
-            "subtier_agency": {
-              "abbreviation": "ITA",
-              "name": "International Trade Administration"
-            }
-          }
-        ],
-        "messages": [
-          "This endpoint is DEPRECATED. Please refer to the api contracts."
-        ]
+      "subtier_agency": {
+       "abbreviation": "NIST",
+       "name": "National Institute of Standards and Technology"
       }
+     }
     ],
-    "assistanceListingSearchTrail": [
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:16:32Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "artificial intelligence"
-        },
-        "responseSha256": "af8044fa23833ec6072167a803d8cb1ee2ba31deaeb6935df1547fac1f973e2e",
-        "responseByteLength": 152,
-        "resultRows": [
-          {
-            "program_number": "81.012",
-            "program_title": "Artificial Intelligence and Technology Office Financial Assistance Program",
-            "popular_name": ""
-          }
-        ]
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:16:32Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "AI safety"
-        },
-        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
-        "responseByteLength": 14,
-        "resultRows": []
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:16:32Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "machine learning"
-        },
-        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
-        "responseByteLength": 14,
-        "resultRows": []
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:16:32Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "trustworthy artificial intelligence"
-        },
-        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
-        "responseByteLength": 14,
-        "resultRows": []
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:16:32Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "frontier"
-        },
-        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
-        "responseByteLength": 14,
-        "resultRows": []
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:16:32Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "National Institute of Standards and Technology"
-        },
-        "responseSha256": "daca5b7ed1bc9e9296a3b9caf7ca10bff7563dfa65943a98d9af4599d68d6c76",
-        "responseByteLength": 151,
-        "resultRows": [
-          {
-            "program_number": "11.618",
-            "program_title": "National Institute of Standards and Technology Construction Grant Program",
-            "popular_name": ""
-          }
-        ]
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:19:46Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "11.620"
-        },
-        "responseSha256": "3b4599129de509c762f21bed9830d69fdaacb1f77f01bcb40739499a09f1301d",
-        "responseByteLength": 133,
-        "resultRows": [
-          {
-            "program_number": "11.620",
-            "program_title": "Science, Technology, Business and/or Education Outreach",
-            "popular_name": ""
-          }
-        ]
-      },
-      {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
-        "retrievedAtUtc": "2026-08-11T04:19:46Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "81.012"
-        },
-        "responseSha256": "af8044fa23833ec6072167a803d8cb1ee2ba31deaeb6935df1547fac1f973e2e",
-        "responseByteLength": 152,
-        "resultRows": [
-          {
-            "program_number": "81.012",
-            "program_title": "Artificial Intelligence and Technology Office Financial Assistance Program",
-            "popular_name": ""
-          }
-        ]
-      }
-    ],
-    "nistFy2025AssistanceListingBreakdown": {
-      "method": "POST",
-      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/cfda/",
-      "retrievedAtUtc": "2026-08-11T04:17:32Z",
-      "httpStatus": 200,
-      "mediaType": "application/json",
-      "body": {
-        "category": "cfda",
-        "filters": {
-          "agencies": [
-            {
-              "name": "National Institute of Standards and Technology",
-              "tier": "subtier",
-              "toptier_name": "Department of Commerce",
-              "type": "awarding"
-            }
-          ],
-          "award_type_codes": [
-            "02",
-            "03",
-            "04",
-            "05",
-            "06",
-            "07",
-            "08",
-            "09",
-            "10",
-            "11"
-          ],
-          "time_period": [
-            {
-              "end_date": "2025-09-30",
-              "start_date": "2024-10-01"
-            }
-          ]
-        },
-        "limit": 100,
-        "page": 1,
-        "spending_level": "transactions"
-      },
-      "responseSha256": "bf28e91704c1b5cfbbaebe33eb85fda86f0298fb9f69157409760e721299e099",
-      "responseByteLength": 2358,
-      "page_metadata": {
-        "page": 1,
-        "next": null,
-        "previous": null,
-        "hasNext": false,
-        "hasPrevious": false
-      },
-      "resultRows": [
-        {
-          "id": 3348,
-          "code": "11.035",
-          "name": "Broadband Equity, Access, and Deployment Program",
-          "amount": 16936623108.2,
-          "total_outlays": null
-        },
-        {
-          "id": 3346,
-          "code": "11.032",
-          "name": "State Digital Equity Planning and Capacity Grant",
-          "amount": 707085936.03,
-          "total_outlays": null
-        },
-        {
-          "id": 3689,
-          "code": "11.038",
-          "name": "Public Wireless Supply Chain Innovation Fund Grant Program",
-          "amount": 409852406.47,
-          "total_outlays": null
-        },
-        {
-          "id": 351,
-          "code": "11.611",
-          "name": "Manufacturing Extension Partnership",
-          "amount": 111830237.58,
-          "total_outlays": null
-        },
-        {
-          "id": 355,
-          "code": "11.620",
-          "name": "Science, Technology, Business and/or Education Outreach",
-          "amount": 76275845.96,
-          "total_outlays": null
-        },
-        {
-          "id": 5470,
-          "code": "11.036",
-          "name": "Digital Equity Competitive Grant Program",
-          "amount": 52881724.08,
-          "total_outlays": null
-        },
-        {
-          "id": 349,
-          "code": "11.609",
-          "name": "Measurement and Engineering Research and Standards",
-          "amount": 38325015.01,
-          "total_outlays": null
-        },
-        {
-          "id": 354,
-          "code": "11.619",
-          "name": "Arrangements for Interdisciplinary Research Infrastructure",
-          "amount": 24186171.97,
-          "total_outlays": null
-        },
-        {
-          "id": 2365,
-          "code": "11.617",
-          "name": "Congressionally-Identified Projects",
-          "amount": 5398254.04,
-          "total_outlays": null
-        },
-        {
-          "id": 286,
-          "code": "11.016",
-          "name": "Statistical, Research, and Methodology  Assistance",
-          "amount": 208959.0,
-          "total_outlays": null
-        },
-        {
-          "id": 3242,
-          "code": "11.031",
-          "name": "Broadband Infrastructure Program",
-          "amount": 0.0,
-          "total_outlays": null
-        },
-        {
-          "id": 3229,
-          "code": "11.028",
-          "name": "Connecting Minority Communities Pilot Program",
-          "amount": -1106440.33,
-          "total_outlays": null
-        },
-        {
-          "id": 3347,
-          "code": "11.033",
-          "name": "Middle Mile (Broadband) Grant Program",
-          "amount": -25054092.63,
-          "total_outlays": null
-        },
-        {
-          "id": 3522,
-          "code": "11.037",
-          "name": "CHIPS Incentives Program",
-          "amount": -58751000.0,
-          "total_outlays": null
-        }
-      ],
-      "aiSpecificListingRows": []
-    },
-    "federalAccountCatalogSearch": {
-      "method": "GET",
-      "endpoint": "https://api.usaspending.gov/api/v2/agency/013/federal_account/?fiscal_year=2025&page=1&limit=100",
-      "retrievedAtUtc": "2026-08-11T04:15:40Z",
-      "httpStatus": 200,
-      "mediaType": "application/json",
-      "responseSha256": "684dec440c360b015fe9129bb191111b09195701c2bfbbc15d76ffdd717d03c8",
-      "responseByteLength": 45002,
-      "page_metadata": {
-        "page": 1,
-        "total": 52,
-        "limit": 100,
-        "next": null,
-        "previous": null,
-        "hasNext": false,
-        "hasPrevious": false
-      },
-      "accountNameSearchTerms": [
-        "artificial",
-        "intelligence",
-        "AI safety",
-        "AI security"
-      ],
-      "aiSpecificNameMatches": [],
-      "candidateRows": [
-        {
-          "code": "013-0500",
-          "name": "Scientific and Technical Research and Services, National Institute of Standards and Technology, Commerce",
-          "obligated_amount": 957608896.45,
-          "gross_outlay_amount": 1110262534.34
-        },
-        {
-          "code": "013-0525",
-          "name": "Industrial Technology Services, National Institute of Standards and Technology, Commerce",
-          "obligated_amount": 719469057.29,
-          "gross_outlay_amount": 300406064.19
-        },
-        {
-          "code": "013-1250",
-          "name": "Operations and Administration, International Trade Administration, Commerce",
-          "obligated_amount": 604950373.14,
-          "gross_outlay_amount": 608452672.92
-        },
-        {
-          "code": "013-4650",
-          "name": "Working Capital Fund, National Institute of Standards and Technology, Commerce",
-          "obligated_amount": 192244259.39,
-          "gross_outlay_amount": 170659002.5
-        },
-        {
-          "code": "013-0300",
-          "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
-          "obligated_amount": 189165915.73,
-          "gross_outlay_amount": 215116548.27
-        },
-        {
-          "code": "013-0515",
-          "name": "Construction of Research Facilities, National Institute of Standards and Technology, Commerce",
-          "obligated_amount": 90310668.74,
-          "gross_outlay_amount": 262520462.55
-        },
-        {
-          "code": "013-0513",
-          "name": "Wireless Innovation(WIN) Fund, National Institute of Standards and Technology, Commerce",
-          "obligated_amount": 0.0,
-          "gross_outlay_amount": 3442135.72
-        }
-      ]
-    },
-    "programActivityCatalogSearch": [
-      {
-        "method": "GET",
-        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0500/program_activities/?fiscal_year=2025&page=1&limit=100",
-        "retrievedAtUtc": "2026-08-11T04:15:58Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "responseSha256": "f3d3d7db4802cecdc3370583773004ab22904ceb0e1418840bc09b56cdde902a",
-        "responseByteLength": 976,
-        "page_metadata": {
-          "page": 1,
-          "total": 11,
-          "limit": 100,
-          "next": null,
-          "previous": null,
-          "hasNext": false,
-          "hasPrevious": false
-        },
-        "resultRows": [
-          {
-            "code": "EX202600313650",
-            "name": "STRS LABORATORY PROGRAMS",
-            "type": "PARK"
-          },
-          {
-            "code": "EX202600313426",
-            "name": "NIST CARRYOVER (SUMMARIZED) BALANCES",
-            "type": "PARK"
-          },
-          {
-            "code": "6081W4QKXDJ",
-            "name": "CHIPS",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC2FFJJAZ9",
-            "name": "CORPORATE SERVICES",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC2FFJJAYD",
-            "name": "LABORATORY PROGRAMS",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC2FFJJAR7",
-            "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
-            "type": "PARK"
-          },
-          {
-            "code": "0301",
-            "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0201",
-            "name": "CORPORATE SERVICES",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0005",
-            "name": "CREATING HELPFUL INCENTIVES TO PRODUCE SEMICONDUCTORS (CHIPS) SCIENTIFIC AND TECHNICAL RESEARCH AND SERVICES",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0001",
-            "name": "LABORATORY PROGRAMS",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0000",
-            "name": "UNKNOWN/OTHER",
-            "type": "PAC/PAN"
-          }
-        ],
-        "aiSpecificNameMatches": []
-      },
-      {
-        "method": "GET",
-        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0300/program_activities/?fiscal_year=2025&page=1&limit=100",
-        "retrievedAtUtc": "2026-08-11T04:16:49Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "responseSha256": "e67e3d5f7fd18df20f824615dd53e01b1653046fd6e9d3af620b6a9cbc300901",
-        "responseByteLength": 905,
-        "page_metadata": {
-          "page": 1,
-          "total": 11,
-          "limit": 100,
-          "next": null,
-          "previous": null,
-          "hasNext": false,
-          "hasPrevious": false
-        },
-        "resultRows": [
-          {
-            "code": "5ZC1X8UZUKX",
-            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1X8UZTVH",
-            "name": "EXPORT ENFORCEMENT",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1X8UZTVG",
-            "name": "EXPORT ADMINISTRATION",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1X8UZTVF",
-            "name": "MANAGEMENT AND POLICY COORDINATION",
-            "type": "PARK"
-          },
-          {
-            "code": "0801",
-            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0201",
-            "name": "EXPORT ADMINISTRATION",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0003",
-            "name": "EXPORT ENFORCEMENT",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0002",
-            "name": "EXPORT ADMINISTRATION",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0001",
-            "name": "MANAGEMENT AND POLICY COORDINATION",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0000",
-            "name": "NO PROGRAM APPLICABLE",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0000",
-            "name": "UNKNOWN/OTHER",
-            "type": "PAC/PAN"
-          }
-        ],
-        "aiSpecificNameMatches": []
-      },
-      {
-        "method": "GET",
-        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-1250/program_activities/?fiscal_year=2025&page=1&limit=100",
-        "retrievedAtUtc": "2026-08-11T04:16:49Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "responseSha256": "40eed8fa1b152b711e3a5c78826719947c75028bb1f4da290c84b63b3375a77b",
-        "responseByteLength": 1202,
-        "page_metadata": {
-          "page": 1,
-          "total": 15,
-          "limit": 100,
-          "next": null,
-          "previous": null,
-          "hasNext": false,
-          "hasPrevious": false
-        },
-        "resultRows": [
-          {
-            "code": "5ZC1U2W8F13",
-            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1U2W8EBZ",
-            "name": "INDUSTRY AND ANALYSIS",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1U2W8EBR",
-            "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1U2W8EBQ",
-            "name": "GLOBAL MARKETS",
-            "type": "PARK"
-          },
-          {
-            "code": "5ZC1U2W8EBP",
-            "name": "ENFORCEMENT AND COMPLIANCE",
-            "type": "PARK"
-          },
-          {
-            "code": "0801",
-            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0009",
-            "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0008",
-            "name": "GLOBAL MARKETS",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0007",
-            "name": "ENFORCEMENT AND COMPLIANCE",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0006",
-            "name": "INDUSTRY AND ANALYSIS",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0004",
-            "name": "U.S. AND FOREIGN COMMERCIAL SERVICES",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0003",
-            "name": "IMPORT ADMINISTRATION",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0002",
-            "name": "MARKET ACCESS AND COMPLIANCE",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0001",
-            "name": "MANUFACTURING AND SERVICES",
-            "type": "PAC/PAN"
-          },
-          {
-            "code": "0000",
-            "name": "UNKNOWN/OTHER",
-            "type": "PAC/PAN"
-          }
-        ],
-        "aiSpecificNameMatches": []
-      }
-    ],
-    "commerceFy2025ProgramActivityCatalogSearch": {
-      "nameSearchTerms": [
-        "artificial intelligence",
-        "AI safety",
-        "AI security",
-        "machine learning",
-        "trustworthy",
-        "frontier",
-        "emerging technology",
-        "critical and emerging"
-      ],
-      "pages": [
-        {
-          "method": "GET",
-          "endpoint": "https://api.usaspending.gov/api/v2/agency/013/program_activity/?fiscal_year=2025&page=1&limit=100",
-          "retrievedAtUtc": "2026-08-11T04:28:17Z",
-          "httpStatus": 200,
-          "mediaType": "application/json",
-          "responseSha256": "236d2a469e6220967b28d2acc8952efeadff964e054f80a779c3c0dde3e9d47e",
-          "responseByteLength": 11136,
-          "page_metadata": {
-            "page": 1,
-            "total": 122,
-            "limit": 100,
-            "next": 2,
-            "previous": null,
-            "hasNext": true,
-            "hasPrevious": false
-          },
-          "aiSpecificNameMatches": []
-        },
-        {
-          "method": "GET",
-          "endpoint": "https://api.usaspending.gov/api/v2/agency/013/program_activity/?fiscal_year=2025&page=2&limit=100",
-          "retrievedAtUtc": "2026-08-11T04:28:17Z",
-          "httpStatus": 200,
-          "mediaType": "application/json",
-          "responseSha256": "0134edc88c99c702c730c929ec6659ee8b19474f3196e7aa596d4812d30730a0",
-          "responseByteLength": 2554,
-          "page_metadata": {
-            "page": 2,
-            "total": 122,
-            "limit": 100,
-            "next": null,
-            "previous": 1,
-            "hasNext": false,
-            "hasPrevious": true
-          },
-          "aiSpecificNameMatches": []
-        }
-      ],
-      "result": "Both pages were fetched; all 122 FY2025 Commerce program-activity names were searched case-insensitively and none matched any recorded AI or emerging-technology term."
-    },
-    "programActivityAutocompleteCandidate": {
-      "identityEvidence": {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/program_activity/",
-        "retrievedAtUtc": "2026-08-11T04:27:49Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "limit": 100,
-          "search_text": "Artificial Intelligence"
-        },
-        "responseSha256": "8bd723b6ccd17e02084f97a060de52888d11e1d4ea7d6ff5ed6f666d17fe44ad",
-        "responseByteLength": 114,
-        "resultRows": [
-          {
-            "program_activity_code": "0030",
-            "program_activity_name": "ARTIFICIAL INTELLIGENCE TECHNOLOGY OFFICE"
-          }
-        ]
-      },
-      "commerceIntersectionQuery": {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-        "body": {
-          "filters": {
-            "agencies": [
-              {
-                "name": "Department of Commerce",
-                "tier": "toptier",
-                "type": "awarding"
-              }
-            ],
-            "award_type_codes": [
-              "02",
-              "03",
-              "04",
-              "05",
-              "06",
-              "07",
-              "08",
-              "09",
-              "10",
-              "11",
-              "A",
-              "B",
-              "C",
-              "D",
-              "IDV_A",
-              "IDV_B",
-              "IDV_B_A",
-              "IDV_B_B",
-              "IDV_B_C",
-              "IDV_C",
-              "IDV_D",
-              "IDV_E"
-            ],
-            "program_activities": [
-              {
-                "code": "0030",
-                "name": "ARTIFICIAL INTELLIGENCE TECHNOLOGY OFFICE"
-              }
-            ],
-            "time_period": [
-              {
-                "end_date": "2025-09-30",
-                "start_date": "2022-10-01"
-              }
-            ]
-          },
-          "group": "fiscal_year",
-          "spending_level": "transactions"
-        }
-      },
-      "commerceIntersectionEvidence": {
-        "retrievedAtUtc": "2026-08-11T04:28:04Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "responseSha256": "8cb37d726bb8d0237db2e7ae48fb3b4c93db1d8150d7195fdb213769f8d43d93",
-        "responseByteLength": 1794,
-        "responseGroup": "fiscal_year",
-        "responseSpendingLevel": "transactions",
-        "resultRows": [
-          {
-            "aggregated_amount": 0,
-            "time_period": {
-              "fiscal_year": "2023"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 0,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          },
-          {
-            "aggregated_amount": 0,
-            "time_period": {
-              "fiscal_year": "2024"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 0,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          },
-          {
-            "aggregated_amount": 0,
-            "time_period": {
-              "fiscal_year": "2025"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 0,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          }
-        ]
-      },
-      "rejectionReason": "The globally discoverable AI-named program activity has no Commerce award-transaction obligations in FY2023, FY2024, or FY2025 and does not appear in the complete FY2025 Commerce program-activity catalog. It therefore cannot identify a NIST, ITA, or BIS series."
-    },
-    "keywordCandidateEvidence": {
-      "testedQuery": {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-        "field": "results[].aggregated_amount",
-        "body": {
-          "filters": {
-            "agencies": [
-              {
-                "name": "National Institute of Standards and Technology",
-                "tier": "subtier",
-                "type": "awarding"
-              }
-            ],
-            "award_type_codes": [
-              "02",
-              "03",
-              "04",
-              "05",
-              "06",
-              "07",
-              "08",
-              "09",
-              "10",
-              "11",
-              "A",
-              "B",
-              "C",
-              "D",
-              "IDV_A",
-              "IDV_B",
-              "IDV_B_A",
-              "IDV_B_B",
-              "IDV_B_C",
-              "IDV_C",
-              "IDV_D",
-              "IDV_E"
-            ],
-            "keywords": [
-              "AI safety"
-            ],
-            "time_period": [
-              {
-                "end_date": "2025-09-30",
-                "start_date": "2022-10-01"
-              }
-            ]
-          },
-          "group": "fiscal_year",
-          "spending_level": "transactions"
-        }
-      },
-      "fetchedEvidence": {
-        "retrievedAtUtc": "2026-08-11T04:20:55Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "responseSha256": "296e869cde9e633a673284d468ce4a8bb43a8905913a89197d5ec57ef9dda7f9",
-        "responseByteLength": 1810,
-        "responseGroup": "fiscal_year",
-        "responseSpendingLevel": "transactions",
-        "resultRows": [
-          {
-            "aggregated_amount": 0,
-            "time_period": {
-              "fiscal_year": "2023"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 0,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          },
-          {
-            "aggregated_amount": 0,
-            "time_period": {
-              "fiscal_year": "2024"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 0,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          },
-          {
-            "aggregated_amount": 106412.26,
-            "time_period": {
-              "fiscal_year": "2025"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 106412.26,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          }
-        ]
-      },
-      "awardRowEvidence": {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
-        "retrievedAtUtc": "2026-08-11T04:19:27Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "body": {
-          "fields": [
-            "Award ID",
-            "Recipient Name",
-            "Award Amount",
-            "Awarding Agency",
-            "Awarding Sub Agency",
-            "Funding Agency",
-            "Funding Sub Agency",
-            "Description",
-            "Assistance Listings",
-            "primary_assistance_listing"
-          ],
-          "filters": {
-            "agencies": [
-              {
-                "name": "National Institute of Standards and Technology",
-                "tier": "subtier",
-                "type": "awarding"
-              }
-            ],
-            "award_type_codes": [
-              "02",
-              "03",
-              "04",
-              "05"
-            ],
-            "keywords": [
-              "AI safety"
-            ],
-            "time_period": [
-              {
-                "end_date": "2025-09-30",
-                "start_date": "2024-10-01"
-              }
-            ]
-          },
-          "limit": 100,
-          "order": "desc",
-          "page": 1,
-          "sort": "Award Amount",
-          "spending_level": "awards"
-        },
-        "responseSha256": "881c506d1fa38c2bdf88e6cbc61edc3181a472075a0e20e432e1a59db8cc7598",
-        "responseByteLength": 2323,
-        "page_metadata": {
-          "page": 1,
-          "hasNext": false,
-          "last_record_unique_id": null,
-          "last_record_sort_value": "None"
-        },
-        "resultRows": [
-          {
-            "internal_id": 251572837,
-            "Award ID": "70NANB25H073",
-            "Recipient Name": "OBJECTSECURITY LLC",
-            "Award Amount": 106412.26,
-            "Awarding Agency": "Department of Commerce",
-            "Awarding Sub Agency": "National Institute of Standards and Technology",
-            "Funding Agency": "Department of Commerce",
-            "Funding Sub Agency": "National Institute of Standards and Technology",
-            "Description": "PURPOSE: THE PURPOSE OF THIS PHASE I PROJECT IS TO ADDRESS CRITICAL GAPS IN AI SAFETY AND EXPLAINABILITY. AI ADOPTION IN CRITICAL SECTORS SUCH AS MILITARY AND HEALTHCARE POSES SIGNIFICANT RISKS, AS EXPLOITATION OF THESE SYSTEMS COULD LEAD TO DEVASTATING OUTCOMES. OBJECTSECURITY'S PROPOSED TECHNOLOGY ENHANCES AI CONTENT MODERATION BY EMPLOYING NOVEL LINEAR LAYER CONDUCTANCE TECHNIQUES, INCREASING ANALYSIS EFFICIENCY WITHOUT ADDING SIGNIFICANT COMPUTATIONAL OVERHEAD. THIS METHOD PROVIDES DEEPER INSIGHTS INTO TOKEN RELATIONSHIPS AND PATTERNS INFLUENCING AI OUTPUTS, EMPOWERING DEVELOPERS AND END USERS TO PRECISELY MODERATE AI-GENERATED CONTENT AND PREVENT HARMFUL OUTPUTS.ACTIVITIES TO BE PERFORMED: ANALYSIS AND REQUIREMENTSRESEARCH DEVELOP PROOF OF CONCEPTPRODUCE REPORTSEXPECTED OUTCOMES: BY AUTOMATING COMPLEX ANALYSIS AND ENHANCING MODEL EXPLAINABILITY, OBJECTSECURITY ANTICIPATES THAT ITS PROPOSED TECHNOLOGY WILL ENSURE SAFER AND MORE TRUSTWORTHY AI SYSTEMS. INTENDED BENEFICIARIES INCLUDE: MILITARY AND HEALTHCARE SECTORS.SUBRECIPIENT ACTIVITIES: THE RECIPIENT DOES NOT INTEND TO SUBAWARD FUNDS.",
-            "Assistance Listings": [
-              {
-                "cfda_number": "11.620",
-                "cfda_program_title": "SCIENCE, TECHNOLOGY, BUSINESS AND/OR EDUCATION OUTREACH"
-              }
-            ],
-            "primary_assistance_listing": {
-              "cfda_number": "11.620",
-              "cfda_program_title": "SCIENCE, TECHNOLOGY, BUSINESS AND/OR EDUCATION OUTREACH"
-            },
-            "awarding_agency_id": 183,
-            "agency_slug": "department-of-commerce",
-            "generated_internal_id": "ASST_NON_70NANB25H073_013"
-          }
-        ]
-      },
-      "rejectionReason": "The only positive exact-phrase result is defined by mutable free text in one award description, not by a structured account, program activity, Assistance Listing, or other stable classifier. FY2023 and FY2024 are zero and the current evidence establishes one award, not a recurring official AI-safety series."
-    },
-    "broadNistListingMismatch": {
-      "query": {
-        "method": "POST",
-        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
-        "field": "results[time_period.fiscal_year=2025].aggregated_amount",
-        "body": {
-          "filters": {
-            "agencies": [
-              {
-                "name": "National Institute of Standards and Technology",
-                "tier": "subtier",
-                "type": "awarding"
-              }
-            ],
-            "award_type_codes": [
-              "02",
-              "03",
-              "04",
-              "05",
-              "06",
-              "07",
-              "08",
-              "09",
-              "10",
-              "11"
-            ],
-            "program_numbers": [
-              "11.620"
-            ],
-            "time_period": [
-              {
-                "end_date": "2025-09-30",
-                "start_date": "2024-10-01"
-              }
-            ]
-          },
-          "group": "fiscal_year",
-          "spending_level": "transactions"
-        }
-      },
-      "fetchedEvidence": {
-        "retrievedAtUtc": "2026-08-11T04:20:22Z",
-        "httpStatus": 200,
-        "mediaType": "application/json",
-        "responseSha256": "780d8f18482c049cad073c92410dcfa5852a603d509bda3a97649790094edbf9",
-        "responseByteLength": 1130,
-        "responseGroup": "fiscal_year",
-        "responseSpendingLevel": "transactions",
-        "resultRows": [
-          {
-            "aggregated_amount": 76275845.96,
-            "time_period": {
-              "fiscal_year": "2025"
-            },
-            "Contract_Obligations": 0,
-            "Direct_Obligations": 0,
-            "Grant_Obligations": 76275845.96,
-            "Idv_Obligations": 0,
-            "Loan_Obligations": 0,
-            "Other_Obligations": 0,
-            "total_outlays": null,
-            "Contract_Outlays": null,
-            "Direct_Outlays": null,
-            "Grant_Outlays": null,
-            "Idv_Outlays": null,
-            "Loan_Outlays": null,
-            "Other_Outlays": null
-          }
-        ]
-      },
-      "rejectionReason": "Assistance Listing 11.620 is identified verbatim as Science, Technology, Business and/or Education Outreach. Its 76275845.96 NIST FY2025 total is broader than the one 106412.26 description-matched AI-safety award and cannot be labeled AI-safety obligations."
-    },
-    "aiNamedListingMismatch": {
-      "method": "POST",
-      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/awarding_subagency/",
-      "retrievedAtUtc": "2026-08-11T04:20:10Z",
-      "httpStatus": 200,
-      "mediaType": "application/json",
-      "body": {
-        "category": "awarding_subagency",
-        "filters": {
-          "award_type_codes": [
-            "02",
-            "03",
-            "04",
-            "05",
-            "06",
-            "07",
-            "08",
-            "09",
-            "10",
-            "11"
-          ],
-          "program_numbers": [
-            "81.012"
-          ],
-          "time_period": [
-            {
-              "end_date": "2025-09-30",
-              "start_date": "2024-10-01"
-            }
-          ]
-        },
-        "limit": 100,
-        "page": 1,
-        "spending_level": "transactions"
-      },
-      "responseSha256": "2f36a1e0adbd063fd06ef511fcab41a2bd685135cf1a0e2e9985bbbeb262be9e",
-      "responseByteLength": 896,
-      "page_metadata": {
-        "page": 1,
-        "next": null,
-        "previous": null,
-        "hasNext": false,
-        "hasPrevious": false
-      },
-      "resultRows": [
-        {
-          "id": 930,
-          "code": "DOE",
-          "name": "Department of Energy",
-          "agency_id": 78,
-          "agency_abbreviation": "DOE",
-          "agency_name": "Department of Energy",
-          "agency_slug": "department-of-energy",
-          "subagency_slug": "department-of-energy",
-          "amount": -937.0,
-          "total_outlays": null
-        }
-      ],
-      "rejectionReason": "The only AI-named Assistance Listing found by autocomplete is not a NIST, ITA, BIS, or Commerce program."
-    },
-    "firstPrint": {
-      "status": "not_applicable_rejected",
-      "basis": "No stable structured series identity exists to register or witness."
-    },
-    "adapterDisposition": {
-      "family": "usaspending-api",
-      "disposition": "rejected",
-      "requiredWork": "Reconsider only if USAspending exposes an official structured NIST, ITA, or BIS AI-safety federal account, program activity, Assistance Listing, or equally stable classifier with a recurring annual observation population. Do not admit a keyword-defined series or relabel a whole-agency or broad-listing total."
-    },
-    "parseNotes": [
-      "Federal-account obligated_amount values are account-wide financial-account submission totals, not AI-safety subsets.",
-      "spending_over_time aggregated_amount is the signed sum of federal_action_obligation for the exact transaction filters.",
-      "The keywords filter searches mutable award text and is evidence for candidate discovery only, not an admissible series identity.",
-      "Assistance Listing 11.620 and account 013-0500 are broader than the requested concept; using either would invert the DHS precedent's narrow-scope rule.",
-      "The local environment presented a self-signed TLS interception chain, so the successful live calls used curl --insecure against the exact official https://api.usaspending.gov URLs; every recorded hash and byte length is for the returned HTTP 200 application/json body bytes.",
-      "No first-print or resolver work is proposed because the requested series identity was rejected."
+    "messages": [
+     "This endpoint is DEPRECATED. Please refer to the api contracts."
     ]
-  }
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+    "retrievedAtUtc": "2026-08-11T04:17:16Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "search_text": "Bureau of Industry and Security"
+    },
+    "responseSha256": "b0a4cec98bfcaaed38fc994c87856bfc5b82a18360b7fb1cb0387abc38ad09e1",
+    "responseByteLength": 93,
+    "resultRows": [],
+    "messages": [
+     "This endpoint is DEPRECATED. Please refer to the api contracts."
+    ]
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+    "retrievedAtUtc": "2026-08-11T04:17:16Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "search_text": "International Trade Administration"
+    },
+    "responseSha256": "13e857ac5a65803b4974c644ada234ae3cd51e8ec6f58f23ff33823209faaeb2",
+    "responseByteLength": 301,
+    "resultRows": [
+     {
+      "id": 201,
+      "toptier_flag": false,
+      "toptier_agency": {
+       "toptier_code": "013",
+       "abbreviation": "DOC",
+       "name": "Department of Commerce"
+      },
+      "subtier_agency": {
+       "abbreviation": "ITA",
+       "name": "International Trade Administration"
+      }
+     }
+    ],
+    "messages": [
+     "This endpoint is DEPRECATED. Please refer to the api contracts."
+    ]
+   }
+  ],
+  "assistanceListingSearchTrail": [
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:16:32Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "artificial intelligence"
+    },
+    "responseSha256": "af8044fa23833ec6072167a803d8cb1ee2ba31deaeb6935df1547fac1f973e2e",
+    "responseByteLength": 152,
+    "resultRows": [
+     {
+      "program_number": "81.012",
+      "program_title": "Artificial Intelligence and Technology Office Financial Assistance Program",
+      "popular_name": ""
+     }
+    ]
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:16:32Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "AI safety"
+    },
+    "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+    "responseByteLength": 14,
+    "resultRows": []
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:16:32Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "machine learning"
+    },
+    "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+    "responseByteLength": 14,
+    "resultRows": []
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:16:32Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "trustworthy artificial intelligence"
+    },
+    "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+    "responseByteLength": 14,
+    "resultRows": []
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:16:32Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "frontier"
+    },
+    "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+    "responseByteLength": 14,
+    "resultRows": []
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:16:32Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "National Institute of Standards and Technology"
+    },
+    "responseSha256": "daca5b7ed1bc9e9296a3b9caf7ca10bff7563dfa65943a98d9af4599d68d6c76",
+    "responseByteLength": 151,
+    "resultRows": [
+     {
+      "program_number": "11.618",
+      "program_title": "National Institute of Standards and Technology Construction Grant Program",
+      "popular_name": ""
+     }
+    ]
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:19:46Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "11.620"
+    },
+    "responseSha256": "3b4599129de509c762f21bed9830d69fdaacb1f77f01bcb40739499a09f1301d",
+    "responseByteLength": 133,
+    "resultRows": [
+     {
+      "program_number": "11.620",
+      "program_title": "Science, Technology, Business and/or Education Outreach",
+      "popular_name": ""
+     }
+    ]
+   },
+   {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+    "retrievedAtUtc": "2026-08-11T04:19:46Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "81.012"
+    },
+    "responseSha256": "af8044fa23833ec6072167a803d8cb1ee2ba31deaeb6935df1547fac1f973e2e",
+    "responseByteLength": 152,
+    "resultRows": [
+     {
+      "program_number": "81.012",
+      "program_title": "Artificial Intelligence and Technology Office Financial Assistance Program",
+      "popular_name": ""
+     }
+    ]
+   }
+  ],
+  "nistFy2025AssistanceListingBreakdown": {
+   "method": "POST",
+   "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/cfda/",
+   "retrievedAtUtc": "2026-08-11T04:17:32Z",
+   "httpStatus": 200,
+   "mediaType": "application/json",
+   "body": {
+    "category": "cfda",
+    "filters": {
+     "agencies": [
+      {
+       "name": "National Institute of Standards and Technology",
+       "tier": "subtier",
+       "toptier_name": "Department of Commerce",
+       "type": "awarding"
+      }
+     ],
+     "award_type_codes": [
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11"
+     ],
+     "time_period": [
+      {
+       "end_date": "2025-09-30",
+       "start_date": "2024-10-01"
+      }
+     ]
+    },
+    "limit": 100,
+    "page": 1,
+    "spending_level": "transactions"
+   },
+   "responseSha256": "bf28e91704c1b5cfbbaebe33eb85fda86f0298fb9f69157409760e721299e099",
+   "responseByteLength": 2358,
+   "page_metadata": {
+    "page": 1,
+    "next": null,
+    "previous": null,
+    "hasNext": false,
+    "hasPrevious": false
+   },
+   "resultRows": [
+    {
+     "id": 3348,
+     "code": "11.035",
+     "name": "Broadband Equity, Access, and Deployment Program",
+     "amount": 16936623108.2,
+     "total_outlays": null
+    },
+    {
+     "id": 3346,
+     "code": "11.032",
+     "name": "State Digital Equity Planning and Capacity Grant",
+     "amount": 707085936.03,
+     "total_outlays": null
+    },
+    {
+     "id": 3689,
+     "code": "11.038",
+     "name": "Public Wireless Supply Chain Innovation Fund Grant Program",
+     "amount": 409852406.47,
+     "total_outlays": null
+    },
+    {
+     "id": 351,
+     "code": "11.611",
+     "name": "Manufacturing Extension Partnership",
+     "amount": 111830237.58,
+     "total_outlays": null
+    },
+    {
+     "id": 355,
+     "code": "11.620",
+     "name": "Science, Technology, Business and/or Education Outreach",
+     "amount": 76275845.96,
+     "total_outlays": null
+    },
+    {
+     "id": 5470,
+     "code": "11.036",
+     "name": "Digital Equity Competitive Grant Program",
+     "amount": 52881724.08,
+     "total_outlays": null
+    },
+    {
+     "id": 349,
+     "code": "11.609",
+     "name": "Measurement and Engineering Research and Standards",
+     "amount": 38325015.01,
+     "total_outlays": null
+    },
+    {
+     "id": 354,
+     "code": "11.619",
+     "name": "Arrangements for Interdisciplinary Research Infrastructure",
+     "amount": 24186171.97,
+     "total_outlays": null
+    },
+    {
+     "id": 2365,
+     "code": "11.617",
+     "name": "Congressionally-Identified Projects",
+     "amount": 5398254.04,
+     "total_outlays": null
+    },
+    {
+     "id": 286,
+     "code": "11.016",
+     "name": "Statistical, Research, and Methodology  Assistance",
+     "amount": 208959.0,
+     "total_outlays": null
+    },
+    {
+     "id": 3242,
+     "code": "11.031",
+     "name": "Broadband Infrastructure Program",
+     "amount": 0.0,
+     "total_outlays": null
+    },
+    {
+     "id": 3229,
+     "code": "11.028",
+     "name": "Connecting Minority Communities Pilot Program",
+     "amount": -1106440.33,
+     "total_outlays": null
+    },
+    {
+     "id": 3347,
+     "code": "11.033",
+     "name": "Middle Mile (Broadband) Grant Program",
+     "amount": -25054092.63,
+     "total_outlays": null
+    },
+    {
+     "id": 3522,
+     "code": "11.037",
+     "name": "CHIPS Incentives Program",
+     "amount": -58751000.0,
+     "total_outlays": null
+    }
+   ],
+   "aiSpecificListingRows": []
+  },
+  "federalAccountCatalogSearch": {
+   "method": "GET",
+   "endpoint": "https://api.usaspending.gov/api/v2/agency/013/federal_account/?fiscal_year=2025&page=1&limit=100",
+   "retrievedAtUtc": "2026-08-11T04:15:40Z",
+   "httpStatus": 200,
+   "mediaType": "application/json",
+   "responseSha256": "684dec440c360b015fe9129bb191111b09195701c2bfbbc15d76ffdd717d03c8",
+   "responseByteLength": 45002,
+   "page_metadata": {
+    "page": 1,
+    "total": 52,
+    "limit": 100,
+    "next": null,
+    "previous": null,
+    "hasNext": false,
+    "hasPrevious": false
+   },
+   "accountNameSearchTerms": [
+    "artificial",
+    "intelligence",
+    "AI safety",
+    "AI security"
+   ],
+   "aiSpecificNameMatches": [],
+   "candidateRows": [
+    {
+     "code": "013-0500",
+     "name": "Scientific and Technical Research and Services, National Institute of Standards and Technology, Commerce",
+     "obligated_amount": 957608896.45,
+     "gross_outlay_amount": 1110262534.34
+    },
+    {
+     "code": "013-0525",
+     "name": "Industrial Technology Services, National Institute of Standards and Technology, Commerce",
+     "obligated_amount": 719469057.29,
+     "gross_outlay_amount": 300406064.19
+    },
+    {
+     "code": "013-1250",
+     "name": "Operations and Administration, International Trade Administration, Commerce",
+     "obligated_amount": 604950373.14,
+     "gross_outlay_amount": 608452672.92
+    },
+    {
+     "code": "013-4650",
+     "name": "Working Capital Fund, National Institute of Standards and Technology, Commerce",
+     "obligated_amount": 192244259.39,
+     "gross_outlay_amount": 170659002.5
+    },
+    {
+     "code": "013-0300",
+     "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+     "obligated_amount": 189165915.73,
+     "gross_outlay_amount": 215116548.27
+    },
+    {
+     "code": "013-0515",
+     "name": "Construction of Research Facilities, National Institute of Standards and Technology, Commerce",
+     "obligated_amount": 90310668.74,
+     "gross_outlay_amount": 262520462.55
+    },
+    {
+     "code": "013-0513",
+     "name": "Wireless Innovation(WIN) Fund, National Institute of Standards and Technology, Commerce",
+     "obligated_amount": 0.0,
+     "gross_outlay_amount": 3442135.72
+    }
+   ],
+   "completeRows": [
+    {
+     "code": "013-0520",
+     "name": "Creating Helpful Incentives to Produce Semiconductors (CHIPS) for America Fund, NIST, Commerce",
+     "children": [
+      {
+       "name": "Creating Helpful Incentives to Produce Semiconductors (CHIPS) for America Fund, NIST, Commerce",
+       "code": "013-X-0520-000",
+       "obligated_amount": 29988660462.46,
+       "gross_outlay_amount": 14642845558.95
+      }
+     ],
+     "obligated_amount": 29988660462.46,
+     "gross_outlay_amount": 14642845558.95
+    },
+    {
+     "code": "013-0562",
+     "name": "Broadband Equity, Access, and Deployment Program, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Broadband Equity, Access, and Deployment Program, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-0562-000",
+       "obligated_amount": 17000457882.31,
+       "gross_outlay_amount": 286906212.88
+      }
+     ],
+     "obligated_amount": 17000457882.31,
+     "gross_outlay_amount": 286906212.88
+    },
+    {
+     "code": "013-1450",
+     "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2025/2026-1450-000",
+       "obligated_amount": 4006144953.67,
+       "gross_outlay_amount": 2478856442.74
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2024/2025-1450-000",
+       "obligated_amount": 2574464186.16,
+       "gross_outlay_amount": 1583702060.63
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2022/2026-1450-000",
+       "obligated_amount": 1585787261.18,
+       "gross_outlay_amount": 376961488.74
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-1450-000",
+       "obligated_amount": 580318156.27,
+       "gross_outlay_amount": 626695554.42
+      },
+      {
+       "name": "Operations, Research, and Facilities, National Oceanic Atmospheric Administration, Commerce",
+       "code": "013-2025/2025-1450-000",
+       "obligated_amount": 37653646.07,
+       "gross_outlay_amount": 31061721.47
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2024/2026-1450-000",
+       "obligated_amount": 3638315.58,
+       "gross_outlay_amount": 1100293.15
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2025/2027-1450-000",
+       "obligated_amount": 409247.1,
+       "gross_outlay_amount": 166263.36
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2023/2025-1450-000",
+       "obligated_amount": 72400.0,
+       "gross_outlay_amount": 1117963.3
+      },
+      {
+       "name": "Operations, Research, and Facilities, National Oceanic Atmospheric Administration, Commerce",
+       "code": "013-2024/2024-1450-000",
+       "obligated_amount": 28663.92,
+       "gross_outlay_amount": 27664.7
+      },
+      {
+       "name": "Operations, Research, and Facilities, National Oceanic Atmospheric Administration, Commerce",
+       "code": "013-2021/2021-1450-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 1600.0
+      },
+      {
+       "name": "Operations, Research, and Facilities, National Oceanic Atmospheric Administration, Commerce",
+       "code": "013-2022/2022-1450-000",
+       "obligated_amount": -641.97,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2021/2023-1450-000",
+       "obligated_amount": -78419.16,
+       "gross_outlay_amount": 52105.21
+      },
+      {
+       "name": "Operations, Research, and Facilities, National Oceanic Atmospheric Administration, Commerce",
+       "code": "013-2023/2023-1450-000",
+       "obligated_amount": -182189.28,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2019/2021-1450-000",
+       "obligated_amount": -388048.42,
+       "gross_outlay_amount": 110507.62
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2022/2024-1450-000",
+       "obligated_amount": -693051.75,
+       "gross_outlay_amount": 39633.51
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2020/2023-1450-000",
+       "obligated_amount": -2985325.96,
+       "gross_outlay_amount": 529314.88
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2019/2020-1450-000",
+       "obligated_amount": -18944790.84,
+       "gross_outlay_amount": 25265611.99
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2020/2021-1450-000",
+       "obligated_amount": -34665214.36,
+       "gross_outlay_amount": 4181385.86
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2021/2022-1450-000",
+       "obligated_amount": -95876346.29,
+       "gross_outlay_amount": 58471163.96
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2022/2023-1450-000",
+       "obligated_amount": -450986517.42,
+       "gross_outlay_amount": 287876640.21
+      },
+      {
+       "name": "Operations, Research and Facilities, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2023/2024-1450-000",
+       "obligated_amount": -684785175.71,
+       "gross_outlay_amount": 534524274.31
+      }
+     ],
+     "obligated_amount": 7498931108.79,
+     "gross_outlay_amount": 6010741690.06
+    },
+    {
+     "code": "013-1006",
+     "name": "Salaries and Expenses, United States Patent and Trademark Office, Commerce",
+     "children": [
+      {
+       "name": "Salaries and Expenses, United States Patent and Trademark Office, Commerce",
+       "code": "013-X-1006-000",
+       "obligated_amount": 4334569989.01,
+       "gross_outlay_amount": 4358730293.81
+      }
+     ],
+     "obligated_amount": 4334569989.01,
+     "gross_outlay_amount": 4358730293.81
+    },
+    {
+     "code": "013-1460",
+     "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2024/2026-1460-000",
+       "obligated_amount": 1422617071.83,
+       "gross_outlay_amount": 653449051.39
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2025/2027-1460-000",
+       "obligated_amount": 1105524034.05,
+       "gross_outlay_amount": 311495213.41
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2022/2026-1460-000",
+       "obligated_amount": 504294190.68,
+       "gross_outlay_amount": 135821987.93
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-1460-000",
+       "obligated_amount": 389906433.89,
+       "gross_outlay_amount": 189149088.38
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2023/2024-1460-000",
+       "obligated_amount": 5061728.73,
+       "gross_outlay_amount": 378863.61
+      },
+      {
+       "name": "Procurement Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2024/2025-1460-000",
+       "obligated_amount": 1795564.3,
+       "gross_outlay_amount": 1015821.12
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2019/2020-1460-000",
+       "obligated_amount": -25822.14,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2020/2021-1460-000",
+       "obligated_amount": -26086.39,
+       "gross_outlay_amount": 1019.24
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2021/2022-1460-000",
+       "obligated_amount": -66233.91,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2019/2021-1460-000",
+       "obligated_amount": -8127160.03,
+       "gross_outlay_amount": 496245.09
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2018/2020-1460-000",
+       "obligated_amount": -16356324.43,
+       "gross_outlay_amount": 818030.23
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2020/2022-1460-000",
+       "obligated_amount": -75166342.2,
+       "gross_outlay_amount": 47572994.65
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2021/2023-1460-000",
+       "obligated_amount": -92667250.06,
+       "gross_outlay_amount": 51732839.69
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2022/2024-1460-000",
+       "obligated_amount": -263039772.05,
+       "gross_outlay_amount": 143982381.54
+      },
+      {
+       "name": "Procurement, Acquisition and Construction, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2023/2025-1460-000",
+       "obligated_amount": -357768957.54,
+       "gross_outlay_amount": 462400430.91
+      }
+     ],
+     "obligated_amount": 2615955074.73,
+     "gross_outlay_amount": 1998313967.19
+    },
+    {
+     "code": "013-4512",
+     "name": "Census Working Capital Fund, Bureau of the Census, Commerce",
+     "children": [
+      {
+       "name": "Census Working Capital Fund, Bureau of the Census, Commerce",
+       "code": "013-X-4512-000",
+       "obligated_amount": 1872142946.2,
+       "gross_outlay_amount": 1987318536.22
+      },
+      {
+       "name": "Census Working Capital Fund, Bureau of the Census, Commerce",
+       "code": "013-2020/2021-4512-000",
+       "obligated_amount": 7736.56,
+       "gross_outlay_amount": 23137740.44
+      },
+      {
+       "name": "Census Working Capital Fund, Bureau of the Census, Commerce",
+       "code": "013-2019/2021-4512-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 198777.8
+      }
+     ],
+     "obligated_amount": 1872150682.76,
+     "gross_outlay_amount": 2010655054.46
+    },
+    {
+     "code": "013-0450",
+     "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+     "children": [
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2025/2026-0450-000",
+       "obligated_amount": 960370100.48,
+       "gross_outlay_amount": 786598961.97
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2024/2025-0450-000",
+       "obligated_amount": 151617547.28,
+       "gross_outlay_amount": 404698813.92
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2023/2024-0450-000",
+       "obligated_amount": 8868724.4,
+       "gross_outlay_amount": 75790808.22
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2020/2021-0450-000",
+       "obligated_amount": 5932387.46,
+       "gross_outlay_amount": 194410.43
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2022/2023-0450-000",
+       "obligated_amount": 88565.85,
+       "gross_outlay_amount": 4483296.35
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2021/2022-0450-000",
+       "obligated_amount": 7981.54,
+       "gross_outlay_amount": 677711.11
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2019/2021-0450-000",
+       "obligated_amount": 634.82,
+       "gross_outlay_amount": 126198.51
+      },
+      {
+       "name": "Periodic Censuses and Programs, Bureau of the Census, Commerce",
+       "code": "013-2018/2020-0450-000",
+       "obligated_amount": 88.75,
+       "gross_outlay_amount": 0.0
+      }
+     ],
+     "obligated_amount": 1126886030.58,
+     "gross_outlay_amount": 1272570200.51
+    },
+    {
+     "code": "013-0500",
+     "name": "Scientific and Technical Research and Services, National Institute of Standards and Technology, Commerce",
+     "children": [
+      {
+       "name": "Scientific and Technical Research and Services, National Institute of Standards and Technology, Commerce",
+       "code": "013-X-0500-000",
+       "obligated_amount": 957608813.55,
+       "gross_outlay_amount": 1109093424.09
+      },
+      {
+       "name": "Scientific and Technical Research and Services, National Institute of Standards and Technology, Commerce",
+       "code": "013-2022/2023-0500-000",
+       "obligated_amount": 82.9,
+       "gross_outlay_amount": 1169110.25
+      }
+     ],
+     "obligated_amount": 957608896.45,
+     "gross_outlay_amount": 1110262534.34
+    },
+    {
+     "code": "013-0563",
+     "name": "Digital Equity, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Digital Equity, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-0563-000",
+       "obligated_amount": 783799783.16,
+       "gross_outlay_amount": 26845020.95
+      }
+     ],
+     "obligated_amount": 783799783.16,
+     "gross_outlay_amount": 26845020.95
+    },
+    {
+     "code": "013-0525",
+     "name": "Industrial Technology Services, National Institute of Standards and Technology, Commerce",
+     "children": [
+      {
+       "name": "Industrial Technology Services, National Institute of Standards and Technology, Commerce",
+       "code": "013-X-0525-000",
+       "obligated_amount": 719469057.29,
+       "gross_outlay_amount": 284636678.33
+      },
+      {
+       "name": "Industrial Technology Services, National Institute of Standards and Technology, Commerce",
+       "code": "013-2021/2022-0525-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 15769385.86
+      }
+     ],
+     "obligated_amount": 719469057.29,
+     "gross_outlay_amount": 300406064.19
+    },
+    {
+     "code": "013-1250",
+     "name": "Operations and Administration, International Trade Administration, Commerce",
+     "children": [
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2025/2025-1250-000",
+       "obligated_amount": 477191835.02,
+       "gross_outlay_amount": 406335971.46
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2025/2026-1250-000",
+       "obligated_amount": 73879015.33,
+       "gross_outlay_amount": 47470731.73
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-X-1250-000",
+       "obligated_amount": 29533177.24,
+       "gross_outlay_amount": 27628469.15
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2024/2025-1250-000",
+       "obligated_amount": 23201124.64,
+       "gross_outlay_amount": 29127142.01
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2024/2024-1250-000",
+       "obligated_amount": 647683.09,
+       "gross_outlay_amount": 69320298.91
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2023/2023-1250-000",
+       "obligated_amount": 209364.63,
+       "gross_outlay_amount": 8611156.16
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2022/2023-1250-000",
+       "obligated_amount": 136688.4,
+       "gross_outlay_amount": 1360737.59
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2023/2024-1250-000",
+       "obligated_amount": 72655.5,
+       "gross_outlay_amount": 15841455.22
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2021/2021-1250-000",
+       "obligated_amount": 45218.07,
+       "gross_outlay_amount": 318663.09
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2022/2022-1250-000",
+       "obligated_amount": 16204.44,
+       "gross_outlay_amount": 1156133.12
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2021/2022-1250-000",
+       "obligated_amount": 14178.33,
+       "gross_outlay_amount": 320571.13
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2020/2020-1250-000",
+       "obligated_amount": 2075.78,
+       "gross_outlay_amount": 113996.34
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2020/2021-1250-000",
+       "obligated_amount": 967.0,
+       "gross_outlay_amount": 2560.23
+      },
+      {
+       "name": "Operations and Administration, International Trade Administration, Commerce",
+       "code": "013-2019/2020-1250-000",
+       "obligated_amount": 185.67,
+       "gross_outlay_amount": 844786.78
+      }
+     ],
+     "obligated_amount": 604950373.14,
+     "gross_outlay_amount": 608452672.92
+    },
+    {
+     "code": "013-4421",
+     "name": "First Responder Network Authority, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "First Responder Network Authority, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2012/2027-4421-000",
+       "obligated_amount": 514745807.49,
+       "gross_outlay_amount": 725096471.07
+      }
+     ],
+     "obligated_amount": 514745807.49,
+     "gross_outlay_amount": 725096471.07
+    },
+    {
+     "code": "013-0565",
+     "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2023/2032-0565-000",
+       "obligated_amount": 295950188.67,
+       "gross_outlay_amount": 99162344.67
+      },
+      {
+       "name": "Public Wireless Supply Chain Innovation Fund, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2022/2031-0565-000",
+       "obligated_amount": 127295481.0,
+       "gross_outlay_amount": 38915439.18
+      }
+     ],
+     "obligated_amount": 423245669.67,
+     "gross_outlay_amount": 138077783.85
+    },
+    {
+     "code": "013-2050",
+     "name": "Economic Development Assistance Programs, Economic Development Administration, Commerce",
+     "children": [
+      {
+       "name": "Economic Development Assistance Programs, Economic Development Administration, Commerce",
+       "code": "013-X-2050-000",
+       "obligated_amount": 995324290.07,
+       "gross_outlay_amount": 496664825.58
+      },
+      {
+       "name": "Economic Development Assistance Programs, Economic Development Administration, Commerce",
+       "code": "013-2021/2027-2050-000",
+       "obligated_amount": -561508.91,
+       "gross_outlay_amount": 1867593.23
+      },
+      {
+       "name": "Economic Development Assistance Programs, Economic Development Administration, Commerce",
+       "code": "013-2020/2022-2050-000",
+       "obligated_amount": -122462233.7,
+       "gross_outlay_amount": 112453598.83
+      },
+      {
+       "name": "Economic Development Assistance Programs, Economic Development Administration, Commerce",
+       "code": "013-2021/2022-2050-000",
+       "obligated_amount": -487753889.89,
+       "gross_outlay_amount": 617311520.65
+      }
+     ],
+     "obligated_amount": 384546657.57,
+     "gross_outlay_amount": 1228297538.29
+    },
+    {
+     "code": "013-0560",
+     "name": "Broadband Connectivity Fund, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Broadband Connectivity Fund, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-0560-000",
+       "obligated_amount": 382352152.65,
+       "gross_outlay_amount": 374444758.63
+      }
+     ],
+     "obligated_amount": 382352152.65,
+     "gross_outlay_amount": 374444758.63
+    },
+    {
+     "code": "013-0401",
+     "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+     "children": [
+      {
+       "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+       "code": "013-2025/2025-0401-000",
+       "obligated_amount": 341994888.86,
+       "gross_outlay_amount": 321873420.37
+      },
+      {
+       "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+       "code": "013-2024/2024-0401-000",
+       "obligated_amount": 3329477.46,
+       "gross_outlay_amount": 40275141.38
+      },
+      {
+       "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+       "code": "013-2023/2023-0401-000",
+       "obligated_amount": 57958.36,
+       "gross_outlay_amount": 4091262.12
+      },
+      {
+       "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+       "code": "013-2021/2021-0401-000",
+       "obligated_amount": 1175.28,
+       "gross_outlay_amount": 1973.1
+      },
+      {
+       "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+       "code": "013-2022/2022-0401-000",
+       "obligated_amount": 630.18,
+       "gross_outlay_amount": 2435.23
+      },
+      {
+       "name": "Current Surveys and Programs, Bureau of the Census, Commerce",
+       "code": "013-2020/2020-0401-000",
+       "obligated_amount": 47.82,
+       "gross_outlay_amount": 103866.12
+      }
+     ],
+     "obligated_amount": 345384177.96,
+     "gross_outlay_amount": 366348098.32
+    },
+    {
+     "code": "013-2055",
+     "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-2055-000",
+       "obligated_amount": 342467775.12,
+       "gross_outlay_amount": 314840514.6
+      },
+      {
+       "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2025/2025-2055-000",
+       "obligated_amount": 294940.61,
+       "gross_outlay_amount": 128105.08
+      },
+      {
+       "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2024/2024-2055-000",
+       "obligated_amount": 156310.0,
+       "gross_outlay_amount": 111391.25
+      },
+      {
+       "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2023/2023-2055-000",
+       "obligated_amount": -278053.53,
+       "gross_outlay_amount": 12723.17
+      },
+      {
+       "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2020/2021-2055-000",
+       "obligated_amount": -949340.78,
+       "gross_outlay_amount": 306081.24
+      },
+      {
+       "name": "Fisheries Disaster Assistance, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-2021/2021-2055-000",
+       "obligated_amount": -9362946.04,
+       "gross_outlay_amount": 631942.41
+      }
+     ],
+     "obligated_amount": 332328685.38,
+     "gross_outlay_amount": 316030757.75
+    },
+    {
+     "code": "013-4511",
+     "name": "Working Capital Fund, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Working Capital Fund, Departmental Management, Commerce",
+       "code": "013-X-4511-000",
+       "obligated_amount": 292281691.69,
+       "gross_outlay_amount": 293753971.52
+      }
+     ],
+     "obligated_amount": 292281691.69,
+     "gross_outlay_amount": 293753971.52
+    },
+    {
+     "code": "013-0120",
+     "name": "Salaries and Expenses, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Salaries and Expenses, Departmental Management, Commerce",
+       "code": "013-2025/2025-0120-000",
+       "obligated_amount": 258827843.93,
+       "gross_outlay_amount": 216800083.54
+      },
+      {
+       "name": "Salaries and Expenses, Departmental Management, Commerce",
+       "code": "013-2024/2024-0120-000",
+       "obligated_amount": 1903431.82,
+       "gross_outlay_amount": 25646583.55
+      },
+      {
+       "name": "Salaries and Expenses, Departmental Management, Commerce",
+       "code": "013-2023/2023-0120-000",
+       "obligated_amount": 275468.83,
+       "gross_outlay_amount": 1519790.41
+      },
+      {
+       "name": "Salaries and Expenses, Departmental Management, Commerce",
+       "code": "013-2020/2020-0120-000",
+       "obligated_amount": 87232.34,
+       "gross_outlay_amount": 96645.17
+      },
+      {
+       "name": "Salaries and Expenses, Departmental Management, Commerce",
+       "code": "013-2021/2021-0120-000",
+       "obligated_amount": 75527.54,
+       "gross_outlay_amount": 27675.69
+      },
+      {
+       "name": "Salaries and Expenses, Departmental Management, Commerce",
+       "code": "013-2022/2022-0120-000",
+       "obligated_amount": 35704.44,
+       "gross_outlay_amount": 64228.32
+      }
+     ],
+     "obligated_amount": 261205208.9,
+     "gross_outlay_amount": 244155006.68
+    },
+    {
+     "code": "013-4650",
+     "name": "Working Capital Fund, National Institute of Standards and Technology, Commerce",
+     "children": [
+      {
+       "name": "Working Capital Fund, National Institute of Standards and Technology, Commerce",
+       "code": "013-X-4650-000",
+       "obligated_amount": 192244259.39,
+       "gross_outlay_amount": 170659002.5
+      }
+     ],
+     "obligated_amount": 192244259.39,
+     "gross_outlay_amount": 170659002.5
+    },
+    {
+     "code": "013-0300",
+     "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+     "children": [
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2025/2025-0300-000",
+       "obligated_amount": 112984653.01,
+       "gross_outlay_amount": 111072516.3
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-X-0300-000",
+       "obligated_amount": 56191129.32,
+       "gross_outlay_amount": 70955136.93
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2025/2026-0300-000",
+       "obligated_amount": 19100000.0,
+       "gross_outlay_amount": 18389816.03
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2024/2024-0300-000",
+       "obligated_amount": 3663408.46,
+       "gross_outlay_amount": 5964638.48
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2022/2022-0300-000",
+       "obligated_amount": -192175.39,
+       "gross_outlay_amount": 123027.63
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2022/2024-0300-000",
+       "obligated_amount": -718699.83,
+       "gross_outlay_amount": 3693309.9
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2023/2023-0300-000",
+       "obligated_amount": -921848.87,
+       "gross_outlay_amount": 4588197.4
+      },
+      {
+       "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+       "code": "013-2022/2025-0300-000",
+       "obligated_amount": -940550.97,
+       "gross_outlay_amount": 329905.6
+      }
+     ],
+     "obligated_amount": 189165915.73,
+     "gross_outlay_amount": 215116548.27
+    },
+    {
+     "code": "013-1451",
+     "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+     "children": [
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2025/2026-1451-000",
+       "obligated_amount": 96615401.36,
+       "gross_outlay_amount": 154870.05
+      },
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2024/2025-1451-000",
+       "obligated_amount": 92777608.78,
+       "gross_outlay_amount": 12216764.11
+      },
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2022/2026-1451-000",
+       "obligated_amount": 7092862.93,
+       "gross_outlay_amount": 1071361.27
+      },
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2023/2024-1451-000",
+       "obligated_amount": -8292738.98,
+       "gross_outlay_amount": 27266316.73
+      },
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2020/2021-1451-000",
+       "obligated_amount": -9017032.49,
+       "gross_outlay_amount": 17404023.93
+      },
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2021/2022-1451-000",
+       "obligated_amount": -12814057.39,
+       "gross_outlay_amount": 15060083.87
+      },
+      {
+       "name": "Expenses, Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2019/2020-1451-000",
+       "obligated_amount": -14110893.34,
+       "gross_outlay_amount": 562657.13
+      },
+      {
+       "name": "Pacific Coastal Salmon Recovery, National Oceanic and Atmospheric, Commerce",
+       "code": "013-2022/2023-1451-000",
+       "obligated_amount": -15663697.34,
+       "gross_outlay_amount": 28026821.01
+      }
+     ],
+     "obligated_amount": 136587453.53,
+     "gross_outlay_amount": 101762898.1
+    },
+    {
+     "code": "013-0550",
+     "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-0550-000",
+       "obligated_amount": 68418503.7,
+       "gross_outlay_amount": 60116169.9
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2025/2026-0550-000",
+       "obligated_amount": 37648303.64,
+       "gross_outlay_amount": 21736483.98
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2024/2025-0550-000",
+       "obligated_amount": 28126062.36,
+       "gross_outlay_amount": 51526818.22
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2022/2023-0550-000",
+       "obligated_amount": 256432.69,
+       "gross_outlay_amount": 757298.37
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2023/2024-0550-000",
+       "obligated_amount": 119917.99,
+       "gross_outlay_amount": 13656009.03
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2020/2021-0550-000",
+       "obligated_amount": 71533.37,
+       "gross_outlay_amount": 55139.85
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2021/2022-0550-000",
+       "obligated_amount": 264.06,
+       "gross_outlay_amount": 8718.41
+      },
+      {
+       "name": "Salaries and Expenses, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2019/2020-0550-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 0.0
+      }
+     ],
+     "obligated_amount": 134641017.81,
+     "gross_outlay_amount": 147856637.76
+    },
+    {
+     "code": "013-1500",
+     "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+     "children": [
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2025/2026-1500-000",
+       "obligated_amount": 125383358.52,
+       "gross_outlay_amount": 115049353.53
+      },
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2024/2025-1500-000",
+       "obligated_amount": 2057890.23,
+       "gross_outlay_amount": 6876774.69
+      },
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2021/2022-1500-000",
+       "obligated_amount": 572442.82,
+       "gross_outlay_amount": 435664.61
+      },
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2023/2024-1500-000",
+       "obligated_amount": 372129.65,
+       "gross_outlay_amount": 792932.09
+      },
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2022/2023-1500-000",
+       "obligated_amount": 310232.87,
+       "gross_outlay_amount": 2186.45
+      },
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2019/2020-1500-000",
+       "obligated_amount": 68940.43,
+       "gross_outlay_amount": 68940.43
+      },
+      {
+       "name": "Salaries and Expenses, Economic and Statistical Analysis, Commerce",
+       "code": "013-2020/2021-1500-000",
+       "obligated_amount": 198.64,
+       "gross_outlay_amount": 9999.07
+      }
+     ],
+     "obligated_amount": 128765193.16,
+     "gross_outlay_amount": 123235850.87
+    },
+    {
+     "code": "013-0133",
+     "name": "Nonrecurring Expenses Fund, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Nonrecurring Expenses Fund, Departmental Management, Commerce",
+       "code": "013-X-0133-000",
+       "obligated_amount": 112431409.88,
+       "gross_outlay_amount": 44349508.05
+      },
+      {
+       "name": "Nonrecurring Expenses Fund, Departmental Management, Commerce",
+       "code": "013-2023/2025-0133-000",
+       "obligated_amount": 22430.0,
+       "gross_outlay_amount": 21814205.33
+      },
+      {
+       "name": "Nonrecurring Expenses Fund, Departmental Management, Commerce",
+       "code": "013-2020/2022-0133-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Nonrecurring Expenses Fund, Departmental Management, Commerce",
+       "code": "013-2022/2024-0133-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 2430199.37
+      }
+     ],
+     "obligated_amount": 112453839.88,
+     "gross_outlay_amount": 68593912.75
+    },
+    {
+     "code": "013-0515",
+     "name": "Construction of Research Facilities, National Institute of Standards and Technology, Commerce",
+     "children": [
+      {
+       "name": "Construction of Research Facilities, National Institute of Standards and Technology, Commerce",
+       "code": "013-X-0515-000",
+       "obligated_amount": 90310668.74,
+       "gross_outlay_amount": 262520462.55
+      }
+     ],
+     "obligated_amount": 90310668.74,
+     "gross_outlay_amount": 262520462.55
+    },
+    {
+     "code": "013-4316",
+     "name": "Damage Assessment and Restoration Revolving Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Damage Assessment and Restoration Revolving Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-4316-000",
+       "obligated_amount": 76232101.23,
+       "gross_outlay_amount": 72468386.94
+      }
+     ],
+     "obligated_amount": 76232101.23,
+     "gross_outlay_amount": 72468386.94
+    },
+    {
+     "code": "013-0125",
+     "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+     "children": [
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2025/2025-0125-000",
+       "obligated_amount": 65191128.23,
+       "gross_outlay_amount": 58053146.4
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2024/2024-0125-000",
+       "obligated_amount": 7366760.9,
+       "gross_outlay_amount": 5578757.85
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2021/2021-0125-000",
+       "obligated_amount": 8983.2,
+       "gross_outlay_amount": 4477.43
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2020/2020-0125-000",
+       "obligated_amount": -415.48,
+       "gross_outlay_amount": 1277.83
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2020/2022-0125-000",
+       "obligated_amount": -53755.12,
+       "gross_outlay_amount": 1786.0
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2022/2022-0125-000",
+       "obligated_amount": -78726.97,
+       "gross_outlay_amount": 5477.73
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-X-0125-000",
+       "obligated_amount": -1335552.34,
+       "gross_outlay_amount": 7852933.25
+      },
+      {
+       "name": "Salaries and Expenses, Economic Development Administration, Commerce",
+       "code": "013-2023/2023-0125-000",
+       "obligated_amount": -3085208.81,
+       "gross_outlay_amount": 2407936.17
+      }
+     ],
+     "obligated_amount": 68013213.61,
+     "gross_outlay_amount": 73905792.66
+    },
+    {
+     "code": "013-0126",
+     "name": "Office of the Inspector General, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2025/2025-0126-000",
+       "obligated_amount": 50169008.04,
+       "gross_outlay_amount": 44046124.35
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-X-0126-000",
+       "obligated_amount": 9092634.12,
+       "gross_outlay_amount": 9301178.23
+      },
+      {
+       "name": "Office of Inspector General, Departmental Management, Commerce",
+       "code": "013-2023/2032-0126-000",
+       "obligated_amount": 971789.52,
+       "gross_outlay_amount": 966866.52
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2024/2024-0126-000",
+       "obligated_amount": 784986.42,
+       "gross_outlay_amount": 3982293.55
+      },
+      {
+       "name": "Office of Inspector General, Departmental Management, Commerce",
+       "code": "013-2022/2031-0126-000",
+       "obligated_amount": 619311.49,
+       "gross_outlay_amount": 620875.66
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2022/2022-0126-000",
+       "obligated_amount": 90999.49,
+       "gross_outlay_amount": 286.33
+      },
+      {
+       "name": "Office of Inspector General, Departmental Management, Commerce",
+       "code": "013-2018/2020-0126-000",
+       "obligated_amount": 78577.79,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2023/2023-0126-000",
+       "obligated_amount": 22133.34,
+       "gross_outlay_amount": 299354.65
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2022/2023-0126-000",
+       "obligated_amount": 19405.11,
+       "gross_outlay_amount": 198917.48
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2020/2020-0126-000",
+       "obligated_amount": 12264.46,
+       "gross_outlay_amount": 16036.46
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2022/2026-0126-000",
+       "obligated_amount": 9476.49,
+       "gross_outlay_amount": 7019.62
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2021/2021-0126-000",
+       "obligated_amount": 4904.71,
+       "gross_outlay_amount": 5123.21
+      },
+      {
+       "name": "Office of Inspector General, Departmental Management, Commerce",
+       "code": "013-2019/2021-0126-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "Office of the Inspector General, Departmental Management, Commerce",
+       "code": "013-2021/2022-0126-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 6647.73
+      }
+     ],
+     "obligated_amount": 61875490.98,
+     "gross_outlay_amount": 59450723.79
+    },
+    {
+     "code": "013-0564",
+     "name": "Middle Mile Deployment, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Middle Mile Deployment, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2022/2026-0564-000",
+       "obligated_amount": 44764482.55,
+       "gross_outlay_amount": 141755488.26
+      },
+      {
+       "name": "Middle Mile Deployment, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-0564-000",
+       "obligated_amount": 1213728.3,
+       "gross_outlay_amount": 2098911.54
+      }
+     ],
+     "obligated_amount": 45978210.85,
+     "gross_outlay_amount": 143854399.8
+    },
+    {
+     "code": "013-4295",
+     "name": "NTIS Revolving Fund, National Technical Information Service, Commerce",
+     "children": [
+      {
+       "name": "NTIS Revolving Fund, National Technical Information Service, Commerce",
+       "code": "013-X-4295-000",
+       "obligated_amount": 44985589.77,
+       "gross_outlay_amount": 52780740.36
+      }
+     ],
+     "obligated_amount": 44985589.77,
+     "gross_outlay_amount": 52780740.36
+    },
+    {
+     "code": "013-0201",
+     "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+     "children": [
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-2025/2025-0201-000",
+       "obligated_amount": 22071094.89,
+       "gross_outlay_amount": 16470135.48
+      },
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-2024/2024-0201-000",
+       "obligated_amount": 2097681.37,
+       "gross_outlay_amount": 23414558.32
+      },
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-X-0201-000",
+       "obligated_amount": 198698.46,
+       "gross_outlay_amount": 36807509.34
+      },
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-2020/2020-0201-000",
+       "obligated_amount": 36241.4,
+       "gross_outlay_amount": 26665.48
+      },
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-2023/2023-0201-000",
+       "obligated_amount": 3570.94,
+       "gross_outlay_amount": 4594193.78
+      },
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-2022/2022-0201-000",
+       "obligated_amount": 63.12,
+       "gross_outlay_amount": 1292751.19
+      },
+      {
+       "name": "Minority Business Development, Minority Business Development Agency, Commerce",
+       "code": "013-2021/2021-0201-000",
+       "obligated_amount": 9.88,
+       "gross_outlay_amount": 520927.11
+      }
+     ],
+     "obligated_amount": 24407360.06,
+     "gross_outlay_amount": 83126740.7
+    },
+    {
+     "code": "013-8470",
+     "name": "Seafood Inspection Program, National Oceanic and Atmospheric Administration",
+     "children": [
+      {
+       "name": "Seafood Inspection Program, National Oceanic and Atmospheric Administration",
+       "code": "013-X-8470-000",
+       "obligated_amount": 19432070.44,
+       "gross_outlay_amount": 17558784.3
+      }
+     ],
+     "obligated_amount": 19432070.44,
+     "gross_outlay_amount": 17558784.3
+    },
+    {
+     "code": "013-1455",
+     "name": "Gulf Coast Ecosystem Restoration Science, Observation, Monitoring and Technology, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Gulf Coast Ecosystem Restoration Science, Observation, Monitoring and Technology, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-1455-000",
+       "obligated_amount": 15044952.75,
+       "gross_outlay_amount": 9166998.69
+      }
+     ],
+     "obligated_amount": 15044952.75,
+     "gross_outlay_amount": 9166998.69
+    },
+    {
+     "code": "013-5284",
+     "name": "Limited Access System Administration Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Limited Access System Administration Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5284-000",
+       "obligated_amount": 11157212.86,
+       "gross_outlay_amount": 11646120.61
+      }
+     ],
+     "obligated_amount": 11157212.86,
+     "gross_outlay_amount": 11646120.61
+    },
+    {
+     "code": "013-5362",
+     "name": "Environmental Improvement and Restoration Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Environmental Improvement and Restoration Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5362-000",
+       "obligated_amount": 8689273.77,
+       "gross_outlay_amount": 6388473.94
+      }
+     ],
+     "obligated_amount": 8689273.77,
+     "gross_outlay_amount": 6388473.94
+    },
+    {
+     "code": "013-0123",
+     "name": "Renovation and Modernization, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Renovation and Modernization, Departmental Management, Commerce",
+       "code": "013-X-0123-000",
+       "obligated_amount": 7022378.43,
+       "gross_outlay_amount": 1027010.6
+      },
+      {
+       "name": "Renovation and Modernization, Departmental Management, Commerce",
+       "code": "013-2025/2025-0123-000",
+       "obligated_amount": 1084086.89,
+       "gross_outlay_amount": 982890.17
+      },
+      {
+       "name": "Renovation and Modernization, Departmental Management, Commerce",
+       "code": "013-2024/2024-0123-000",
+       "obligated_amount": 4641.84,
+       "gross_outlay_amount": 54043.37
+      }
+     ],
+     "obligated_amount": 8111107.16,
+     "gross_outlay_amount": 2063944.14
+    },
+    {
+     "code": "013-5598",
+     "name": "North Pacific Fishery Observer Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "North Pacific Fishery Observer Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5598-000",
+       "obligated_amount": 5088429.31,
+       "gross_outlay_amount": 4832563.91
+      }
+     ],
+     "obligated_amount": 5088429.31,
+     "gross_outlay_amount": 4832563.91
+    },
+    {
+     "code": "013-2047",
+     "name": "IT System Modernization and Working Capital Fund, NOAA, Commerce",
+     "children": [
+      {
+       "name": "IT System Modernization and Working Capital Fund, NOAA, Commerce",
+       "code": "013-X-2047-000",
+       "obligated_amount": 4833453.38,
+       "gross_outlay_amount": 1721984.25
+      }
+     ],
+     "obligated_amount": 4833453.38,
+     "gross_outlay_amount": 1721984.25
+    },
+    {
+     "code": "013-5583",
+     "name": "Fisheries Enforcement Asset Forfeiture Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Fisheries Enforcement Asset Forfeiture Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5583-000",
+       "obligated_amount": 3492516.84,
+       "gross_outlay_amount": 2384528.94
+      }
+     ],
+     "obligated_amount": 3492516.84,
+     "gross_outlay_amount": 2384528.94
+    },
+    {
+     "code": "013-0561",
+     "name": "Connecting Minority Communities Fund, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Connecting Minority Communities Fund, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-0561-000",
+       "obligated_amount": 2751050.29,
+       "gross_outlay_amount": 89268044.69
+      }
+     ],
+     "obligated_amount": 2751050.29,
+     "gross_outlay_amount": 89268044.69
+    },
+    {
+     "code": "013-1465",
+     "name": "NOAA Accrual Contribution to the Uniformed Services Retiree Health, Commerce",
+     "children": [
+      {
+       "name": "NOAA Accrual Contribution to the Uniformed Services Retiree Health, Commerce",
+       "code": "013-2025/2025-1465-000",
+       "obligated_amount": 2412000.0,
+       "gross_outlay_amount": 2412000.0
+      }
+     ],
+     "obligated_amount": 2412000.0,
+     "gross_outlay_amount": 2412000.0
+    },
+    {
+     "code": "013-5439",
+     "name": "Western Pacific Sustainable Fisheries Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Western Pacific Sustainable Fisheries Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5439-000",
+       "obligated_amount": 1567531.93,
+       "gross_outlay_amount": 76448.65
+      }
+     ],
+     "obligated_amount": 1567531.93,
+     "gross_outlay_amount": 76448.65
+    },
+    {
+     "code": "013-2056",
+     "name": "Facilities Management and Construction, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Facilities Management and Construction, National Telecommunications and Information Administration, Commerce",
+       "code": "013-X-2056-000",
+       "obligated_amount": 970356.56,
+       "gross_outlay_amount": 1058444.74
+      }
+     ],
+     "obligated_amount": 970356.56,
+     "gross_outlay_amount": 1058444.74
+    },
+    {
+     "code": "013-1456",
+     "name": "Fisheries Finance Program Account, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Fisheries Finance Program Account, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-1456-000",
+       "obligated_amount": 405295.33,
+       "gross_outlay_amount": 405295.33
+      }
+     ],
+     "obligated_amount": 405295.33,
+     "gross_outlay_amount": 405295.33
+    },
+    {
+     "code": "013-8501",
+     "name": "Gifts and Bequests, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Gifts and Bequests, Departmental Management, Commerce",
+       "code": "013-X-8501-000",
+       "obligated_amount": 359412.82,
+       "gross_outlay_amount": 351882.06
+      }
+     ],
+     "obligated_amount": 359412.82,
+     "gross_outlay_amount": 351882.06
+    },
+    {
+     "code": "013-0110",
+     "name": "Office of Inspector General - Recovery Act, Departmental Management, Commerce",
+     "children": [
+      {
+       "name": "Office of Inspector General - Recovery Act, Departmental Management, Commerce",
+       "code": "013-X-0110-000",
+       "obligated_amount": 5750.04,
+       "gross_outlay_amount": 6413.68
+      }
+     ],
+     "obligated_amount": 5750.04,
+     "gross_outlay_amount": 6413.68
+    },
+    {
+     "code": "013-0513",
+     "name": "Wireless Innovation(WIN) Fund, National Institute of Standards and Technology, Commerce",
+     "children": [
+      {
+       "name": "Wireless Innovation(WIN) Fund, National Institute of Standards and Technology, Commerce",
+       "code": "013-2012/2022-0513-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 3442135.72
+      }
+     ],
+     "obligated_amount": 0.0,
+     "gross_outlay_amount": 3442135.72
+    },
+    {
+     "code": "013-4358",
+     "name": "Network Construction Fund, Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Network Construction Fund, Telecommunications and Information Administration, Commerce",
+       "code": "013-2012/2022-4358-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 5147684.43
+      }
+     ],
+     "obligated_amount": 0.0,
+     "gross_outlay_amount": 5147684.43
+    },
+    {
+     "code": "013-8233",
+     "name": "Public Safety Trust Fund, National Telecommunications and Information Administration, Commerce",
+     "children": [
+      {
+       "name": "Public Safety Trust Fund, National Telecommunications and Information Administration, Commerce",
+       "code": "013-2012/2022-8233-000",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 7760.59
+      }
+     ],
+     "obligated_amount": 0.0,
+     "gross_outlay_amount": 7760.59
+    },
+    {
+     "code": "013-5584",
+     "name": "Sanctuaries Enforcement Asset Forfeiture Fund, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Sanctuaries Enforcement Asset Forfeiture Fund, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5584-000",
+       "obligated_amount": -200702.43,
+       "gross_outlay_amount": 60920.03
+      }
+     ],
+     "obligated_amount": -200702.43,
+     "gross_outlay_amount": 60920.03
+    },
+    {
+     "code": "013-5139",
+     "name": "Promote and Develop Fishery Products and Research Pertaining to American Fisheries, National Oceanic and Atmospheric Administration, Commerce",
+     "children": [
+      {
+       "name": "Promote and Develop Fishery Products and Research Pertaining to American Fisheries, National Oceanic and Atmospheric Administration, Commerce",
+       "code": "013-X-5139-000",
+       "obligated_amount": -3524619.17,
+       "gross_outlay_amount": 9296512.02
+      }
+     ],
+     "obligated_amount": -3524619.17,
+     "gross_outlay_amount": 9296512.02
+    }
+   ],
+   "completeRowsNote": "All 52 rows embedded 2026-08-11T13:08:31Z from a re-fetch of the identical endpoint whose response bytes hashed to the recorded responseSha256 exactly; the rows are therefore verbatim content of the originally recorded response."
+  },
+  "programActivityCatalogSearch": [
+   {
+    "method": "GET",
+    "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0500/program_activities/?fiscal_year=2025&page=1&limit=100",
+    "retrievedAtUtc": "2026-08-11T04:15:58Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "responseSha256": "f3d3d7db4802cecdc3370583773004ab22904ceb0e1418840bc09b56cdde902a",
+    "responseByteLength": 976,
+    "page_metadata": {
+     "page": 1,
+     "total": 11,
+     "limit": 100,
+     "next": null,
+     "previous": null,
+     "hasNext": false,
+     "hasPrevious": false
+    },
+    "resultRows": [
+     {
+      "code": "EX202600313650",
+      "name": "STRS LABORATORY PROGRAMS",
+      "type": "PARK"
+     },
+     {
+      "code": "EX202600313426",
+      "name": "NIST CARRYOVER (SUMMARIZED) BALANCES",
+      "type": "PARK"
+     },
+     {
+      "code": "6081W4QKXDJ",
+      "name": "CHIPS",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC2FFJJAZ9",
+      "name": "CORPORATE SERVICES",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC2FFJJAYD",
+      "name": "LABORATORY PROGRAMS",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC2FFJJAR7",
+      "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
+      "type": "PARK"
+     },
+     {
+      "code": "0301",
+      "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0201",
+      "name": "CORPORATE SERVICES",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0005",
+      "name": "CREATING HELPFUL INCENTIVES TO PRODUCE SEMICONDUCTORS (CHIPS) SCIENTIFIC AND TECHNICAL RESEARCH AND SERVICES",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0001",
+      "name": "LABORATORY PROGRAMS",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0000",
+      "name": "UNKNOWN/OTHER",
+      "type": "PAC/PAN"
+     }
+    ],
+    "aiSpecificNameMatches": []
+   },
+   {
+    "method": "GET",
+    "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0300/program_activities/?fiscal_year=2025&page=1&limit=100",
+    "retrievedAtUtc": "2026-08-11T04:16:49Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "responseSha256": "e67e3d5f7fd18df20f824615dd53e01b1653046fd6e9d3af620b6a9cbc300901",
+    "responseByteLength": 905,
+    "page_metadata": {
+     "page": 1,
+     "total": 11,
+     "limit": 100,
+     "next": null,
+     "previous": null,
+     "hasNext": false,
+     "hasPrevious": false
+    },
+    "resultRows": [
+     {
+      "code": "5ZC1X8UZUKX",
+      "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1X8UZTVH",
+      "name": "EXPORT ENFORCEMENT",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1X8UZTVG",
+      "name": "EXPORT ADMINISTRATION",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1X8UZTVF",
+      "name": "MANAGEMENT AND POLICY COORDINATION",
+      "type": "PARK"
+     },
+     {
+      "code": "0801",
+      "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0201",
+      "name": "EXPORT ADMINISTRATION",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0003",
+      "name": "EXPORT ENFORCEMENT",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0002",
+      "name": "EXPORT ADMINISTRATION",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0001",
+      "name": "MANAGEMENT AND POLICY COORDINATION",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0000",
+      "name": "NO PROGRAM APPLICABLE",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0000",
+      "name": "UNKNOWN/OTHER",
+      "type": "PAC/PAN"
+     }
+    ],
+    "aiSpecificNameMatches": []
+   },
+   {
+    "method": "GET",
+    "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-1250/program_activities/?fiscal_year=2025&page=1&limit=100",
+    "retrievedAtUtc": "2026-08-11T04:16:49Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "responseSha256": "40eed8fa1b152b711e3a5c78826719947c75028bb1f4da290c84b63b3375a77b",
+    "responseByteLength": 1202,
+    "page_metadata": {
+     "page": 1,
+     "total": 15,
+     "limit": 100,
+     "next": null,
+     "previous": null,
+     "hasNext": false,
+     "hasPrevious": false
+    },
+    "resultRows": [
+     {
+      "code": "5ZC1U2W8F13",
+      "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1U2W8EBZ",
+      "name": "INDUSTRY AND ANALYSIS",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1U2W8EBR",
+      "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1U2W8EBQ",
+      "name": "GLOBAL MARKETS",
+      "type": "PARK"
+     },
+     {
+      "code": "5ZC1U2W8EBP",
+      "name": "ENFORCEMENT AND COMPLIANCE",
+      "type": "PARK"
+     },
+     {
+      "code": "0801",
+      "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0009",
+      "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0008",
+      "name": "GLOBAL MARKETS",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0007",
+      "name": "ENFORCEMENT AND COMPLIANCE",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0006",
+      "name": "INDUSTRY AND ANALYSIS",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0004",
+      "name": "U.S. AND FOREIGN COMMERCIAL SERVICES",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0003",
+      "name": "IMPORT ADMINISTRATION",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0002",
+      "name": "MARKET ACCESS AND COMPLIANCE",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0001",
+      "name": "MANUFACTURING AND SERVICES",
+      "type": "PAC/PAN"
+     },
+     {
+      "code": "0000",
+      "name": "UNKNOWN/OTHER",
+      "type": "PAC/PAN"
+     }
+    ],
+    "aiSpecificNameMatches": []
+   }
+  ],
+  "commerceFy2025ProgramActivityCatalogSearch": {
+   "nameSearchTerms": [
+    "artificial intelligence",
+    "AI safety",
+    "AI security",
+    "machine learning",
+    "trustworthy",
+    "frontier",
+    "emerging technology",
+    "critical and emerging"
+   ],
+   "pages": [
+    {
+     "method": "GET",
+     "endpoint": "https://api.usaspending.gov/api/v2/agency/013/program_activity/?fiscal_year=2025&page=1&limit=100",
+     "retrievedAtUtc": "2026-08-11T04:28:17Z",
+     "httpStatus": 200,
+     "mediaType": "application/json",
+     "responseSha256": "236d2a469e6220967b28d2acc8952efeadff964e054f80a779c3c0dde3e9d47e",
+     "responseByteLength": 11136,
+     "page_metadata": {
+      "page": 1,
+      "total": 122,
+      "limit": 100,
+      "next": 2,
+      "previous": null,
+      "hasNext": true,
+      "hasPrevious": false
+     },
+     "aiSpecificNameMatches": [],
+     "completeRows": [
+      {
+       "name": "CREATING HELPFUL INCENTIVES TO PRODUCE SEMICONDUCTORS (CHIPS)",
+       "obligated_amount": 27696792213.4,
+       "gross_outlay_amount": 12348998772.76
+      },
+      {
+       "name": "BROADBAND EQUITY, ACCESS, AND DEPLOYMENT GRANTS",
+       "obligated_amount": 17000457882.31,
+       "gross_outlay_amount": 286346099.23
+      },
+      {
+       "name": "PATENTS",
+       "obligated_amount": 3796718248.11,
+       "gross_outlay_amount": 3817880640.24
+      },
+      {
+       "name": "UNKNOWN/OTHER",
+       "obligated_amount": 3298660799.37,
+       "gross_outlay_amount": 3513014724.49
+      },
+      {
+       "name": "NATIONAL MARINE FISHERIES SERVICE",
+       "obligated_amount": 2421568968.57,
+       "gross_outlay_amount": 1760973811.74
+      },
+      {
+       "name": "NATIONAL OCEAN SERVICE",
+       "obligated_amount": 1903786053.05,
+       "gross_outlay_amount": 1194098011.97
+      },
+      {
+       "name": "NAT'L ENVRNMNTL SATLLTE, DATA & INFO SVC",
+       "obligated_amount": 1717617105.04,
+       "gross_outlay_amount": 906501722.33
+      },
+      {
+       "name": "NATIONAL WEATHER SERVICE",
+       "obligated_amount": 1530905947.84,
+       "gross_outlay_amount": 1403681104.29
+      },
+      {
+       "name": "NATIONAL ENVIRONMENTAL SATELLITE, DATA AND INFORMATION SERVICE",
+       "obligated_amount": 941079180.56,
+       "gross_outlay_amount": 140524732.32
+      },
+      {
+       "name": "DIGITAL EQUITY GRANTS",
+       "obligated_amount": 783799783.16,
+       "gross_outlay_amount": 26652697.26
+      },
+      {
+       "name": "LABORATORY PROGRAMS",
+       "obligated_amount": 750781218.98,
+       "gross_outlay_amount": 761673004.15
+      },
+      {
+       "name": "OCEANIC & ATMOSPHERIC RESEARCH",
+       "obligated_amount": 639088365.95,
+       "gross_outlay_amount": 241973323.23
+      },
+      {
+       "name": "MISSION SUPPORT",
+       "obligated_amount": 624480033.92,
+       "gross_outlay_amount": 492438292.2
+      },
+      {
+       "name": "DECENNIAL CENSUS",
+       "obligated_amount": 613765284.25,
+       "gross_outlay_amount": 609477339.38
+      },
+      {
+       "name": "CREATING HELPFUL INCENTIVES TO PRODUCE SEMICONDUCTORS (CHIPS) INDUSTRIAL TECHNOLOGY SERVICES",
+       "obligated_amount": 549882838.91,
+       "gross_outlay_amount": 81605445.49
+      },
+      {
+       "name": "TRADEMARKS",
+       "obligated_amount": 537851740.9,
+       "gross_outlay_amount": 540849653.57
+      },
+      {
+       "name": "MANAGEMENT, ADMINISTRATION, AND IT INFRASTRUCTURE",
+       "obligated_amount": 502515651.32,
+       "gross_outlay_amount": 560139165.81
+      },
+      {
+       "name": "FIRST RESPONDER NETWORK AUTHORITY",
+       "obligated_amount": 426851259.92,
+       "gross_outlay_amount": 638389053.16
+      },
+      {
+       "name": "OMAO",
+       "obligated_amount": 423080684.92,
+       "gross_outlay_amount": 225500245.88
+      },
+      {
+       "name": "OFFICE OF MARINE AND AVIATION OPERATIONS",
+       "obligated_amount": 422317622.57,
+       "gross_outlay_amount": 282402141.01
+      },
+      {
+       "name": "PUBLIC WIRELESS SUPPLY CHAIN INNOVATION FUND- GRANTS",
+       "obligated_amount": 409852406.47,
+       "gross_outlay_amount": 124894170.12
+      },
+      {
+       "name": "OPERATIONS AND ADMINISTRATION",
+       "obligated_amount": 386754636.98,
+       "gross_outlay_amount": 380265292.53
+      },
+      {
+       "name": "TRIBAL BROADBAND CONNECTIVITY",
+       "obligated_amount": 380589942.36,
+       "gross_outlay_amount": 154218156.83
+      },
+      {
+       "name": "OCEANIC AND ATMOSPHERIC RESEARCH",
+       "obligated_amount": 357754929.24,
+       "gross_outlay_amount": 672708547.6
+      },
+      {
+       "name": "OTHER PROGRAMS",
+       "obligated_amount": 341009281.86,
+       "gross_outlay_amount": 343539449.43
+      },
+      {
+       "name": "REGIONAL TECHNOLOGY AND INNOVATION HUB PROGRAM (P.L. 117-328 DIVISION N)",
+       "obligated_amount": 336666617.9,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "2023 DISASTER SUPPLEMENTAL (P.L. 117-328 DIVISION N)",
+       "obligated_amount": 326487687.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "GLOBAL MARKETS",
+       "obligated_amount": 324471685.07,
+       "gross_outlay_amount": 314179464.57
+      },
+      {
+       "name": "CONSTRUCTION OF RESEARCH FACILITIES (DIRECT)",
+       "obligated_amount": 268208784.77,
+       "gross_outlay_amount": 434398808.95
+      },
+      {
+       "name": "NWSS",
+       "obligated_amount": 252377192.1,
+       "gross_outlay_amount": 225449264.57
+      },
+      {
+       "name": "CURRENT ECONOMIC STATISTICS",
+       "obligated_amount": 216302833.11,
+       "gross_outlay_amount": 214784831.58
+      },
+      {
+       "name": "ENTERPRISE DATA COLLECTION AND DISSEMINATION SYSTEMS",
+       "obligated_amount": 177052388.13,
+       "gross_outlay_amount": 178679760.07
+      },
+      {
+       "name": "SALARIES AND EXPENSES (REIMBURSABLE)",
+       "obligated_amount": 166645587.12,
+       "gross_outlay_amount": 155596236.29
+      },
+      {
+       "name": "PERIODIC ECONOMIC STATISTICS PROGRAMS",
+       "obligated_amount": 149342101.44,
+       "gross_outlay_amount": 165220796.65
+      },
+      {
+       "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
+       "obligated_amount": 147013686.68,
+       "gross_outlay_amount": 154323471.17
+      },
+      {
+       "name": "RECOMPETE PILOT PROGRAM (P.L. 117-328 DIVISION N)",
+       "obligated_amount": 143421026.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "HOLLINGS MANUFACTURING EXTENSION PARTNERSHIP",
+       "obligated_amount": 134531371.09,
+       "gross_outlay_amount": 179379228.0
+      },
+      {
+       "name": "BUREAU OF ECONOMIC ANALYSIS",
+       "obligated_amount": 126825966.1,
+       "gross_outlay_amount": 122722239.99
+      },
+      {
+       "name": "ENFORCEMENT AND COMPLIANCE",
+       "obligated_amount": 121392713.99,
+       "gross_outlay_amount": 124627737.59
+      },
+      {
+       "name": "CREATING HELPFUL INCENTIVES TO PRODUCE SEMICONDUCTORS (CHIPS) SCIENTIFIC AND TECHNICAL RESEARCH AND SERVICES",
+       "obligated_amount": 113687970.12,
+       "gross_outlay_amount": 141084633.26
+      },
+      {
+       "name": "NON-RECURRING EXPENSES FUND",
+       "obligated_amount": 112731399.38,
+       "gross_outlay_amount": 68618162.75
+      },
+      {
+       "name": "GEOGRAPHIC SUPPORT",
+       "obligated_amount": 110917483.12,
+       "gross_outlay_amount": 116842897.45
+      },
+      {
+       "name": "CURRENT DEMOGRAPHIC STATISTICS",
+       "obligated_amount": 108556606.12,
+       "gross_outlay_amount": 111881684.19
+      },
+      {
+       "name": "ECONOMIC ADJUSTMENT",
+       "obligated_amount": 108051478.24,
+       "gross_outlay_amount": 39343048.8
+      },
+      {
+       "name": "REGIONAL TECHNOLOGY INNOVATION HUBS",
+       "obligated_amount": 107785756.55,
+       "gross_outlay_amount": 23234114.52
+      },
+      {
+       "name": "EXPORT ENFORCEMENT",
+       "obligated_amount": 93597689.93,
+       "gross_outlay_amount": 94643246.31
+      },
+      {
+       "name": "INDUSTRY AND ANALYSIS",
+       "obligated_amount": 86548681.6,
+       "gross_outlay_amount": 89383469.98
+      },
+      {
+       "name": "COST COLLECTION",
+       "obligated_amount": 84636807.22,
+       "gross_outlay_amount": 84006646.32
+      },
+      {
+       "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
+       "obligated_amount": 84283065.34,
+       "gross_outlay_amount": 193605394.6
+      },
+      {
+       "name": "DAMAGE ASSESSMENT AND RESTORATION REVOLVING FUND (REIMBURSABLE)",
+       "obligated_amount": 76232101.23,
+       "gross_outlay_amount": 72468386.94
+      },
+      {
+       "name": "SALARIES AND EXPENSES (DIRECT)",
+       "obligated_amount": 70283373.67,
+       "gross_outlay_amount": 67547140.58
+      },
+      {
+       "name": "SPECTRUM MANAGEMENT",
+       "obligated_amount": 67383887.94,
+       "gross_outlay_amount": 62646310.8
+      },
+      {
+       "name": "NOAA WIDE SUPPORT SERVICES",
+       "obligated_amount": 61317720.34,
+       "gross_outlay_amount": 96157320.05
+      },
+      {
+       "name": "OFFICE OF THE INSPECTOR GENERAL (DIRECT)",
+       "obligated_amount": 59468285.17,
+       "gross_outlay_amount": 55110937.02
+      },
+      {
+       "name": "MANAGEMENT AND POLICY COORDINATION",
+       "obligated_amount": 55236629.52,
+       "gross_outlay_amount": 70409298.38
+      },
+      {
+       "name": "ASSISTANCE TO COAL COMMUNITIES",
+       "obligated_amount": 53216437.95,
+       "gross_outlay_amount": 34654683.05
+      },
+      {
+       "name": "NTIS REVOLVING FUND (REIMBURSABLE)",
+       "obligated_amount": 52513966.3,
+       "gross_outlay_amount": 52573386.36
+      },
+      {
+       "name": "MIDDLE MILE DEPLOYMENT",
+       "obligated_amount": 42239794.23,
+       "gross_outlay_amount": 140795277.82
+      },
+      {
+       "name": "EXPORT ADMINISTRATION",
+       "obligated_amount": 38842359.76,
+       "gross_outlay_amount": 47119502.7
+      },
+      {
+       "name": "PLANNING",
+       "obligated_amount": 36295889.73,
+       "gross_outlay_amount": 30770172.92
+      },
+      {
+       "name": "MANUFACTURING USA",
+       "obligated_amount": 35678719.73,
+       "gross_outlay_amount": 42165241.21
+      },
+      {
+       "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+       "obligated_amount": 32023972.85,
+       "gross_outlay_amount": 32679914.96
+      },
+      {
+       "name": "PUBLIC WORKS",
+       "obligated_amount": 28268345.91,
+       "gross_outlay_amount": 95684412.92
+      },
+      {
+       "name": "GOOD JOBS CHALLENGE",
+       "obligated_amount": 25000000.0,
+       "gross_outlay_amount": 90369.75
+      },
+      {
+       "name": "BUSINESS DEVELOPMENT",
+       "obligated_amount": 24208661.6,
+       "gross_outlay_amount": 82740377.39
+      },
+      {
+       "name": "CORPORATE SERVICES",
+       "obligated_amount": 20158024.89,
+       "gross_outlay_amount": 21663817.77
+      },
+      {
+       "name": "STATE CHILDREN'S HEALTH INSURANCE PROGRAM",
+       "obligated_amount": 18860000.0,
+       "gross_outlay_amount": 18860000.0
+      },
+      {
+       "name": "OFFICE OF ATMOSPHERIC RESEARCH",
+       "obligated_amount": 17711068.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "VARIOUS ACCOUNTING",
+       "obligated_amount": 14431583.43,
+       "gross_outlay_amount": -38838575.86
+      },
+      {
+       "name": "DOMESTIC AND INTERNATIONAL POLICY",
+       "obligated_amount": 14254275.75,
+       "gross_outlay_amount": 14644969.65
+      },
+      {
+       "name": "PUBLIC WIRELESS SUPPLY CHAIN INNOVATION FUND - ADMIN",
+       "obligated_amount": 13391039.9,
+       "gross_outlay_amount": 12995364.16
+      },
+      {
+       "name": "ADVANCED COMMUNICATION RESEARCH",
+       "obligated_amount": 12487306.13,
+       "gross_outlay_amount": 13547825.7
+      },
+      {
+       "name": "BROADBAND PROGRAMS",
+       "obligated_amount": 11579954.0,
+       "gross_outlay_amount": 17693749.67
+      },
+      {
+       "name": "TELECOMMUNICATION SCIENCES RESEARCH",
+       "obligated_amount": 11110833.92,
+       "gross_outlay_amount": 10468881.56
+      },
+      {
+       "name": "LIMITED ACCESS SYSTEM ADMINISTRATION FUND (DIRECT)",
+       "obligated_amount": 11021015.83,
+       "gross_outlay_amount": 11514910.9
+      },
+      {
+       "name": "ECONOMIC PROGRAMS",
+       "obligated_amount": 10129818.36,
+       "gross_outlay_amount": 8194092.21
+      },
+      {
+       "name": "SPECTRUM RELOCATION PROGRAM",
+       "obligated_amount": 9400309.87,
+       "gross_outlay_amount": 19749340.86
+      },
+      {
+       "name": "NORTH PACIFIC RESEARCH BOARD",
+       "obligated_amount": 8689273.77,
+       "gross_outlay_amount": 6388473.94
+      },
+      {
+       "name": "PROGRAM SUPPORT",
+       "obligated_amount": 8504901.18,
+       "gross_outlay_amount": 15301461.24
+      },
+      {
+       "name": "ECONOMIC DEVELOPMENT ASSISTANCE PROGRAM",
+       "obligated_amount": 8483912.31,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "HCHB RENOVATION AND MODERNIZATION (DIRECT)",
+       "obligated_amount": 8111107.16,
+       "gross_outlay_amount": 1992568.14
+      },
+      {
+       "name": "TRADE ADJUSTMENT ASSISTANCE",
+       "obligated_amount": 6133331.08,
+       "gross_outlay_amount": 9685751.16
+      },
+      {
+       "name": "NORTH PACIFIC FISHERY OBSERVER FUND",
+       "obligated_amount": 5088429.31,
+       "gross_outlay_amount": 4832563.91
+      },
+      {
+       "name": "SALARIES AND EXPENSES (DIRECT)-0001",
+       "obligated_amount": 4308646.93,
+       "gross_outlay_amount": 4060764.7
+      },
+      {
+       "name": "MIDDLE MILE DEPLOYMENT GRANTS",
+       "obligated_amount": 3738416.62,
+       "gross_outlay_amount": 3035423.24
+      },
+      {
+       "name": "FISHERIES ENFORCEMENT ASSET FORFEITURE FUND (DIRECT)",
+       "obligated_amount": 3492516.84,
+       "gross_outlay_amount": 2384528.94
+      },
+      {
+       "name": "TECHNICAL ASSISTANCE",
+       "obligated_amount": 3050705.71,
+       "gross_outlay_amount": 12774331.51
+      },
+      {
+       "name": "PUBLIC SAFETY",
+       "obligated_amount": 2806958.45,
+       "gross_outlay_amount": 3050490.78
+      },
+      {
+       "name": "MINORITY BROADBAND INITIATIVE",
+       "obligated_amount": 2753855.29,
+       "gross_outlay_amount": 2304887.25
+      },
+      {
+       "name": "SPECTRUM PIPELINE",
+       "obligated_amount": 2507929.91,
+       "gross_outlay_amount": 288033.35
+      },
+      {
+       "name": "MEDICARE-ELIGIBLE RETIREE HEALTH FUND CONTRIBUTION, NOAA (DIRECT)",
+       "obligated_amount": 2412000.0,
+       "gross_outlay_amount": 2412000.0
+      },
+      {
+       "name": "OFFICE OF THE INSPECTOR GENERAL (REIMBURSABLE)",
+       "obligated_amount": 2293231.44,
+       "gross_outlay_amount": 2380381.38
+      },
+      {
+       "name": "BROADBAND INFRASTRUCTURE PROGRAM",
+       "obligated_amount": 1752210.29,
+       "gross_outlay_amount": 54554355.25
+      },
+      {
+       "name": "CONSTRUCTION OF RESEARCH FACILITIES (REIMBURSABLE)",
+       "obligated_amount": 1376278.6,
+       "gross_outlay_amount": 1436946.17
+      },
+      {
+       "name": "OCEANIC AND ATMOSPHERIC RESEARCHATMOSPHERIC RESEARCH - IIJA (P.L. 117-58)",
+       "obligated_amount": 1140429.98,
+       "gross_outlay_amount": 54483.25
+      },
+      {
+       "name": "MISSION SUPPORT OFFICE",
+       "obligated_amount": 409247.1,
+       "gross_outlay_amount": 155264.1
+      },
+      {
+       "name": "SECTION 40003 - NOAA EFFICIENT & EFFECTIVE REVIEWS",
+       "obligated_amount": 404503.43,
+       "gross_outlay_amount": 402150.23
+      },
+      {
+       "name": "MBDA CAPITAL READINESS PROGRAM - S&E GRANTS",
+       "obligated_amount": 198698.46,
+       "gross_outlay_amount": 206447.29
+      },
+      {
+       "name": "BALDRIGE PERFORMANCE EXCELLENCE PROGRAM",
+       "obligated_amount": 168863.98,
+       "gross_outlay_amount": 345451.67
+      },
+      {
+       "name": "GIFTS AND BEQUESTS (DIRECT)",
+       "obligated_amount": 120586.27,
+       "gross_outlay_amount": 139014.74
+      }
+     ],
+     "completeRowsNote": "All 100 rows embedded 2026-08-11T13:08:31Z from a re-fetch whose response bytes hashed to the recorded responseSha256 exactly."
+    },
+    {
+     "method": "GET",
+     "endpoint": "https://api.usaspending.gov/api/v2/agency/013/program_activity/?fiscal_year=2025&page=2&limit=100",
+     "retrievedAtUtc": "2026-08-11T04:28:17Z",
+     "httpStatus": 200,
+     "mediaType": "application/json",
+     "responseSha256": "0134edc88c99c702c730c929ec6659ee8b19474f3196e7aa596d4812d30730a0",
+     "responseByteLength": 2554,
+     "page_metadata": {
+      "page": 2,
+      "total": 122,
+      "limit": 100,
+      "next": null,
+      "previous": 1,
+      "hasNext": false,
+      "hasPrevious": true
+     },
+     "aiSpecificNameMatches": [],
+     "completeRows": [
+      {
+       "name": "IT MODERNIZATION & FACILITIES INFRASTRUCTURE IMPROVEMENT",
+       "obligated_amount": 7736.56,
+       "gross_outlay_amount": 23336518.24
+      },
+      {
+       "name": "PUBLIC SAFETY COMMUNICATIONS RESEARCH FUND (REIMBURSABLE)",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 3442135.72
+      },
+      {
+       "name": "FIRSTNET ADMINISTRATIVE",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 7760.59
+      },
+      {
+       "name": "FIRSTNET",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 5147684.43
+      },
+      {
+       "name": "TRIBAL BROADBAND CONNECTIVITY GRANTS",
+       "obligated_amount": 0.0,
+       "gross_outlay_amount": 165416115.01
+      },
+      {
+       "name": "2008 DISASTER SUPPLEMENTAL",
+       "obligated_amount": -2495.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "MINORITY BROADBAND INITIATIVE GRANTS",
+       "obligated_amount": -2805.0,
+       "gross_outlay_amount": 86961909.75
+      },
+      {
+       "name": "SUPPLEMENTAL APPROPRIATIONS ACT 2010 FLOODS",
+       "obligated_amount": -60684.09,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "NO PROGRAM APPLICABLE",
+       "obligated_amount": -329585.92,
+       "gross_outlay_amount": 444751.3
+      },
+      {
+       "name": "CONSOLIDATED AND FURTHER CONTINUING APPROPRIATIONS ACT, 2012 (DISASTER RELIEF)",
+       "obligated_amount": -334770.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "ECONOMIC DEVELOPMENT PROGRAMS 2008 DISASTER SUPPLEMENTAL II",
+       "obligated_amount": -988402.0,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "STEM APPRENTICESHIP PROGRAM",
+       "obligated_amount": -1383023.4,
+       "gross_outlay_amount": 1604333.89
+      },
+      {
+       "name": "OFFICE OF MARINE AND AVIATION",
+       "obligated_amount": -1878519.48,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "RESEARCH",
+       "obligated_amount": -2159437.54,
+       "gross_outlay_amount": 1455412.25
+      },
+      {
+       "name": "PROMOTE AND DEVELOP FISHERY PRODUCTS AND RESEARCH",
+       "obligated_amount": -3524619.17,
+       "gross_outlay_amount": 9296512.02
+      },
+      {
+       "name": "ASSISTANCE TO NUCLEAR CLOSURE COMMUNITIES",
+       "obligated_amount": -10978295.78,
+       "gross_outlay_amount": 8357484.85
+      },
+      {
+       "name": "2023 DISASTER SUPPLEMENTAL",
+       "obligated_amount": -11001861.91,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "REGIONAL INNOVATION",
+       "obligated_amount": -29974098.27,
+       "gross_outlay_amount": 40551557.65
+      },
+      {
+       "name": "DISTRESSED AREA RECOMPETE PILOT PROGRAM",
+       "obligated_amount": -64772603.06,
+       "gross_outlay_amount": 12016300.12
+      },
+      {
+       "name": "DISASTER RELIEF ACT, 2019 (DISASTER SUPPLEMENTAL)",
+       "obligated_amount": -93156098.62,
+       "gross_outlay_amount": 0.0
+      },
+      {
+       "name": "DISASTER SUPPLEMENTALS",
+       "obligated_amount": -592648970.07,
+       "gross_outlay_amount": 918075564.9
+      },
+      {
+       "name": "NATIONAL ENVIRONMENTAL SATELLITE SERVICE",
+       "obligated_amount": -721216736.84,
+       "gross_outlay_amount": 816405037.08
+      }
+     ],
+     "completeRowsNote": "All 22 rows embedded 2026-08-11T13:08:31Z from a re-fetch whose response bytes hashed to the recorded responseSha256 exactly."
+    }
+   ],
+   "result": "Both pages were fetched; all 122 FY2025 Commerce program-activity names were searched case-insensitively and none matched any recorded AI or emerging-technology term."
+  },
+  "programActivityAutocompleteCandidate": {
+   "identityEvidence": {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/program_activity/",
+    "retrievedAtUtc": "2026-08-11T04:27:49Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "limit": 100,
+     "search_text": "Artificial Intelligence"
+    },
+    "responseSha256": "8bd723b6ccd17e02084f97a060de52888d11e1d4ea7d6ff5ed6f666d17fe44ad",
+    "responseByteLength": 114,
+    "resultRows": [
+     {
+      "program_activity_code": "0030",
+      "program_activity_name": "ARTIFICIAL INTELLIGENCE TECHNOLOGY OFFICE"
+     }
+    ]
+   },
+   "commerceIntersectionQuery": {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "body": {
+     "filters": {
+      "agencies": [
+       {
+        "name": "Department of Commerce",
+        "tier": "toptier",
+        "type": "awarding"
+       }
+      ],
+      "award_type_codes": [
+       "02",
+       "03",
+       "04",
+       "05",
+       "06",
+       "07",
+       "08",
+       "09",
+       "10",
+       "11",
+       "A",
+       "B",
+       "C",
+       "D",
+       "IDV_A",
+       "IDV_B",
+       "IDV_B_A",
+       "IDV_B_B",
+       "IDV_B_C",
+       "IDV_C",
+       "IDV_D",
+       "IDV_E"
+      ],
+      "program_activities": [
+       {
+        "code": "0030",
+        "name": "ARTIFICIAL INTELLIGENCE TECHNOLOGY OFFICE"
+       }
+      ],
+      "time_period": [
+       {
+        "end_date": "2025-09-30",
+        "start_date": "2022-10-01"
+       }
+      ]
+     },
+     "group": "fiscal_year",
+     "spending_level": "transactions"
+    }
+   },
+   "commerceIntersectionEvidence": {
+    "retrievedAtUtc": "2026-08-11T04:28:04Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "responseSha256": "8cb37d726bb8d0237db2e7ae48fb3b4c93db1d8150d7195fdb213769f8d43d93",
+    "responseByteLength": 1794,
+    "responseGroup": "fiscal_year",
+    "responseSpendingLevel": "transactions",
+    "resultRows": [
+     {
+      "aggregated_amount": 0,
+      "time_period": {
+       "fiscal_year": "2023"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 0,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     },
+     {
+      "aggregated_amount": 0,
+      "time_period": {
+       "fiscal_year": "2024"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 0,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     },
+     {
+      "aggregated_amount": 0,
+      "time_period": {
+       "fiscal_year": "2025"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 0,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     }
+    ]
+   },
+   "rejectionReason": "The globally discoverable AI-named program activity has no Commerce award-transaction obligations in FY2023, FY2024, or FY2025 and does not appear in the complete FY2025 Commerce program-activity catalog. It therefore cannot identify a NIST, ITA, or BIS series."
+  },
+  "keywordCandidateEvidence": {
+   "testedQuery": {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "field": "results[].aggregated_amount",
+    "body": {
+     "filters": {
+      "agencies": [
+       {
+        "name": "National Institute of Standards and Technology",
+        "tier": "subtier",
+        "type": "awarding"
+       }
+      ],
+      "award_type_codes": [
+       "02",
+       "03",
+       "04",
+       "05",
+       "06",
+       "07",
+       "08",
+       "09",
+       "10",
+       "11",
+       "A",
+       "B",
+       "C",
+       "D",
+       "IDV_A",
+       "IDV_B",
+       "IDV_B_A",
+       "IDV_B_B",
+       "IDV_B_C",
+       "IDV_C",
+       "IDV_D",
+       "IDV_E"
+      ],
+      "keywords": [
+       "AI safety"
+      ],
+      "time_period": [
+       {
+        "end_date": "2025-09-30",
+        "start_date": "2022-10-01"
+       }
+      ]
+     },
+     "group": "fiscal_year",
+     "spending_level": "transactions"
+    }
+   },
+   "fetchedEvidence": {
+    "retrievedAtUtc": "2026-08-11T04:20:55Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "responseSha256": "296e869cde9e633a673284d468ce4a8bb43a8905913a89197d5ec57ef9dda7f9",
+    "responseByteLength": 1810,
+    "responseGroup": "fiscal_year",
+    "responseSpendingLevel": "transactions",
+    "resultRows": [
+     {
+      "aggregated_amount": 0,
+      "time_period": {
+       "fiscal_year": "2023"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 0,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     },
+     {
+      "aggregated_amount": 0,
+      "time_period": {
+       "fiscal_year": "2024"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 0,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     },
+     {
+      "aggregated_amount": 106412.26,
+      "time_period": {
+       "fiscal_year": "2025"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 106412.26,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     }
+    ]
+   },
+   "awardRowEvidence": {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+    "retrievedAtUtc": "2026-08-11T04:19:27Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "body": {
+     "fields": [
+      "Award ID",
+      "Recipient Name",
+      "Award Amount",
+      "Awarding Agency",
+      "Awarding Sub Agency",
+      "Funding Agency",
+      "Funding Sub Agency",
+      "Description",
+      "Assistance Listings",
+      "primary_assistance_listing"
+     ],
+     "filters": {
+      "agencies": [
+       {
+        "name": "National Institute of Standards and Technology",
+        "tier": "subtier",
+        "type": "awarding"
+       }
+      ],
+      "award_type_codes": [
+       "02",
+       "03",
+       "04",
+       "05"
+      ],
+      "keywords": [
+       "AI safety"
+      ],
+      "time_period": [
+       {
+        "end_date": "2025-09-30",
+        "start_date": "2024-10-01"
+       }
+      ]
+     },
+     "limit": 100,
+     "order": "desc",
+     "page": 1,
+     "sort": "Award Amount",
+     "spending_level": "awards"
+    },
+    "responseSha256": "881c506d1fa38c2bdf88e6cbc61edc3181a472075a0e20e432e1a59db8cc7598",
+    "responseByteLength": 2323,
+    "page_metadata": {
+     "page": 1,
+     "hasNext": false,
+     "last_record_unique_id": null,
+     "last_record_sort_value": "None"
+    },
+    "resultRows": [
+     {
+      "internal_id": 251572837,
+      "Award ID": "70NANB25H073",
+      "Recipient Name": "OBJECTSECURITY LLC",
+      "Award Amount": 106412.26,
+      "Awarding Agency": "Department of Commerce",
+      "Awarding Sub Agency": "National Institute of Standards and Technology",
+      "Funding Agency": "Department of Commerce",
+      "Funding Sub Agency": "National Institute of Standards and Technology",
+      "Description": "PURPOSE: THE PURPOSE OF THIS PHASE I PROJECT IS TO ADDRESS CRITICAL GAPS IN AI SAFETY AND EXPLAINABILITY. AI ADOPTION IN CRITICAL SECTORS SUCH AS MILITARY AND HEALTHCARE POSES SIGNIFICANT RISKS, AS EXPLOITATION OF THESE SYSTEMS COULD LEAD TO DEVASTATING OUTCOMES. OBJECTSECURITY'S PROPOSED TECHNOLOGY ENHANCES AI CONTENT MODERATION BY EMPLOYING NOVEL LINEAR LAYER CONDUCTANCE TECHNIQUES, INCREASING ANALYSIS EFFICIENCY WITHOUT ADDING SIGNIFICANT COMPUTATIONAL OVERHEAD. THIS METHOD PROVIDES DEEPER INSIGHTS INTO TOKEN RELATIONSHIPS AND PATTERNS INFLUENCING AI OUTPUTS, EMPOWERING DEVELOPERS AND END USERS TO PRECISELY MODERATE AI-GENERATED CONTENT AND PREVENT HARMFUL OUTPUTS.ACTIVITIES TO BE PERFORMED: ANALYSIS AND REQUIREMENTSRESEARCH DEVELOP PROOF OF CONCEPTPRODUCE REPORTSEXPECTED OUTCOMES: BY AUTOMATING COMPLEX ANALYSIS AND ENHANCING MODEL EXPLAINABILITY, OBJECTSECURITY ANTICIPATES THAT ITS PROPOSED TECHNOLOGY WILL ENSURE SAFER AND MORE TRUSTWORTHY AI SYSTEMS. INTENDED BENEFICIARIES INCLUDE: MILITARY AND HEALTHCARE SECTORS.SUBRECIPIENT ACTIVITIES: THE RECIPIENT DOES NOT INTEND TO SUBAWARD FUNDS.",
+      "Assistance Listings": [
+       {
+        "cfda_number": "11.620",
+        "cfda_program_title": "SCIENCE, TECHNOLOGY, BUSINESS AND/OR EDUCATION OUTREACH"
+       }
+      ],
+      "primary_assistance_listing": {
+       "cfda_number": "11.620",
+       "cfda_program_title": "SCIENCE, TECHNOLOGY, BUSINESS AND/OR EDUCATION OUTREACH"
+      },
+      "awarding_agency_id": 183,
+      "agency_slug": "department-of-commerce",
+      "generated_internal_id": "ASST_NON_70NANB25H073_013"
+     }
+    ]
+   },
+   "rejectionReason": "The only positive result of the keywords:[\"AI safety\"] description-keyword query (USAspending implements keyword search as Elasticsearch phrase_prefix matching on award text, not an keywords:[\"AI safety\"] description-keyword guarantee) is defined by mutable free text in one award description, not by a structured account, program activity, Assistance Listing, or other stable classifier. FY2023 and FY2024 are zero and the current evidence establishes one award, not a recurring official AI-safety series."
+  },
+  "broadNistListingMismatch": {
+   "query": {
+    "method": "POST",
+    "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "field": "results[time_period.fiscal_year=2025].aggregated_amount",
+    "body": {
+     "filters": {
+      "agencies": [
+       {
+        "name": "National Institute of Standards and Technology",
+        "tier": "subtier",
+        "type": "awarding"
+       }
+      ],
+      "award_type_codes": [
+       "02",
+       "03",
+       "04",
+       "05",
+       "06",
+       "07",
+       "08",
+       "09",
+       "10",
+       "11"
+      ],
+      "program_numbers": [
+       "11.620"
+      ],
+      "time_period": [
+       {
+        "end_date": "2025-09-30",
+        "start_date": "2024-10-01"
+       }
+      ]
+     },
+     "group": "fiscal_year",
+     "spending_level": "transactions"
+    }
+   },
+   "fetchedEvidence": {
+    "retrievedAtUtc": "2026-08-11T04:20:22Z",
+    "httpStatus": 200,
+    "mediaType": "application/json",
+    "responseSha256": "780d8f18482c049cad073c92410dcfa5852a603d509bda3a97649790094edbf9",
+    "responseByteLength": 1130,
+    "responseGroup": "fiscal_year",
+    "responseSpendingLevel": "transactions",
+    "resultRows": [
+     {
+      "aggregated_amount": 76275845.96,
+      "time_period": {
+       "fiscal_year": "2025"
+      },
+      "Contract_Obligations": 0,
+      "Direct_Obligations": 0,
+      "Grant_Obligations": 76275845.96,
+      "Idv_Obligations": 0,
+      "Loan_Obligations": 0,
+      "Other_Obligations": 0,
+      "total_outlays": null,
+      "Contract_Outlays": null,
+      "Direct_Outlays": null,
+      "Grant_Outlays": null,
+      "Idv_Outlays": null,
+      "Loan_Outlays": null,
+      "Other_Outlays": null
+     }
+    ]
+   },
+   "rejectionReason": "Assistance Listing 11.620 is identified verbatim as Science, Technology, Business and/or Education Outreach. Its 76275845.96 NIST FY2025 total is broader than the one 106412.26 description-matched AI-safety award and cannot be labeled AI-safety obligations."
+  },
+  "aiNamedListingMismatch": {
+   "method": "POST",
+   "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/awarding_subagency/",
+   "retrievedAtUtc": "2026-08-11T04:20:10Z",
+   "httpStatus": 200,
+   "mediaType": "application/json",
+   "body": {
+    "category": "awarding_subagency",
+    "filters": {
+     "award_type_codes": [
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11"
+     ],
+     "program_numbers": [
+      "81.012"
+     ],
+     "time_period": [
+      {
+       "end_date": "2025-09-30",
+       "start_date": "2024-10-01"
+      }
+     ]
+    },
+    "limit": 100,
+    "page": 1,
+    "spending_level": "transactions"
+   },
+   "responseSha256": "2f36a1e0adbd063fd06ef511fcab41a2bd685135cf1a0e2e9985bbbeb262be9e",
+   "responseByteLength": 896,
+   "page_metadata": {
+    "page": 1,
+    "next": null,
+    "previous": null,
+    "hasNext": false,
+    "hasPrevious": false
+   },
+   "resultRows": [
+    {
+     "id": 930,
+     "code": "DOE",
+     "name": "Department of Energy",
+     "agency_id": 78,
+     "agency_abbreviation": "DOE",
+     "agency_name": "Department of Energy",
+     "agency_slug": "department-of-energy",
+     "subagency_slug": "department-of-energy",
+     "amount": -937.0,
+     "total_outlays": null
+    }
+   ],
+   "rejectionReason": "The only AI-named Assistance Listing found by autocomplete is not a NIST, ITA, BIS, or Commerce program."
+  },
+  "firstPrint": {
+   "status": "not_applicable_rejected",
+   "basis": "No stable structured series identity exists to register or witness."
+  },
+  "adapterDisposition": {
+   "family": "usaspending-api",
+   "disposition": "rejected",
+   "requiredWork": "Reconsider only if USAspending exposes an official structured NIST, ITA, or BIS AI-safety federal account, program activity, Assistance Listing, or equally stable classifier with a recurring annual observation population. Do not admit a keyword-defined series or relabel a whole-agency or broad-listing total."
+  },
+  "parseNotes": [
+   "Federal-account obligated_amount values are account-wide financial-account submission totals, not AI-safety subsets.",
+   "spending_over_time aggregated_amount is the signed sum of federal_action_obligation for the exact transaction filters.",
+   "The keywords filter searches mutable award text and is evidence for candidate discovery only, not an admissible series identity.",
+   "Assistance Listing 11.620 and account 013-0500 are broader than the requested concept; using either would invert the DHS precedent's narrow-scope rule.",
+   "The local environment presented a self-signed TLS interception chain, so the successful live calls used curl --insecure against the exact official https://api.usaspending.gov URLs; every recorded hash and byte length is for the returned HTTP 200 application/json body bytes.",
+   "No first-print or resolver work is proposed because the requested series identity was rejected."
+  ]
+ }
 }
