@@ -1,0 +1,1276 @@
+{
+  "proposed_concept": "usaspending.nist.ai_safety.obligations",
+  "status": "rejected",
+  "unit": "usd",
+  "cadence": "annual",
+  "proposedFrom": "frontier-act-hr9925",
+  "metricText": "USAspending obligations attributable specifically to NIST AI-safety activity for a complete federal fiscal year.",
+  "note": "REJECTED: the complete Commerce federal-account catalog and the tested NIST, ITA, and BIS program-activity catalogs expose no structured AI-safety account or activity. A free-text `AI safety` filter returns one $106,412.26 NIST grant under broad Assistance Listing 11.620, but description matching is not a stable recurring series identity and the full listing is not AI-specific. The only Assistance Listing returned for `artificial intelligence`, 81.012, is awarded by the Department of Energy, not Commerce.",
+  "adapterFamily": "usaspending-api",
+  "billSlugs": [
+    "frontier-act-hr9925"
+  ],
+  "publisher": "U.S. Department of the Treasury, USAspending",
+  "statisticalProduct": "USAspending API v2 federal-account submissions and award transactions tested for a structured NIST AI-safety identity",
+  "likelyUrlPattern": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+  "verification": {
+    "schemaVersion": "ledger_ingestion_verification_v1",
+    "outcome": "rejected",
+    "verifiedAtUtc": "2026-08-11T04:28:19Z",
+    "reason": "No exact structured USAspending identity isolates NIST, ITA, or BIS AI-safety obligations. The complete FY2025 Commerce account page has 52 rows and no account name containing artificial intelligence, intelligence, AI safety, or AI security. The complete program-activity pages for the closest NIST, BIS, and ITA accounts likewise have no AI-specific row. Assistance Listing autocomplete returns no result for AI safety, machine learning, trustworthy artificial intelligence, or frontier; its one artificial-intelligence result is DOE listing 81.012. The closest NIST award evidence is one FY2025 grant found by free-text description matching under broad listing 11.620. Admitting that keyword result would make an unstable text search the series boundary, while admitting all of 11.620 or a whole NIST account would reverse the required narrow-scoping rule by relabeling a broader total as AI safety.",
+    "blocker": "no_exact_structured_ai_program_or_account",
+    "scope": {
+      "requestedConcept": "Annual obligations attributable specifically to NIST AI-safety work, included only as context for frontier-act-hr9925.",
+      "evidenceActuallyProves": [
+        "FY2025 Commerce account 013-0500 had 957608896.45 in obligations, but its identity is all NIST Scientific and Technical Research and Services.",
+        "A free-text AI safety query returned 106412.26 in FY2025 grant obligations and one award row, 70NANB25H073, under broad Assistance Listing 11.620.",
+        "All NIST-awarded FY2025 transactions under Assistance Listing 11.620 totaled 76275845.96, so the listing cannot stand in for the text-matched AI-safety row.",
+        "Assistance Listing 81.012 is explicitly AI-named, but its FY2025 awarding-subagency result is Department of Energy with -937.0 in obligations."
+      ],
+      "rejectedProxies": [
+        "all obligations of NIST account 013-0500 or any other NIST account",
+        "all NIST-awarded Assistance Listing 11.620 obligations",
+        "award-title or award-description keyword matches",
+        "Department of Energy Assistance Listing 81.012",
+        "all ITA or BIS operations and administration obligations"
+      ]
+    },
+    "agencyAutocompleteSearch": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+        "retrievedAtUtc": "2026-08-11T04:17:16Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "search_text": "National Institute of Standards and Technology"
+        },
+        "responseSha256": "6774a9afd794583c0c32cb4356a96f563a61e46b2cc3702b273631b664c5b40a",
+        "responseByteLength": 314,
+        "resultRows": [
+          {
+            "id": 197,
+            "toptier_flag": false,
+            "toptier_agency": {
+              "toptier_code": "013",
+              "abbreviation": "DOC",
+              "name": "Department of Commerce"
+            },
+            "subtier_agency": {
+              "abbreviation": "NIST",
+              "name": "National Institute of Standards and Technology"
+            }
+          }
+        ],
+        "messages": [
+          "This endpoint is DEPRECATED. Please refer to the api contracts."
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+        "retrievedAtUtc": "2026-08-11T04:17:16Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "search_text": "Bureau of Industry and Security"
+        },
+        "responseSha256": "b0a4cec98bfcaaed38fc994c87856bfc5b82a18360b7fb1cb0387abc38ad09e1",
+        "responseByteLength": 93,
+        "resultRows": [],
+        "messages": [
+          "This endpoint is DEPRECATED. Please refer to the api contracts."
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/awarding_agency/",
+        "retrievedAtUtc": "2026-08-11T04:17:16Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "search_text": "International Trade Administration"
+        },
+        "responseSha256": "13e857ac5a65803b4974c644ada234ae3cd51e8ec6f58f23ff33823209faaeb2",
+        "responseByteLength": 301,
+        "resultRows": [
+          {
+            "id": 201,
+            "toptier_flag": false,
+            "toptier_agency": {
+              "toptier_code": "013",
+              "abbreviation": "DOC",
+              "name": "Department of Commerce"
+            },
+            "subtier_agency": {
+              "abbreviation": "ITA",
+              "name": "International Trade Administration"
+            }
+          }
+        ],
+        "messages": [
+          "This endpoint is DEPRECATED. Please refer to the api contracts."
+        ]
+      }
+    ],
+    "assistanceListingSearchTrail": [
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:16:32Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "artificial intelligence"
+        },
+        "responseSha256": "af8044fa23833ec6072167a803d8cb1ee2ba31deaeb6935df1547fac1f973e2e",
+        "responseByteLength": 152,
+        "resultRows": [
+          {
+            "program_number": "81.012",
+            "program_title": "Artificial Intelligence and Technology Office Financial Assistance Program",
+            "popular_name": ""
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:16:32Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "AI safety"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "responseByteLength": 14,
+        "resultRows": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:16:32Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "machine learning"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "responseByteLength": 14,
+        "resultRows": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:16:32Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "trustworthy artificial intelligence"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "responseByteLength": 14,
+        "resultRows": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:16:32Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "frontier"
+        },
+        "responseSha256": "5021e624e752b001ce3e3846e8f158ed4aeb93a4c9a72fdb35a0c5b14a0eea84",
+        "responseByteLength": 14,
+        "resultRows": []
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:16:32Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "National Institute of Standards and Technology"
+        },
+        "responseSha256": "daca5b7ed1bc9e9296a3b9caf7ca10bff7563dfa65943a98d9af4599d68d6c76",
+        "responseByteLength": 151,
+        "resultRows": [
+          {
+            "program_number": "11.618",
+            "program_title": "National Institute of Standards and Technology Construction Grant Program",
+            "popular_name": ""
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:19:46Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "11.620"
+        },
+        "responseSha256": "3b4599129de509c762f21bed9830d69fdaacb1f77f01bcb40739499a09f1301d",
+        "responseByteLength": 133,
+        "resultRows": [
+          {
+            "program_number": "11.620",
+            "program_title": "Science, Technology, Business and/or Education Outreach",
+            "popular_name": ""
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/cfda/",
+        "retrievedAtUtc": "2026-08-11T04:19:46Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "81.012"
+        },
+        "responseSha256": "af8044fa23833ec6072167a803d8cb1ee2ba31deaeb6935df1547fac1f973e2e",
+        "responseByteLength": 152,
+        "resultRows": [
+          {
+            "program_number": "81.012",
+            "program_title": "Artificial Intelligence and Technology Office Financial Assistance Program",
+            "popular_name": ""
+          }
+        ]
+      }
+    ],
+    "nistFy2025AssistanceListingBreakdown": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/cfda/",
+      "retrievedAtUtc": "2026-08-11T04:17:32Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "body": {
+        "category": "cfda",
+        "filters": {
+          "agencies": [
+            {
+              "name": "National Institute of Standards and Technology",
+              "tier": "subtier",
+              "toptier_name": "Department of Commerce",
+              "type": "awarding"
+            }
+          ],
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "bf28e91704c1b5cfbbaebe33eb85fda86f0298fb9f69157409760e721299e099",
+      "responseByteLength": 2358,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "resultRows": [
+        {
+          "id": 3348,
+          "code": "11.035",
+          "name": "Broadband Equity, Access, and Deployment Program",
+          "amount": 16936623108.2,
+          "total_outlays": null
+        },
+        {
+          "id": 3346,
+          "code": "11.032",
+          "name": "State Digital Equity Planning and Capacity Grant",
+          "amount": 707085936.03,
+          "total_outlays": null
+        },
+        {
+          "id": 3689,
+          "code": "11.038",
+          "name": "Public Wireless Supply Chain Innovation Fund Grant Program",
+          "amount": 409852406.47,
+          "total_outlays": null
+        },
+        {
+          "id": 351,
+          "code": "11.611",
+          "name": "Manufacturing Extension Partnership",
+          "amount": 111830237.58,
+          "total_outlays": null
+        },
+        {
+          "id": 355,
+          "code": "11.620",
+          "name": "Science, Technology, Business and/or Education Outreach",
+          "amount": 76275845.96,
+          "total_outlays": null
+        },
+        {
+          "id": 5470,
+          "code": "11.036",
+          "name": "Digital Equity Competitive Grant Program",
+          "amount": 52881724.08,
+          "total_outlays": null
+        },
+        {
+          "id": 349,
+          "code": "11.609",
+          "name": "Measurement and Engineering Research and Standards",
+          "amount": 38325015.01,
+          "total_outlays": null
+        },
+        {
+          "id": 354,
+          "code": "11.619",
+          "name": "Arrangements for Interdisciplinary Research Infrastructure",
+          "amount": 24186171.97,
+          "total_outlays": null
+        },
+        {
+          "id": 2365,
+          "code": "11.617",
+          "name": "Congressionally-Identified Projects",
+          "amount": 5398254.04,
+          "total_outlays": null
+        },
+        {
+          "id": 286,
+          "code": "11.016",
+          "name": "Statistical, Research, and Methodology  Assistance",
+          "amount": 208959.0,
+          "total_outlays": null
+        },
+        {
+          "id": 3242,
+          "code": "11.031",
+          "name": "Broadband Infrastructure Program",
+          "amount": 0.0,
+          "total_outlays": null
+        },
+        {
+          "id": 3229,
+          "code": "11.028",
+          "name": "Connecting Minority Communities Pilot Program",
+          "amount": -1106440.33,
+          "total_outlays": null
+        },
+        {
+          "id": 3347,
+          "code": "11.033",
+          "name": "Middle Mile (Broadband) Grant Program",
+          "amount": -25054092.63,
+          "total_outlays": null
+        },
+        {
+          "id": 3522,
+          "code": "11.037",
+          "name": "CHIPS Incentives Program",
+          "amount": -58751000.0,
+          "total_outlays": null
+        }
+      ],
+      "aiSpecificListingRows": []
+    },
+    "federalAccountCatalogSearch": {
+      "method": "GET",
+      "endpoint": "https://api.usaspending.gov/api/v2/agency/013/federal_account/?fiscal_year=2025&page=1&limit=100",
+      "retrievedAtUtc": "2026-08-11T04:15:40Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "responseSha256": "684dec440c360b015fe9129bb191111b09195701c2bfbbc15d76ffdd717d03c8",
+      "responseByteLength": 45002,
+      "page_metadata": {
+        "page": 1,
+        "total": 52,
+        "limit": 100,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "accountNameSearchTerms": [
+        "artificial",
+        "intelligence",
+        "AI safety",
+        "AI security"
+      ],
+      "aiSpecificNameMatches": [],
+      "candidateRows": [
+        {
+          "code": "013-0500",
+          "name": "Scientific and Technical Research and Services, National Institute of Standards and Technology, Commerce",
+          "obligated_amount": 957608896.45,
+          "gross_outlay_amount": 1110262534.34
+        },
+        {
+          "code": "013-0525",
+          "name": "Industrial Technology Services, National Institute of Standards and Technology, Commerce",
+          "obligated_amount": 719469057.29,
+          "gross_outlay_amount": 300406064.19
+        },
+        {
+          "code": "013-1250",
+          "name": "Operations and Administration, International Trade Administration, Commerce",
+          "obligated_amount": 604950373.14,
+          "gross_outlay_amount": 608452672.92
+        },
+        {
+          "code": "013-4650",
+          "name": "Working Capital Fund, National Institute of Standards and Technology, Commerce",
+          "obligated_amount": 192244259.39,
+          "gross_outlay_amount": 170659002.5
+        },
+        {
+          "code": "013-0300",
+          "name": "Operations and Administration, Bureau of Industry and Security, Commerce",
+          "obligated_amount": 189165915.73,
+          "gross_outlay_amount": 215116548.27
+        },
+        {
+          "code": "013-0515",
+          "name": "Construction of Research Facilities, National Institute of Standards and Technology, Commerce",
+          "obligated_amount": 90310668.74,
+          "gross_outlay_amount": 262520462.55
+        },
+        {
+          "code": "013-0513",
+          "name": "Wireless Innovation(WIN) Fund, National Institute of Standards and Technology, Commerce",
+          "obligated_amount": 0.0,
+          "gross_outlay_amount": 3442135.72
+        }
+      ]
+    },
+    "programActivityCatalogSearch": [
+      {
+        "method": "GET",
+        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0500/program_activities/?fiscal_year=2025&page=1&limit=100",
+        "retrievedAtUtc": "2026-08-11T04:15:58Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "responseSha256": "f3d3d7db4802cecdc3370583773004ab22904ceb0e1418840bc09b56cdde902a",
+        "responseByteLength": 976,
+        "page_metadata": {
+          "page": 1,
+          "total": 11,
+          "limit": 100,
+          "next": null,
+          "previous": null,
+          "hasNext": false,
+          "hasPrevious": false
+        },
+        "resultRows": [
+          {
+            "code": "EX202600313650",
+            "name": "STRS LABORATORY PROGRAMS",
+            "type": "PARK"
+          },
+          {
+            "code": "EX202600313426",
+            "name": "NIST CARRYOVER (SUMMARIZED) BALANCES",
+            "type": "PARK"
+          },
+          {
+            "code": "6081W4QKXDJ",
+            "name": "CHIPS",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC2FFJJAZ9",
+            "name": "CORPORATE SERVICES",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC2FFJJAYD",
+            "name": "LABORATORY PROGRAMS",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC2FFJJAR7",
+            "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
+            "type": "PARK"
+          },
+          {
+            "code": "0301",
+            "name": "STANDARDS COORDINATION AND SPECIAL PROGRAMS",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0201",
+            "name": "CORPORATE SERVICES",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0005",
+            "name": "CREATING HELPFUL INCENTIVES TO PRODUCE SEMICONDUCTORS (CHIPS) SCIENTIFIC AND TECHNICAL RESEARCH AND SERVICES",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0001",
+            "name": "LABORATORY PROGRAMS",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0000",
+            "name": "UNKNOWN/OTHER",
+            "type": "PAC/PAN"
+          }
+        ],
+        "aiSpecificNameMatches": []
+      },
+      {
+        "method": "GET",
+        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-0300/program_activities/?fiscal_year=2025&page=1&limit=100",
+        "retrievedAtUtc": "2026-08-11T04:16:49Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "responseSha256": "e67e3d5f7fd18df20f824615dd53e01b1653046fd6e9d3af620b6a9cbc300901",
+        "responseByteLength": 905,
+        "page_metadata": {
+          "page": 1,
+          "total": 11,
+          "limit": 100,
+          "next": null,
+          "previous": null,
+          "hasNext": false,
+          "hasPrevious": false
+        },
+        "resultRows": [
+          {
+            "code": "5ZC1X8UZUKX",
+            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1X8UZTVH",
+            "name": "EXPORT ENFORCEMENT",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1X8UZTVG",
+            "name": "EXPORT ADMINISTRATION",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1X8UZTVF",
+            "name": "MANAGEMENT AND POLICY COORDINATION",
+            "type": "PARK"
+          },
+          {
+            "code": "0801",
+            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0201",
+            "name": "EXPORT ADMINISTRATION",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0003",
+            "name": "EXPORT ENFORCEMENT",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0002",
+            "name": "EXPORT ADMINISTRATION",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0001",
+            "name": "MANAGEMENT AND POLICY COORDINATION",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0000",
+            "name": "NO PROGRAM APPLICABLE",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0000",
+            "name": "UNKNOWN/OTHER",
+            "type": "PAC/PAN"
+          }
+        ],
+        "aiSpecificNameMatches": []
+      },
+      {
+        "method": "GET",
+        "endpoint": "https://api.usaspending.gov/api/v2/federal_accounts/013-1250/program_activities/?fiscal_year=2025&page=1&limit=100",
+        "retrievedAtUtc": "2026-08-11T04:16:49Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "responseSha256": "40eed8fa1b152b711e3a5c78826719947c75028bb1f4da290c84b63b3375a77b",
+        "responseByteLength": 1202,
+        "page_metadata": {
+          "page": 1,
+          "total": 15,
+          "limit": 100,
+          "next": null,
+          "previous": null,
+          "hasNext": false,
+          "hasPrevious": false
+        },
+        "resultRows": [
+          {
+            "code": "5ZC1U2W8F13",
+            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1U2W8EBZ",
+            "name": "INDUSTRY AND ANALYSIS",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1U2W8EBR",
+            "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1U2W8EBQ",
+            "name": "GLOBAL MARKETS",
+            "type": "PARK"
+          },
+          {
+            "code": "5ZC1U2W8EBP",
+            "name": "ENFORCEMENT AND COMPLIANCE",
+            "type": "PARK"
+          },
+          {
+            "code": "0801",
+            "name": "OPERATIONS AND ADMINISTRATION (REIMBURSABLE)",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0009",
+            "name": "EXECUTIVE DIRECTION AND ADMINISTRATION",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0008",
+            "name": "GLOBAL MARKETS",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0007",
+            "name": "ENFORCEMENT AND COMPLIANCE",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0006",
+            "name": "INDUSTRY AND ANALYSIS",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0004",
+            "name": "U.S. AND FOREIGN COMMERCIAL SERVICES",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0003",
+            "name": "IMPORT ADMINISTRATION",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0002",
+            "name": "MARKET ACCESS AND COMPLIANCE",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0001",
+            "name": "MANUFACTURING AND SERVICES",
+            "type": "PAC/PAN"
+          },
+          {
+            "code": "0000",
+            "name": "UNKNOWN/OTHER",
+            "type": "PAC/PAN"
+          }
+        ],
+        "aiSpecificNameMatches": []
+      }
+    ],
+    "commerceFy2025ProgramActivityCatalogSearch": {
+      "nameSearchTerms": [
+        "artificial intelligence",
+        "AI safety",
+        "AI security",
+        "machine learning",
+        "trustworthy",
+        "frontier",
+        "emerging technology",
+        "critical and emerging"
+      ],
+      "pages": [
+        {
+          "method": "GET",
+          "endpoint": "https://api.usaspending.gov/api/v2/agency/013/program_activity/?fiscal_year=2025&page=1&limit=100",
+          "retrievedAtUtc": "2026-08-11T04:28:17Z",
+          "httpStatus": 200,
+          "mediaType": "application/json",
+          "responseSha256": "236d2a469e6220967b28d2acc8952efeadff964e054f80a779c3c0dde3e9d47e",
+          "responseByteLength": 11136,
+          "page_metadata": {
+            "page": 1,
+            "total": 122,
+            "limit": 100,
+            "next": 2,
+            "previous": null,
+            "hasNext": true,
+            "hasPrevious": false
+          },
+          "aiSpecificNameMatches": []
+        },
+        {
+          "method": "GET",
+          "endpoint": "https://api.usaspending.gov/api/v2/agency/013/program_activity/?fiscal_year=2025&page=2&limit=100",
+          "retrievedAtUtc": "2026-08-11T04:28:17Z",
+          "httpStatus": 200,
+          "mediaType": "application/json",
+          "responseSha256": "0134edc88c99c702c730c929ec6659ee8b19474f3196e7aa596d4812d30730a0",
+          "responseByteLength": 2554,
+          "page_metadata": {
+            "page": 2,
+            "total": 122,
+            "limit": 100,
+            "next": null,
+            "previous": 1,
+            "hasNext": false,
+            "hasPrevious": true
+          },
+          "aiSpecificNameMatches": []
+        }
+      ],
+      "result": "Both pages were fetched; all 122 FY2025 Commerce program-activity names were searched case-insensitively and none matched any recorded AI or emerging-technology term."
+    },
+    "programActivityAutocompleteCandidate": {
+      "identityEvidence": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/autocomplete/program_activity/",
+        "retrievedAtUtc": "2026-08-11T04:27:49Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "limit": 100,
+          "search_text": "Artificial Intelligence"
+        },
+        "responseSha256": "8bd723b6ccd17e02084f97a060de52888d11e1d4ea7d6ff5ed6f666d17fe44ad",
+        "responseByteLength": 114,
+        "resultRows": [
+          {
+            "program_activity_code": "0030",
+            "program_activity_name": "ARTIFICIAL INTELLIGENCE TECHNOLOGY OFFICE"
+          }
+        ]
+      },
+      "commerceIntersectionQuery": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "body": {
+          "filters": {
+            "agencies": [
+              {
+                "name": "Department of Commerce",
+                "tier": "toptier",
+                "type": "awarding"
+              }
+            ],
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "program_activities": [
+              {
+                "code": "0030",
+                "name": "ARTIFICIAL INTELLIGENCE TECHNOLOGY OFFICE"
+              }
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2022-10-01"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        }
+      },
+      "commerceIntersectionEvidence": {
+        "retrievedAtUtc": "2026-08-11T04:28:04Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "responseSha256": "8cb37d726bb8d0237db2e7ae48fb3b4c93db1d8150d7195fdb213769f8d43d93",
+        "responseByteLength": 1794,
+        "responseGroup": "fiscal_year",
+        "responseSpendingLevel": "transactions",
+        "resultRows": [
+          {
+            "aggregated_amount": 0,
+            "time_period": {
+              "fiscal_year": "2023"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 0,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          },
+          {
+            "aggregated_amount": 0,
+            "time_period": {
+              "fiscal_year": "2024"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 0,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          },
+          {
+            "aggregated_amount": 0,
+            "time_period": {
+              "fiscal_year": "2025"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 0,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          }
+        ]
+      },
+      "rejectionReason": "The globally discoverable AI-named program activity has no Commerce award-transaction obligations in FY2023, FY2024, or FY2025 and does not appear in the complete FY2025 Commerce program-activity catalog. It therefore cannot identify a NIST, ITA, or BIS series."
+    },
+    "keywordCandidateEvidence": {
+      "testedQuery": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "field": "results[].aggregated_amount",
+        "body": {
+          "filters": {
+            "agencies": [
+              {
+                "name": "National Institute of Standards and Technology",
+                "tier": "subtier",
+                "type": "awarding"
+              }
+            ],
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "keywords": [
+              "AI safety"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2022-10-01"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        }
+      },
+      "fetchedEvidence": {
+        "retrievedAtUtc": "2026-08-11T04:20:55Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "responseSha256": "296e869cde9e633a673284d468ce4a8bb43a8905913a89197d5ec57ef9dda7f9",
+        "responseByteLength": 1810,
+        "responseGroup": "fiscal_year",
+        "responseSpendingLevel": "transactions",
+        "resultRows": [
+          {
+            "aggregated_amount": 0,
+            "time_period": {
+              "fiscal_year": "2023"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 0,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          },
+          {
+            "aggregated_amount": 0,
+            "time_period": {
+              "fiscal_year": "2024"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 0,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          },
+          {
+            "aggregated_amount": 106412.26,
+            "time_period": {
+              "fiscal_year": "2025"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 106412.26,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          }
+        ]
+      },
+      "awardRowEvidence": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+        "retrievedAtUtc": "2026-08-11T04:19:27Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "body": {
+          "fields": [
+            "Award ID",
+            "Recipient Name",
+            "Award Amount",
+            "Awarding Agency",
+            "Awarding Sub Agency",
+            "Funding Agency",
+            "Funding Sub Agency",
+            "Description",
+            "Assistance Listings",
+            "primary_assistance_listing"
+          ],
+          "filters": {
+            "agencies": [
+              {
+                "name": "National Institute of Standards and Technology",
+                "tier": "subtier",
+                "type": "awarding"
+              }
+            ],
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05"
+            ],
+            "keywords": [
+              "AI safety"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2024-10-01"
+              }
+            ]
+          },
+          "limit": 100,
+          "order": "desc",
+          "page": 1,
+          "sort": "Award Amount",
+          "spending_level": "awards"
+        },
+        "responseSha256": "881c506d1fa38c2bdf88e6cbc61edc3181a472075a0e20e432e1a59db8cc7598",
+        "responseByteLength": 2323,
+        "page_metadata": {
+          "page": 1,
+          "hasNext": false,
+          "last_record_unique_id": null,
+          "last_record_sort_value": "None"
+        },
+        "resultRows": [
+          {
+            "internal_id": 251572837,
+            "Award ID": "70NANB25H073",
+            "Recipient Name": "OBJECTSECURITY LLC",
+            "Award Amount": 106412.26,
+            "Awarding Agency": "Department of Commerce",
+            "Awarding Sub Agency": "National Institute of Standards and Technology",
+            "Funding Agency": "Department of Commerce",
+            "Funding Sub Agency": "National Institute of Standards and Technology",
+            "Description": "PURPOSE: THE PURPOSE OF THIS PHASE I PROJECT IS TO ADDRESS CRITICAL GAPS IN AI SAFETY AND EXPLAINABILITY. AI ADOPTION IN CRITICAL SECTORS SUCH AS MILITARY AND HEALTHCARE POSES SIGNIFICANT RISKS, AS EXPLOITATION OF THESE SYSTEMS COULD LEAD TO DEVASTATING OUTCOMES. OBJECTSECURITY'S PROPOSED TECHNOLOGY ENHANCES AI CONTENT MODERATION BY EMPLOYING NOVEL LINEAR LAYER CONDUCTANCE TECHNIQUES, INCREASING ANALYSIS EFFICIENCY WITHOUT ADDING SIGNIFICANT COMPUTATIONAL OVERHEAD. THIS METHOD PROVIDES DEEPER INSIGHTS INTO TOKEN RELATIONSHIPS AND PATTERNS INFLUENCING AI OUTPUTS, EMPOWERING DEVELOPERS AND END USERS TO PRECISELY MODERATE AI-GENERATED CONTENT AND PREVENT HARMFUL OUTPUTS.ACTIVITIES TO BE PERFORMED: ANALYSIS AND REQUIREMENTSRESEARCH DEVELOP PROOF OF CONCEPTPRODUCE REPORTSEXPECTED OUTCOMES: BY AUTOMATING COMPLEX ANALYSIS AND ENHANCING MODEL EXPLAINABILITY, OBJECTSECURITY ANTICIPATES THAT ITS PROPOSED TECHNOLOGY WILL ENSURE SAFER AND MORE TRUSTWORTHY AI SYSTEMS. INTENDED BENEFICIARIES INCLUDE: MILITARY AND HEALTHCARE SECTORS.SUBRECIPIENT ACTIVITIES: THE RECIPIENT DOES NOT INTEND TO SUBAWARD FUNDS.",
+            "Assistance Listings": [
+              {
+                "cfda_number": "11.620",
+                "cfda_program_title": "SCIENCE, TECHNOLOGY, BUSINESS AND/OR EDUCATION OUTREACH"
+              }
+            ],
+            "primary_assistance_listing": {
+              "cfda_number": "11.620",
+              "cfda_program_title": "SCIENCE, TECHNOLOGY, BUSINESS AND/OR EDUCATION OUTREACH"
+            },
+            "awarding_agency_id": 183,
+            "agency_slug": "department-of-commerce",
+            "generated_internal_id": "ASST_NON_70NANB25H073_013"
+          }
+        ]
+      },
+      "rejectionReason": "The only positive exact-phrase result is defined by mutable free text in one award description, not by a structured account, program activity, Assistance Listing, or other stable classifier. FY2023 and FY2024 are zero and the current evidence establishes one award, not a recurring official AI-safety series."
+    },
+    "broadNistListingMismatch": {
+      "query": {
+        "method": "POST",
+        "endpoint": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "field": "results[time_period.fiscal_year=2025].aggregated_amount",
+        "body": {
+          "filters": {
+            "agencies": [
+              {
+                "name": "National Institute of Standards and Technology",
+                "tier": "subtier",
+                "type": "awarding"
+              }
+            ],
+            "award_type_codes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11"
+            ],
+            "program_numbers": [
+              "11.620"
+            ],
+            "time_period": [
+              {
+                "end_date": "2025-09-30",
+                "start_date": "2024-10-01"
+              }
+            ]
+          },
+          "group": "fiscal_year",
+          "spending_level": "transactions"
+        }
+      },
+      "fetchedEvidence": {
+        "retrievedAtUtc": "2026-08-11T04:20:22Z",
+        "httpStatus": 200,
+        "mediaType": "application/json",
+        "responseSha256": "780d8f18482c049cad073c92410dcfa5852a603d509bda3a97649790094edbf9",
+        "responseByteLength": 1130,
+        "responseGroup": "fiscal_year",
+        "responseSpendingLevel": "transactions",
+        "resultRows": [
+          {
+            "aggregated_amount": 76275845.96,
+            "time_period": {
+              "fiscal_year": "2025"
+            },
+            "Contract_Obligations": 0,
+            "Direct_Obligations": 0,
+            "Grant_Obligations": 76275845.96,
+            "Idv_Obligations": 0,
+            "Loan_Obligations": 0,
+            "Other_Obligations": 0,
+            "total_outlays": null,
+            "Contract_Outlays": null,
+            "Direct_Outlays": null,
+            "Grant_Outlays": null,
+            "Idv_Outlays": null,
+            "Loan_Outlays": null,
+            "Other_Outlays": null
+          }
+        ]
+      },
+      "rejectionReason": "Assistance Listing 11.620 is identified verbatim as Science, Technology, Business and/or Education Outreach. Its 76275845.96 NIST FY2025 total is broader than the one 106412.26 description-matched AI-safety award and cannot be labeled AI-safety obligations."
+    },
+    "aiNamedListingMismatch": {
+      "method": "POST",
+      "endpoint": "https://api.usaspending.gov/api/v2/search/spending_by_category/awarding_subagency/",
+      "retrievedAtUtc": "2026-08-11T04:20:10Z",
+      "httpStatus": 200,
+      "mediaType": "application/json",
+      "body": {
+        "category": "awarding_subagency",
+        "filters": {
+          "award_type_codes": [
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11"
+          ],
+          "program_numbers": [
+            "81.012"
+          ],
+          "time_period": [
+            {
+              "end_date": "2025-09-30",
+              "start_date": "2024-10-01"
+            }
+          ]
+        },
+        "limit": 100,
+        "page": 1,
+        "spending_level": "transactions"
+      },
+      "responseSha256": "2f36a1e0adbd063fd06ef511fcab41a2bd685135cf1a0e2e9985bbbeb262be9e",
+      "responseByteLength": 896,
+      "page_metadata": {
+        "page": 1,
+        "next": null,
+        "previous": null,
+        "hasNext": false,
+        "hasPrevious": false
+      },
+      "resultRows": [
+        {
+          "id": 930,
+          "code": "DOE",
+          "name": "Department of Energy",
+          "agency_id": 78,
+          "agency_abbreviation": "DOE",
+          "agency_name": "Department of Energy",
+          "agency_slug": "department-of-energy",
+          "subagency_slug": "department-of-energy",
+          "amount": -937.0,
+          "total_outlays": null
+        }
+      ],
+      "rejectionReason": "The only AI-named Assistance Listing found by autocomplete is not a NIST, ITA, BIS, or Commerce program."
+    },
+    "firstPrint": {
+      "status": "not_applicable_rejected",
+      "basis": "No stable structured series identity exists to register or witness."
+    },
+    "adapterDisposition": {
+      "family": "usaspending-api",
+      "disposition": "rejected",
+      "requiredWork": "Reconsider only if USAspending exposes an official structured NIST, ITA, or BIS AI-safety federal account, program activity, Assistance Listing, or equally stable classifier with a recurring annual observation population. Do not admit a keyword-defined series or relabel a whole-agency or broad-listing total."
+    },
+    "parseNotes": [
+      "Federal-account obligated_amount values are account-wide financial-account submission totals, not AI-safety subsets.",
+      "spending_over_time aggregated_amount is the signed sum of federal_action_obligation for the exact transaction filters.",
+      "The keywords filter searches mutable award text and is evidence for candidate discovery only, not an admissible series identity.",
+      "Assistance Listing 11.620 and account 013-0500 are broader than the requested concept; using either would invert the DHS precedent's narrow-scope rule.",
+      "The local environment presented a self-signed TLS interception chain, so the successful live calls used curl --insecure against the exact official https://api.usaspending.gov URLs; every recorded hash and byte length is for the returned HTTP 200 application/json body bytes.",
+      "No first-print or resolver work is proposed because the requested series identity was rejected."
+    ]
+  }
+}

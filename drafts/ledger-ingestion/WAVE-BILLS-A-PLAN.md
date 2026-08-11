@@ -44,7 +44,7 @@ Work items (ONE per session; [x] when the request file is written):
   write the request with outcome "rejected" and the precise reason
   (that is an acceptable result — but exhaust the account/AL search
   first).
-- [ ] 4. usaspending-nist-ai-safety-obligations.json — bill
+- [x] 4. usaspending-nist-ai-safety-obligations.json — bill
   frontier-act-hr9925. Same context-series treatment: NIST (or
   Commerce ITA/BIS) AI-related account obligations — live
   investigation; honest scoping or honest rejection with the search
