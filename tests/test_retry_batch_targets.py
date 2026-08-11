@@ -657,6 +657,30 @@ def test_workflow_wires_the_retry_grace_flag() -> None:
     ), "adoption + both registration write steps must skip in retry mode"
 
 
+def test_final_push_loops_rebind_after_every_rebase() -> None:
+    # The round-four publication TOCTOU: the final push loop rebases
+    # again after the initial publish bind, so it must re-run the full
+    # registration binding at the rebased HEAD and require the identical
+    # registration set. Executable-line pins for both docket workflows.
+    for name, targets_file in (
+        ("roll-docket.yml", "roll-targets.json"),
+        ("prospect-docket.yml", "prospect-targets.json"),
+    ):
+        workflow = (ROOT / ".github" / "workflows" / name).read_text()
+        final_push = workflow.split("Rebase, reverify, and push once", 1)[1]
+        assert "--bind-registration-commits" in final_push, name
+        assert targets_file in final_push, name
+        assert (
+            'test "$FINAL_SET_HASH" = "$EXPECTED_SET_HASH"' in final_push
+        ), name
+        assert (
+            "EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}"
+            in workflow.split("Rebase, reverify, and push once", 1)[0]
+            or "EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}"
+            in workflow
+        ), name
+
+
 def test_seed_contracts_reconstruct_with_their_seed_period() -> None:
     # Ordinary release-calendar seeds carry seedPeriod in the contract and
     # the sync bind compares it; the projection must emit it.

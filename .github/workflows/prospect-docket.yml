@@ -476,6 +476,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
           PUBLISHED: ${{ steps.publish.outputs.published }}
+          EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}
         run: |
           set -euo pipefail
           auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
@@ -487,6 +488,16 @@ jobs:
               exit 1
             fi
             git pull --rebase origin main
+            # A rebase can absorb docket changes (anchors included) that
+            # landed after the initial publish bind; re-bind at the
+            # rebased HEAD and require the identical registration set.
+            python3 scripts/register_targets.py \
+              --targets-file /tmp/trusted-registration/prospect-targets.json \
+              --bind-registration-commits \
+              --head HEAD \
+              --metadata-out /tmp/final-registration-check.json
+            FINAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/final-registration-check.json'))['registrationSetHash'])")
+            test "$FINAL_SET_HASH" = "$EXPECTED_SET_HASH"
             DAY=$(basename "$(dirname "$BATCH_MANIFEST")")
             WAVE_HASH=$(shasum -a 256 "$BATCH_MANIFEST" | awk '{print $1}')
             WAVE_NAME="auto-$DAY-$WAVE_HASH"
