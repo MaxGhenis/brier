@@ -1055,13 +1055,63 @@ def test_conditional_pair_stops_when_release_window_opens_literally(
     )
 
 
-def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
+# The CRP pair block as it stood in the docket through 2026-08-10. The live
+# entry keeps its series/extras but the pair is paused (FSA's statistics
+# site — the sole registered source — has been down since 2026-08-04, and
+# the 2026-08-03 registrations grace-terminated); re-adding the block is
+# the deliberate act that registers a fresh pair once the source recovers.
+# The fixture preserves coverage of the monthly-pair machinery meanwhile.
+CRP_INCIDENT_PAIR_BLOCK = {
+    "conditionDeadline": "2027-09-30",
+    "arms": [
+        {
+            "catalogSlug": "us-crp-enrolled-acres-september-2027-ceiling-27-million",
+            "dataPointId": (
+                "usda.fsa.crp.enrolled_acres_total.2027_09.first_print"
+                ".ceiling_27_million"
+            ),
+            "conditionId": "cond.crp-acreage-ceiling-fy2027-31.enacted",
+            "conditional": (
+                "an enacted farm bill sets the CRP acreage ceiling at "
+                "27,000,000 acres for FY2027-31"
+            ),
+        },
+        {
+            "catalogSlug": "us-crp-enrolled-acres-september-2027-no-fy2027-31-ceiling",
+            "dataPointId": (
+                "usda.fsa.crp.enrolled_acres_total.2027_09.first_print"
+                ".no_fy2027_31_ceiling"
+            ),
+            "conditionId": "cond.crp-acreage-ceiling-fy2027-31.current-law",
+            "conditional": (
+                "No farm bill enacted by 2027-09-30 sets a CRP acreage "
+                "ceiling for fiscal years 2027 through 2031; current law "
+                "holds."
+            ),
+        },
+    ],
+}
+
+
+def crp_incident_pair_entry() -> dict:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
-    entry = next(
-        row
-        for row in docket["series"]
-        if row["series"] == "usda.fsa.crp.enrolled_acres_total"
+    entry = copy.deepcopy(
+        next(
+            row
+            for row in docket["series"]
+            if row["series"] == "usda.fsa.crp.enrolled_acres_total"
+        )
     )
+    assert "conditionalPair" not in entry, (
+        "the live CRP entry re-grew a conditionalPair; retire this fixture "
+        "in favor of the real entry"
+    )
+    entry["conditionalPair"] = copy.deepcopy(CRP_INCIDENT_PAIR_BLOCK)
+    return entry
+
+
+def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
+    entry = crp_incident_pair_entry()
 
     targets = roll_docket.conditional_pair_seed_targets(
         entry, set(), dt.date(2026, 8, 2)
@@ -1085,6 +1135,47 @@ def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
         contract["sourceBinding"]["adapter"] == "fsa-crp-monthly-summary"
         for contract in contracts
     )
+
+
+def test_docket_never_pins_resolution_date_on_calendar_entries() -> None:
+    # build_contract writes resolutionDate only for resolve-by-bound targets;
+    # the bind step then requires presence parity with the batch projection.
+    # A calendar entry carrying extras.resolutionDate therefore registers
+    # cleanly but deterministically fails --bind-registration-commits (the
+    # 2026-08-10 roll-docket outage: the CRP pair's pre-basis leftover).
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    offenders = [
+        entry["slug"]
+        for entry in docket["series"]
+        if isinstance(entry.get("extras"), dict)
+        and "resolutionDate" in entry["extras"]
+        and entry["extras"].get("resolutionDateBasis") != "resolve-by-bound"
+    ]
+    assert offenders == []
+
+
+def test_calendar_pair_with_pinned_resolution_date_fails_bind_projection() -> None:
+    # The exact incident shape, kept as a tripwire: re-pin the CRP entry's
+    # old calendar-side resolutionDate and the roll projection diverges from
+    # the registered contract at the bind step's presence check.
+    entry = crp_incident_pair_entry()
+    entry["extras"]["resolutionDate"] = "2027-12-31"
+
+    targets = roll_docket.conditional_pair_seed_targets(
+        entry, set(), dt.date(2026, 8, 2)
+    )
+    assert targets and all(
+        target["resolutionDate"] == "2027-12-31" for target in targets
+    )
+    for target in targets:
+        contract = build_contract(target, dt.date(2026, 8, 2))
+        assert "resolutionDate" not in contract
+        with pytest.raises(
+            RegistrationError, match="contract mismatch for resolutionDate"
+        ):
+            register_targets.validate_target_resolution_projection(
+                contract, target, label="repro"
+            )
 
 
 def test_conditional_pair_skips_published_arms_and_closed_deadlines() -> None:
