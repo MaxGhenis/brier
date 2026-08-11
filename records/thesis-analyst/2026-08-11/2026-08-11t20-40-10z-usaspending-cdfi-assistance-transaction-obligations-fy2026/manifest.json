@@ -1,0 +1,423 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-11T20:40:10Z",
+  "runStartedAt": "2026-08-11T20:40:10Z",
+  "sealedAt": "2026-08-11T20:44:38Z",
+  "series": "usaspending.cdfi.assistance_transaction_obligations",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2025": 319.455176
+    },
+    "catalogSlug": "us-cdfi-assistance-transaction-obligations-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.cdfi.assistance_transaction_obligations.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-11T20:38:09Z",
+    "registeredAtUtc": "2026-08-11T20:38:09Z",
+    "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+    "registrationState": "preregistered",
+    "series": "usaspending.cdfi.assistance_transaction_obligations",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.search.spending_over_time.cdfi.program_obligations",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "table": "USAspending API v2 advanced search, CDFI Fund awarding-subagency financial-assistance award transactions, obligations by fiscal year",
+      "transform": {
+        "agency": {
+          "name": "Community Development Financial Institutions Fund",
+          "tier": "subtier",
+          "type": "awarding"
+        },
+        "awardTypeCodes": [
+          "02",
+          "03",
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11"
+        ],
+        "factor": 1e-06,
+        "fiscalYear": "{fiscal_year}",
+        "group": "fiscal_year",
+        "operation": "multiply",
+        "requestMethod": "POST",
+        "spendingLevel": "transactions"
+      }
+    },
+    "targetContentHash": "6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32",
+    "targetRegistrationPath": "records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json",
+    "targetUnit": "usd_millions",
+    "valueScale": 1e-06
+  },
+  "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+  "targetContentHash": "6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32",
+  "targetRegistrationPath": "records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json",
+  "registeredAtUtc": "2026-08-11T20:38:09Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.8",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-11T20:40:10Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "11227b7f191ab10707cc13df11898cd447999ccde03612b2b1a2b31f1240df0e"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The historical sample uses CDFI award announcements and appropriation figures rather than prior-year values from the registered USAspending spending_over_time query.",
+        "actionRequested": "Add same-resolver historical USAspending values for available prior fiscal years, or explicitly state that the same-query history could not be obtained and that the award-announcement sample is only a proxy."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval sigma is computed from a three-point proxy sample mixing FY2024 awards, FY2025 planned funding, and FY2026 appropriation, not realized volatility of the target series.",
+        "actionRequested": "Either base the interval on realized volatility from same-query historical obligations or clearly label the current sigma as proxy uncertainty and justify why 320-860 is calibrated to target risk."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether Capital Magnet Fund obligations are expected to appear under the registered CDFI awarding-subagency and award-type query, since that component materially drives the FY2024 persistence prior."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Avoid saying the lower bound is constrained by authorized minima unless those minima are likely to obligate within FY2026 under the registered transaction timing rule."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the prior and sigma are based on award-announcement and appropriation proxies rather than same-resolver USAspending history; added explicit caveats, CMF mapping uncertainty, and removed the claim that the lower bound is mechanically constrained by authorized minima. I kept the point and interval because no additional pre-resolution same-query history was available in the draft evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the prior and sigma are based on award-announcement and appropriation proxies rather than same-resolver USAspending history; added explicit caveats, CMF mapping uncertainty, and removed the claim that the lower bound is mechanically constrained by authorized minima. I kept the point and interval because no additional pre-resolution same-query history was available in the draft evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the prior and sigma are based on award-announcement and appropriation proxies rather than same-resolver USAspending history; added explicit caveats, CMF mapping uncertainty, and removed the claim that the lower bound is mechanically constrained by authorized minima. I kept the point and interval because no additional pre-resolution same-query history was available in the draft evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the prior and sigma are based on award-announcement and appropriation proxies rather than same-resolver USAspending history; added explicit caveats, CMF mapping uncertainty, and removed the claim that the lower bound is mechanically constrained by authorized minima. I kept the point and interval because no additional pre-resolution same-query history was available in the draft evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly publishable, but its prior and interval lean on announced-award proxies rather than the same USAspending transaction-obligation series, which should be tightened or explicitly caveated."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/prompt.md",
+      "sha256": "e70d9f9d56c221355f0bf8fdb10382109a799205a6ac59bdc9b88872ad5ea564",
+      "bytes": 33821,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_command.json",
+      "sha256": "f9fc620886fd2040e23d24a7a5f051480b58cda286517db58a080fbcde96f1cb",
+      "bytes": 781,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "58f595b6c6d9e19bfd5f135c33f9a882a611d5b6e2b645a4dbceede499671db1",
+      "bytes": 26014,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_stderr.log",
+      "sha256": "13387aa451b8c150f780191c625f8a4469bc853cc05ca09d26c12a305f99d7eb",
+      "bytes": 233,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_events.jsonl",
+      "sha256": "224220a56a27f28f79ae944e01f330624177d074097409b5e0fc1bc129f1fe1f",
+      "bytes": 25959,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_last_message.txt",
+      "sha256": "51bcf4565065a7d2e2cd089ef9c59fb379bbf685e4076eb1f6751de357722412",
+      "bytes": 7593,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_trace.json",
+      "sha256": "be7401581fffe56850f2f32ac83152595b31071dc0d4932cec4dcb7e28259143",
+      "bytes": 560,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_stdout.txt",
+      "sha256": "51bcf4565065a7d2e2cd089ef9c59fb379bbf685e4076eb1f6751de357722412",
+      "bytes": 7593,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_stderr.txt",
+      "sha256": "337c3f1e2dbcd3175dd9598adad7fa916f5b7defa88ea7773c937a62100fa48e",
+      "bytes": 248,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_prompt.md",
+      "sha256": "d5e97529c83c5b409fc15c9ddc426d924bbb1cf8be89354a2ea9efb89f58534e",
+      "bytes": 11411,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_command.json",
+      "sha256": "d2edede7dc83035c1c2703ddc9bced539b3994fc5d6edd754bd6414970bdb95a",
+      "bytes": 777,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a2953234cd011a7665f0a4b5b40c3e893cfe216b40ef93fe27790f3c688a420c",
+      "bytes": 1911,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "ee56de0ea00e43671a2041f36d34f42420f2cbf0a6861c5acb2b16fe85553dac",
+      "bytes": 233,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "311bc0ea25d3d2daf5c1f925d3d293011411eb3762eceffc5f5796ad7acedf39",
+      "bytes": 1933,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "e3f1277be991c9e4c6e76f537e880cbdc92bc5a48e287782a7f2af20eb194c12",
+      "bytes": 1553,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "aae0d59accee957f08f51fb942d81e78bf9a9557c18aecea3b6a3c50242a08ee",
+      "bytes": 553,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "e3f1277be991c9e4c6e76f537e880cbdc92bc5a48e287782a7f2af20eb194c12",
+      "bytes": 1553,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "31f2b4f340c429ecf1f968abdb84699ce055e42db46aa242b234ff7bddaed9fd",
+      "bytes": 248,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/revision_prompt.md",
+      "sha256": "61a4a6f8a729e421b7ba1f0ec282de948bf322056f2cf5abd6be94dd6f6c0b8b",
+      "bytes": 43903,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/command.json",
+      "sha256": "a0056af855eac63050436dda393918d24bf30e43f11f3eec28e47895e86f679d",
+      "bytes": 775,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_stdout.jsonl",
+      "sha256": "ba24c19aee968f3f2c52ad7e07c4c51a81a0031b2b4213c44fc8040f65de2abd",
+      "bytes": 9176,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_stderr.log",
+      "sha256": "640575225db63a987c8750342cb85fd2faacce94aca8acf57862bc37e9b8bbd8",
+      "bytes": 233,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_events.jsonl",
+      "sha256": "c6da2a5c6cccbc932413ae07dae79613032e38ca9abd902843c447de62cc82aa",
+      "bytes": 9198,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_last_message.txt",
+      "sha256": "cdb8bd283e8564f28d0133504e009376d274da572e5fdfcfeeade939e5515ffa",
+      "bytes": 8589,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_trace.json",
+      "sha256": "6166585c2b319d420965cd06f73d8a462ddd89480f00b550ac3bd8f7ca98f36d",
+      "bytes": 557,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/stdout.txt",
+      "sha256": "cdb8bd283e8564f28d0133504e009376d274da572e5fdfcfeeade939e5515ffa",
+      "bytes": 8589,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/stderr.txt",
+      "sha256": "b92ec0638cf8ff0a8c13cbc944cae939603d06e40b36a98fcc6d0490180d9f6b",
+      "bytes": 248,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/raw_response.txt",
+      "sha256": "cdb8bd283e8564f28d0133504e009376d274da572e5fdfcfeeade939e5515ffa",
+      "bytes": 8589,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/parsed_cells.json",
+      "sha256": "53f7974d6c57469bf4ad92653da69832c35f41e044811a35137e4af79f3da365",
+      "bytes": 9567,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/normalized_cells.json",
+      "sha256": "e89c240a3803f9e4f49be978572a2fe7210ed3348389dd82a49c39efdd60701f",
+      "bytes": 26928,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/distribution.json",
+      "sha256": "40838a0176f3ec07bebfb8a7228c253de7592493c98e076539079a88b5968482",
+      "bytes": 13577,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/validation.json",
+      "sha256": "706bca5b6ba1f064c66c916986a706c1b13242cedd3cc1683a2ca49c19be0116",
+      "bytes": 325,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/cells.with_activity.json",
+      "sha256": "26fa3e3db7b0e1949db0a7b60e68af6c24226d021c37242e15a5bc82f5e491d2",
+      "bytes": 44125,
+      "createdAt": "2026-08-11T20:40:10Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-11/2026-08-11t20-40-10z-usaspending-cdfi-assistance-transaction-obligations-fy2026/manifest.json",
+      "sha256": "2b6ec8f49384cdff0a7ccb5c7071f02f118c2fcaf488a4eecbfb749669bc32e2",
+      "bytes": 18143,
+      "createdAt": "2026-08-11T20:40:10Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "us-cdfi-assistance-transaction-obligations-fy2026",
+        "ok": false,
+        "errors": [
+          "anchor '2025': history value(s) [8.8] contradict the verified official value 319.455176 (tolerance 1.59728) \u2014 wrong series, vintage, or source lineage"
+        ]
+      }
+    ]
+  },
+  "checkoutSha": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "883abeaef3ca9228b547d012fc5697e8d680d356f3efa9a315c4193ead61313e"
+}

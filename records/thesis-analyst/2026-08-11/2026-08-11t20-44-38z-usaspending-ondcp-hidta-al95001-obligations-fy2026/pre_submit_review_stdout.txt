@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is mostly publishable, but the resolver text should not add an unregistered rounding rule.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "resolutionRule adds 'rounded to one decimal usd_millions', while the canonical target contract specifies multiplying aggregated_amount by 1e-06 and does not register a rounding rule.",
+      "actionRequested": "Remove the rounding clause or explicitly state rounding applies only to displayed forecast fields, not to the resolving observation."
+    }
+  ],
+  "optionalSuggestions": [
+    "Add one sentence making clear the appropriation/allocation history is a proxy because same-endpoint USAspending historical POST aggregates were unavailable in this run.",
+    "Consider naming the upside tail as full appropriation posting near 298.579m, since that is just above the upper bound and is the main interval-edge risk."
+  ]
+}
