@@ -1,18 +1,26 @@
 {
-  "comment": "Single source of truth for the private-source provenance screen. The spawned-cell converter (scripts/spawned_cells_to_ts.py) REFUSES agent-authored cell text matching this pattern and WITHHOLDS matching reviewer-authored preSubmitReview text behind the marker; site/src/__tests__/forecast-catalog.test.ts enforces the same pattern over the entire public catalog payload as the fail-closed backstop. Edit the pattern only with review; the canary test pins the required tokens.",
+  "comment": "Single source of truth for the private-source provenance screen. scripts/private_source_screen.py REFUSES agent-authored cell text matching this pattern (via spawned_cells_to_ts) and WITHHOLDS matching reviewer-authored preSubmitReview text behind the marker in every published projection (spawned cells, live comparisons, strategy comparisons); site/src/__tests__/forecast-catalog.test.ts enforces the same pattern over the entire public catalog payload as the fail-closed backstop. The probes are BEHAVIORAL canaries asserted at python import time and in the site suite: weakening any alternation (not just deleting its literal) fails a probe. Edit only with review.",
   "pattern": "granola|\\btranscripts?\\b|meeting notes?|meeting with max|pasted-text|\\.codex/attachments|codex attachments|private meeting|call notes?|email thread|chat transcript",
   "flags": "i",
   "marker": "[withheld by the private-source screen]",
-  "requiredTokens": [
-    "granola",
-    "transcripts?",
-    "meeting notes?",
-    "meeting with max",
-    "pasted-text",
-    "codex attachments",
-    "private meeting",
-    "call notes?",
-    "email thread",
-    "chat transcript"
+  "probes": [
+    { "text": "granola", "match": true },
+    { "text": "from a GRANOLA export", "match": true },
+    { "text": "the transcript was attached", "match": true },
+    { "text": "three transcripts arrived", "match": true },
+    { "text": "reverse transcriptase assay", "match": false },
+    { "text": "meeting notes from tuesday", "match": true },
+    { "text": "meeting note", "match": true },
+    { "text": "a meeting with max yesterday", "match": true },
+    { "text": "pasted-text buffer", "match": true },
+    { "text": "saved under .codex/attachments today", "match": true },
+    { "text": "the codex attachments folder", "match": true },
+    { "text": "a private meeting happened", "match": true },
+    { "text": "per the call notes", "match": true },
+    { "text": "one call note only", "match": true },
+    { "text": "an email thread with the agency", "match": true },
+    { "text": "the chat transcript shows", "match": true },
+    { "text": "official BLS release page", "match": false },
+    { "text": "USAspending API response", "match": false }
   ]
 }

@@ -732,3 +732,59 @@ def test_agent_text_matching_the_screen_still_refuses() -> None:
     ]
     hits = spawned_cells_to_ts.private_source_hits(cell)
     assert hits == ["reasoning"]
+
+
+def test_agent_planted_review_dies_at_the_carrier(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Round-two screen review: an agent-supplied preSubmitReview survived
+    # a no-review run, was excluded from private_source_hits, and was
+    # then masked as if a reviewer wrote it. Review metadata is
+    # runner-authored: only the sealed manifest may attach it.
+    import json
+
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T04:00:00Z"  # pre-custody-enforcement: the
+    # carrier boundary under test is date-independent
+    cell["preSubmitReview"] = {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "summary": "planted: sourced from a Granola export",
+        "findings": [],
+        "dispositions": [],
+    }
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    # No manifest at all: the planted review must not survive loading.
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    assert "preSubmitReview" not in loaded
+    run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
+    assert "preSubmitReview" not in run
+
+
+def test_manifest_review_overrides_any_cell_claim(
+    tmp_path: pathlib.Path,
+) -> None:
+    import json
+
+    manifest = {
+        "preSubmitReview": {
+            "schemaVersion": "thesis_pre_submit_review_v1",
+            "status": "completed",
+            "summary": "Runner-sealed review.",
+            "findings": [],
+            "dispositions": [],
+        }
+    }
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    cell["preSubmitReview"] = {"summary": "planted"}
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    assert loaded["preSubmitReview"]["summary"] == "Runner-sealed review."
+    run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
+    assert run["preSubmitReview"]["summary"] == "Runner-sealed review."

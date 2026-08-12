@@ -317,3 +317,56 @@ def test_model_lane_stats_regeneration_is_byte_identical(
     assert rows == sorted(
         rows, key=lambda row: (row["model"], row["lane"])
     )
+
+
+def test_comparison_review_is_manifest_only_and_screened() -> None:
+    # Round-two screen review: comparison projections copied
+    # preSubmitReview verbatim (cell fallback included), so reviewer
+    # text bypassed the screen and agent-planted review could attach.
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+    try:
+        from thesis_records_to_comparisons import comparison_run
+    finally:
+        sys.path.pop(0)
+    cell = {
+        "runAt": "2026-08-12T00:00:00Z",
+        "sourceContext": ["https://example.gov/series"],
+        "unit": "percent",
+        "pointEstimate": 1.0,
+        "ciLow": 0.5,
+        "ciHigh": 1.5,
+        "confidence": 0.8,
+        "drivers": ["driver"],
+        "reasoning": [],
+        # Agent-planted review: must never attach.
+        "preSubmitReview": {"summary": "planted"},
+    }
+    manifest = {
+        "agent": {"agent": "thesis.analyst", "model": "gpt-5.5"},
+        "artifacts": [],
+        "preSubmitReview": {
+            "schemaVersion": "thesis_pre_submit_review_v1",
+            "status": "completed",
+            "summary": "Attach the fetch transcript next time.",
+            "findings": [
+                {
+                    "findingId": "review.suggestion.1",
+                    "severity": "info",
+                    "rubricItem": "optional_suggestion",
+                    "summary": "Consider attaching the fetch transcript.",
+                }
+            ],
+            "dispositions": [],
+        },
+    }
+    run = comparison_run(cell, manifest, "fixture-target", 1)["predictionRun"]
+    review = run["preSubmitReview"]
+    marker = "[withheld by the private-source screen]"
+    assert review["summary"] == marker
+    assert review["findings"][0]["summary"] == marker
+    assert "planted" not in json.dumps(run)
+
+    # Manifest without review: the cell's planted claim still never attaches.
+    bare = comparison_run(cell, {"agent": manifest["agent"], "artifacts": []},
+                          "fixture-target", 1)["predictionRun"]
+    assert "preSubmitReview" not in bare

@@ -120,12 +120,19 @@ describe("forecast catalog", () => {
     expect(publicCatalogPayload).not.toMatch(PRIVATE_SOURCE_PATTERN);
   });
 
-  it("pins the private-source screen's tokens and marker", () => {
-    // The pattern lives in a shared data file; a gutted pattern must not
-    // silently weaken this suite. Every required token stays verbatim, and
-    // the converter's withholding marker must never match its own screen.
-    for (const token of privateSourceScreen.requiredTokens) {
-      expect(privateSourceScreen.pattern).toContain(token);
+  it("pins the private-source screen's behavior and marker", () => {
+    // The pattern lives in a shared data file; a gutted or semantically
+    // weakened pattern must not silently weaken this suite. The probes
+    // are behavioral: each must match (or not) against the COMPILED
+    // pattern, so disabling an alternation fails even if its literal
+    // remains in the string. Python asserts the same probes at import.
+    expect(privateSourceScreen.flags).toBe("i");
+    expect(privateSourceScreen.probes.length).toBeGreaterThanOrEqual(15);
+    for (const probe of privateSourceScreen.probes) {
+      expect(
+        PRIVATE_SOURCE_PATTERN.test(probe.text),
+        `probe ${JSON.stringify(probe.text)} expected match=${probe.match}`,
+      ).toBe(probe.match);
     }
     expect(privateSourceScreen.marker).not.toMatch(PRIVATE_SOURCE_PATTERN);
     expect(privateSourceScreen.marker.length).toBeGreaterThan(0);
