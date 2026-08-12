@@ -394,6 +394,87 @@ def test_empty_cell_payload_fails_instead_of_green_manifest(
     assert "empty cell payload" in manifest["error"]["message"]
 
 
+def _run_fake_codex_case(tmp_path: Path, name: str, cell) -> tuple[int, Path]:
+    out_dir = tmp_path / name
+    codex_home = tmp_path / f"{name}-codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / f"{name}-codex"
+    write_fake_codex(fake_codex, cell)
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode, out_dir
+
+
+def _custody_passes(out_dir: Path) -> None:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import verify_run
+    finally:
+        sys.path.pop(0)
+    verify_run(out_dir)
+
+
+def test_malformed_cell_values_leave_custody_clean_failure_manifests(
+    tmp_path: Path,
+) -> None:
+    # Round-two reproductions: a non-numeric pointEstimate and a numeric
+    # slug crashed sealing with no manifest at all. Both must now leave
+    # an ok:false manifest that custody verification accepts — otherwise
+    # publication still rejects the wave.
+    bad_point = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_point["pointEstimate"] = "not-a-number"
+    code, out_dir = _run_fake_codex_case(tmp_path, "bad-point", bad_point)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] in {"normalize", "seal", "validate"}
+    _custody_passes(out_dir)
+
+    bad_slug = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_slug["slug"] = 7
+    code, out_dir = _run_fake_codex_case(tmp_path, "bad-slug", bad_slug)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] in {"normalize", "seal", "validate"}
+    _custody_passes(out_dir)
+
+
+def test_normalize_failure_manifest_passes_custody(tmp_path: Path) -> None:
+    # The B1 shape end to end: history-less cell -> normalize failure
+    # manifest -> custody verification green (publication treats it as
+    # any failed run instead of blocking the wave).
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "hist-less", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["error"]["phase"] == "normalize"
+    _custody_passes(out_dir)
+
+
 def test_registered_query_snapshot_context_instructs_query_history():
     # A registered_query_snapshot series has no published table: history
     # must come from executing the registered query for prior periods.
@@ -421,14 +502,11 @@ def test_registered_query_snapshot_context_instructs_query_history():
                         "adapter": "usaspending-api",
                         "releasePolicy": "registered_query_snapshot",
                         "sourceUrl": (
-                            "https://api.usaspending.gov/api/v2/search/"
-                            "spending_over_time/"
+                            "https://api.usaspending.gov/api/v2/agency/097/"
+                            "awards/?fiscal_year={fiscal_year}"
                         ),
-                        "field": (
-                            "results[time_period.fiscal_year={fiscal_year}]"
-                            ".aggregated_amount"
-                        ),
-                        "transform": {"operation": "multiply", "factor": 1e-06},
+                        "field": "obligations",
+                        "transform": {"operation": "multiply", "factor": 1e-09},
                     },
                 }
             ),
@@ -442,6 +520,63 @@ def test_registered_query_snapshot_context_instructs_query_history():
     assert "# Registered-query series (machine checked)" in result.stdout
     assert "executing the exact registered query" in result.stdout
     assert "refuse with the fetch" in result.stdout
+    # GET binding (period slot in the URL, no requestMethod): the block
+    # must instruct URL substitution and GET, never a POST template.
+    assert "sourceBinding.sourceUrl" in result.stdout
+    assert "and GET it" in result.stdout
+    assert "fiscal_year={fiscal_year}" in result.stdout
+    assert "request template" not in result.stdout
+
+    post = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.snapshot_series",
+            "--period",
+            "FY2026",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "snapshot-post-slug",
+                    "targetUnit": "usd_millions",
+                    "dataPointId": (
+                        "test.snapshot_series.fy2026.registered_query_snapshot"
+                    ),
+                    "sourceBinding": {
+                        "adapter": "usaspending-api",
+                        "releasePolicy": "registered_query_snapshot",
+                        "sourceUrl": (
+                            "https://api.usaspending.gov/api/v2/search/"
+                            "spending_over_time/"
+                        ),
+                        "field": (
+                            "results[time_period.fiscal_year={fiscal_year}]"
+                            ".aggregated_amount"
+                        ),
+                        "transform": {
+                            "operation": "multiply",
+                            "factor": 1e-06,
+                            "requestMethod": "POST",
+                            "programNumbers": ["95.001"],
+                        },
+                    },
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    # POST binding: the block must instruct the transform's request
+    # template POSTed to the endpoint.
+    assert "request template and POST it to" in post.stdout
+    assert "spending_over_time" in post.stdout
+    assert "and GET it" not in post.stdout
 
     # A non-snapshot binding must not get the block.
     plain = subprocess.run(

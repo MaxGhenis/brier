@@ -3518,14 +3518,45 @@ def main() -> int:
     # Start time and any differing agent claim are kept for audit.
     sealed_at = utc_now()
     binding = registration_binding(target_context)
-    materialized_distributions = seal_normalized_cells(
-        normalized_cells,
-        conditional=args.conditional,
-        run_started_at=run_at,
-        sealed_at=sealed_at,
-        prompt_mode=args.prompt_mode,
-        target_context=target_context,
-    )
+    try:
+        materialized_distributions = seal_normalized_cells(
+            normalized_cells,
+            conditional=args.conditional,
+            run_started_at=run_at,
+            sealed_at=sealed_at,
+            prompt_mode=args.prompt_mode,
+            target_context=target_context,
+        )
+    except (ValueError, TypeError, KeyError, RuntimeError) as exc:
+        # Malformed cell values (a non-numeric pointEstimate, a numeric
+        # slug) must still leave a registration-bound failure manifest —
+        # the uncaught path left no run record and blocked whole-wave
+        # publication. normalized_cells.json exists on disk at this
+        # point, so reference it before sealing the failure inventory.
+        refs.append(
+            {
+                "artifactType": "normalized_cell",
+                "path": repo_relative(normalized_path),
+                "sha256": sha256_bytes(normalized_path.read_bytes()),
+                "bytes": normalized_path.stat().st_size,
+                "createdAt": run_at,
+            }
+        )
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "seal",
+            f"{type(exc).__name__}: {exc}",
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
         {
@@ -3546,13 +3577,33 @@ def main() -> int:
         )
     )
 
-    validation = validate_cells(
-        normalized_cells,
-        args.allow_existing_slug,
-        target_context,
-        args.prompt_mode,
-        generation_ticket=generation_ticket,
-    )
+    try:
+        validation = validate_cells(
+            normalized_cells,
+            args.allow_existing_slug,
+            target_context,
+            args.prompt_mode,
+            generation_ticket=generation_ticket,
+        )
+    except (ValueError, TypeError, KeyError, RuntimeError) as exc:
+        # Same guarantee as the normalize and seal guards: a cell that
+        # crashes validation (rather than failing it) still leaves a
+        # registration-bound failure manifest.
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "validate",
+            f"{type(exc).__name__}: {exc}",
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     validation_ref = write_artifact(
         out_dir,
         "validation_report",

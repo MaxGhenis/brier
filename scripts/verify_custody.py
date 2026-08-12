@@ -574,6 +574,54 @@ def _verify_analyst_v2(
             )
         return
 
+    post_parse_failure = (
+        isinstance(manifest.get("error"), dict)
+        and manifest["error"].get("phase") in {"normalize", "seal", "validate"}
+    )
+    if post_parse_failure:
+        # A run whose agent produced parseable output that failed a later
+        # harness stage must still be custody-verifiable: without these
+        # inventories, registration-bound failure manifests were rejected
+        # here and whole-wave publication blocked (the B1 rescue shape).
+        # Each phase allows exactly the artifacts its stage had written.
+        phase = manifest["error"]["phase"]
+        base = {
+            "prompt.md": "prompt",
+            "raw_response.txt": "raw_response",
+            "parsed_cells.json": "parsed_cell",
+            "error.json": "error",
+        }
+        phase_allowed = {
+            "normalize": set(),
+            "seal": {"normalized_cells.json"},
+            "validate": {"normalized_cells.json", "distribution.json"},
+        }[phase]
+        _required(entries, base)
+        forbidden = {
+            "cells.with_activity.json",
+            "validation.json",
+            "normalized_cells.json",
+            "distribution.json",
+        } - phase_allowed
+        present = {str(entry["path"]) for entry in entries}
+        if forbidden & present:
+            raise CustodyError(
+                f"{phase}-failure inventory contains artifacts from later "
+                "stages"
+            )
+        allowed = {
+            *base,
+            *phase_allowed,
+            *_verify_invocation_stages(run_dir, manifest, entries),
+        }
+        unexpected = sorted(present - allowed)
+        if unexpected:
+            raise CustodyError(
+                f"{phase}-failure inventory contains unexpected artifacts: "
+                + ", ".join(unexpected)
+            )
+        return
+
     if manifest.get("validation") is None:
         raise CustodyError(
             "analyst v2 run is neither parse-failed nor validation-complete"
