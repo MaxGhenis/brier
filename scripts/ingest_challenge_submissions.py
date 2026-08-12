@@ -96,6 +96,42 @@ def _finite_number(value: Any, *, field: str) -> int | float:
     return value
 
 
+EXPIRED_REGISTRATIONS_TS = Path("site/src/data/expired-unforecast-registrations.ts")
+
+
+def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
+    """The terminal expired-registration ratchet, shared with the site.
+
+    A registration on this list crossed its orphan grace with no
+    forecast; admitting one afterward would break the chronology the
+    grace window protects. The site suite enforces this for published
+    catalogs, but challenge rows reach the recorder without that suite,
+    so this adapter must refuse expired ids itself.
+    """
+
+    try:
+        text = (repo_root / EXPIRED_REGISTRATIONS_TS).read_text()
+    except OSError as error:
+        raise ChallengeSubmissionError(
+            f"cannot read {EXPIRED_REGISTRATIONS_TS}: {error}"
+        ) from error
+    match = re.search(
+        r"EXPIRED_UNFORECAST_REGISTRATIONS\s*=\s*\[(.*?)\]\s*as\s*const",
+        text,
+        flags=re.S,
+    )
+    if match is None:
+        raise ChallengeSubmissionError(
+            f"could not parse {EXPIRED_REGISTRATIONS_TS} for the expired set"
+        )
+    ids = frozenset(re.findall(r'"([^"]+)"', match.group(1)))
+    if not ids:
+        raise ChallengeSubmissionError(
+            f"parsed an empty expired set from {EXPIRED_REGISTRATIONS_TS}"
+        )
+    return ids
+
+
 def load_registered_targets(targets_dir: Path) -> dict[str, RegisteredTarget]:
     """Index every recorded target registration by dataPointId.
 
@@ -338,6 +374,7 @@ def adapt_submission(
     *,
     registered_targets: dict[str, RegisteredTarget],
     repo_root: Path,
+    expired_registrations: frozenset[str],
 ) -> dict[str, Any]:
     """Validate and adapt one inbox JSON file into a snapshot prediction row."""
 
@@ -367,6 +404,13 @@ def adapt_submission(
     target = registered_targets.get(data_point_id)
     if target is None:
         raise ChallengeSubmissionError(f"unregistered dataPointId: {data_point_id}")
+    if data_point_id in expired_registrations:
+        # The registration crossed orphan grace with no forecast and is
+        # terminally ratcheted; a pre-release timestamp does not revive it.
+        raise ChallengeSubmissionError(
+            f"registration {data_point_id} expired unforecast; "
+            "post-grace submissions are refused"
+        )
 
     point_estimate = _finite_number(payload.get("pointEstimate"), field="pointEstimate")
     quantiles = validate_quantiles(payload)
@@ -434,6 +478,9 @@ def ingest_challenge_submissions(
             f"challenge inbox directory does not exist: {inbox_dir}"
         )
     registered_targets = load_registered_targets(targets_dir)
+    # Loaded once, outside the per-file guard: an unreadable ratchet is
+    # repo corruption and must abort the whole ingest, not skip rows.
+    expired_registrations = expired_unforecast_registrations(repo_root)
     records: list[dict[str, Any]] = []
     for path in sorted(inbox_dir.glob("*/*.json")):
         # Sigstore sidecars also end in .json but are provenance for a cell,
@@ -445,6 +492,7 @@ def ingest_challenge_submissions(
                 path,
                 registered_targets=registered_targets,
                 repo_root=repo_root,
+                expired_registrations=expired_registrations,
             )
         except ChallengeSubmissionError as error:
             try:
