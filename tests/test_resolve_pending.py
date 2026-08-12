@@ -1582,6 +1582,214 @@ def test_main_qcew_branch_builds_and_projects_the_registered_fact(
     assert archive_name.startswith(expected_archive_stem)
 
 
+def test_main_qcew_branch_refuses_next_day_completed_fetch(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    series = "bls.qcew.child_day_care_services.annual_avg_employment"
+    ref = f"{series}.2025.first_print"
+    period = "2025"
+    release_date = "2026-06-02"
+    completed_at = "2026-06-03T00:00:01Z"
+    spec = resolve_pending.QCEW_ADAPTERS[series]
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(item for item in docket["series"] if item["series"] == series)
+    target = {
+        "series": series,
+        "period": period,
+        "seedPeriod": period,
+        "catalogSlug": "us-private-child-day-care-2025",
+        **entry["extras"],
+        "expectedReleaseDate": release_date,
+        "releaseCalendarUrl": entry["releaseCalendarUrl"],
+    }
+    contract = register_targets.build_contract(target, dt.date(2026, 6, 1))
+    registrations = {
+        ref: {
+            "targetContentHash": "b" * 64,
+            "contract": contract,
+            "ledgerPin": None,
+        }
+    }
+    raw = (
+        ROOT
+        / "tests"
+        / "fixtures"
+        / "qcew"
+        / "child_day_care_services_2025_annual.csv"
+    ).read_bytes()
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "docket_series.json").write_text(
+        json.dumps({"series": [entry]})
+    )
+
+    real_date = dt.date
+
+    class ReleaseDate(real_date):
+        @classmethod
+        def today(cls):
+            return cls.fromisoformat(release_date)
+
+    fetched_periods: list[str] = []
+
+    def fake_qcew_fetch(fetch_spec, fetch_period):
+        fetched_periods.append(fetch_period)
+        return (
+            float(fetch_spec["anchors"][fetch_period]),
+            raw,
+            resolve_pending.qcew_api_url(fetch_spec, fetch_period),
+            completed_at,
+            None,
+        )
+
+    monkeypatch.setattr(resolve_pending, "ROOT", tmp_path)
+    monkeypatch.setattr(resolve_pending.dt, "date", ReleaseDate)
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "qcew",
+                spec,
+                "year",
+                period,
+                release_date,
+                {"unit": "count", "resolutionDate": release_date},
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "c" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: registrations
+    )
+    monkeypatch.setattr(resolve_pending, "qcew_fetch_period", fake_qcew_fetch)
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: completed_at)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    output = capsys.readouterr().out
+    assert fetched_periods == list(spec["anchors"])
+    assert (
+        f"FIRST-PRINT WINDOW MISSED (refusing): {ref} — QCEW response "
+        "completed on 2026-06-03, after registered release day 2026-06-02"
+    ) in output
+    assert "nothing new to record" in output
+    assert "dry-run: would append" not in output
+
+
+def test_main_qcew_branch_refuses_joint_calendar_page_and_date_drift(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    series = "bls.qcew.child_day_care_services.annual_avg_employment"
+    ref = f"{series}.2025.first_print"
+    period = "2025"
+    release_date = "2026-06-03"
+    spec = resolve_pending.QCEW_ADAPTERS[series]
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    canonical_entry = next(
+        item for item in docket["series"] if item["series"] == series
+    )
+    entry = json.loads(json.dumps(canonical_entry))
+    entry["period"] = entry["seedPeriod"] = period
+    entry["releaseCalendarUrl"] = (
+        "https://www.bls.gov/schedule/news_release/cewqtr.htm"
+    )
+    entry["releaseDates"][period] = release_date
+    target = {
+        "series": series,
+        "period": period,
+        "seedPeriod": period,
+        "catalogSlug": "us-private-child-day-care-2025",
+        **entry["extras"],
+        "expectedReleaseDate": release_date,
+        "releaseCalendarUrl": entry["releaseCalendarUrl"],
+    }
+    contract = register_targets.build_contract(target, dt.date(2026, 6, 1))
+    registration = {
+        "targetContentHash": "b" * 64,
+        "contract": contract,
+        "ledgerPin": None,
+    }
+    binding = contract["sourceBinding"]
+    assert resolve_pending.qcew_binding_matches_spec(
+        binding, spec, period, dt.date.fromisoformat(release_date)
+    )
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "docket_series.json").write_text(
+        json.dumps({"series": [entry]})
+    )
+
+    real_date = dt.date
+
+    class ReleaseDate(real_date):
+        @classmethod
+        def today(cls):
+            return cls.fromisoformat(release_date)
+
+    def unexpected_qcew_fetch(*_args, **_kwargs):
+        pytest.fail("calendar-authority refusal must happen before any QCEW fetch")
+
+    monkeypatch.setattr(resolve_pending, "ROOT", tmp_path)
+    monkeypatch.setattr(resolve_pending.dt, "date", ReleaseDate)
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "qcew",
+                spec,
+                "year",
+                period,
+                release_date,
+                {"unit": "count", "resolutionDate": release_date},
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "c" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: {ref: registration}
+    )
+    monkeypatch.setattr(
+        resolve_pending, "qcew_fetch_period", unexpected_qcew_fetch
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "utc_now",
+        lambda: f"{release_date}T12:00:00Z",
+    )
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+    output = capsys.readouterr().out
+    assert f"BINDING/ADAPTER MISMATCH (refusing, registry drift?): {ref}" in output
+    assert "nothing new to record" in output
+
+
 def test_projection_refusal_writes_no_orphan_archive_in_a_mixed_run(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:

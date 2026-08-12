@@ -377,6 +377,11 @@ def test_annual_fact_sources_the_exact_fetched_csv() -> None:
             "size_code=0;qtr=A",
         ),
         ("field", "qtrly_estabs"),
+        pytest.param(
+            "expectedReleaseWindow",
+            {"start": "2026-06-03", "end": "2026-06-03"},
+            id="expected-release-window",
+        ),
         ("allowedHosts", ["www.bls.gov"]),
     ],
 )
