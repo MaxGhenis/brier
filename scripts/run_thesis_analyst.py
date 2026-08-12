@@ -2292,8 +2292,20 @@ def build_pre_submit_review_metadata(
     revision_prompt_ref: dict[str, Any] | None,
     normalized_cells: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    fixes = list((review_payload or {}).get("requiredFixes") or [])
-    suggestions = list((review_payload or {}).get("optionalSuggestions") or [])
+    def _review_collection(value: Any) -> list[Any]:
+        # Reviewer-agent JSON may hand back a scalar, string, or object
+        # where a list belongs: list() on a number raises after
+        # validation (losing the run record), and list() on a string
+        # explodes it into per-character findings. Anything non-list
+        # becomes a single malformed row for the item guard below.
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        return [value]
+
+    fixes = _review_collection((review_payload or {}).get("requiredFixes"))
+    suggestions = _review_collection((review_payload or {}).get("optionalSuggestions"))
     findings: list[dict[str, Any]] = []
     for index, fix in enumerate(fixes):
         if not isinstance(fix, dict):
@@ -2306,7 +2318,9 @@ def build_pre_submit_review_metadata(
                 "findingId": f"review.finding.{index + 1}",
                 "severity": str(fix.get("severity") or "warning"),
                 "rubricItem": str(fix.get("rubricItem") or "review"),
-                "summary": str(fix.get("summary") or "").strip(),
+                # A dict row with no usable summary still leaves its
+                # content in the record rather than an empty finding.
+                "summary": str(fix.get("summary") or "").strip() or str(fix),
                 "actionRequested": str(fix.get("actionRequested") or "").strip()
                 or None,
             }

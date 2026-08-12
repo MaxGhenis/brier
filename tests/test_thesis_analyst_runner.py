@@ -523,6 +523,110 @@ def test_malformed_reviewer_findings_do_not_crash() -> None:
     assert "tighten interval" in summaries
 
 
+def test_malformed_reviewer_collection_containers_become_findings() -> None:
+    # Round-five reproduction: the COLLECTION itself may be a scalar,
+    # string, or object rather than a list. list(7) and list(1e309)
+    # raise TypeError after validation (no manifest), and a bare string
+    # exploded into per-character findings.
+    for container, expected in (
+        (7, "7"),
+        (float("inf"), "inf"),
+        ("tighten the interval", "tighten the interval"),
+        ({"note": "x"}, "{'note': 'x'}"),
+    ):
+        metadata = analyst_runner.build_pre_submit_review_metadata(
+            status="completed",
+            requested_at="2026-08-12T00:00:00Z",
+            review_result=None,
+            review_payload={
+                "requiredFixes": container,
+                "optionalSuggestions": container,
+            },
+            draft_ref=None,
+            review_ref=None,
+            revision_prompt_ref=None,
+        )
+        findings = metadata["findings"]
+        # One malformed row per field — never per-character, never a crash.
+        assert len(findings) == 2, container
+        assert [f["summary"] for f in findings] == [expected, expected], container
+
+
+def test_reviewer_scalar_collections_run_end_to_end(tmp_path: Path) -> None:
+    # The same shapes through the real runner and reviewer loop: the
+    # run must complete with the malformed reviewer output recorded in
+    # the manifest, not crash after validation with no run record.
+    final_cell = review_test_cell(
+        point=5.2,
+        ci_low=4.6,
+        ci_high=5.9,
+        review_disposition=(
+            "Review disposition: reviewer output was malformed; kept the "
+            "draft forecast unchanged."
+        ),
+    )
+    for name, review_text in (
+        ("scalar-fixes", '{"requiredFixes": 7, "optionalSuggestions": ["ok"]}'),
+        ("inf-fixes", '{"requiredFixes": 1e309, "optionalSuggestions": 1e309}'),
+    ):
+        out_dir = tmp_path / name
+        codex_home = tmp_path / f"{name}-codex-home"
+        codex_home.mkdir()
+        (codex_home / "auth.json").write_text("{}\n")
+        fake_codex = tmp_path / f"{name}-codex"
+        write_fake_codex(
+            fake_codex,
+            review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+            extra_lines=[
+                "model = args[args.index('-m') + 1]",
+                "prompt = args[-1]",
+                f"review_text = {json.dumps(review_text)}",
+                f"final_text = {json.dumps(json.dumps(final_cell))}",
+                "if model == 'gpt-review':",
+                "    text = review_text",
+                "elif 'Pre-submit review loop' in prompt:",
+                "    text = final_text",
+            ],
+        )
+        env = {
+            **os.environ,
+            "THESIS_CODEX_BIN": str(fake_codex),
+            "CODEX_HOME": str(codex_home),
+        }
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--series",
+                "test.codex_rate",
+                "--period",
+                "2030-01",
+                "--codex-model",
+                "gpt-5.5",
+                "--pre-submit-review-codex-model",
+                "gpt-review",
+                "--out-dir",
+                str(out_dir),
+            ],
+            cwd=ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, (name, result.stderr[-2000:])
+        manifest = json.loads((out_dir / "manifest.json").read_text())
+        assert manifest["ok"] is True, name
+        review_meta = manifest["preSubmitReview"]
+        assert review_meta["schemaVersion"] == "thesis_pre_submit_review_v1"
+        summaries = [f["summary"] for f in review_meta["findings"]]
+        assert summaries, name
+        if name == "scalar-fixes":
+            assert "7" in summaries
+        else:
+            assert "inf" in summaries
+        _custody_passes(out_dir)
+
+
 def test_string_coerced_numbers_fail_at_normalize(tmp_path: Path) -> None:
     # Round-four reproduction: "1e309" as a STRING passes the parse gate
     # (strings are canonical-safe), then normalization coerces it to
