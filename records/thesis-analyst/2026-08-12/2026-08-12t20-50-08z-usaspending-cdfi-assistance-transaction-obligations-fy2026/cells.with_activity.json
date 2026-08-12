@@ -1,0 +1,1255 @@
+[
+  {
+    "slug": "us-cdfi-assistance-transaction-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "FY2026 CDFI Assistance Obligations",
+    "question": "What will the USAspending API v2 advanced search spending_over_time registered query return for FY2026 signed net federal_action_obligation, grouped by fiscal_year, for Community Development Financial Institutions Fund awarding-subagency financial-assistance award transactions, on the registered query snapshot captured for the first FY2026 resolution window?",
+    "unit": "usd_millions",
+    "pointEstimate": 281.1,
+    "ciLow": -540.6,
+    "ciHigh": 1102.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2, search spending_over_time",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "resolutionRule": "Resolve from the first archived registered query snapshot captured within the 2026-10-15 through 2026-10-22 expectedReleaseWindow for USAspending API v2 advanced search, CDFI Fund awarding-subagency financial-assistance award transactions, obligations by fiscal year. POST the registered body with agencies=[{type: awarding, tier: subtier, name: Community Development Financial Institutions Fund}], award_type_codes=[02,03,04,05,06,07,08,09,10,11], time_period FY2026 2025-10-01 through 2026-09-30, group=fiscal_year, spending_level=transactions. Read results[time_period.fiscal_year=2026].aggregated_amount, multiply by 1e-6, and report usd_millions from the registered query snapshot; later USAspending revisions after the archived snapshot do not change this resolution.",
+    "dataPointId": "usaspending.cdfi.assistance_transaction_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "FY2014 registered query full-year obligations, usd_millions",
+        "value": 217.237896
+      },
+      {
+        "label": "FY2015 registered query full-year obligations, usd_millions",
+        "value": 232.190329
+      },
+      {
+        "label": "FY2016 registered query full-year obligations, usd_millions",
+        "value": 3.525
+      },
+      {
+        "label": "FY2017 registered query full-year obligations, usd_millions",
+        "value": 498.977799
+      },
+      {
+        "label": "FY2018 registered query full-year obligations, usd_millions",
+        "value": 341.830155
+      },
+      {
+        "label": "FY2019 registered query full-year obligations, usd_millions",
+        "value": 201.446413
+      },
+      {
+        "label": "FY2020 registered query full-year obligations, usd_millions",
+        "value": 544.34114872
+      },
+      {
+        "label": "FY2021 registered query full-year obligations, usd_millions",
+        "value": 1457.58697844
+      },
+      {
+        "label": "FY2022 registered query full-year obligations, usd_millions",
+        "value": 577.03832827
+      },
+      {
+        "label": "FY2023 registered query full-year obligations, usd_millions",
+        "value": 1986.065187
+      },
+      {
+        "label": "FY2024 registered query full-year obligations, usd_millions",
+        "value": 782.042553
+      },
+      {
+        "label": "FY2025 registered query full-year obligations, usd_millions",
+        "value": 319.455176
+      },
+      {
+        "label": "FY2026 same-query year-to-date through 2026-08-12, usd_millions",
+        "value": -7.00332292
+      }
+    ],
+    "drivers": [
+      "FY2025 persistence at $319.5m",
+      "FY2026 same-query YTD at -$7.0m",
+      "late-FY additions averaged $134.7m in FY2020-FY2025",
+      "CDFI award timing is lumpy",
+      "wide same-query historical dispersion"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "https://raw.githubusercontent.com/ThesisInstitute/thesis/49bf9b5726d9faf93b6c96c9d73d4a52dc74c030/records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-12T20:54:08Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Resolve the registered USAspending snapshot"
+      },
+      {
+        "kind": "text",
+        "text": "The target is not an agency profile total or a press-release headline. It is the registered USAspending POST query for CDFI Fund awarding-subagency financial-assistance award transactions, grouped by fiscal_year, with signed aggregated_amount scaled to usd_millions. The registered expectedReleaseWindow is 2026-10-15 through 2026-10-22, so I use the ledger outer bound 2026-10-22 as the resolutionDate."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl.usaspending.spending_over_time",
+        "call": "POST registered body for FY2014-FY2017 to https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "result": "Fetched aggregated_amount values: FY2014 217237896.00, FY2015 232190329.00, FY2016 3525000.00, FY2017 498977799.00; scaled values are 217.237896, 232.190329, 3.525000, 498.977799 usd_millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl.usaspending.spending_over_time",
+        "call": "POST registered body for FY2018-FY2021 to https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "result": "Fetched aggregated_amount values: FY2018 341830155.00, FY2019 201446413.00, FY2020 544341148.72, FY2021 1457586978.44; scaled values are 341.830155, 201.446413, 544.34114872, 1457.58697844 usd_millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl.usaspending.spending_over_time",
+        "call": "POST registered body for FY2022-FY2026 to https://api.usaspending.gov/api/v2/search/spending_over_time/",
+        "result": "Fetched aggregated_amount values: FY2022 577038328.27, FY2023 1986065187.00, FY2024 782042553.00, FY2025 319455176.00, FY2026 current full-FY-date-range snapshot -7003322.92; scaled values are 577.03832827, 1986.065187, 782.042553, 319.455176, -7.00332292 usd_millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl.usaspending.spending_over_time",
+        "call": "POST same registered body restricted to Oct 1-Aug 12 for FY2020-FY2026",
+        "result": "Fetched YTD aggregated_amount values: FY2020 317595484.72, FY2021 1424316989.44, FY2022 538207569.27, FY2023 1929177053.00, FY2024 337850749.00, FY2025 311407219.00, FY2026 -7003322.92; historical late additions from Aug 12 to fiscal-year close were 226.745664, 33.269989, 38.830759, 56.888134, 444.191804, and 8.047957 usd_millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl.github.raw_and_specs",
+        "call": "Fetch registered target JSON at commit 49bf9b5726d9faf93b6c96c9d73d4a52dc74c030 and check https://app.thesisinstitute.org/specs.json",
+        "result": "Fetched target registration: schemaVersion thesis_target_registration_v3, registeredAtUtc 2026-08-11T20:38:09Z, slug us-cdfi-assistance-transaction-obligations-fy2026, unit usd_millions, expectedReleaseWindow end 2026-10-22. The public specs.json check returned a 404 page, so I did not find contrary published slug evidence there."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the last six completed same-query FY prints, FY2020-FY2025, were 544.3, 1457.6, 577.0, 1986.1, 782.0, and 319.5 usd_millions; mean 944.4, median 679.5, sigma 641.9, range 319.5-1986.1. The broader FY2014-FY2025 reference class has mean 596.8, median 420.4, sigma 575.7, and range 3.5-1986.1. Last-print persistence, FY2025 = 319.5, is the default prior because the series is a repeated annual flow and simple year-to-year movements are very noisy."
+      },
+      {
+        "kind": "tool",
+        "tool": "local.model_candidates",
+        "call": "Generate thesis_model_candidate_v1 candidates from fetched same-query history",
+        "result": "Candidate last_print_persistence: point 319.455, p10 -502.210, p50 319.455, p90 1141.120, 80% interval [-502.210, 1141.120], 90% interval [-736.513, 1375.423], calibration_n 6, trainCutoff FY2025, walk-forward FY2015-FY2025 MAE 568.084 and RMSE 721.007. Candidate six_year_mean: point 944.422, p10 122.756, p50 944.422, p90 1766.087, 80% interval [122.756, 1766.087], calibration_n 6."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Prior is last-print persistence at 319.455176 usd_millions. Current same-query FY2026 YTD is -7.00332292; historical FY2020-FY2025 late additions after Aug 12 averaged 134.6623845, giving a YTD-plus-average-late signal of 127.65906158. Weight the prior 80% and the current timing signal 20% because the direct FY2026 value is informative but CDFI award booking is historically lumpy: point = 0.80*319.455176 + 0.20*127.65906158 = 281.095953116, rounded to 281.1. For the interval, use the last six completed full-year values themselves because this is a flow series: sigma = 641.925991 usd_millions, so 1.28*sigma = 821.665269. The 80% interval is 281.1 +/- 821.7 = [-540.6, 1102.8]. This interval would cover 8 of the last 10 completed FY prints; the misses are the unusually large FY2021 and FY2023 prints."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk outside the interval would come from a large late FY2026 award round or data catch-up similar to the FY2021/FY2023 high-obligation years. Downside risk outside the interval would require net deobligations materially beyond the current -7.0 million YTD value, because the signed federal_action_obligation field can include negative adjustments."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional resolver clarity suggestion by naming the first archived registered query snapshot within the 2026-10-15 to 2026-10-22 window, and accepted the historicalContext suggestion by adding FY2014-FY2019 values already used in the fetched reference class. No reviewer required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 281.1,
+        "ciLow": -540.6,
+        "ciHigh": 1102.8
+      }
+    ],
+    "agentReportedRunAt": "2026-08-12T20:50:18Z",
+    "runStartedAt": "2026-08-12T20:50:08Z",
+    "promptMode": "full",
+    "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+    "targetContentHash": "6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32",
+    "targetRegistrationPath": "records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json",
+    "registeredAtUtc": "2026-08-11T20:38:09Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -1773.15,
+        "upper": 2335.35
+      },
+      "points": [
+        {
+          "value": -1773.15,
+          "probability": 0.0
+        },
+        {
+          "value": -1752.6075,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -1732.065,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -1711.5225,
+          "probability": 0.005
+        },
+        {
+          "value": -1690.98,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -1670.4375,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -1649.895,
+          "probability": 0.01
+        },
+        {
+          "value": -1629.3525,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -1608.81,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -1588.2675,
+          "probability": 0.015
+        },
+        {
+          "value": -1567.725,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -1547.1825,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -1526.64,
+          "probability": 0.02
+        },
+        {
+          "value": -1506.0975,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -1485.555,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -1465.0125,
+          "probability": 0.025
+        },
+        {
+          "value": -1444.47,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -1423.9275,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -1403.385,
+          "probability": 0.03
+        },
+        {
+          "value": -1382.8425,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -1362.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -1341.7575,
+          "probability": 0.035
+        },
+        {
+          "value": -1321.215,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -1300.6725,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -1280.13,
+          "probability": 0.04
+        },
+        {
+          "value": -1259.5875,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -1239.045,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -1218.5025,
+          "probability": 0.045
+        },
+        {
+          "value": -1197.96,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -1177.4175,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -1156.875,
+          "probability": 0.05
+        },
+        {
+          "value": -1136.3325,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -1115.79,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -1095.2475,
+          "probability": 0.055
+        },
+        {
+          "value": -1074.705,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -1054.1625,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -1033.62,
+          "probability": 0.06
+        },
+        {
+          "value": -1013.0775,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -992.535,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -971.9925,
+          "probability": 0.065
+        },
+        {
+          "value": -951.45,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -930.9075,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -910.365,
+          "probability": 0.07
+        },
+        {
+          "value": -889.8225,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -869.28,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -848.7375,
+          "probability": 0.075
+        },
+        {
+          "value": -828.195,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -807.6525,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -787.11,
+          "probability": 0.08
+        },
+        {
+          "value": -766.5675,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -746.025,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -725.4825,
+          "probability": 0.085
+        },
+        {
+          "value": -704.94,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -684.3975,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -663.855,
+          "probability": 0.09
+        },
+        {
+          "value": -643.3125,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -622.77,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -602.2275,
+          "probability": 0.095
+        },
+        {
+          "value": -581.685,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -561.1425,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -540.6,
+          "probability": 0.1
+        },
+        {
+          "value": -520.0575,
+          "probability": 0.11
+        },
+        {
+          "value": -499.515,
+          "probability": 0.12
+        },
+        {
+          "value": -478.9725,
+          "probability": 0.13
+        },
+        {
+          "value": -458.43,
+          "probability": 0.14
+        },
+        {
+          "value": -437.8875,
+          "probability": 0.15
+        },
+        {
+          "value": -417.345,
+          "probability": 0.16
+        },
+        {
+          "value": -396.8025,
+          "probability": 0.17
+        },
+        {
+          "value": -376.26,
+          "probability": 0.18
+        },
+        {
+          "value": -355.7175,
+          "probability": 0.19
+        },
+        {
+          "value": -335.175,
+          "probability": 0.2
+        },
+        {
+          "value": -314.6325,
+          "probability": 0.21
+        },
+        {
+          "value": -294.09,
+          "probability": 0.22
+        },
+        {
+          "value": -273.5475,
+          "probability": 0.23
+        },
+        {
+          "value": -253.005,
+          "probability": 0.24
+        },
+        {
+          "value": -232.4625,
+          "probability": 0.25
+        },
+        {
+          "value": -211.92,
+          "probability": 0.26
+        },
+        {
+          "value": -191.3775,
+          "probability": 0.27
+        },
+        {
+          "value": -170.835,
+          "probability": 0.28
+        },
+        {
+          "value": -150.2925,
+          "probability": 0.29
+        },
+        {
+          "value": -129.75,
+          "probability": 0.3
+        },
+        {
+          "value": -109.2075,
+          "probability": 0.31
+        },
+        {
+          "value": -88.665,
+          "probability": 0.32
+        },
+        {
+          "value": -68.1225,
+          "probability": 0.33
+        },
+        {
+          "value": -47.58,
+          "probability": 0.34
+        },
+        {
+          "value": -27.0375,
+          "probability": 0.35
+        },
+        {
+          "value": -6.495,
+          "probability": 0.36
+        },
+        {
+          "value": 14.0475,
+          "probability": 0.37
+        },
+        {
+          "value": 34.59,
+          "probability": 0.38
+        },
+        {
+          "value": 55.1325,
+          "probability": 0.39
+        },
+        {
+          "value": 75.675,
+          "probability": 0.4
+        },
+        {
+          "value": 96.2175,
+          "probability": 0.41
+        },
+        {
+          "value": 116.76,
+          "probability": 0.42
+        },
+        {
+          "value": 137.3025,
+          "probability": 0.43
+        },
+        {
+          "value": 157.845,
+          "probability": 0.44
+        },
+        {
+          "value": 178.3875,
+          "probability": 0.45
+        },
+        {
+          "value": 198.93,
+          "probability": 0.46
+        },
+        {
+          "value": 219.4725,
+          "probability": 0.47
+        },
+        {
+          "value": 240.015,
+          "probability": 0.48
+        },
+        {
+          "value": 260.5575,
+          "probability": 0.49
+        },
+        {
+          "value": 281.1,
+          "probability": 0.5
+        },
+        {
+          "value": 301.6425,
+          "probability": 0.51
+        },
+        {
+          "value": 322.185,
+          "probability": 0.52
+        },
+        {
+          "value": 342.7275,
+          "probability": 0.53
+        },
+        {
+          "value": 363.27,
+          "probability": 0.54
+        },
+        {
+          "value": 383.8125,
+          "probability": 0.55
+        },
+        {
+          "value": 404.355,
+          "probability": 0.56
+        },
+        {
+          "value": 424.8975,
+          "probability": 0.57
+        },
+        {
+          "value": 445.44,
+          "probability": 0.58
+        },
+        {
+          "value": 465.9825,
+          "probability": 0.59
+        },
+        {
+          "value": 486.525,
+          "probability": 0.6
+        },
+        {
+          "value": 507.0675,
+          "probability": 0.61
+        },
+        {
+          "value": 527.61,
+          "probability": 0.62
+        },
+        {
+          "value": 548.1525,
+          "probability": 0.63
+        },
+        {
+          "value": 568.695,
+          "probability": 0.64
+        },
+        {
+          "value": 589.2375,
+          "probability": 0.65
+        },
+        {
+          "value": 609.78,
+          "probability": 0.66
+        },
+        {
+          "value": 630.3225,
+          "probability": 0.67
+        },
+        {
+          "value": 650.865,
+          "probability": 0.68
+        },
+        {
+          "value": 671.4075,
+          "probability": 0.69
+        },
+        {
+          "value": 691.95,
+          "probability": 0.7
+        },
+        {
+          "value": 712.4925,
+          "probability": 0.71
+        },
+        {
+          "value": 733.035,
+          "probability": 0.72
+        },
+        {
+          "value": 753.5775,
+          "probability": 0.73
+        },
+        {
+          "value": 774.12,
+          "probability": 0.74
+        },
+        {
+          "value": 794.6625,
+          "probability": 0.75
+        },
+        {
+          "value": 815.205,
+          "probability": 0.76
+        },
+        {
+          "value": 835.7475,
+          "probability": 0.77
+        },
+        {
+          "value": 856.29,
+          "probability": 0.78
+        },
+        {
+          "value": 876.8325,
+          "probability": 0.79
+        },
+        {
+          "value": 897.375,
+          "probability": 0.8
+        },
+        {
+          "value": 917.9175,
+          "probability": 0.81
+        },
+        {
+          "value": 938.46,
+          "probability": 0.82
+        },
+        {
+          "value": 959.0025,
+          "probability": 0.83
+        },
+        {
+          "value": 979.545,
+          "probability": 0.84
+        },
+        {
+          "value": 1000.0875,
+          "probability": 0.85
+        },
+        {
+          "value": 1020.63,
+          "probability": 0.86
+        },
+        {
+          "value": 1041.1725,
+          "probability": 0.87
+        },
+        {
+          "value": 1061.715,
+          "probability": 0.88
+        },
+        {
+          "value": 1082.2575,
+          "probability": 0.89
+        },
+        {
+          "value": 1102.8,
+          "probability": 0.9
+        },
+        {
+          "value": 1123.3425,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 1143.885,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 1164.4275,
+          "probability": 0.905
+        },
+        {
+          "value": 1184.97,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 1205.5125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 1226.055,
+          "probability": 0.91
+        },
+        {
+          "value": 1246.5975,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1267.14,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1287.6825,
+          "probability": 0.915
+        },
+        {
+          "value": 1308.225,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1328.7675,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1349.31,
+          "probability": 0.92
+        },
+        {
+          "value": 1369.8525,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1390.395,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1410.9375,
+          "probability": 0.925
+        },
+        {
+          "value": 1431.48,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1452.0225,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1472.565,
+          "probability": 0.93
+        },
+        {
+          "value": 1493.1075,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1513.65,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1534.1925,
+          "probability": 0.935
+        },
+        {
+          "value": 1554.735,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1575.2775,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1595.82,
+          "probability": 0.94
+        },
+        {
+          "value": 1616.3625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1636.905,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1657.4475,
+          "probability": 0.945
+        },
+        {
+          "value": 1677.99,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1698.5325,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1719.075,
+          "probability": 0.95
+        },
+        {
+          "value": 1739.6175,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1760.16,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1780.7025,
+          "probability": 0.955
+        },
+        {
+          "value": 1801.245,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1821.7875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1842.33,
+          "probability": 0.96
+        },
+        {
+          "value": 1862.8725,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1883.415,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1903.9575,
+          "probability": 0.965
+        },
+        {
+          "value": 1924.5,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1945.0425,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1965.585,
+          "probability": 0.97
+        },
+        {
+          "value": 1986.1275,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 2006.67,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 2027.2125,
+          "probability": 0.975
+        },
+        {
+          "value": 2047.755,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 2068.2975,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 2088.84,
+          "probability": 0.98
+        },
+        {
+          "value": 2109.3825,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 2129.925,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 2150.4675,
+          "probability": 0.985
+        },
+        {
+          "value": 2171.01,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 2191.5525,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 2212.095,
+          "probability": 0.99
+        },
+        {
+          "value": 2232.6375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 2253.18,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 2273.7225,
+          "probability": 0.995
+        },
+        {
+          "value": 2294.265,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 2314.8075,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 2335.35,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 281.1,
+        "median": 281.1,
+        "interval80": {
+          "lower": -540.6,
+          "upper": 1102.8
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/prompt.md",
+        "sha256": "bd771e5186623caac19e152e6cb6c2a442be589c26fed30770ca2817a6db4369",
+        "bytes": 35274,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_command.json",
+        "sha256": "243d04bd71ad39416f94a37db4a2e8f9d3436f78ff1c8b0815124058d1d9c42b",
+        "bytes": 875,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_stdout.jsonl",
+        "sha256": "648c3382a3ead37666c228251ec73baf5fe5ca99b18e553b665293f2ce35a65f",
+        "bytes": 107537,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_stderr.log",
+        "sha256": "4903dc0f78fa61bae7075fef18f7fdce8fbf72407d40af47234e06dfff6f201e",
+        "bytes": 233,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_events.jsonl",
+        "sha256": "a09d8bc4b8d8c4dbbf9488318a06c460961c4f649cf9804e27a8f4d39ca09709",
+        "bytes": 108131,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_last_message.txt",
+        "sha256": "1b6e685fc5fa2aa8021aff13bf9fea62f65d4d663a98fb9dd694e21105d309db",
+        "bytes": 8212,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_codex_trace.json",
+        "sha256": "9b9c9f5a98766f103dba16228324db28a67985c82a39d3cf064b91d611ebb505",
+        "bytes": 567,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_stdout.txt",
+        "sha256": "1b6e685fc5fa2aa8021aff13bf9fea62f65d4d663a98fb9dd694e21105d309db",
+        "bytes": 8212,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_stderr.txt",
+        "sha256": "1aea4e2a73addb4f371c8ea9e2a4186d713f4142e6512feae1f5d027529f1d31",
+        "bytes": 248,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_prompt.md",
+        "sha256": "a9f35e661d35ab068beb8682585a7862a02db4fb5f03fbb6e0b4971b7a13d48a",
+        "bytes": 12872,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_command.json",
+        "sha256": "77160d7be0ef49859a2440f93cb46c1a721d21f812f630fe54275cdbcb585b8e",
+        "bytes": 871,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "c92a58946b1b0e3695acaf92f163b40df92415ac9c7d929122e2a0565a25cd1c",
+        "bytes": 852,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_stderr.log",
+        "sha256": "9160af0cef3420e3bbdf3004325ba3aead91e2e63790dd39af0661c85674ed20",
+        "bytes": 233,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "81df9f16d8d4064c696e9f922a4fcc99e4f981f045c1902607394ab974573743",
+        "bytes": 874,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "50b5a1c310e904b3134efad0bdce1202edbc18bbaf3a0d9be25f1f771519650e",
+        "bytes": 519,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_codex_trace.json",
+        "sha256": "4c95c7341b0d5578717c9092906328100b07408c6c776caa23031abada1ff525",
+        "bytes": 558,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_stdout.txt",
+        "sha256": "50b5a1c310e904b3134efad0bdce1202edbc18bbaf3a0d9be25f1f771519650e",
+        "bytes": 519,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_stderr.txt",
+        "sha256": "a3bd0b8a9df7000cdcee94c86fe89f288344a93f02999532d87ee821ed917845",
+        "bytes": 248,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/revision_prompt.md",
+        "sha256": "445217370e937412d475830dc350b877004bdd3baa89ccef9f761b3eae7950e6",
+        "bytes": 44941,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/command.json",
+        "sha256": "83fe4e970f04f16dae633b0d582057a0f095636b434658e0d8f70a1e436eeee0",
+        "bytes": 869,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_stdout.jsonl",
+        "sha256": "51688aa20f569796839ace8f595fdd310a2e5839be71725e813bb1d37151c056",
+        "bytes": 10616,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_stderr.log",
+        "sha256": "01b1055e8c9b2d5de7cc1531a8d835f2d42af8cf617c7f59d7a9ba2095275fce",
+        "bytes": 233,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_events.jsonl",
+        "sha256": "3b8da797c02c8b9cc5eaa9aef831d8e152aac64267b7f0221b4697592ea8a5e0",
+        "bytes": 10638,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_last_message.txt",
+        "sha256": "13d0028eac72cffa76fb74a5631e22dee798554f5222dd68f22196565776dc3e",
+        "bytes": 9838,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/codex_trace.json",
+        "sha256": "8a21fbf6e9e3792eee52ed165ba1131e4ddb79afd7fd9baf6396a65c02682ebc",
+        "bytes": 558,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/stdout.txt",
+        "sha256": "13d0028eac72cffa76fb74a5631e22dee798554f5222dd68f22196565776dc3e",
+        "bytes": 9838,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/stderr.txt",
+        "sha256": "fab883c3f79a184c37d3688d3cb5a16c74507b6729fbeb5d0745474eac8f1d15",
+        "bytes": 248,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/raw_response.txt",
+        "sha256": "13d0028eac72cffa76fb74a5631e22dee798554f5222dd68f22196565776dc3e",
+        "bytes": 9838,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/parsed_cells.json",
+        "sha256": "843f676fc29928706662038461223634ca2a34cb01ccbcf0717da843995a36e0",
+        "bytes": 10146,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/normalized_cells.json",
+        "sha256": "5c502e20df35e4dc33126b2a42e20da9fff18b7cf09ef3a4befc9ac26ce64cba",
+        "bytes": 28025,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/distribution.json",
+        "sha256": "58658ddd4f4e7a8b6fd726fc9256251a0a413b7e9aba74ccd41545f95d90f7ed",
+        "bytes": 14095,
+        "createdAt": "2026-08-12T20:50:08Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/validation.json",
+        "sha256": "213e2c7159ee24ae4af0b9103515904bd6c9c2a5e72776a165a4d4a946acf8e2",
+        "bytes": 150,
+        "createdAt": "2026-08-12T20:50:08Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-12T20:50:08Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "30fb15d9fbef9f460fa86defe2b1ccff994e231c9d0439992c69396d3644441e"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-50-08z-usaspending-cdfi-assistance-transaction-obligations-fy2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider adding FY2014-FY2019 values to historicalContext since the reasoning uses the broader FY2014-FY2025 reference class."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The resolutionRule could explicitly say the value is the first archived snapshot captured within 2026-10-15 to 2026-10-22 to mirror the first-print rule."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional resolver clarity suggestion by naming the first archived registered query snapshot within the 2026-10-15 to 2026-10-22 window, and accepted the historicalContext suggestion by adding FY2014-FY2019 values already used in the fetched reference class. No reviewer required fixes were raised.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional resolver clarity suggestion by naming the first archived registered query snapshot within the 2026-10-15 to 2026-10-22 window, and accepted the historicalContext suggestion by adding FY2014-FY2019 values already used in the fetched reference class. No reviewer required fixes were raised.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable: resolver, registered-query history, prior/update math, interval, tails, and JSON fields are coherent with the target contract."
+    }
+  }
+]

@@ -1,0 +1,109 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: usaspending.cdfi.assistance_transaction_obligations
+- period: FY2026
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. The cell's unit must equal targetUnit below byte-for-byte, even when it is not a member of the contract's exploratory unit menu. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-cdfi-assistance-transaction-obligations-fy2026"
+- country: "US"
+- targetUnit: "usd_millions"
+- dataPointId: "usaspending.cdfi.assistance_transaction_obligations.fy2026.registered_query_snapshot"
+- expectedReleaseWindow: {"end": "2026-10-22", "start": "2026-10-15"}
+- sourceBinding: {"adapter": "usaspending-api", "allowedHosts": ["api.usaspending.gov"], "expectedReleaseWindow": {"end": "2026-10-22", "start": "2026-10-15"}, "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount", "releasePolicy": "registered_query_snapshot", "sourceSeriesId": "usaspending.search.spending_over_time.cdfi.program_obligations", "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/", "table": "USAspending API v2 advanced search, CDFI Fund awarding-subagency financial-assistance award transactions, obligations by fiscal year", "transform": {"agency": {"name": "Community Development Financial Institutions Fund", "tier": "subtier", "type": "awarding"}, "awardTypeCodes": ["02", "03", "04", "05", "06", "07", "08", "09", "10", "11"], "factor": 1e-06, "fiscalYear": "{fiscal_year}", "group": "fiscal_year", "operation": "multiply", "requestMethod": "POST", "spendingLevel": "transactions"}}
+- targetRegistrationPath: "records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json"
+- targetContentHash: "6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32"
+- registrationCommit: "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030"
+- registeredAtUtc: "2026-08-11T20:38:09Z"
+
+# Registered-query series (machine checked)
+This series is DEFINED by the registered query in sourceBinding — no published table or headline page exists for it, so agency profile totals and search-result summaries are the WRONG series. Fetch historicalContext by executing the exact registered query for each prior period: substitute each prior period into sourceBinding.transform's request template and POST it to "https://api.usaspending.gov/api/v2/search/spending_over_time/", then read the value at sourceBinding.field and apply sourceBinding.transform's operation and factor. History values obtained any other way will fail anchor validation, and a cell without historicalContext fails normalization — if the query cannot be executed, refuse with the fetch evidence rather than omitting history or substituting a broader aggregate.
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+bd771e5186623caac19e152e6cb6c2a442be589c26fed30770ca2817a6db4369
+
+# Draft forecast response
+{
+  "slug": "us-cdfi-assistance-transaction-obligations-fy2026",
+  "country": "US",
+  "type": "data",
+  "title": "FY2026 CDFI Assistance Obligations",
+  "question": "What will the USAspending API v2 advanced search spending_over_time registered query return for FY2026 signed net federal_action_obligation, grouped by fiscal_year, for Community Development Financial Institutions Fund awarding-subagency financial-assistance award transactions, on the registered query snapshot captured for the first FY2026 resolution window?",
+  "unit": "usd_millions",
+  "pointEstimate": 281.1,
+  "ciLow": -540.6,
+  "ciHigh": 1102.8,
+  "confidence": 0.8,
+  "resolutionDate": "2026-10-22",
+  "resolutionSource": "USAspending API v2, search spending_over_time",
+  "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+  "resolutionRule": "Resolve from USAspending API v2 advanced search, CDFI Fund awarding-subagency financial-assistance award transactions, obligations by fiscal year. POST the registered body with agencies=[{type: awarding, tier: subtier, name: Community Development Financial Institutions Fund}], award_type_codes=[02,03,04,05,06,07,08,09,10,11], time_period FY2026 2025-10-01 through 2026-09-30, group=fiscal_year, spending_level=transactions. Read results[time_period.fiscal_year=2026].aggregated_amount, multiply by 1e-6, and report usd_millions from the registered query snapshot; later USAspending revisions after the archived snapshot do not change this resolution.",
+  "dataPointId": "usaspending.cdfi.assistance_transaction_obligations.fy2026.registered_query_snapshot",
+  "historicalContext": [
+    {"label": "FY2020 registered query full-year obligations, usd_millions", "value": 544.34114872},
+    {"label": "FY2021 registered query full-year obligations, usd_millions", "value": 1457.58697844},
+    {"label": "FY2022 registered query full-year obligations, usd_millions", "value": 577.03832827},
+    {"label": "FY2023 registered query full-year obligations, usd_millions", "value": 1986.065187},
+    {"label": "FY2024 registered query full-year obligations, usd_millions", "value": 782.042553},
+    {"label": "FY2025 registered query full-year obligations, usd_millions", "value": 319.455176},
+    {"label": "FY2026 same-query year-to-date through 2026-08-12, usd_millions", "value": -7.00332292}
+  ],
+  "drivers": [
+    "FY2025 persistence at $319.5m",
+    "FY2026 same-query YTD at -$7.0m",
+    "late-FY additions averaged $134.7m in FY2020-FY2025",
+    "CDFI award timing is lumpy",
+    "wide same-query historical dispersion"
+  ],
+  "sourceContext": [
+    "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "https://raw.githubusercontent.com/ThesisInstitute/thesis/49bf9b5726d9faf93b6c96c9d73d4a52dc74c030/records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json",
+    "https://app.thesisinstitute.org/specs.json"
+  ],
+  "runAt": "2026-08-12T20:50:18Z",
+  "reasoning": [
+    {"kind": "heading", "text": "Resolve the registered USAspending snapshot"},
+    {"kind": "text", "text": "The target is not an agency profile total or a press-release headline. It is the registered USAspending POST query for CDFI Fund awarding-subagency financial-assistance award transactions, grouped by fiscal_year, with signed aggregated_amount scaled to usd_millions. The registered expectedReleaseWindow is 2026-10-15 through 2026-10-22, so I use the ledger outer bound 2026-10-22 as the resolutionDate."},
+    {"kind": "tool", "tool": "curl.usaspending.spending_over_time", "call": "POST registered body for FY2014-FY2017 to https://api.usaspending.gov/api/v2/search/spending_over_time/", "result": "Fetched aggregated_amount values: FY2014 217237896.00, FY2015 232190329.00, FY2016 3525000.00, FY2017 498977799.00; scaled values are 217.237896, 232.190329, 3.525000, 498.977799 usd_millions."},
+    {"kind": "tool", "tool": "curl.usaspending.spending_over_time", "call": "POST registered body for FY2018-FY2021 to https://api.usaspending.gov/api/v2/search/spending_over_time/", "result": "Fetched aggregated_amount values: FY2018 341830155.00, FY2019 201446413.00, FY2020 544341148.72, FY2021 1457586978.44; scaled values are 341.830155, 201.446413, 544.34114872, 1457.58697844 usd_millions."},
+    {"kind": "tool", "tool": "curl.usaspending.spending_over_time", "call": "POST registered body for FY2022-FY2026 to https://api.usaspending.gov/api/v2/search/spending_over_time/", "result": "Fetched aggregated_amount values: FY2022 577038328.27, FY2023 1986065187.00, FY2024 782042553.00, FY2025 319455176.00, FY2026 current full-FY-date-range snapshot -7003322.92; scaled values are 577.03832827, 1986.065187, 782.042553, 319.455176, -7.00332292 usd_millions."},
+    {"kind": "tool", "tool": "curl.usaspending.spending_over_time", "call": "POST same registered body restricted to Oct 1-Aug 12 for FY2020-FY2026", "result": "Fetched YTD aggregated_amount values: FY2020 317595484.72, FY2021 1424316989.44, FY2022 538207569.27, FY2023 1929177053.00, FY2024 337850749.00, FY2025 311407219.00, FY2026 -7003322.92; historical late additions from Aug 12 to fiscal-year close were 226.745664, 33.269989, 38.830759, 56.888134, 444.191804, and 8.047957 usd_millions."},
+    {"kind": "tool", "tool": "curl.github.raw_and_specs", "call": "Fetch registered target JSON at commit 49bf9b5726d9faf93b6c96c9d73d4a52dc74c030 and check https://app.thesisinstitute.org/specs.json", "result": "Fetched target registration: schemaVersion thesis_target_registration_v3, registeredAtUtc 2026-08-11T20:38:09Z, slug us-cdfi-assistance-transaction-obligations-fy2026, unit usd_millions, expectedReleaseWindow end 2026-10-22. The public specs.json check returned a 404 page, so I did not find contrary published slug evidence there."},
+    {"kind": "text", "text": "Base rate/reference class: the last six completed same-query FY prints, FY2020-FY2025, were 544.3, 1457.6, 577.0, 1986.1, 782.0, and 319.5 usd_millions; mean 944.4, median 679.5, sigma 641.9, range 319.5-1986.1. The broader FY2014-FY2025 reference class has mean 596.8, median 420.4, sigma 575.7, and range 3.5-1986.1. Last-print persistence, FY2025 = 319.5, is the default prior because the series is a repeated annual flow and simple year-to-year movements are very noisy."},
+    {"kind": "tool", "tool": "local.model_candidates", "call": "Generate thesis_model_candidate_v1 candidates from fetched same-query history", "result": "Candidate last_print_persistence: point 319.455, p10 -502.210, p50 319.455, p90 1141.120, 80% interval [-502.210, 1141.120], 90% interval [-736.513, 1375.423], calibration_n 6, trainCutoff FY2025, walk-forward FY2015-FY2025 MAE 568.084 and RMSE 721.007. Candidate six_year_mean: point 944.422, p10 122.756, p50 944.422, p90 1766.087, 80% interval [122.756, 1766.087], calibration_n 6."},
+    {"kind": "math", "text": "Prior/update/interval: Prior is last-print persistence at 319.455176 usd_millions. Current same-query FY2026 YTD is -7.00332292; historical FY2020-FY2025 late additions after Aug 12 averaged 134.6623845, giving a YTD-plus-average-late signal of 127.65906158. Weight the prior 80% and the current timing signal 20% because the direct FY2026 value is informative but CDFI award booking is historically lumpy: point = 0.80*319.455176 + 0.20*127.65906158 = 281.095953116, rounded to 281.1. For the interval, use the last six completed full-year values themselves because this is a flow series: sigma = 641.925991 usd_millions, so 1.28*sigma = 821.665269. The 80% interval is 281.1 +/- 821.7 = [-540.6, 1102.8]. This interval would cover 8 of the last 10 completed FY prints; the misses are the unusually large FY2021 and FY2023 prints."},
+    {"kind": "text", "text": "Counter-consideration: upside risk outside the interval would come from a large late FY2026 award round or data catch-up similar to the FY2021/FY2023 high-obligation years. Downside risk outside the interval would require net deobligations materially beyond the current -7.0 million YTD value, because the signed federal_action_obligation field can include negative adjustments."},
+    {"kind": "forecast", "point": 281.1, "ciLow": -540.6, "ciHigh": 1102.8}
+  ]
+}

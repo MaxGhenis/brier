@@ -1,0 +1,1237 @@
+[
+  {
+    "slug": "us-usfs-minnesota-place-of-performance-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "USFS Minnesota obligations, FY2026",
+    "question": "In the first registered-query snapshot after FY2026 close, what will USAspending API v2 search/spending_over_time report as aggregated_amount for prime award transactions filtered to Forest Service awarding subagency, Minnesota place of performance, fiscal_year FY2026, grouped by fiscal_year, not seasonally adjusted, converted to USD millions?",
+    "unit": "usd_millions",
+    "pointEstimate": 29.5,
+    "ciLow": 12.3,
+    "ciHigh": 46.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2 search/spending_over_time registered query snapshot",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "resolutionRule": "Resolve from the first registered-query snapshot captured in the Thesis expected release window 2026-10-15 through 2026-10-22, no later than the lab-committed outer bound 2026-10-22. POST to USAspending API v2 search/spending_over_time with group=fiscal_year, spending_level=transactions, award_type_codes 02,03,04,05,06,07,08,09,10,11,A,B,C,D,IDV_A,IDV_B,IDV_B_A,IDV_B_B,IDV_B_C,IDV_C,IDV_D,IDV_E; awarding agency Forest Service subtier under Department of Agriculture; place_of_performance_locations country=USA,state=MN; FY2026 time_period 2025-10-01 through 2026-09-30. Read results[time_period.fiscal_year=2026].aggregated_amount, multiply by 0.000001, and round in usd_millions. Later USAspending revisions after the registered snapshot do not change the first-print value.",
+    "dataPointId": "usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "FY2021 registered-query obligations, USD millions",
+        "value": 38.29107807
+      },
+      {
+        "label": "FY2022 registered-query obligations, USD millions",
+        "value": 34.0958762
+      },
+      {
+        "label": "FY2023 registered-query obligations, USD millions",
+        "value": 49.95892909
+      },
+      {
+        "label": "FY2024 registered-query obligations, USD millions",
+        "value": 68.71782809
+      },
+      {
+        "label": "FY2025 registered-query obligations, USD millions",
+        "value": 46.83255679
+      },
+      {
+        "label": "FY2026 same-query partial through 2026-08-12, USD millions",
+        "value": 18.026012
+      }
+    ],
+    "drivers": [
+      "FY2025 persistence benchmark is 46.8 million",
+      "Annual values are lumpy, with FY2021-FY2025 sigma 13.4 million",
+      "FY2026 Aug. 12 partial is far below recent same-date partials",
+      "Typical Aug. 12-to-final catch-up is about 11.5 million"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/contracts/v2/search/spending_over_time.md",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-12T21:00:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "USFS Minnesota place-of-performance obligations, FY2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the target is the registered USAspending advanced-search query, not an agency profile total or a news summary. It resolves on the first registered-query snapshot for FY2026 prime award transactions with Forest Service as awarding subtier and Minnesota as place of performance, converted from dollars to usd_millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "repository.target_registration",
+        "call": "Read records/targets/2026-08-11-c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3.json",
+        "result": "Registered slug us-usfs-minnesota-place-of-performance-obligations-fy2026; unit usd_millions; dataPointId usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot; expectedReleaseWindow start 2026-10-15 end 2026-10-22; sourceBinding factor 0.000001; FY2025 anchor 46.83255679 usd_millions in docket_series."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.contract",
+        "call": "GET https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/contracts/v2/search/spending_over_time.md",
+        "result": "Fetched contract says /api/v2/search/spending_over_time/ is API v2, POST, Response 200, group supports fiscal_year, spending_level supports transactions, and TimeResult has aggregated_amount as a required number."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.full_history",
+        "call": "POST https://api.usaspending.gov/api/v2/search/spending_over_time/ once per FY2021-FY2026 with the registered filters and each fiscal-year time_period",
+        "result": "Fetched full-year rows: FY2021 aggregated_amount 38291078.07 USD = 38.29107807 usd_millions; FY2022 34095876.20 USD = 34.09587620; FY2023 49958929.09 USD = 49.95892909; FY2024 68717828.09 USD = 68.71782809; FY2025 46832556.79 USD = 46.83255679; FY2026 current same-query row as of run 18026012.00 USD = 18.02601200 but FY2026 is not closed."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the last five completed same-query fiscal-year totals are 38.291, 34.096, 49.959, 68.718, and 46.833 usd_millions; mean 47.579, median 46.833, range 34.096-68.718. The default repeated-series prior is FY2025 persistence at 46.833 usd_millions; persistence walk-forward absolute errors over FY2022-FY2025 are 4.195, 15.863, 18.759, and 21.885 million, MAE 15.176."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.same_date_partials",
+        "call": "POST the same registered filters for Oct. 1-Aug. 12 windows in FY2021-FY2026 and compare with each full FY through Sep. 30",
+        "result": "Fetched Aug. 12 partials and final catch-up: FY2021 partial 31.23526709 to full 38.29107807, catch-up 7.05581098; FY2022 partial 20.47003680 to 34.09587620, catch-up 13.62583940; FY2023 partial 29.18312305 to 49.95892909, catch-up 20.77580604; FY2024 partial 60.03895114 to 68.71782809, catch-up 8.67887695; FY2025 partial 35.36103917 to 46.83255679, catch-up 11.47151762; FY2026 partial 18.02601200."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis.slug_check",
+        "call": "curl -i -sS https://app.thesisinstitute.org/specs.json",
+        "result": "Slug check attempt returned HTTP 404 on 2026-08-12 from app.thesisinstitute.org/specs.json; no competing public specs entry was fetched, so I retain the registered catalogSlug from the target contract."
+      },
+      {
+        "kind": "math",
+        "text": "Model candidates (thesis_model_candidate_v1): persistence point 46.833, p10 29.646, p50 46.833, p90 64.019, 80% interval [29.646, 64.019], 90% interval [24.745, 68.920], interval_method annual-value sigma, calibration_n 5, train_cutoff FY2025, walk_forward_mae 15.176; historical-mean candidate point 47.579, p10 30.393, p50 47.579, p90 64.766, 80% interval [30.393, 64.766], 90% interval [25.491, 69.667], interval_method annual-value sigma, calibration_n 5, train_cutoff FY2025; Aug12-catchup candidate point 29.498 = current partial 18.026 + median prior Aug12-to-final catch-up 11.472, p10 12.311, p50 29.498, p90 46.684, 80% interval [12.311, 46.684], 90% interval [7.410, 51.586], interval_method annual-value sigma wrapped around current partial catch-up, calibration_n 5, train_cutoff 2026-08-12."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior is FY2025 persistence 46.833 from the FY2021-FY2025 completed full-year registered-query sample. Current update is direct same-query FY2026 partial evidence, not part of the completed historical calibration sample: 18.026 by 2026-08-12 versus prior Aug. 12 partials 20.470-60.039 and median historical catch-up 11.472, giving selected point 18.026 + 11.472 = 29.498, rounded to 29.5. Historical sample for interval is FY2021-FY2025 full-year values themselves because this is an annual flow: sigma = 13.427 usd_millions, half-width = 1.28*sigma = 17.186; selected 80% interval = 29.498 +/- 17.186 = [12.311, 46.684], rounded to [12.3, 46.7]. This is a material move below persistence, justified by the direct FY2026 same-query partial and shrunk upward relative to the pure partial-ratio point of 23.874."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk outside the interval would come from a large late September obligation batch like FY2023's 20.776 million catch-up plus additional delayed postings that push the registered snapshot above 46.7. Downside risk outside the interval would require unusually little remaining FY2026 Forest Service Minnesota award activity or negative deobligations after 2026-08-12, leaving the registered snapshot below 12.3."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the ordering critique by stating the FY2021-FY2025 completed-series base rate and FY2025 persistence prior before treating the FY2026 partial as current update evidence; also clarified that the FY2026 partial is not part of the completed historical calibration sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 29.5,
+        "ciLow": 12.3,
+        "ciHigh": 46.7
+      }
+    ],
+    "agentReportedRunAt": "2026-08-12T20:57:31Z",
+    "runStartedAt": "2026-08-12T20:57:24Z",
+    "promptMode": "full",
+    "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+    "targetContentHash": "c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3",
+    "targetRegistrationPath": "records/targets/2026-08-11-c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3.json",
+    "registeredAtUtc": "2026-08-11T20:38:09Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -13.5,
+        "upper": 72.5
+      },
+      "points": [
+        {
+          "value": -13.5,
+          "probability": 0.0
+        },
+        {
+          "value": -13.07,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -12.64,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -12.21,
+          "probability": 0.005
+        },
+        {
+          "value": -11.78,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -11.35,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -10.92,
+          "probability": 0.01
+        },
+        {
+          "value": -10.49,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -10.06,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -9.63,
+          "probability": 0.015
+        },
+        {
+          "value": -9.2,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -8.77,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -8.34,
+          "probability": 0.02
+        },
+        {
+          "value": -7.91,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -7.48,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -7.05,
+          "probability": 0.025
+        },
+        {
+          "value": -6.62,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -6.19,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -5.76,
+          "probability": 0.03
+        },
+        {
+          "value": -5.33,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -4.9,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -4.47,
+          "probability": 0.035
+        },
+        {
+          "value": -4.04,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -3.61,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -3.18,
+          "probability": 0.04
+        },
+        {
+          "value": -2.75,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -2.32,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -1.89,
+          "probability": 0.045
+        },
+        {
+          "value": -1.46,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -1.03,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -0.6,
+          "probability": 0.05
+        },
+        {
+          "value": -0.17,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 0.26,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 0.69,
+          "probability": 0.055
+        },
+        {
+          "value": 1.12,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 1.55,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 1.98,
+          "probability": 0.06
+        },
+        {
+          "value": 2.41,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 2.84,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 3.27,
+          "probability": 0.065
+        },
+        {
+          "value": 3.7,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 4.13,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 4.56,
+          "probability": 0.07
+        },
+        {
+          "value": 4.99,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 5.42,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 5.85,
+          "probability": 0.075
+        },
+        {
+          "value": 6.28,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 6.71,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 7.14,
+          "probability": 0.08
+        },
+        {
+          "value": 7.57,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 8.0,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 8.43,
+          "probability": 0.085
+        },
+        {
+          "value": 8.86,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 9.29,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 9.72,
+          "probability": 0.09
+        },
+        {
+          "value": 10.15,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 10.58,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 11.01,
+          "probability": 0.095
+        },
+        {
+          "value": 11.44,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 11.87,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 12.3,
+          "probability": 0.1
+        },
+        {
+          "value": 12.73,
+          "probability": 0.11
+        },
+        {
+          "value": 13.16,
+          "probability": 0.12
+        },
+        {
+          "value": 13.59,
+          "probability": 0.13
+        },
+        {
+          "value": 14.02,
+          "probability": 0.14
+        },
+        {
+          "value": 14.45,
+          "probability": 0.15
+        },
+        {
+          "value": 14.88,
+          "probability": 0.16
+        },
+        {
+          "value": 15.31,
+          "probability": 0.17
+        },
+        {
+          "value": 15.74,
+          "probability": 0.18
+        },
+        {
+          "value": 16.17,
+          "probability": 0.19
+        },
+        {
+          "value": 16.6,
+          "probability": 0.2
+        },
+        {
+          "value": 17.03,
+          "probability": 0.21
+        },
+        {
+          "value": 17.46,
+          "probability": 0.22
+        },
+        {
+          "value": 17.89,
+          "probability": 0.23
+        },
+        {
+          "value": 18.32,
+          "probability": 0.24
+        },
+        {
+          "value": 18.75,
+          "probability": 0.25
+        },
+        {
+          "value": 19.18,
+          "probability": 0.26
+        },
+        {
+          "value": 19.61,
+          "probability": 0.27
+        },
+        {
+          "value": 20.04,
+          "probability": 0.28
+        },
+        {
+          "value": 20.47,
+          "probability": 0.29
+        },
+        {
+          "value": 20.9,
+          "probability": 0.3
+        },
+        {
+          "value": 21.33,
+          "probability": 0.31
+        },
+        {
+          "value": 21.76,
+          "probability": 0.32
+        },
+        {
+          "value": 22.19,
+          "probability": 0.33
+        },
+        {
+          "value": 22.62,
+          "probability": 0.34
+        },
+        {
+          "value": 23.05,
+          "probability": 0.35
+        },
+        {
+          "value": 23.48,
+          "probability": 0.36
+        },
+        {
+          "value": 23.91,
+          "probability": 0.37
+        },
+        {
+          "value": 24.34,
+          "probability": 0.38
+        },
+        {
+          "value": 24.77,
+          "probability": 0.39
+        },
+        {
+          "value": 25.2,
+          "probability": 0.4
+        },
+        {
+          "value": 25.63,
+          "probability": 0.41
+        },
+        {
+          "value": 26.06,
+          "probability": 0.42
+        },
+        {
+          "value": 26.49,
+          "probability": 0.43
+        },
+        {
+          "value": 26.92,
+          "probability": 0.44
+        },
+        {
+          "value": 27.35,
+          "probability": 0.45
+        },
+        {
+          "value": 27.78,
+          "probability": 0.46
+        },
+        {
+          "value": 28.21,
+          "probability": 0.47
+        },
+        {
+          "value": 28.64,
+          "probability": 0.48
+        },
+        {
+          "value": 29.07,
+          "probability": 0.49
+        },
+        {
+          "value": 29.5,
+          "probability": 0.5
+        },
+        {
+          "value": 29.93,
+          "probability": 0.51
+        },
+        {
+          "value": 30.36,
+          "probability": 0.52
+        },
+        {
+          "value": 30.79,
+          "probability": 0.53
+        },
+        {
+          "value": 31.22,
+          "probability": 0.54
+        },
+        {
+          "value": 31.65,
+          "probability": 0.55
+        },
+        {
+          "value": 32.08,
+          "probability": 0.56
+        },
+        {
+          "value": 32.51,
+          "probability": 0.57
+        },
+        {
+          "value": 32.94,
+          "probability": 0.58
+        },
+        {
+          "value": 33.37,
+          "probability": 0.59
+        },
+        {
+          "value": 33.8,
+          "probability": 0.6
+        },
+        {
+          "value": 34.23,
+          "probability": 0.61
+        },
+        {
+          "value": 34.66,
+          "probability": 0.62
+        },
+        {
+          "value": 35.09,
+          "probability": 0.63
+        },
+        {
+          "value": 35.52,
+          "probability": 0.64
+        },
+        {
+          "value": 35.95,
+          "probability": 0.65
+        },
+        {
+          "value": 36.38,
+          "probability": 0.66
+        },
+        {
+          "value": 36.81,
+          "probability": 0.67
+        },
+        {
+          "value": 37.24,
+          "probability": 0.68
+        },
+        {
+          "value": 37.67,
+          "probability": 0.69
+        },
+        {
+          "value": 38.1,
+          "probability": 0.7
+        },
+        {
+          "value": 38.53,
+          "probability": 0.71
+        },
+        {
+          "value": 38.96,
+          "probability": 0.72
+        },
+        {
+          "value": 39.39,
+          "probability": 0.73
+        },
+        {
+          "value": 39.82,
+          "probability": 0.74
+        },
+        {
+          "value": 40.25,
+          "probability": 0.75
+        },
+        {
+          "value": 40.68,
+          "probability": 0.76
+        },
+        {
+          "value": 41.11,
+          "probability": 0.77
+        },
+        {
+          "value": 41.54,
+          "probability": 0.78
+        },
+        {
+          "value": 41.97,
+          "probability": 0.79
+        },
+        {
+          "value": 42.4,
+          "probability": 0.8
+        },
+        {
+          "value": 42.83,
+          "probability": 0.81
+        },
+        {
+          "value": 43.26,
+          "probability": 0.82
+        },
+        {
+          "value": 43.69,
+          "probability": 0.83
+        },
+        {
+          "value": 44.12,
+          "probability": 0.84
+        },
+        {
+          "value": 44.55,
+          "probability": 0.85
+        },
+        {
+          "value": 44.98,
+          "probability": 0.86
+        },
+        {
+          "value": 45.41,
+          "probability": 0.87
+        },
+        {
+          "value": 45.84,
+          "probability": 0.88
+        },
+        {
+          "value": 46.27,
+          "probability": 0.89
+        },
+        {
+          "value": 46.7,
+          "probability": 0.9
+        },
+        {
+          "value": 47.13,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 47.56,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 47.99,
+          "probability": 0.905
+        },
+        {
+          "value": 48.42,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 48.85,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 49.28,
+          "probability": 0.91
+        },
+        {
+          "value": 49.71,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 50.14,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 50.57,
+          "probability": 0.915
+        },
+        {
+          "value": 51.0,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 51.43,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 51.86,
+          "probability": 0.92
+        },
+        {
+          "value": 52.29,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 52.72,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 53.15,
+          "probability": 0.925
+        },
+        {
+          "value": 53.58,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 54.01,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 54.44,
+          "probability": 0.93
+        },
+        {
+          "value": 54.87,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 55.3,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 55.73,
+          "probability": 0.935
+        },
+        {
+          "value": 56.16,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 56.59,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 57.02,
+          "probability": 0.94
+        },
+        {
+          "value": 57.45,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 57.88,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 58.31,
+          "probability": 0.945
+        },
+        {
+          "value": 58.74,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 59.17,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 59.6,
+          "probability": 0.95
+        },
+        {
+          "value": 60.03,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 60.46,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 60.89,
+          "probability": 0.955
+        },
+        {
+          "value": 61.32,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 61.75,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 62.18,
+          "probability": 0.96
+        },
+        {
+          "value": 62.61,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 63.04,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 63.47,
+          "probability": 0.965
+        },
+        {
+          "value": 63.9,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 64.33,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 64.76,
+          "probability": 0.97
+        },
+        {
+          "value": 65.19,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 65.62,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 66.05,
+          "probability": 0.975
+        },
+        {
+          "value": 66.48,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 66.91,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 67.34,
+          "probability": 0.98
+        },
+        {
+          "value": 67.77,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 68.2,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 68.63,
+          "probability": 0.985
+        },
+        {
+          "value": 69.06,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 69.49,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 69.92,
+          "probability": 0.99
+        },
+        {
+          "value": 70.35,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 70.78,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 71.21,
+          "probability": 0.995
+        },
+        {
+          "value": 71.64,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 72.07,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 72.5,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 29.5,
+        "median": 29.5,
+        "interval80": {
+          "lower": 12.3,
+          "upper": 46.7
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/prompt.md",
+        "sha256": "e95e51782fc745cdc6f0211c6e0c595af66ca90a19b4dfab3afb38815d9012cc",
+        "bytes": 35517,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_command.json",
+        "sha256": "458379ccf45e73c91467267606cce0a38d7a10e751a6ebe937b4da88118faf98",
+        "bytes": 883,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_stdout.jsonl",
+        "sha256": "6025ff5a0310348eea26b8bb21ac1c5df2c0521c294a96b90e8d0cb269256512",
+        "bytes": 164743,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_stderr.log",
+        "sha256": "c5136ec80f5fb68a279a6a06a4ff96daddd37088164caa304fb5b5bf660634c1",
+        "bytes": 233,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_events.jsonl",
+        "sha256": "70a10dde5d1f2613f4f9855af802bcb9979954781456d11d7f60cb48ac299e27",
+        "bytes": 165644,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_last_message.txt",
+        "sha256": "899738be1a801ba2039badbf99309a4dbd9c20ace58e5ba69bb6283b05f07854",
+        "bytes": 8223,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_trace.json",
+        "sha256": "4f3d9c2862e3adb237580510639ad61a0166413e79363fcbfea28cccbf135550",
+        "bytes": 567,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_stdout.txt",
+        "sha256": "899738be1a801ba2039badbf99309a4dbd9c20ace58e5ba69bb6283b05f07854",
+        "bytes": 8223,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_stderr.txt",
+        "sha256": "8f40764ab1ae5202df76426bf0030055cc64d10bed1d29159f2c260d699f58f9",
+        "bytes": 248,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_prompt.md",
+        "sha256": "db233ea4dc145ba941d3c6843fb83e0a76212530b9df2225b1ff23184616700c",
+        "bytes": 13126,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_command.json",
+        "sha256": "e0e02f4ebf0cf320abc70eed059f94025fcd0df911cc30ad8a4ec7ae99126af5",
+        "bytes": 879,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "8f10ff03b213d6544199ae945c66ea63f134357fe635488e3cfe0fb7b0377bfb",
+        "bytes": 1287,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_stderr.log",
+        "sha256": "4d787b95432b635566f3504d6cb09a006d128efc5d0fd598bedde5d4946172da",
+        "bytes": 233,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "5a00958feafd5a1583b643b2c417573b23592b8df798e8e413bc58d193d6533f",
+        "bytes": 1309,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "6c37fd513ec5f174855e91559897528a17ce44ff745b4cf4a6a92fa69f55a9e6",
+        "bytes": 928,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_trace.json",
+        "sha256": "f60269fcbd53dbdf8991035236932e29d4cd9b2f638c967a952c05c7b228ff88",
+        "bytes": 561,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_stdout.txt",
+        "sha256": "6c37fd513ec5f174855e91559897528a17ce44ff745b4cf4a6a92fa69f55a9e6",
+        "bytes": 928,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_stderr.txt",
+        "sha256": "cbb945b8e4e66589be573cf5de668db1a8d37172f32d133bd014e40a42c02dd4",
+        "bytes": 248,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/revision_prompt.md",
+        "sha256": "71eacbffcc4d5054b5238d144545b0ea53ec6313ea38c80c0878db20e783dabe",
+        "bytes": 45604,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/command.json",
+        "sha256": "43117a0e1ebbad90f372020d7f2b5115bdeddddcc8fd31be1a679c1ef90917d4",
+        "bytes": 877,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_stdout.jsonl",
+        "sha256": "bb0c012e9acbdec103a8a966bd77640efa43baebb65bfba492c5aafbb16a7fa3",
+        "bytes": 9198,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_stderr.log",
+        "sha256": "39a998e9eed73b9732c45094a5cedf3f2f74fd5e2a55046e5180248402e56901",
+        "bytes": 233,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_events.jsonl",
+        "sha256": "eddc166d332b65a6b706f19a9e9698dff45271f0346d2127dfd2d33652a580ab",
+        "bytes": 9220,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_last_message.txt",
+        "sha256": "5aaadfa7ef40eacfbe134f67b8a08ccfbcfa7904837d2a36fda390c8f3099e6c",
+        "bytes": 8623,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_trace.json",
+        "sha256": "aeed5f7a28374953e8364d1c7a2eed4bbb2fbb92fd4c21b3a3aed993391028d3",
+        "bytes": 558,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/stdout.txt",
+        "sha256": "5aaadfa7ef40eacfbe134f67b8a08ccfbcfa7904837d2a36fda390c8f3099e6c",
+        "bytes": 8623,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/stderr.txt",
+        "sha256": "6f1d7622c3bb8fc5c4468ddc0c263255b095c0cb5a21255ada59292d037b059c",
+        "bytes": 248,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/raw_response.txt",
+        "sha256": "5aaadfa7ef40eacfbe134f67b8a08ccfbcfa7904837d2a36fda390c8f3099e6c",
+        "bytes": 8623,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/parsed_cells.json",
+        "sha256": "600c90476d170b43f75ca4b447f84af3e5b3dee032ceccea4fb64e5a9f56f952",
+        "bytes": 9587,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/normalized_cells.json",
+        "sha256": "930aab8cb693fdf26152bfffe510e9eef10d0670aa2c96b57c74d781d4564261",
+        "bytes": 26793,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/distribution.json",
+        "sha256": "45caf9c0a440cfa1da365215fda2f7d4336b64cf39415ebb58c108c75b019b01",
+        "bytes": 13422,
+        "createdAt": "2026-08-12T20:57:24Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/validation.json",
+        "sha256": "4acfcd3b5d4e3439d8d96fd783cb2aa05d6abe39f62b593628e8d806ccdbd297",
+        "bytes": 158,
+        "createdAt": "2026-08-12T20:57:24Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-12T20:57:24Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "000661c34f950063222be6ca5c345c4a19f3209d33917cb0cda2b05d7067eadc"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-57-24z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "base_rate",
+          "summary": "The draft states the FY2026 partial and same-date catch-up evidence before the base-rate/persistence prior in drivers and reasoning.",
+          "actionRequested": "Reorder the reasoning so the FY2021-FY2025 completed-series base rate and FY2025 persistence prior are stated before the FY2026 partial-update evidence."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the compact Prior/update/interval step, explicitly name the FY2021-FY2025 completed full-year sample before mentioning the FY2026 partial."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that the FY2026 partial is current evidence only, not part of the completed historical calibration sample."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the ordering critique by stating the FY2021-FY2025 completed-series base rate and FY2025 persistence prior before treating the FY2026 partial as current update evidence; also clarified that the FY2026 partial is not part of the completed historical calibration sample.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the ordering critique by stating the FY2021-FY2025 completed-series base rate and FY2025 persistence prior before treating the FY2026 partial as current update evidence; also clarified that the FY2026 partial is not part of the completed historical calibration sample.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the ordering critique by stating the FY2021-FY2025 completed-series base rate and FY2025 persistence prior before treating the FY2026 partial as current update evidence; also clarified that the FY2026 partial is not part of the completed historical calibration sample.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publication-ready after a minor ordering cleanup: resolver, unit, registered-query history, update logic, interval math, tails, and JSON coherence are broadly sound."
+    }
+  }
+]

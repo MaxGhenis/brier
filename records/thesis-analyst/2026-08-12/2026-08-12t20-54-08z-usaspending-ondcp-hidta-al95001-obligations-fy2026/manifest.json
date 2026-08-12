@@ -1,0 +1,410 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-12T20:54:08Z",
+  "runStartedAt": "2026-08-12T20:54:08Z",
+  "sealedAt": "2026-08-12T20:57:24Z",
+  "series": "usaspending.ondcp.hidta_al95001_obligations",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2025": 271.6576756
+    },
+    "catalogSlug": "us-ondcp-hidta-al95001-obligations-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.ondcp.hidta_al95001_obligations.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-11T20:38:09Z",
+    "registeredAtUtc": "2026-08-11T20:38:09Z",
+    "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+    "registrationState": "preregistered",
+    "series": "usaspending.ondcp.hidta_al95001_obligations",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.search.spending_over_time.ondcp.hidta_program_obligations",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "table": "USAspending API v2 advanced search, financial-assistance award transactions filtered to Assistance Listing 95.001, obligations by fiscal year",
+      "transform": {
+        "awardTypeCodes": [
+          "02",
+          "03",
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11"
+        ],
+        "factor": 1e-06,
+        "fiscalYear": "{fiscal_year}",
+        "group": "fiscal_year",
+        "operation": "multiply",
+        "programNumbers": [
+          "95.001"
+        ],
+        "requestMethod": "POST",
+        "spendingLevel": "transactions"
+      }
+    },
+    "targetContentHash": "eb895fc1e680eab66d27b1046b6df148fa4c00829fc42935f4c36fb1c8a4a42a",
+    "targetRegistrationPath": "records/targets/2026-08-11-eb895fc1e680eab66d27b1046b6df148fa4c00829fc42935f4c36fb1c8a4a42a.json",
+    "targetUnit": "usd_millions",
+    "valueScale": 1e-06
+  },
+  "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+  "targetContentHash": "eb895fc1e680eab66d27b1046b6df148fa4c00829fc42935f4c36fb1c8a4a42a",
+  "targetRegistrationPath": "records/targets/2026-08-11-eb895fc1e680eab66d27b1046b6df148fa4c00829fc42935f4c36fb1c8a4a42a.json",
+  "registeredAtUtc": "2026-08-11T20:38:09Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-12T20:54:08Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "61df2a1b911d6086b0b14d4c0a22fadbb5e343723ee7e1a8830581f4137e8e27"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolution rule paraphrases the registered query but writes program_numbers as [95.001], which can read as a numeric value rather than the exact string in sourceBinding.transform.programNumbers.",
+        "actionRequested": "Change the resolver wording to quote Assistance Listing \"95.001\" and, if possible, mirror the registered transform field names byte-for-byte: programNumbers [\"95.001\"], awardTypeCodes [\"02\"...\"11\"], group fiscal_year, spendingLevel transactions."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that the time-series residual-quantile candidate gave a narrower upper p90 than the chosen widened interval, so the manual widening is deliberate rather than a transcription mismatch."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the FY2026 live-query value framed only as non-comparable pre-window evidence, as the draft already does."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver wording cleanup by quoting Assistance Listing \"95.001\" and mirroring the registered transform field names programNumbers, awardTypeCodes, group, and spendingLevel. Accepted the optional clarification that the selected interval is deliberately wider than the model candidate's residual-quantile p10-p90 interval; retained the FY2026 live-query value only as non-comparable pre-window evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver wording cleanup by quoting Assistance Listing \"95.001\" and mirroring the registered transform field names programNumbers, awardTypeCodes, group, and spendingLevel. Accepted the optional clarification that the selected interval is deliberately wider than the model candidate's residual-quantile p10-p90 interval; retained the FY2026 live-query value only as non-comparable pre-window evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver wording cleanup by quoting Assistance Listing \"95.001\" and mirroring the registered transform field names programNumbers, awardTypeCodes, group, and spendingLevel. Accepted the optional clarification that the selected interval is deliberately wider than the model candidate's residual-quantile p10-p90 interval; retained the FY2026 live-query value only as non-comparable pre-window evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with only minor resolver wording cleanup needed to remove avoidable ambiguity around the exact registered query body."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/prompt.md",
+      "sha256": "a9b68d84af19e5c4c036db479ca0c4b8059b1c52c604bb9edea3e380e465ed78",
+      "bytes": 35184,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_command.json",
+      "sha256": "7d017bd2778d71ab0585c54e70316c7c478186dadb4f6b5733cf170a32610c8c",
+      "bytes": 867,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "342a378eb3679ef173867acb95bb56cfc62d587c67c2aa829a21e0bf2f06fa18",
+      "bytes": 151559,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_codex_stderr.log",
+      "sha256": "80af82a6af7c7ffbadf1bdf8821039b7a709db6e85cb30497a29e6db876cf24f",
+      "bytes": 233,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_codex_events.jsonl",
+      "sha256": "ae204faed12e494662358f943a40b0d2d929f294b0df4e79c2416971cdc9926d",
+      "bytes": 152623,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_codex_last_message.txt",
+      "sha256": "f8b49ce9c88243428aff3a7a83f04ea7a26e8a4208a073ef79c283182f77fbb5",
+      "bytes": 8105,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_codex_trace.json",
+      "sha256": "f0f59dd2661065722ffef7cbb7a88de5ef5f64de5ca2efd9b66c23de534f074e",
+      "bytes": 567,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_stdout.txt",
+      "sha256": "f8b49ce9c88243428aff3a7a83f04ea7a26e8a4208a073ef79c283182f77fbb5",
+      "bytes": 8105,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/draft_stderr.txt",
+      "sha256": "96a406ed13bc9829910de6a3f285fbadea9b7abbbb4e628a2063bc1f86056d25",
+      "bytes": 248,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_prompt.md",
+      "sha256": "b80cc01c2a62a889c63d1e85a076f81735c9246e0ca778ba0b1941d3d00f36e2",
+      "bytes": 12675,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_command.json",
+      "sha256": "e1772e1e975e81b23a9c48631daf2019163d7f856172663231af9bd2698ddeeb",
+      "bytes": 863,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "5c3c9c608dfdb4525ba053795996deb78a03c7db345a7c740efe1bb68529d750",
+      "bytes": 1394,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "cdb2d982949264b8d19ac138e2e19a5d51c3e20a79c3cab5569270ef3738cf9b",
+      "bytes": 233,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "5185a3ab8f2c4536c5f818abc67a41c1838f1b83f8a4c7d6a6b24d200ae6b0b8",
+      "bytes": 1416,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "8ce365f107dcb994214acf06f0dad699e2b64a681a809d19eb98013d85636978",
+      "bytes": 1033,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "bb77525f703b70809a6efb7d3c3b6353410f6d206bfa4078c05c394aa109a8d0",
+      "bytes": 561,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "8ce365f107dcb994214acf06f0dad699e2b64a681a809d19eb98013d85636978",
+      "bytes": 1033,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "727865bd4161b2e7ed26f0fed0d66dc90b651c201f3af2845258191b2cc55499",
+      "bytes": 248,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/revision_prompt.md",
+      "sha256": "d10ba8ea4beea84ffc8875f07323224ee8cd566a98ab82c07917b4d08d295277",
+      "bytes": 45258,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/command.json",
+      "sha256": "05313be5c26d06ff1a89ccc2dbbc5884f34fa0d3ab697b5f6221bd9013c63817",
+      "bytes": 861,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/codex_stdout.jsonl",
+      "sha256": "951d6874ea79fe6426f036b1c4a8632e5e534fe3b11c814d21e0b7d7462b35c7",
+      "bytes": 9883,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/codex_stderr.log",
+      "sha256": "0a6e74e10e2aa33438a37258e04a30e6f98829273426161d4e02b4e216b76a48",
+      "bytes": 233,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/codex_events.jsonl",
+      "sha256": "3f816c869d1c029539b60a693d6687ffe9e8d86d5f76c955d5d70096b7367a35",
+      "bytes": 9905,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/codex_last_message.txt",
+      "sha256": "4629644c2de825826cdbd793bd7ebc2c035efea404c03397405f6d6138173b17",
+      "bytes": 9142,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/codex_trace.json",
+      "sha256": "e1935f90aaee48db604327f55a9d4ded289e5def0179a55351772db8d5d7b083",
+      "bytes": 558,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/stdout.txt",
+      "sha256": "4629644c2de825826cdbd793bd7ebc2c035efea404c03397405f6d6138173b17",
+      "bytes": 9142,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/stderr.txt",
+      "sha256": "6df3061f414a7f76e9a9b47377111477cb06fe247443da9c312f23523dde4a59",
+      "bytes": 248,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/raw_response.txt",
+      "sha256": "4629644c2de825826cdbd793bd7ebc2c035efea404c03397405f6d6138173b17",
+      "bytes": 9142,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/parsed_cells.json",
+      "sha256": "5136b846fea7bb94f486c0b5ce184f98360bc0d82e082c852c41466c9f895b84",
+      "bytes": 9388,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/normalized_cells.json",
+      "sha256": "d5510b5a419a7634b3ca11cd8c0175e00fbc837059f1fbfc1759ce779601c9e0",
+      "bytes": 28117,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/distribution.json",
+      "sha256": "4950f11f60a0893a38df98ef5a8f553e460a2d071e9c65998a3e638cad82c60f",
+      "bytes": 14945,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/validation.json",
+      "sha256": "1113794457ff93644ce491242240291d73e66ea1cd3c9a673e7b4dd886bd6fed",
+      "bytes": 142,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/cells.with_activity.json",
+      "sha256": "94a75b4e2ef2955729d6d413f1c193a14723828e37f51b4e7e7c6dda470b2c27",
+      "bytes": 43835,
+      "createdAt": "2026-08-12T20:54:08Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t20-54-08z-usaspending-ondcp-hidta-al95001-obligations-fy2026/manifest.json",
+      "sha256": "b6e42581c4cfa2b70229564433fec9f5977bc213d56a1b7038cb7e08b1ffaffb",
+      "bytes": 16563,
+      "createdAt": "2026-08-12T20:54:08Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-ondcp-hidta-al95001-obligations-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "4d81a64adfbd29e3749db729d27d411642bfc285",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "22373f545ac6a248fd7769f11e944889ab71e9269717af421c2322573ff71c2e"
+}

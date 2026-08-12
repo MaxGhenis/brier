@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "us-usfs-minnesota-place-of-performance-obligations-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "USFS Minnesota obligations, FY2026",
+    "question": "In the first registered-query snapshot after FY2026 close, what will USAspending API v2 search/spending_over_time report as aggregated_amount for prime award transactions filtered to Forest Service awarding subagency, Minnesota place of performance, fiscal_year FY2026, grouped by fiscal_year, not seasonally adjusted, converted to USD millions?",
+    "unit": "usd_millions",
+    "pointEstimate": 29.5,
+    "ciLow": 12.3,
+    "ciHigh": 46.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-22",
+    "resolutionSource": "USAspending API v2 search/spending_over_time registered query snapshot",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+    "resolutionRule": "Resolve from the first registered-query snapshot captured in the Thesis expected release window 2026-10-15 through 2026-10-22, no later than the lab-committed outer bound 2026-10-22. POST to USAspending API v2 search/spending_over_time with group=fiscal_year, spending_level=transactions, award_type_codes 02,03,04,05,06,07,08,09,10,11,A,B,C,D,IDV_A,IDV_B,IDV_B_A,IDV_B_B,IDV_B_C,IDV_C,IDV_D,IDV_E; awarding agency Forest Service subtier under Department of Agriculture; place_of_performance_locations country=USA,state=MN; FY2026 time_period 2025-10-01 through 2026-09-30. Read results[time_period.fiscal_year=2026].aggregated_amount, multiply by 0.000001, and round in usd_millions. Later USAspending revisions after the registered snapshot do not change the first-print value.",
+    "dataPointId": "usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot",
+    "historicalContext": [
+      {
+        "label": "FY2021 registered-query obligations, USD millions",
+        "value": 38.29107807
+      },
+      {
+        "label": "FY2022 registered-query obligations, USD millions",
+        "value": 34.0958762
+      },
+      {
+        "label": "FY2023 registered-query obligations, USD millions",
+        "value": 49.95892909
+      },
+      {
+        "label": "FY2024 registered-query obligations, USD millions",
+        "value": 68.71782809
+      },
+      {
+        "label": "FY2025 registered-query obligations, USD millions",
+        "value": 46.83255679
+      },
+      {
+        "label": "FY2026 same-query partial through 2026-08-12, USD millions",
+        "value": 18.026012
+      }
+    ],
+    "drivers": [
+      "FY2025 persistence benchmark is 46.8 million",
+      "Annual values are lumpy, with FY2021-FY2025 sigma 13.4 million",
+      "FY2026 Aug. 12 partial is far below recent same-date partials",
+      "Typical Aug. 12-to-final catch-up is about 11.5 million"
+    ],
+    "sourceContext": [
+      "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/contracts/v2/search/spending_over_time.md",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-12T20:57:31Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "USFS Minnesota place-of-performance obligations, FY2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the target is the registered USAspending advanced-search query, not an agency profile total or a news summary. It resolves on the first registered-query snapshot for FY2026 prime award transactions with Forest Service as awarding subtier and Minnesota as place of performance, converted from dollars to usd_millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "repository.target_registration",
+        "call": "Read records/targets/2026-08-11-c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3.json",
+        "result": "Registered slug us-usfs-minnesota-place-of-performance-obligations-fy2026; unit usd_millions; dataPointId usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot; expectedReleaseWindow start 2026-10-15 end 2026-10-22; sourceBinding factor 0.000001; FY2025 anchor 46.83255679 usd_millions in docket_series."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.contract",
+        "call": "GET https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/contracts/v2/search/spending_over_time.md",
+        "result": "Fetched contract says /api/v2/search/spending_over_time/ is API v2, POST, Response 200, group supports fiscal_year, spending_level supports transactions, and TimeResult has aggregated_amount as a required number."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.full_history",
+        "call": "POST https://api.usaspending.gov/api/v2/search/spending_over_time/ once per FY2021-FY2026 with the registered filters and each fiscal-year time_period",
+        "result": "Fetched full-year rows: FY2021 aggregated_amount 38291078.07 USD = 38.29107807 usd_millions; FY2022 34095876.20 USD = 34.09587620; FY2023 49958929.09 USD = 49.95892909; FY2024 68717828.09 USD = 68.71782809; FY2025 46832556.79 USD = 46.83255679; FY2026 current same-query row as of run 18026012.00 USD = 18.02601200 but FY2026 is not closed."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the last five completed same-query fiscal-year totals are 38.291, 34.096, 49.959, 68.718, and 46.833 usd_millions; mean 47.579, median 46.833, range 34.096-68.718. The default repeated-series prior is FY2025 persistence at 46.833 usd_millions; persistence walk-forward absolute errors over FY2022-FY2025 are 4.195, 15.863, 18.759, and 21.885 million, MAE 15.176."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.same_date_partials",
+        "call": "POST the same registered filters for Oct. 1-Aug. 12 windows in FY2021-FY2026 and compare with each full FY through Sep. 30",
+        "result": "Fetched Aug. 12 partials and final catch-up: FY2021 partial 31.23526709 to full 38.29107807, catch-up 7.05581098; FY2022 partial 20.47003680 to 34.09587620, catch-up 13.62583940; FY2023 partial 29.18312305 to 49.95892909, catch-up 20.77580604; FY2024 partial 60.03895114 to 68.71782809, catch-up 8.67887695; FY2025 partial 35.36103917 to 46.83255679, catch-up 11.47151762; FY2026 partial 18.02601200."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis.slug_check",
+        "call": "curl -i -sS https://app.thesisinstitute.org/specs.json",
+        "result": "Slug check attempt returned HTTP 404 on 2026-08-12 from app.thesisinstitute.org/specs.json; no competing public specs entry was fetched, so I retain the registered catalogSlug from the target contract."
+      },
+      {
+        "kind": "math",
+        "text": "Model candidates (thesis_model_candidate_v1): persistence point 46.833, p10 29.646, p50 46.833, p90 64.019, 80% interval [29.646, 64.019], 90% interval [24.745, 68.920], interval_method annual-value sigma, calibration_n 5, train_cutoff FY2025, walk_forward_mae 15.176; historical-mean candidate point 47.579, p10 30.393, p50 47.579, p90 64.766, 80% interval [30.393, 64.766], 90% interval [25.491, 69.667], interval_method annual-value sigma, calibration_n 5, train_cutoff FY2025; Aug12-catchup candidate point 29.498 = current partial 18.026 + median prior Aug12-to-final catch-up 11.472, p10 12.311, p50 29.498, p90 46.684, 80% interval [12.311, 46.684], 90% interval [7.410, 51.586], interval_method annual-value sigma wrapped around current partial catch-up, calibration_n 5, train_cutoff 2026-08-12."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior is FY2025 persistence 46.833 from the FY2021-FY2025 completed full-year registered-query sample. Current update is direct same-query FY2026 partial evidence, not part of the completed historical calibration sample: 18.026 by 2026-08-12 versus prior Aug. 12 partials 20.470-60.039 and median historical catch-up 11.472, giving selected point 18.026 + 11.472 = 29.498, rounded to 29.5. Historical sample for interval is FY2021-FY2025 full-year values themselves because this is an annual flow: sigma = 13.427 usd_millions, half-width = 1.28*sigma = 17.186; selected 80% interval = 29.498 +/- 17.186 = [12.311, 46.684], rounded to [12.3, 46.7]. This is a material move below persistence, justified by the direct FY2026 same-query partial and shrunk upward relative to the pure partial-ratio point of 23.874."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk outside the interval would come from a large late September obligation batch like FY2023's 20.776 million catch-up plus additional delayed postings that push the registered snapshot above 46.7. Downside risk outside the interval would require unusually little remaining FY2026 Forest Service Minnesota award activity or negative deobligations after 2026-08-12, leaving the registered snapshot below 12.3."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the ordering critique by stating the FY2021-FY2025 completed-series base rate and FY2025 persistence prior before treating the FY2026 partial as current update evidence; also clarified that the FY2026 partial is not part of the completed historical calibration sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 29.5,
+        "ciLow": 12.3,
+        "ciHigh": 46.7
+      }
+    ]
+  }
+]
