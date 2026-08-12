@@ -293,6 +293,107 @@ def test_partial_context_without_target_unit_keeps_the_menu():
     assert "percent|count|thousands" in result.stdout
 
 
+def test_normalization_failure_writes_a_failure_manifest(
+    tmp_path: Path,
+) -> None:
+    # The B1 rescue failure shape: a cell missing historicalContext hit
+    # an uncaught normalizer RuntimeError, so NO run record existed and
+    # whole-wave publication blocked on "lacks a registration-bound
+    # manifest". A malformed cell must leave an ok:false manifest.
+    out_dir = tmp_path / "normalize-failure"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "codex"
+    bad_cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_cell.pop("historicalContext", None)
+    write_fake_codex(fake_codex, bad_cell)
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "normalize"
+    assert "historicalContext" in manifest["error"]["message"]
+
+
+def test_empty_cell_payload_fails_instead_of_green_manifest(
+    tmp_path: Path,
+) -> None:
+    # "[]" passed zero validations and produced manifest.ok=true — an
+    # empty payload is neither a forecast nor a refusal record.
+    out_dir = tmp_path / "empty-payload"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "codex"
+    fake_codex.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "import json, pathlib, sys",
+                "args = sys.argv[1:]",
+                "last = pathlib.Path(args[args.index('-o') + 1])",
+                "last.write_text('[]')",
+                "print(json.dumps({'type': 'item.completed',"
+                " 'item': {'type': 'agent_message', 'text': '[]'}}))",
+                "print(json.dumps({'type': 'turn.completed',"
+                " 'usage': {'input_tokens': 1, 'output_tokens': 1,"
+                " 'cached_input_tokens': 0}}))",
+            ]
+        )
+    )
+    fake_codex.chmod(0o755)
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert "empty cell payload" in manifest["error"]["message"]
+
+
 def test_registered_query_snapshot_context_instructs_query_history():
     # A registered_query_snapshot series has no published table: history
     # must come from executing the registered query for prior periods.

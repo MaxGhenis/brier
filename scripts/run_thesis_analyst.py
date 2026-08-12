@@ -579,6 +579,21 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "releasePolicy"
     ) == "registered_query_snapshot":
         binding = target_context.get("sourceBinding") or {}
+        transform = binding.get("transform") or {}
+        request_method = str(transform.get("requestMethod") or "GET").upper()
+        if request_method == "GET":
+            # GET bindings carry the period slot in the URL itself.
+            execution = (
+                "substitute each prior period into "
+                f"sourceBinding.sourceUrl ({json.dumps(binding.get('sourceUrl'))}) "
+                "and GET it"
+            )
+        else:
+            execution = (
+                "substitute each prior period into sourceBinding.transform's "
+                f"request template and {request_method} it to "
+                f"{json.dumps(binding.get('sourceUrl'))}"
+            )
         lines += [
             "",
             "# Registered-query series (machine checked)",
@@ -586,10 +601,8 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "sourceBinding — no published table or headline page exists "
             "for it, so agency profile totals and search-result summaries "
             "are the WRONG series. Fetch historicalContext by executing "
-            "the exact registered query for each prior period: substitute "
-            "the period into sourceBinding.transform's request template "
-            f"and POST it to {json.dumps(binding.get('sourceUrl'))}, then "
-            "read the value at sourceBinding.field and apply "
+            f"the exact registered query for each prior period: {execution}, "
+            "then read the value at sourceBinding.field and apply "
             "sourceBinding.transform's operation and factor. History "
             "values obtained any other way will fail anchor validation, "
             "and a cell without historicalContext fails normalization — "
@@ -3442,6 +3455,24 @@ def main() -> int:
         )
         print(json.dumps(manifest, indent=2))
         return 1
+    if not parsed_cells:
+        # An empty payload is not a forecast and not a refusal record —
+        # letting it through produced a green manifest with zero cells.
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "parse",
+            "agent returned an empty cell payload",
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     parsed_path = out_dir / "parsed_cells.json"
     refs.append(
         write_artifact(
@@ -3454,7 +3485,29 @@ def main() -> int:
     )
 
     normalized_path = out_dir / "normalized_cells.json"
-    normalize_cells(parsed_path, normalized_path)
+    try:
+        normalize_cells(parsed_path, normalized_path)
+    except RuntimeError as exc:
+        # A malformed cell (a JSON refusal object, a cell missing
+        # historicalContext) must still leave a registration-bound
+        # failure manifest — the uncaught path left no run record at
+        # all, which blocked whole-wave publication ("result N lacks a
+        # registration-bound manifest", the B1 rescue failure shape).
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "normalize",
+            str(exc),
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     normalized_cells = json.loads(normalized_path.read_text())
     # The published runAt is the harness's SEAL time — captured here,
     # after the agent finished — never the agent's claim and never the
