@@ -1,0 +1,1215 @@
+[
+  {
+    "slug": "us-personal-transfer-payments-q2-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US personal transfers Q2 2026",
+    "question": "What will BEA report as the first-print value for U.S. International Transactions Table 5.1, line 18, Personal transfers, quarterly seasonally adjusted, for 2026 Q2, in millions of dollars?",
+    "unit": "usd_millions",
+    "pointEstimate": 18467,
+    "ciLow": 18081,
+    "ciHigh": 18852,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-24",
+    "resolutionSource": "BEA, U.S. International Transactions and Investment Position",
+    "resolutionSourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+    "resolutionRule": "Resolve from BEA U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted, for 2026 Q2, first print only, as a whole-number millions-of-dollars value in the official iTable release; later revisions do not change resolution.",
+    "dataPointId": "bea.ita.personal_transfer_payments.2026_q2.first_print",
+    "historicalContext": [
+      {
+        "label": "BEA ITA Table 5.1 line 18, 2025 Q1 current June 24 2026 vintage",
+        "value": 18688
+      },
+      {
+        "label": "BEA ITA Table 5.1 line 18, 2025 Q2 current June 24 2026 vintage",
+        "value": 18641
+      },
+      {
+        "label": "BEA ITA Table 5.1 line 18, 2025 Q3 current June 24 2026 vintage",
+        "value": 18596
+      },
+      {
+        "label": "BEA ITA Table 5.1 line 18, 2025 Q4 current June 24 2026 vintage",
+        "value": 18552
+      },
+      {
+        "label": "BEA ITA Table 5.1 line 18, 2026 Q1 current June 24 2026 vintage",
+        "value": 18511
+      }
+    ],
+    "drivers": [
+      "Latest BEA line-18 print is 18,511",
+      "Recent quarterly changes are small negatives",
+      "Trailing-four-change candidate beats persistence",
+      "No direct current signal for a large break"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://apps.bea.gov/iTablecore/data/app/GetStep",
+      "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-12T21:21:45Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Resolve BEA ITA personal transfers"
+      },
+      {
+        "kind": "text",
+        "text": "The registered target fixes slug us-personal-transfer-payments-q2-2026, unit usd_millions, dataPointId bea.ita.personal_transfer_payments.2026_q2.first_print, and BEA ITA Table 5.1 line 18 Personal transfers (QSA) as the resolving series. I attempted the required specs.json slug check; the fetched page returned HTTP 404 content, so I found no contrary public specs entry and kept the registered slug."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl",
+        "call": "curl -L -sS https://www.bea.gov/news/schedule | rg -n -C 2 'International Transactions and Investment Position|September 24|2nd Quarter 2026'",
+        "result": "BEA schedule excerpt showed September 24 at 8:30 AM for 'U.S. International Transactions and Investment Position, 2nd Quarter 2026'."
+      },
+      {
+        "kind": "tool",
+        "tool": "bea.itable",
+        "call": "POST https://apps.bea.gov/iTablecore/data/app/GetStep with appid 62, Product 1, TableList 62",
+        "result": "Fetched BEA Table 5.1 response identity Id 6206, AppId 62, Number 6; table description 'Release Date: June 24, 2026 - Next Release Date: September 24, 2026'; line 18 Personal transfers values included 2025 Q1 18,688, 2025 Q2 18,641, 2025 Q3 18,596, 2025 Q4 18,552, 2026 Q1 18,511."
+      },
+      {
+        "kind": "tool",
+        "tool": "bea.itable.history",
+        "call": "POST selected-year BEA iTable requests for 2020-2026, Filter_#2=1, Filter_#3=18",
+        "result": "Fetched line 18 Personal transfers QSA values in usd_millions: 2020 Q1 12,777; 2020 Q2 12,793; 2020 Q3 12,931; 2020 Q4 13,193; 2021 Q1 13,336; 2021 Q2 13,586; 2021 Q3 13,944; 2021 Q4 14,410; 2022 Q1 14,618; 2022 Q2 15,315; 2022 Q3 15,909; 2022 Q4 16,400; 2023 Q1 16,525; 2023 Q2 16,749; 2023 Q3 17,074; 2023 Q4 17,499; 2024 Q1 18,023; 2024 Q2 18,405; 2024 Q3 18,642; 2024 Q4 18,737; 2025 Q1 18,688; 2025 Q2 18,641; 2025 Q3 18,596; 2025 Q4 18,552; 2026 Q1 18,511."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the last 24 fetched quarter-to-quarter changes in BEA Table 5.1 line 18 have mean +238.9, sigma 220.4, range -49 to +697. The recent plateau is clear: the last five changes are -49, -47, -45, -44, and -41, so a pure last-print persistence prior is 18,511 and a trailing-four-change prior is 18,467."
+      },
+      {
+        "kind": "tool",
+        "tool": "model_candidates",
+        "call": "Compute thesis_model_candidate_v1 persistence and trailing-four-change candidates from fetched BEA values",
+        "result": "Candidate persistence: point 18,511, p10 18,125, p50 18,511, p90 18,897, 80% interval [18,125,18,897], calibration_n 24, walk-forward MAE from 2022 Q1 197.2. Candidate trailing4_change: point 18,467, p10 18,081, p50 18,467, p90 18,852, 80% interval [18,081,18,852], calibration_n 24, walk-forward MAE from 2022 Q1 172.1."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior is the trailing-four-change model because its walk-forward MAE 172.1 beats persistence MAE 197.2 on the fetched 2022 Q1-2026 Q1 history. Historical sample is 2020 Q1-2026 Q1 BEA line 18 current official values, with latest value 18,511 and last four changes -47, -45, -44, -41, so point = 18,511 + mean(-47,-45,-44,-41) = 18,466.75, rounded to 18,467. Adjustment components: no extra current-evidence adjustment beyond recent line-18 momentum. Interval method: last-24 change dispersion sigma = 220.4; 1.28*sigma = 282.1, widened to 1.75*sigma = 385.7 because the reference class includes a transition from fast growth to a flat/down plateau and Q2 first print may reveal whether that plateau persists; I use this widened band as the 80% judgment interval. Bounds = 18,466.75 +/- 385.7 = [18,081.0, 18,852.5], rounded to [18,081, 18,852]."
+      },
+      {
+        "kind": "text",
+        "text": "Sanity check: using a 386-million half-width around a one-quarter-ahead prior would have covered 8 of the last 10 fetched quarter-to-quarter changes; the two misses were the larger pre-plateau 2023 Q4 and 2024 Q1 increases."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk outside the interval if personal transfer payments reaccelerate toward the 2023-2024 growth regime or if BEA's Q2 first print incorporates a level reset above recent current-vintage values. Downside risk would land below the interval if the 2025-2026 decline steepens materially rather than continuing near -40 to -50 million per quarter."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: no required fixes were raised. I accepted the optional clarity suggestion by stating that the widened 1.75*sigma band is the 80% judgment interval, and retained the specs.json 404 note because it documents the attempted required slug check."
+      },
+      {
+        "kind": "forecast",
+        "point": 18467,
+        "ciLow": 18081,
+        "ciHigh": 18852
+      }
+    ],
+    "agentReportedRunAt": "2026-08-12T21:18:54Z",
+    "runStartedAt": "2026-08-12T21:18:43Z",
+    "promptMode": "full",
+    "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+    "targetContentHash": "7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925",
+    "targetRegistrationPath": "records/targets/2026-08-12-7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925.json",
+    "registeredAtUtc": "2026-08-12T21:16:44Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 17502.0,
+        "upper": 19429.5
+      },
+      "points": [
+        {
+          "value": 17502.0,
+          "probability": 0.0
+        },
+        {
+          "value": 17511.6375,
+          "probability": 0.00166450777202
+        },
+        {
+          "value": 17521.275,
+          "probability": 0.00332901554404
+        },
+        {
+          "value": 17530.9125,
+          "probability": 0.00499352331606
+        },
+        {
+          "value": 17540.55,
+          "probability": 0.00665803108808
+        },
+        {
+          "value": 17550.1875,
+          "probability": 0.0083225388601
+        },
+        {
+          "value": 17559.825,
+          "probability": 0.00998704663212
+        },
+        {
+          "value": 17569.4625,
+          "probability": 0.0116515544041
+        },
+        {
+          "value": 17579.1,
+          "probability": 0.0133160621762
+        },
+        {
+          "value": 17588.7375,
+          "probability": 0.0149805699482
+        },
+        {
+          "value": 17598.375,
+          "probability": 0.0166450777202
+        },
+        {
+          "value": 17608.0125,
+          "probability": 0.0183095854922
+        },
+        {
+          "value": 17617.65,
+          "probability": 0.0199740932642
+        },
+        {
+          "value": 17627.2875,
+          "probability": 0.0216386010363
+        },
+        {
+          "value": 17636.925,
+          "probability": 0.0233031088083
+        },
+        {
+          "value": 17646.5625,
+          "probability": 0.0249676165803
+        },
+        {
+          "value": 17656.2,
+          "probability": 0.0266321243523
+        },
+        {
+          "value": 17665.8375,
+          "probability": 0.0282966321244
+        },
+        {
+          "value": 17675.475,
+          "probability": 0.0299611398964
+        },
+        {
+          "value": 17685.1125,
+          "probability": 0.0316256476684
+        },
+        {
+          "value": 17694.75,
+          "probability": 0.0332901554404
+        },
+        {
+          "value": 17704.3875,
+          "probability": 0.0349546632124
+        },
+        {
+          "value": 17714.025,
+          "probability": 0.0366191709845
+        },
+        {
+          "value": 17723.6625,
+          "probability": 0.0382836787565
+        },
+        {
+          "value": 17733.3,
+          "probability": 0.0399481865285
+        },
+        {
+          "value": 17742.9375,
+          "probability": 0.0416126943005
+        },
+        {
+          "value": 17752.575,
+          "probability": 0.0432772020725
+        },
+        {
+          "value": 17762.2125,
+          "probability": 0.0449417098446
+        },
+        {
+          "value": 17771.85,
+          "probability": 0.0466062176166
+        },
+        {
+          "value": 17781.4875,
+          "probability": 0.0482707253886
+        },
+        {
+          "value": 17791.125,
+          "probability": 0.0499352331606
+        },
+        {
+          "value": 17800.7625,
+          "probability": 0.0515997409326
+        },
+        {
+          "value": 17810.4,
+          "probability": 0.0532642487047
+        },
+        {
+          "value": 17820.0375,
+          "probability": 0.0549287564767
+        },
+        {
+          "value": 17829.675,
+          "probability": 0.0565932642487
+        },
+        {
+          "value": 17839.3125,
+          "probability": 0.0582577720207
+        },
+        {
+          "value": 17848.95,
+          "probability": 0.0599222797927
+        },
+        {
+          "value": 17858.5875,
+          "probability": 0.0615867875648
+        },
+        {
+          "value": 17868.225,
+          "probability": 0.0632512953368
+        },
+        {
+          "value": 17877.8625,
+          "probability": 0.0649158031088
+        },
+        {
+          "value": 17887.5,
+          "probability": 0.0665803108808
+        },
+        {
+          "value": 17897.1375,
+          "probability": 0.0682448186528
+        },
+        {
+          "value": 17906.775,
+          "probability": 0.0699093264249
+        },
+        {
+          "value": 17916.4125,
+          "probability": 0.0715738341969
+        },
+        {
+          "value": 17926.05,
+          "probability": 0.0732383419689
+        },
+        {
+          "value": 17935.6875,
+          "probability": 0.0749028497409
+        },
+        {
+          "value": 17945.325,
+          "probability": 0.076567357513
+        },
+        {
+          "value": 17954.9625,
+          "probability": 0.078231865285
+        },
+        {
+          "value": 17964.6,
+          "probability": 0.079896373057
+        },
+        {
+          "value": 17974.2375,
+          "probability": 0.081560880829
+        },
+        {
+          "value": 17983.875,
+          "probability": 0.083225388601
+        },
+        {
+          "value": 17993.5125,
+          "probability": 0.0848898963731
+        },
+        {
+          "value": 18003.15,
+          "probability": 0.0865544041451
+        },
+        {
+          "value": 18012.7875,
+          "probability": 0.0882189119171
+        },
+        {
+          "value": 18022.425,
+          "probability": 0.0898834196891
+        },
+        {
+          "value": 18032.0625,
+          "probability": 0.0915479274611
+        },
+        {
+          "value": 18041.7,
+          "probability": 0.0932124352332
+        },
+        {
+          "value": 18051.3375,
+          "probability": 0.0948769430052
+        },
+        {
+          "value": 18060.975,
+          "probability": 0.0965414507772
+        },
+        {
+          "value": 18070.6125,
+          "probability": 0.0982059585492
+        },
+        {
+          "value": 18080.25,
+          "probability": 0.0998704663212
+        },
+        {
+          "value": 18089.8875,
+          "probability": 0.10920984456
+        },
+        {
+          "value": 18099.525,
+          "probability": 0.119196891192
+        },
+        {
+          "value": 18109.1625,
+          "probability": 0.129183937824
+        },
+        {
+          "value": 18118.8,
+          "probability": 0.139170984456
+        },
+        {
+          "value": 18128.4375,
+          "probability": 0.149158031088
+        },
+        {
+          "value": 18138.075,
+          "probability": 0.15914507772
+        },
+        {
+          "value": 18147.7125,
+          "probability": 0.169132124352
+        },
+        {
+          "value": 18157.35,
+          "probability": 0.179119170984
+        },
+        {
+          "value": 18166.9875,
+          "probability": 0.189106217617
+        },
+        {
+          "value": 18176.625,
+          "probability": 0.199093264249
+        },
+        {
+          "value": 18186.2625,
+          "probability": 0.209080310881
+        },
+        {
+          "value": 18195.9,
+          "probability": 0.219067357513
+        },
+        {
+          "value": 18205.5375,
+          "probability": 0.229054404145
+        },
+        {
+          "value": 18215.175,
+          "probability": 0.239041450777
+        },
+        {
+          "value": 18224.8125,
+          "probability": 0.249028497409
+        },
+        {
+          "value": 18234.45,
+          "probability": 0.259015544041
+        },
+        {
+          "value": 18244.0875,
+          "probability": 0.269002590674
+        },
+        {
+          "value": 18253.725,
+          "probability": 0.278989637306
+        },
+        {
+          "value": 18263.3625,
+          "probability": 0.288976683938
+        },
+        {
+          "value": 18273.0,
+          "probability": 0.29896373057
+        },
+        {
+          "value": 18282.6375,
+          "probability": 0.308950777202
+        },
+        {
+          "value": 18292.275,
+          "probability": 0.318937823834
+        },
+        {
+          "value": 18301.9125,
+          "probability": 0.328924870466
+        },
+        {
+          "value": 18311.55,
+          "probability": 0.338911917098
+        },
+        {
+          "value": 18321.1875,
+          "probability": 0.348898963731
+        },
+        {
+          "value": 18330.825,
+          "probability": 0.358886010363
+        },
+        {
+          "value": 18340.4625,
+          "probability": 0.368873056995
+        },
+        {
+          "value": 18350.1,
+          "probability": 0.378860103627
+        },
+        {
+          "value": 18359.7375,
+          "probability": 0.388847150259
+        },
+        {
+          "value": 18369.375,
+          "probability": 0.398834196891
+        },
+        {
+          "value": 18379.0125,
+          "probability": 0.408821243523
+        },
+        {
+          "value": 18388.65,
+          "probability": 0.418808290155
+        },
+        {
+          "value": 18398.2875,
+          "probability": 0.428795336788
+        },
+        {
+          "value": 18407.925,
+          "probability": 0.43878238342
+        },
+        {
+          "value": 18417.5625,
+          "probability": 0.448769430052
+        },
+        {
+          "value": 18427.2,
+          "probability": 0.458756476684
+        },
+        {
+          "value": 18436.8375,
+          "probability": 0.468743523316
+        },
+        {
+          "value": 18446.475,
+          "probability": 0.478730569948
+        },
+        {
+          "value": 18456.1125,
+          "probability": 0.48871761658
+        },
+        {
+          "value": 18465.75,
+          "probability": 0.498704663212
+        },
+        {
+          "value": 18475.3875,
+          "probability": 0.508714285714
+        },
+        {
+          "value": 18485.025,
+          "probability": 0.518727272727
+        },
+        {
+          "value": 18494.6625,
+          "probability": 0.52874025974
+        },
+        {
+          "value": 18504.3,
+          "probability": 0.538753246753
+        },
+        {
+          "value": 18513.9375,
+          "probability": 0.548766233766
+        },
+        {
+          "value": 18523.575,
+          "probability": 0.558779220779
+        },
+        {
+          "value": 18533.2125,
+          "probability": 0.568792207792
+        },
+        {
+          "value": 18542.85,
+          "probability": 0.578805194805
+        },
+        {
+          "value": 18552.4875,
+          "probability": 0.588818181818
+        },
+        {
+          "value": 18562.125,
+          "probability": 0.598831168831
+        },
+        {
+          "value": 18571.7625,
+          "probability": 0.608844155844
+        },
+        {
+          "value": 18581.4,
+          "probability": 0.618857142857
+        },
+        {
+          "value": 18591.0375,
+          "probability": 0.62887012987
+        },
+        {
+          "value": 18600.675,
+          "probability": 0.638883116883
+        },
+        {
+          "value": 18610.3125,
+          "probability": 0.648896103896
+        },
+        {
+          "value": 18619.95,
+          "probability": 0.658909090909
+        },
+        {
+          "value": 18629.5875,
+          "probability": 0.668922077922
+        },
+        {
+          "value": 18639.225,
+          "probability": 0.678935064935
+        },
+        {
+          "value": 18648.8625,
+          "probability": 0.688948051948
+        },
+        {
+          "value": 18658.5,
+          "probability": 0.698961038961
+        },
+        {
+          "value": 18668.1375,
+          "probability": 0.708974025974
+        },
+        {
+          "value": 18677.775,
+          "probability": 0.718987012987
+        },
+        {
+          "value": 18687.4125,
+          "probability": 0.729
+        },
+        {
+          "value": 18697.05,
+          "probability": 0.739012987013
+        },
+        {
+          "value": 18706.6875,
+          "probability": 0.749025974026
+        },
+        {
+          "value": 18716.325,
+          "probability": 0.759038961039
+        },
+        {
+          "value": 18725.9625,
+          "probability": 0.769051948052
+        },
+        {
+          "value": 18735.6,
+          "probability": 0.779064935065
+        },
+        {
+          "value": 18745.2375,
+          "probability": 0.789077922078
+        },
+        {
+          "value": 18754.875,
+          "probability": 0.799090909091
+        },
+        {
+          "value": 18764.5125,
+          "probability": 0.809103896104
+        },
+        {
+          "value": 18774.15,
+          "probability": 0.819116883117
+        },
+        {
+          "value": 18783.7875,
+          "probability": 0.82912987013
+        },
+        {
+          "value": 18793.425,
+          "probability": 0.839142857143
+        },
+        {
+          "value": 18803.0625,
+          "probability": 0.849155844156
+        },
+        {
+          "value": 18812.7,
+          "probability": 0.859168831169
+        },
+        {
+          "value": 18822.3375,
+          "probability": 0.869181818182
+        },
+        {
+          "value": 18831.975,
+          "probability": 0.879194805195
+        },
+        {
+          "value": 18841.6125,
+          "probability": 0.889207792208
+        },
+        {
+          "value": 18851.25,
+          "probability": 0.899220779221
+        },
+        {
+          "value": 18860.8875,
+          "probability": 0.901538961039
+        },
+        {
+          "value": 18870.525,
+          "probability": 0.903207792208
+        },
+        {
+          "value": 18880.1625,
+          "probability": 0.904876623377
+        },
+        {
+          "value": 18889.8,
+          "probability": 0.906545454545
+        },
+        {
+          "value": 18899.4375,
+          "probability": 0.908214285714
+        },
+        {
+          "value": 18909.075,
+          "probability": 0.909883116883
+        },
+        {
+          "value": 18918.7125,
+          "probability": 0.911551948052
+        },
+        {
+          "value": 18928.35,
+          "probability": 0.913220779221
+        },
+        {
+          "value": 18937.9875,
+          "probability": 0.91488961039
+        },
+        {
+          "value": 18947.625,
+          "probability": 0.916558441558
+        },
+        {
+          "value": 18957.2625,
+          "probability": 0.918227272727
+        },
+        {
+          "value": 18966.9,
+          "probability": 0.919896103896
+        },
+        {
+          "value": 18976.5375,
+          "probability": 0.921564935065
+        },
+        {
+          "value": 18986.175,
+          "probability": 0.923233766234
+        },
+        {
+          "value": 18995.8125,
+          "probability": 0.924902597403
+        },
+        {
+          "value": 19005.45,
+          "probability": 0.926571428571
+        },
+        {
+          "value": 19015.0875,
+          "probability": 0.92824025974
+        },
+        {
+          "value": 19024.725,
+          "probability": 0.929909090909
+        },
+        {
+          "value": 19034.3625,
+          "probability": 0.931577922078
+        },
+        {
+          "value": 19044.0,
+          "probability": 0.933246753247
+        },
+        {
+          "value": 19053.6375,
+          "probability": 0.934915584416
+        },
+        {
+          "value": 19063.275,
+          "probability": 0.936584415584
+        },
+        {
+          "value": 19072.9125,
+          "probability": 0.938253246753
+        },
+        {
+          "value": 19082.55,
+          "probability": 0.939922077922
+        },
+        {
+          "value": 19092.1875,
+          "probability": 0.941590909091
+        },
+        {
+          "value": 19101.825,
+          "probability": 0.94325974026
+        },
+        {
+          "value": 19111.4625,
+          "probability": 0.944928571429
+        },
+        {
+          "value": 19121.1,
+          "probability": 0.946597402597
+        },
+        {
+          "value": 19130.7375,
+          "probability": 0.948266233766
+        },
+        {
+          "value": 19140.375,
+          "probability": 0.949935064935
+        },
+        {
+          "value": 19150.0125,
+          "probability": 0.951603896104
+        },
+        {
+          "value": 19159.65,
+          "probability": 0.953272727273
+        },
+        {
+          "value": 19169.2875,
+          "probability": 0.954941558442
+        },
+        {
+          "value": 19178.925,
+          "probability": 0.95661038961
+        },
+        {
+          "value": 19188.5625,
+          "probability": 0.958279220779
+        },
+        {
+          "value": 19198.2,
+          "probability": 0.959948051948
+        },
+        {
+          "value": 19207.8375,
+          "probability": 0.961616883117
+        },
+        {
+          "value": 19217.475,
+          "probability": 0.963285714286
+        },
+        {
+          "value": 19227.1125,
+          "probability": 0.964954545455
+        },
+        {
+          "value": 19236.75,
+          "probability": 0.966623376623
+        },
+        {
+          "value": 19246.3875,
+          "probability": 0.968292207792
+        },
+        {
+          "value": 19256.025,
+          "probability": 0.969961038961
+        },
+        {
+          "value": 19265.6625,
+          "probability": 0.97162987013
+        },
+        {
+          "value": 19275.3,
+          "probability": 0.973298701299
+        },
+        {
+          "value": 19284.9375,
+          "probability": 0.974967532468
+        },
+        {
+          "value": 19294.575,
+          "probability": 0.976636363636
+        },
+        {
+          "value": 19304.2125,
+          "probability": 0.978305194805
+        },
+        {
+          "value": 19313.85,
+          "probability": 0.979974025974
+        },
+        {
+          "value": 19323.4875,
+          "probability": 0.981642857143
+        },
+        {
+          "value": 19333.125,
+          "probability": 0.983311688312
+        },
+        {
+          "value": 19342.7625,
+          "probability": 0.984980519481
+        },
+        {
+          "value": 19352.4,
+          "probability": 0.986649350649
+        },
+        {
+          "value": 19362.0375,
+          "probability": 0.988318181818
+        },
+        {
+          "value": 19371.675,
+          "probability": 0.989987012987
+        },
+        {
+          "value": 19381.3125,
+          "probability": 0.991655844156
+        },
+        {
+          "value": 19390.95,
+          "probability": 0.993324675325
+        },
+        {
+          "value": 19400.5875,
+          "probability": 0.994993506494
+        },
+        {
+          "value": 19410.225,
+          "probability": 0.996662337662
+        },
+        {
+          "value": 19419.8625,
+          "probability": 0.998331168831
+        },
+        {
+          "value": 19429.5,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 18467,
+        "median": 18467,
+        "interval80": {
+          "lower": 18081,
+          "upper": 18852
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/prompt.md",
+        "sha256": "8e4d2b859d3afecb66e53783dda0cf63daa23998e98173f43cddf548260841c7",
+        "bytes": 32595,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_command.json",
+        "sha256": "26bfab3cba69f56e80efe6dfbbd6874c49b4880afc733b952bcbb5b03ae92376",
+        "bytes": 859,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_stdout.jsonl",
+        "sha256": "27ad690fd10efb22c13907bb79dda3ea167c4ef2960219425736d378d5c5249e",
+        "bytes": 181922,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_stderr.log",
+        "sha256": "f45d867e50cbfc8fb3230206970a955d00cfdc82c2908a8029263c786b2b0ae7",
+        "bytes": 233,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_events.jsonl",
+        "sha256": "b3aa66fb0ce6747293b15e13e70838c743e0e8809ddf68b19ff6ed52d7600d03",
+        "bytes": 182748,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_last_message.txt",
+        "sha256": "1a18ee97fff4aa9855177374282eeb85ec75bc08657b5deac327c84b03743548",
+        "bytes": 6140,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_trace.json",
+        "sha256": "e910ec8a5da18de8e4a58c80cc1a9ed2aa234739f3f15f4835d3095d9bec7dab",
+        "bytes": 567,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_stdout.txt",
+        "sha256": "1a18ee97fff4aa9855177374282eeb85ec75bc08657b5deac327c84b03743548",
+        "bytes": 6140,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_stderr.txt",
+        "sha256": "75fa07e8abdbd0b03481bd305f58484b8f26e9daab56935a06e8bcc374e33b0b",
+        "bytes": 248,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_prompt.md",
+        "sha256": "4a06cb0eb2a8f1484040cf8014258405009defe13302e1f49bcba3fe09cac5ae",
+        "bytes": 9668,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_command.json",
+        "sha256": "a7d3a9fa2fc068a6f3a2c3c74ab23667b75462ade7a67c09f736a72b3e496e52",
+        "bytes": 855,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "29c85b8682d8ee7d655276d8ef3129849cb34cc859ee236212bfe6b46123aacd",
+        "bytes": 846,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_stderr.log",
+        "sha256": "90ac703f594656aa379b1313b238676e39d174caa75939c630ac23559c380c45",
+        "bytes": 233,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_events.jsonl",
+        "sha256": "02c697895b8f430f1d65e7c70c0c48f827640f74e810e80cd0cdab9271c33537",
+        "bytes": 868,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_last_message.txt",
+        "sha256": "692000bde615bce7c5e48ccbbbc24eec7d3ae655feaf20220d6d5252e0c03c69",
+        "bytes": 520,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_trace.json",
+        "sha256": "3203b50144b0231cbb00b8d3dce22bbc96cf94a06d8f09c5e95e3bd299b3cf73",
+        "bytes": 558,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_stdout.txt",
+        "sha256": "692000bde615bce7c5e48ccbbbc24eec7d3ae655feaf20220d6d5252e0c03c69",
+        "bytes": 520,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_stderr.txt",
+        "sha256": "f532631d31db5030153ef591a3c5b8840ddd428f9e40902b94bc9eb1ebc08afb",
+        "bytes": 248,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/revision_prompt.md",
+        "sha256": "219ae41ff715ba7fbfd38e7d0c5c15b2cdbe21e1fda8cd087f307c9ac768c3ed",
+        "bytes": 40191,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/command.json",
+        "sha256": "284dff6b5eba53c927ac8276349670448e2a3850c1a42da502f020bc454cb993",
+        "bytes": 853,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/codex_stdout.jsonl",
+        "sha256": "a47fb0f3d163a67fb1a94c5e1962313505464a9dad93346d491e24082e79372e",
+        "bytes": 7038,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/codex_stderr.log",
+        "sha256": "32ef11b889514891961f6a2dc8dd2372063f1a93b71ff265b6ec8e7a9afed48f",
+        "bytes": 233,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/codex_events.jsonl",
+        "sha256": "551df7b200546abfa8080c3fbf6fcdf7bd73abef76e6cc3c1a7cc3b84243b387",
+        "bytes": 7060,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/codex_last_message.txt",
+        "sha256": "847629acbd8bcaf90254a4d3429ad95e1e5ba9638921382dee2f47533aee3859",
+        "bytes": 6480,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/codex_trace.json",
+        "sha256": "25fc9ed4ad98b3cc3d53cc291502937e741dff85e02b152a9e819bdedd290bee",
+        "bytes": 561,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/stdout.txt",
+        "sha256": "847629acbd8bcaf90254a4d3429ad95e1e5ba9638921382dee2f47533aee3859",
+        "bytes": 6480,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/stderr.txt",
+        "sha256": "ade5c180bf0496e50de29c3406c84e77106561b25aa06d18099f349a0696dc16",
+        "bytes": 248,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/raw_response.txt",
+        "sha256": "847629acbd8bcaf90254a4d3429ad95e1e5ba9638921382dee2f47533aee3859",
+        "bytes": 6480,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/parsed_cells.json",
+        "sha256": "f02c5f9076ed9ed9acfbb0a487b7b9fb8c6f2e6d9aa3c0bce2682201a150a9c7",
+        "bytes": 7363,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/normalized_cells.json",
+        "sha256": "d0993a8e126dc52817df780dfa9df27abb920cf61d0aea3804bbcdde62543e55",
+        "bytes": 26613,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/distribution.json",
+        "sha256": "8f8fcd0b9686dbd124a18410e963e560488059727f32ed3df98c67d4cb31c938",
+        "bytes": 15466,
+        "createdAt": "2026-08-12T21:18:43Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/validation.json",
+        "sha256": "ef3fbc7ab686640090199276c425962dadd23ca4e7111f89c5da83389697971c",
+        "bytes": 284,
+        "createdAt": "2026-08-12T21:18:43Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-12T21:18:43Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "a6c0a4e8f38a540c2bd0f17ecba0d61bad80ddddf2ccc75d80ccfe1f3b80327d"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider removing the failed specs.json 404 note unless trace policy wants all attempted checks surfaced."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The interval rationale would be slightly clearer if it says explicitly that the widened 1.75*sigma band is being used as the 80% judgment interval, not as a normal-theory 80% band."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: no required fixes were raised. I accepted the optional clarity suggestion by stating that the widened 1.75*sigma band is the 80% judgment interval, and retained the specs.json 404 note because it documents the attempted required slug check.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: no required fixes were raised. I accepted the optional clarity suggestion by stating that the widened 1.75*sigma band is the 80% judgment interval, and retained the specs.json 404 note because it documents the attempted required slug check.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publication-ready: it matches the registered BEA first-print target and gives a coherent prior, model comparison, update, interval method, tails, and JSON payload."
+    }
+  }
+]

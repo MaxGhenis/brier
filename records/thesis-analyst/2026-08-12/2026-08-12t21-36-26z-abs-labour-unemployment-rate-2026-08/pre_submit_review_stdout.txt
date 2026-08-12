@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is publishable after tightening the interval derivation for the two-month-ahead target horizon.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval math uses one-month realized month-to-month sigma even though the latest observed print is 2026-06 and the target is 2026-08, a two-reference-month forecast horizon.",
+      "actionRequested": "Either derive the 80% interval from a two-step historical/walk-forward error distribution, scale the month-to-month uncertainty appropriately, or explicitly justify why the one-step sigma is adequate for this target."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify the minor timestamp inconsistency where top-level runAt precedes the cited model generatedAt time.",
+    "Mention that the failed specs.json slug check did not affect the ledger-bound target identity because the canonical target fields are already present."
+  ]
+}

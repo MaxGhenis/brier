@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is publishable in structure but needs resolver-unit wording corrected to match the registered sourceBinding transform.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The resolutionRule says SSA publishes counts as whole recipients and converts by dividing by 1,000,000, but the ledger sourceBinding specifies transform multiply by 0.001 for the registered field.",
+      "actionRequested": "Rewrite the resolver wording to follow the registered sourceBinding transform exactly, while keeping unit \"millions\", dataPointId, source URL, first-print rule, and resolutionDate unchanged."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the Prior/update/interval step, state the final unrounded point before display rounding so the damped adjustment is auditable.",
+    "Clarify whether the cited historical values are post-transform millions or raw SSA table values."
+  ]
+}

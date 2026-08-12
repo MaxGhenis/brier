@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-12T21:28:20Z",
+  "runStartedAt": "2026-08-12T21:28:20Z",
+  "sealedAt": "2026-08-12T21:31:23Z",
+  "series": "ssa.ssi.total_recipients",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ssi-recipients-august-2026",
+    "country": "US",
+    "dataPointId": "ssa.ssi.total_recipients.2026-08.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-10-04",
+      "start": "2026-09-26"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-12T21:16:44Z",
+    "registeredAtUtc": "2026-08-12T21:16:44Z",
+    "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+    "registrationState": "preregistered",
+    "series": "ssa.ssi.total_recipients",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ssa.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-04",
+        "start": "2026-09-26"
+      },
+      "field": "ssa.ssi.total_recipients",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ssa.ssi.total_recipients",
+      "sourceUrl": "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-07/table02.html",
+      "table": "Social Security Administration SSI Monthly Statistics",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "9e48da0da68cd2dfb368416d94e9714b1c294f8fcbee6ed27a1720e493ef0300",
+    "targetRegistrationPath": "records/targets/2026-08-12-9e48da0da68cd2dfb368416d94e9714b1c294f8fcbee6ed27a1720e493ef0300.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+  "targetContentHash": "9e48da0da68cd2dfb368416d94e9714b1c294f8fcbee6ed27a1720e493ef0300",
+  "targetRegistrationPath": "records/targets/2026-08-12-9e48da0da68cd2dfb368416d94e9714b1c294f8fcbee6ed27a1720e493ef0300.json",
+  "registeredAtUtc": "2026-08-12T21:16:44Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-12T21:28:20Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "2cce8d3bc88238b69bc5f3224fdfb06dfbe4bec14eaa39f2ba973197f7ec23b1"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The resolutionRule says SSA publishes counts as whole recipients and converts by dividing by 1,000,000, but the ledger sourceBinding specifies transform multiply by 0.001 for the registered field.",
+        "actionRequested": "Rewrite the resolver wording to follow the registered sourceBinding transform exactly, while keeping unit \"millions\", dataPointId, source URL, first-print rule, and resolutionDate unchanged."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the Prior/update/interval step, state the final unrounded point before display rounding so the damped adjustment is auditable."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the cited historical values are post-transform millions or raw SSA table values."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking resolver critique by replacing the divide-by-1,000,000 wording with the registered sourceBinding transform, operation multiply factor 0.001, while preserving unit millions, dataPointId, source URL, first-print policy, and registered resolutionDate. Also clarified that historical values and model inputs are post-transform millions and stated the final unrounded point in the interval step.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by replacing the divide-by-1,000,000 wording with the registered sourceBinding transform, operation multiply factor 0.001, while preserving unit millions, dataPointId, source URL, first-print policy, and registered resolutionDate. Also clarified that historical values and model inputs are post-transform millions and stated the final unrounded point in the interval step.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by replacing the divide-by-1,000,000 wording with the registered sourceBinding transform, operation multiply factor 0.001, while preserving unit millions, dataPointId, source URL, first-print policy, and registered resolutionDate. Also clarified that historical values and model inputs are post-transform millions and stated the final unrounded point in the interval step.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable in structure but needs resolver-unit wording corrected to match the registered sourceBinding transform."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/prompt.md",
+      "sha256": "bca8dd494c0788dee5cd54a293fc20d609151a732560f61052b927da921f51bf",
+      "bytes": 33661,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_command.json",
+      "sha256": "35fc34e0e3983ee3380f2bd1d38d17d83afcfb8a2b2e211a012b1abd844cdd99",
+      "bytes": 849,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "8de5944da92ca0cbbac3b19b0e89b2ec186e4261e4893fa34e6900364b51624d",
+      "bytes": 1145786,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_codex_stderr.log",
+      "sha256": "063e95e4b9c2b32c80a288fe67da54ddd170c5625880264b6d4c26139de65dd1",
+      "bytes": 233,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_codex_events.jsonl",
+      "sha256": "7fb808a69ae4a09f8feeb75f16eaee1335f0209c344f69097082f3273f4f68b8",
+      "bytes": 1146236,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_codex_last_message.txt",
+      "sha256": "eb4a6d38a12fb45ba27de123342e06460fba3bdfc778194aeedc250c4d5f6bf0",
+      "bytes": 8501,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_codex_trace.json",
+      "sha256": "1820404ba7d8b17ec192beb1276a49fe201cfdf5d11d5405f9074c5bb96ef7c8",
+      "bytes": 567,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_stdout.txt",
+      "sha256": "eb4a6d38a12fb45ba27de123342e06460fba3bdfc778194aeedc250c4d5f6bf0",
+      "bytes": 8501,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/draft_stderr.txt",
+      "sha256": "85abb614aa060767d949d3fe38bc2a94c8758b77614adf338a69cf5497afe265",
+      "bytes": 248,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_prompt.md",
+      "sha256": "80defe0a9f062d3d01b270968af73d9b7bdab7b32287a38f97ae62ef19dc3eea",
+      "bytes": 11751,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_command.json",
+      "sha256": "a2f7f9bf57b65bb5585827a70027a5ba1b9403f20258fa08b408ff266d48fe20",
+      "bytes": 845,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "72e12d173b1dd9a89fa9b8741812203133031a7b2e6289a15a3563e294f620b7",
+      "bytes": 1319,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "5031a026050460d9e9344f65d5ce24513385a38235d2c052442642e562a625fa",
+      "bytes": 233,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "284a7b175feb007fa8fb0ae89ef7ab2329937d981ee6f4b44108c5d853acb88a",
+      "bytes": 1341,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "98a33d15e8fb6539f0a3a4d5aca73586e0bca1d9622c9bc64b792fc0173176d2",
+      "bytes": 956,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "6961ffc22c61379d8dfb9f1e50a3563a9fec5090093cd6fdd7a6bfcf7c02a59d",
+      "bytes": 561,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "98a33d15e8fb6539f0a3a4d5aca73586e0bca1d9622c9bc64b792fc0173176d2",
+      "bytes": 956,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "524a55e6ecf3752bd0aab8cf7d40dc1c0f9fa6884bab4c3828195738ce566efb",
+      "bytes": 248,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/revision_prompt.md",
+      "sha256": "bbb48e5b365a4093d11474eedf1e4c30cd67cc753d33efdf91dca4fe5a8f6f61",
+      "bytes": 44054,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/command.json",
+      "sha256": "686c9c2c089bc65ca274f747bffcc7224e26010b9325a95f8e2d4dba66bb9431",
+      "bytes": 843,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/codex_stdout.jsonl",
+      "sha256": "636f544cfc8a6bdfe3b578494aa1498694c2a4a099d8e63e4c283cbd2c482f4d",
+      "bytes": 10680,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/codex_stderr.log",
+      "sha256": "c5576fd18ad7729b36d19b7676b00db852c2f740d836c35f8ec9b1e81935d4e9",
+      "bytes": 233,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/codex_events.jsonl",
+      "sha256": "7062201bdb4ea82cb42435623471164c1b3e1e2125f40c35effd0568e01dfc7b",
+      "bytes": 10702,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/codex_last_message.txt",
+      "sha256": "f06b9929276c3e8f6e5a9a5c78c003bf0a0430c1957e5673d2417f731d89f330",
+      "bytes": 9931,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/codex_trace.json",
+      "sha256": "eaa854b23a13eae5d41f6bce6e7e6380622b030bba6b710c8de7b0774deb3fd6",
+      "bytes": 561,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/stdout.txt",
+      "sha256": "f06b9929276c3e8f6e5a9a5c78c003bf0a0430c1957e5673d2417f731d89f330",
+      "bytes": 9931,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/stderr.txt",
+      "sha256": "e3c32f86e2d8ca01a65f676133d980120a54e78e9ac926f16f7d580186a0bd17",
+      "bytes": 248,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/raw_response.txt",
+      "sha256": "f06b9929276c3e8f6e5a9a5c78c003bf0a0430c1957e5673d2417f731d89f330",
+      "bytes": 9931,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/parsed_cells.json",
+      "sha256": "430bdaf866e17ddce830a7db6e4f1ef9e8e1bdd77ba5c36db0f06bb154bfb820",
+      "bytes": 10223,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/normalized_cells.json",
+      "sha256": "c18e5bfe217ded036266f1442fc6c8db1faea7f2f5f67dcfcc7f0eb37107c6b8",
+      "bytes": 27617,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/distribution.json",
+      "sha256": "19edc0c8fdc93c06f9d183fef390981e4b501a6a8feb80c367077191aab9ea6d",
+      "bytes": 13610,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/validation.json",
+      "sha256": "1ab2393d664edc07560f4180c1eaf838c4d4b8c70d918e954179a79077c93dfb",
+      "bytes": 127,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/cells.with_activity.json",
+      "sha256": "6a582e8f1aa7635f87ead41e36b937ac48d001cff12466ddccc3732eb7dceca3",
+      "bytes": 42548,
+      "createdAt": "2026-08-12T21:28:20Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/manifest.json",
+      "sha256": "fd2b33b475ce3170349f595f7e5e113eb5642569a14a3b3d4e4b1a4132c83089",
+      "bytes": 15213,
+      "createdAt": "2026-08-12T21:28:20Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ssi-recipients-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "c456482f60558cc9eb0fcb4aa0a71a122b9543e4f21cacf51818787533d16e55"
+}

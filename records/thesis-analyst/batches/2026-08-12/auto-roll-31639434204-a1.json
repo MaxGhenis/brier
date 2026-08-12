@@ -1,0 +1,528 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-08-12T21:18:43Z",
+  "finishedAt": "2026-08-12T21:49:55Z",
+  "promptMode": "full",
+  "timeoutSeconds": 540,
+  "targets": 10,
+  "ok": 9,
+  "failed": 1,
+  "results": [
+    {
+      "target": {
+        "anchors": {
+          "2026-Q1": 18511
+        },
+        "catalogSlug": "us-personal-transfer-payments-q2-2026",
+        "country": "US",
+        "dataPointId": "bea.ita.personal_transfer_payments.2026_q2.first_print",
+        "expectedReleaseDate": "2026-09-24",
+        "expectedReleaseWindow": {
+          "end": "2026-09-24",
+          "start": "2026-09-24"
+        },
+        "period": "2026-Q2",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+        "seedPeriod": "2026-Q2",
+        "series": "bea.ita.personal_transfer_payments",
+        "sourceBinding": {
+          "adapter": "bea-ita-itable",
+          "allowedHosts": [
+            "apps.bea.gov",
+            "www.bea.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-09-24",
+            "start": "2026-09-24"
+          },
+          "field": "Line 18: Personal transfers (QSA)",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "ITA:T5.1:L18:QSA",
+          "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+          "table": "U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted",
+          "transform": {
+            "applicationId": 62,
+            "basis": "QSA",
+            "cadence": "quarterly",
+            "factor": 1,
+            "lineNumber": "18",
+            "operation": "identity",
+            "productId": "1",
+            "rowLabel": "Personal transfers",
+            "tableList": "62",
+            "unit": "usd_millions"
+          }
+        },
+        "targetContentHash": "7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925",
+        "targetRegistrationPath": "records/targets/2026-08-12-7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925.json",
+        "targetUnit": "usd_millions",
+        "valueScale": 1
+      },
+      "startedAt": "2026-08-12T21:18:43Z",
+      "finishedAt": "2026-08-12T21:21:45Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/cells.with_activity.json",
+      "stdoutTail": "-bea-ita-personal-transfer-payments-2026-q2/distribution.json\",\n      \"sha256\": \"8f8fcd0b9686dbd124a18410e963e560488059727f32ed3df98c67d4cb31c938\",\n      \"bytes\": 15466,\n      \"createdAt\": \"2026-08-12T21:18:43Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/validation.json\",\n      \"sha256\": \"ef3fbc7ab686640090199276c425962dadd23ca4e7111f89c5da83389697971c\",\n      \"bytes\": 284,\n      \"createdAt\": \"2026-08-12T21:18:43Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/cells.with_activity.json\",\n      \"sha256\": \"79dce0dc935139f95721223492198fc98bb07076f1f7f5933cae8d122c69e9b1\",\n      \"bytes\": 40476,\n      \"createdAt\": \"2026-08-12T21:18:43Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-personal-transfer-payments-2026-q2/manifest.json\",\n      \"sha256\": \"cbae1adf66c8882608f7c1ee6198bcdcb7f7de6234944479536e344979cc8d5a\",\n      \"bytes\": 14858,\n      \"createdAt\": \"2026-08-12T21:18:43Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"us-personal-transfer-payments-q2-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"anchor '2026-Q1': no historicalContext entry mentions this period \\u2014 anchored periods must appear in the fetched base rate\"\n        ]\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"caa94a036759d0d284280ad62035ba6f904c2ae15bd2a92fe203f5c2e9db093b\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "anchor '2026-Q1': no historicalContext entry mentions this period \u2014 anchored periods must appear in the fetched base rate"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "initial-claims-week-2026-08-15",
+        "country": "US",
+        "dataPointId": "us.dol.initial_claims.sa.week_2026-08-15",
+        "expectedReleaseWindow": {
+          "end": "2026-08-24",
+          "start": "2026-08-20"
+        },
+        "period": "week_2026-08-15",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "series": "us.dol.initial_claims.sa",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-24",
+            "start": "2026-08-20"
+          },
+          "field": "ICSA",
+          "releasePolicy": "advance_vintage",
+          "sourceSeriesId": "ICSA",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA",
+          "table": "ALFRED graph CSV",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "ba7909136ce260dfbd43442621dd88fdef9abd8d2b02c81dfcb114251a76b8bd",
+        "targetRegistrationPath": "records/targets/2026-08-12-ba7909136ce260dfbd43442621dd88fdef9abd8d2b02c81dfcb114251a76b8bd.json",
+        "targetUnit": "thousands",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-08-12T21:21:45Z",
+      "finishedAt": "2026-08-12T21:25:05Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15/cells.with_activity.json",
+      "stdoutTail": "     \"createdAt\": \"2026-08-12T21:21:45Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15/distribution.json\",\n      \"sha256\": \"86bcf718b5aa18c1fc9c98858b4e8acb46c194ec3b221798e339e8ca310fa9ac\",\n      \"bytes\": 13454,\n      \"createdAt\": \"2026-08-12T21:21:45Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15/validation.json\",\n      \"sha256\": \"aa8ad571e4211ff3e59671af8c4b80236127418a75f324ac62314ea0bf887437\",\n      \"bytes\": 131,\n      \"createdAt\": \"2026-08-12T21:21:45Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15/cells.with_activity.json\",\n      \"sha256\": \"a473e631719ac5075ec87ecf57ba1a7ebb96ad2205cf8d93cd15494eccbc713e\",\n      \"bytes\": 38941,\n      \"createdAt\": \"2026-08-12T21:21:45Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15/manifest.json\",\n      \"sha256\": \"a391332320070f013e8e89995251d34e7f6ef3636983851a8488bf4b6f5da2c3\",\n      \"bytes\": 14106,\n      \"createdAt\": \"2026-08-12T21:21:45Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"initial-claims-week-2026-08-15\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"f525661e1db10de1bf7908e763338e2b3c08780bf4c0387a9b983c39594b4597\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "continued-claims-week-2026-08-15",
+        "country": "US",
+        "dataPointId": "dol.eta.continued_claims.sa.week_2026-08-15.first_print",
+        "expectedReleaseWindow": {
+          "end": "2026-08-29",
+          "start": "2026-08-25"
+        },
+        "period": "week_2026-08-15",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "series": "dol.eta.continued_claims.sa",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-29",
+            "start": "2026-08-25"
+          },
+          "field": "CCSA",
+          "releasePolicy": "advance_vintage",
+          "sourceSeriesId": "CCSA",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA",
+          "table": "ALFRED graph CSV",
+          "transform": {
+            "factor": 1e-06,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "88d9a299ea398bb463f4263048ae7ca91aec787c14c3e41d2307180fda4ac9fb",
+        "targetRegistrationPath": "records/targets/2026-08-12-88d9a299ea398bb463f4263048ae7ca91aec787c14c3e41d2307180fda4ac9fb.json",
+        "targetUnit": "millions",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-08-12T21:25:05Z",
+      "finishedAt": "2026-08-12T21:28:20Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-25-05z-dol-eta-continued-claims-sa-week-2026-08-15/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-25-05z-dol-eta-continued-claims-sa-week-2026-08-15/cells.with_activity.json",
+      "stdoutTail": "t\": \"2026-08-12T21:25:05Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-25-05z-dol-eta-continued-claims-sa-week-2026-08-15/distribution.json\",\n      \"sha256\": \"ad878c281f0e4c00a223152b270a2661b70ce6547c7c306bb6a54777663359be\",\n      \"bytes\": 13908,\n      \"createdAt\": \"2026-08-12T21:25:05Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-25-05z-dol-eta-continued-claims-sa-week-2026-08-15/validation.json\",\n      \"sha256\": \"6a898d65c84b70bbf544457dd4564372e61cd07a13460f34cd616382446113eb\",\n      \"bytes\": 133,\n      \"createdAt\": \"2026-08-12T21:25:05Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-25-05z-dol-eta-continued-claims-sa-week-2026-08-15/cells.with_activity.json\",\n      \"sha256\": \"8ef2a32b091d99ca67a24ee90b920f1ab0d24d0a1fbd31d860bf76ef08ee3c36\",\n      \"bytes\": 42503,\n      \"createdAt\": \"2026-08-12T21:25:05Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-25-05z-dol-eta-continued-claims-sa-week-2026-08-15/manifest.json\",\n      \"sha256\": \"8c3ef0af18540576b1354eacb84d2007448286c7b16de1f06518c91bb4fed4ee\",\n      \"bytes\": 16351,\n      \"createdAt\": \"2026-08-12T21:25:05Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"continued-claims-week-2026-08-15\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"faaeb3f62ea90991c72b99510eb2d48561ee9e7b21710e3bc696d67a032925e5\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "ssi-recipients-august-2026",
+        "country": "US",
+        "dataPointId": "ssa.ssi.total_recipients.2026-08.first_print",
+        "expectedReleaseWindow": {
+          "end": "2026-10-04",
+          "start": "2026-09-26"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "series": "ssa.ssi.total_recipients",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "www.ssa.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-04",
+            "start": "2026-09-26"
+          },
+          "field": "ssa.ssi.total_recipients",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "ssa.ssi.total_recipients",
+          "sourceUrl": "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-07/table02.html",
+          "table": "Social Security Administration SSI Monthly Statistics",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "9e48da0da68cd2dfb368416d94e9714b1c294f8fcbee6ed27a1720e493ef0300",
+        "targetRegistrationPath": "records/targets/2026-08-12-9e48da0da68cd2dfb368416d94e9714b1c294f8fcbee6ed27a1720e493ef0300.json",
+        "targetUnit": "millions",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-08-12T21:28:20Z",
+      "finishedAt": "2026-08-12T21:31:23Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/cells.with_activity.json",
+      "stdoutTail": "b37107c6b8\",\n      \"bytes\": 27617,\n      \"createdAt\": \"2026-08-12T21:28:20Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/distribution.json\",\n      \"sha256\": \"19edc0c8fdc93c06f9d183fef390981e4b501a6a8feb80c367077191aab9ea6d\",\n      \"bytes\": 13610,\n      \"createdAt\": \"2026-08-12T21:28:20Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/validation.json\",\n      \"sha256\": \"1ab2393d664edc07560f4180c1eaf838c4d4b8c70d918e954179a79077c93dfb\",\n      \"bytes\": 127,\n      \"createdAt\": \"2026-08-12T21:28:20Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/cells.with_activity.json\",\n      \"sha256\": \"6a582e8f1aa7635f87ead41e36b937ac48d001cff12466ddccc3732eb7dceca3\",\n      \"bytes\": 42548,\n      \"createdAt\": \"2026-08-12T21:28:20Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-28-20z-ssa-ssi-total-recipients-2026-08/manifest.json\",\n      \"sha256\": \"fd2b33b475ce3170349f595f7e5e113eb5642569a14a3b3d4e4b1a4132c83089\",\n      \"bytes\": 15213,\n      \"createdAt\": \"2026-08-12T21:28:20Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"ssi-recipients-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"c456482f60558cc9eb0fcb4aa0a71a122b9543e4f21cacf51818787533d16e55\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "euro-area-unemployment-rate-august-2026",
+        "country": "EA",
+        "dataPointId": "eurostat.unemployment_rate.euro_area.august_2026.first_print",
+        "expectedReleaseWindow": {
+          "end": "2026-10-05",
+          "start": "2026-09-27"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "series": "eurostat.unemployment_rate",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "ec.europa.eu"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-05",
+            "start": "2026-09-27"
+          },
+          "field": "PC_ACT",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21",
+          "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21?format=JSON",
+          "table": "Unemployment by sex and age (une_rt_m), euro area, SA, total; first print captured between monthly releases",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "374a047e8e0bc27e9ad8bd11ad406279bdca38ec301cc62cd95997fdffe45028",
+        "targetRegistrationPath": "records/targets/2026-08-12-374a047e8e0bc27e9ad8bd11ad406279bdca38ec301cc62cd95997fdffe45028.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-08-12T21:31:23Z",
+      "finishedAt": "2026-08-12T21:34:14Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-31-23z-eurostat-unemployment-rate-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-31-23z-eurostat-unemployment-rate-2026-08/cells.with_activity.json",
+      "stdoutTail": "ytes\": 25128,\n      \"createdAt\": \"2026-08-12T21:31:23Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-31-23z-eurostat-unemployment-rate-2026-08/distribution.json\",\n      \"sha256\": \"36a5ee08ffe3ed8ddc30d71c17ffb3214ba346faa3254f6718c32063a0761982\",\n      \"bytes\": 13496,\n      \"createdAt\": \"2026-08-12T21:31:23Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-31-23z-eurostat-unemployment-rate-2026-08/validation.json\",\n      \"sha256\": \"81330e4a4b7cd25f79df6b40ecd336529790b5da355fb7d4849b19ab15a7c2b5\",\n      \"bytes\": 140,\n      \"createdAt\": \"2026-08-12T21:31:23Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-31-23z-eurostat-unemployment-rate-2026-08/cells.with_activity.json\",\n      \"sha256\": \"aa7ecedd3739c8114bbba86841a8167e938751f23e91e547667bad8af4cd4c0d\",\n      \"bytes\": 39952,\n      \"createdAt\": \"2026-08-12T21:31:23Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-31-23z-eurostat-unemployment-rate-2026-08/manifest.json\",\n      \"sha256\": \"3cdd26068de71c028912536be6d544c2c7a3677959fbd078b581d35b248c545c\",\n      \"bytes\": 15249,\n      \"createdAt\": \"2026-08-12T21:31:23Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"euro-area-unemployment-rate-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"9e02498eaee74f7b91fbf62a4fee43486ea6d5771c31c8116642b28b8f852c58\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "australia-cpi-annual-rate-august-2026",
+        "country": "AU",
+        "dataPointId": "abs.cpi.all_groups.yoy.2026_08.first_print",
+        "expectedReleaseDate": "2026-09-30",
+        "expectedReleaseWindow": {
+          "end": "2026-09-30",
+          "start": "2026-09-30"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "releaseCalendarUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia",
+        "series": "abs.cpi.all_groups.yoy",
+        "sourceBinding": {
+          "adapter": "abs-data-api",
+          "allowedHosts": [
+            "data.api.abs.gov.au",
+            "www.abs.gov.au"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-09-30",
+            "start": "2026-09-30"
+          },
+          "field": "CPI/3.10001.10.50.M",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "CPI/3.10001.10.50.M",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?lastNObservations=30&format=jsondata",
+          "table": "Monthly Consumer Price Index (complete monthly CPI, dataflow CPI: annual change, all groups, original, weighted average of eight capital cities)",
+          "transform": {
+            "factor": 1,
+            "operation": "identity"
+          }
+        },
+        "targetContentHash": "650c901b54d028abbe844a2bbf05bb06f0c149744ffc369a6d6e96214936ac3b",
+        "targetRegistrationPath": "records/targets/2026-08-12-650c901b54d028abbe844a2bbf05bb06f0c149744ffc369a6d6e96214936ac3b.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-08-12T21:34:14Z",
+      "finishedAt": "2026-08-12T21:36:26Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-34-14z-abs-cpi-all-groups-yoy-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-34-14z-abs-cpi-all-groups-yoy-2026-08/cells.with_activity.json",
+      "stdoutTail": "e70ae2d\",\n      \"bytes\": 23935,\n      \"createdAt\": \"2026-08-12T21:34:14Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-34-14z-abs-cpi-all-groups-yoy-2026-08/distribution.json\",\n      \"sha256\": \"059da0355a8a639ae031447e4d44035c035cff99a914df7b012fb1cc3687b9f5\",\n      \"bytes\": 13208,\n      \"createdAt\": \"2026-08-12T21:34:14Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-34-14z-abs-cpi-all-groups-yoy-2026-08/validation.json\",\n      \"sha256\": \"e244e0b29b6d5b1b81c39b36dc0b91fec91f44b20c38cab8420dc5d93330621b\",\n      \"bytes\": 138,\n      \"createdAt\": \"2026-08-12T21:34:14Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-34-14z-abs-cpi-all-groups-yoy-2026-08/cells.with_activity.json\",\n      \"sha256\": \"b9d97b50e24f314574a5e2936ef77c1619a3989b8f1249d5afbbab413c345810\",\n      \"bytes\": 37311,\n      \"createdAt\": \"2026-08-12T21:34:14Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-34-14z-abs-cpi-all-groups-yoy-2026-08/manifest.json\",\n      \"sha256\": \"d875933a053c5e1114697f87a141a1fc6cd68b87181d0051bb847ae989004d8f\",\n      \"bytes\": 14093,\n      \"createdAt\": \"2026-08-12T21:34:14Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"australia-cpi-annual-rate-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"63631bb4753a68d9834ebf9f0141feca7fcfec28164606067747d591750f054d\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "australia-unemployment-rate-august-2026",
+        "country": "AU",
+        "dataPointId": "abs.labour.unemployment_rate.2026_08.first_print",
+        "expectedReleaseDate": "2026-09-24",
+        "expectedReleaseWindow": {
+          "end": "2026-09-24",
+          "start": "2026-09-24"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "releaseCalendarUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia",
+        "series": "abs.labour.unemployment_rate",
+        "sourceBinding": {
+          "adapter": "abs-data-api",
+          "allowedHosts": [
+            "data.api.abs.gov.au"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-09-24",
+            "start": "2026-09-24"
+          },
+          "field": "LF/M13.3.1599.20.AUS.M",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M13.3.1599.20.AUS.M?lastNObservations=30&format=jsondata",
+          "table": "Labour Force, Australia (dataflow LF: unemployment rate, persons, total age, seasonally adjusted, Australia)",
+          "transform": {
+            "factor": 1,
+            "operation": "identity"
+          }
+        },
+        "targetContentHash": "2412e4199fb3442c941d9215beee8083062b680f4531f5fb6cbb6280f387eae0",
+        "targetRegistrationPath": "records/targets/2026-08-12-2412e4199fb3442c941d9215beee8083062b680f4531f5fb6cbb6280f387eae0.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-08-12T21:36:26Z",
+      "finishedAt": "2026-08-12T21:39:34Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-36-26z-abs-labour-unemployment-rate-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-36-26z-abs-labour-unemployment-rate-2026-08/cells.with_activity.json",
+      "stdoutTail": "5418,\n      \"createdAt\": \"2026-08-12T21:36:26Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-36-26z-abs-labour-unemployment-rate-2026-08/distribution.json\",\n      \"sha256\": \"dbf82b17320341a394d344deccc1057505fe53d6724ad3a0a511df008a17b3b1\",\n      \"bytes\": 13338,\n      \"createdAt\": \"2026-08-12T21:36:26Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-36-26z-abs-labour-unemployment-rate-2026-08/validation.json\",\n      \"sha256\": \"c4158cc12dd5f0ae7c9b748545a8a0188d365814a93f548a2b2959f57b746d5e\",\n      \"bytes\": 140,\n      \"createdAt\": \"2026-08-12T21:36:26Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-36-26z-abs-labour-unemployment-rate-2026-08/cells.with_activity.json\",\n      \"sha256\": \"9e3dc8079b55b825c05e302189a6028ad04c25c7cb26a9c970c3857b894791cc\",\n      \"bytes\": 40632,\n      \"createdAt\": \"2026-08-12T21:36:26Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-36-26z-abs-labour-unemployment-rate-2026-08/manifest.json\",\n      \"sha256\": \"ae72a7d4c7cd2c635cd49560303a71e7e522f66257e1da10a28824a35e44ebc6\",\n      \"bytes\": 15766,\n      \"createdAt\": \"2026-08-12T21:36:26Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"australia-unemployment-rate-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"413eaf511c237afdbd027e3b2d5953f35877392a6b59ac1ebcead9ac53289c83\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "canada-monthly-gdp-growth-august-2026",
+        "country": "CA",
+        "dataPointId": "statcan.gdp_by_industry.monthly_growth.2026_08.first_print",
+        "expectedReleaseDate": "2026-10-30",
+        "expectedReleaseWindow": {
+          "end": "2026-10-30",
+          "start": "2026-10-30"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "releaseCalendarUrl": "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf",
+        "series": "statcan.gdp_by_industry.monthly_growth",
+        "sourceBinding": {
+          "adapter": "statcan-wds",
+          "allowedHosts": [
+            "www150.statcan.gc.ca"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-30",
+            "start": "2026-10-30"
+          },
+          "field": "v65201210",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "v65201210",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods",
+          "table": "GDP by industry, Table 36-10-0434-01 (all industries, chained 2017 dollars, SA at annual rates)",
+          "transform": {
+            "factor": 1,
+            "operation": "percent_change_previous_period"
+          }
+        },
+        "targetContentHash": "778113191d1d7e73b43cd7e74053741e8877f59bae7e55d100ed2fc1206efee3",
+        "targetRegistrationPath": "records/targets/2026-08-12-778113191d1d7e73b43cd7e74053741e8877f59bae7e55d100ed2fc1206efee3.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-08-12T21:39:34Z",
+      "finishedAt": "2026-08-12T21:42:47Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-39-34z-statcan-gdp-by-industry-monthly-growth-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-39-34z-statcan-gdp-by-industry-monthly-growth-2026-08/cells.with_activity.json",
+      "stdoutTail": "1:39:34Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-39-34z-statcan-gdp-by-industry-monthly-growth-2026-08/distribution.json\",\n      \"sha256\": \"296f83ab741ed11acf86fbeba4bccee0fadada2f14041e61fc86d27665d65ffc\",\n      \"bytes\": 13310,\n      \"createdAt\": \"2026-08-12T21:39:34Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-39-34z-statcan-gdp-by-industry-monthly-growth-2026-08/validation.json\",\n      \"sha256\": \"620eeb61f9341f4f20e53f3d21eeb4e918a90af10b84b86914e26986b3b869d9\",\n      \"bytes\": 138,\n      \"createdAt\": \"2026-08-12T21:39:34Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-39-34z-statcan-gdp-by-industry-monthly-growth-2026-08/cells.with_activity.json\",\n      \"sha256\": \"2c576d223e50a38e36baa5c24da43b920efe43c01de629ba74b9943984a21ea2\",\n      \"bytes\": 39336,\n      \"createdAt\": \"2026-08-12T21:39:34Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-39-34z-statcan-gdp-by-industry-monthly-growth-2026-08/manifest.json\",\n      \"sha256\": \"60d399677757b23c39a659f3115c1e8611cde1f60a15af98172f3e6a89bdd548\",\n      \"bytes\": 14790,\n      \"createdAt\": \"2026-08-12T21:39:34Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"canada-monthly-gdp-growth-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"4cd182ca621131ba5d906084939a430cb8944d9930bc4c8e8decdb591a365544\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "canada-cpi-annual-rate-august-2026",
+        "country": "CA",
+        "dataPointId": "statcan.cpi.allitems.yoy.2026_08.first_print",
+        "expectedReleaseDate": "2026-09-14",
+        "expectedReleaseWindow": {
+          "end": "2026-09-14",
+          "start": "2026-09-14"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "releaseCalendarUrl": "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf",
+        "series": "statcan.cpi.allitems.yoy",
+        "sourceBinding": {
+          "adapter": "statcan-wds",
+          "allowedHosts": [
+            "www150.statcan.gc.ca"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-09-14",
+            "start": "2026-09-14"
+          },
+          "field": "v41690973",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "v41690973",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods",
+          "table": "Consumer Price Index, Table 18-10-0004-01 (all-items, Canada)",
+          "transform": {
+            "factor": 1,
+            "operation": "percent_change_year_ago"
+          }
+        },
+        "targetContentHash": "a1ad3ebcd5f676b5e5955405d0165bf0274b46137d27abeddbd1551a30336884",
+        "targetRegistrationPath": "records/targets/2026-08-12-a1ad3ebcd5f676b5e5955405d0165bf0274b46137d27abeddbd1551a30336884.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-08-12T21:42:47Z",
+      "finishedAt": "2026-08-12T21:45:21Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-42-47z-statcan-cpi-allitems-yoy-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-42-47z-statcan-cpi-allitems-yoy-2026-08/cells.with_activity.json",
+      "stdoutTail": "e8\",\n      \"bytes\": 24404,\n      \"createdAt\": \"2026-08-12T21:42:47Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-42-47z-statcan-cpi-allitems-yoy-2026-08/distribution.json\",\n      \"sha256\": \"a05ffcb6587ef4f3fc2343153b1ab8371d3f606078a73637252d55819681eee3\",\n      \"bytes\": 13476,\n      \"createdAt\": \"2026-08-12T21:42:47Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-42-47z-statcan-cpi-allitems-yoy-2026-08/validation.json\",\n      \"sha256\": \"d9457da73ada80759361eb214d7bf6991171bbf037bcd26e711168ad9579bffe\",\n      \"bytes\": 135,\n      \"createdAt\": \"2026-08-12T21:42:47Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-42-47z-statcan-cpi-allitems-yoy-2026-08/cells.with_activity.json\",\n      \"sha256\": \"fe6bcf58fe39e7fd264edf8c4fc14405e9f00427ad427eb3b78a1466ad91dad6\",\n      \"bytes\": 37837,\n      \"createdAt\": \"2026-08-12T21:42:47Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-42-47z-statcan-cpi-allitems-yoy-2026-08/manifest.json\",\n      \"sha256\": \"60ac0dde6aeff8fa10b1ab6a8c8b3fc9f810f4fbe4b319df50bead9e3b6287af\",\n      \"bytes\": 13991,\n      \"createdAt\": \"2026-08-12T21:42:47Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"canada-cpi-annual-rate-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"ea5ec951f1fdf66d6564f8a5329eac5bd5ce9bc3651b30d107dcea1232036f0c\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "canada-ei-regular-beneficiaries-august-2026",
+        "country": "CA",
+        "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.august_2026.first_print",
+        "expectedReleaseWindow": {
+          "end": "2026-10-21",
+          "start": "2026-10-13"
+        },
+        "period": "2026-08",
+        "registeredAt": "2026-08-12T21:16:44Z",
+        "registeredAtUtc": "2026-08-12T21:16:44Z",
+        "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+        "registrationState": "preregistered",
+        "series": "statcan.employment_insurance.regular_beneficiaries",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "www150.statcan.gc.ca"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-21",
+            "start": "2026-10-13"
+          },
+          "field": "v64549350",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "v64549350",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=64549350",
+          "table": "Statistics Canada Table 14-10-0011-01, EI regular beneficiaries, Canada, seasonally adjusted (persons)",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "344f246b5a7e25a6522342402468dc23cbb2592215d9c743b69b27c43600ffae",
+        "targetRegistrationPath": "records/targets/2026-08-12-344f246b5a7e25a6522342402468dc23cbb2592215d9c743b69b27c43600ffae.json",
+        "targetUnit": "thousands",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-08-12T21:45:21Z",
+      "finishedAt": "2026-08-12T21:49:55Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-45-21z-statcan-employment-insurance-regular-beneficiaries-2026-08/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t21-45-21z-statcan-employment-insurance-regular-beneficiaries-2026-08/cells.with_activity.json",
+      "stdoutTail": "ribution\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-45-21z-statcan-employment-insurance-regular-beneficiaries-2026-08/distribution.json\",\n      \"sha256\": \"462a31628d8b77ee74f921ee5a66248234c9aca0bd69ab41f7077e7b547cf5ce\",\n      \"bytes\": 14117,\n      \"createdAt\": \"2026-08-12T21:45:21Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-45-21z-statcan-employment-insurance-regular-beneficiaries-2026-08/validation.json\",\n      \"sha256\": \"9066c6418d942ca169f2fc0ad72aed97c6b65ba021cbccd75bf1ef252032dfa5\",\n      \"bytes\": 144,\n      \"createdAt\": \"2026-08-12T21:45:21Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-45-21z-statcan-employment-insurance-regular-beneficiaries-2026-08/cells.with_activity.json\",\n      \"sha256\": \"24860117c147c22a45d26fd8b5dc497bdeda61fa0dcab113b882eb3937020c10\",\n      \"bytes\": 40572,\n      \"createdAt\": \"2026-08-12T21:45:21Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t21-45-21z-statcan-employment-insurance-regular-beneficiaries-2026-08/manifest.json\",\n      \"sha256\": \"294594e901a63afed5862090b4f50fcc43162024a737359851ba79fcaae4e794\",\n      \"bytes\": 15063,\n      \"createdAt\": \"2026-08-12T21:45:21Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"canada-ei-regular-beneficiaries-august-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"checkoutSha\": \"d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"ba72a31bedf1312b386f5ca407fc3fd6eb18a16a53430d9b45b86245debdabaf\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ]
+}

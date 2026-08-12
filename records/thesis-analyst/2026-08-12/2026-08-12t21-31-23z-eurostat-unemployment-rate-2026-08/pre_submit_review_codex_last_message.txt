@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is substantively strong, but the resolutionDate needs contract alignment before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft sets resolutionDate to 2026-10-01 from the Eurostat calendar, while the supplied canonical ledger context only gives an expectedReleaseWindow ending 2026-10-05 and says ledger resolutionDate is part of the target contract.",
+      "actionRequested": "Use the canonical target resolutionDate from the registered target record, or explicitly state that the ledger target appears to have a concrete calendar discrepancy and keep the forecast tied to the same target without silently substituting a different contract date."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the final reasoning, name 2026-10-01 as the official calendar release event separately from the ledger contractual resolutionDate if both are retained.",
+    "The interval explanation is good; consider clarifying that bounds are after one-decimal publication rounding."
+  ]
+}

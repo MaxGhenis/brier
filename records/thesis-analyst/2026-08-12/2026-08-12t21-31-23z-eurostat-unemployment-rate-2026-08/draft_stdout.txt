@@ -1,0 +1,51 @@
+{
+  "slug": "euro-area-unemployment-rate-august-2026",
+  "country": "EA",
+  "type": "data",
+  "title": "Euro area unemployment, August 2026",
+  "question": "What will Eurostat first publish for the euro area 21-country seasonally adjusted total unemployment rate, unit PC_ACT, series une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21, for August 2026?",
+  "unit": "percent",
+  "pointEstimate": 6.3,
+  "ciLow": 6.2,
+  "ciHigh": 6.4,
+  "confidence": 0.8,
+  "resolutionDate": "2026-10-01",
+  "resolutionSource": "Eurostat, Euro indicators: Unemployment",
+  "resolutionSourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21?format=JSON",
+  "resolutionRule": "Resolve from Eurostat dataset une_rt_m, frequency M, seasonally adjusted SA, age TOTAL, unit PC_ACT, sex T, geo EA21, period 2026-08, first print only as captured between monthly Euro indicators releases. Use the value rounded to one decimal percentage point; ignore later revisions or backfills.",
+  "dataPointId": "eurostat.unemployment_rate.euro_area.august_2026.first_print",
+  "historicalContext": [
+    { "label": "2026-02", "value": 6.4 },
+    { "label": "2026-03", "value": 6.3 },
+    { "label": "2026-04", "value": 6.3 },
+    { "label": "2026-05", "value": 6.3 },
+    { "label": "2026-06", "value": 6.3 }
+  ],
+  "drivers": [
+    "last-print persistence at 6.3",
+    "24-print range only 6.2-6.4",
+    "recent changes mostly zero",
+    "no direct August signal fetched"
+  ],
+  "sourceContext": [
+    "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21?format=JSON&startPeriod=2024-07&endPeriod=2026-06",
+    "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?format=JSON&lang=en&freq=M&s_adj=SA&age=TOTAL&unit=PC_ACT&sex=T&geo=EA21&time=2026-02&time=2026-03&time=2026-04&time=2026-05&time=2026-06",
+    "https://ec.europa.eu/eurostat/o/calendars/eventsJson?start=2026-09-27T00%3A00%3A00%2B02%3A00&end=2026-10-06T00%3A00%3A00%2B02%3A00&theme=0&category=0&keywords=Unemployment&isEuroindicator=true&authorInclude=&authorExclude=",
+    "https://app.thesisinstitute.org/specs.json"
+  ],
+  "runAt": "2026-08-12T21:31:31Z",
+  "activityLog": [],
+  "reasoning": [
+    { "kind": "heading", "text": "Eurostat August 2026 unemployment first print" },
+    { "kind": "text", "text": "Resolution target is Eurostat une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21: monthly, seasonally adjusted, total age, percentage of the labour force, total sex, euro area 21 countries. The ledger expected release window is 2026-09-27 to 2026-10-05; the official Eurostat calendar fetch this run gives the August 2026 Unemployment event on 2026-10-01." },
+    { "kind": "tool", "tool": "eurostat.calendar", "call": "curl -sS 'https://ec.europa.eu/eurostat/o/calendars/eventsJson?start=2026-09-27T00%3A00%3A00%2B02%3A00&end=2026-10-06T00%3A00%3A00%2B02%3A00&theme=0&category=0&keywords=Unemployment&isEuroindicator=true&authorInclude=&authorExclude='", "result": "Official calendar JSON returned recordid 22494146, title Unemployment, period August 2026, start 2026-10-01T11:00Z, datasetCodes une_rt_m, euroind true, preliminary false." },
+    { "kind": "tool", "tool": "eurostat.api.history", "call": "curl -sS 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21?format=JSON&startPeriod=2024-07&endPeriod=2026-06'", "result": "Fetched 24 values for EA21 PC_ACT SA total: 2024-07 6.4, 2024-08 6.3, 2024-09 6.3, 2024-10 6.2, 2024-11 6.2, 2024-12 6.2, 2025-01 6.3, 2025-02 6.3, 2025-03 6.3, 2025-04 6.3, 2025-05 6.3, 2025-06 6.3, 2025-07 6.3, 2025-08 6.3, 2025-09 6.3, 2025-10 6.3, 2025-11 6.3, 2025-12 6.3, 2026-01 6.3, 2026-02 6.4, 2026-03 6.3, 2026-04 6.3, 2026-05 6.3, 2026-06 6.3; dataset updated 2026-08-12T23:00:00+0200." },
+    { "kind": "tool", "tool": "eurostat.api.recent", "call": "curl -sS 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?format=JSON&lang=en&freq=M&s_adj=SA&age=TOTAL&unit=PC_ACT&sex=T&geo=EA21&time=2026-02&time=2026-03&time=2026-04&time=2026-05&time=2026-06'", "result": "Recent official endpoint values: 2026-02 6.4, 2026-03 6.3, 2026-04 6.3, 2026-05 6.3, 2026-06 6.3; labels confirm PC_ACT is percentage of population in the labour force and SA is seasonally adjusted." },
+    { "kind": "tool", "tool": "thesis.specs.check", "call": "curl -sS -I 'https://app.thesisinstitute.org/specs.json'", "result": "Slug check endpoint fetched this run but returned HTTP/2 404 with date Wed, 12 Aug 2026 21:25:20 GMT, so I used the canonical ledger slug euro-area-unemployment-rate-august-2026 rather than changing it." },
+    { "kind": "text", "text": "Base rate / reference class: the last 24 official monthly values have mean 6.296, sample std of levels 0.046, range 6.2-6.4, and latest print 6.3. The 23 successive changes have mean -0.004 pp, range -0.1 to +0.1 pp, and 18 of 23 changes are exactly 0.0 pp, so last-print persistence is the strongest simple prior." },
+    { "kind": "math", "text": "Model candidates under thesis_model_candidate_v1: persistence candidate point 6.3, p10 6.2, p50 6.3, p90 6.4, 80% interval [6.2, 6.4], 90% interval [6.2, 6.4], interval_method residual-change sigma rounded to published 0.1 pp, calibration_n 23, train_cutoff 2026-06, walk_forward_MAE 0.022 pp. A trailing-3-month-mean candidate also rounds to 6.3 but has walk_forward_MAE 0.030 pp, so persistence is selected." },
+    { "kind": "math", "text": "Prior/update/interval: prior is last-print persistence at 6.3 from the 2024-07 through 2026-06 official history. Adjustment components: momentum 0.0 pp because the latest four prints are 6.3 after a 6.4 in 2026-02, one-off/policy/current-signal adjustment 0.0 pp because no direct August-specific signal was fetched, weights 100% persistence prior and 0% inside-view adjustment. For the interval, successive changes have sigma = 0.047 pp, so the normal 80% half-width is 1.28*sigma = 0.061 pp; rounding to Eurostat's 0.1 pp publication precision gives a practical half-width of 0.1 pp and implied bounds 6.2 to 6.4." },
+    { "kind": "text", "text": "Counter-consideration: upside risk would land above the interval if July and August labor-force survey inputs show a genuine deterioration large enough to lift the unemployment rate by more than 0.1 pp from the June persistence level. Downside risk would land below the interval if summer employment gains or denominator effects push the rate below 6.15 before rounding." },
+    { "kind": "forecast", "point": 6.3, "ciLow": 6.2, "ciHigh": 6.4 }
+  ]
+}
