@@ -3144,6 +3144,16 @@ def parse_target_context(value: str | None) -> dict[str, Any] | None:
         raise SystemExit(f"Invalid --target-context-json: {exc}") from exc
     if not isinstance(parsed, dict):
         raise SystemExit("--target-context-json must be a JSON object")
+    try:
+        # Trusted-input gate: a context carrying numbers canonical
+        # hashing cannot represent would crash custody in EVERY later
+        # stage, including the failure paths. Committed registrations
+        # cannot contain them (they are canonical-encoded at creation),
+        # so this only fires on operator error — refuse before any run
+        # artifacts exist.
+        _reject_unencodable_numbers(parsed, "target context")
+    except RuntimeError as exc:
+        raise SystemExit(f"Invalid --target-context-json: {exc}") from exc
     return parsed
 
 
@@ -3546,7 +3556,16 @@ def main() -> int:
     normalized_path = out_dir / "normalized_cells.json"
     try:
         normalize_cells(parsed_path, normalized_path)
+        # Normalization coerces numeric strings ("1e309") into floats
+        # the parse-time gate could not see; the parsed artifact holds
+        # the original strings, so failing HERE still canonicalizes.
+        for index, cell in enumerate(json.loads(normalized_path.read_text())):
+            _reject_unencodable_numbers(cell, f"normalized cell {index}")
     except RuntimeError as exc:
+        # The subprocess may have written the poisoned file before the
+        # sweep rejected it; an unreferenced artifact fails the v2
+        # directory inventory, so the failure record must not leave it.
+        normalized_path.unlink(missing_ok=True)
         # A malformed cell (a JSON refusal object, a cell missing
         # historicalContext) must still leave a registration-bound
         # failure manifest — the uncaught path left no run record at
@@ -3585,6 +3604,17 @@ def main() -> int:
             sealed_at=sealed_at,
             prompt_mode=args.prompt_mode,
             target_context=target_context,
+        )
+        # Post-coercion gate: sealing converts numeric strings with
+        # float(), which yields infinity for "1e309" WITHOUT raising —
+        # the poison then reaches derived distributions as NaN and
+        # crashes custody hashing at the very end, past every failure
+        # path. Reject sealed cells and materialized distributions here,
+        # while the seal-failure inventory is still exactly satisfiable.
+        for index, cell in enumerate(normalized_cells):
+            _reject_unencodable_numbers(cell, f"sealed cell {index}")
+        _reject_unencodable_numbers(
+            materialized_distributions, "materialized distribution"
         )
     except (
         ValueError,

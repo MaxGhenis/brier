@@ -523,6 +523,159 @@ def test_malformed_reviewer_findings_do_not_crash() -> None:
     assert "tighten interval" in summaries
 
 
+def test_string_coerced_numbers_fail_at_normalize(tmp_path: Path) -> None:
+    # Round-four reproduction: "1e309" as a STRING passes the parse gate
+    # (strings are canonical-safe), then normalization coerces it to
+    # infinity and later stages crashed with no record. The
+    # post-normalize sweep must catch both point and history shapes.
+    for name, mutate in (
+        ("str-point", lambda c: c.__setitem__("pointEstimate", "1e309")),
+        (
+            "str-history",
+            lambda c: c.__setitem__(
+                "historicalContext", [{"label": "t-1", "value": "1e309"}]
+            ),
+        ),
+    ):
+        cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+        mutate(cell)
+        code, out_dir = _run_fake_codex_case(tmp_path, name, cell)
+        assert code == 1, name
+        manifest = json.loads((out_dir / "manifest.json").read_text())
+        assert manifest["ok"] is False, name
+        # Where the poison surfaces depends on which stage coerces the
+        # string: history values coerce at normalize, pointEstimate at
+        # seal. Either way: a custody-clean failure manifest.
+        assert manifest["error"]["phase"] in {"normalize", "seal"}, name
+        _custody_passes(out_dir)
+
+
+def test_unencodable_target_context_is_refused_at_entry(
+    tmp_path: Path,
+) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--target-context-json",
+            json.dumps({"anchorsLike": 10**400}),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "exactly representable" in result.stderr
+
+
+def test_custody_rejects_forged_parse_phase_and_loose_error_equality(
+    tmp_path: Path,
+) -> None:
+    # Round four: the parse branch returned before the semantic checks,
+    # and error equality used Python == (true == 1). Both re-sealed
+    # forgeries must refuse.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "parse-forgery", cell)
+    assert code == 1
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    manifest_path = out_dir / "manifest.json"
+
+    def reseal(mutate) -> None:
+        manifest = json.loads(manifest_path.read_text())
+        mutate(manifest)
+        manifest.pop("custodyRootSha256", None)
+        refs = [
+            ref
+            for ref in manifest["artifacts"]
+            if Path(str(ref["path"])).name != "manifest.json"
+        ]
+        manifest["artifacts"] = refs
+        runner_mod.finalize_manifest(
+            out_dir, manifest["runStartedAt"], manifest, refs
+        )
+
+    def forge_parse_complete(manifest) -> None:
+        manifest["error"]["phase"] = "parse"
+        manifest["ok"] = True
+        manifest["validation"] = {"ok": True}
+        manifest["cellsPath"] = "cells.with_activity.json"
+
+    reseal(forge_parse_complete)
+    with pytest.raises(CustodyError, match="does not present as failed"):
+        verify_run(out_dir)
+
+    # Restore failed presentation but desync error.json loosely: a
+    # boolean-vs-1 difference that Python == would miss.
+    def desync_error(manifest) -> None:
+        manifest["error"]["phase"] = "normalize"
+        manifest["ok"] = False
+        manifest["validation"] = None
+        manifest["cellsPath"] = None
+        error_artifact = out_dir / "error.json"
+        disk_error = json.loads(error_artifact.read_text())
+        disk_error["flag"] = True
+        payload = json.dumps(disk_error, indent=2)
+        error_artifact.write_text(payload)
+        # Keep the artifact hash-consistent so the SEMANTIC canonical
+        # comparison, not an integrity mismatch, is what refuses.
+        import hashlib
+
+        for ref in manifest["artifacts"]:
+            if Path(str(ref["path"])).name == "error.json":
+                ref["sha256"] = hashlib.sha256(payload.encode()).hexdigest()
+                ref["bytes"] = len(payload.encode())
+        manifest["error"] = {**disk_error, "flag": 1}
+
+    reseal(desync_error)
+    with pytest.raises(CustodyError, match="disagrees with"):
+        verify_run(out_dir)
+
+
+def test_custody_requires_explicit_null_presentation(tmp_path: Path) -> None:
+    # Omitting the validation/cellsPath keys must not read as null.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "omitted-keys", cell)
+    assert code == 1
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    manifest_path = out_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest.pop("validation", None)
+    manifest.pop("cellsPath", None)
+    manifest.pop("custodyRootSha256", None)
+    refs = [
+        ref
+        for ref in manifest["artifacts"]
+        if Path(str(ref["path"])).name != "manifest.json"
+    ]
+    manifest["artifacts"] = refs
+    runner_mod.finalize_manifest(
+        out_dir, manifest["runStartedAt"], manifest, refs
+    )
+    with pytest.raises(CustodyError, match="does not present as failed"):
+        verify_run(out_dir)
+
+
 def test_custody_rejects_a_failure_phase_that_presents_as_complete(
     tmp_path: Path,
 ) -> None:

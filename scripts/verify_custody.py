@@ -544,10 +544,39 @@ def _verify_analyst_v2(
 ) -> None:
     if manifest.get("schemaVersion") != "thesis_analyst_run_manifest_v1":
         raise CustodyError("analyst custody mode has the wrong manifest schema")
-    parse_failed = (
-        isinstance(manifest.get("error"), dict)
-        and manifest["error"].get("phase") == "parse"
+    error_obj = manifest.get("error")
+    declared_phase = (
+        error_obj.get("phase") if isinstance(error_obj, dict) else None
     )
+    presents_as_failed = (
+        manifest.get("ok") is False
+        and "validation" in manifest
+        and manifest["validation"] is None
+        and "cellsPath" in manifest
+        and manifest["cellsPath"] is None
+    )
+    if declared_phase in {"parse", "normalize", "seal", "validate"}:
+        # A failure phase on a run that otherwise presents as complete
+        # would route it through the lighter failure inventories and let
+        # it read as succeeded downstream. write_failure_manifest always
+        # sets explicit ok:false / validation:null / cellsPath:null;
+        # anything else — including omitted keys — is forgery or
+        # corruption. The error artifact must also byte-agree with the
+        # manifest under canonical encoding (Python == treats true and 1
+        # as equal).
+        if not presents_as_failed:
+            raise CustodyError(
+                "failure phase on a run that does not present as failed"
+            )
+        error_artifact = run_dir / "error.json"
+        if not error_artifact.is_file() or canonical_bytes(
+            json.loads(error_artifact.read_text())
+        ) != canonical_bytes(manifest["error"]):
+            raise CustodyError(
+                f"{declared_phase}-failure error artifact disagrees with "
+                "the manifest"
+            )
+    parse_failed = declared_phase == "parse"
     if parse_failed:
         base = {
             "prompt.md": "prompt",
@@ -574,26 +603,6 @@ def _verify_analyst_v2(
             )
         return
 
-    error_obj = manifest.get("error")
-    declared_phase = (
-        error_obj.get("phase") if isinstance(error_obj, dict) else None
-    )
-    presents_as_failed = (
-        manifest.get("ok") is False
-        and manifest.get("validation") is None
-        and manifest.get("cellsPath") is None
-    )
-    if declared_phase in {"parse", "normalize", "seal", "validate"} and not (
-        presents_as_failed
-    ):
-        # A failure phase on a run that otherwise presents as complete
-        # would route it through the lighter failure inventories and let
-        # it read as succeeded downstream. write_failure_manifest always
-        # sets ok:false / validation:null / cellsPath:null; anything else
-        # is a forgery or corruption.
-        raise CustodyError(
-            "failure phase on a run that does not present as failed"
-        )
     post_parse_failure = declared_phase in {"normalize", "seal", "validate"}
     if post_parse_failure:
         # A run whose agent produced parseable output that failed a later
@@ -621,13 +630,6 @@ def _verify_analyst_v2(
         }[phase]
         required = {**base, **phase_required}
         _required(entries, required)
-        error_artifact = run_dir / "error.json"
-        if not error_artifact.is_file() or json.loads(
-            error_artifact.read_text()
-        ) != manifest["error"]:
-            raise CustodyError(
-                f"{phase}-failure error artifact disagrees with the manifest"
-            )
         forbidden = {
             "cells.with_activity.json",
             "validation.json",
