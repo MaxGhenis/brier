@@ -48,6 +48,9 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Enable the agent sandbox
+        uses: ./.github/actions/enable-agent-sandbox
+
       - name: Install codex CLI
         run: bun add -g @openai/codex@0.144.0
 
@@ -300,6 +303,9 @@ jobs:
           test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
 
       - uses: oven-sh/setup-bun@v2
+
+      - name: Enable the agent sandbox
+        uses: ./.github/actions/enable-agent-sandbox
 
       - name: Install codex CLI
         run: bun add -g @openai/codex@0.144.0

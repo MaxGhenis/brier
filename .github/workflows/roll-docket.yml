@@ -317,6 +317,9 @@ jobs:
           fi
           "${args[@]}"
 
+      - name: Enable the agent sandbox
+        uses: ./.github/actions/enable-agent-sandbox
+
       - name: Install codex CLI
         run: bun add -g @openai/codex@0.144.0
 
