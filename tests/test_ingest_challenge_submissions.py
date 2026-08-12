@@ -105,6 +105,16 @@ def submission_repo(tmp_path: pathlib.Path) -> dict[str, Any]:
     submission_path = inbox_dir / "fixture-user" / "fixture-rate.json"
     write_json(targets_dir / "2030-01-01-fixture.json", target)
     write_json(submission_path, submission)
+    # The adapter refuses ids on the shared expired-registration ratchet
+    # and fails closed when the file is absent, so the fixture repo
+    # carries a minimal real-shaped copy with one expired fixture id.
+    ratchet = repo / "site" / "src" / "data" / "expired-unforecast-registrations.ts"
+    ratchet.parent.mkdir(parents=True, exist_ok=True)
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  "agency.fixture.expired.2029_12.first_print",\n'
+        "] as const;\n"
+    )
     head = commit_all(repo, "Add registered target and challenge submission")
     return {
         "repo": repo,
@@ -561,3 +571,111 @@ def test_recorder_workflow_wires_challenge_inputs() -> None:
 
     assert "--challenge-inbox challenge/inbox" in workflow
     assert "--target-registrations records/targets" in workflow
+
+
+def test_expired_ratcheted_registration_refuses_challenge_rows(
+    submission_repo: dict[str, Any],
+) -> None:
+    # Review of the ONS expiry ratchet: the challenge adapter accepted
+    # any registered target with a pre-release timestamp, so a
+    # post-grace submission could still be recorded for a terminally
+    # expired id (the recorder commits without the site suite). The
+    # adapter now consults the shared ratchet file itself.
+    fixture = submission_repo
+    expired_target = {
+        "schemaVersion": "thesis_target_registration_v3",
+        "registeredAtUtc": "2029-12-01T00:00:00Z",
+        "targets": [
+            {
+                "catalogSlug": "fixture-expired-december-2029",
+                "country": "US",
+                "dataPointId": "agency.fixture.expired.2029_12.first_print",
+                "period": "2029-12",
+                "series": "agency.fixture.expired",
+                "sourceBinding": {
+                    "adapter": "fixture",
+                    "expectedReleaseWindow": {
+                        "start": "2030-02-01",
+                        "end": "2030-02-01",
+                    },
+                },
+                "unit": "percent",
+                "valueScale": 1,
+            }
+        ],
+    }
+    write_json(
+        fixture["targets_dir"] / "2029-12-01-fixture-expired.json", expired_target
+    )
+    expired_submission = dict(fixture["submission"])
+    expired_submission["dataPointId"] = "agency.fixture.expired.2029_12.first_print"
+    write_json(
+        fixture["inbox_dir"] / "fixture-user" / "expired-rate.json",
+        expired_submission,
+    )
+    fixture["head"] = commit_all(fixture["repo"], "Add expired-target submission")
+
+    records = run_ingest(fixture)
+
+    # The expired id is refused; the healthy sibling still lands.
+    ids = [record["dataPointId"] for record in records]
+    assert "agency.fixture.expired.2029_12.first_print" not in ids
+    assert "agency.fixture.rate.2030_01.first_print" in ids
+
+
+def test_missing_ratchet_file_fails_closed(
+    submission_repo: dict[str, Any],
+) -> None:
+    fixture = submission_repo
+    ratchet = (
+        fixture["repo"] / "site" / "src" / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.unlink()
+    fixture["head"] = commit_all(fixture["repo"], "Drop the ratchet file")
+    # Without the ratchet the adapter cannot prove any id is admissible;
+    # the whole ingest aborts loudly rather than admitting rows.
+    with pytest.raises(ingest.ChallengeSubmissionError, match="cannot read"):
+        run_ingest(fixture)
+
+
+def test_quoted_comments_do_not_expire_ids(
+    submission_repo: dict[str, Any],
+) -> None:
+    ratchet = (
+        submission_repo["repo"] / "site" / "src" / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  // replacement is "agency.fixture.rate.2030_01.first_print"\n'
+        '  "agency.fixture.expired.2029_12.first_print",\n'
+        "] as const;\n"
+    )
+    submission_repo["head"] = commit_all(
+        submission_repo["repo"], "Quoted comment in ratchet"
+    )
+    records = run_ingest(submission_repo)
+    # The commented id is NOT expired; the healthy submission still lands.
+    assert [r["dataPointId"] for r in records] == [
+        "agency.fixture.rate.2030_01.first_print"
+    ]
+
+
+def test_comment_only_ratchet_array_fails_closed(
+    submission_repo: dict[str, Any],
+) -> None:
+    ratchet = (
+        submission_repo["repo"] / "site" / "src" / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  // only prose here, including a quoted "not.an.entry"\n'
+        "] as const;\n"
+    )
+    submission_repo["head"] = commit_all(
+        submission_repo["repo"], "Comment-only ratchet"
+    )
+    with pytest.raises(ingest.ChallengeSubmissionError, match="empty expired set"):
+        run_ingest(submission_repo)

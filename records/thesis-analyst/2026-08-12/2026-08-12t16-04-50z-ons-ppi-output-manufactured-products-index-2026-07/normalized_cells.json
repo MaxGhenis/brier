@@ -1,0 +1,941 @@
+[
+  {
+    "slug": "uk-ppi-output-manufactured-products-index-july-2026",
+    "country": "UK",
+    "type": "data",
+    "title": "UK PPI Output Manufactured Products Index, July 2026",
+    "question": "What will the ONS first-print value be for GD6Y, PPI INDEX OUTPUT TOTAL - C Manufactured products, excluding Duty 2015=100, for 2026 JUL?",
+    "unit": "index_points",
+    "pointEstimate": 154.0,
+    "ciLow": 152.9,
+    "ciHigh": 155.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-19",
+    "resolutionSource": "Office for National Statistics Producer price inflation time series, series GD6Y",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/gd6y/ppi",
+    "resolutionRule": "Resolve to the first ONS-published value for 2026 JUL in time series GD6Y, PPI INDEX OUTPUT TOTAL - C Manufactured products, excluding Duty 2015=100, on the 19 August 2026 Producer price inflation UK July 2026 time series release. Use the one-decimal index value exactly as first printed by ONS; ignore later revisions and superseded files.",
+    "dataPointId": "ons.ppi.output_manufactured_products_index.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026 JUN",
+        "value": 153.4
+      },
+      {
+        "label": "2026 MAY",
+        "value": 152.6
+      },
+      {
+        "label": "2026 APR",
+        "value": 152.2
+      },
+      {
+        "label": "2026 MAR",
+        "value": 149.5
+      },
+      {
+        "label": "2025 JUL",
+        "value": 144.3
+      }
+    ],
+    "drivers": [
+      "Recent GD6Y level momentum remained positive through June 2026",
+      "June bulletin said headline output PPI annual inflation eased to 3.5% and monthly output prices were flat",
+      "Refined petroleum output prices fell in June, limiting near-term upside from the spring spike",
+      "July seasonal changes in GD6Y since 2016 average about +0.65 index points"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/gd6y/ppi",
+      "https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/producerpriceindexstatisticalbulletindataset/current",
+      "https://www.ons.gov.uk/releasecalendar?highlight=true&keywords=inflation&limit=10&page=1&release-type=type-upcoming&sort=date-newest",
+      "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/producerpriceinflation/june2026includingservicesapriltojune2026"
+    ],
+    "runAt": "2026-08-12T16:06:38Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "UK GD6Y July 2026 first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecast targets ONS series GD6Y, PPI INDEX OUTPUT TOTAL - C Manufactured products, excluding Duty 2015=100, for 2026 JUL, in index_points. The resolving variant is the ONS first-print monthly time-series value from the Producer price inflation UK July 2026 time series release; all anchors below use the same GD6Y manufactured-products excluding-duty index variant."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the ONS release calendar for Producer price inflation, UK: July 2026 and its connected time-series release.",
+        "result": "The ONS release calendar lists Producer price inflation, UK: July 2026 time series for 19 August 2026 at 7:00am, confirmed; the same calendar page also lists Producer price inflation, UK: July 2026 for 19 August 2026 at 7:00am."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched ONS GD6Y monthly values from the official time-series page.",
+        "result": "GD6Y values fetched from ONS: 2026 MAR 149.5, 2026 APR 152.2, 2026 MAY 152.6, 2026 JUN 153.4; 2026 Q2 is 152.7 and 2025 JUL is 144.3."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched ONS PPI dataset page metadata for the current published vintage.",
+        "result": "The ONS Producer price inflation time series dataset current page has Release date 22 July 2026 and Next release 19 August 2026; the 22 July 2026 vintage contains June 2026 data, and the previous version was superseded 22 July 2026 07:00."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the June 2026 ONS Producer price inflation bulletin for current-release context.",
+        "result": "ONS reported producer output factory gate prices rose 3.5% in the year to June 2026, down from 3.7% in May, and monthly output prices were flat in June; input prices rose 7.3% annually and fell 2.0% monthly; coke and refined petroleum output prices rose 43.0% annually but fell 5.9% monthly in June."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: for this level index, I used recent month-to-month GD6Y changes as the base rate, with the last 29 monthly changes from 2024 JAN to 2026 JUN averaging +0.414 index points and a sample standard deviation of 0.823. This volatility sample excludes the target month by construction. July-only changes from 2016 through 2025 averaged about +0.650, with a sample standard deviation about 0.868."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is June GD6Y 153.4 plus the historical July seasonal mean change of +0.65, tempered slightly because the June bulletin showed output PPI annual inflation easing and petroleum output prices falling; level component 153.4, momentum/seasonal component +0.6, one-off petroleum drag about -0.1 relative to spring momentum, policy-mechanism effect 0.0, giving point 154.0. For the interval, using recent level-series successive changes, sigma = 0.823 index points, so 1.28*sigma = 1.054; rounding to a one-decimal first print gives an 80% interval of 154.0 +/- 1.1 = [152.9, 155.1]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a renewed July jump in refined petroleum, metals, or other manufactured-output prices after the Middle East-linked volatility noted by ONS, which would land above the interval if GD6Y rises more than 1.7 points from June. Downside risk is a sharper reversal in petroleum and imported input costs feeding into factory-gate prices, which would land outside the interval below 152.9 if GD6Y falls by more than 0.5 points from June."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer suggestion to clarify that the 22 July 2026 dataset vintage contains June 2026 data, not target-month leakage, and added that the volatility sample excludes the target month. I also tightened the resolver language to first-print only."
+      },
+      {
+        "kind": "forecast",
+        "point": 154.0,
+        "ciLow": 152.9,
+        "ciHigh": 155.1
+      }
+    ],
+    "agentReportedRunAt": "2026-08-12T16:05:27Z",
+    "runStartedAt": "2026-08-12T16:04:50Z",
+    "promptMode": "fast",
+    "registrationCommit": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+    "targetContentHash": "59fe84d9767a7e8726e3fd651f20fb8df77596f93a26306d99f1bb5327e40946",
+    "targetRegistrationPath": "records/targets/2026-08-12-59fe84d9767a7e8726e3fd651f20fb8df77596f93a26306d99f1bb5327e40946.json",
+    "registeredAtUtc": "2026-08-12T16:02:57Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 151.25,
+        "upper": 156.75
+      },
+      "points": [
+        {
+          "value": 151.25,
+          "probability": 0.0
+        },
+        {
+          "value": 151.2775,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 151.305,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 151.3325,
+          "probability": 0.005
+        },
+        {
+          "value": 151.36,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 151.3875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 151.415,
+          "probability": 0.01
+        },
+        {
+          "value": 151.4425,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 151.47,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 151.4975,
+          "probability": 0.015
+        },
+        {
+          "value": 151.525,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 151.5525,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 151.58,
+          "probability": 0.02
+        },
+        {
+          "value": 151.6075,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 151.635,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 151.6625,
+          "probability": 0.025
+        },
+        {
+          "value": 151.69,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 151.7175,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 151.745,
+          "probability": 0.03
+        },
+        {
+          "value": 151.7725,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 151.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 151.8275,
+          "probability": 0.035
+        },
+        {
+          "value": 151.855,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 151.8825,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 151.91,
+          "probability": 0.04
+        },
+        {
+          "value": 151.9375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 151.965,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 151.9925,
+          "probability": 0.045
+        },
+        {
+          "value": 152.02,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 152.0475,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 152.075,
+          "probability": 0.05
+        },
+        {
+          "value": 152.1025,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 152.13,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 152.1575,
+          "probability": 0.055
+        },
+        {
+          "value": 152.185,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 152.2125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 152.24,
+          "probability": 0.06
+        },
+        {
+          "value": 152.2675,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 152.295,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 152.3225,
+          "probability": 0.065
+        },
+        {
+          "value": 152.35,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 152.3775,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 152.405,
+          "probability": 0.07
+        },
+        {
+          "value": 152.4325,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 152.46,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 152.4875,
+          "probability": 0.075
+        },
+        {
+          "value": 152.515,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 152.5425,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 152.57,
+          "probability": 0.08
+        },
+        {
+          "value": 152.5975,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 152.625,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 152.6525,
+          "probability": 0.085
+        },
+        {
+          "value": 152.68,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 152.7075,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 152.735,
+          "probability": 0.09
+        },
+        {
+          "value": 152.7625,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 152.79,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 152.8175,
+          "probability": 0.095
+        },
+        {
+          "value": 152.845,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 152.8725,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 152.9,
+          "probability": 0.1
+        },
+        {
+          "value": 152.9275,
+          "probability": 0.11
+        },
+        {
+          "value": 152.955,
+          "probability": 0.12
+        },
+        {
+          "value": 152.9825,
+          "probability": 0.13
+        },
+        {
+          "value": 153.01,
+          "probability": 0.14
+        },
+        {
+          "value": 153.0375,
+          "probability": 0.15
+        },
+        {
+          "value": 153.065,
+          "probability": 0.16
+        },
+        {
+          "value": 153.0925,
+          "probability": 0.17
+        },
+        {
+          "value": 153.12,
+          "probability": 0.18
+        },
+        {
+          "value": 153.1475,
+          "probability": 0.19
+        },
+        {
+          "value": 153.175,
+          "probability": 0.2
+        },
+        {
+          "value": 153.2025,
+          "probability": 0.21
+        },
+        {
+          "value": 153.23,
+          "probability": 0.22
+        },
+        {
+          "value": 153.2575,
+          "probability": 0.23
+        },
+        {
+          "value": 153.285,
+          "probability": 0.24
+        },
+        {
+          "value": 153.3125,
+          "probability": 0.25
+        },
+        {
+          "value": 153.34,
+          "probability": 0.26
+        },
+        {
+          "value": 153.3675,
+          "probability": 0.27
+        },
+        {
+          "value": 153.395,
+          "probability": 0.28
+        },
+        {
+          "value": 153.4225,
+          "probability": 0.29
+        },
+        {
+          "value": 153.45,
+          "probability": 0.3
+        },
+        {
+          "value": 153.4775,
+          "probability": 0.31
+        },
+        {
+          "value": 153.505,
+          "probability": 0.32
+        },
+        {
+          "value": 153.5325,
+          "probability": 0.33
+        },
+        {
+          "value": 153.56,
+          "probability": 0.34
+        },
+        {
+          "value": 153.5875,
+          "probability": 0.35
+        },
+        {
+          "value": 153.615,
+          "probability": 0.36
+        },
+        {
+          "value": 153.6425,
+          "probability": 0.37
+        },
+        {
+          "value": 153.67,
+          "probability": 0.38
+        },
+        {
+          "value": 153.6975,
+          "probability": 0.39
+        },
+        {
+          "value": 153.725,
+          "probability": 0.4
+        },
+        {
+          "value": 153.7525,
+          "probability": 0.41
+        },
+        {
+          "value": 153.78,
+          "probability": 0.42
+        },
+        {
+          "value": 153.8075,
+          "probability": 0.43
+        },
+        {
+          "value": 153.835,
+          "probability": 0.44
+        },
+        {
+          "value": 153.8625,
+          "probability": 0.45
+        },
+        {
+          "value": 153.89,
+          "probability": 0.46
+        },
+        {
+          "value": 153.9175,
+          "probability": 0.47
+        },
+        {
+          "value": 153.945,
+          "probability": 0.48
+        },
+        {
+          "value": 153.9725,
+          "probability": 0.49
+        },
+        {
+          "value": 154.0,
+          "probability": 0.5
+        },
+        {
+          "value": 154.0275,
+          "probability": 0.51
+        },
+        {
+          "value": 154.055,
+          "probability": 0.52
+        },
+        {
+          "value": 154.0825,
+          "probability": 0.53
+        },
+        {
+          "value": 154.11,
+          "probability": 0.54
+        },
+        {
+          "value": 154.1375,
+          "probability": 0.55
+        },
+        {
+          "value": 154.165,
+          "probability": 0.56
+        },
+        {
+          "value": 154.1925,
+          "probability": 0.57
+        },
+        {
+          "value": 154.22,
+          "probability": 0.58
+        },
+        {
+          "value": 154.2475,
+          "probability": 0.59
+        },
+        {
+          "value": 154.275,
+          "probability": 0.6
+        },
+        {
+          "value": 154.3025,
+          "probability": 0.61
+        },
+        {
+          "value": 154.33,
+          "probability": 0.62
+        },
+        {
+          "value": 154.3575,
+          "probability": 0.63
+        },
+        {
+          "value": 154.385,
+          "probability": 0.64
+        },
+        {
+          "value": 154.4125,
+          "probability": 0.65
+        },
+        {
+          "value": 154.44,
+          "probability": 0.66
+        },
+        {
+          "value": 154.4675,
+          "probability": 0.67
+        },
+        {
+          "value": 154.495,
+          "probability": 0.68
+        },
+        {
+          "value": 154.5225,
+          "probability": 0.69
+        },
+        {
+          "value": 154.55,
+          "probability": 0.7
+        },
+        {
+          "value": 154.5775,
+          "probability": 0.71
+        },
+        {
+          "value": 154.605,
+          "probability": 0.72
+        },
+        {
+          "value": 154.6325,
+          "probability": 0.73
+        },
+        {
+          "value": 154.66,
+          "probability": 0.74
+        },
+        {
+          "value": 154.6875,
+          "probability": 0.75
+        },
+        {
+          "value": 154.715,
+          "probability": 0.76
+        },
+        {
+          "value": 154.7425,
+          "probability": 0.77
+        },
+        {
+          "value": 154.77,
+          "probability": 0.78
+        },
+        {
+          "value": 154.7975,
+          "probability": 0.79
+        },
+        {
+          "value": 154.825,
+          "probability": 0.8
+        },
+        {
+          "value": 154.8525,
+          "probability": 0.81
+        },
+        {
+          "value": 154.88,
+          "probability": 0.82
+        },
+        {
+          "value": 154.9075,
+          "probability": 0.83
+        },
+        {
+          "value": 154.935,
+          "probability": 0.84
+        },
+        {
+          "value": 154.9625,
+          "probability": 0.85
+        },
+        {
+          "value": 154.99,
+          "probability": 0.86
+        },
+        {
+          "value": 155.0175,
+          "probability": 0.87
+        },
+        {
+          "value": 155.045,
+          "probability": 0.88
+        },
+        {
+          "value": 155.0725,
+          "probability": 0.89
+        },
+        {
+          "value": 155.1,
+          "probability": 0.9
+        },
+        {
+          "value": 155.1275,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 155.155,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 155.1825,
+          "probability": 0.905
+        },
+        {
+          "value": 155.21,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 155.2375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 155.265,
+          "probability": 0.91
+        },
+        {
+          "value": 155.2925,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 155.32,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 155.3475,
+          "probability": 0.915
+        },
+        {
+          "value": 155.375,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 155.4025,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 155.43,
+          "probability": 0.92
+        },
+        {
+          "value": 155.4575,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 155.485,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 155.5125,
+          "probability": 0.925
+        },
+        {
+          "value": 155.54,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 155.5675,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 155.595,
+          "probability": 0.93
+        },
+        {
+          "value": 155.6225,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 155.65,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 155.6775,
+          "probability": 0.935
+        },
+        {
+          "value": 155.705,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 155.7325,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 155.76,
+          "probability": 0.94
+        },
+        {
+          "value": 155.7875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 155.815,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 155.8425,
+          "probability": 0.945
+        },
+        {
+          "value": 155.87,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 155.8975,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 155.925,
+          "probability": 0.95
+        },
+        {
+          "value": 155.9525,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 155.98,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 156.0075,
+          "probability": 0.955
+        },
+        {
+          "value": 156.035,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 156.0625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 156.09,
+          "probability": 0.96
+        },
+        {
+          "value": 156.1175,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 156.145,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 156.1725,
+          "probability": 0.965
+        },
+        {
+          "value": 156.2,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 156.2275,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 156.255,
+          "probability": 0.97
+        },
+        {
+          "value": 156.2825,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 156.31,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 156.3375,
+          "probability": 0.975
+        },
+        {
+          "value": 156.365,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 156.3925,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 156.42,
+          "probability": 0.98
+        },
+        {
+          "value": 156.4475,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 156.475,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 156.5025,
+          "probability": 0.985
+        },
+        {
+          "value": 156.53,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 156.5575,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 156.585,
+          "probability": 0.99
+        },
+        {
+          "value": 156.6125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 156.64,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 156.6675,
+          "probability": 0.995
+        },
+        {
+          "value": 156.695,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 156.7225,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 156.75,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 154.0,
+        "median": 154.0,
+        "interval80": {
+          "lower": 152.9,
+          "upper": 155.1
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

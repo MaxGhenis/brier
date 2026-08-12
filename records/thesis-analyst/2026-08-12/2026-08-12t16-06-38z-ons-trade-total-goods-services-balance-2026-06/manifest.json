@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-12T16:06:38Z",
+  "runStartedAt": "2026-08-12T16:06:38Z",
+  "sealedAt": "2026-08-12T16:08:23Z",
+  "series": "ons.trade.total_goods_services_balance",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "uk-total-trade-balance-june-2026",
+    "country": "UK",
+    "dataPointId": "ons.trade.total_goods_services_balance.2026_06.first_print",
+    "expectedReleaseDate": "2026-08-13",
+    "expectedReleaseWindow": {
+      "end": "2026-08-13",
+      "start": "2026-08-13"
+    },
+    "period": "2026-06",
+    "registeredAt": "2026-08-12T16:02:57Z",
+    "registeredAtUtc": "2026-08-12T16:02:57Z",
+    "registrationCommit": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/timeseries/ikbj/mret",
+    "series": "ons.trade.total_goods_services_balance",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-13",
+        "start": "2026-08-13"
+      },
+      "field": "Value for 2026 JUN",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "IKBJ",
+      "sourceUrl": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/timeseries/ikbj/mret",
+      "table": "UK trade time series (MRET), Total Trade (TT): WW: Balance: BOP: CP: SA",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "sourceField": "Value for 2026 JUN",
+    "sourceSeriesId": "IKBJ",
+    "sourceTable": "UK trade time series (MRET), Total Trade (TT): WW: Balance: BOP: CP: SA",
+    "targetContentHash": "7a0ae17b689ac183bc50f5ad2c6a2a2ea46ab25d580b163d84bd14f6a87b3b41",
+    "targetRegistrationPath": "records/targets/2026-08-12-7a0ae17b689ac183bc50f5ad2c6a2a2ea46ab25d580b163d84bd14f6a87b3b41.json",
+    "targetUnit": "gbp_billions",
+    "transform": {
+      "factor": 0.001,
+      "operation": "multiply"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+  "targetContentHash": "7a0ae17b689ac183bc50f5ad2c6a2a2ea46ab25d580b163d84bd14f6a87b3b41",
+  "targetRegistrationPath": "records/targets/2026-08-12-7a0ae17b689ac183bc50f5ad2c6a2a2ea46ab25d580b163d84bd14f6a87b3b41.json",
+  "registeredAtUtc": "2026-08-12T16:02:57Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-12T16:06:38Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "77c1ea4bcec4587e25e90a7e49e25b6eaec5e0156c2fb7990ded2aa358c3b047"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the interval uses level dispersion rather than one-step forecast-error volatility, but the current uncertainty method is explicit enough for publication."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer assessment that no required fixes were needed; retained the explicit level-dispersion interval method because the prompt asks for value dispersion for flow series and the arithmetic is already stated.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready against the rubric, with exact target binding, an explicit prior/update/interval calculation, coherent fields, and no apparent leakage or unit ambiguity."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/prompt.md",
+      "sha256": "366e582b73046846f2e4ac92f430422239c70996afd58cd8219b53a591958e3f",
+      "bytes": 9135,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_command.json",
+      "sha256": "2b090b6d08fe2c292ea8b7da4d517e2cec50c7a86bed4533a060292f0f641d32",
+      "bytes": 768,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "90b18de12cef4c0749ffd5f2fb1b913d3c83f9f29bce4b46ba30f1c9da0079dd",
+      "bytes": 12033,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_codex_stderr.log",
+      "sha256": "1997594729662ab0b97c333b2187992a6bf1d8991df8f7f0ad54c107f249803e",
+      "bytes": 233,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_codex_events.jsonl",
+      "sha256": "45a4ef705f8f98aeae11350c7488cab4f49d28b9946e303098f24c73afd1dbfe",
+      "bytes": 12157,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_codex_last_message.txt",
+      "sha256": "755eefe741c4ebca9fd990fca061ac6c5b72287da8eab22749b6a3434a71ab7e",
+      "bytes": 5367,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_codex_trace.json",
+      "sha256": "2dfb6104e75aee3af6f98b93f7976757caa45390a9247d0c52be1173b8c9c1aa",
+      "bytes": 559,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_stdout.txt",
+      "sha256": "755eefe741c4ebca9fd990fca061ac6c5b72287da8eab22749b6a3434a71ab7e",
+      "bytes": 5367,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/draft_stderr.txt",
+      "sha256": "93b7e16248b68083ce2403ac15b1b627896c826247253b86e7f8cec1af30ce96",
+      "bytes": 248,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_prompt.md",
+      "sha256": "c6da94bf6d24d744795e80f20b34d8a9bc56ade51b10c152b213bade54bf06ef",
+      "bytes": 8774,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_command.json",
+      "sha256": "c3675ddfcfc5c7b8bfe2b1166464a0379ce9a41f256e4ed440aefc522e457c02",
+      "bytes": 764,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "45b3595edbce4d919107514ac64037112cf9acbd823a5dd9e68ed0d8ade1796c",
+      "bytes": 742,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "1479f399fcc196ad48b34bdb63f6774f968370585d9f146f8d7590062e45221d",
+      "bytes": 233,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "37f2388ae468b0f6b72a6a0521b6a2860333d6cccea569c1e83c105b6fcc888b",
+      "bytes": 764,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "d7477591c8e25cdd7f1cc40d1aed2a94e2e43d3795795f27ce7ae92cecfbcc1b",
+      "bytes": 418,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "c4868676c4c01c3ec2ce719992457947e561a180618d2a7066f18d72d9922bb4",
+      "bytes": 552,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "d7477591c8e25cdd7f1cc40d1aed2a94e2e43d3795795f27ce7ae92cecfbcc1b",
+      "bytes": 418,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "913c163f218676d4fe658fc7cda3818b022809a3598657d10377e432118d19d8",
+      "bytes": 248,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/revision_prompt.md",
+      "sha256": "495bceba4e935553bdfefa987b723a68c26e98ff38e449e205bd019226eb994c",
+      "bytes": 15856,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/command.json",
+      "sha256": "2185e825b4f1fdf003331dec6a9a1441f41b1b88c311ca0e8f004fc2c8626575",
+      "bytes": 762,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/codex_stdout.jsonl",
+      "sha256": "a25f60b5923853dec9fd4661fa49210dfdffd011fb0544d64b2e9cc0441f3d41",
+      "bytes": 6190,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/codex_stderr.log",
+      "sha256": "cb16a63ad22f4c1559dc3a4b7366c9407882f165cc75a7571b80bcd1fd015741",
+      "bytes": 233,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/codex_events.jsonl",
+      "sha256": "8c1507ad5fd999e61b3139412f82e45fa24361ab617848757a6b1e35b21af7b5",
+      "bytes": 6284,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/codex_last_message.txt",
+      "sha256": "8381f1cb39791d05fe294bb7e9aced43541396c596a5476a377c4b8d497c809e",
+      "bytes": 5635,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/codex_trace.json",
+      "sha256": "73aa884e9e58a9748d52b8616551f295afd1f92e1bc636edcbf75268eca2cb4e",
+      "bytes": 554,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/stdout.txt",
+      "sha256": "8381f1cb39791d05fe294bb7e9aced43541396c596a5476a377c4b8d497c809e",
+      "bytes": 5635,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/stderr.txt",
+      "sha256": "a28163ede9fa188ac7913a31135e1cd7be59840cfc621f039af019c12fd8acbd",
+      "bytes": 248,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/raw_response.txt",
+      "sha256": "8381f1cb39791d05fe294bb7e9aced43541396c596a5476a377c4b8d497c809e",
+      "bytes": 5635,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/parsed_cells.json",
+      "sha256": "42dda30bfe94863772fc765112d1cffc065c22400676d5944e6293aa8a4eab34",
+      "bytes": 6590,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/normalized_cells.json",
+      "sha256": "7da74e902fe75150c64b9bf8ad488f57b6838c631212d457ce08169737f30a99",
+      "bytes": 24035,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/distribution.json",
+      "sha256": "be51e6c6ef80820d24bff7a14d913d15b169b920b0c6de28632cd54e3c2a72bb",
+      "bytes": 13661,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/validation.json",
+      "sha256": "df876709ed6394aaedd5e4e06ae3a780a2cf4d9426b6fa38c38c93d9a07835e0",
+      "bytes": 133,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/cells.with_activity.json",
+      "sha256": "b28ba9fceea1274ef0155b62ce9cfe9b95b785a65e68d3c1fc714c27c32575ac",
+      "bytes": 37321,
+      "createdAt": "2026-08-12T16:06:38Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-06-38z-ons-trade-total-goods-services-balance-2026-06/manifest.json",
+      "sha256": "35bfa216321ed5c99f3cf3a0b80840baa7caf49cd8b98cc5efb9f7d27d3db813",
+      "bytes": 14227,
+      "createdAt": "2026-08-12T16:06:38Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-total-trade-balance-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "756360c53b1e4c779a3431acf15449d08730d3b1f7b884e569ba4df6c3b16a0d"
+}
