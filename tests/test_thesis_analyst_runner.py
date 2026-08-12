@@ -293,6 +293,84 @@ def test_partial_context_without_target_unit_keeps_the_menu():
     assert "percent|count|thousands" in result.stdout
 
 
+def test_registered_query_snapshot_context_instructs_query_history():
+    # A registered_query_snapshot series has no published table: history
+    # must come from executing the registered query for prior periods.
+    # All three B1 rescue failures (missing historicalContext twice, a
+    # wrong headline aggregate once) trace to this instruction's absence.
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.snapshot_series",
+            "--period",
+            "FY2026",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "snapshot-slug",
+                    "targetUnit": "usd_millions",
+                    "dataPointId": (
+                        "test.snapshot_series.fy2026.registered_query_snapshot"
+                    ),
+                    "sourceBinding": {
+                        "adapter": "usaspending-api",
+                        "releasePolicy": "registered_query_snapshot",
+                        "sourceUrl": (
+                            "https://api.usaspending.gov/api/v2/search/"
+                            "spending_over_time/"
+                        ),
+                        "field": (
+                            "results[time_period.fiscal_year={fiscal_year}]"
+                            ".aggregated_amount"
+                        ),
+                        "transform": {"operation": "multiply", "factor": 1e-06},
+                    },
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "# Registered-query series (machine checked)" in result.stdout
+    assert "executing the exact registered query" in result.stdout
+    assert "refuse with the fetch" in result.stdout
+
+    # A non-snapshot binding must not get the block.
+    plain = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "targetUnit": "percent",
+                    "sourceBinding": {"adapter": "alfred-fred"},
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "# Registered-query series (machine checked)" not in plain.stdout
+
+
 def test_fast_prompt_offers_the_unit_menu_only_without_a_registration():
     result = subprocess.run(
         [

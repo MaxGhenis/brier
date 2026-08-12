@@ -575,6 +575,28 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "print exists, revised prints are required and "
             "old-methodology history stops being admissible.",
         ]
+    if (target_context.get("sourceBinding") or {}).get(
+        "releasePolicy"
+    ) == "registered_query_snapshot":
+        binding = target_context.get("sourceBinding") or {}
+        lines += [
+            "",
+            "# Registered-query series (machine checked)",
+            "This series is DEFINED by the registered query in "
+            "sourceBinding — no published table or headline page exists "
+            "for it, so agency profile totals and search-result summaries "
+            "are the WRONG series. Fetch historicalContext by executing "
+            "the exact registered query for each prior period: substitute "
+            "the period into sourceBinding.transform's request template "
+            f"and POST it to {json.dumps(binding.get('sourceUrl'))}, then "
+            "read the value at sourceBinding.field and apply "
+            "sourceBinding.transform's operation and factor. History "
+            "values obtained any other way will fail anchor validation, "
+            "and a cell without historicalContext fails normalization — "
+            "if the query cannot be executed, refuse with the fetch "
+            "evidence rather than omitting history or substituting a "
+            "broader aggregate.",
+        ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
     if fetch_command:
