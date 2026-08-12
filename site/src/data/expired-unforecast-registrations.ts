@@ -61,6 +61,19 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   // A fresh pair may be registered if the source recovers.
   "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.ceiling_27_million",
   "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.no_fy2027_31_ceiling",
+  // The 2026-08-05 registrations for the UK AWE June regular-pay print
+  // and the UK PPI July input-price print crossed their seven-day orphan
+  // grace on 2026-08-12 16:45 UTC without a forecast. Their registering
+  // roll (run 31026650852) generated candidate cells, but its publish
+  // leg failed the site suite before committing anything, so no batch
+  // manifest reached main and the in-grace retry lane's
+  // committed-manifest trust anchor could not reach the pair. Their
+  // prints arrive with the registrations already stale, and forecasting
+  // after grace would break the chronology the window exists to protect
+  // (the 2026-07-22 prospect precedent). Both terminate here
+  // explicitly.
+  "ons.awe.regular_pay_yoy_3m_avg.2026_06.first_print",
+  "ons.ppi.input_manufacturing_index.2026_07.first_print",
 ] as const;
 
 export const EXPIRED_UNFORECAST_SET: ReadonlySet<string> = new Set(
