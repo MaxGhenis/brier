@@ -17,6 +17,40 @@ The runtime gate (`qcew_anchor_mismatches`) re-fetches every anchor at
 resolution time and refuses the adapter on any mismatch, so these pins are
 self-checking, not trusted literals.
 
+## QCEW child day care annual-average employment (bls.qcew.child_day_care_services.annual_avg_employment)
+
+Verified 2026-08-12 (UTC) by the integrating session against the live official
+BLS annual industry-slice endpoints. The exact selector is U.S. total
+(`area_fips=US000`), private ownership (`own_code=5`), NAICS 624410,
+aggregation level 18, size code 0, annual row (`qtr=A`), and field
+`annual_avg_emplvl`. BLS documents the [industry-slice CSV
+schema](https://www.bls.gov/cew/additional-resources/open-data/csv-data-slices.htm),
+[ownership codes](https://www.bls.gov/cew/classifications/ownerships/ownership-titles.htm),
+[area codes](https://www.bls.gov/cew/classifications/areas/qcew-area-titles.htm),
+[aggregation levels](https://www.bls.gov/cew/classifications/aggregation/agg-level-titles.htm),
+and [industry titles](https://www.bls.gov/cew/classifications/industry/industry-titles.htm).
+
+| Year | annual_avg_emplvl | Official live slice | Response SHA-256 |
+|---|---:|---|---|
+| 2023 | 954,796 | [2023 annual NAICS 624410 CSV](https://data.bls.gov/cew/data/api/2023/a/industry/624410.csv) | `57418afd99c331b3921f0dcd4223363b8dff33ced09fb1be88d6683c41be1ee7` |
+| 2024 | 983,412 | [2024 annual NAICS 624410 CSV](https://data.bls.gov/cew/data/api/2024/a/industry/624410.csv) | `8b1901d7e70f1b7427ff4ce0c62c809c77bdd74a226ca021d2e41cce7b63e940` |
+| 2025 | 991,735 | [2025 annual NAICS 624410 CSV](https://data.bls.gov/cew/data/api/2025/a/industry/624410.csv) | `a4ebb81ec1159b1c3faa1670a32dc77598cf51178d9e17c630cb289ea568c3a9` |
+
+The 2025 response was fetched live as the committed parser fixture (537,503
+bytes, 3,490 lines). The resolver nevertheless re-fetches all three official
+URLs and exactly reproduces every anchor before trusting a target response;
+fixture bytes are never resolution evidence.
+
+BLS says preliminary annual averages are published with the fourth-quarter
+full-data update on its [QCEW release
+calendar](https://www.bls.gov/cew/release-calendar.htm). That calendar gives
+2025 Q4 a release of 10:00 a.m. ET on 2026-06-02, corroborated by the [archived
+Q4 2025 release](https://www.bls.gov/news.release/archives/cewqtr_06022026.pdf).
+The docket derives the 2025 expected release date from that explicit calendar
+slot. As of the verification date, BLS lists Q4 2026 as “To be determined,
+2027,” so the docket carries no invented 2026 date and the calendar gate
+refuses to roll that period until BLS posts one.
+
 ## FSA CRP total enrolled acres (usda.fsa.crp.enrolled_acres_total)
 
 Status: **VERIFIED** (integrator, 2026-07-31). Three anchors read directly

@@ -49,6 +49,7 @@ OFFICIAL_CALENDAR_ADAPTERS = frozenset(
     {
         "abs-data-api",
         "abs-release-page",
+        "bls-qcew",
         "eurostat-api",
         "ons-timeseries",
         "statcan-wds",
@@ -117,6 +118,11 @@ def period_key(period: str, cadence: str) -> tuple[int, ...] | None:
             if not match:
                 return None
             return (int(match.group(1)), int(match.group(2)))
+        if cadence == "annual":
+            match = re.fullmatch(r"(\d{4})", period)
+            if not match:
+                return None
+            return (int(match.group(1)),)
     except ValueError:
         return None
     return None
@@ -148,6 +154,8 @@ def step_period(period: str, cadence: str) -> str | None:
         if quarter == 5:
             year, quarter = year + 1, 1
         return f"{year}-Q{quarter}"
+    if cadence == "annual":
+        return str(key[0] + 1)
     warn_malformed_period("step", period, cadence)
     return None
 
@@ -164,6 +172,8 @@ def format_slug(template: str, period: str, cadence: str) -> str:
             month_abbr=MONTH_ABBREVIATIONS[month],
             year=year,
         )
+    if cadence == "annual":
+        return template.format(year=period, period=period.lower())
     m = re.fullmatch(r"(\d{4})-Q(\d)", period)
     return template.format(quarter=m.group(2), year=m.group(1))
 
@@ -183,6 +193,8 @@ def not_too_far_ahead(period: str, cadence: str, today: dt.date) -> bool:
     if cadence == "quarterly":
         quarter = (today.month - 1) // 3 + 1
         return key <= (today.year, quarter)
+    if cadence == "annual":
+        return key <= (today.year,)
     warn_malformed_period("horizon check", period, cadence)
     return False
 
@@ -231,6 +243,10 @@ def template_regex(template: str, cadence: str) -> re.Pattern[str]:
             "quarter": ("quarter", r"\d+"),
             "year": ("year", r"\d{4}"),
         },
+        "annual": {
+            "period": ("year", r"\d{4}"),
+            "year": ("year", r"\d{4}"),
+        },
     }.get(cadence, {})
     token_pattern = re.compile(r"\{([a-z_]+)\}")
     parts: list[str] = []
@@ -275,6 +291,8 @@ def captured_period(match: re.Match[str], cadence: str) -> str | None:
             period = f"{match.group('year')}-{month:02d}"
         elif cadence == "quarterly":
             period = f"{match.group('year')}-Q{match.group('quarter')}"
+        elif cadence == "annual":
+            period = match.group("year")
         else:
             return None
     except (IndexError, ValueError):
@@ -730,7 +748,7 @@ def recurring_seed_target(
     """
 
     cadence = entry.get("cadence")
-    if cadence not in {"weekly", "monthly", "quarterly"}:
+    if cadence not in {"weekly", "monthly", "quarterly", "annual"}:
         return None
     if latest_published_period(entry, catalog_slugs) is not None:
         return None
@@ -740,6 +758,7 @@ def recurring_seed_target(
         "weekly": r"week_\d{4}-\d{2}-\d{2}",
         "monthly": r"\d{4}-\d{2}",
         "quarterly": r"\d{4}-Q[1-4]",
+        "annual": r"\d{4}",
     }[cadence]
     if (
         not isinstance(period, str)
@@ -1028,24 +1047,55 @@ def main() -> int:
             binding = (
                 extras.get("sourceBinding") if isinstance(extras, dict) else None
             )
+            calendar_gated_annual = (
+                isinstance(binding, dict)
+                and binding.get("adapter") in CALENDAR_GATED_SOURCE_ADAPTERS
+            )
             if (
                 isinstance(binding, dict)
                 and binding.get("releasePolicy") == "registered_query_snapshot"
             ):
                 target = snapshot_seed_target(entry, existing, today)
+                sort_key = (
+                    target["expectedReleaseWindow"]["start"]
+                    if target is not None
+                    else ""
+                )
+            elif calendar_gated_annual and latest_published_period(
+                entry, existing
+            ) is not None:
+                # Unlike annual snapshots and bounded seeds, an official
+                # calendar series is recurring. Its published seed joins the
+                # normal cursor below; an undated successor still fails at
+                # target_extras_for_period rather than being cadence-inferred.
+                target = None
+                sort_key = ""
+            elif calendar_gated_annual:
+                target = recurring_seed_target(entry, existing, today)
+                sort_key = (
+                    target["expectedReleaseDate"] if target is not None else ""
+                )
             else:
                 target = bounded_annual_first_print_seed_target(
                     entry, existing, today
                 )
-            if target is None:
+                sort_key = (
+                    target["expectedReleaseWindow"]["start"]
+                    if target is not None
+                    else ""
+                )
+            if target is None and not (
+                calendar_gated_annual
+                and latest_published_period(entry, existing) is not None
+            ):
                 print(
                     f"  skip {entry['series']}: no eligible reviewed "
                     "annual seed"
                 )
                 continue
-            window_start = target["expectedReleaseWindow"]["start"]
-            candidates.append((2, window_start, target))
-            continue
+            if target is not None:
+                candidates.append((2, sort_key, target))
+                continue
         latest = latest_published_period(entry, existing)
         if latest is None:
             target = recurring_seed_target(entry, existing, today)

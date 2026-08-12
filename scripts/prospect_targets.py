@@ -253,6 +253,8 @@ def _period_error(value: Any) -> str | None:
         return None if 1 <= int(month.group(2)) <= 12 else "bad period"
     if re.fullmatch(r"\d{4}-Q[1-4]", period):
         return None
+    if re.fullmatch(r"\d{4}", period):
+        return None
     week = re.fullmatch(r"week_(\d{4}-\d{2}-\d{2})", period)
     if week:
         try:
@@ -325,6 +327,7 @@ def _source_binding_errors(value: Any) -> list[str]:
         "alfred-fred",
         "bea-ita-itable",
         "bea-release",
+        "bls-qcew",
         "census-spm-annual-report",
         "eurostat-api",
         "fsa-crp-monthly-summary",

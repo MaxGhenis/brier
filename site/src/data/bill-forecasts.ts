@@ -157,6 +157,16 @@ export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
       "series never resolves any H.R. 5595 causal claim " +
       "(https://www.congress.gov/119/bills/hr5595/BILLS-119hr5595ih.pdf).",
   },
+  {
+    billSlug: "farm-bill-2-0",
+    seriesConcept: "bls.qcew.child_day_care_services.annual_avg_employment",
+    label: "Private child-day-care annual-average employment",
+    scopeNote:
+      "National private child-day-care payroll employment context. Not " +
+      "rural-county employment, all-ownership coverage, self-employment, " +
+      "slots/affordability/capacity, or any employment change caused by or " +
+      "attributable to the bill.",
+  },
 ];
 
 export function getBillContextSeriesLinks(

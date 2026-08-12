@@ -58,7 +58,7 @@ describe("bill context-series links", () => {
     for (const link of BILL_CONTEXT_SERIES_LINKS) {
       expect(link.scopeNote.length).toBeGreaterThan(80);
       expect(link.scopeNote.toLowerCase()).toContain("not ");
-      expect(link.scopeNote.toLowerCase()).toContain("attributed");
+      expect(link.scopeNote.toLowerCase()).toMatch(/attribut(?:ed|able)/);
     }
     const bySlug = new Map(
       BILL_CONTEXT_SERIES_LINKS.map((l) => [l.seriesConcept, l]),
@@ -86,6 +86,14 @@ describe("bill context-series links", () => {
     )?.scopeNote;
     expect(usfs).toContain("not Superior National Forest");
     expect(usfs).toContain("covered lands");
+    const childCare = bySlug.get(
+      "bls.qcew.child_day_care_services.annual_avg_employment",
+    )?.scopeNote;
+    expect(childCare).toContain("rural-county employment");
+    expect(childCare).toContain("all-ownership coverage");
+    expect(childCare).toContain("self-employment");
+    expect(childCare).toContain("slots/affordability/capacity");
+    expect(childCare).toContain("attributable to the bill");
   });
 
   it("stays in lockstep with the bill-context docket admissions", () => {
@@ -129,6 +137,15 @@ describe("bill context-series links", () => {
       (row) => row.series === itaLink?.seriesConcept,
     );
     expect(itaEntry?.comment).toBe(itaLink?.scopeNote);
+    const qcewLink = BILL_CONTEXT_SERIES_LINKS.find(
+      (link) =>
+        link.seriesConcept ===
+        "bls.qcew.child_day_care_services.annual_avg_employment",
+    );
+    const qcewEntry = docket.series.find(
+      (row) => row.series === qcewLink?.seriesConcept,
+    );
+    expect(qcewEntry?.comment).toBe(qcewLink?.scopeNote);
   });
 
   it("filters by bill slug", () => {

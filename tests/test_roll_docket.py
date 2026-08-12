@@ -193,13 +193,32 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
         and (entry.get("extras") or {}).get("resolutionDateBasis") != "resolve-by-bound"
     ]
 
-    assert len(entries) == 24
+    assert len(entries) == 25
+    undated = {
+        entry["series"]
+        for entry in entries
+        if entry["seedPeriod"] not in entry.get("releaseDates", {})
+    }
+    assert undated == {
+        "bls.qcew.child_day_care_services.annual_avg_employment"
+    }
     for entry in entries:
         # Evaluate each seed the day before its own pinned release: valid
         # whenever the registry is re-seeded (a fixed review date broke on
         # the 2026-07-31 ECI Q3 re-seed — release outside the roll horizon
         # from a frozen 2026-07-25; data-state-literal disease #8).
         period = entry["seedPeriod"]
+        # A calendar-gated admission may intentionally wait for the agency
+        # to date its next annual release. That is reviewable but not yet a
+        # selectable seed.
+        if period not in entry.get("releaseDates", {}):
+            assert entry["series"] in undated
+            assert entry["cadence"] == "annual"
+            assert entry["seedPeriod"] == "2026"
+            assert entry["releaseDates"] == {"2025": "2026-06-02"}
+            assert entry["extras"]["sourceBinding"]["adapter"] == "bls-qcew"
+            assert recurring_seed_target(entry, set(), dt.date.today()) is None
+            continue
         docket_day = dt.date.fromisoformat(
             entry["releaseDates"][period]
         ) - dt.timedelta(days=1)
@@ -787,6 +806,7 @@ def test_all_native_docket_series_commit_official_calendar_dates() -> None:
     assert {entry["series"] for entry in native_entries} == {
         "abs.cpi.all_groups.yoy",
         "abs.labour.unemployment_rate",
+        "bls.qcew.child_day_care_services.annual_avg_employment",
         "eurostat.hicp.flash.yoy",
         "statcan.cpi.allitems.yoy",
         "statcan.gdp_by_industry.monthly_growth",
@@ -795,7 +815,7 @@ def test_all_native_docket_series_commit_official_calendar_dates() -> None:
         assert entry["releaseCalendarUrl"].startswith("https://")
         assert entry["releaseDates"]
         for period, release_date in entry["releaseDates"].items():
-            assert period.startswith(("2026-", "2027-"))
+            assert period[:4] in {"2025", "2026", "2027"}
             dt.date.fromisoformat(release_date)
 
 

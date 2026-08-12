@@ -1388,6 +1388,28 @@ def test_qcew_fact_matches_registered_series_binding() -> None:
     assert projection["sourceUrl"] == source_url
 
 
+def test_qcew_legacy_aircraft_registration_remains_exactly_supported() -> None:
+    path = ROOT / (
+        "records/targets/2026-07-15-"
+        "4ba53e4d70d019614a40a1f6457f28261d01d46e5b05373f661a5c9566864d09.json"
+    )
+    snapshot = json.loads(path.read_text())
+    contract = snapshot["targets"][0]
+    spec = resolve_pending.QCEW_ADAPTERS[
+        "bls.qcew.aircraft_manufacturing.establishments"
+    ]
+    binding = contract["sourceBinding"]
+
+    assert resolve_pending.qcew_binding_matches_spec(
+        binding, spec, "2026-01", dt.date(2026, 8, 28)
+    )
+    tampered = json.loads(json.dumps(binding))
+    tampered["field"] = "month1_emplvl"
+    assert not resolve_pending.qcew_binding_matches_spec(
+        tampered, spec, "2026-01", dt.date(2026, 8, 28)
+    )
+
+
 def test_bls_json_archive_passes_custody_verification(tmp_path) -> None:
     import json as json_module
 
