@@ -669,16 +669,26 @@ def test_final_push_loops_rebind_after_every_rebase() -> None:
         ("prospect-docket.yml", "prospect-targets.json"),
     ):
         workflow = (ROOT / ".github" / "workflows" / name).read_text()
-        after_title = workflow.split("Rebase, reverify, and push once", 1)[1]
-        # Isolate exactly this step: up to the next step declaration.
-        step = after_title.split("- name:", 1)[0]
-        env_section, body = step.split("run: |", 1)
-        # The binding must live in the step's env: block — the same text
-        # in a run comment leaves $EXPECTED_SET_HASH unset at runtime.
+        # Parse, don't grep: a YAML comment carrying the same text (the
+        # round-five evasion) vanishes under parsing, so only a real env
+        # mapping on the final step satisfies this.
+        import yaml
+
+        parsed = yaml.safe_load(workflow)
+        steps = [
+            step
+            for job in parsed["jobs"].values()
+            for step in job.get("steps", [])
+            if step.get("name") == "Rebase, reverify, and push once"
+        ]
+        assert len(steps) == 1, f"{name}: expected one final push step"
         assert (
-            "EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}"
-            in env_section
+            steps[0].get("env", {}).get("EXPECTED_SET_HASH")
+            == "${{ needs.register.outputs.registration_set_hash }}"
         ), f"{name}: final step must carry its own EXPECTED_SET_HASH env"
+        after_title = workflow.split("Rebase, reverify, and push once", 1)[1]
+        step = after_title.split("- name:", 1)[0]
+        body = step.split("run: |", 1)[1]
         ordered = [
             "for attempt in",
             "git pull --rebase origin main",
