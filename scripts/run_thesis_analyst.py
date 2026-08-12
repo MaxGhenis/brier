@@ -575,6 +575,41 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "print exists, revised prints are required and "
             "old-methodology history stops being admissible.",
         ]
+    if (target_context.get("sourceBinding") or {}).get(
+        "releasePolicy"
+    ) == "registered_query_snapshot":
+        binding = target_context.get("sourceBinding") or {}
+        transform = binding.get("transform") or {}
+        request_method = str(transform.get("requestMethod") or "GET").upper()
+        if request_method == "GET":
+            # GET bindings carry the period slot in the URL itself.
+            execution = (
+                "substitute each prior period into "
+                f"sourceBinding.sourceUrl ({json.dumps(binding.get('sourceUrl'))}) "
+                "and GET it"
+            )
+        else:
+            execution = (
+                "substitute each prior period into sourceBinding.transform's "
+                f"request template and {request_method} it to "
+                f"{json.dumps(binding.get('sourceUrl'))}"
+            )
+        lines += [
+            "",
+            "# Registered-query series (machine checked)",
+            "This series is DEFINED by the registered query in "
+            "sourceBinding — no published table or headline page exists "
+            "for it, so agency profile totals and search-result summaries "
+            "are the WRONG series. Fetch historicalContext by executing "
+            f"the exact registered query for each prior period: {execution}, "
+            "then read the value at sourceBinding.field and apply "
+            "sourceBinding.transform's operation and factor. History "
+            "values obtained any other way will fail anchor validation, "
+            "and a cell without historicalContext fails normalization — "
+            "if the query cannot be executed, refuse with the fetch "
+            "evidence rather than omitting history or substituting a "
+            "broader aggregate.",
+        ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
     if fetch_command:
@@ -2257,16 +2292,35 @@ def build_pre_submit_review_metadata(
     revision_prompt_ref: dict[str, Any] | None,
     normalized_cells: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    fixes = list((review_payload or {}).get("requiredFixes") or [])
-    suggestions = list((review_payload or {}).get("optionalSuggestions") or [])
+    def _review_collection(value: Any) -> list[Any]:
+        # Reviewer-agent JSON may hand back a scalar, string, or object
+        # where a list belongs: list() on a number raises after
+        # validation (losing the run record), and list() on a string
+        # explodes it into per-character findings. Anything non-list
+        # becomes a single malformed row for the item guard below.
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        return [value]
+
+    fixes = _review_collection((review_payload or {}).get("requiredFixes"))
+    suggestions = _review_collection((review_payload or {}).get("optionalSuggestions"))
     findings: list[dict[str, Any]] = []
     for index, fix in enumerate(fixes):
+        if not isinstance(fix, dict):
+            # Malformed reviewer output (a bare number or string in the
+            # list) is still a finding worth keeping — never a crash
+            # that loses the run record.
+            fix = {"summary": str(fix)}
         findings.append(
             {
                 "findingId": f"review.finding.{index + 1}",
                 "severity": str(fix.get("severity") or "warning"),
                 "rubricItem": str(fix.get("rubricItem") or "review"),
-                "summary": str(fix.get("summary") or "").strip(),
+                # A dict row with no usable summary still leaves its
+                # content in the record rather than an empty finding.
+                "summary": str(fix.get("summary") or "").strip() or str(fix),
                 "actionRequested": str(fix.get("actionRequested") or "").strip()
                 or None,
             }
@@ -2504,6 +2558,38 @@ def extract_json_payload(text: str) -> list[dict]:
         ):
             return payload
     raise ValueError("No JSON object or array found in agent output")
+
+
+def _reject_unencodable_numbers(value: Any, path: str = "cell") -> None:
+    """Refuse numbers later stages cannot canonicalize or seal.
+
+    Oversized integers overflow float conversion at seal time and
+    non-finite or near-overflow floats crash custody canonicalization —
+    both AFTER the guarded stages, leaving no run record. Catching them
+    here turns the whole class into ordinary normalize failures.
+    """
+
+    if isinstance(value, bool):
+        return
+    if isinstance(value, int):
+        if abs(value) > 2**53:
+            raise RuntimeError(
+                f"{path} carries an integer outside the exactly "
+                "representable range"
+            )
+    elif isinstance(value, float):
+        if value != value or value in (float("inf"), float("-inf")):
+            raise RuntimeError(f"{path} carries a non-finite number")
+        if abs(value) > 1e300:
+            raise RuntimeError(
+                f"{path} carries a float too large to canonicalize"
+            )
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _reject_unencodable_numbers(item, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _reject_unencodable_numbers(item, f"{path}[{index}]")
 
 
 def normalize_cells(parsed_path: pathlib.Path, normalized_path: pathlib.Path) -> None:
@@ -3072,6 +3158,16 @@ def parse_target_context(value: str | None) -> dict[str, Any] | None:
         raise SystemExit(f"Invalid --target-context-json: {exc}") from exc
     if not isinstance(parsed, dict):
         raise SystemExit("--target-context-json must be a JSON object")
+    try:
+        # Trusted-input gate: a context carrying numbers canonical
+        # hashing cannot represent would crash custody in EVERY later
+        # stage, including the failure paths. Committed registrations
+        # cannot contain them (they are canonical-encoded at creation),
+        # so this only fires on operator error — refuse before any run
+        # artifacts exist.
+        _reject_unencodable_numbers(parsed, "target context")
+    except RuntimeError as exc:
+        raise SystemExit(f"Invalid --target-context-json: {exc}") from exc
     return parsed
 
 
@@ -3420,6 +3516,46 @@ def main() -> int:
         )
         print(json.dumps(manifest, indent=2))
         return 1
+    if not parsed_cells:
+        # An empty payload is not a forecast and not a refusal record —
+        # letting it through produced a green manifest with zero cells.
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "parse",
+            "agent returned an empty cell payload",
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
+    try:
+        # Before parsed_cells.json becomes a custody artifact: canonical
+        # hashing of JSON artifacts cannot represent oversized or
+        # non-finite numbers, so a later rejection would crash the
+        # failure path itself and leave no record.
+        _reject_unencodable_numbers(parsed_cells, "cell payload")
+    except RuntimeError as exc:
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "parse",
+            str(exc),
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     parsed_path = out_dir / "parsed_cells.json"
     refs.append(
         write_artifact(
@@ -3432,7 +3568,38 @@ def main() -> int:
     )
 
     normalized_path = out_dir / "normalized_cells.json"
-    normalize_cells(parsed_path, normalized_path)
+    try:
+        normalize_cells(parsed_path, normalized_path)
+        # Normalization coerces numeric strings ("1e309") into floats
+        # the parse-time gate could not see; the parsed artifact holds
+        # the original strings, so failing HERE still canonicalizes.
+        for index, cell in enumerate(json.loads(normalized_path.read_text())):
+            _reject_unencodable_numbers(cell, f"normalized cell {index}")
+    except RuntimeError as exc:
+        # The subprocess may have written the poisoned file before the
+        # sweep rejected it; an unreferenced artifact fails the v2
+        # directory inventory, so the failure record must not leave it.
+        normalized_path.unlink(missing_ok=True)
+        # A malformed cell (a JSON refusal object, a cell missing
+        # historicalContext) must still leave a registration-bound
+        # failure manifest — the uncaught path left no run record at
+        # all, which blocked whole-wave publication ("result N lacks a
+        # registration-bound manifest", the B1 rescue failure shape).
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "normalize",
+            str(exc),
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     normalized_cells = json.loads(normalized_path.read_text())
     # The published runAt is the harness's SEAL time — captured here,
     # after the agent finished — never the agent's claim and never the
@@ -3443,14 +3610,62 @@ def main() -> int:
     # Start time and any differing agent claim are kept for audit.
     sealed_at = utc_now()
     binding = registration_binding(target_context)
-    materialized_distributions = seal_normalized_cells(
-        normalized_cells,
-        conditional=args.conditional,
-        run_started_at=run_at,
-        sealed_at=sealed_at,
-        prompt_mode=args.prompt_mode,
-        target_context=target_context,
-    )
+    try:
+        materialized_distributions = seal_normalized_cells(
+            normalized_cells,
+            conditional=args.conditional,
+            run_started_at=run_at,
+            sealed_at=sealed_at,
+            prompt_mode=args.prompt_mode,
+            target_context=target_context,
+        )
+        # Post-coercion gate: sealing converts numeric strings with
+        # float(), which yields infinity for "1e309" WITHOUT raising —
+        # the poison then reaches derived distributions as NaN and
+        # crashes custody hashing at the very end, past every failure
+        # path. Reject sealed cells and materialized distributions here,
+        # while the seal-failure inventory is still exactly satisfiable.
+        for index, cell in enumerate(normalized_cells):
+            _reject_unencodable_numbers(cell, f"sealed cell {index}")
+        _reject_unencodable_numbers(
+            materialized_distributions, "materialized distribution"
+        )
+    except (
+        ValueError,
+        TypeError,
+        KeyError,
+        RuntimeError,
+        OverflowError,
+    ) as exc:
+        # Malformed cell values (a non-numeric pointEstimate, a numeric
+        # slug) must still leave a registration-bound failure manifest —
+        # the uncaught path left no run record and blocked whole-wave
+        # publication. normalized_cells.json exists on disk at this
+        # point, so reference it before sealing the failure inventory.
+        refs.append(
+            {
+                "artifactType": "normalized_cell",
+                "path": repo_relative(normalized_path),
+                "sha256": sha256_bytes(normalized_path.read_bytes()),
+                "bytes": normalized_path.stat().st_size,
+                "createdAt": run_at,
+            }
+        )
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "seal",
+            f"{type(exc).__name__}: {exc}",
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
         {
@@ -3471,13 +3686,39 @@ def main() -> int:
         )
     )
 
-    validation = validate_cells(
-        normalized_cells,
-        args.allow_existing_slug,
-        target_context,
-        args.prompt_mode,
-        generation_ticket=generation_ticket,
-    )
+    try:
+        validation = validate_cells(
+            normalized_cells,
+            args.allow_existing_slug,
+            target_context,
+            args.prompt_mode,
+            generation_ticket=generation_ticket,
+        )
+    except (
+        ValueError,
+        TypeError,
+        KeyError,
+        RuntimeError,
+        OverflowError,
+    ) as exc:
+        # Same guarantee as the normalize and seal guards: a cell that
+        # crashes validation (rather than failing it) still leaves a
+        # registration-bound failure manifest.
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "validate",
+            f"{type(exc).__name__}: {exc}",
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     validation_ref = write_artifact(
         out_dir,
         "validation_report",

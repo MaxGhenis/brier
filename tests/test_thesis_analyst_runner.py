@@ -293,6 +293,702 @@ def test_partial_context_without_target_unit_keeps_the_menu():
     assert "percent|count|thousands" in result.stdout
 
 
+def test_normalization_failure_writes_a_failure_manifest(
+    tmp_path: Path,
+) -> None:
+    # The B1 rescue failure shape: a cell missing historicalContext hit
+    # an uncaught normalizer RuntimeError, so NO run record existed and
+    # whole-wave publication blocked on "lacks a registration-bound
+    # manifest". A malformed cell must leave an ok:false manifest.
+    out_dir = tmp_path / "normalize-failure"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "codex"
+    bad_cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_cell.pop("historicalContext", None)
+    write_fake_codex(fake_codex, bad_cell)
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "normalize"
+    assert "historicalContext" in manifest["error"]["message"]
+
+
+def test_empty_cell_payload_fails_instead_of_green_manifest(
+    tmp_path: Path,
+) -> None:
+    # "[]" passed zero validations and produced manifest.ok=true — an
+    # empty payload is neither a forecast nor a refusal record.
+    out_dir = tmp_path / "empty-payload"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "codex"
+    fake_codex.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "import json, pathlib, sys",
+                "args = sys.argv[1:]",
+                "last = pathlib.Path(args[args.index('-o') + 1])",
+                "last.write_text('[]')",
+                "print(json.dumps({'type': 'item.completed',"
+                " 'item': {'type': 'agent_message', 'text': '[]'}}))",
+                "print(json.dumps({'type': 'turn.completed',"
+                " 'usage': {'input_tokens': 1, 'output_tokens': 1,"
+                " 'cached_input_tokens': 0}}))",
+            ]
+        )
+    )
+    fake_codex.chmod(0o755)
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert "empty cell payload" in manifest["error"]["message"]
+
+
+def _run_fake_codex_case(tmp_path: Path, name: str, cell) -> tuple[int, Path]:
+    out_dir = tmp_path / name
+    codex_home = tmp_path / f"{name}-codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / f"{name}-codex"
+    write_fake_codex(fake_codex, cell)
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode, out_dir
+
+
+def _custody_passes(out_dir: Path) -> None:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import verify_run
+    finally:
+        sys.path.pop(0)
+    verify_run(out_dir)
+
+
+def test_malformed_cell_values_leave_custody_clean_failure_manifests(
+    tmp_path: Path,
+) -> None:
+    # Round-two reproductions: a non-numeric pointEstimate and a numeric
+    # slug crashed sealing with no manifest at all. Both must now leave
+    # an ok:false manifest that custody verification accepts — otherwise
+    # publication still rejects the wave.
+    bad_point = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_point["pointEstimate"] = "not-a-number"
+    code, out_dir = _run_fake_codex_case(tmp_path, "bad-point", bad_point)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] in {"normalize", "seal", "validate"}
+    _custody_passes(out_dir)
+
+    bad_slug = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_slug["slug"] = 7
+    code, out_dir = _run_fake_codex_case(tmp_path, "bad-slug", bad_slug)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] in {"normalize", "seal", "validate"}
+    _custody_passes(out_dir)
+
+
+def test_normalize_failure_manifest_passes_custody(tmp_path: Path) -> None:
+    # The B1 shape end to end: history-less cell -> normalize failure
+    # manifest -> custody verification green (publication treats it as
+    # any failed run instead of blocking the wave).
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "hist-less", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["error"]["phase"] == "normalize"
+    _custody_passes(out_dir)
+
+
+def test_unencodable_numbers_and_reviewer_shapes_leave_manifests(
+    tmp_path: Path,
+) -> None:
+    # Round-three reproductions: an oversized integer pointEstimate, a
+    # 1e309 in an extra field, and a bare-number reviewer finding all
+    # crashed after parsing with no run record. Each must now leave a
+    # custody-clean ok:false manifest (or, for the reviewer shape, keep
+    # the run alive).
+    big_int = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    big_int["pointEstimate"] = 10**400
+    code, out_dir = _run_fake_codex_case(tmp_path, "big-int", big_int)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "parse"
+    assert "exactly representable" in manifest["error"]["message"]
+    _custody_passes(out_dir)
+
+    big_float = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    big_float["extraDiagnostic"] = {"weird": 1e309}
+    code, out_dir = _run_fake_codex_case(tmp_path, "big-float", big_float)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "parse"
+    _custody_passes(out_dir)
+
+
+def test_malformed_reviewer_findings_do_not_crash() -> None:
+    # {"requiredFixes": [7]} raised AttributeError mid-run; malformed
+    # rows become plain findings instead.
+    metadata = analyst_runner.build_pre_submit_review_metadata(
+        status="completed",
+        requested_at="2026-08-12T00:00:00Z",
+        review_result=None,
+        review_payload={
+            "requiredFixes": [7],
+            "optionalSuggestions": ["tighten interval"],
+        },
+        draft_ref=None,
+        review_ref=None,
+        revision_prompt_ref=None,
+    )
+    summaries = [f["summary"] for f in metadata["findings"]]
+    assert "7" in summaries
+    assert "tighten interval" in summaries
+
+
+def test_malformed_reviewer_collection_containers_become_findings() -> None:
+    # Round-five reproduction: the COLLECTION itself may be a scalar,
+    # string, or object rather than a list. list(7) and list(1e309)
+    # raise TypeError after validation (no manifest), and a bare string
+    # exploded into per-character findings.
+    for container, expected in (
+        (7, "7"),
+        (float("inf"), "inf"),
+        ("tighten the interval", "tighten the interval"),
+        ({"note": "x"}, "{'note': 'x'}"),
+    ):
+        metadata = analyst_runner.build_pre_submit_review_metadata(
+            status="completed",
+            requested_at="2026-08-12T00:00:00Z",
+            review_result=None,
+            review_payload={
+                "requiredFixes": container,
+                "optionalSuggestions": container,
+            },
+            draft_ref=None,
+            review_ref=None,
+            revision_prompt_ref=None,
+        )
+        findings = metadata["findings"]
+        # One malformed row per field — never per-character, never a crash.
+        assert len(findings) == 2, container
+        assert [f["summary"] for f in findings] == [expected, expected], container
+
+
+def test_reviewer_scalar_collections_run_end_to_end(tmp_path: Path) -> None:
+    # The same shapes through the real runner and reviewer loop: the
+    # run must complete with the malformed reviewer output recorded in
+    # the manifest, not crash after validation with no run record.
+    final_cell = review_test_cell(
+        point=5.2,
+        ci_low=4.6,
+        ci_high=5.9,
+        review_disposition=(
+            "Review disposition: reviewer output was malformed; kept the "
+            "draft forecast unchanged."
+        ),
+    )
+    for name, review_text in (
+        ("scalar-fixes", '{"requiredFixes": 7, "optionalSuggestions": ["ok"]}'),
+        ("inf-fixes", '{"requiredFixes": 1e309, "optionalSuggestions": 1e309}'),
+    ):
+        out_dir = tmp_path / name
+        codex_home = tmp_path / f"{name}-codex-home"
+        codex_home.mkdir()
+        (codex_home / "auth.json").write_text("{}\n")
+        fake_codex = tmp_path / f"{name}-codex"
+        write_fake_codex(
+            fake_codex,
+            review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+            extra_lines=[
+                "model = args[args.index('-m') + 1]",
+                "prompt = args[-1]",
+                f"review_text = {json.dumps(review_text)}",
+                f"final_text = {json.dumps(json.dumps(final_cell))}",
+                "if model == 'gpt-review':",
+                "    text = review_text",
+                "elif 'Pre-submit review loop' in prompt:",
+                "    text = final_text",
+            ],
+        )
+        env = {
+            **os.environ,
+            "THESIS_CODEX_BIN": str(fake_codex),
+            "CODEX_HOME": str(codex_home),
+        }
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(RUNNER),
+                "--series",
+                "test.codex_rate",
+                "--period",
+                "2030-01",
+                "--codex-model",
+                "gpt-5.5",
+                "--pre-submit-review-codex-model",
+                "gpt-review",
+                "--out-dir",
+                str(out_dir),
+            ],
+            cwd=ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, (name, result.stderr[-2000:])
+        manifest = json.loads((out_dir / "manifest.json").read_text())
+        assert manifest["ok"] is True, name
+        review_meta = manifest["preSubmitReview"]
+        assert review_meta["schemaVersion"] == "thesis_pre_submit_review_v1"
+        summaries = [f["summary"] for f in review_meta["findings"]]
+        assert summaries, name
+        if name == "scalar-fixes":
+            assert "7" in summaries
+        else:
+            assert "inf" in summaries
+        _custody_passes(out_dir)
+
+
+def test_string_coerced_numbers_fail_at_normalize(tmp_path: Path) -> None:
+    # Round-four reproduction: "1e309" as a STRING passes the parse gate
+    # (strings are canonical-safe), then normalization coerces it to
+    # infinity and later stages crashed with no record. The
+    # post-normalize sweep must catch both point and history shapes.
+    for name, mutate in (
+        ("str-point", lambda c: c.__setitem__("pointEstimate", "1e309")),
+        (
+            "str-history",
+            lambda c: c.__setitem__(
+                "historicalContext", [{"label": "t-1", "value": "1e309"}]
+            ),
+        ),
+    ):
+        cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+        mutate(cell)
+        code, out_dir = _run_fake_codex_case(tmp_path, name, cell)
+        assert code == 1, name
+        manifest = json.loads((out_dir / "manifest.json").read_text())
+        assert manifest["ok"] is False, name
+        # Where the poison surfaces depends on which stage coerces the
+        # string: history values coerce at normalize, pointEstimate at
+        # seal. Either way: a custody-clean failure manifest.
+        assert manifest["error"]["phase"] in {"normalize", "seal"}, name
+        _custody_passes(out_dir)
+
+
+def test_unencodable_target_context_is_refused_at_entry(
+    tmp_path: Path,
+) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--target-context-json",
+            json.dumps({"anchorsLike": 10**400}),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "exactly representable" in result.stderr
+
+
+def test_custody_rejects_forged_parse_phase_and_loose_error_equality(
+    tmp_path: Path,
+) -> None:
+    # Round four: the parse branch returned before the semantic checks,
+    # and error equality used Python == (true == 1). Both re-sealed
+    # forgeries must refuse.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "parse-forgery", cell)
+    assert code == 1
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    manifest_path = out_dir / "manifest.json"
+
+    def reseal(mutate) -> None:
+        manifest = json.loads(manifest_path.read_text())
+        mutate(manifest)
+        manifest.pop("custodyRootSha256", None)
+        refs = [
+            ref
+            for ref in manifest["artifacts"]
+            if Path(str(ref["path"])).name != "manifest.json"
+        ]
+        manifest["artifacts"] = refs
+        runner_mod.finalize_manifest(
+            out_dir, manifest["runStartedAt"], manifest, refs
+        )
+
+    def forge_parse_complete(manifest) -> None:
+        manifest["error"]["phase"] = "parse"
+        manifest["ok"] = True
+        manifest["validation"] = {"ok": True}
+        manifest["cellsPath"] = "cells.with_activity.json"
+
+    reseal(forge_parse_complete)
+    with pytest.raises(CustodyError, match="does not present as failed"):
+        verify_run(out_dir)
+
+    # Restore failed presentation but desync error.json loosely: a
+    # boolean-vs-1 difference that Python == would miss.
+    def desync_error(manifest) -> None:
+        manifest["error"]["phase"] = "normalize"
+        manifest["ok"] = False
+        manifest["validation"] = None
+        manifest["cellsPath"] = None
+        error_artifact = out_dir / "error.json"
+        disk_error = json.loads(error_artifact.read_text())
+        disk_error["flag"] = True
+        payload = json.dumps(disk_error, indent=2)
+        error_artifact.write_text(payload)
+        # Keep the artifact hash-consistent so the SEMANTIC canonical
+        # comparison, not an integrity mismatch, is what refuses.
+        import hashlib
+
+        for ref in manifest["artifacts"]:
+            if Path(str(ref["path"])).name == "error.json":
+                ref["sha256"] = hashlib.sha256(payload.encode()).hexdigest()
+                ref["bytes"] = len(payload.encode())
+        manifest["error"] = {**disk_error, "flag": 1}
+
+    reseal(desync_error)
+    with pytest.raises(CustodyError, match="disagrees with"):
+        verify_run(out_dir)
+
+
+def test_custody_requires_explicit_null_presentation(tmp_path: Path) -> None:
+    # Omitting the validation/cellsPath keys must not read as null.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "omitted-keys", cell)
+    assert code == 1
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    manifest_path = out_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest.pop("validation", None)
+    manifest.pop("cellsPath", None)
+    manifest.pop("custodyRootSha256", None)
+    refs = [
+        ref
+        for ref in manifest["artifacts"]
+        if Path(str(ref["path"])).name != "manifest.json"
+    ]
+    manifest["artifacts"] = refs
+    runner_mod.finalize_manifest(
+        out_dir, manifest["runStartedAt"], manifest, refs
+    )
+    with pytest.raises(CustodyError, match="does not present as failed"):
+        verify_run(out_dir)
+
+
+def test_custody_rejects_a_failure_phase_that_presents_as_complete(
+    tmp_path: Path,
+) -> None:
+    # Round-three forgery: error.phase used to win without requiring
+    # ok:false, so a phase-tagged manifest presenting as complete rode
+    # the lighter failure inventories and read as succeeded downstream.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "forged-phase", cell)
+    assert code == 1
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    manifest_path = out_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["ok"] = True
+    manifest["validation"] = {"ok": True}
+    # Re-seal so the forgery is internally hash-consistent — the
+    # semantic guard, not a hash mismatch, must be what rejects it.
+    manifest.pop("custodyRootSha256", None)
+    refs = [
+        ref
+        for ref in manifest["artifacts"]
+        if Path(str(ref["path"])).name != "manifest.json"
+    ]
+    manifest["artifacts"] = refs
+    runner_mod.finalize_manifest(
+        out_dir, manifest["runStartedAt"], manifest, refs
+    )
+
+    with pytest.raises(CustodyError, match="does not present as failed"):
+        verify_run(out_dir)
+
+
+def test_custody_requires_the_phase_artifacts_typed(tmp_path: Path) -> None:
+    # A seal failure must carry normalized_cells.json AS a
+    # normalized_cell artifact — pathname-only allowances let it vanish
+    # or be relabeled.
+    bad_point = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_point["pointEstimate"] = "not-a-number"
+    code, out_dir = _run_fake_codex_case(tmp_path, "typed-inv", bad_point)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    phase = manifest["error"]["phase"]
+    if phase == "normalize":
+        # Normalizer caught it first on this build; the typed-inventory
+        # branch is exercised by the seal shape below regardless.
+        return
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    refs = [
+        ref
+        for ref in manifest["artifacts"]
+        if Path(str(ref["path"])).name
+        not in {"normalized_cells.json", "manifest.json"}
+    ]
+    (out_dir / "normalized_cells.json").unlink()
+    manifest["artifacts"] = refs
+    manifest.pop("custodyRootSha256", None)
+    runner_mod.finalize_manifest(
+        out_dir, manifest["runStartedAt"], manifest, refs
+    )
+    with pytest.raises(CustodyError):
+        verify_run(out_dir)
+
+
+def test_registered_query_snapshot_context_instructs_query_history():
+    # A registered_query_snapshot series has no published table: history
+    # must come from executing the registered query for prior periods.
+    # All three B1 rescue failures (missing historicalContext twice, a
+    # wrong headline aggregate once) trace to this instruction's absence.
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.snapshot_series",
+            "--period",
+            "FY2026",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "snapshot-slug",
+                    "targetUnit": "usd_millions",
+                    "dataPointId": (
+                        "test.snapshot_series.fy2026.registered_query_snapshot"
+                    ),
+                    "sourceBinding": {
+                        "adapter": "usaspending-api",
+                        "releasePolicy": "registered_query_snapshot",
+                        "sourceUrl": (
+                            "https://api.usaspending.gov/api/v2/agency/097/"
+                            "awards/?fiscal_year={fiscal_year}"
+                        ),
+                        "field": "obligations",
+                        "transform": {"operation": "multiply", "factor": 1e-09},
+                    },
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "# Registered-query series (machine checked)" in result.stdout
+    assert "executing the exact registered query" in result.stdout
+    assert "refuse with the fetch" in result.stdout
+    # GET binding (period slot in the URL, no requestMethod): the block
+    # must instruct URL substitution and GET, never a POST template.
+    assert "sourceBinding.sourceUrl" in result.stdout
+    assert "and GET it" in result.stdout
+    assert "fiscal_year={fiscal_year}" in result.stdout
+    assert "request template" not in result.stdout
+
+    post = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.snapshot_series",
+            "--period",
+            "FY2026",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "snapshot-post-slug",
+                    "targetUnit": "usd_millions",
+                    "dataPointId": (
+                        "test.snapshot_series.fy2026.registered_query_snapshot"
+                    ),
+                    "sourceBinding": {
+                        "adapter": "usaspending-api",
+                        "releasePolicy": "registered_query_snapshot",
+                        "sourceUrl": (
+                            "https://api.usaspending.gov/api/v2/search/"
+                            "spending_over_time/"
+                        ),
+                        "field": (
+                            "results[time_period.fiscal_year={fiscal_year}]"
+                            ".aggregated_amount"
+                        ),
+                        "transform": {
+                            "operation": "multiply",
+                            "factor": 1e-06,
+                            "requestMethod": "POST",
+                            "programNumbers": ["95.001"],
+                        },
+                    },
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    # POST binding: the block must instruct the transform's request
+    # template POSTed to the endpoint.
+    assert "request template and POST it to" in post.stdout
+    assert "spending_over_time" in post.stdout
+    assert "and GET it" not in post.stdout
+
+    # A non-snapshot binding must not get the block.
+    plain = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "targetUnit": "percent",
+                    "sourceBinding": {"adapter": "alfred-fred"},
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "# Registered-query series (machine checked)" not in plain.stdout
+
+
 def test_fast_prompt_offers_the_unit_menu_only_without_a_registration():
     result = subprocess.run(
         [
