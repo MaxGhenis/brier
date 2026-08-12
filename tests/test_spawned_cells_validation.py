@@ -788,3 +788,36 @@ def test_manifest_review_overrides_any_cell_claim(
     assert loaded["preSubmitReview"]["summary"] == "Runner-sealed review."
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
     assert run["preSubmitReview"]["summary"] == "Runner-sealed review."
+
+
+def test_brier_judge_review_is_manifest_only_and_screened() -> None:
+    # Round-two screen review: the Brier-judge prompt builder fell back
+    # to cell.preSubmitReview and compacted it unscreened.
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+    try:
+        import run_brier_reasoning_judge as judge
+    finally:
+        sys.path.pop(0)
+    marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
+    screened = judge._screened_manifest_review(
+        {
+            "preSubmitReview": {
+                "status": "completed",
+                "summary": "Attach the fetch transcript next time.",
+                "findings": [],
+                "dispositions": [],
+            }
+        }
+    )
+    assert screened["summary"] == marker
+    assert judge._screened_manifest_review({}) is None
+    with pytest.raises(ValueError, match="preSubmitReview is invalid"):
+        judge._screened_manifest_review({"preSubmitReview": ["not-a-dict"]})
+
+
+def test_screen_engines_fold_ascii_only() -> None:
+    # Python IGNORECASE is Unicode-aware; JavaScript's bare "i" flag is
+    # not. The screen compiles ASCII so the engines agree: a long-s
+    # "tranſcript" must NOT match in either engine.
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search("a tranſcript here")
+    assert spawned_cells_to_ts.PRIVATE_SOURCE_RE.search("a TRANSCRIPT here")

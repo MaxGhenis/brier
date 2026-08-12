@@ -18,6 +18,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 try:
+    from private_source_screen import (  # type: ignore
+        screen_pre_submit_review,
+    )
     from run_thesis_analyst import (  # type: ignore
         append_command_artifacts,
         extract_json_payload,
@@ -68,9 +71,13 @@ def load_batch_runs(
                         "sourceContext": cell.get("sourceContext", []),
                         "drivers": cell.get("drivers", []),
                         "reasoning": compact_reasoning(cell.get("reasoning", [])),
+                        # Runner-authored only, and screened: a
+                        # cell-supplied review never reaches the judge
+                        # prompt, and reviewer wording that matches the
+                        # private-source screen is withheld here exactly
+                        # as in every other projection.
                         "preSubmitReview": compact_review(
-                            manifest.get("preSubmitReview")
-                            or cell.get("preSubmitReview")
+                            _screened_manifest_review(manifest)
                         ),
                     }
                 )
@@ -96,6 +103,17 @@ def compact_reasoning(steps: list[dict[str, Any]]) -> list[dict[str, Any]]:
             row["text"] = truncate(str(step.get("text") or ""), 800)
         compact.append(row)
     return compact
+
+
+def _screened_manifest_review(
+    manifest: dict[str, Any],
+) -> dict[str, Any] | None:
+    review = manifest.get("preSubmitReview")
+    if review is None:
+        return None
+    if not isinstance(review, dict):
+        raise ValueError("manifest preSubmitReview is invalid")
+    return screen_pre_submit_review(review)
 
 
 def compact_review(review: dict[str, Any] | None) -> dict[str, Any] | None:

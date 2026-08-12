@@ -83,7 +83,7 @@ import {
 import privateSourceScreen from "../data/private-source-screen.json";
 
 const PRIVATE_SOURCE_PATTERN = new RegExp(
-  privateSourceScreen.pattern,
+  privateSourceScreen.alternations.join("|"),
   privateSourceScreen.flags,
 );
 
@@ -127,12 +127,29 @@ describe("forecast catalog", () => {
     // pattern, so disabling an alternation fails even if its literal
     // remains in the string. Python asserts the same probes at import.
     expect(privateSourceScreen.flags).toBe("i");
-    expect(privateSourceScreen.probes.length).toBeGreaterThanOrEqual(15);
+    expect(privateSourceScreen.probes.length).toBeGreaterThanOrEqual(20);
     for (const probe of privateSourceScreen.probes) {
       expect(
         PRIVATE_SOURCE_PATTERN.test(probe.text),
         `probe ${JSON.stringify(probe.text)} expected match=${probe.match}`,
       ).toBe(probe.match);
+    }
+    // Each alternation must be the SOLE match for at least one probe:
+    // weakening one branch fails even when a broader branch still
+    // matches the probe text (python asserts the same at import).
+    for (const branch of privateSourceScreen.alternations) {
+      const branchRe = new RegExp(branch, privateSourceScreen.flags);
+      const othersRe = new RegExp(
+        privateSourceScreen.alternations.filter((b) => b !== branch).join("|"),
+        privateSourceScreen.flags,
+      );
+      const pinned = privateSourceScreen.probes.some(
+        (probe) =>
+          (probe as { sole?: string }).sole === branch &&
+          branchRe.test(probe.text) &&
+          !othersRe.test(probe.text),
+      );
+      expect(pinned, `no sole-match probe pins ${branch}`).toBe(true);
     }
     expect(privateSourceScreen.marker).not.toMatch(PRIVATE_SOURCE_PATTERN);
     expect(privateSourceScreen.marker.length).toBeGreaterThan(0);

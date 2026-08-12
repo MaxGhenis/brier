@@ -29,7 +29,12 @@ if _FLAGS != "i":
     # anything else means the shared file was edited without review.
     raise RuntimeError(f"private-source screen flags must be 'i', got {_FLAGS!r}")
 
-PRIVATE_SOURCE_RE = re.compile(_SCREEN["pattern"], re.IGNORECASE)
+PRIVATE_SOURCE_ALTERNATIONS: list[str] = _SCREEN["alternations"]
+PRIVATE_SOURCE_PATTERN: str = "|".join(PRIVATE_SOURCE_ALTERNATIONS)
+# ASCII case folding: JavaScript's bare "i" flag does not apply Unicode
+# case folding, so Python must not either (U+017F long s, dotless i, and
+# fullwidth letters would otherwise split the two engines).
+PRIVATE_SOURCE_RE = re.compile(PRIVATE_SOURCE_PATTERN, re.IGNORECASE | re.ASCII)
 PRIVATE_SOURCE_MARKER: str = _SCREEN["marker"]
 PRIVATE_SOURCE_PROBES: list[dict[str, Any]] = _SCREEN["probes"]
 
@@ -40,6 +45,24 @@ for _probe in PRIVATE_SOURCE_PROBES:
         raise RuntimeError(
             "private-source screen probe failed at import: "
             f"{_probe['text']!r} expected match={_probe['match']}"
+        )
+# Every alternation must be the sole match for at least one probe, so a
+# deleted or weakened branch fails even when a broader branch still
+# matches the probe text.
+for _branch in PRIVATE_SOURCE_ALTERNATIONS:
+    _branch_re = re.compile(_branch, re.IGNORECASE | re.ASCII)
+    _others = re.compile(
+        "|".join(b for b in PRIVATE_SOURCE_ALTERNATIONS if b != _branch),
+        re.IGNORECASE | re.ASCII,
+    )
+    if not any(
+        probe.get("sole") == _branch
+        and _branch_re.search(probe["text"])
+        and not _others.search(probe["text"])
+        for probe in PRIVATE_SOURCE_PROBES
+    ):
+        raise RuntimeError(
+            f"no sole-match probe pins the screen branch {_branch!r}"
         )
 
 
