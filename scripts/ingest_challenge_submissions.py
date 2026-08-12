@@ -111,7 +111,7 @@ def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
 
     try:
         text = (repo_root / EXPIRED_REGISTRATIONS_TS).read_text()
-    except OSError as error:
+    except (OSError, UnicodeError) as error:
         raise ChallengeSubmissionError(
             f"cannot read {EXPIRED_REGISTRATIONS_TS}: {error}"
         ) from error
@@ -124,7 +124,12 @@ def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
         raise ChallengeSubmissionError(
             f"could not parse {EXPIRED_REGISTRATIONS_TS} for the expired set"
         )
-    ids = frozenset(re.findall(r'"([^"]+)"', match.group(1)))
+    # Line-anchored: an entry is a line holding exactly one quoted id and
+    # a trailing comma. Quoted text inside // comments must not expire an
+    # id, and a comment-only array must still hit the empty-set error.
+    ids = frozenset(
+        re.findall(r'^\s*"([^"]+)",\s*$', match.group(1), flags=re.M)
+    )
     if not ids:
         raise ChallengeSubmissionError(
             f"parsed an empty expired set from {EXPIRED_REGISTRATIONS_TS}"

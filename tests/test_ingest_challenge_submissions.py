@@ -637,3 +637,45 @@ def test_missing_ratchet_file_fails_closed(
     # the whole ingest aborts loudly rather than admitting rows.
     with pytest.raises(ingest.ChallengeSubmissionError, match="cannot read"):
         run_ingest(fixture)
+
+
+def test_quoted_comments_do_not_expire_ids(
+    submission_repo: dict[str, Any],
+) -> None:
+    ratchet = (
+        submission_repo["repo"] / "site" / "src" / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  // replacement is "agency.fixture.rate.2030_01.first_print"\n'
+        '  "agency.fixture.expired.2029_12.first_print",\n'
+        "] as const;\n"
+    )
+    submission_repo["head"] = commit_all(
+        submission_repo["repo"], "Quoted comment in ratchet"
+    )
+    records = run_ingest(submission_repo)
+    # The commented id is NOT expired; the healthy submission still lands.
+    assert [r["dataPointId"] for r in records] == [
+        "agency.fixture.rate.2030_01.first_print"
+    ]
+
+
+def test_comment_only_ratchet_array_fails_closed(
+    submission_repo: dict[str, Any],
+) -> None:
+    ratchet = (
+        submission_repo["repo"] / "site" / "src" / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  // only prose here, including a quoted "not.an.entry"\n'
+        "] as const;\n"
+    )
+    submission_repo["head"] = commit_all(
+        submission_repo["repo"], "Comment-only ratchet"
+    )
+    with pytest.raises(ingest.ChallengeSubmissionError, match="empty expired set"):
+        run_ingest(submission_repo)
