@@ -1295,6 +1295,39 @@ def test_bea_release_successor_cannot_invent_release_slot_literal() -> None:
     )
 
 
+def test_bea_ita_successor_research_links_cannot_widen_custody_hosts() -> None:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        row
+        for row in docket["series"]
+        if row["series"] == "bea.ita.personal_transfer_payments"
+    )
+    target = {
+        "series": entry["series"],
+        "period": entry["seedPeriod"],
+        "catalogSlug": "us-personal-transfer-payments-q2-2026",
+        "releaseCalendarUrl": entry["releaseCalendarUrl"],
+        "expectedReleaseDate": entry["releaseDates"][entry["seedPeriod"]],
+        **entry["extras"],
+        "previousTarget": {
+            "period": "2026-Q1",
+            "dataPointId": ("bea.ita.personal_transfer_payments.2026_q1.first_print"),
+            "country": "US",
+            "unit": "usd_millions",
+            "resolutionDate": "2026-06-24",
+            "resolutionSourceUrl": entry["extras"]["sourceBinding"]["sourceUrl"],
+            "sourceContext": ["https://fred.stlouisfed.org/series/IAPTPQ"],
+        },
+    }
+
+    contract = register_targets.build_contract(target, dt.date(2026, 8, 12))
+
+    assert contract["sourceBinding"]["allowedHosts"] == [
+        "apps.bea.gov",
+        "www.bea.gov",
+    ]
+
+
 def test_inherited_native_binding_keeps_canonical_id_and_official_window() -> None:
     previous = {
         "period": "2026-07",

@@ -1,11 +1,11 @@
 {
   "comment": "Canonical series catalog. One row per (concept, geography level/id/vintage, entity) identity. UUID authority is the append-only ledger/series_uuid_registry.jsonl (digest below): a uuid is minted once, inherited from the registry on every regeneration, and changes only through explicit, chained supersede/retire/revive/succeeds events recorded there (live bindings and rows stay in bijection). Consumers reference series by uuid or concept only. Regenerate with scripts/build_series_catalog.py; verify with --check. Aliases are curated identity statements (plus observed spellings of the same identity) and inherit only within one (geography, entity) slice; aliases listed in ambiguous_aliases match multiple rows and never drive inheritance. source_concepts are publisher labels — provenance, never identity. Cross-spelling and cross-vintage merges are manual curation: delete the absorbed row, alias its concept on the survivor, regenerate with --allow-remint.",
   "generator_version": 3,
-  "observations_sha256": "893b06cf310d7075ed62ad1a964c3cfa025b1049415446f2c76428d77c2bbe5c",
-  "observation_rows": 182,
-  "current_assertion_rows": 182,
-  "docket_seed_sha256": "f86ca19d9b7ff1f44cdfa026ae506452f32033342691e0dda35dca0b353392cc",
-  "uuid_registry_sha256": "488aed798f7bcbb053e774e0e8192397d8fee7b367e6fb5fbdc00613f64f9c64",
+  "observations_sha256": "ee4b3cadfed4c9d2e968d03eb0aa13294895d5775d87ef4b966ff0a4ef01224c",
+  "observation_rows": 189,
+  "current_assertion_rows": 189,
+  "docket_seed_sha256": "617ec7ac48e3f044a5495ce879dcdc556bfe31337c73576cbf417a81e75955bc",
+  "uuid_registry_sha256": "ba44d73118c235ad7c990d7f1b4a996fcf51dd7cb231c783b9a59e605acf9a60",
   "suspect_segments": [],
   "stripped_segments": {
     "2026-05": [
@@ -56,6 +56,11 @@
       "boe.bank_rate"
     ],
     "2026_07": [
+      "bls.cpi.owners_equivalent_rent_mom",
+      "bls.cpi.rent_primary_residence_mom",
+      "bls.cpi.services_less_energy_mom",
+      "bls.cpi.services_less_rent_shelter_mom",
+      "bls.cpi.shelter_mom",
       "bls.cps.u6_underemployment_rate"
     ],
     "2026_q2": [
@@ -102,6 +107,8 @@
       "fns.snap.total_payment_error_rate"
     ],
     "july_2026": [
+      "bls.cpi.u.core_mom",
+      "bls.cpi.u.headline_mom",
       "bls.cps.unemployment_rate"
     ],
     "june_2026": [
@@ -666,6 +673,29 @@
       "observation_count": 1
     },
     {
+      "uuid": "47d53b27-f420-4fa2-9d29-3c8832474cb8",
+      "concept": "bea.ita.personal_transfer_payments",
+      "family_patterns": [
+        "bea.ita.personal_transfer_payments"
+      ],
+      "status": "docket-only",
+      "unit": "usd_millions",
+      "cadence": "quarter",
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "name": "United States"
+      },
+      "entity": null,
+      "sources": [],
+      "aliases": [],
+      "source_concepts": [],
+      "rid_patterns": [],
+      "first_observed_period": null,
+      "last_observed_period": null,
+      "observation_count": 0
+    },
+    {
       "uuid": "174240ec-f8ff-417a-bf1c-bdf088268a7c",
       "concept": "bea.pce.core_mom",
       "family_patterns": [
@@ -1136,96 +1166,176 @@
       "uuid": "d0dc87fb-fd6d-4234-832a-869d5b2d8f3d",
       "concept": "bls.cpi.owners_equivalent_rent_mom",
       "family_patterns": [
-        "bls.cpi.owners_equivalent_rent_mom"
+        "bls.cpi.owners_equivalent_rent_mom.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent_growth",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "bls_cpi"
+      ],
+      "aliases": [
+        "bls.cpi.owners_equivalent_rent_mom.2026_07"
+      ],
+      "source_concepts": [
+        "CUSR0000SEHC"
+      ],
+      "rid_patterns": [
+        "bls.cpi.owners_equivalent_rent_mom.{P}.first_print"
+      ],
+      "first_observed_period": "2026-07",
+      "last_observed_period": "2026-07",
+      "observation_count": 1
     },
     {
       "uuid": "615ac1b1-27e8-437d-bf69-86d760488dc0",
       "concept": "bls.cpi.rent_primary_residence_mom",
       "family_patterns": [
-        "bls.cpi.rent_primary_residence_mom"
+        "bls.cpi.rent_primary_residence_mom.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent_growth",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "bls_cpi"
+      ],
+      "aliases": [
+        "bls.cpi.rent_primary_residence_mom.2026_07"
+      ],
+      "source_concepts": [
+        "CUSR0000SEHA"
+      ],
+      "rid_patterns": [
+        "bls.cpi.rent_primary_residence_mom.{P}.first_print"
+      ],
+      "first_observed_period": "2026-07",
+      "last_observed_period": "2026-07",
+      "observation_count": 1
     },
     {
       "uuid": "3bab6696-88c0-44c8-988c-737d2d00c37c",
       "concept": "bls.cpi.services_less_energy_mom",
       "family_patterns": [
-        "bls.cpi.services_less_energy_mom"
+        "bls.cpi.services_less_energy_mom.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent_growth",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "bls_cpi"
+      ],
+      "aliases": [
+        "bls.cpi.services_less_energy_mom.2026_07"
+      ],
+      "source_concepts": [
+        "CUSR0000SASLE"
+      ],
+      "rid_patterns": [
+        "bls.cpi.services_less_energy_mom.{P}.first_print"
+      ],
+      "first_observed_period": "2026-07",
+      "last_observed_period": "2026-07",
+      "observation_count": 1
     },
     {
       "uuid": "975e942b-d456-480d-859f-a9ffaffcfe34",
       "concept": "bls.cpi.services_less_rent_shelter_mom",
       "family_patterns": [
-        "bls.cpi.services_less_rent_shelter_mom"
+        "bls.cpi.services_less_rent_shelter_mom.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent_growth",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "bls_cpi"
+      ],
+      "aliases": [
+        "bls.cpi.services_less_rent_shelter_mom.2026_07"
+      ],
+      "source_concepts": [
+        "CUSR0000SASL2RS"
+      ],
+      "rid_patterns": [
+        "bls.cpi.services_less_rent_shelter_mom.{P}.first_print"
+      ],
+      "first_observed_period": "2026-07",
+      "last_observed_period": "2026-07",
+      "observation_count": 1
     },
     {
       "uuid": "4c5b4292-0bcf-4c42-9fc5-39d22e791f75",
       "concept": "bls.cpi.shelter_mom",
       "family_patterns": [
-        "bls.cpi.shelter_mom"
+        "bls.cpi.shelter_mom.{P}"
       ],
-      "status": "docket-only",
+      "status": "observed",
       "unit": "percent_growth",
       "cadence": "month",
-      "geography": null,
-      "entity": null,
-      "sources": [],
-      "aliases": [],
-      "source_concepts": [],
-      "rid_patterns": [],
-      "first_observed_period": null,
-      "last_observed_period": null,
-      "observation_count": 0
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "vintage": "current",
+        "name": "United States"
+      },
+      "entity": {
+        "name": "economy",
+        "role": "aggregate"
+      },
+      "sources": [
+        "bls_cpi"
+      ],
+      "aliases": [
+        "bls.cpi.shelter_mom.2026_07"
+      ],
+      "source_concepts": [
+        "CUSR0000SAH1"
+      ],
+      "rid_patterns": [
+        "bls.cpi.shelter_mom.{P}.first_print"
+      ],
+      "first_observed_period": "2026-07",
+      "last_observed_period": "2026-07",
+      "observation_count": 1
     },
     {
       "uuid": "e5e402d5-1a65-4c5d-a67a-07e3cf03cbf8",
@@ -1250,6 +1360,7 @@
         "bls_cpi"
       ],
       "aliases": [
+        "bls.cpi.u.core_mom.july_2026",
         "bls.cpi.u.core_mom.june_2026"
       ],
       "source_concepts": [
@@ -1259,8 +1370,8 @@
         "bls.cpi.u.core_mom.{P}.first_print"
       ],
       "first_observed_period": "2026-06",
-      "last_observed_period": "2026-06",
-      "observation_count": 1
+      "last_observed_period": "2026-07",
+      "observation_count": 2
     },
     {
       "uuid": "d85c3c7f-874b-4caa-bfad-1ec7a473c293",
@@ -1320,6 +1431,7 @@
         "bls_cpi"
       ],
       "aliases": [
+        "bls.cpi.u.headline_mom.july_2026",
         "bls.cpi.u.headline_mom.june_2026"
       ],
       "source_concepts": [
@@ -1329,8 +1441,8 @@
         "bls.cpi.u.headline_mom.{P}.first_print"
       ],
       "first_observed_period": "2026-06",
-      "last_observed_period": "2026-06",
-      "observation_count": 1
+      "last_observed_period": "2026-07",
+      "observation_count": 2
     },
     {
       "uuid": "3e796803-a194-4c83-9dc9-27cc870ff08e",
@@ -2091,6 +2203,29 @@
       "first_observed_period": "2026-04",
       "last_observed_period": "2026-04",
       "observation_count": 1
+    },
+    {
+      "uuid": "c6c98b8b-55f6-4543-b057-96726c38a2bf",
+      "concept": "bls.qcew.child_day_care_services.annual_avg_employment",
+      "family_patterns": [
+        "bls.qcew.child_day_care_services.annual_avg_employment"
+      ],
+      "status": "docket-only",
+      "unit": "count",
+      "cadence": "year",
+      "geography": {
+        "level": "country",
+        "id": "0100000US",
+        "name": "United States"
+      },
+      "entity": null,
+      "sources": [],
+      "aliases": [],
+      "source_concepts": [],
+      "rid_patterns": [],
+      "first_observed_period": null,
+      "last_observed_period": null,
+      "observation_count": 0
     },
     {
       "uuid": "2e3a7126-41fd-4d88-99b6-cf4f2057c277",

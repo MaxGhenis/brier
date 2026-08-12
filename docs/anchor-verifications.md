@@ -161,6 +161,37 @@ The official BEA schedule was re-fetched the same session and still lists
 `GDP (Advance Estimate), 3rd Quarter 2026` for 2026-10-29 at 8:30 AM ET, so
 the quarterly seed uses the default `release-calendar` basis.
 
+## BEA ITA personal-transfer payments
+
+Status: **VERIFIED CURRENT PRINT** (integrator, 2026-08-12 UTC), not a
+retrospective first-print-custody claim. A fresh exact POST to BEA's
+[International Transactions Table 5.1 iTable](https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1)
+used application 62, product 1, table-list 62, the prompt-catalog key that
+mapped to 2026, quarterly seasonally adjusted selector 1, and line selector
+18. The canonical 123-byte selected request had SHA-256
+`752aff73c31aec17c829529964998148d805d2b060f48513ea9afbf7c290f3d9`;
+the 16,089-byte response had SHA-256
+`d482e10713b19c01824882b6e6f7ee01d06619222d35b27cb6f97fa95fdf0f35`
+and printed `18,511` million dollars for 2026 Q1 at line 18, `Personal
+transfers`. The exact response is the decoded content of
+`tests/fixtures/ingestion_wave1/bea/ita-table-5-1-2026-q1-qsa.json.base64`.
+The separately archived unfiltered prompt catalog is 84,950 bytes with
+SHA-256
+`9da6f369b0182f85102a9f5b83518ba0e0afaf6065f698f9cb69a5e319156b36`.
+A live Product 5 replay returned byte-identical response bytes, so Product 1
+is outbound-request custody only; the response does not authenticate it.
+
+BEA's [2026 Q1 ITA/IIP release
+notice](https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-1st-quarter-2026-and-annual-update)
+authenticates the June 24, 2026 release date, title, and release family. Since
+the fixture was fetched later, it proves the table identity and parser path
+but not the bytes served on June 24. The adapter therefore admits the value
+only as a historical validation anchor and will capture future tables solely
+on the registered release day. BEA's [official release
+schedule](https://www.bea.gov/news/schedule) lists `U.S. International
+Transactions and Investment Position, 2nd Quarter 2026` for September 24,
+2026 at 8:30 AM, which supplies the Q2 seed's release-calendar date.
+
 ---
 
 # USAspending FY2026 query anchors

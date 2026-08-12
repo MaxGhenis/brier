@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import pathlib
 import re
+import urllib.error
 import urllib.request
 from typing import Any
 
@@ -540,7 +542,14 @@ def _docket_file(tmp_path: pathlib.Path, entries: list[dict[str, Any]]):
 
 
 def test_docket_is_contained_in_frozen_catalog_fixture() -> None:
-    _assert_containment(_load(FIXTURE_PATH, "frozen catalog fixture"), "fixture")
+    raw = FIXTURE_PATH.read_bytes()
+    # Copied byte-for-byte from Chronicle #161's deterministically regenerated
+    # post-rebase catalog.
+    assert len(raw) == 190_138
+    assert hashlib.sha256(raw).hexdigest() == (
+        "61ae1adee156606a4d25c87b671b9f01947e5d6feeda9b74067680e448913e10"
+    )
+    _assert_containment(_object(raw, "frozen catalog fixture"), "fixture")
 
 
 def test_containment_rejects_unrelated_catalog_reference(
@@ -671,15 +680,41 @@ def test_containment_rejects_stale_uuid(tmp_path: pathlib.Path) -> None:
         )
 
 
+def _authoritative_chronicle_catalog(pin: dict[str, Any]) -> dict[str, Any]:
+    repo = pin.get("repo")
+    branch = pin.get("branch")
+    assert type(repo) is str and repo, "committed ledger pin repo is invalid"
+    assert type(branch) is str and branch, "committed ledger pin branch is invalid"
+    url = (
+        f"https://raw.githubusercontent.com/{repo}/refs/heads/{branch}/"
+        f"{CATALOG_PATH}"
+    )
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "thesis-containment-test"}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            raw = response.read()
+    except (OSError, urllib.error.URLError) as exc:
+        pytest.fail(
+            "authoritative Chronicle catalog fetch must succeed in CI: "
+            f"{url}: {exc}"
+        )
+    return _object(raw, "authoritative Chronicle catalog")
+
+
 def test_docket_is_contained_in_pinned_catalog() -> None:
     pin = _load(PIN_PATH, "committed ledger pin")
     catalog_pin_keys = {"catalogSha256", "catalogBytes"} & set(pin)
     if not catalog_pin_keys:
-        pytest.skip(
-            "PINNED CATALOG NOT YET AVAILABLE: committed ledger pin "
-            f"{pin.get('sha')} predates the catalog-bearing SHA; the trusted "
-            "pin workflow must advance it with --require-catalog"
+        # The legacy immutable pin predates Chronicle's catalog. The frozen
+        # fixture test remains the ordinary offline gate; the independent
+        # Actions-only test below enforces Chronicle-first merge order.
+        _assert_containment(
+            _load(FIXTURE_PATH, "frozen catalog fixture"),
+            "frozen catalog fixture",
         )
+        return
     assert catalog_pin_keys == {"catalogSha256", "catalogBytes"}, (
         "committed pin must carry catalogSha256 and catalogBytes together"
     )
@@ -704,6 +739,57 @@ def test_docket_is_contained_in_pinned_catalog() -> None:
         "pinned catalog SHA-256 does not match ledger-pin.json"
     )
     _assert_containment(_object(raw, "pinned catalog"), "pinned catalog")
+
+
+def test_docket_is_contained_in_authoritative_chronicle_catalog_in_actions() -> None:
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        return
+    pin = _load(PIN_PATH, "committed ledger pin")
+    _assert_containment(
+        _authoritative_chronicle_catalog(pin),
+        "authoritative Chronicle catalog",
+    )
+
+
+def test_authoritative_chronicle_catalog_fetch_uses_committed_ref(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep the live gate independently testable from the legacy pin test."""
+
+    pin = _load(PIN_PATH, "committed ledger pin")
+    assert not ({"catalogSha256", "catalogBytes"} & set(pin)), (
+        "remove this legacy-pin regression once the committed pin carries "
+        "catalog metadata"
+    )
+    authoritative = FIXTURE_PATH.read_bytes()
+    seen: list[str] = []
+
+    class _Response:
+        def __enter__(self) -> _Response:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return authoritative
+
+    def fake_urlopen(request: urllib.request.Request, timeout: int) -> _Response:
+        seen.append(request.full_url)
+        assert timeout == 120
+        return _Response()
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+    _assert_containment(
+        _authoritative_chronicle_catalog(pin),
+        "authoritative Chronicle catalog",
+    )
+
+    assert seen == [
+        "https://raw.githubusercontent.com/PolicyEngine/chronicle/refs/heads/"
+        "codex/thesis-ledger-facts/ledger/series_catalog.json"
+    ]
 
 
 def test_containment_rejects_wrong_sibling_pin(tmp_path: pathlib.Path) -> None:
