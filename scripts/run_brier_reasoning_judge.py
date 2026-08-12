@@ -113,6 +113,18 @@ def _screened_manifest_review(
         return None
     if not isinstance(review, dict):
         raise ValueError("manifest preSubmitReview is invalid")
+    # The judge prompt retains specific fields; enforce their types so a
+    # malformed manifest cannot smuggle content through an unexpected
+    # shape (e.g. a dict where a summary string belongs).
+    if "summary" in review and not isinstance(review["summary"], str):
+        raise ValueError("manifest preSubmitReview.summary must be a string")
+    if "status" in review and not isinstance(review["status"], str):
+        raise ValueError("manifest preSubmitReview.status must be a string")
+    for field in ("findings", "dispositions"):
+        if field in review and not isinstance(review[field], list):
+            raise ValueError(
+                f"manifest preSubmitReview.{field} must be a list"
+            )
     return screen_pre_submit_review(review)
 
 

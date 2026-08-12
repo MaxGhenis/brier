@@ -127,7 +127,22 @@ describe("forecast catalog", () => {
     // pattern, so disabling an alternation fails even if its literal
     // remains in the string. Python asserts the same probes at import.
     expect(privateSourceScreen.flags).toBe("i");
-    expect(privateSourceScreen.probes.length).toBeGreaterThanOrEqual(20);
+    // The inventory is pinned HERE, outside the mutable JSON (python pins
+    // the same literals at import): deleting a branch with its sole probe
+    // now requires editing reviewed code in both engines.
+    expect(privateSourceScreen.alternations).toEqual([
+      "granola",
+      "\\btranscripts?\\b",
+      "meeting notes?",
+      "meeting with max",
+      "pasted-text",
+      "\\.codex/attachments",
+      "codex attachments",
+      "private meeting",
+      "call notes?",
+      "email thread",
+    ]);
+    expect(privateSourceScreen.probes.length).toBe(21);
     for (const probe of privateSourceScreen.probes) {
       expect(
         PRIVATE_SOURCE_PATTERN.test(probe.text),

@@ -29,7 +29,29 @@ if _FLAGS != "i":
     # anything else means the shared file was edited without review.
     raise RuntimeError(f"private-source screen flags must be 'i', got {_FLAGS!r}")
 
+# The expected inventory is pinned HERE, outside the mutable JSON (the
+# site test pins the same literals): deleting a branch together with its
+# sole probe now requires editing reviewed code in both engines, not one
+# data file.
+_EXPECTED_ALTERNATIONS = (
+    "granola",
+    "\\btranscripts?\\b",
+    "meeting notes?",
+    "meeting with max",
+    "pasted-text",
+    "\\.codex/attachments",
+    "codex attachments",
+    "private meeting",
+    "call notes?",
+    "email thread",
+)
+_EXPECTED_PROBE_COUNT = 21
+
 PRIVATE_SOURCE_ALTERNATIONS: list[str] = _SCREEN["alternations"]
+if tuple(PRIVATE_SOURCE_ALTERNATIONS) != _EXPECTED_ALTERNATIONS:
+    raise RuntimeError(
+        "private-source screen alternations diverge from the pinned inventory"
+    )
 PRIVATE_SOURCE_PATTERN: str = "|".join(PRIVATE_SOURCE_ALTERNATIONS)
 # ASCII case folding: JavaScript's bare "i" flag does not apply Unicode
 # case folding, so Python must not either (U+017F long s, dotless i, and
@@ -37,6 +59,11 @@ PRIVATE_SOURCE_PATTERN: str = "|".join(PRIVATE_SOURCE_ALTERNATIONS)
 PRIVATE_SOURCE_RE = re.compile(PRIVATE_SOURCE_PATTERN, re.IGNORECASE | re.ASCII)
 PRIVATE_SOURCE_MARKER: str = _SCREEN["marker"]
 PRIVATE_SOURCE_PROBES: list[dict[str, Any]] = _SCREEN["probes"]
+if len(PRIVATE_SOURCE_PROBES) != _EXPECTED_PROBE_COUNT:
+    raise RuntimeError(
+        f"private-source screen must carry exactly {_EXPECTED_PROBE_COUNT} "
+        f"probes, found {len(PRIVATE_SOURCE_PROBES)}"
+    )
 
 if PRIVATE_SOURCE_RE.search(PRIVATE_SOURCE_MARKER):
     raise RuntimeError("the private-source marker must not match its own screen")
@@ -85,6 +112,14 @@ def screen_pre_submit_review(review: dict) -> dict:
         if isinstance(value, list):
             return [clean(item) for item in value]
         if isinstance(value, dict):
+            # A matching KEY is not screenable in place (replacing keys
+            # invites collisions), and well-typed review metadata never
+            # carries content-bearing keys - withhold the whole node.
+            if any(
+                isinstance(key, str) and PRIVATE_SOURCE_RE.search(key)
+                for key in value
+            ):
+                return PRIVATE_SOURCE_MARKER
             return {key: clean(item) for key, item in value.items()}
         return value
 

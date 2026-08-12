@@ -821,3 +821,94 @@ def test_screen_engines_fold_ascii_only() -> None:
     # "tranſcript" must NOT match in either engine.
     assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search("a tranſcript here")
     assert spawned_cells_to_ts.PRIVATE_SOURCE_RE.search("a TRANSCRIPT here")
+
+
+def test_judge_loader_screens_review_end_to_end(tmp_path: pathlib.Path) -> None:
+    # Round-four screen review: the earlier regression tested only the
+    # helper; a leaky loader stayed green. This drives load_batch_runs
+    # over a real batch/manifest/cells fixture whose manifest review
+    # hides a screened token inside a dict KEY.
+    import json
+
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+    try:
+        import run_brier_reasoning_judge as judge
+    finally:
+        sys.path.pop(0)
+    cells_path = tmp_path / "cells.json"
+    cells_path.write_text(
+        json.dumps(
+            [
+                {
+                    "runAt": "2026-08-12T00:00:00Z",
+                    "slug": "fixture-cell",
+                    "title": "t",
+                    "question": "q",
+                    "unit": "percent",
+                    "pointEstimate": 1.0,
+                    "ciLow": 0.5,
+                    "ciHigh": 1.5,
+                    "resolutionDate": "2026-12-31",
+                    "resolutionRule": "r",
+                    "sourceContext": [],
+                    "drivers": [],
+                    "reasoning": [],
+                    # Agent-planted: must never reach the judge prompt.
+                    "preSubmitReview": {"summary": "planted Granola export"},
+                }
+            ]
+        )
+    )
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "cellsPath": str(cells_path),
+                "preSubmitReview": {
+                    "status": "completed",
+                    "summary": "Fine run.",
+                    "findings": [
+                        {
+                            "findingId": "review.finding.1",
+                            "severity": "info",
+                            "rubricItem": "review",
+                            # Screened reviewer wording in a retained field.
+                            "summary": "Consider attaching the fetch transcript.",
+                        }
+                    ],
+                    "dispositions": [],
+                },
+            }
+        )
+    )
+    batch_path = tmp_path / "batch.json"
+    batch_path.write_text(
+        json.dumps(
+            {
+                "results": [
+                    {"ok": True, "manifestPath": str(manifest_path), "target": {}}
+                ]
+            }
+        )
+    )
+    runs = judge.load_batch_runs([batch_path], max_runs=5)
+    assert len(runs) == 1
+    blob = json.dumps(runs, ensure_ascii=False)
+    marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
+    assert marker in blob
+    assert "planted" not in blob
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(
+        blob.replace(marker, "")
+    )
+    # A malformed dict where the summary string belongs refuses with a
+    # typed error instead of smuggling content past compaction.
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "cellsPath": str(cells_path),
+                "preSubmitReview": {"summary": {"fetch transcript": "secret"}},
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="summary must be a string"):
+        judge.load_batch_runs([batch_path], max_runs=5)
