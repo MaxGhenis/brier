@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-12T16:04:50Z",
+  "runStartedAt": "2026-08-12T16:04:50Z",
+  "sealedAt": "2026-08-12T16:06:38Z",
+  "series": "ons.ppi.output_manufactured_products_index",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "uk-ppi-output-manufactured-products-index-july-2026",
+    "country": "UK",
+    "dataPointId": "ons.ppi.output_manufactured_products_index.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-19",
+    "expectedReleaseWindow": {
+      "end": "2026-08-19",
+      "start": "2026-08-19"
+    },
+    "period": "2026-07",
+    "registeredAt": "2026-08-12T16:02:57Z",
+    "registeredAtUtc": "2026-08-12T16:02:57Z",
+    "registrationCommit": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/gd6y/ppi",
+    "series": "ons.ppi.output_manufactured_products_index",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-19",
+        "start": "2026-08-19"
+      },
+      "field": "Value for 2026 JUL",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "GD6Y",
+      "sourceUrl": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/gd6y/ppi",
+      "table": "Producer price inflation time series (PPI), PPI INDEX OUTPUT TOTAL - C Manufactured products, excluding Duty 2015=100",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "Value for 2026 JUL",
+    "sourceSeriesId": "GD6Y",
+    "sourceTable": "Producer price inflation time series (PPI), PPI INDEX OUTPUT TOTAL - C Manufactured products, excluding Duty 2015=100",
+    "targetContentHash": "59fe84d9767a7e8726e3fd651f20fb8df77596f93a26306d99f1bb5327e40946",
+    "targetRegistrationPath": "records/targets/2026-08-12-59fe84d9767a7e8726e3fd651f20fb8df77596f93a26306d99f1bb5327e40946.json",
+    "targetUnit": "index_points",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+  "targetContentHash": "59fe84d9767a7e8726e3fd651f20fb8df77596f93a26306d99f1bb5327e40946",
+  "targetRegistrationPath": "records/targets/2026-08-12-59fe84d9767a7e8726e3fd651f20fb8df77596f93a26306d99f1bb5327e40946.json",
+  "registeredAtUtc": "2026-08-12T16:02:57Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-12T16:04:50Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "bcbcb2e9bf788d869e68c7ecde06158b83ef49f6aa071b4a060cbc037c8785ce"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify the metadata phrase \u201clatest dataset file is the July 2026 vintage\u201d to \u201c22 July 2026 vintage containing June 2026 data\u201d to avoid any appearance of target-month leakage."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If space permits, state whether the 2024 JAN to 2026 JUN volatility sample excludes the target month by construction."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestion to clarify that the 22 July 2026 dataset vintage contains June 2026 data, not target-month leakage, and added that the volatility sample excludes the target month. I also tightened the resolver language to first-print only.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestion to clarify that the 22 July 2026 dataset vintage contains June 2026 data, not target-month leakage, and added that the volatility sample excludes the target month. I also tightened the resolver language to first-print only.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready; resolver, prior/update logic, interval construction, tails, and JSON fields are coherent with the ledger target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/prompt.md",
+      "sha256": "61a9c7ee8028104b7127163c3d95281fec3d85d4c7809fe63cb3d691ea7e8530",
+      "bytes": 9182,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_command.json",
+      "sha256": "a08611c601f9180c4e5ac204a84370a01857dfa11c3b1c1c74f3bad0c782b4b8",
+      "bytes": 772,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "e5501a3eee2c88441e8278aca45dc72f905e4dbe05eccb321f98f31c32da8f05",
+      "bytes": 13259,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_codex_stderr.log",
+      "sha256": "96f1b4e3a86c3c5588baa92e3ec3a77d81c60d006d871ee405a4852bc545ebab",
+      "bytes": 233,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_codex_events.jsonl",
+      "sha256": "3e91ab96ea9c9b9aa489f7d55371985b73636161153f20dab462471ad6741493",
+      "bytes": 13339,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_codex_last_message.txt",
+      "sha256": "089ac73c691bac9144bfee7e0506d9626fb92842ec3cc9a931195f947e652113",
+      "bytes": 5818,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_codex_trace.json",
+      "sha256": "496e6af70179c1bfa61043b67bf050f897718dbb1524d9eeee618d61e443f178",
+      "bytes": 559,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_stdout.txt",
+      "sha256": "089ac73c691bac9144bfee7e0506d9626fb92842ec3cc9a931195f947e652113",
+      "bytes": 5818,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/draft_stderr.txt",
+      "sha256": "fac4414b24cfd00123904da82ddafde1577dadff6efcc2130283bce65b0cb0ce",
+      "bytes": 248,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_prompt.md",
+      "sha256": "4ca945b46f8116e836e8e8a2603cc8de11807665c740e22725a3b7fb7045492e",
+      "bytes": 9272,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_command.json",
+      "sha256": "001f6bac04d3fa09cf26b5322be914a1754ff62394afe3866b8c9a99fbef4848",
+      "bytes": 768,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9ac45c9d72185eaf2fc91f58a4f56cad9226c5f51258f89fd2d2d33cff803906",
+      "bytes": 833,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "fbc1d6c12d3b76adefabbe288009174aa07a62b1433781354806ed6c406c1c42",
+      "bytes": 233,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "315389516b7c0e00ddadf24e7d003d7419e0afcb6aebfcc777406dcd10a53e30",
+      "bytes": 867,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "dd0f99995ee615437dd46fe8f87cd90e6b9792ef3c6450763d87d61519690e91",
+      "bytes": 507,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "55b4d608afaa7bc06677f025f8b46b96f76e99de781febe57871274cd7e42ec6",
+      "bytes": 552,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "dd0f99995ee615437dd46fe8f87cd90e6b9792ef3c6450763d87d61519690e91",
+      "bytes": 507,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "b0dfbae3541601d92c45e90d6971173de3aa7a456108cfe525d8564be2494666",
+      "bytes": 248,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/revision_prompt.md",
+      "sha256": "f8bdd41d7b78f92d0725ab3afa0f520673a6838ac4cacbca7b084dd26326e7c7",
+      "bytes": 16443,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/command.json",
+      "sha256": "eacf7b6b623f7169627318b562c5602f281edf52194a59963a88888c778198e9",
+      "bytes": 766,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/codex_stdout.jsonl",
+      "sha256": "b86d52117c8ec48725fdac6ec0ae791a8bf2539b4b5735196f6d8d5d962dcb49",
+      "bytes": 6622,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/codex_stderr.log",
+      "sha256": "0141911a1a8799606f29ad1504f4ac9d89d560778aa7fbc57036a268d5ee22f8",
+      "bytes": 233,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/codex_events.jsonl",
+      "sha256": "4a42f2d208ce7d1d7b1ee694907d66e2f42c75c3ca3c11eaf6f831beb32f4909",
+      "bytes": 6644,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/codex_last_message.txt",
+      "sha256": "71edd87f6e0d7958a284df44213c39af4b01cb1e9df390695b1959580df4e198",
+      "bytes": 6072,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/codex_trace.json",
+      "sha256": "d14de45bec38152849a986d431b885d6e47aa08952339101a617d127eb4cf51c",
+      "bytes": 555,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/stdout.txt",
+      "sha256": "71edd87f6e0d7958a284df44213c39af4b01cb1e9df390695b1959580df4e198",
+      "bytes": 6072,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/stderr.txt",
+      "sha256": "ab48fdf458cedc67606526a439a6fc999458c8203a58d0567857835c0e453c63",
+      "bytes": 248,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/raw_response.txt",
+      "sha256": "71edd87f6e0d7958a284df44213c39af4b01cb1e9df390695b1959580df4e198",
+      "bytes": 6072,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/parsed_cells.json",
+      "sha256": "ba669ee35b46f45cbecd380edb681f829d1c02a3b3899de116e623f9caf3592f",
+      "bytes": 6921,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/normalized_cells.json",
+      "sha256": "9e862b1659396fd6df599a8c3fae65d6b279934532f9a4f1dad1e07cbb2ed903",
+      "bytes": 24615,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/distribution.json",
+      "sha256": "babcaa7889865f212e71cba09071da8541b787fdbf5d9068416d7fa98f663ffc",
+      "bytes": 13910,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/validation.json",
+      "sha256": "a7df339ea9b40c726af39816af5c9e715e2709fdcd6e307b99d5e882752e9d2d",
+      "bytes": 152,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/cells.with_activity.json",
+      "sha256": "088f29c75b8b6b460f7ee0a5f96b3869f641a4af1bdcaa49674d365209274c5d",
+      "bytes": 38786,
+      "createdAt": "2026-08-12T16:04:50Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t16-04-50z-ons-ppi-output-manufactured-products-index-2026-07/manifest.json",
+      "sha256": "48ff5a60f7683aad9cf085070ed212f123eed2cac3f2860e2ae8fc4e34bd283b",
+      "bytes": 15088,
+      "createdAt": "2026-08-12T16:04:50Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-ppi-output-manufactured-products-index-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "1063640b5acfa3c9e2e601737b5395a1431ec540",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "da0a85ac62b97d4e4af2b03a26ee9d59a91d32cb4edb5396a0d3ed603f7b489b"
+}
