@@ -2296,6 +2296,11 @@ def build_pre_submit_review_metadata(
     suggestions = list((review_payload or {}).get("optionalSuggestions") or [])
     findings: list[dict[str, Any]] = []
     for index, fix in enumerate(fixes):
+        if not isinstance(fix, dict):
+            # Malformed reviewer output (a bare number or string in the
+            # list) is still a finding worth keeping — never a crash
+            # that loses the run record.
+            fix = {"summary": str(fix)}
         findings.append(
             {
                 "findingId": f"review.finding.{index + 1}",
@@ -2539,6 +2544,38 @@ def extract_json_payload(text: str) -> list[dict]:
         ):
             return payload
     raise ValueError("No JSON object or array found in agent output")
+
+
+def _reject_unencodable_numbers(value: Any, path: str = "cell") -> None:
+    """Refuse numbers later stages cannot canonicalize or seal.
+
+    Oversized integers overflow float conversion at seal time and
+    non-finite or near-overflow floats crash custody canonicalization —
+    both AFTER the guarded stages, leaving no run record. Catching them
+    here turns the whole class into ordinary normalize failures.
+    """
+
+    if isinstance(value, bool):
+        return
+    if isinstance(value, int):
+        if abs(value) > 2**53:
+            raise RuntimeError(
+                f"{path} carries an integer outside the exactly "
+                "representable range"
+            )
+    elif isinstance(value, float):
+        if value != value or value in (float("inf"), float("-inf")):
+            raise RuntimeError(f"{path} carries a non-finite number")
+        if abs(value) > 1e300:
+            raise RuntimeError(
+                f"{path} carries a float too large to canonicalize"
+            )
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _reject_unencodable_numbers(item, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _reject_unencodable_numbers(item, f"{path}[{index}]")
 
 
 def normalize_cells(parsed_path: pathlib.Path, normalized_path: pathlib.Path) -> None:
@@ -3473,6 +3510,28 @@ def main() -> int:
         )
         print(json.dumps(manifest, indent=2))
         return 1
+    try:
+        # Before parsed_cells.json becomes a custody artifact: canonical
+        # hashing of JSON artifacts cannot represent oversized or
+        # non-finite numbers, so a later rejection would crash the
+        # failure path itself and leave no record.
+        _reject_unencodable_numbers(parsed_cells, "cell payload")
+    except RuntimeError as exc:
+        manifest = write_failure_manifest(
+            out_dir,
+            run_at,
+            args,
+            runtime_meta,
+            refs,
+            "parse",
+            str(exc),
+            command_result,
+            target_context,
+            checkout_sha=checkout_sha,
+            generation_ticket=generation_ticket,
+        )
+        print(json.dumps(manifest, indent=2))
+        return 1
     parsed_path = out_dir / "parsed_cells.json"
     refs.append(
         write_artifact(
@@ -3527,7 +3586,13 @@ def main() -> int:
             prompt_mode=args.prompt_mode,
             target_context=target_context,
         )
-    except (ValueError, TypeError, KeyError, RuntimeError) as exc:
+    except (
+        ValueError,
+        TypeError,
+        KeyError,
+        RuntimeError,
+        OverflowError,
+    ) as exc:
         # Malformed cell values (a non-numeric pointEstimate, a numeric
         # slug) must still leave a registration-bound failure manifest —
         # the uncaught path left no run record and blocked whole-wave
@@ -3585,7 +3650,13 @@ def main() -> int:
             args.prompt_mode,
             generation_ticket=generation_ticket,
         )
-    except (ValueError, TypeError, KeyError, RuntimeError) as exc:
+    except (
+        ValueError,
+        TypeError,
+        KeyError,
+        RuntimeError,
+        OverflowError,
+    ) as exc:
         # Same guarantee as the normalize and seal guards: a cell that
         # crashes validation (rather than failing it) still leaves a
         # registration-bound failure manifest.

@@ -574,10 +574,27 @@ def _verify_analyst_v2(
             )
         return
 
-    post_parse_failure = (
-        isinstance(manifest.get("error"), dict)
-        and manifest["error"].get("phase") in {"normalize", "seal", "validate"}
+    error_obj = manifest.get("error")
+    declared_phase = (
+        error_obj.get("phase") if isinstance(error_obj, dict) else None
     )
+    presents_as_failed = (
+        manifest.get("ok") is False
+        and manifest.get("validation") is None
+        and manifest.get("cellsPath") is None
+    )
+    if declared_phase in {"parse", "normalize", "seal", "validate"} and not (
+        presents_as_failed
+    ):
+        # A failure phase on a run that otherwise presents as complete
+        # would route it through the lighter failure inventories and let
+        # it read as succeeded downstream. write_failure_manifest always
+        # sets ok:false / validation:null / cellsPath:null; anything else
+        # is a forgery or corruption.
+        raise CustodyError(
+            "failure phase on a run that does not present as failed"
+        )
+    post_parse_failure = declared_phase in {"normalize", "seal", "validate"}
     if post_parse_failure:
         # A run whose agent produced parseable output that failed a later
         # harness stage must still be custody-verifiable: without these
@@ -591,18 +608,32 @@ def _verify_analyst_v2(
             "parsed_cells.json": "parsed_cell",
             "error.json": "error",
         }
-        phase_allowed = {
-            "normalize": set(),
-            "seal": {"normalized_cells.json"},
-            "validate": {"normalized_cells.json", "distribution.json"},
+        # Each phase REQUIRES exactly the artifacts its stage had
+        # written, with their artifact types — pathname-only allowances
+        # let a seal failure omit the normalized cells or relabel them.
+        phase_required = {
+            "normalize": {},
+            "seal": {"normalized_cells.json": "normalized_cell"},
+            "validate": {
+                "normalized_cells.json": "normalized_cell",
+                "distribution.json": "run_distribution",
+            },
         }[phase]
-        _required(entries, base)
+        required = {**base, **phase_required}
+        _required(entries, required)
+        error_artifact = run_dir / "error.json"
+        if not error_artifact.is_file() or json.loads(
+            error_artifact.read_text()
+        ) != manifest["error"]:
+            raise CustodyError(
+                f"{phase}-failure error artifact disagrees with the manifest"
+            )
         forbidden = {
             "cells.with_activity.json",
             "validation.json",
             "normalized_cells.json",
             "distribution.json",
-        } - phase_allowed
+        } - set(phase_required)
         present = {str(entry["path"]) for entry in entries}
         if forbidden & present:
             raise CustodyError(
@@ -610,8 +641,7 @@ def _verify_analyst_v2(
                 "stages"
             )
         allowed = {
-            *base,
-            *phase_allowed,
+            *required,
             *_verify_invocation_stages(run_dir, manifest, entries),
         }
         unexpected = sorted(present - allowed)

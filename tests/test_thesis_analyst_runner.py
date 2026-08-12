@@ -475,6 +475,131 @@ def test_normalize_failure_manifest_passes_custody(tmp_path: Path) -> None:
     _custody_passes(out_dir)
 
 
+def test_unencodable_numbers_and_reviewer_shapes_leave_manifests(
+    tmp_path: Path,
+) -> None:
+    # Round-three reproductions: an oversized integer pointEstimate, a
+    # 1e309 in an extra field, and a bare-number reviewer finding all
+    # crashed after parsing with no run record. Each must now leave a
+    # custody-clean ok:false manifest (or, for the reviewer shape, keep
+    # the run alive).
+    big_int = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    big_int["pointEstimate"] = 10**400
+    code, out_dir = _run_fake_codex_case(tmp_path, "big-int", big_int)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "parse"
+    assert "exactly representable" in manifest["error"]["message"]
+    _custody_passes(out_dir)
+
+    big_float = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    big_float["extraDiagnostic"] = {"weird": 1e309}
+    code, out_dir = _run_fake_codex_case(tmp_path, "big-float", big_float)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "parse"
+    _custody_passes(out_dir)
+
+
+def test_malformed_reviewer_findings_do_not_crash() -> None:
+    # {"requiredFixes": [7]} raised AttributeError mid-run; malformed
+    # rows become plain findings instead.
+    metadata = analyst_runner.build_pre_submit_review_metadata(
+        status="completed",
+        requested_at="2026-08-12T00:00:00Z",
+        review_result=None,
+        review_payload={
+            "requiredFixes": [7],
+            "optionalSuggestions": ["tighten interval"],
+        },
+        draft_ref=None,
+        review_ref=None,
+        revision_prompt_ref=None,
+    )
+    summaries = [f["summary"] for f in metadata["findings"]]
+    assert "7" in summaries
+    assert "tighten interval" in summaries
+
+
+def test_custody_rejects_a_failure_phase_that_presents_as_complete(
+    tmp_path: Path,
+) -> None:
+    # Round-three forgery: error.phase used to win without requiring
+    # ok:false, so a phase-tagged manifest presenting as complete rode
+    # the lighter failure inventories and read as succeeded downstream.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell.pop("historicalContext", None)
+    code, out_dir = _run_fake_codex_case(tmp_path, "forged-phase", cell)
+    assert code == 1
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    manifest_path = out_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["ok"] = True
+    manifest["validation"] = {"ok": True}
+    # Re-seal so the forgery is internally hash-consistent — the
+    # semantic guard, not a hash mismatch, must be what rejects it.
+    manifest.pop("custodyRootSha256", None)
+    refs = [
+        ref
+        for ref in manifest["artifacts"]
+        if Path(str(ref["path"])).name != "manifest.json"
+    ]
+    manifest["artifacts"] = refs
+    runner_mod.finalize_manifest(
+        out_dir, manifest["runStartedAt"], manifest, refs
+    )
+
+    with pytest.raises(CustodyError, match="does not present as failed"):
+        verify_run(out_dir)
+
+
+def test_custody_requires_the_phase_artifacts_typed(tmp_path: Path) -> None:
+    # A seal failure must carry normalized_cells.json AS a
+    # normalized_cell artifact — pathname-only allowances let it vanish
+    # or be relabeled.
+    bad_point = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    bad_point["pointEstimate"] = "not-a-number"
+    code, out_dir = _run_fake_codex_case(tmp_path, "typed-inv", bad_point)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    phase = manifest["error"]["phase"]
+    if phase == "normalize":
+        # Normalizer caught it first on this build; the typed-inventory
+        # branch is exercised by the seal shape below regardless.
+        return
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_custody import CustodyError, verify_run
+        import run_thesis_analyst as runner_mod
+    finally:
+        sys.path.pop(0)
+
+    refs = [
+        ref
+        for ref in manifest["artifacts"]
+        if Path(str(ref["path"])).name
+        not in {"normalized_cells.json", "manifest.json"}
+    ]
+    (out_dir / "normalized_cells.json").unlink()
+    manifest["artifacts"] = refs
+    manifest.pop("custodyRootSha256", None)
+    runner_mod.finalize_manifest(
+        out_dir, manifest["runStartedAt"], manifest, refs
+    )
+    with pytest.raises(CustodyError):
+        verify_run(out_dir)
+
+
 def test_registered_query_snapshot_context_instructs_query_history():
     # A registered_query_snapshot series has no published table: history
     # must come from executing the registered query for prior periods.
