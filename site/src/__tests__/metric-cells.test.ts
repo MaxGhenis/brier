@@ -43,3 +43,14 @@ describe("resolveMetricCell (live metric → cell join)", () => {
     expect(match!.resolutionDate <= "2099-01-01").toBe(true);
   });
 });
+
+describe("conditional arms never satisfy unconditional metric hints", () => {
+  it("excludes type=conditional cells from hint resolution", () => {
+    // The FY27-NDAA pair shares the usaspending.dod.prime_award_obligations
+    // series with OBBBA's unconditional Title II metric; the bill card
+    // must keep resolving to unconditional cells only.
+    const match = resolveMetricCell("usaspending.dod.prime_award_obligations");
+    expect(match).not.toBeNull();
+    expect(match?.slug).not.toContain("ndaa");
+  });
+});
