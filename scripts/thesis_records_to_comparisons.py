@@ -15,7 +15,14 @@ import argparse
 import json
 import pathlib
 import re
+import sys
 from typing import Any
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+try:
+    from private_source_screen import screen_pre_submit_review
+finally:
+    sys.path.pop(0)
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -144,7 +151,15 @@ def comparison_run(
     agent = manifest["agent"]
     prompt_mode = manifest.get("promptMode", "full")
     run_at = cell["runAt"]
-    pre_submit_review = manifest.get("preSubmitReview", cell.get("preSubmitReview"))
+    # Runner-authored only: a cell-supplied preSubmitReview is agent text
+    # wearing reviewer clothes and never attaches. Reviewer wording that
+    # matches the private-source screen is withheld in this public
+    # projection exactly as in the spawned-cell converter.
+    pre_submit_review = manifest.get("preSubmitReview")
+    if pre_submit_review is not None and not isinstance(pre_submit_review, dict):
+        raise ValueError("manifest preSubmitReview is invalid")
+    if isinstance(pre_submit_review, dict):
+        pre_submit_review = screen_pre_submit_review(pre_submit_review)
     reviewed = bool(pre_submit_review)
     label = (
         f"Thesis analyst reviewed {prompt_mode} run"

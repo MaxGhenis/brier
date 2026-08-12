@@ -77,8 +77,15 @@ import {
   type PredictionRecordedLogEntry,
 } from "@/data/thesis-log";
 
-const PRIVATE_SOURCE_PATTERN =
-  /granola|\btranscripts?\b|meeting notes?|meeting with max|pasted-text|\.codex\/attachments|codex attachments|private meeting|call notes?|email thread|chat transcript/i;
+// One source of truth shared with scripts/spawned_cells_to_ts.py, which
+// refuses agent-authored hits and withholds reviewer-authored hits behind
+// the marker; this test is the fail-closed backstop over the whole payload.
+import privateSourceScreen from "../data/private-source-screen.json";
+
+const PRIVATE_SOURCE_PATTERN = new RegExp(
+  privateSourceScreen.alternations.join("|"),
+  privateSourceScreen.flags,
+);
 
 describe("forecast catalog", () => {
   let policyEngineLedger: PolicyEngineLedgerEntry[] = [];
@@ -111,6 +118,56 @@ describe("forecast catalog", () => {
     });
 
     expect(publicCatalogPayload).not.toMatch(PRIVATE_SOURCE_PATTERN);
+  });
+
+  it("pins the private-source screen's behavior and marker", () => {
+    // The pattern lives in a shared data file; a gutted or semantically
+    // weakened pattern must not silently weaken this suite. The probes
+    // are behavioral: each must match (or not) against the COMPILED
+    // pattern, so disabling an alternation fails even if its literal
+    // remains in the string. Python asserts the same probes at import.
+    expect(privateSourceScreen.flags).toBe("i");
+    // The inventory is pinned HERE, outside the mutable JSON (python pins
+    // the same literals at import): deleting a branch with its sole probe
+    // now requires editing reviewed code in both engines.
+    expect(privateSourceScreen.alternations).toEqual([
+      "granola",
+      "\\btranscripts?\\b",
+      "meeting notes?",
+      "meeting with max",
+      "pasted-text",
+      "\\.codex/attachments",
+      "codex attachments",
+      "private meeting",
+      "call notes?",
+      "email thread",
+    ]);
+    expect(privateSourceScreen.probes.length).toBe(21);
+    for (const probe of privateSourceScreen.probes) {
+      expect(
+        PRIVATE_SOURCE_PATTERN.test(probe.text),
+        `probe ${JSON.stringify(probe.text)} expected match=${probe.match}`,
+      ).toBe(probe.match);
+    }
+    // Each alternation must be the SOLE match for at least one probe:
+    // weakening one branch fails even when a broader branch still
+    // matches the probe text (python asserts the same at import).
+    for (const branch of privateSourceScreen.alternations) {
+      const branchRe = new RegExp(branch, privateSourceScreen.flags);
+      const othersRe = new RegExp(
+        privateSourceScreen.alternations.filter((b) => b !== branch).join("|"),
+        privateSourceScreen.flags,
+      );
+      const pinned = privateSourceScreen.probes.some(
+        (probe) =>
+          (probe as { sole?: string }).sole === branch &&
+          branchRe.test(probe.text) &&
+          !othersRe.test(probe.text),
+      );
+      expect(pinned, `no sole-match probe pins ${branch}`).toBe(true);
+    }
+    expect(privateSourceScreen.marker).not.toMatch(PRIVATE_SOURCE_PATTERN);
+    expect(privateSourceScreen.marker.length).toBeGreaterThan(0);
   });
 
   it("keeps private-source bans in agent prompts and validators", () => {

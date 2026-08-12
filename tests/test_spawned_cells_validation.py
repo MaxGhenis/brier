@@ -9,6 +9,7 @@ on LFS release day survived generate and died in the publish gate).
 
 from __future__ import annotations
 
+import json
 import pathlib
 import sys
 
@@ -680,3 +681,234 @@ def test_sealed_agent_meta_rejects_incomplete_manifest_identity(
     )
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path) is None
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path / "missing") is None
+
+
+def test_reviewer_text_matching_the_screen_is_withheld() -> None:
+    # Run 31613588748: a reviewer suggestion saying "attach the fetch
+    # transcript" reached the public catalog and the private-source
+    # backstop refused the whole publish. Reviewer wording is not
+    # evidence: the projection withholds the matching string behind the
+    # marker while the run record keeps the original.
+    cell = stampable_cell()
+    cell["preSubmitReview"] = {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "summary": "Solid derivation overall.",
+        "findings": [
+            {
+                "findingId": "review.suggestion.1",
+                "severity": "info",
+                "rubricItem": "optional_suggestion",
+                "summary": (
+                    "Consider attaching the underlying fetch transcript "
+                    "or activity artifacts."
+                ),
+            }
+        ],
+        "dispositions": [],
+    }
+    run = spawned_cells_to_ts.to_forecast_cell(cell)["predictionRun"]
+    review = run["preSubmitReview"]
+    marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
+    assert review["findings"][0]["summary"] == marker
+    # Untainted reviewer text passes through verbatim, and structured
+    # fields are untouched.
+    assert review["summary"] == "Solid derivation overall."
+    assert review["findings"][0]["severity"] == "info"
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(
+        json.dumps(review, ensure_ascii=False)
+    )
+    # The screen only rewrites the review projection: the published
+    # reasoning is the agent's verbatim.
+    assert run is not None
+
+
+def test_agent_text_matching_the_screen_still_refuses() -> None:
+    # The withholding path is reviewer-only; the agent citing a private
+    # source remains a validation failure, exactly as before.
+    cell = stampable_cell()
+    cell["reasoning"] = [
+        {"kind": "text", "text": "Cross-checked against a Granola export."}
+    ]
+    hits = spawned_cells_to_ts.private_source_hits(cell)
+    assert hits == ["reasoning"]
+
+
+def test_agent_planted_review_dies_at_the_carrier(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Round-two screen review: an agent-supplied preSubmitReview survived
+    # a no-review run, was excluded from private_source_hits, and was
+    # then masked as if a reviewer wrote it. Review metadata is
+    # runner-authored: only the sealed manifest may attach it.
+    import json
+
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T04:00:00Z"  # pre-custody-enforcement: the
+    # carrier boundary under test is date-independent
+    cell["preSubmitReview"] = {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "summary": "planted: sourced from a Granola export",
+        "findings": [],
+        "dispositions": [],
+    }
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    # No manifest at all: the planted review must not survive loading.
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    assert "preSubmitReview" not in loaded
+    run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
+    assert "preSubmitReview" not in run
+
+
+def test_manifest_review_overrides_any_cell_claim(
+    tmp_path: pathlib.Path,
+) -> None:
+    import json
+
+    manifest = {
+        "preSubmitReview": {
+            "schemaVersion": "thesis_pre_submit_review_v1",
+            "status": "completed",
+            "summary": "Runner-sealed review.",
+            "findings": [],
+            "dispositions": [],
+        }
+    }
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    cell["preSubmitReview"] = {"summary": "planted"}
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    assert loaded["preSubmitReview"]["summary"] == "Runner-sealed review."
+    run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
+    assert run["preSubmitReview"]["summary"] == "Runner-sealed review."
+
+
+def test_brier_judge_review_is_manifest_only_and_screened() -> None:
+    # Round-two screen review: the Brier-judge prompt builder fell back
+    # to cell.preSubmitReview and compacted it unscreened.
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+    try:
+        import run_brier_reasoning_judge as judge
+    finally:
+        sys.path.pop(0)
+    marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
+    screened = judge._screened_manifest_review(
+        {
+            "preSubmitReview": {
+                "status": "completed",
+                "summary": "Attach the fetch transcript next time.",
+                "findings": [],
+                "dispositions": [],
+            }
+        }
+    )
+    assert screened["summary"] == marker
+    assert judge._screened_manifest_review({}) is None
+    with pytest.raises(ValueError, match="preSubmitReview is invalid"):
+        judge._screened_manifest_review({"preSubmitReview": ["not-a-dict"]})
+
+
+def test_screen_engines_fold_ascii_only() -> None:
+    # Python IGNORECASE is Unicode-aware; JavaScript's bare "i" flag is
+    # not. The screen compiles ASCII so the engines agree: a long-s
+    # "tranſcript" must NOT match in either engine.
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search("a tranſcript here")
+    assert spawned_cells_to_ts.PRIVATE_SOURCE_RE.search("a TRANSCRIPT here")
+
+
+def test_judge_loader_screens_review_end_to_end(tmp_path: pathlib.Path) -> None:
+    # Round-four screen review: the earlier regression tested only the
+    # helper; a leaky loader stayed green. This drives load_batch_runs
+    # over a real batch/manifest/cells fixture whose manifest review
+    # hides a screened token inside a dict KEY.
+    import json
+
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
+    try:
+        import run_brier_reasoning_judge as judge
+    finally:
+        sys.path.pop(0)
+    cells_path = tmp_path / "cells.json"
+    cells_path.write_text(
+        json.dumps(
+            [
+                {
+                    "runAt": "2026-08-12T00:00:00Z",
+                    "slug": "fixture-cell",
+                    "title": "t",
+                    "question": "q",
+                    "unit": "percent",
+                    "pointEstimate": 1.0,
+                    "ciLow": 0.5,
+                    "ciHigh": 1.5,
+                    "resolutionDate": "2026-12-31",
+                    "resolutionRule": "r",
+                    "sourceContext": [],
+                    "drivers": [],
+                    "reasoning": [],
+                    # Agent-planted: must never reach the judge prompt.
+                    "preSubmitReview": {"summary": "planted Granola export"},
+                }
+            ]
+        )
+    )
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "cellsPath": str(cells_path),
+                "preSubmitReview": {
+                    "status": "completed",
+                    "summary": "Fine run.",
+                    "findings": [
+                        {
+                            "findingId": "review.finding.1",
+                            "severity": "info",
+                            "rubricItem": "review",
+                            # Screened reviewer wording in a retained field.
+                            "summary": "Consider attaching the fetch transcript.",
+                        }
+                    ],
+                    "dispositions": [],
+                },
+            }
+        )
+    )
+    batch_path = tmp_path / "batch.json"
+    batch_path.write_text(
+        json.dumps(
+            {
+                "results": [
+                    {"ok": True, "manifestPath": str(manifest_path), "target": {}}
+                ]
+            }
+        )
+    )
+    runs = judge.load_batch_runs([batch_path], max_runs=5)
+    assert len(runs) == 1
+    blob = json.dumps(runs, ensure_ascii=False)
+    marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
+    assert marker in blob
+    assert "planted" not in blob
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(
+        blob.replace(marker, "")
+    )
+    # A malformed dict where the summary string belongs refuses with a
+    # typed error instead of smuggling content past compaction.
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "cellsPath": str(cells_path),
+                "preSubmitReview": {"summary": {"fetch transcript": "secret"}},
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="summary must be a string"):
+        judge.load_batch_runs([batch_path], max_runs=5)

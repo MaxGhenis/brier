@@ -1,0 +1,40 @@
+{
+  "comment": "Single source of truth for the private-source provenance screen. The pattern is DERIVED as alternations.join('|') by scripts/private_source_screen.py (ASCII case-insensitive) and by site/src/__tests__/forecast-catalog.test.ts (flag i), so both engines fold case identically over the ASCII tokens below. The converter refuses agent-authored hits and withholds reviewer-authored preSubmitReview text behind the marker in every projection (spawned cells, live/strategy comparisons, the Brier-judge prompt); the catalog test is the fail-closed backstop. Canaries are behavioral: every probe is asserted at python import and in the site suite, and each alternation must be the SOLE match for at least one probe, so a weakened or deleted branch fails even if its literal remains. chat-transcript is intentionally absent: \\btranscripts?\\b subsumes it. This file is review-gated; a coordinated edit of a branch plus its probes is a reviewed change by construction.",
+  "alternations": [
+    "granola",
+    "\\btranscripts?\\b",
+    "meeting notes?",
+    "meeting with max",
+    "pasted-text",
+    "\\.codex/attachments",
+    "codex attachments",
+    "private meeting",
+    "call notes?",
+    "email thread"
+  ],
+  "flags": "i",
+  "marker": "[withheld by the private-source screen]",
+  "probes": [
+    { "text": "granola", "match": true, "sole": "granola" },
+    { "text": "from a GRANOLA export", "match": true },
+    { "text": "the transcript was attached", "match": true, "sole": "\\btranscripts?\\b" },
+    { "text": "three transcripts arrived", "match": true },
+    { "text": "reverse transcriptase assay", "match": false },
+    { "text": "a datatranscript file", "match": false },
+    { "text": "meeting notes from tuesday", "match": true },
+    { "text": "one meeting note only", "match": true, "sole": "meeting notes?" },
+    { "text": "a meeting with max yesterday", "match": true },
+    { "text": "our meeting with max", "match": true, "sole": "meeting with max" },
+    { "text": "pasted-text buffer", "match": true, "sole": "pasted-text" },
+    { "text": "saved under .codex/attachments today", "match": true },
+    { "text": "the path a/.codex/attachments/b", "match": true, "sole": "\\.codex/attachments" },
+    { "text": "an xcodex/attachments directory", "match": false },
+    { "text": "the codex attachments folder", "match": true, "sole": "codex attachments" },
+    { "text": "a private meeting happened", "match": true, "sole": "private meeting" },
+    { "text": "per the call notes", "match": true },
+    { "text": "one call note only", "match": true, "sole": "call notes?" },
+    { "text": "an email thread with the agency", "match": true, "sole": "email thread" },
+    { "text": "official BLS release page", "match": false },
+    { "text": "USAspending API response", "match": false }
+  ]
+}

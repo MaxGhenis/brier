@@ -58,11 +58,19 @@ REQUIRED = [
     "runAt",
     "reasoning",
 ]
-PRIVATE_SOURCE_RE = re.compile(
-    r"(?i)(granola|\btranscripts?\b|meeting notes?|meeting with max|"
-    r"pasted-text|\.codex/attachments|codex attachments|private meeting|"
-    r"call notes?|email thread|chat transcript)"
-)
+# The private-source screen (granola, transcripts, meeting notes, private
+# meetings, ...) has one source of truth shared with the site's catalog
+# test and every other projection, so the refusing side and the enforcing
+# side cannot drift.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+try:
+    from private_source_screen import (
+        PRIVATE_SOURCE_MARKER,  # noqa: F401  (re-exported for tests/tools)
+        PRIVATE_SOURCE_RE,
+        screen_pre_submit_review,
+    )
+finally:
+    sys.path.pop(0)
 
 
 def private_source_hits(cell: dict) -> list[str]:
@@ -509,11 +517,22 @@ def carry_sealed_run_metadata(
         cell.pop(SEALED_GENERATION_TICKET_KEY, None)
         cell.pop(SEALED_TARGET_CONTEXT_KEY, None)
         cell.pop(SEALED_VALIDATION_TICKET_KEY, None)
+        # Review metadata is runner-authored, never agent-authored: an
+        # agent-planted preSubmitReview would otherwise be excluded from
+        # private_source_hits and then masked as if a reviewer wrote it.
+        # Only the sealed manifest may attach it, below.
+        cell.pop("preSubmitReview", None)
     sealed_agent = sealed_agent_meta(run_dir)
     manifest_path = run_dir / "manifest.json"
     manifest = (
         json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     )
+    sealed_review = manifest.get("preSubmitReview")
+    if sealed_review is not None and not isinstance(sealed_review, dict):
+        raise ValueError(f"manifest preSubmitReview is invalid: {manifest_path}")
+    if isinstance(sealed_review, dict):
+        for cell in cells:
+            cell["preSubmitReview"] = sealed_review
     has_ticket = manifest.get("generationTicket") is not None
     sealed_target_context = manifest.get("targetContext")
     if sealed_target_context is not None and not isinstance(
@@ -625,7 +644,9 @@ def to_forecast_cell(
     if cell.get("custodyRootSha256"):
         out["predictionRun"]["custodyRootSha256"] = cell["custodyRootSha256"]
     if cell.get("preSubmitReview"):
-        out["predictionRun"]["preSubmitReview"] = cell["preSubmitReview"]
+        out["predictionRun"]["preSubmitReview"] = screen_pre_submit_review(
+            cell["preSubmitReview"]
+        )
     out["reasoning"] = cell["reasoning"]
     return out
 
