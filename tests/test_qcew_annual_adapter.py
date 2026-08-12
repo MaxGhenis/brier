@@ -19,11 +19,7 @@ import roll_docket  # noqa: E402
 
 SERIES = "bls.qcew.child_day_care_services.annual_avg_employment"
 FIXTURE = (
-    ROOT
-    / "tests"
-    / "fixtures"
-    / "qcew"
-    / "child_day_care_services_2025_annual.csv"
+    ROOT / "tests" / "fixtures" / "qcew" / "child_day_care_services_2025_annual.csv"
 )
 SPEC = resolve_pending.QCEW_ADAPTERS[SERIES]
 
@@ -71,8 +67,16 @@ def test_live_official_2025_fixture_selects_exact_annual_private_us_row() -> Non
             b'"US000","5","624410","18","0","2025","A"',
             b'"01000","5","624410","18","0","2025","A"',
         ),
+        (
+            b'"US000","5","624410","18","0","2025","A"',
+            b'"US000","5","624411","18","0","2025","A"',
+        ),
+        (
+            b'"US000","5","624410","18","0","2025","A"',
+            b'"US000","5","624410","18","0","2024","A"',
+        ),
     ],
-    ids=["wrong-ownership", "wrong-area"],
+    ids=["wrong-ownership", "wrong-area", "wrong-naics", "wrong-year"],
 )
 def test_annual_parser_refuses_wrong_selector_rows(old: bytes, new: bytes) -> None:
     raw = _replace_once(FIXTURE.read_bytes(), old, new)
@@ -83,17 +87,52 @@ def test_annual_parser_refuses_wrong_selector_rows(old: bytes, new: bytes) -> No
     assert refusal == "expected one exact QCEW row, found 0"
 
 
-def test_annual_parser_refuses_missing_measure_field() -> None:
-    raw = _replace_once(
-        FIXTURE.read_bytes(),
-        b'"annual_avg_emplvl"',
-        b'"annual_avg_emplvX"',
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        (b'"annual_avg_estabs"', b'"annual_avg_estabX"'),
+        (b'"area_fips"', b'" area_fips "'),
+        (
+            b'"area_fips","own_code"',
+            b'"own_code","area_fips"',
+        ),
+    ],
+    ids=["renamed-unrelated-header", "whitespace-drift", "reordered-headers"],
+)
+def test_annual_parser_refuses_any_header_name_or_order_drift(
+    old: bytes, new: bytes
+) -> None:
+    raw = _replace_once(FIXTURE.read_bytes(), old, new)
+
+    value, refusal = resolve_pending.qcew_value_from_csv(raw, SPEC, "2025")
+
+    assert value is None
+    assert refusal == (
+        "QCEW CSV does not match the official ordered 38-column annual layout"
+    )
+
+
+def test_annual_parser_refuses_an_added_39th_column() -> None:
+    raw = b"".join(
+        line.removesuffix(b"\r\n") + b',"unexpected"\r\n'
+        for line in FIXTURE.read_bytes().splitlines(keepends=True)
     )
 
     value, refusal = resolve_pending.qcew_value_from_csv(raw, SPEC, "2025")
 
     assert value is None
-    assert refusal == "QCEW CSV is missing required columns"
+    assert refusal == (
+        "QCEW CSV does not match the official ordered 38-column annual layout"
+    )
+
+
+def test_annual_parser_requires_a_terminal_newline() -> None:
+    raw = FIXTURE.read_bytes().removesuffix(b"\r\n")
+
+    value, refusal = resolve_pending.qcew_value_from_csv(raw, SPEC, "2025")
+
+    assert value is None
+    assert refusal == "QCEW CSV response is truncated (missing terminal newline)"
 
 
 def test_annual_parser_refuses_truncated_row_even_with_terminal_newline() -> None:
@@ -101,9 +140,7 @@ def test_annual_parser_refuses_truncated_row_even_with_terminal_newline() -> Non
     cutoff = raw.index(b",991735") + len(b",991735")
     truncated = raw[:cutoff] + b"\r\n"
 
-    value, refusal = resolve_pending.qcew_value_from_csv(
-        truncated, SPEC, "2025"
-    )
+    value, refusal = resolve_pending.qcew_value_from_csv(truncated, SPEC, "2025")
 
     assert value is None
     assert refusal is not None
@@ -171,16 +208,12 @@ def test_annual_release_seed_is_bound_to_the_official_q4_calendar_slot() -> None
     # test exact release-date derivation without making it the live seed.
     historical = copy.deepcopy(entry)
     historical["period"] = historical["seedPeriod"] = "2025"
-    target = roll_docket.recurring_seed_target(
-        historical, set(), dt.date(2026, 6, 1)
-    )
+    target = roll_docket.recurring_seed_target(historical, set(), dt.date(2026, 6, 1))
     assert target is not None
     assert target["period"] == "2025"
     assert target["expectedReleaseDate"] == "2026-06-02"
     contract = register_targets.build_contract(target, dt.date(2026, 6, 1))
-    register_targets.validate_native_calendar_contract(
-        contract, target, historical
-    )
+    register_targets.validate_native_calendar_contract(contract, target, historical)
 
     binding = contract["sourceBinding"]
     assert binding["allowedHosts"] == ["data.bls.gov", "www.bls.gov"]
@@ -197,10 +230,7 @@ def test_annual_release_seed_refuses_post_release_and_undated_next_year(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     entry = docket_entry()
-    assert (
-        roll_docket.recurring_seed_target(entry, set(), dt.date(2026, 8, 12))
-        is None
-    )
+    assert roll_docket.recurring_seed_target(entry, set(), dt.date(2026, 8, 12)) is None
     assert "requires an explicit ISO releaseDates['2026']" in capsys.readouterr().err
 
 
@@ -241,28 +271,100 @@ def test_qcew_postfetch_gate_refuses_a_midnight_straddle() -> None:
     assert resolve_pending.qcew_postfetch_window_refusal(
         "2027-06-03T00:00:01Z", release_day, "2027-06-03T00:00:01Z"
     ) == (
-        "QCEW response completed on 2027-06-03, after registered release day "
-        "2027-06-02"
+        "QCEW response completed on 2027-06-03, after registered release day 2027-06-02"
     )
+
+
+def test_qcew_postfetch_gate_compares_the_decision_day_to_the_release_day() -> None:
+    assert resolve_pending.qcew_postfetch_window_refusal(
+        "2027-06-02T23:59:59Z",
+        dt.date(2027, 6, 2),
+        "2027-06-03T00:00:01Z",
+    ) == (
+        "QCEW response completed on 2027-06-03, after registered release day 2027-06-02"
+    )
+
+
+def test_qcew_fetch_refuses_a_same_host_but_nonexact_final_url(monkeypatch) -> None:
+    expected_url = resolve_pending.qcew_api_url(SPEC, "2025")
+    redirected_url = f"{expected_url}?download=1"
+    raw = FIXTURE.read_bytes()
+
+    class Headers:
+        @staticmethod
+        def get_content_type() -> str:
+            return "text/csv"
+
+        @staticmethod
+        def get(name: str) -> str | None:
+            return str(len(raw)) if name == "Content-Length" else None
+
+    class Response:
+        headers = Headers()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        @staticmethod
+        def read() -> bytes:
+            return raw
+
+        @staticmethod
+        def geturl() -> str:
+            return redirected_url
+
+    monkeypatch.setattr(
+        resolve_pending.urllib.request,
+        "urlopen",
+        lambda *_args, **_kwargs: Response(),
+    )
+
+    value, returned_raw, fetched_url, _retrieved_at, refusal = (
+        resolve_pending.qcew_fetch_period(SPEC, "2025")
+    )
+
+    assert value is None
+    assert returned_raw == raw
+    assert fetched_url == expected_url
+    assert refusal == "QCEW fetch redirected off exact URL"
 
 
 def test_annual_fact_sources_the_exact_fetched_csv() -> None:
     fetched_url = resolve_pending.qcew_api_url(SPEC, "2025")
-    row = resolve_pending.generic_fact(
+    entry = copy.deepcopy(docket_entry())
+    entry["period"] = entry["seedPeriod"] = "2025"
+    target = roll_docket.recurring_seed_target(entry, set(), dt.date(2026, 6, 1))
+    assert target is not None
+    contract = register_targets.build_contract(target, dt.date(2026, 6, 1))
+    row, archive_series_id = resolve_pending.qcew_resolution_fact(
         f"{SERIES}.2025.first_print",
         SPEC,
         "year",
         "2025",
         991735,
         dt.date(2026, 6, 2),
+        contract["sourceBinding"],
         fetched_url,
-        fetched_url,
+    )
+    projection = resolve_pending.source_binding_projection(
+        {
+            "targetContentHash": "a" * 64,
+            "contract": contract,
+            "ledgerPin": None,
+        },
+        row,
+        FIXTURE.read_bytes(),
     )
 
     assert row["source"]["url"] == fetched_url
     assert row["source"]["source_file"] == fetched_url
     assert row["measure"]["concept_evidence_url"] == fetched_url
     assert fetched_url in row["measure"]["concept_evidence_notes"]
+    assert projection["sourceUrl"] == fetched_url
+    assert archive_series_id == "QCEW-US000-5-624410-18-0-annual_avg_emplvl"
 
 
 @pytest.mark.parametrize(
@@ -285,13 +387,56 @@ def test_annual_binding_refuses_any_registered_selector_drift(
     entry["period"] = entry["seedPeriod"] = "2025"
     target = roll_docket.recurring_seed_target(entry, set(), dt.date(2026, 6, 1))
     assert target is not None
-    binding = register_targets.build_contract(
-        target, dt.date(2026, 6, 1)
-    )["sourceBinding"]
+    binding = register_targets.build_contract(target, dt.date(2026, 6, 1))[
+        "sourceBinding"
+    ]
     binding[key] = value
 
     assert not resolve_pending.qcew_binding_matches_spec(
         binding, SPEC, "2025", dt.date(2026, 6, 2)
+    )
+
+
+def test_annual_binding_refuses_null_adapter_and_table() -> None:
+    entry = copy.deepcopy(docket_entry())
+    entry["period"] = entry["seedPeriod"] = "2025"
+    target = roll_docket.recurring_seed_target(entry, set(), dt.date(2026, 6, 1))
+    assert target is not None
+    binding = register_targets.build_contract(target, dt.date(2026, 6, 1))[
+        "sourceBinding"
+    ]
+    binding["adapter"] = None
+    binding["table"] = None
+    binding["allowedHosts"] = ["www.bls.gov"]
+
+    assert not resolve_pending.qcew_binding_matches_spec(
+        binding, SPEC, "2025", dt.date(2026, 6, 2)
+    )
+
+
+def test_qcew_calendar_authority_refuses_a_jointly_mutated_plausible_page() -> None:
+    entry = copy.deepcopy(docket_entry())
+    entry["period"] = entry["seedPeriod"] = "2025"
+    entry["releaseCalendarUrl"] = "https://www.bls.gov/schedule/news_release/cewqtr.htm"
+    entry["releaseDates"]["2025"] = "2026-06-03"
+    target = roll_docket.recurring_seed_target(entry, set(), dt.date(2026, 6, 1))
+    assert target is not None
+    binding = register_targets.build_contract(target, dt.date(2026, 6, 1))[
+        "sourceBinding"
+    ]
+    mutated_release_day = dt.date(2026, 6, 3)
+
+    # The jointly mutated contract and docket agree with each other. Trusted
+    # adapter code must still pin the QCEW-specific calendar authority.
+    assert resolve_pending.qcew_binding_matches_spec(
+        binding, SPEC, "2025", mutated_release_day
+    )
+    assert not resolve_pending.qcew_registration_matches_spec(
+        binding,
+        SPEC,
+        "2025",
+        mutated_release_day,
+        [entry],
     )
 
 
@@ -304,15 +449,16 @@ def test_annual_variant_is_consumed_by_registration_roll_and_prospect() -> None:
     assert "bls-qcew" in register_targets.CALENDAR_GATED_SOURCE_ADAPTERS
     assert "bls-qcew" in roll_docket.OFFICIAL_CALENDAR_ADAPTERS
     assert prospect_targets._period_error("2025") is None
-    assert prospect_targets._source_binding_errors(
-        docket_entry()["extras"]["sourceBinding"]
-    ) == []
+    assert (
+        prospect_targets._source_binding_errors(
+            docket_entry()["extras"]["sourceBinding"]
+        )
+        == []
+    )
 
     assert roll_docket.period_key("2025", "annual") == (2025,)
     assert roll_docket.step_period("2025", "annual") == "2026"
     assert (
-        roll_docket.format_slug(
-            "us-private-child-care-{year}", "2025", "annual"
-        )
+        roll_docket.format_slug("us-private-child-care-{year}", "2025", "annual")
         == "us-private-child-care-2025"
     )

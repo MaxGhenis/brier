@@ -2232,6 +2232,48 @@ for _spec in BLS_API_ADAPTERS.values():
 QCEW_API_URL = (
     "https://data.bls.gov/cew/data/api/{year}/{api_period}/industry/{industry}.csv"
 )
+# Exact ordered annual-average layout published by BLS:
+# https://www.bls.gov/cew/additional-resources/open-data/csv-data-slices.htm
+QCEW_ANNUAL_CSV_FIELDS = (
+    "area_fips",
+    "own_code",
+    "industry_code",
+    "agglvl_code",
+    "size_code",
+    "year",
+    "qtr",
+    "disclosure_code",
+    "annual_avg_estabs",
+    "annual_avg_emplvl",
+    "total_annual_wages",
+    "taxable_annual_wages",
+    "annual_contributions",
+    "annual_avg_wkly_wage",
+    "avg_annual_pay",
+    "lq_disclosure_code",
+    "lq_annual_avg_estabs",
+    "lq_annual_avg_emplvl",
+    "lq_total_annual_wages",
+    "lq_taxable_annual_wages",
+    "lq_annual_contributions",
+    "lq_annual_avg_wkly_wage",
+    "lq_avg_annual_pay",
+    "oty_disclosure_code",
+    "oty_annual_avg_estabs_chg",
+    "oty_annual_avg_estabs_pct_chg",
+    "oty_annual_avg_emplvl_chg",
+    "oty_annual_avg_emplvl_pct_chg",
+    "oty_total_annual_wages_chg",
+    "oty_total_annual_wages_pct_chg",
+    "oty_taxable_annual_wages_chg",
+    "oty_taxable_annual_wages_pct_chg",
+    "oty_annual_contributions_chg",
+    "oty_annual_contributions_pct_chg",
+    "oty_annual_avg_wkly_wage_chg",
+    "oty_annual_avg_wkly_wage_pct_chg",
+    "oty_avg_annual_pay_chg",
+    "oty_avg_annual_pay_pct_chg",
+)
 QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
     "bls.qcew.aircraft_manufacturing.establishments": {
         # Live-verified 2026-07-25 against data.bls.gov/cew/data/api
@@ -2269,16 +2311,9 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
             "size_code=0;field=qtrly_estabs"
         ),
         # Keep the reviewed www.bls.gov landing page in the registration
-        # binding. The fact names the exact fetched data.bls.gov endpoint,
-        # whose response is separately hash-bound and archived.
+        # binding and legacy fact URL. source_file and the response archive
+        # bind the exact fetched data.bls.gov endpoint and bytes.
         "source_page": "https://www.bls.gov/cew/downloadable-data-files.htm",
-        "filters": {
-            "area_fips": "US000",
-            "own_code": "5",
-            "industry_code": "336411",
-            "agglvl_code": "18",
-            "size_code": "0",
-        },
     },
     "bls.qcew.child_day_care_services.annual_avg_employment": {
         # Live-fetched from the official annual industry slices on
@@ -2295,9 +2330,7 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
         "field": "annual_avg_emplvl",
         "unit": "count",
         "label": "US private child day care services annual-average employment",
-        "measure_concept": (
-            "bls.qcew.child_day_care_services.annual_avg_employment"
-        ),
+        "measure_concept": ("bls.qcew.child_day_care_services.annual_avg_employment"),
         "source_name": "bls_qcew",
         "source_table": (
             "QCEW NAICS-based annual averages industry CSV, U.S. total, "
@@ -3999,9 +4032,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
     "usaspending.cdfi.assistance_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
-        "series_id": (
-            "usaspending.search.spending_over_time.cdfi.program_obligations"
-        ),
+        "series_id": ("usaspending.search.spending_over_time.cdfi.program_obligations"),
         "label": (
             "CDFI Fund financial-assistance award-transaction obligations, "
             "fiscal year total"
@@ -4125,8 +4156,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
-            "usaspending.search.spending_over_time.ntia."
-            "broadband_program_obligations"
+            "usaspending.search.spending_over_time.ntia.broadband_program_obligations"
         ),
         "label": (
             "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
@@ -8598,14 +8628,21 @@ def qcew_value_from_csv(
         return None, f"QCEW CSV is malformed ({exc})"
     if not rows:
         return None, "QCEW CSV is empty"
-    fieldnames = [name.strip() for name in rows[0]]
+    parsed_fieldnames = rows[0]
+    fieldnames = [name.strip() for name in parsed_fieldnames]
     if not fieldnames or any(not name for name in fieldnames):
         return None, "QCEW CSV has an empty column name"
     if len(fieldnames) != len(set(fieldnames)):
         return None, "QCEW CSV has duplicate column names"
-    required = {*expected, "disclosure_code", spec["field"]}
-    if not required.issubset(set(fieldnames)):
-        return None, "QCEW CSV is missing required columns"
+    if spec.get("period_type") == "year":
+        if parsed_fieldnames != list(QCEW_ANNUAL_CSV_FIELDS):
+            return None, (
+                "QCEW CSV does not match the official ordered 38-column annual layout"
+            )
+    else:
+        required = {*expected, "disclosure_code", spec["field"]}
+        if not required.issubset(set(fieldnames)):
+            return None, "QCEW CSV is missing required columns"
     matches: list[dict[str, str]] = []
     for line_number, values in enumerate(rows[1:], start=2):
         if len(values) != len(fieldnames):
@@ -8613,9 +8650,7 @@ def qcew_value_from_csv(
                 f"QCEW CSV row {line_number} has {len(values)} fields; "
                 f"expected {len(fieldnames)} (truncated or malformed response)"
             )
-        row = {
-            key: str(value).strip() for key, value in zip(fieldnames, values)
-        }
+        row = {key: str(value).strip() for key, value in zip(fieldnames, values)}
         if all(row.get(key) == value for key, value in expected.items()):
             matches.append(row)
     if len(matches) != 1:
@@ -8688,7 +8723,7 @@ def qcew_binding_matches_spec(
     """Authenticate every QCEW registration field against trusted code."""
 
     adapter = binding.get("adapter")
-    legacy = adapter == spec.get("legacy_binding_adapter")
+    legacy = qcew_is_legacy_binding(binding, spec)
     if adapter != "bls-qcew" and not legacy:
         return False
     expected_keys = {
@@ -8716,8 +8751,7 @@ def qcew_binding_matches_spec(
     }
     return (
         binding.get("sourceUrl") == spec.get("source_page")
-        and binding.get("sourceSeriesId")
-        == qcew_source_series_id(dict(spec), period)
+        and binding.get("sourceSeriesId") == qcew_source_series_id(dict(spec), period)
         and binding.get("field") == spec.get("field")
         and binding.get("table") == expected_table
         and binding.get("transform") == {"operation": "identity", "factor": 1}
@@ -8725,6 +8759,123 @@ def qcew_binding_matches_spec(
         and binding.get("expectedReleaseWindow") == expected_window
         and binding.get("allowedHosts") == expected_hosts
     )
+
+
+def qcew_is_legacy_binding(binding: Mapping[str, Any], spec: Mapping[str, Any]) -> bool:
+    """Recognize only an explicitly declared, nonempty legacy adapter."""
+
+    legacy_adapter = spec.get("legacy_binding_adapter")
+    return (
+        isinstance(legacy_adapter, str)
+        and bool(legacy_adapter)
+        and binding.get("adapter") == legacy_adapter
+    )
+
+
+def qcew_calendar_authority_matches_spec(
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+    docket_entries: list[Mapping[str, Any]] | None = None,
+) -> bool:
+    """Bind dated QCEW targets to the one trusted BLS calendar authority."""
+
+    expected_calendar = spec.get("release_calendar_url")
+    if expected_calendar is None:
+        # The immutable legacy aircraft registration predates the recurring
+        # docket and keeps its original one-day window unchanged.
+        return True
+    if not isinstance(expected_calendar, str) or not expected_calendar:
+        return False
+    if docket_entries is None:
+        try:
+            payload = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+        except (OSError, json.JSONDecodeError):
+            return False
+        loaded_entries = payload.get("series") if isinstance(payload, dict) else None
+        if not isinstance(loaded_entries, list):
+            return False
+        docket_entries = loaded_entries
+    matches = [
+        entry
+        for entry in docket_entries
+        if entry.get("series") == spec.get("measure_concept")
+    ]
+    if len(matches) != 1:
+        return False
+    entry = matches[0]
+    release_dates = entry.get("releaseDates")
+    return (
+        entry.get("releaseCalendarUrl") == expected_calendar
+        and isinstance(release_dates, Mapping)
+        and release_dates.get(period) == release_day.isoformat()
+    )
+
+
+def qcew_registration_matches_spec(
+    binding: Mapping[str, Any],
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+    docket_entries: list[Mapping[str, Any]] | None = None,
+) -> bool:
+    """Authenticate both the QCEW source binding and calendar authority."""
+
+    return qcew_binding_matches_spec(binding, spec, period, release_day) and (
+        qcew_calendar_authority_matches_spec(
+            spec,
+            period,
+            release_day,
+            docket_entries,
+        )
+    )
+
+
+def qcew_fact_source_url(
+    binding: Mapping[str, Any], spec: Mapping[str, Any], fetched_url: str
+) -> str:
+    """Preserve the legacy landing-page fact URL; expose new CSV fetches."""
+
+    if qcew_is_legacy_binding(binding, spec):
+        return str(binding["sourceUrl"])
+    return fetched_url
+
+
+def qcew_resolution_fact(
+    ref: str,
+    spec: dict[str, Any],
+    period_type: str,
+    period: str,
+    value: float,
+    release_day: dt.date,
+    binding: Mapping[str, Any],
+    fetched_url: str,
+) -> tuple[dict[str, Any], str]:
+    """Build the production QCEW fact and its stable archive series id."""
+
+    row = generic_fact(
+        ref,
+        spec,
+        period_type,
+        period,
+        value,
+        release_day,
+        qcew_fact_source_url(binding, spec, fetched_url),
+        fetched_url,
+    )
+    if qcew_is_legacy_binding(binding, spec):
+        # Preserve the exact pre-generalization aircraft archive identity.
+        series_id = (
+            f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
+            f"{spec['industry_code']}-{spec['size_code']}"
+        )
+    else:
+        series_id = (
+            f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
+            f"{spec['industry_code']}-{spec['agglvl_code']}-"
+            f"{spec['size_code']}-{spec['field']}"
+        )
+    return row, series_id
 
 
 def qcew_fetch_period(
@@ -8754,8 +8905,12 @@ def qcew_fetch_period(
     if final_url != url:
         return None, raw, url, retrieved_at, "QCEW fetch redirected off exact URL"
     if content_type != "text/csv":
-        return None, raw, url, retrieved_at, (
-            f"QCEW response has unexpected content type {content_type!r}"
+        return (
+            None,
+            raw,
+            url,
+            retrieved_at,
+            (f"QCEW response has unexpected content type {content_type!r}"),
         )
     if declared_length is not None:
         try:
@@ -8763,9 +8918,15 @@ def qcew_fetch_period(
         except ValueError:
             return None, raw, url, retrieved_at, "QCEW Content-Length is malformed"
         if expected_length != len(raw):
-            return None, raw, url, retrieved_at, (
-                f"QCEW response length {len(raw)} differs from Content-Length "
-                f"{expected_length}"
+            return (
+                None,
+                raw,
+                url,
+                retrieved_at,
+                (
+                    f"QCEW response length {len(raw)} differs from Content-Length "
+                    f"{expected_length}"
+                ),
             )
     value, refusal = qcew_value_from_csv(raw, spec, period)
     return value, raw, url, retrieved_at, refusal
@@ -10486,8 +10647,12 @@ def attach_resolution_provenance(
     target_contracts: dict[str, dict[str, Any]],
     extension: str = "csv",
 ) -> dict[str, Any]:
-    # Archive first so the assertion version can bind the response digest;
-    # computing it before archiving would leave the bytes out of identity.
+    registration = target_contracts.get(str(row["source_record_id"]))
+    projection = None
+    if registration:
+        # Projection is a refusal gate. Run it before writing any response so
+        # a rejected row cannot leave an orphan archive in a mixed run.
+        projection = source_binding_projection(registration, row, raw)
     response_archive = archive_response(
         run_dir,
         series_id=series_id,
@@ -10503,12 +10668,9 @@ def attach_resolution_provenance(
         "responseArchive": response_archive,
     }
     output["assertionVersion"] = assertion_version(output)
-    registration = target_contracts.get(str(row["source_record_id"]))
     if registration:
         output["targetContentHash"] = registration["targetContentHash"]
-        output["sourceBindingProjection"] = source_binding_projection(
-            registration, row, raw
-        )
+        output["sourceBindingProjection"] = projection
     return output
 
 
@@ -10736,6 +10898,7 @@ def main() -> int:
     sba_timeline_loaded = False
     loop_contracts = registration_contracts()
     for ref, kind, spec, period_type, period, source_vintage, forecast in adapter_todo:
+        qcew_row: dict[str, Any] | None = None
         if ref in existing_ids:
             print(f"  already recorded: {ref}")
             continue
@@ -10769,9 +10932,7 @@ def main() -> int:
             legacy_binding = ((registration or {}).get("contract") or {}).get(
                 "sourceBinding"
             ) or {}
-            if qcew_binding_matches_spec(
-                legacy_binding, spec, period, release_day
-            ):
+            if qcew_binding_matches_spec(legacy_binding, spec, period, release_day):
                 mismatched = None
         if mismatched:
             print(
@@ -11442,7 +11603,7 @@ def main() -> int:
             registration = qcew_contracts.get(ref) or {}
             contract = registration.get("contract") or {}
             binding = contract.get("sourceBinding") or {}
-            if not qcew_binding_matches_spec(binding, spec, period, release_day):
+            if not qcew_registration_matches_spec(binding, spec, period, release_day):
                 print(f"  BINDING/ADAPTER MISMATCH (refusing, registry drift?): {ref}")
                 continue
             anchor_values: dict[str, float | None] = {}
@@ -11472,23 +11633,21 @@ def main() -> int:
             if refusal:
                 print(f"  QCEW PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
-            window_refusal = qcew_postfetch_window_refusal(
-                retrieved_at, release_day
-            )
+            window_refusal = qcew_postfetch_window_refusal(retrieved_at, release_day)
             if window_refusal:
                 print(
-                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — "
-                    f"{window_refusal}"
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — {window_refusal}"
                 )
                 continue
-            # The registered landing page authenticates the source family;
-            # the fact and its evidence URL name the exact fetched CSV.
-            source_url = fetched_url
-            source_file = fetched_url
-            series_id = (
-                f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
-                f"{spec['industry_code']}-{spec['agglvl_code']}-"
-                f"{spec['size_code']}-{spec['field']}"
+            qcew_row, series_id = qcew_resolution_fact(
+                ref,
+                spec,
+                period_type,
+                period,
+                value,
+                release_day,
+                binding,
+                fetched_url,
             )
             extension = "csv"
         elif kind == "cms_provider_data":
@@ -11812,6 +11971,9 @@ def main() -> int:
         if kind == "sba_pdf":
             assert sba_resolution is not None
             row = sba_pdf_fact(ref, spec, period, sba_resolution)
+        elif kind == "qcew":
+            assert qcew_row is not None
+            row = qcew_row
         else:
             row = generic_fact(
                 ref,
