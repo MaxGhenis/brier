@@ -22,11 +22,14 @@ Trust properties:
   the snapshot filename.
 - This mode is restricted to the ordinary release-calendar lane:
   manifests carrying a generation ticket, targets whose contracts are
-  resolve-by-bound, and manifest rows carrying comparison/anchored/
-  cursor context (`comparisonTarget`, `anchors`, `previousTarget`,
-  `expectedReleaseDate`) are refused outright. Bounded targets belong to
-  the attested local lane; rows whose original run context cannot be
-  reconstructed from trusted state alone are not retryable here.
+  resolve-by-bound, and manifest rows carrying comparison or cursor
+  context (`comparisonTarget`, `previousTarget`, `expectedReleaseDate`)
+  are refused outright. Bounded targets belong to the attested local
+  lane; rows whose original run context cannot be reconstructed from
+  trusted state alone are not retryable here. Validation `anchors` ARE
+  reconstructable: they come from the committed docket entry's extras
+  (never the manifest row), and a row claiming different anchors than
+  the docket is refused.
 - A target outside its orphan grace window — or registered in the
   future — is refused outright: past grace the honest terminal state is
   the expired-unforecast ratchet, not a late run against a stale
@@ -88,7 +91,6 @@ KNOWN_CONTRACT_KEYS = frozenset(
 # quietly differ from the recorded run's contract.
 UNRECONSTRUCTABLE_ROW_KEYS = (
     "comparisonTarget",
-    "anchors",
     "previousTarget",
     "expectedReleaseDate",
 )
@@ -225,9 +227,33 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
         raise RetrySelectionError(
             f"{label} manifest registeredAtUtc disagrees with the snapshot"
         )
-    return register_targets.rebuild_registered_target(
+    rebuilt = register_targets.rebuild_registered_target(
         snapshot, path=snapshot_path, root=ROOT
     )
+    # Validation anchors reconstruct from the committed docket entry,
+    # never the manifest row: the roll splats entry extras into batch
+    # targets, so the trusted copy is the docket's. A row claiming
+    # different anchors than the docket is refused rather than trusted;
+    # a docket entry without anchors leaves the rerun unanchored exactly
+    # as a fresh roll would.
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        (
+            row
+            for row in docket.get("series", [])
+            if row.get("series") == contract["series"]
+        ),
+        None,
+    )
+    docket_anchors = ((entry or {}).get("extras") or {}).get("anchors")
+    row_anchors = row_target.get("anchors")
+    if row_anchors is not None and row_anchors != docket_anchors:
+        raise RetrySelectionError(
+            f"{label} manifest anchors disagree with the committed docket"
+        )
+    if docket_anchors is not None:
+        rebuilt["anchors"] = docket_anchors
+    return rebuilt
 
 
 def select_retry_targets(

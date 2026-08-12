@@ -109,7 +109,6 @@ def test_unreconstructable_row_context_is_refused_not_stripped() -> None:
     manifest = real_manifest()
     for key, value in (
         ("comparisonTarget", True),
-        ("anchors", {"2024": 1.0}),
         ("previousTarget", {"dataPointId": "x"}),
         ("expectedReleaseDate", "2026-09-01"),
     ):
@@ -119,6 +118,86 @@ def test_unreconstructable_row_context_is_refused_not_stripped() -> None:
             retry_batch_targets.rebuild_target_from_snapshot(
                 forged, label=f"forged-{key}"
             )
+
+
+B1_MANIFEST = (
+    ROOT
+    / "records"
+    / "thesis-analyst"
+    / "batches"
+    / "2026-08-11"
+    / "auto-roll-31533876109-a1.json"
+)
+B1_WITHIN_GRACE = dt.datetime(2026, 8, 12, 12, 0, tzinfo=dt.timezone.utc)
+
+
+def test_anchored_targets_reconstruct_with_docket_anchors() -> None:
+    # The 2026-08-11 B1 batch's failed targets carry anchors — the shape
+    # the first live retry refused. Anchors now reconstruct from the
+    # committed docket entry (never the manifest row), so the retry
+    # emits them equal to the docket's extras.anchors.
+    manifest = load_manifest(B1_MANIFEST)
+    targets = select_retry_targets(
+        manifest, slugs=None, allow_succeeded=False, now_utc=B1_WITHIN_GRACE
+    )
+    assert len(targets) == 3
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    by_series = {row.get("series"): row for row in docket["series"]}
+    for target in targets:
+        expected = by_series[target["series"]]["extras"]["anchors"]
+        assert target["anchors"] == expected
+
+
+def test_bind_refuses_stale_or_absent_anchors(tmp_path: pathlib.Path) -> None:
+    # The round-four TOCTOU: selection reads the docket before the sync
+    # rebase, so binding must independently authenticate anchors against
+    # the committed docket at ITS head — presence and value. A tampered
+    # value and a stripped anchor must both fail the bind closed.
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        import register_targets
+    finally:
+        sys.path.pop(0)
+
+    manifest = load_manifest(B1_MANIFEST)
+    targets = select_retry_targets(
+        manifest, slugs=None, allow_succeeded=False, now_utc=B1_WITHIN_GRACE
+    )
+
+    good = tmp_path / "good.json"
+    good.write_text(json.dumps({"targets": targets}, indent=1) + "\n")
+    bound = register_targets.bind_registration_commits(good, "HEAD")
+    assert len(bound["targets"]) == 3
+
+    tampered = copy.deepcopy(targets)
+    tampered[0]["anchors"] = {"2025": 999.0}
+    bad_value = tmp_path / "bad-value.json"
+    bad_value.write_text(json.dumps({"targets": tampered}, indent=1) + "\n")
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="anchors disagree with the committed docket",
+    ):
+        register_targets.bind_registration_commits(bad_value, "HEAD")
+
+    stripped = copy.deepcopy(targets)
+    del stripped[0]["anchors"]
+    bad_absent = tmp_path / "bad-absent.json"
+    bad_absent.write_text(json.dumps({"targets": stripped}, indent=1) + "\n")
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="anchors disagree with the committed docket",
+    ):
+        register_targets.bind_registration_commits(bad_absent, "HEAD")
+
+
+def test_row_anchors_disagreeing_with_the_docket_are_refused() -> None:
+    manifest = load_manifest(B1_MANIFEST)
+    forged = copy.deepcopy(failed_row(manifest)["target"])
+    forged["anchors"] = {"2025": 999.0}
+    with pytest.raises(RetrySelectionError, match="disagree with the committed docket"):
+        retry_batch_targets.rebuild_target_from_snapshot(
+            forged, label="forged-anchors"
+        )
 
 
 def test_ticketed_manifests_are_refused(tmp_path: pathlib.Path) -> None:
@@ -375,6 +454,11 @@ def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
 
     reg_dir = tmp_path / "records" / "targets"
     reg_dir.mkdir(parents=True)
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir(parents=True)
+    (scripts_dir / "docket_series.json").write_text(
+        json.dumps({"series": []})
+    )
     rows = []
     slugs = []
     for cond_id in ("enacted", "current-law"):
@@ -571,6 +655,58 @@ def test_workflow_wires_the_retry_grace_flag() -> None:
     assert (
         workflow.count("github.event.inputs.retry_batch == ''") >= 3
     ), "adoption + both registration write steps must skip in retry mode"
+
+
+def test_final_push_loops_rebind_after_every_rebase() -> None:
+    # The round-four publication TOCTOU: the final push loop rebases
+    # again after the initial publish bind, so it must re-run the full
+    # registration binding at the rebased HEAD and require the identical
+    # registration set ON EVERY ATTEMPT. Ordered containment inside the
+    # isolated final step — moving the bind before the loop, or dropping
+    # the step's own EXPECTED_SET_HASH env, must fail this pin.
+    for name, targets_file in (
+        ("roll-docket.yml", "roll-targets.json"),
+        ("prospect-docket.yml", "prospect-targets.json"),
+    ):
+        workflow = (ROOT / ".github" / "workflows" / name).read_text()
+        # Parse, don't grep: a YAML comment carrying the same text (the
+        # round-five evasion) vanishes under parsing, so only a real env
+        # mapping on the final step satisfies this.
+        import yaml
+
+        parsed = yaml.safe_load(workflow)
+        steps = [
+            step
+            for job in parsed["jobs"].values()
+            for step in job.get("steps", [])
+            if step.get("name") == "Rebase, reverify, and push once"
+        ]
+        assert len(steps) == 1, f"{name}: expected one final push step"
+        assert (
+            steps[0].get("env", {}).get("EXPECTED_SET_HASH")
+            == "${{ needs.register.outputs.registration_set_hash }}"
+        ), f"{name}: final step must carry its own EXPECTED_SET_HASH env"
+        after_title = workflow.split("Rebase, reverify, and push once", 1)[1]
+        step = after_title.split("- name:", 1)[0]
+        body = step.split("run: |", 1)[1]
+        ordered = [
+            "for attempt in",
+            "git pull --rebase origin main",
+            "register_targets.py",
+            targets_file,
+            "--bind-registration-commits",
+            'test "$FINAL_SET_HASH" = "$EXPECTED_SET_HASH"',
+            "push origin main",
+            "done",
+        ]
+        pos = -1
+        for needle in ordered:
+            found = body.find(needle, pos + 1)
+            assert found > pos, (
+                f"{name}: {needle!r} missing or out of order — the rebind "
+                "must run inside the loop, after each rebase, before push"
+            )
+            pos = found
 
 
 def test_seed_contracts_reconstruct_with_their_seed_period() -> None:
