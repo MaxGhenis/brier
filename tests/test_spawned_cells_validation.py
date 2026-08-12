@@ -9,6 +9,7 @@ on LFS release day survived generate and died in the publish gate).
 
 from __future__ import annotations
 
+import json
 import pathlib
 import sys
 
@@ -680,3 +681,54 @@ def test_sealed_agent_meta_rejects_incomplete_manifest_identity(
     )
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path) is None
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path / "missing") is None
+
+
+def test_reviewer_text_matching_the_screen_is_withheld() -> None:
+    # Run 31613588748: a reviewer suggestion saying "attach the fetch
+    # transcript" reached the public catalog and the private-source
+    # backstop refused the whole publish. Reviewer wording is not
+    # evidence: the projection withholds the matching string behind the
+    # marker while the run record keeps the original.
+    cell = stampable_cell()
+    cell["preSubmitReview"] = {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "summary": "Solid derivation overall.",
+        "findings": [
+            {
+                "findingId": "review.suggestion.1",
+                "severity": "info",
+                "rubricItem": "optional_suggestion",
+                "summary": (
+                    "Consider attaching the underlying fetch transcript "
+                    "or activity artifacts."
+                ),
+            }
+        ],
+        "dispositions": [],
+    }
+    run = spawned_cells_to_ts.to_forecast_cell(cell)["predictionRun"]
+    review = run["preSubmitReview"]
+    marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
+    assert review["findings"][0]["summary"] == marker
+    # Untainted reviewer text passes through verbatim, and structured
+    # fields are untouched.
+    assert review["summary"] == "Solid derivation overall."
+    assert review["findings"][0]["severity"] == "info"
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(
+        json.dumps(review, ensure_ascii=False)
+    )
+    # The screen only rewrites the review projection: the published
+    # reasoning is the agent's verbatim.
+    assert run is not None
+
+
+def test_agent_text_matching_the_screen_still_refuses() -> None:
+    # The withholding path is reviewer-only; the agent citing a private
+    # source remains a validation failure, exactly as before.
+    cell = stampable_cell()
+    cell["reasoning"] = [
+        {"kind": "text", "text": "Cross-checked against a Granola export."}
+    ]
+    hits = spawned_cells_to_ts.private_source_hits(cell)
+    assert hits == ["reasoning"]

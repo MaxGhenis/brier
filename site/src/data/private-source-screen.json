@@ -1,0 +1,18 @@
+{
+  "comment": "Single source of truth for the private-source provenance screen. The spawned-cell converter (scripts/spawned_cells_to_ts.py) REFUSES agent-authored cell text matching this pattern and WITHHOLDS matching reviewer-authored preSubmitReview text behind the marker; site/src/__tests__/forecast-catalog.test.ts enforces the same pattern over the entire public catalog payload as the fail-closed backstop. Edit the pattern only with review; the canary test pins the required tokens.",
+  "pattern": "granola|\\btranscripts?\\b|meeting notes?|meeting with max|pasted-text|\\.codex/attachments|codex attachments|private meeting|call notes?|email thread|chat transcript",
+  "flags": "i",
+  "marker": "[withheld by the private-source screen]",
+  "requiredTokens": [
+    "granola",
+    "transcripts?",
+    "meeting notes?",
+    "meeting with max",
+    "pasted-text",
+    "codex attachments",
+    "private meeting",
+    "call notes?",
+    "email thread",
+    "chat transcript"
+  ]
+}

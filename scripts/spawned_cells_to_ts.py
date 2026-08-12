@@ -58,11 +58,24 @@ REQUIRED = [
     "runAt",
     "reasoning",
 ]
-PRIVATE_SOURCE_RE = re.compile(
-    r"(?i)(granola|\btranscripts?\b|meeting notes?|meeting with max|"
-    r"pasted-text|\.codex/attachments|codex attachments|private meeting|"
-    r"call notes?|email thread|chat transcript)"
+# The private-source screen (granola, transcripts, meeting notes, private
+# meetings, ...) has one source of truth shared with the site's catalog
+# test, so the refusing side and the enforcing side cannot drift.
+_PRIVATE_SOURCE_SCREEN = json.loads(
+    (
+        pathlib.Path(__file__).resolve().parent.parent
+        / "site"
+        / "src"
+        / "data"
+        / "private-source-screen.json"
+    ).read_text()
 )
+PRIVATE_SOURCE_RE = re.compile(
+    f"(?i)({_PRIVATE_SOURCE_SCREEN['pattern']})"
+)
+PRIVATE_SOURCE_MARKER = _PRIVATE_SOURCE_SCREEN["marker"]
+if PRIVATE_SOURCE_RE.search(PRIVATE_SOURCE_MARKER):
+    raise RuntimeError("the private-source marker must not match its own screen")
 
 
 def private_source_hits(cell: dict) -> list[str]:
@@ -78,6 +91,30 @@ def private_source_hits(cell: dict) -> list[str]:
         if PRIVATE_SOURCE_RE.search(text):
             hits.append(name)
     return hits
+
+
+def screen_pre_submit_review(review: dict) -> dict:
+    """Withhold reviewer-authored text that matches the private-source screen.
+
+    Agent-authored cell text is REFUSED on a hit (private_source_hits): the
+    agent controls its own citations. Reviewer commentary is different — the
+    reviewer writes about the run ("attach the fetch transcript") without
+    citing anything, and its wording is not evidence. Refusing the whole run
+    for a reviewer's word choice burns runs nondeterministically, so the
+    published projection withholds the matching string behind an explicit
+    marker instead. The immutable run record keeps the original text.
+    """
+
+    def clean(value: object) -> object:
+        if isinstance(value, str):
+            return PRIVATE_SOURCE_MARKER if PRIVATE_SOURCE_RE.search(value) else value
+        if isinstance(value, list):
+            return [clean(item) for item in value]
+        if isinstance(value, dict):
+            return {key: clean(item) for key, item in value.items()}
+        return value
+
+    return clean(review)  # type: ignore[return-value]
 
 
 def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
@@ -625,7 +662,9 @@ def to_forecast_cell(
     if cell.get("custodyRootSha256"):
         out["predictionRun"]["custodyRootSha256"] = cell["custodyRootSha256"]
     if cell.get("preSubmitReview"):
-        out["predictionRun"]["preSubmitReview"] = cell["preSubmitReview"]
+        out["predictionRun"]["preSubmitReview"] = screen_pre_submit_review(
+            cell["preSubmitReview"]
+        )
     out["reasoning"] = cell["reasoning"]
     return out
 

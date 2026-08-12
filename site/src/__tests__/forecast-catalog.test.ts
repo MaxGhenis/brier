@@ -77,8 +77,15 @@ import {
   type PredictionRecordedLogEntry,
 } from "@/data/thesis-log";
 
-const PRIVATE_SOURCE_PATTERN =
-  /granola|\btranscripts?\b|meeting notes?|meeting with max|pasted-text|\.codex\/attachments|codex attachments|private meeting|call notes?|email thread|chat transcript/i;
+// One source of truth shared with scripts/spawned_cells_to_ts.py, which
+// refuses agent-authored hits and withholds reviewer-authored hits behind
+// the marker; this test is the fail-closed backstop over the whole payload.
+import privateSourceScreen from "../data/private-source-screen.json";
+
+const PRIVATE_SOURCE_PATTERN = new RegExp(
+  privateSourceScreen.pattern,
+  privateSourceScreen.flags,
+);
 
 describe("forecast catalog", () => {
   let policyEngineLedger: PolicyEngineLedgerEntry[] = [];
@@ -111,6 +118,17 @@ describe("forecast catalog", () => {
     });
 
     expect(publicCatalogPayload).not.toMatch(PRIVATE_SOURCE_PATTERN);
+  });
+
+  it("pins the private-source screen's tokens and marker", () => {
+    // The pattern lives in a shared data file; a gutted pattern must not
+    // silently weaken this suite. Every required token stays verbatim, and
+    // the converter's withholding marker must never match its own screen.
+    for (const token of privateSourceScreen.requiredTokens) {
+      expect(privateSourceScreen.pattern).toContain(token);
+    }
+    expect(privateSourceScreen.marker).not.toMatch(PRIVATE_SOURCE_PATTERN);
+    expect(privateSourceScreen.marker.length).toBeGreaterThan(0);
   });
 
   it("keeps private-source bans in agent prompts and validators", () => {
