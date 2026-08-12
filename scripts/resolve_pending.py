@@ -1046,8 +1046,7 @@ BEA_ITABLE_PAGE_URL = (
     "nipa_table_list=145&categories=survey"
 )
 BEA_ITA_ITABLE_PAGE_URL = (
-    "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&"
-    "tablelist=62&product=1"
+    "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1"
 )
 BEA_ITABLE_DATA_URL = "https://apps.bea.gov/iTablecore/data/app/GetStep"
 BEA_RELEASE_REQUIRED_HOSTS = {"apps.bea.gov", "www.bea.gov"}
@@ -1531,9 +1530,7 @@ def bea_ita_prompt_catalog_selection(
         or not isinstance(cells, list)
         or len(cells) != row_count * column_count
     ):
-        return None, (
-            "ITA prompt catalog does not have the unfiltered Table 5.1 shape"
-        )
+        return None, ("ITA prompt catalog does not have the unfiltered Table 5.1 shape")
     return year_key, None
 
 
@@ -1788,9 +1785,7 @@ def bea_ita_itable_value(
         or not isinstance(cells, list)
         or len(cells) != row_count * column_count
     ):
-        return None, (
-            "ITA selected iTable does not have the requested Table 5.1 shape"
-        )
+        return None, ("ITA selected iTable does not have the requested Table 5.1 shape")
     grid: dict[tuple[int, int], str] = {}
     for cell in cells:
         if not isinstance(cell, dict):
@@ -1835,8 +1830,7 @@ def bea_ita_itable_value(
     printed_cell = grid[(rows[0], columns[0])].strip()
     if re.fullmatch(r"(?:0|[1-9]\d{0,2}(?:,\d{3})*)", printed_cell) is None:
         return None, (
-            "exact ITA iTable cell is not a printed whole number: "
-            f"{printed_cell!r}"
+            f"exact ITA iTable cell is not a printed whole number: {printed_cell!r}"
         )
     printed = printed_cell.replace(",", "")
     try:
@@ -1845,8 +1839,7 @@ def bea_ita_itable_value(
         return None, f"exact ITA iTable cell is not numeric: {printed!r}"
     if not math.isfinite(value) or value < 0:
         return None, (
-            "exact ITA iTable cell is not a nonnegative finite value: "
-            f"{value}"
+            f"exact ITA iTable cell is not a nonnegative finite value: {value}"
         )
     expected_transform = {
         "operation": "identity",
@@ -6471,6 +6464,24 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     return None
 
 
+def parse_usaspending_ref_fiscal_year(ref: str, stem: str) -> str | None:
+    """Parse one exact registered-query snapshot id to a fiscal year.
+
+    Conditional arms append a legal-state token after the release-policy
+    token, so the generic trailing-policy parser cannot see it. Mirror the
+    IRS conditional-family treatment while accepting the existing ``fy2026``
+    spelling and the reviewed pair's bare ``2027`` spelling. Other release
+    policies fail closed instead of being claimed by the USAspending adapter.
+    """
+
+    match = re.fullmatch(
+        rf"{re.escape(stem)}\.(?:fy_?)?(\d{{4}})"
+        r"\.registered_query_snapshot(?:\.[a-z0-9_]+)?",
+        ref,
+    )
+    return match.group(1) if match else None
+
+
 def _registered_sba_fiscal_year(
     ref: str,
     stem: str,
@@ -9123,15 +9134,18 @@ def pending_adapter_refs(
             None,
         )
         if usaspending_stem:
-            parsed = parse_ref_period(ref, usaspending_stem)
-            if parsed and parsed[0] == "fiscal_year":
+            fiscal_year = parse_usaspending_ref_fiscal_year(ref, usaspending_stem)
+            if fiscal_year is not None:
                 out.append(
                     (
                         ref,
                         "usaspending",
-                        USASPENDING_ADAPTERS[usaspending_stem],
-                        parsed[0],
-                        parsed[1],
+                        {
+                            **USASPENDING_ADAPTERS[usaspending_stem],
+                            "target_series": usaspending_stem,
+                        },
+                        "fiscal_year",
+                        fiscal_year,
                         release_date,
                         forecast,
                     )
@@ -10912,11 +10926,21 @@ def main() -> int:
                 f"  RESOLUTION-DATE BASIS MISMATCH (refusing): {ref} — {basis_refusal}"
             )
             continue
+        contract = (registration or {}).get("contract") or {}
+        source_binding = contract.get("sourceBinding") or {}
+        is_registered_query_snapshot = (
+            kind == "usaspending"
+            and source_binding.get("releasePolicy") == "registered_query_snapshot"
+        )
         # A resolve-by date is an outer bound, not a claimed release day. Its
         # family leg gates on the immutable expectedReleaseWindow instead.
+        # A registered-query snapshot likewise uses resolutionDate as the
+        # window's conservative end; its USAspending leg must be allowed to
+        # capture the first snapshot from the registered window's start.
         if (
             release_day > today
             and resolution_date_basis == DEFAULT_RESOLUTION_DATE_BASIS
+            and not is_registered_query_snapshot
         ):
             print(f"  release {release_day} not reached: {ref}")
             continue
@@ -11182,8 +11206,8 @@ def main() -> int:
                 catalog_body = bea_ita_prompt_catalog_request_body(spec)
                 catalog_cache_key = canonical_bytes(catalog_body)
                 if catalog_cache_key not in bea_itable_cache:
-                    bea_itable_cache[catalog_cache_key] = (
-                        fetch_bea_ita_prompt_catalog(spec)
+                    bea_itable_cache[catalog_cache_key] = fetch_bea_ita_prompt_catalog(
+                        spec
                     )
                 (
                     catalog_raw,

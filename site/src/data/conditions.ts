@@ -389,6 +389,7 @@ export const CONDITIONS: ConditionDefinition[] = [
       "An Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 is enacted into law on or before 2026-12-31 (public record: congress.gov became-law status of H.R. 8800 or any successor FY2027 NDAA vehicle).",
     checkSource: PROVISION_ENACTED_CHECK_SOURCE,
     deadline: "2026-12-31",
+    complementOf: "cond.fy27-ndaa-enactment.not-enacted",
   },
   {
     type: "recorded_status",
@@ -401,6 +402,7 @@ export const CONDITIONS: ConditionDefinition[] = [
     ],
     status: "open",
     resolvesBy: "2026-12-31",
+    complementOf: "cond.fy27-ndaa-enactment.enacted",
     note:
       "The literal negation of the enacted condition over the same " +
       "deadline: exactly one of the two premises holds once 2026-12-31 " +

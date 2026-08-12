@@ -237,14 +237,14 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
     # a docket entry without anchors leaves the rerun unanchored exactly
     # as a fresh roll would.
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
-    entry = next(
-        (
-            row
-            for row in docket.get("series", [])
-            if row.get("series") == contract["series"]
-        ),
-        None,
-    )
+    entries = docket.get("series", [])
+    matches = register_targets.matching_docket_templates(contract, entries)
+    if len(matches) > 1:
+        raise RetrySelectionError(
+            f"{label} has ambiguous committed docket authority for "
+            f"{contract['series']} period {contract['period']}"
+        )
+    entry = matches[0] if matches else None
     docket_anchors = ((entry or {}).get("extras") or {}).get("anchors")
     row_anchors = row_target.get("anchors")
     if row_anchors is not None and row_anchors != docket_anchors:
@@ -270,9 +270,7 @@ def select_retry_targets(
         if not isinstance(target, dict) or not target.get("catalogSlug"):
             raise RetrySelectionError(f"result {index} lacks a batch target")
         if not isinstance(result.get("ok"), bool):
-            raise RetrySelectionError(
-                f"result {index} has no boolean recorded outcome"
-            )
+            raise RetrySelectionError(f"result {index} has no boolean recorded outcome")
         slug = str(target["catalogSlug"])
         if slug in by_slug:
             raise RetrySelectionError(f"duplicate result for {slug}")
@@ -303,9 +301,7 @@ def select_retry_targets(
     rebuilt_by_slug: dict[str, dict] = {}
     for slug in chosen:
         label = f"target {slug}"
-        rebuilt = rebuild_target_from_snapshot(
-            by_slug[slug]["target"], label=label
-        )
+        rebuilt = rebuild_target_from_snapshot(by_slug[slug]["target"], label=label)
         registered = _parse_utc(
             rebuilt["registeredAtUtc"], label=f"{label} registeredAtUtc"
         )
@@ -335,9 +331,9 @@ def select_retry_targets(
     # sibling row cannot hide the pair.
     if any(rebuilt.get("conditional") is not None for rebuilt in targets):
         contract_by_slug = {
-            slug: load_verified_snapshot(
-                result["target"], label=f"target {slug}"
-            )[0]["targets"][0]
+            slug: load_verified_snapshot(result["target"], label=f"target {slug}")[0][
+                "targets"
+            ][0]
             for slug, result in by_slug.items()
         }
         for slug, rebuilt in rebuilt_by_slug.items():
@@ -352,10 +348,7 @@ def select_retry_targets(
                     or sibling_contract.get("period") != rebuilt.get("period")
                 ):
                     continue
-                if (
-                    not sibling_result.get("ok")
-                    and sibling not in rebuilt_by_slug
-                ):
+                if not sibling_result.get("ok") and sibling not in rebuilt_by_slug:
                     raise RetrySelectionError(
                         f"target {slug} is a conditional arm whose sibling "
                         f"{sibling} also failed and is not selected; "

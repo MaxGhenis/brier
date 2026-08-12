@@ -1105,6 +1105,53 @@ def _load_committed_docket(head_commit: str) -> list[Any]:
     return entries
 
 
+def matching_docket_templates(
+    contract: dict[str, Any], entries: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Select the committed authority for one series-period contract.
+
+    A Ledger series may have multiple reviewed one-shot target periods in the
+    docket. When the contract's semantic period is present, only those entries
+    can authorize it; otherwise retain the historical series-wide fallback
+    so an unrecognized period cannot evade a conditional-only or ambiguity
+    check. Registered-query fiscal-year spellings such as ``2027`` and
+    ``FY2027`` are one period because the resolver treats them as aliases.
+    Multiple matching entries remain ambiguous and fail closed in the caller.
+    """
+
+    series_matches = [
+        entry
+        for entry in entries
+        if isinstance(entry, dict) and entry.get("series") == contract.get("series")
+    ]
+    contract_period = _docket_period_identity(contract)
+    period_matches = [
+        entry
+        for entry in series_matches
+        if _docket_period_identity(entry) == contract_period
+    ]
+    return period_matches or series_matches
+
+
+def _docket_period_identity(row: dict[str, Any]) -> tuple[str, Any]:
+    """Return the resolver-level identity of one contract or docket period."""
+
+    binding = row.get("sourceBinding")
+    if not isinstance(binding, dict):
+        extras = row.get("extras")
+        binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    period = row.get("period")
+    if (
+        isinstance(binding, dict)
+        and binding.get("releasePolicy") == "registered_query_snapshot"
+        and isinstance(period, str)
+    ):
+        fiscal_year = re.fullmatch(r"(?:fy_?)?(\d{4})", period, re.IGNORECASE)
+        if fiscal_year:
+            return ("registered_query_snapshot_fiscal_year", fiscal_year.group(1))
+    return ("literal", period)
+
+
 def _binding_matches_template(binding: Any, template: Any) -> bool:
     if not isinstance(binding, dict) or not isinstance(template, dict):
         return False
@@ -1334,13 +1381,13 @@ def require_conditional_docket_template(
     conditionId, deadline, unit, valueScale, and the full source binding
     including its window); with a batch target supplied, every other
     committed target field (resolutionDate, anchors, …) must match it too;
-    the sibling arm must still be present and well-formed; and a series
+    the sibling arm must still be present and well-formed; and a series-period
     whose committed entry carries a conditionalPair is conditional-only —
     NO unconditional contract may register under it. Any committed-entry
-    drift after registration fails closed before forecasting or
-    publication.
+    drift after registration fails closed before forecasting or publication.
     """
 
+    template_matches = matching_docket_templates(contract, template_matches)
     label = f"{contract.get('dataPointId')} in series {contract.get('series')}"
     conditional = contract.get("conditional")
     pair = (
@@ -1350,9 +1397,10 @@ def require_conditional_docket_template(
     )
     arms = pair.get("arms") if isinstance(pair, dict) else None
     if conditional is None:
-        # Checked across EVERY committed match, so a duplicate-series
-        # registry state can never launder an unconditional contract past
-        # the conditional-only rule.
+        # Checked across every applicable committed match, so duplicate
+        # exact-period authority (or a series-wide fallback for an unknown
+        # period) cannot launder an unconditional contract past the
+        # conditional-only rule.
         if any(
             isinstance(entry, dict) and entry.get("conditionalPair") is not None
             for entry in template_matches
@@ -1398,18 +1446,26 @@ def require_conditional_docket_template(
             "committed conditional extras restate reserved target keys "
             f"{sorted(clashing)}: {label}"
         )
+    binding = extras.get("sourceBinding")
+    release_policy = binding.get("releasePolicy") if isinstance(binding, dict) else None
+    resolution_token = (
+        "registered_query_snapshot"
+        if release_policy == "registered_query_snapshot"
+        else "first_print"
+    )
     for sibling in arms:
         period_token = str(entry.get("period")).replace("-", "_")
         if not re.fullmatch(
             rf"{re.escape(str(entry.get('series')))}"
             rf"\.{re.escape(period_token)}"
-            r"\.first_print\.[a-z0-9_]+",
+            rf"\.{re.escape(resolution_token)}\.[a-z0-9_]+",
             str(sibling.get("dataPointId")),
         ):
             raise RegistrationError(
                 "committed conditional arm dataPointId "
-                f"{sibling.get('dataPointId')!r} is not "
-                "<series>.<period>.first_print.<condition_token>: "
+                f"{sibling.get('dataPointId')!r} does not match "
+                f"sourceBinding.releasePolicy {release_policy!r}; expected "
+                f"<series>.<period>.{resolution_token}.<condition_token>: "
                 f"{label}"
             )
     matching = [
@@ -1559,12 +1615,10 @@ def _binding_is_committed_template(contract: dict[str, Any], head_commit: str) -
 
     try:
         entries = _load_committed_docket(head_commit)
-        matches = []
         for entry in entries:
             if not isinstance(entry, dict) or "series" not in entry:
                 return False
-            if entry["series"] == contract["series"]:
-                matches.append(entry)
+        matches = matching_docket_templates(contract, entries)
         if len(matches) != 1:
             return False
         template = matches[0]["extras"]["sourceBinding"]
@@ -2151,9 +2205,7 @@ def bind_registration_commits(
             raise RegistrationError(f"registeredAtUtc mismatch: {relative}")
         series = contract.get("series")
         data_point_id = contract.get("dataPointId")
-        template_matches = [
-            entry for entry in docket_entries if entry["series"] == series
-        ]
+        template_matches = matching_docket_templates(contract, docket_entries)
         require_calendar_gated_docket_template(contract, template_matches)
         require_seed_docket_template(
             contract,
@@ -2187,9 +2239,7 @@ def bind_registration_commits(
             # anchors change landing in between must fail the bind closed
             # (stale-or-absent anchors reaching generation was the retry
             # lane's round-four finding, and fresh rolls shared the race).
-            docket_anchors = (
-                extras.get("anchors") if isinstance(extras, dict) else None
-            )
+            docket_anchors = extras.get("anchors") if isinstance(extras, dict) else None
             if canonical_bytes(target.get("anchors")) != canonical_bytes(
                 docket_anchors
             ):

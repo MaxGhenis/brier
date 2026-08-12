@@ -81,6 +81,21 @@ describe("condition registry", () => {
       }
     }
   });
+
+  it("registers the FY27 NDAA enactment arms as literal complements", () => {
+    const enacted = CONDITIONS.find(
+      (condition) =>
+        condition.conditionId === "cond.fy27-ndaa-enactment.enacted",
+    );
+    const notEnacted = CONDITIONS.find(
+      (condition) =>
+        condition.conditionId === "cond.fy27-ndaa-enactment.not-enacted",
+    );
+    expect(enacted?.complementOf).toBe(notEnacted?.conditionId);
+    expect(notEnacted?.complementOf).toBe(enacted?.conditionId);
+    expect(enacted?.resolvesBy).toBe("2026-12-31");
+    expect(notEnacted?.resolvesBy).toBe("2026-12-31");
+  });
 });
 
 describe("provision_enacted conditions", () => {
