@@ -672,11 +672,13 @@ def test_final_push_loops_rebind_after_every_rebase() -> None:
         after_title = workflow.split("Rebase, reverify, and push once", 1)[1]
         # Isolate exactly this step: up to the next step declaration.
         step = after_title.split("- name:", 1)[0]
+        env_section, body = step.split("run: |", 1)
+        # The binding must live in the step's env: block — the same text
+        # in a run comment leaves $EXPECTED_SET_HASH unset at runtime.
         assert (
             "EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}"
-            in step
+            in env_section
         ), f"{name}: final step must carry its own EXPECTED_SET_HASH env"
-        body = step.split("run: |", 1)[1]
         ordered = [
             "for attempt in",
             "git pull --rebase origin main",
