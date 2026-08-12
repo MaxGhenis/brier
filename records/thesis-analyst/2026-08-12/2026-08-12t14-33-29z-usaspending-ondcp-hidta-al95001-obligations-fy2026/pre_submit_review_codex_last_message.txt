@@ -1,0 +1,33 @@
+{
+  "summary": "The draft is an honest refusal rather than a publishable forecast cell, because it lacks the required registered-query history, forecast values, interval, and target metadata.",
+  "requiredFixes": [
+    {
+      "rubricItem": "base_rate",
+      "severity": "blocking",
+      "summary": "No historicalContext values were fetched with the exact registered USAspending POST query.",
+      "actionRequested": "Either execute the registered query for prior fiscal years and include the resulting history, or keep this as a failed run trace rather than publishing a forecast cell."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft does not state the full resolver contract, first-print rule, unit, dataPointId, or resolutionDate.",
+      "actionRequested": "If converting to a forecast cell, state the resolver as the registered USAspending API v2 spending_over_time POST query, unit usd_millions, dataPointId usaspending.ondcp.hidta_al95001_obligations.fy2026.registered_query_snapshot, and resolutionDate 2026-10-22."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "There is no point forecast, interval, final forecast step, historicalContext, or JSON cell fields to normalize.",
+      "actionRequested": "Produce a complete cell only after the registered-query history is available; otherwise publish only the failed trace artifact."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The required compact Prior/update/interval reasoning is absent because the run refused before forecasting.",
+      "actionRequested": "After fetching valid history, add a compact step naming the prior, historical sample, adjustments, interval method, and implied bounds."
+    }
+  ],
+  "optionalSuggestions": [
+    "The refusal is appropriate if POST execution is unavailable; do not substitute agency profile totals or search-result summaries.",
+    "Preserve the bwrap and 405 errors in the trace as evidence for the failed run."
+  ]
+}

@@ -1,0 +1,348 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-12T14:35:17Z",
+  "runStartedAt": "2026-08-12T14:35:17Z",
+  "series": "usaspending.usfs.minnesota_place_of_performance_obligations",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2025": 46.83255679
+    },
+    "catalogSlug": "us-usfs-minnesota-place-of-performance-obligations-fy2026",
+    "country": "US",
+    "dataPointId": "usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot",
+    "expectedReleaseWindow": {
+      "end": "2026-10-22",
+      "start": "2026-10-15"
+    },
+    "period": "FY2026",
+    "registeredAt": "2026-08-11T20:38:09Z",
+    "registeredAtUtc": "2026-08-11T20:38:09Z",
+    "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+    "registrationState": "preregistered",
+    "series": "usaspending.usfs.minnesota_place_of_performance_obligations",
+    "sourceBinding": {
+      "adapter": "usaspending-api",
+      "allowedHosts": [
+        "api.usaspending.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-22",
+        "start": "2026-10-15"
+      },
+      "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+      "releasePolicy": "registered_query_snapshot",
+      "sourceSeriesId": "usaspending.search.spending_over_time.usfs.minnesota_obligations",
+      "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+      "table": "USAspending API v2 advanced search, prime award transactions filtered to the Forest Service awarding subagency and Minnesota place of performance, obligations by fiscal year",
+      "transform": {
+        "agency": {
+          "name": "Forest Service",
+          "tier": "subtier",
+          "toptier_name": "Department of Agriculture",
+          "type": "awarding"
+        },
+        "awardTypeCodes": [
+          "02",
+          "03",
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11",
+          "A",
+          "B",
+          "C",
+          "D",
+          "IDV_A",
+          "IDV_B",
+          "IDV_B_A",
+          "IDV_B_B",
+          "IDV_B_C",
+          "IDV_C",
+          "IDV_D",
+          "IDV_E"
+        ],
+        "factor": 1e-06,
+        "fiscalYear": "{fiscal_year}",
+        "group": "fiscal_year",
+        "operation": "multiply",
+        "placeOfPerformanceLocations": [
+          {
+            "country": "USA",
+            "state": "MN"
+          }
+        ],
+        "requestMethod": "POST",
+        "spendingLevel": "transactions"
+      }
+    },
+    "targetContentHash": "c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3",
+    "targetRegistrationPath": "records/targets/2026-08-11-c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3.json",
+    "targetUnit": "usd_millions",
+    "valueScale": 1e-06
+  },
+  "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+  "targetContentHash": "c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3",
+  "targetRegistrationPath": "records/targets/2026-08-11-c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3.json",
+  "registeredAtUtc": "2026-08-11T20:38:09Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "ok": false,
+  "cellsPath": null,
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/prompt.md",
+      "sha256": "e95e51782fc745cdc6f0211c6e0c595af66ca90a19b4dfab3afb38815d9012cc",
+      "bytes": 35517,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_command.json",
+      "sha256": "b923adca5a74cef43442e5cad8b45245d33f1bddaf5dbde72dc154ee8ae9e3b5",
+      "bytes": 883,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "e53e77617ffdffc5f902beac07382d42c07f96f47e2742c9c1e8bc7a46c4d072",
+      "bytes": 2797,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_stderr.log",
+      "sha256": "644787f340aa560b1f2e2c276ec2715ba50329da5c133ade31596a20ed3d6501",
+      "bytes": 233,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_events.jsonl",
+      "sha256": "0132ceccbbcca44cdfc4b37842133b7fce6319044ecb54416be162d99aa676b9",
+      "bytes": 2836,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_last_message.txt",
+      "sha256": "0503d65b3e6b80533a0c24a5073fe93b2922560ac03e98981dca2b5d6182bdbf",
+      "bytes": 743,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_codex_trace.json",
+      "sha256": "1a7811d767793b91ae5af518b77bf1c919cdee7d715b15695c344ec311893849",
+      "bytes": 564,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_stdout.txt",
+      "sha256": "0503d65b3e6b80533a0c24a5073fe93b2922560ac03e98981dca2b5d6182bdbf",
+      "bytes": 743,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/draft_stderr.txt",
+      "sha256": "92a4bebc915bab9378425bbe9a5b930fbf8f43cfe1e3a17692421ebd69e81b00",
+      "bytes": 248,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_prompt.md",
+      "sha256": "fcc3b483ffb1cbb281206b4cc48e483fc39086541a7f59dc7a705e19b6333872",
+      "bytes": 5646,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_command.json",
+      "sha256": "0e66f00b6e3391b562f9dc11680aa95d06b84796ec05e444a0d011524aa9f75a",
+      "bytes": 879,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "203e423fe00e15ed9c324839055b5030b7fc243a074e984b446699e278a1e219",
+      "bytes": 3341,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "b165693b2ba1a6ccfe2d364ccd5592a59282dd363a7aa49009b5ea2d30bc5d0e",
+      "bytes": 233,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "276b4c4125ee1ef12e6c9ef77ab5ee697d1cbe27e3629ca66ad98de96ea2161c",
+      "bytes": 3363,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "4a7cf8a51ee412c3ed22bb976b9135ad81436dd06fb2b13a3fc9a0ff6c88cb36",
+      "bytes": 2850,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "d033aa7df480ea2a09af95fbe46a6ff80ecb778f9f3d85113f81a1752e4f029d",
+      "bytes": 561,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "4a7cf8a51ee412c3ed22bb976b9135ad81436dd06fb2b13a3fc9a0ff6c88cb36",
+      "bytes": 2850,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "489f5a778c13cd6ee8868df740c6aa2cd4b1693f9a86ab220ba4b3ac0d357e36",
+      "bytes": 248,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/revision_prompt.md",
+      "sha256": "da649222e1781bdaf7a108462a32e1b777a9f8ae31e9844286e3158427ec35aa",
+      "bytes": 40046,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/command.json",
+      "sha256": "fdafa1c9e330d6eb0a9268ec2d60152ae58bd365d400c1e82a0fe221d6f6a1ea",
+      "bytes": 877,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_stdout.jsonl",
+      "sha256": "54bf068f23fd0b5ae31981c19dcd7d988fb1452f3ab1bc141c1e538bb956396b",
+      "bytes": 3717,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_stderr.log",
+      "sha256": "c98f0e7a729b6f63d898fc66fbcef3c430ca369ff85fbad57d93ea6c6d3ae276",
+      "bytes": 233,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_events.jsonl",
+      "sha256": "0223e5b922b279b8f1efa595274ffa0f3ef9d18529a1f7e8295c22034e4ccc0f",
+      "bytes": 3740,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_last_message.txt",
+      "sha256": "e5761a5f6ad5bbe3ed4da602259a55c4ffaf3fdff2e157202eae90d2b634c093",
+      "bytes": 1556,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/codex_trace.json",
+      "sha256": "ab3ad0ef5376c2a535975c5eb5a07ab587fa8047b03a479b6130a2ad3177d1dd",
+      "bytes": 564,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/stdout.txt",
+      "sha256": "e5761a5f6ad5bbe3ed4da602259a55c4ffaf3fdff2e157202eae90d2b634c093",
+      "bytes": 1556,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/stderr.txt",
+      "sha256": "97740ad8f4923c083a7d96e5ab1e6bffe9ad17abc7ee36b0faa43b9bb0876551",
+      "bytes": 248,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/raw_response.txt",
+      "sha256": "e5761a5f6ad5bbe3ed4da602259a55c4ffaf3fdff2e157202eae90d2b634c093",
+      "bytes": 1556,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/parsed_cells.json",
+      "sha256": "58798fb4b3d440d32d5438cf6e0b4b27ee46c948fad714b5511a97ec309af38a",
+      "bytes": 1677,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "error",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/error.json",
+      "sha256": "2739d4b09dfa2849a923d4ef987069d69cba95fc561ef020cdad449513ba466c",
+      "bytes": 326,
+      "createdAt": "2026-08-12T14:35:17Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/manifest.json",
+      "sha256": "8651ee22a2a4de5c9eaff76362f7b4da1ac68f278b03c90c58b5ca4840b491d9",
+      "bytes": 12831,
+      "createdAt": "2026-08-12T14:35:17Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": null,
+  "error": {
+    "phase": "normalize",
+    "message": "normalize_spawn_json.py failed:\nstdout:\n\n\nstderr:\nREFUSING: cell 0 (usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot) missing required keys: reasoning, historicalContext\n",
+    "command": {
+      "returnCode": 0,
+      "timedOut": false
+    }
+  },
+  "checkoutSha": "36995611848572de69ff5de581ef6cf1acb44a79",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "7a536bd33c24224959287a0ea6779e1d159fece396726d352dc211a15074a325"
+}

@@ -1,0 +1,5 @@
+I’m dropping this cell rather than publishing an ungrounded forecast.
+
+I could not execute the required registered USAspending `POST /api/v2/search/spending_over_time/` query in this environment: local shell commands fail before start with `bwrap: setting up uid map: Permission denied`, and the browser fetch path can only open the endpoint as GET, which returns `405 Method Not Allowed`. USAspending’s docs confirm this endpoint is POST-only and does not require authorization. ([api.usaspending.gov](https://api.usaspending.gov/docs/endpoints)) ([]())
+
+Because the machine-checked target requires historicalContext from the exact registered query, substituting agency-profile totals or remembered values would violate the contract. No JSON cell emitted.

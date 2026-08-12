@@ -1,0 +1,21 @@
+{
+  "summary": "The refusal is directionally correct under the registered-query rule, but there is no publishable forecast cell to approve.",
+  "requiredFixes": [
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "No JSON cell was emitted, so point, interval, historicalContext, and final forecast fields cannot be validated or published.",
+      "actionRequested": "Treat this as a dropped run, or rerun in an environment that can execute the exact registered USAspending POST query and emit a complete cell."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The refusal mentions the POST endpoint but does not restate the exact target resolver details, first-print rule, dataPointId, unit, and 2026-10-22 resolutionDate.",
+      "actionRequested": "If preserving this as a failed trace, include the target contract details and the exact failed fetch evidence in the run artifacts."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the refusal rather than substituting agency profile totals or broader USAspending summaries.",
+    "For a retry, capture the exact POST payload and response for each historical fiscal year used in historicalContext."
+  ]
+}

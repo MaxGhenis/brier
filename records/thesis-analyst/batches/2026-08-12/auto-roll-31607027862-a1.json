@@ -1,0 +1,248 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-08-12T14:31:21Z",
+  "finishedAt": "2026-08-12T14:36:53Z",
+  "promptMode": "full",
+  "timeoutSeconds": 540,
+  "targets": 3,
+  "ok": 0,
+  "failed": 3,
+  "results": [
+    {
+      "target": {
+        "anchors": {
+          "2025": 319.455176
+        },
+        "catalogSlug": "us-cdfi-assistance-transaction-obligations-fy2026",
+        "country": "US",
+        "dataPointId": "usaspending.cdfi.assistance_transaction_obligations.fy2026.registered_query_snapshot",
+        "expectedReleaseWindow": {
+          "end": "2026-10-22",
+          "start": "2026-10-15"
+        },
+        "period": "FY2026",
+        "registeredAt": "2026-08-11T20:38:09Z",
+        "registeredAtUtc": "2026-08-11T20:38:09Z",
+        "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+        "registrationState": "preregistered",
+        "series": "usaspending.cdfi.assistance_transaction_obligations",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "allowedHosts": [
+            "api.usaspending.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-22",
+            "start": "2026-10-15"
+          },
+          "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+          "releasePolicy": "registered_query_snapshot",
+          "sourceSeriesId": "usaspending.search.spending_over_time.cdfi.program_obligations",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+          "table": "USAspending API v2 advanced search, CDFI Fund awarding-subagency financial-assistance award transactions, obligations by fiscal year",
+          "transform": {
+            "agency": {
+              "name": "Community Development Financial Institutions Fund",
+              "tier": "subtier",
+              "type": "awarding"
+            },
+            "awardTypeCodes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11"
+            ],
+            "factor": 1e-06,
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "operation": "multiply",
+            "requestMethod": "POST",
+            "spendingLevel": "transactions"
+          }
+        },
+        "targetContentHash": "6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32",
+        "targetRegistrationPath": "records/targets/2026-08-11-6e45cb2f4898f951845f89900e3c0befff43d9dc3bc3a0f7749231020fb88f32.json",
+        "targetUnit": "usd_millions",
+        "valueScale": 1e-06
+      },
+      "startedAt": "2026-08-12T14:31:21Z",
+      "finishedAt": "2026-08-12T14:33:29Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t14-31-21z-usaspending-cdfi-assistance-transaction-obligations-fy2026/manifest.json",
+      "cellsPath": null,
+      "stdoutTail": "aw_response.txt\",\n      \"sha256\": \"8a7610e2d0344427a1939419dba18b30f2d7337171653fd4477aeff828c02282\",\n      \"bytes\": 3298,\n      \"createdAt\": \"2026-08-12T14:31:21Z\"\n    },\n    {\n      \"artifactType\": \"parsed_cell\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-31-21z-usaspending-cdfi-assistance-transaction-obligations-fy2026/parsed_cells.json\",\n      \"sha256\": \"6c4fa54db6107317991b6e7ee0114645df9006c264e498596d4dc52b689dcb3d\",\n      \"bytes\": 3719,\n      \"createdAt\": \"2026-08-12T14:31:21Z\"\n    },\n    {\n      \"artifactType\": \"error\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-31-21z-usaspending-cdfi-assistance-transaction-obligations-fy2026/error.json\",\n      \"sha256\": \"0593c544fdbc7142de032ffebf2b8c8fcc94802f24d8e2c5cf54b8be1b56d65b\",\n      \"bytes\": 307,\n      \"createdAt\": \"2026-08-12T14:31:21Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-31-21z-usaspending-cdfi-assistance-transaction-obligations-fy2026/manifest.json\",\n      \"sha256\": \"8e3d303a8cbe6208ae94cb254ec59da117fc5ca4d5c3ca1b004cd20d4dd96a02\",\n      \"bytes\": 12339,\n      \"createdAt\": \"2026-08-12T14:31:21Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": null,\n  \"error\": {\n    \"phase\": \"normalize\",\n    \"message\": \"normalize_spawn_json.py failed:\\nstdout:\\n\\n\\nstderr:\\nREFUSING: cell 0 (usaspending.cdfi.assistance_transaction_obligations.fy2026.registered_query_snapshot) missing required keys: historicalContext\\n\",\n    \"command\": {\n      \"returnCode\": 0,\n      \"timedOut\": false\n    }\n  },\n  \"checkoutSha\": \"36995611848572de69ff5de581ef6cf1acb44a79\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"9d00657cf71ba0b0777da07042d4ec73a2f8acf1fdefe3b2bbd85beda1043214\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "anchors": {
+          "2025": 271.6576756
+        },
+        "catalogSlug": "us-ondcp-hidta-al95001-obligations-fy2026",
+        "country": "US",
+        "dataPointId": "usaspending.ondcp.hidta_al95001_obligations.fy2026.registered_query_snapshot",
+        "expectedReleaseWindow": {
+          "end": "2026-10-22",
+          "start": "2026-10-15"
+        },
+        "period": "FY2026",
+        "registeredAt": "2026-08-11T20:38:09Z",
+        "registeredAtUtc": "2026-08-11T20:38:09Z",
+        "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+        "registrationState": "preregistered",
+        "series": "usaspending.ondcp.hidta_al95001_obligations",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "allowedHosts": [
+            "api.usaspending.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-22",
+            "start": "2026-10-15"
+          },
+          "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+          "releasePolicy": "registered_query_snapshot",
+          "sourceSeriesId": "usaspending.search.spending_over_time.ondcp.hidta_program_obligations",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+          "table": "USAspending API v2 advanced search, financial-assistance award transactions filtered to Assistance Listing 95.001, obligations by fiscal year",
+          "transform": {
+            "awardTypeCodes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11"
+            ],
+            "factor": 1e-06,
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "operation": "multiply",
+            "programNumbers": [
+              "95.001"
+            ],
+            "requestMethod": "POST",
+            "spendingLevel": "transactions"
+          }
+        },
+        "targetContentHash": "eb895fc1e680eab66d27b1046b6df148fa4c00829fc42935f4c36fb1c8a4a42a",
+        "targetRegistrationPath": "records/targets/2026-08-11-eb895fc1e680eab66d27b1046b6df148fa4c00829fc42935f4c36fb1c8a4a42a.json",
+        "targetUnit": "usd_millions",
+        "valueScale": 1e-06
+      },
+      "startedAt": "2026-08-12T14:33:29Z",
+      "finishedAt": "2026-08-12T14:35:17Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t14-33-29z-usaspending-ondcp-hidta-al95001-obligations-fy2026/manifest.json",
+      "cellsPath": null,
+      "stdoutTail": "s-analyst/2026-08-12/2026-08-12t14-33-29z-usaspending-ondcp-hidta-al95001-obligations-fy2026/raw_response.txt\",\n      \"sha256\": \"578aa8bef2c444dfbebc5db2c7f15b57c85f8c67a85f19fe805b489ecc30c5ea\",\n      \"bytes\": 2899,\n      \"createdAt\": \"2026-08-12T14:33:29Z\"\n    },\n    {\n      \"artifactType\": \"parsed_cell\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-33-29z-usaspending-ondcp-hidta-al95001-obligations-fy2026/parsed_cells.json\",\n      \"sha256\": \"93eca4d20deed469ccc8d86e100499b9e9cd99baf6c92e808f5af3a298d0ff0c\",\n      \"bytes\": 3289,\n      \"createdAt\": \"2026-08-12T14:33:29Z\"\n    },\n    {\n      \"artifactType\": \"error\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-33-29z-usaspending-ondcp-hidta-al95001-obligations-fy2026/error.json\",\n      \"sha256\": \"2e24d5cc6c7f83e82ff09dcdff38939e9cbe995740f372b40f963668532e95b4\",\n      \"bytes\": 237,\n      \"createdAt\": \"2026-08-12T14:33:29Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-33-29z-usaspending-ondcp-hidta-al95001-obligations-fy2026/manifest.json\",\n      \"sha256\": \"3b0defe4798b8f99abc4b422c7fd74f2b81ca5a83b7b31b84014f553a3924538\",\n      \"bytes\": 11937,\n      \"createdAt\": \"2026-08-12T14:33:29Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": null,\n  \"error\": {\n    \"phase\": \"normalize\",\n    \"message\": \"normalize_spawn_json.py failed:\\nstdout:\\n\\n\\nstderr:\\nREFUSING: cell 0 (no dataPointId) missing required keys: historicalContext\\n\",\n    \"command\": {\n      \"returnCode\": 0,\n      \"timedOut\": false\n    }\n  },\n  \"checkoutSha\": \"36995611848572de69ff5de581ef6cf1acb44a79\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"319372ab904f7b5d9e0f87bfdda76ccf3b1e3b72d68a3f21231877e258e5ca32\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "anchors": {
+          "2025": 46.83255679
+        },
+        "catalogSlug": "us-usfs-minnesota-place-of-performance-obligations-fy2026",
+        "country": "US",
+        "dataPointId": "usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot",
+        "expectedReleaseWindow": {
+          "end": "2026-10-22",
+          "start": "2026-10-15"
+        },
+        "period": "FY2026",
+        "registeredAt": "2026-08-11T20:38:09Z",
+        "registeredAtUtc": "2026-08-11T20:38:09Z",
+        "registrationCommit": "49bf9b5726d9faf93b6c96c9d73d4a52dc74c030",
+        "registrationState": "preregistered",
+        "series": "usaspending.usfs.minnesota_place_of_performance_obligations",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "allowedHosts": [
+            "api.usaspending.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-10-22",
+            "start": "2026-10-15"
+          },
+          "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+          "releasePolicy": "registered_query_snapshot",
+          "sourceSeriesId": "usaspending.search.spending_over_time.usfs.minnesota_obligations",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+          "table": "USAspending API v2 advanced search, prime award transactions filtered to the Forest Service awarding subagency and Minnesota place of performance, obligations by fiscal year",
+          "transform": {
+            "agency": {
+              "name": "Forest Service",
+              "tier": "subtier",
+              "toptier_name": "Department of Agriculture",
+              "type": "awarding"
+            },
+            "awardTypeCodes": [
+              "02",
+              "03",
+              "04",
+              "05",
+              "06",
+              "07",
+              "08",
+              "09",
+              "10",
+              "11",
+              "A",
+              "B",
+              "C",
+              "D",
+              "IDV_A",
+              "IDV_B",
+              "IDV_B_A",
+              "IDV_B_B",
+              "IDV_B_C",
+              "IDV_C",
+              "IDV_D",
+              "IDV_E"
+            ],
+            "factor": 1e-06,
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "operation": "multiply",
+            "placeOfPerformanceLocations": [
+              {
+                "country": "USA",
+                "state": "MN"
+              }
+            ],
+            "requestMethod": "POST",
+            "spendingLevel": "transactions"
+          }
+        },
+        "targetContentHash": "c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3",
+        "targetRegistrationPath": "records/targets/2026-08-11-c9df27cac6ec6a78de1e5b7db1e881dacef14cb4d0f607f328e49f5b8cf836c3.json",
+        "targetUnit": "usd_millions",
+        "valueScale": 1e-06
+      },
+      "startedAt": "2026-08-12T14:35:17Z",
+      "finishedAt": "2026-08-12T14:36:53Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/manifest.json",
+      "cellsPath": null,
+      "stdoutTail": "6ad5bbe3ed4da602259a55c4ffaf3fdff2e157202eae90d2b634c093\",\n      \"bytes\": 1556,\n      \"createdAt\": \"2026-08-12T14:35:17Z\"\n    },\n    {\n      \"artifactType\": \"parsed_cell\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/parsed_cells.json\",\n      \"sha256\": \"58798fb4b3d440d32d5438cf6e0b4b27ee46c948fad714b5511a97ec309af38a\",\n      \"bytes\": 1677,\n      \"createdAt\": \"2026-08-12T14:35:17Z\"\n    },\n    {\n      \"artifactType\": \"error\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/error.json\",\n      \"sha256\": \"2739d4b09dfa2849a923d4ef987069d69cba95fc561ef020cdad449513ba466c\",\n      \"bytes\": 326,\n      \"createdAt\": \"2026-08-12T14:35:17Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-08-12/2026-08-12t14-35-17z-usaspending-usfs-minnesota-place-of-performance-obligations-fy2026/manifest.json\",\n      \"sha256\": \"8651ee22a2a4de5c9eaff76362f7b4da1ac68f278b03c90c58b5ca4840b491d9\",\n      \"bytes\": 12831,\n      \"createdAt\": \"2026-08-12T14:35:17Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": null,\n  \"error\": {\n    \"phase\": \"normalize\",\n    \"message\": \"normalize_spawn_json.py failed:\\nstdout:\\n\\n\\nstderr:\\nREFUSING: cell 0 (usaspending.usfs.minnesota_place_of_performance_obligations.fy2026.registered_query_snapshot) missing required keys: reasoning, historicalContext\\n\",\n    \"command\": {\n      \"returnCode\": 0,\n      \"timedOut\": false\n    }\n  },\n  \"checkoutSha\": \"36995611848572de69ff5de581ef6cf1acb44a79\",\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"7a536bd33c24224959287a0ea6779e1d159fece396726d352dc211a15074a325\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ]
+}

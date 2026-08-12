@@ -1,0 +1,51 @@
+{
+  "summary": "The draft is an honest refusal, not a publishable forecast cell, because it lacks the required registered-query history, run timestamp, point forecast, interval, rationale, and JSON fields.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft does not provide the exact USAspending registered-query fetch evidence required for this target.",
+      "actionRequested": "Rerun in an environment that can POST the exact registered query to api.usaspending.gov for historical periods and FY2026, then cite the sourceBinding, first-print rule, and 2026-10-22 resolutionDate."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "blocking",
+      "summary": "No base-rate or persistence prior is stated because no forecast was produced.",
+      "actionRequested": "After fetching exact registered-query history, state the persistence or historical base-rate prior before any current-year updates."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "blocking",
+      "summary": "No time-series/model prior is used or explicitly ruled out.",
+      "actionRequested": "Use a simple model prior from the fetched historical sample or explicitly explain why the sample is too sparse or unstable for one."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "No forecast interval or uncertainty method is present.",
+      "actionRequested": "Derive the interval from realized historical volatility, explicit uncertainty assumptions, or a clearly justified fallback."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The required compact Prior/update/interval step is absent.",
+      "actionRequested": "Add a compact step naming the prior, historical sample, adjustment components, interval method, and implied bounds."
+    },
+    {
+      "rubricItem": "tails",
+      "severity": "blocking",
+      "summary": "No concrete upside or downside scenarios are tied to the target.",
+      "actionRequested": "Describe target-specific tail cases for Forest Service obligations in Minnesota place of performance."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The draft contains no valid forecast JSON cell and therefore cannot be published.",
+      "actionRequested": "Produce a complete normalized JSON cell with unit exactly usd_millions, the registered dataPointId, point, interval, reasoning, historicalContext, and real runAt timestamp."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the refusal text as a failed trace record if this was an agent-run artifact.",
+    "Do not substitute USAspending profile totals, search summaries, FRED, or broader USDA/USFS aggregates for the registered-query series."
+  ]
+}

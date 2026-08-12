@@ -1,0 +1,9 @@
+I can’t honestly produce this forecast cell in this run.
+
+The required base-rate history must be fetched by POSTing the exact registered query to `https://api.usaspending.gov/api/v2/search/spending_over_time/` for prior fiscal years. USAspending documents that endpoint as POST-only, and my shell/curl access failed before execution with:
+
+```text
+bwrap: setting up uid map: Permission denied
+```
+
+The hosted web fetch also cannot POST the registered query; opening the endpoint directly returned `405 Method Not Allowed`. Without those exact fetched history values, the cell would violate the registered-query target contract and the honesty rules. ([api.usaspending.gov](https://api.usaspending.gov/docs/endpoints?utm_source=openai))
