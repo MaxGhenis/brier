@@ -34,25 +34,8 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - name: Enable unprivileged user namespaces for the agent sandbox
-        # Run 31607027862: every in-sandbox shell command died before
-        # start with "bwrap: setting up uid map: Permission denied" on
-        # the ubuntu-24.04 runner, so registered-query targets could not
-        # execute their POST queries and dropped honestly (their failure
-        # manifests carry the error). Codex's workspace-write sandbox is
-        # bubblewrap, which needs unprivileged user namespaces. Probe
-        # first, loosen the two known restrictions only if the probe
-        # fails, and fail this job before burning analyst runs if a
-        # namespace still cannot be created.
-        run: |
-          set -euo pipefail
-          probe() { unshare --user --map-root-user true 2>/dev/null; }
-          if probe; then echo "unprivileged user namespaces: ok"; exit 0; fi
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
-          sudo sysctl -w kernel.unprivileged_userns_clone=1 || true
-          if probe; then echo "unprivileged user namespaces: enabled via sysctl"; exit 0; fi
-          echo "unprivileged user namespaces unavailable; the agent sandbox cannot run" >&2
-          exit 1
+      - name: Enable the agent sandbox
+        uses: ./.github/actions/enable-agent-sandbox
 
       - name: Install codex CLI
         run: bun add -g @openai/codex@0.144.0

@@ -1,0 +1,34 @@
+name: Enable the agent sandbox
+description: >-
+  Ensure codex's bubblewrap sandbox can create unprivileged user
+  namespaces on this runner. Rescue run 31607027862 recorded every
+  in-sandbox shell command dying before start with "bwrap: setting up
+  uid map: Permission denied" on ubuntu-24.04; codex uses bubblewrap
+  for read-only AND workspace-write sandboxes (its bwrap invocation
+  passes --unshare-user), so every CI codex execution needs this,
+  regardless of network flags. Probe first, loosen the two known
+  kernel restrictions only if the probe fails, and fail the job before
+  burning analyst runs if a namespace still cannot be created.
+runs:
+  using: composite
+  steps:
+    - name: Probe and enable unprivileged user namespaces
+      shell: bash
+      run: |
+        set -euo pipefail
+        probe() {
+          unshare --user --map-root-user true 2>/dev/null || return 1
+          # When the runner ships a bubblewrap binary, exercise the
+          # real thing too — AppArmor decisions can be
+          # executable-specific, so unshare alone can false-pass.
+          if command -v bwrap >/dev/null 2>&1; then
+            bwrap --unshare-user --dev-bind / / true 2>/dev/null || return 1
+          fi
+          return 0
+        }
+        if probe; then echo "agent sandbox namespaces: ok"; exit 0; fi
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+        sudo sysctl -w kernel.unprivileged_userns_clone=1 || true
+        if probe; then echo "agent sandbox namespaces: enabled via sysctl"; exit 0; fi
+        echo "unprivileged user namespaces unavailable; the agent sandbox cannot run" >&2
+        exit 1
