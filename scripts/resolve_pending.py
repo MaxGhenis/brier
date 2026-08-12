@@ -1108,6 +1108,10 @@ BEA_RELEASE_ADAPTERS: dict[str, dict[str, Any]] = {
         "binding_adapter": "bea-ita-itable",
         "application_id": 62,
         "step_number": 2,
+        # Product is outbound-request custody only: live Product=5 requests
+        # return byte-identical responses to Product=1, and the GetStep
+        # response does not echo the requested product.  The adapter tests
+        # therefore pin the canonical Product=1 request templates themselves.
         "product_id": "1",
         "table_list": "62",
         "prompt_name": "TheTableFlexibleIipIta",
@@ -1370,6 +1374,10 @@ def bea_ita_capture_timing_refusal(
 def _bea_ita_response(raw: bytes) -> tuple[dict[str, Any] | None, str | None]:
     """Authenticate the GetStep envelope for BEA's official ITA iTable.
 
+    This authenticates the returned application/step identity, not Product=1:
+    GetStep does not echo Product and returns byte-identical table bytes for a
+    live Product=5 request. Product custody is the sealed outbound request.
+
     https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1
     """
 
@@ -1487,6 +1495,46 @@ def bea_ita_prompt_selection(
             "ITA prompt catalog does not authenticate line 18 Personal transfers"
         )
     return str(year_key), None
+
+
+def bea_ita_prompt_catalog_selection(
+    raw: bytes, spec: Mapping[str, Any], period: str
+) -> tuple[str | None, str | None]:
+    """Authenticate the unfiltered prompt-catalog response and year key.
+
+    BEA does not echo the request in GetStep responses, so prompt selectors
+    alone cannot distinguish the 84,950-byte unfiltered catalog from the
+    16,089-byte selected-table response.  Bind this archive role to the full
+    Table 5.1 shape as well as to its selector metadata.
+    """
+
+    year_key, refusal = bea_ita_prompt_selection(raw, spec, period)
+    if refusal:
+        return None, refusal
+    response, refusal = _bea_ita_response(raw)
+    if refusal:
+        return None, refusal
+    assert response is not None
+    table, refusal = _bea_ita_table(response, spec)
+    if refusal:
+        return None, refusal
+    assert table is not None
+    try:
+        row_count = int(table["Number_Of_Rows"])
+        column_count = int(table["Number_Of_Columns"])
+    except (KeyError, TypeError, ValueError):
+        return None, "ITA prompt catalog has invalid table dimensions"
+    cells = table.get("TD")
+    if (
+        row_count != 28
+        or column_count != 7
+        or not isinstance(cells, list)
+        or len(cells) != row_count * column_count
+    ):
+        return None, (
+            "ITA prompt catalog does not have the unfiltered Table 5.1 shape"
+        )
+    return year_key, None
 
 
 def bea_ita_prompt_catalog_request_body(spec: Mapping[str, Any]) -> dict[str, Any]:
@@ -1735,12 +1783,14 @@ def bea_ita_itable_value(
         return None, "ITA iTable has invalid row or column dimensions"
     cells = table.get("TD")
     if (
-        row_count < 4
-        or column_count < 3
+        row_count != 6
+        or column_count != 3
         or not isinstance(cells, list)
         or len(cells) != row_count * column_count
     ):
-        return None, "ITA iTable TD cells do not match its declared dimensions"
+        return None, (
+            "ITA selected iTable does not have the requested Table 5.1 shape"
+        )
     grid: dict[tuple[int, int], str] = {}
     for cell in cells:
         if not isinstance(cell, dict):
@@ -10773,7 +10823,7 @@ def main() -> int:
                         f"{ref} — request body drift"
                     )
                     continue
-                year_key, catalog_refusal = bea_ita_prompt_selection(
+                year_key, catalog_refusal = bea_ita_prompt_catalog_selection(
                     catalog_raw, spec, period
                 )
                 if catalog_refusal:

@@ -28,6 +28,19 @@ Thesis witnessed the files on their 2026-07-30 release day.
   This retrospective fixture verifies the current retrieval and parse path;
   it is not evidence that Thesis captured the table on its 2026-06-24 release
   day.
+- `ita-prompt-catalog-2026-q1.json.base64`: the exact unfiltered GetStep
+  response to app `62`, step `2`, product `1`, and table list `62`, fetched
+  live from the same official endpoint on 2026-08-12 UTC. The decoded fixture
+  is 84,950 bytes with SHA-256
+  `9da6f369b0182f85102a9f5b83518ba0e0afaf6065f698f9cb69a5e319156b36`;
+  its 28-row by 7-column table shape is distinct from the selected response's
+  6-row by 3-column shape. The canonical 68-byte catalog request has SHA-256
+  `18ea74bc5703892851fa9a21f85b34d616d1c9b19cee06a31da47d8775bd15ca`.
+  The canonical 123-byte selected-table request has SHA-256
+  `752aff73c31aec17c829529964998148d805d2b060f48513ea9afbf7c290f3d9`.
+  A live Product `5` replay returned bytes identical to Product `1`, so the
+  product selector is authenticated by the outbound request, not by the
+  response body.
 - `ita-iip-release-2026-q1.html.base64`: GET of the official release notice
   linked above, fetched live on 2026-08-12 UTC and base64-encoded to preserve
   its exact bytes; 58,604 decoded bytes; SHA-256

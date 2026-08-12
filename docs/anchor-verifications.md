@@ -168,11 +168,18 @@ retrospective first-print-custody claim. A fresh exact POST to BEA's
 [International Transactions Table 5.1 iTable](https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1)
 used application 62, product 1, table-list 62, the prompt-catalog key that
 mapped to 2026, quarterly seasonally adjusted selector 1, and line selector
-18. The 16,089-byte response had SHA-256
+18. The canonical 123-byte selected request had SHA-256
+`752aff73c31aec17c829529964998148d805d2b060f48513ea9afbf7c290f3d9`;
+the 16,089-byte response had SHA-256
 `d482e10713b19c01824882b6e6f7ee01d06619222d35b27cb6f97fa95fdf0f35`
 and printed `18,511` million dollars for 2026 Q1 at line 18, `Personal
 transfers`. The exact response is the decoded content of
 `tests/fixtures/ingestion_wave1/bea/ita-table-5-1-2026-q1-qsa.json.base64`.
+The separately archived unfiltered prompt catalog is 84,950 bytes with
+SHA-256
+`9da6f369b0182f85102a9f5b83518ba0e0afaf6065f698f9cb69a5e319156b36`.
+A live Product 5 replay returned byte-identical response bytes, so Product 1
+is outbound-request custody only; the response does not authenticate it.
 
 BEA's [2026 Q1 ITA/IIP release
 notice](https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-1st-quarter-2026-and-annual-update)
