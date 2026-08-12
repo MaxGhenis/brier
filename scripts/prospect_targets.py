@@ -323,6 +323,7 @@ def _source_binding_errors(value: Any) -> list[str]:
         "abs-data-api",
         "abs-release-page",
         "alfred-fred",
+        "bea-ita-itable",
         "bea-release",
         "census-spm-annual-report",
         "eurostat-api",
@@ -347,7 +348,25 @@ def _source_binding_errors(value: Any) -> list[str]:
         error = _nonempty_string_error(value.get(key), f"sourceBinding {key}")
         if error:
             errors.append(error)
-    errors.extend(_transform_errors(value.get("transform"), "sourceBinding transform"))
+    if value.get("adapter") == "bea-ita-itable":
+        expected_transform = {
+            "operation": "identity",
+            "factor": 1,
+            "applicationId": 62,
+            "productId": "1",
+            "tableList": "62",
+            "lineNumber": "18",
+            "rowLabel": "Personal transfers",
+            "basis": "QSA",
+            "unit": "usd_millions",
+            "cadence": "quarterly",
+        }
+        if value.get("transform") != expected_transform:
+            errors.append("bad BEA ITA sourceBinding transform")
+    else:
+        errors.extend(
+            _transform_errors(value.get("transform"), "sourceBinding transform")
+        )
     return errors
 
 

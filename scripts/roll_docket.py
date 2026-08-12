@@ -56,6 +56,7 @@ OFFICIAL_CALENDAR_ADAPTERS = frozenset(
 )
 CALENDAR_GATED_SOURCE_ADAPTERS = OFFICIAL_CALENDAR_ADAPTERS | {
     "alfred-fred",
+    "bea-ita-itable",
     "bea-release",
 }
 

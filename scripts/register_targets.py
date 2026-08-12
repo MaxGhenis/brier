@@ -55,6 +55,7 @@ SOURCE_ADAPTERS = {
     "abs-data-api",
     "abs-release-page",
     "alfred-fred",
+    "bea-ita-itable",
     "bea-release",
     "census-spm-annual-report",
     "eurostat-api",
@@ -70,6 +71,7 @@ SOURCE_ADAPTERS = {
 # distinct from the registered landing/announcement URL. Keep that expansion
 # trusted and adapter-specific; target proposals cannot widen allowedHosts.
 SOURCE_ADAPTER_ALLOWED_HOSTS = {
+    "bea-ita-itable": {"apps.bea.gov", "www.bea.gov"},
     "bea-release": {"apps.bea.gov", "www.bea.gov"},
     "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
     "sba-loan-program-performance-pdf": {"legacy.sba.gov", "www.sba.gov"},
@@ -83,6 +85,7 @@ NATIVE_INTL_SOURCE_ADAPTERS = {
 }
 CALENDAR_GATED_SOURCE_ADAPTERS = NATIVE_INTL_SOURCE_ADAPTERS | {
     "alfred-fred",
+    "bea-ita-itable",
     "bea-release",
 }
 RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
@@ -716,7 +719,11 @@ def derive_source_binding(
         _host(source_url),
         *SOURCE_ADAPTER_ALLOWED_HOSTS.get(adapter, set()),
     }
-    if previous:
+    # The ITA resolver authenticates only BEA's notice and iTable hosts. A
+    # forecast's research links must not widen that custody boundary; the
+    # official Table 5.1 landing page is:
+    # https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1
+    if previous and adapter != "bea-ita-itable":
         prior_url = previous.get("resolutionSourceUrl")
         if prior_url:
             allowed_hosts.add(_host(str(prior_url)))

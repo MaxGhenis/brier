@@ -12,6 +12,7 @@ export type TargetSourceAdapter =
   | "abs-data-api"
   | "abs-release-page"
   | "alfred-fred"
+  | "bea-ita-itable"
   | "bea-release"
   | "census-spm-annual-report"
   | "eurostat-api"

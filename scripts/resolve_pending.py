@@ -58,6 +58,7 @@ from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import quote, urlparse
 from xml.etree import ElementTree as ET
+from zoneinfo import ZoneInfo
 
 import verify_records_attestations as records_provenance
 from canonical_json import canonical_bytes, canonical_sha256
@@ -1044,6 +1045,10 @@ BEA_ITABLE_PAGE_URL = (
     "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&"
     "nipa_table_list=145&categories=survey"
 )
+BEA_ITA_ITABLE_PAGE_URL = (
+    "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&"
+    "tablelist=62&product=1"
+)
 BEA_ITABLE_DATA_URL = "https://apps.bea.gov/iTablecore/data/app/GetStep"
 BEA_RELEASE_REQUIRED_HOSTS = {"apps.bea.gov", "www.bea.gov"}
 BEA_RELEASE_ALLOWED_HOSTS = {
@@ -1098,6 +1103,47 @@ BEA_RELEASE_ADAPTERS: dict[str, dict[str, Any]] = {
             "series_id": "Y006RC1Q027SBEA",
         },
     },
+    "bea.ita.personal_transfer_payments": {
+        "variant": "ita-itable",
+        "binding_adapter": "bea-ita-itable",
+        "application_id": 62,
+        "step_number": 2,
+        "product_id": "1",
+        "table_list": "62",
+        "prompt_name": "TheTableFlexibleIipIta",
+        "frequency_key": "1",
+        "frequency": "QSA",
+        "frequency_label": "Quarterly seasonally adjusted",
+        "header_basis": "Seasonally adjusted",
+        "line_number": "18",
+        "row_label": "Personal transfers",
+        "table_title": "Table 5.1. U.S. International Transactions in Secondary Income",
+        "source_url": BEA_ITA_ITABLE_PAGE_URL,
+        "series_id": "ITA:T5.1:L18:QSA",
+        "field": "Line 18: Personal transfers (QSA)",
+        "value_transform": {
+            "operation": "identity",
+            "factor": 1,
+            "applicationId": 62,
+            "productId": "1",
+            "tableList": "62",
+            "lineNumber": "18",
+            "rowLabel": "Personal transfers",
+            "basis": "QSA",
+            "unit": "usd_millions",
+            "cadence": "quarterly",
+        },
+        "unit": "usd_millions",
+        "label": "U.S. personal-transfer payments, quarterly seasonally adjusted",
+        "source_name": "bea",
+        "source_table": (
+            "U.S. International Transactions, Table 5.1, line 18 "
+            "(Personal transfers), quarterly seasonally adjusted"
+        ),
+        "concept_authority": "bea",
+        "source_concept": "ITA:T5.1:L18:QSA",
+        "measure_concept": "bea.ita.personal_transfer_payments",
+    },
 }
 
 BEA_RELEASE_BINDING_TEMPLATE_KEYS = {
@@ -1116,7 +1162,7 @@ def bea_release_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
     """The reviewed seven-key binding for an official BEA release parser."""
 
     return {
-        "adapter": "bea-release",
+        "adapter": spec.get("binding_adapter", "bea-release"),
         "sourceUrl": spec["source_url"],
         "sourceSeriesId": spec["series_id"],
         "field": spec["field"],
@@ -1144,6 +1190,10 @@ def bea_release_binding_matches_spec(binding: Any, spec: Mapping[str, Any]) -> b
         len(host_set) != len(allowed_hosts)
         or not BEA_RELEASE_REQUIRED_HOSTS <= host_set
         or not host_set <= BEA_RELEASE_ALLOWED_HOSTS
+        or (
+            spec.get("variant") == "ita-itable"
+            and host_set != BEA_RELEASE_REQUIRED_HOSTS
+        )
     ):
         return False
     projection = {key: binding[key] for key in BEA_RELEASE_BINDING_TEMPLATE_KEYS}
@@ -1204,6 +1254,267 @@ def bea_release_page_refusal(
             f"release page embargo line does not contain registered date {date_text!r}"
         )
     return None
+
+
+def bea_ita_release_url(period: str, release_day: dt.date) -> str:
+    """Exact official ITA/IIP release-page URL for a quarterly period.
+
+    Q1 and Q4 suffixes come from the combined 2026 notices. The ordinary
+    quarter suffix comes from BEA's canonical Q2 2025 ITA notice; Q1 2026
+    authenticates the new combined stem and names the next combined Q2 title.
+    A future alias is accepted only when the final URL is exact, so it fails
+    closed until BEA publishes that exact URL:
+    https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-1st-quarter-2026-and-annual-update
+    https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-4th-quarter-and-year-2025
+    https://www.bea.gov/news/2025/us-international-transactions-2nd-quarter-2025
+    """
+
+    year, quarter = _bea_quarter(period)
+    ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[quarter]
+    suffix = f"{ordinal}-quarter-{year}"
+    if quarter == 1:
+        suffix += "-and-annual-update"
+    elif quarter == 4:
+        suffix = f"{ordinal}-quarter-and-year-{year}"
+    return (
+        f"https://www.bea.gov/news/{release_day.year}/"
+        f"us-international-transactions-and-investment-position-{suffix}"
+    )
+
+
+def _bea_ita_release_title(period: str) -> str:
+    year, quarter = _bea_quarter(period)
+    ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[quarter]
+    title = (
+        "U.S. International Transactions and Investment Position, "
+        f"{ordinal} Quarter {year}"
+    )
+    if quarter == 1:
+        title += " and Annual Update"
+    elif quarter == 4:
+        title = (
+            "U.S. International Transactions and Investment Position, "
+            f"{ordinal} Quarter and Year {year}"
+        )
+    return title
+
+
+def bea_ita_release_page_refusal(
+    raw: bytes, period: str, release_day: dt.date
+) -> str | None:
+    """Authenticate an ITA/IIP notice's title and exact embargo line.
+
+    The expected 8:30 a.m. Eastern shape is taken from BEA's Q1 2026 notice:
+    https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-1st-quarter-2026-and-annual-update
+    """
+
+    try:
+        page = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return "ITA release response is not UTF-8 HTML"
+    page = re.sub(r"<script\b[^>]*>.*?</script>", " ", page, flags=re.I | re.S)
+    page = re.sub(r"<style\b[^>]*>.*?</style>", " ", page, flags=re.I | re.S)
+    visible = " ".join(unescape(re.sub(r"<[^>]+>", " ", page)).split())
+    title = _bea_ita_release_title(period)
+    if title not in visible:
+        return f"ITA release page does not contain expected title {title!r}"
+    embargo_local = dt.datetime(
+        release_day.year,
+        release_day.month,
+        release_day.day,
+        8,
+        30,
+        tzinfo=ZoneInfo("America/New_York"),
+    )
+    expected_embargo = (
+        "EMBARGOED UNTIL RELEASE AT 8:30 a.m. "
+        f"{embargo_local.tzname()}, {release_day.strftime('%A, %B')} "
+        f"{release_day.day}, {release_day.year}"
+    )
+    if expected_embargo not in visible:
+        return (
+            "ITA release page does not contain exact registered embargo line "
+            f"{expected_embargo!r}"
+        )
+    return None
+
+
+def bea_ita_capture_timing_refusal(
+    retrieved_at: Mapping[str, str], release_day: dt.date
+) -> str | None:
+    """Refuse any ITA source fetch started before BEA's embargo instant."""
+
+    embargo_utc = dt.datetime(
+        release_day.year,
+        release_day.month,
+        release_day.day,
+        8,
+        30,
+        tzinfo=ZoneInfo("America/New_York"),
+    ).astimezone(dt.timezone.utc)
+    for label, timestamp in retrieved_at.items():
+        try:
+            captured = dt.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        except (AttributeError, ValueError):
+            return f"ITA {label} fetch has invalid retrieval timestamp {timestamp!r}"
+        if captured.tzinfo is None:
+            return f"ITA {label} fetch has naive retrieval timestamp {timestamp!r}"
+        if captured.astimezone(dt.timezone.utc) < embargo_utc:
+            return (
+                f"ITA {label} fetch started at {timestamp}, before embargo "
+                f"{embargo_utc.isoformat().replace('+00:00', 'Z')}"
+            )
+    return None
+
+
+def _bea_ita_response(raw: bytes) -> tuple[dict[str, Any] | None, str | None]:
+    """Authenticate the GetStep envelope for BEA's official ITA iTable.
+
+    https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1
+    """
+
+    try:
+        response = json.loads(raw.decode("utf-8"))
+        if isinstance(response, str):
+            response = json.loads(response)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, "ITA iTable response is not complete UTF-8 JSON"
+    expected_identity = {
+        "Id": 6206,
+        "AppId": 62,
+        "Number": 6,
+        "Name": "Selected Table",
+        "Description": "Table Display from IIP and ITA",
+        "IsTable": 1,
+    }
+    if not isinstance(response, dict) or any(
+        response.get(key) != expected for key, expected in expected_identity.items()
+    ):
+        return None, "ITA iTable response has the wrong application or step identity"
+    return response, None
+
+
+def _bea_ita_prompt_rows(
+    response: Mapping[str, Any], name: str
+) -> tuple[list[dict[str, Any]] | None, str | None]:
+    prompts = response.get("Prompts")
+    if not isinstance(prompts, list):
+        return None, "ITA iTable response has no prompt list"
+    matches = [
+        prompt
+        for prompt in prompts
+        if isinstance(prompt, dict)
+        and prompt.get("Name") == name
+        and prompt.get("UIControl") == "ListMultiple"
+    ]
+    if len(matches) != 1:
+        return None, f"expected one ITA {name} selector prompt, found {len(matches)}"
+    try:
+        prompt_data = json.loads(matches[0]["PromtData"])
+        rows = prompt_data["Table"]
+    except (KeyError, TypeError, json.JSONDecodeError):
+        return None, f"ITA {name} selector prompt is not parseable"
+    if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+        return None, f"ITA {name} selector prompt is not a row list"
+    if any(
+        set(row) != {"ListKey", "ListDisplayValue"}
+        or type(row["ListKey"]) is not int
+        or row["ListKey"] < 0
+        or type(row["ListDisplayValue"]) is not str
+        or not row["ListDisplayValue"].strip()
+        for row in rows
+    ):
+        return None, f"ITA {name} selector row has the wrong key/display schema"
+    keys = [row["ListKey"] for row in rows]
+    if len(keys) != len(set(keys)):
+        return None, f"ITA {name} selector keys are not globally unique"
+    return rows, None
+
+
+def bea_ita_prompt_selection(
+    raw: bytes, spec: Mapping[str, Any], period: str
+) -> tuple[str | None, str | None]:
+    """Derive the current year key and authenticate every selected prompt."""
+
+    response, refusal = _bea_ita_response(raw)
+    if refusal:
+        return None, refusal
+    assert response is not None
+    year, _quarter = _bea_quarter(period)
+    year_rows, refusal = _bea_ita_prompt_rows(response, "Filter_#1")
+    if refusal:
+        return None, refusal
+    frequency_rows, refusal = _bea_ita_prompt_rows(response, "Filter_#2")
+    if refusal:
+        return None, refusal
+    line_rows, refusal = _bea_ita_prompt_rows(response, "Filter_#3")
+    if refusal:
+        return None, refusal
+    assert year_rows is not None
+    assert frequency_rows is not None
+    assert line_rows is not None
+
+    year_matches = [
+        row
+        for row in year_rows
+        if row["ListKey"] > 0 and row["ListDisplayValue"].strip() == str(year)
+    ]
+    if len(year_matches) != 1:
+        return None, (
+            f"expected one ITA prompt key for year {year}, found {len(year_matches)}"
+        )
+    year_key = year_matches[0]["ListKey"]
+    frequency_key = int(spec["frequency_key"])
+    frequency_label_matches = [
+        row
+        for row in frequency_rows
+        if row["ListDisplayValue"].strip() == spec["frequency_label"]
+    ]
+    if (
+        len(frequency_label_matches) != 1
+        or frequency_label_matches[0]["ListKey"] != frequency_key
+    ):
+        return None, "ITA prompt catalog does not authenticate the QSA selector"
+    line_key = int(spec["line_number"])
+    line_label_matches = [
+        row
+        for row in line_rows
+        if _bea_row_label(row["ListDisplayValue"])
+        == f"{spec['line_number']} {spec['row_label']}"
+    ]
+    if len(line_label_matches) != 1 or line_label_matches[0]["ListKey"] != line_key:
+        return None, (
+            "ITA prompt catalog does not authenticate line 18 Personal transfers"
+        )
+    return str(year_key), None
+
+
+def bea_ita_prompt_catalog_request_body(spec: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "appid": spec["application_id"],
+        "stepnum": spec["step_number"],
+        "data": [
+            ["Product", spec["product_id"]],
+            ["TableList", spec["table_list"]],
+        ],
+    }
+
+
+def bea_ita_itable_request_body(
+    spec: Mapping[str, Any], period: str, year_key: str
+) -> dict[str, Any]:
+    _bea_quarter(period)
+    return {
+        "appid": spec["application_id"],
+        "stepnum": spec["step_number"],
+        "data": [
+            ["Product", spec["product_id"]],
+            ["TableList", spec["table_list"]],
+            ["Filter_#1", year_key],
+            ["Filter_#2", spec["frequency_key"]],
+            ["Filter_#3", spec["line_number"]],
+        ],
+    }
 
 
 def bea_itable_request_body(spec: Mapping[str, Any], period: str) -> dict[str, Any]:
@@ -1338,10 +1649,200 @@ def bea_itable_value(
     return round(value * 0.001, 4) + 0.0, None
 
 
+def _bea_ita_table(
+    response: Mapping[str, Any], spec: Mapping[str, Any]
+) -> tuple[dict[str, Any] | None, str | None]:
+    prompts = response.get("Prompts")
+    if not isinstance(prompts, list):
+        return None, "ITA iTable response has no prompt list"
+    matches = [
+        prompt
+        for prompt in prompts
+        if isinstance(prompt, dict)
+        and prompt.get("Name") == spec["prompt_name"]
+        and prompt.get("UIControl") == "Table"
+    ]
+    if len(matches) != 1:
+        return None, f"expected one ITA table prompt, found {len(matches)}"
+    try:
+        prompt_data = json.loads(matches[0]["PromtData"])
+        table = json.loads(prompt_data["Table"])
+    except (KeyError, TypeError, json.JSONDecodeError):
+        return None, "ITA prompt does not contain a parseable table"
+    if not isinstance(table, dict):
+        return None, "ITA payload is not a table object"
+    return table, None
+
+
+def _bea_ita_cell_text(value: Any) -> str:
+    return " ".join(unescape(str(value or "")).split())
+
+
+def bea_ita_itable_value(
+    raw: bytes,
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+    *,
+    expected_year_key: str | None = None,
+) -> tuple[float | None, str | None]:
+    """Read and authenticate Table 5.1's exact QSA line-18 cell.
+
+    The selected response shape and labels were verified against BEA's live
+    Table 5.1 endpoint linked by the official June 24, 2026 release:
+    https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1
+    """
+
+    response, refusal = _bea_ita_response(raw)
+    if refusal:
+        return None, refusal
+    assert response is not None
+    selected_year_key, refusal = bea_ita_prompt_selection(raw, spec, period)
+    if refusal:
+        return None, refusal
+    if expected_year_key is not None and selected_year_key != expected_year_key:
+        return None, (
+            "ITA selected response year-key mapping changed between prompt and "
+            f"table fetch: expected {expected_year_key!r}, got {selected_year_key!r}"
+        )
+    table, refusal = _bea_ita_table(response, spec)
+    if refusal:
+        return None, refusal
+    assert table is not None
+    if table.get("Title") != spec["table_title"]:
+        return None, f"unexpected ITA iTable title {table.get('Title')!r}"
+    if table.get("Sub_Title") != "[Millions of dollars]":
+        return None, f"unexpected ITA iTable unit subtitle {table.get('Sub_Title')!r}"
+    release_text = (
+        f"Release Date: {release_day.strftime('%B')} "
+        f"{release_day.day}, {release_day.year}"
+    )
+    description = str(table.get("Description") or "")
+    if not description.startswith(release_text):
+        return None, (
+            f"ITA iTable release stamp {description!r} does not start with "
+            f"registered release stamp {release_text!r}"
+        )
+    if (
+        str(table.get("Number_Of_Header_Rows")) != "3"
+        or str(table.get("Number_Of_Locked_Columns")) != "1,2"
+    ):
+        return None, "ITA iTable has unexpected header or locked-column metadata"
+    try:
+        row_count = int(table["Number_Of_Rows"])
+        column_count = int(table["Number_Of_Columns"])
+    except (KeyError, TypeError, ValueError):
+        return None, "ITA iTable has invalid row or column dimensions"
+    cells = table.get("TD")
+    if (
+        row_count < 4
+        or column_count < 3
+        or not isinstance(cells, list)
+        or len(cells) != row_count * column_count
+    ):
+        return None, "ITA iTable TD cells do not match its declared dimensions"
+    grid: dict[tuple[int, int], str] = {}
+    for cell in cells:
+        if not isinstance(cell, dict):
+            return None, "ITA iTable TD contains a non-cell value"
+        try:
+            coordinate = (int(cell["Row_ID"]), int(cell["Column_ID"]))
+        except (KeyError, TypeError, ValueError):
+            return None, "ITA iTable TD contains an invalid coordinate"
+        if (
+            coordinate in grid
+            or not 1 <= coordinate[0] <= row_count
+            or not 1 <= coordinate[1] <= column_count
+        ):
+            return None, "ITA iTable TD contains a duplicate or out-of-range coordinate"
+        grid[coordinate] = _bea_ita_cell_text(cell.get("Cell_Value"))
+    if len(grid) != row_count * column_count:
+        return None, "ITA iTable TD coordinate grid is incomplete"
+
+    year, quarter = _bea_quarter(period)
+    columns = [
+        column
+        for column in range(3, column_count + 1)
+        if grid[(1, column)] == spec["header_basis"]
+        and grid[(2, column)] == str(year)
+        and grid[(3, column)] == f"Q{quarter}"
+    ]
+    if len(columns) != 1:
+        return None, (
+            f"expected one ITA QSA {year} Q{quarter} column, found {len(columns)}"
+        )
+    rows = [
+        row
+        for row in range(4, row_count + 1)
+        if grid[(row, 1)] == str(spec["line_number"])
+        and _bea_row_label(grid[(row, 2)]) == spec["row_label"]
+    ]
+    if len(rows) != 1:
+        return None, (
+            f"expected one exact ITA line {spec['line_number']} "
+            f"{spec['row_label']!r} row, found {len(rows)}"
+        )
+    printed_cell = grid[(rows[0], columns[0])].strip()
+    if re.fullmatch(r"(?:0|[1-9]\d{0,2}(?:,\d{3})*)", printed_cell) is None:
+        return None, (
+            "exact ITA iTable cell is not a printed whole number: "
+            f"{printed_cell!r}"
+        )
+    printed = printed_cell.replace(",", "")
+    try:
+        value = float(printed)
+    except ValueError:
+        return None, f"exact ITA iTable cell is not numeric: {printed!r}"
+    if not math.isfinite(value) or value < 0:
+        return None, (
+            "exact ITA iTable cell is not a nonnegative finite value: "
+            f"{value}"
+        )
+    expected_transform = {
+        "operation": "identity",
+        "factor": 1,
+        "applicationId": 62,
+        "productId": "1",
+        "tableList": "62",
+        "lineNumber": "18",
+        "rowLabel": "Personal transfers",
+        "basis": "QSA",
+        "unit": "usd_millions",
+        "cadence": "quarterly",
+    }
+    if spec.get("value_transform") != expected_transform:
+        return None, (
+            f"unsupported BEA ITA value transform {spec.get('value_transform')!r}"
+        )
+    return value + 0.0, None
+
+
 def fetch_bea_release_page(
     period: str, release_day: dt.date
 ) -> tuple[bytes | None, str, str]:
     url = bea_advance_release_url(period, release_day)
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "text/html",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+    )
+    try:
+        raw, retrieved_at, final_url = http_request(
+            request,
+            allowed_hosts=tuple(sorted(BEA_RELEASE_REQUIRED_HOSTS)),
+        )
+        return raw, final_url, retrieved_at
+    except (OSError, ValueError, urllib.error.HTTPError, urllib.error.URLError):
+        return None, url, retrieved_at
+
+
+def fetch_bea_ita_release_page(
+    period: str, release_day: dt.date
+) -> tuple[bytes | None, str, str]:
+    url = bea_ita_release_url(period, release_day)
     retrieved_at = utc_now()
     request = urllib.request.Request(
         url,
@@ -1385,6 +1886,42 @@ def fetch_bea_itable_table(
         return None, BEA_ITABLE_DATA_URL, body, retrieved_at
 
 
+def _fetch_bea_ita_body(
+    body: dict[str, Any],
+) -> tuple[bytes | None, str, dict[str, Any], str]:
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        BEA_ITABLE_DATA_URL,
+        data=canonical_bytes(body),
+        headers={
+            "Accept": "application/json, text/plain",
+            "Content-Type": "application/json",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+        method="POST",
+    )
+    try:
+        raw, retrieved_at, final_url = http_request(
+            request,
+            allowed_hosts=tuple(sorted(BEA_RELEASE_REQUIRED_HOSTS)),
+        )
+        return raw, final_url, body, retrieved_at
+    except (OSError, ValueError, urllib.error.HTTPError, urllib.error.URLError):
+        return None, BEA_ITABLE_DATA_URL, body, retrieved_at
+
+
+def fetch_bea_ita_prompt_catalog(
+    spec: Mapping[str, Any],
+) -> tuple[bytes | None, str, dict[str, Any], str]:
+    return _fetch_bea_ita_body(bea_ita_prompt_catalog_request_body(spec))
+
+
+def fetch_bea_ita_itable_table(
+    spec: Mapping[str, Any], period: str, year_key: str
+) -> tuple[bytes | None, str, dict[str, Any], str]:
+    return _fetch_bea_ita_body(bea_ita_itable_request_body(spec, period, year_key))
+
+
 def bea_release_snapshot_envelope(
     *,
     spec: Mapping[str, Any],
@@ -1407,6 +1944,58 @@ def bea_release_snapshot_envelope(
             "retrievedAt": release_retrieved_at,
             "sha256": hashlib.sha256(release_raw).hexdigest(),
             "bodyBase64": base64.b64encode(release_raw).decode("ascii"),
+        },
+        "table": {
+            "url": table_url,
+            "landingPageUrl": spec["source_url"],
+            "request": table_body,
+            "retrievedAt": table_retrieved_at,
+            "sha256": hashlib.sha256(table_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(table_raw).decode("ascii"),
+        },
+        "derived": {
+            "period": period,
+            "sourceSeriesId": spec["series_id"],
+            "value": value,
+        },
+    }
+    return canonical_bytes(envelope) + b"\n"
+
+
+def bea_ita_release_snapshot_envelope(
+    *,
+    spec: Mapping[str, Any],
+    period: str,
+    value: float,
+    release_url: str,
+    release_raw: bytes,
+    release_retrieved_at: str,
+    catalog_url: str,
+    catalog_body: Mapping[str, Any],
+    catalog_raw: bytes,
+    catalog_retrieved_at: str,
+    table_url: str,
+    table_body: Mapping[str, Any],
+    table_raw: bytes,
+    table_retrieved_at: str,
+) -> bytes:
+    """Archive the notice, prompt catalog, selected table, and exact parse."""
+
+    envelope = {
+        "schemaVersion": "bea_ita_release_snapshot_v1",
+        "release": {
+            "url": release_url,
+            "retrievedAt": release_retrieved_at,
+            "sha256": hashlib.sha256(release_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(release_raw).decode("ascii"),
+        },
+        "promptCatalog": {
+            "url": catalog_url,
+            "landingPageUrl": spec["source_url"],
+            "request": catalog_body,
+            "retrievedAt": catalog_retrieved_at,
+            "sha256": hashlib.sha256(catalog_raw).hexdigest(),
+            "bodyBase64": base64.b64encode(catalog_raw).decode("ascii"),
         },
         "table": {
             "url": table_url,
@@ -9668,7 +10257,7 @@ FAMILY_ADAPTERS = {
     # the series name — the 2026-07-25 new-home-sales collision, where a
     # 2026-07-10 generic-url registration met a newly added ALFRED stem.
     "alfred": {"alfred-fred"},
-    "bea_release": {"bea-release"},
+    "bea_release": {"bea-release", "bea-ita-itable"},
     "bls_api": {"bls-api"},
     "census_spm": {"census-spm-annual-report"},
     "fsa_crp": {"fsa-crp-monthly-summary"},
@@ -10092,9 +10681,10 @@ def main() -> int:
                     f"{binding.get('expectedReleaseWindow')!r}"
                 )
                 continue
-            # BEA's interactive NIPA table is mutable. Capture it only on the
-            # registered GDP advance-release day; a later table may already
-            # contain a second estimate or annual-update revision.
+            # BEA says current ITA links are superseded at the next release and
+            # moves original data to its archive, so capture only on the
+            # registered day:
+            # https://www.bea.gov/news/2026/us-international-transactions-and-investment-position-1st-quarter-2026-and-annual-update
             bea_start_day = dt.date.fromisoformat(utc_now()[:10])
             if bea_start_day < release_day:
                 print(f"  release {release_day} not reached: {ref}")
@@ -10105,35 +10695,141 @@ def main() -> int:
                     f"registered release day was {release_day}"
                 )
                 continue
-            release_url = bea_advance_release_url(period, release_day)
+            is_ita = spec.get("variant") == "ita-itable"
+            release_url = (
+                bea_ita_release_url(period, release_day)
+                if is_ita
+                else bea_advance_release_url(period, release_day)
+            )
             if release_url not in bea_release_page_cache:
-                bea_release_page_cache[release_url] = fetch_bea_release_page(
-                    period, release_day
+                fetch_release = (
+                    fetch_bea_ita_release_page if is_ita else fetch_bea_release_page
                 )
+                bea_release_page_cache[release_url] = fetch_release(period, release_day)
             release_raw, fetched_release_url, release_retrieved_at = (
                 bea_release_page_cache[release_url]
             )
             if release_raw is None:
                 print(f"  BEA RELEASE fetch failed (deferring): {ref}")
                 continue
-            release_refusal = bea_release_page_refusal(release_raw, period, release_day)
+            if is_ita and fetched_release_url != release_url:
+                print(
+                    "  BEA ITA RELEASE PAGE REFUSAL (refusing): "
+                    f"{ref} — expected exact URL {release_url!r}, got "
+                    f"{fetched_release_url!r}"
+                )
+                continue
+            release_refusal = (
+                bea_ita_release_page_refusal(release_raw, period, release_day)
+                if is_ita
+                else bea_release_page_refusal(release_raw, period, release_day)
+            )
             if release_refusal:
                 print(
                     f"  BEA RELEASE PAGE REFUSAL (refusing): {ref} — {release_refusal}"
                 )
                 continue
-            table_body = bea_itable_request_body(spec, period)
+            if is_ita:
+                timing_refusal = bea_ita_capture_timing_refusal(
+                    {"release page": release_retrieved_at}, release_day
+                )
+                if timing_refusal:
+                    print(
+                        "  BEA ITA RELEASE TIMING REFUSAL (refusing): "
+                        f"{ref} — {timing_refusal}"
+                    )
+                    continue
+
+            catalog_raw: bytes | None = None
+            catalog_url = ""
+            catalog_body: dict[str, Any] = {}
+            catalog_retrieved_at = ""
+            year_key: str | None = None
+            if is_ita:
+                catalog_body = bea_ita_prompt_catalog_request_body(spec)
+                catalog_cache_key = canonical_bytes(catalog_body)
+                if catalog_cache_key not in bea_itable_cache:
+                    bea_itable_cache[catalog_cache_key] = (
+                        fetch_bea_ita_prompt_catalog(spec)
+                    )
+                (
+                    catalog_raw,
+                    catalog_url,
+                    fetched_catalog_body,
+                    catalog_retrieved_at,
+                ) = bea_itable_cache[catalog_cache_key]
+                if catalog_raw is None:
+                    print(f"  BEA ITA PROMPT CATALOG fetch failed (deferring): {ref}")
+                    continue
+                if catalog_url != BEA_ITABLE_DATA_URL:
+                    print(
+                        "  BEA ITA PROMPT CATALOG REFUSAL (refusing): "
+                        f"{ref} — unexpected final URL {catalog_url!r}"
+                    )
+                    continue
+                if fetched_catalog_body != catalog_body:
+                    print(
+                        "  BEA ITA PROMPT CATALOG REFUSAL (refusing): "
+                        f"{ref} — request body drift"
+                    )
+                    continue
+                year_key, catalog_refusal = bea_ita_prompt_selection(
+                    catalog_raw, spec, period
+                )
+                if catalog_refusal:
+                    print(
+                        "  BEA ITA PROMPT CATALOG REFUSAL (refusing): "
+                        f"{ref} — {catalog_refusal}"
+                    )
+                    continue
+                assert year_key is not None
+
+            table_body = (
+                bea_ita_itable_request_body(spec, period, year_key)
+                if is_ita and year_key is not None
+                else bea_itable_request_body(spec, period)
+            )
             table_cache_key = canonical_bytes(table_body)
             if table_cache_key not in bea_itable_cache:
-                bea_itable_cache[table_cache_key] = fetch_bea_itable_table(spec, period)
+                bea_itable_cache[table_cache_key] = (
+                    fetch_bea_ita_itable_table(spec, period, year_key)
+                    if is_ita and year_key is not None
+                    else fetch_bea_itable_table(spec, period)
+                )
             table_raw, table_url, fetched_table_body, table_retrieved_at = (
                 bea_itable_cache[table_cache_key]
             )
             if table_raw is None:
                 print(f"  BEA iTABLE fetch failed (deferring): {ref}")
                 continue
+            if is_ita and table_url != BEA_ITABLE_DATA_URL:
+                print(
+                    f"  BEA ITA iTABLE REFUSAL (refusing): {ref} — "
+                    f"unexpected final URL {table_url!r}"
+                )
+                continue
+            if is_ita and fetched_table_body != table_body:
+                print(
+                    f"  BEA ITA iTABLE REFUSAL (refusing): {ref} — request body drift"
+                )
+                continue
+            if is_ita:
+                timing_refusal = bea_ita_capture_timing_refusal(
+                    {
+                        "prompt catalog": catalog_retrieved_at,
+                        "selected table": table_retrieved_at,
+                    },
+                    release_day,
+                )
+                if timing_refusal:
+                    print(
+                        "  BEA ITA iTABLE TIMING REFUSAL (refusing): "
+                        f"{ref} — {timing_refusal}"
+                    )
+                    continue
             effective_capture_day = max(
                 release_retrieved_at[:10],
+                catalog_retrieved_at[:10] if is_ita else release_retrieved_at[:10],
                 table_retrieved_at[:10],
                 utc_now()[:10],
             )
@@ -10144,29 +10840,64 @@ def main() -> int:
                     f"registered release day {release_day}"
                 )
                 continue
-            value, table_refusal = bea_itable_value(
-                table_raw, spec, period, release_day
+            value, table_refusal = (
+                bea_ita_itable_value(
+                    table_raw,
+                    spec,
+                    period,
+                    release_day,
+                    expected_year_key=year_key,
+                )
+                if is_ita
+                else bea_itable_value(table_raw, spec, period, release_day)
             )
             if table_refusal:
                 print(f"  BEA iTABLE PARSE REFUSAL (refusing): {ref} — {table_refusal}")
                 continue
             assert value is not None
-            raw = bea_release_snapshot_envelope(
-                spec=spec,
-                period=period,
-                value=value,
-                release_url=fetched_release_url,
-                release_raw=release_raw,
-                release_retrieved_at=release_retrieved_at,
-                table_url=table_url,
-                table_body=fetched_table_body,
-                table_raw=table_raw,
-                table_retrieved_at=table_retrieved_at,
-            )
+            if is_ita:
+                assert catalog_raw is not None
+                raw = bea_ita_release_snapshot_envelope(
+                    spec=spec,
+                    period=period,
+                    value=value,
+                    release_url=fetched_release_url,
+                    release_raw=release_raw,
+                    release_retrieved_at=release_retrieved_at,
+                    catalog_url=catalog_url,
+                    catalog_body=catalog_body,
+                    catalog_raw=catalog_raw,
+                    catalog_retrieved_at=catalog_retrieved_at,
+                    table_url=table_url,
+                    table_body=fetched_table_body,
+                    table_raw=table_raw,
+                    table_retrieved_at=table_retrieved_at,
+                )
+            else:
+                raw = bea_release_snapshot_envelope(
+                    spec=spec,
+                    period=period,
+                    value=value,
+                    release_url=fetched_release_url,
+                    release_raw=release_raw,
+                    release_retrieved_at=release_retrieved_at,
+                    table_url=table_url,
+                    table_body=fetched_table_body,
+                    table_raw=table_raw,
+                    table_retrieved_at=table_retrieved_at,
+                )
             source_url = fetched_release_url
-            source_file = "GDP advance release HTML + NIPA Table 5.3.5 iTable JSON"
+            source_file = (
+                "ITA/IIP release HTML + ITA Table 5.1 prompt and table JSON"
+                if is_ita
+                else "GDP advance release HTML + NIPA Table 5.3.5 iTable JSON"
+            )
             series_id = str(spec["series_id"]).replace(":", "-")
-            retrieved_at = max(release_retrieved_at, table_retrieved_at)
+            retrieved_at = max(
+                release_retrieved_at,
+                catalog_retrieved_at if is_ita else release_retrieved_at,
+                table_retrieved_at,
+            )
             extension = "json"
         elif kind == "alfred":
             cache_key = (spec["fred"], release_day.isoformat())

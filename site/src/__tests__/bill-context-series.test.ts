@@ -7,6 +7,21 @@ import {
 } from "@/data/bill-forecasts";
 
 const REPO_ROOT = path.resolve(__dirname, "../../..");
+const BILLS_DIR = path.join(REPO_ROOT, "bills");
+
+const billSlugs = new Set(
+  fs
+    .readdirSync(BILLS_DIR)
+    .filter((name) => name.endsWith(".json"))
+    .flatMap((name) => {
+      const artifact = JSON.parse(
+        fs.readFileSync(path.join(BILLS_DIR, name), "utf8"),
+      ) as { bill?: { slug?: string } };
+      return [name.replace(/\.json$/, ""), artifact.bill?.slug].filter(
+        (slug): slug is string => Boolean(slug),
+      );
+    }),
+);
 
 const docket = JSON.parse(
   fs.readFileSync(
@@ -25,8 +40,7 @@ const docket = JSON.parse(
 describe("bill context-series links", () => {
   it("names real bill analyses and admitted docket concepts only", () => {
     for (const link of BILL_CONTEXT_SERIES_LINKS) {
-      const billFile = path.join(REPO_ROOT, "bills", `${link.billSlug}.json`);
-      expect(fs.existsSync(billFile), link.billSlug).toBe(true);
+      expect(billSlugs.has(link.billSlug), link.billSlug).toBe(true);
       const entry = docket.series.find(
         (row) => row.series === link.seriesConcept,
       );
@@ -96,19 +110,25 @@ describe("bill context-series links", () => {
     );
   });
 
-  it("keeps the docket comment and the page scope note identical", () => {
-    // One canonical scope note per series: the docket comment is the
-    // page scopeNote behind a fixed page-naming prefix, so the two
-    // surfaces cannot drift apart (the round-2 weakening).
+  it("keeps docket comments and page scope notes in lockstep", () => {
     for (const link of BILL_CONTEXT_SERIES_LINKS) {
       const entry = docket.series.find(
         (row) => row.series === link.seriesConcept,
       );
-      expect(entry?.comment).toBe(
+      const legacyWaveAPrefixedNote =
         `Context series for the ${link.billSlug} bill page ` +
-          `(thesis#159 Wave A). ${link.scopeNote}`,
+        `(thesis#159 Wave A). ${link.scopeNote}`;
+      expect([link.scopeNote, legacyWaveAPrefixedNote]).toContain(
+        entry?.comment,
       );
     }
+    const itaLink = BILL_CONTEXT_SERIES_LINKS.find(
+      (link) => link.seriesConcept === "bea.ita.personal_transfer_payments",
+    );
+    const itaEntry = docket.series.find(
+      (row) => row.series === itaLink?.seriesConcept,
+    );
+    expect(itaEntry?.comment).toBe(itaLink?.scopeNote);
   });
 
   it("filters by bill slug", () => {
@@ -118,5 +138,6 @@ describe("bill context-series links", () => {
       "usaspending.cdfi.assistance_transaction_obligations",
     );
     expect(getBillContextSeriesLinks("no-such-bill")).toHaveLength(0);
+    expect(getBillContextSeriesLinks("stress-119hr5595ih")).toHaveLength(1);
   });
 });

@@ -890,6 +890,50 @@
    }
   },
   {
+   "series": "bea.ita.personal_transfer_payments",
+   "cadence": "quarterly",
+   "slug": "us-personal-transfer-payments-q{quarter}-{year}",
+   "seedPeriod": "2026-Q2",
+   "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+   "releaseDates": {
+    "2026-Q2": "2026-09-24"
+   },
+   "extras": {
+    "targetUnit": "usd_millions",
+    "anchors": {
+     "2026-Q1": 18511
+    },
+    "sourceBinding": {
+     "adapter": "bea-ita-itable",
+     "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+     "sourceSeriesId": "ITA:T5.1:L18:QSA",
+     "field": "Line 18: Personal transfers (QSA)",
+     "table": "U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted",
+     "transform": {
+      "operation": "identity",
+      "factor": 1,
+      "applicationId": 62,
+      "productId": "1",
+      "tableList": "62",
+      "lineNumber": "18",
+      "rowLabel": "Personal transfers",
+      "basis": "QSA",
+      "unit": "usd_millions",
+      "cadence": "quarterly"
+     },
+     "releasePolicy": "first_print"
+    }
+   },
+   "ledger": {
+    "uuid": "47d53b27-f420-4fa2-9d29-3c8832474cb8",
+    "concept": "bea.ita.personal_transfer_payments"
+   },
+   "comment": "BEA ITA Table 5.1 line 18 Personal transfers, quarterly seasonally adjusted in millions of dollars, is a broad personal-transfers flow proxy (https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1). It does not measure the section 4475 remittance-excise base, sender citizenship, provider qualification, tax liability or receipts, or section 36C credits; no value is attributed to H.R. 5595, and this series never resolves any H.R. 5595 causal claim (https://www.congress.gov/119/bills/hr5595/BILLS-119hr5595ih.pdf).",
+   "billSlugs": [
+    "stress-119hr5595ih"
+   ]
+  },
+  {
    "series": "bls.import_price_index.all_imports_mom",
    "cadence": "monthly",
    "slug": "bls-import-price-index-all-imports-mom-{month}-{year}",

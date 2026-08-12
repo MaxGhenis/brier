@@ -184,9 +184,16 @@ export default async function BillDetailPage({
   // tracks because this bill made them worth watching. Never a
   // resolution of a bill metric — each link's scopeNote is rendered
   // verbatim so the boundary lives on the page.
-  const contextSeriesLinks = getBillContextSeriesLinks(slug).map(
-    (link) => ({ link, cell: resolveMetricCell(link.seriesConcept) }),
-  );
+  const contextBillSlugs = [
+    ...new Set(
+      [slug, entry.bill.slug].filter(
+        (candidate): candidate is string => Boolean(candidate),
+      ),
+    ),
+  ];
+  const contextSeriesLinks = contextBillSlugs
+    .flatMap((billSlug) => getBillContextSeriesLinks(billSlug))
+    .map((link) => ({ link, cell: resolveMetricCell(link.seriesConcept) }));
   const computeRows = entry.provisions.flatMap((p) => p.compute ?? []);
   // Honest empty-state inputs: how many candidate metrics the analysis
   // found, and how many name an admitted series (series_hints are verified

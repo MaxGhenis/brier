@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import datetime as dt
 import hashlib
 import json
@@ -18,6 +19,13 @@ import resolve_pending  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "ingestion_wave1" / "bea"
 RELEASE_DAY = dt.date(2026, 7, 30)
+ITA_RELEASE_DAY = dt.date(2026, 6, 24)
+ITA_SERIES = "bea.ita.personal_transfer_payments"
+
+
+def _decoded_fixture(name: str) -> bytes:
+    encoded = b"".join((FIXTURES / name).read_bytes().splitlines())
+    return base64.b64decode(encoded, validate=True)
 
 
 def _docket_entry(series: str) -> dict[str, Any]:
@@ -27,17 +35,21 @@ def _docket_entry(series: str) -> dict[str, Any]:
 
 def _registration(
     series: str,
+    *,
+    period: str = "2026-Q2",
+    release_day: dt.date = RELEASE_DAY,
+    registration_day: dt.date = dt.date(2026, 7, 1),
 ) -> tuple[str, dict[str, Any], dict[str, Any], dict[str, Any]]:
     entry = _docket_entry(series)
     target = {
         **entry["extras"],
         "series": series,
-        "period": "2026-Q2",
+        "period": period,
         "catalogSlug": f"unit4-{series.replace('.', '-')}",
         "releaseCalendarUrl": entry["releaseCalendarUrl"],
-        "expectedReleaseDate": RELEASE_DAY.isoformat(),
+        "expectedReleaseDate": release_day.isoformat(),
     }
-    contract = register_targets.build_contract(target, dt.date(2026, 7, 1))
+    contract = register_targets.build_contract(target, registration_day)
     ref = contract["dataPointId"]
     envelope = {
         "targetContentHash": "a" * 64,
@@ -46,7 +58,7 @@ def _registration(
     }
     spec = resolve_pending.BEA_RELEASE_ADAPTERS[series]
     forecast = {
-        "resolutionDate": RELEASE_DAY.isoformat(),
+        "resolutionDate": release_day.isoformat(),
         "unit": spec["unit"],
     }
     return ref, envelope, spec, forecast
@@ -81,6 +93,327 @@ def test_real_bea_current_release_fixtures_are_hash_pinned_and_parse() -> None:
     assert resolve_pending.bea_itable_value(
         table_raw, research, "2026-04", RELEASE_DAY
     ) == (937.772, None)
+
+
+def _mutate_ita_table(raw: bytes, mutation: Any) -> bytes:
+    outer = json.loads(raw)
+    response = json.loads(outer) if isinstance(outer, str) else outer
+    table_prompt = next(
+        prompt
+        for prompt in response["Prompts"]
+        if prompt["Name"] == "TheTableFlexibleIipIta"
+    )
+    prompt_data = json.loads(table_prompt["PromtData"])
+    table = json.loads(prompt_data["Table"])
+    mutation(table)
+    prompt_data["Table"] = json.dumps(table, separators=(",", ":"))
+    table_prompt["PromtData"] = json.dumps(prompt_data, separators=(",", ":"))
+    inner = json.dumps(response, separators=(",", ":"))
+    return json.dumps(inner, separators=(",", ":")).encode()
+
+
+def _mutate_ita_prompt_rows(raw: bytes, name: str, mutation: Any) -> bytes:
+    outer = json.loads(raw)
+    response = json.loads(outer) if isinstance(outer, str) else outer
+    prompt = next(item for item in response["Prompts"] if item["Name"] == name)
+    prompt_data = json.loads(prompt["PromtData"])
+    mutation(prompt_data["Table"])
+    prompt["PromtData"] = json.dumps(prompt_data, separators=(",", ":"))
+    inner = json.dumps(response, separators=(",", ":"))
+    return json.dumps(inner, separators=(",", ":")).encode()
+
+
+def test_real_bea_ita_fixtures_are_hash_pinned_and_parse() -> None:
+    # Live official replay on 2026-08-12 of the request documented at
+    # https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1
+    table_raw = _decoded_fixture("ita-table-5-1-2026-q1-qsa.json.base64")
+    release_raw = _decoded_fixture("ita-iip-release-2026-q1.html.base64")
+    spec = resolve_pending.BEA_RELEASE_ADAPTERS[ITA_SERIES]
+
+    assert len(table_raw) == 16_089
+    assert hashlib.sha256(table_raw).hexdigest() == (
+        "d482e10713b19c01824882b6e6f7ee01d06619222d35b27cb6f97fa95fdf0f35"
+    )
+    assert len(release_raw) == 58_604
+    assert hashlib.sha256(release_raw).hexdigest() == (
+        "617c9229ac39ded608b64a71bc30c3c10d713cb1885ee53344d6fb3bc4dd227d"
+    )
+    assert (
+        resolve_pending.bea_ita_release_page_refusal(
+            release_raw, "2026-01", ITA_RELEASE_DAY
+        )
+        is None
+    )
+    assert resolve_pending.bea_ita_prompt_selection(table_raw, spec, "2026-01") == (
+        "1",
+        None,
+    )
+    assert resolve_pending.bea_ita_itable_value(
+        table_raw, spec, "2026-01", ITA_RELEASE_DAY
+    ) == (18_511.0, None)
+    assert resolve_pending.bea_ita_prompt_catalog_request_body(spec) == {
+        "appid": 62,
+        "stepnum": 2,
+        "data": [["Product", "1"], ["TableList", "62"]],
+    }
+    assert resolve_pending.bea_ita_itable_request_body(spec, "2026-01", "1") == {
+        "appid": 62,
+        "stepnum": 2,
+        "data": [
+            ["Product", "1"],
+            ["TableList", "62"],
+            ["Filter_#1", "1"],
+            ["Filter_#2", "1"],
+            ["Filter_#3", "18"],
+        ],
+    }
+
+
+def test_bea_ita_snapshot_archives_all_authenticated_bytes_and_requests() -> None:
+    # These are the live official bytes fetched on 2026-08-12 from the BEA
+    # Table 5.1 and Q1 release URLs documented in the fixture README.
+    table_raw = _decoded_fixture("ita-table-5-1-2026-q1-qsa.json.base64")
+    release_raw = _decoded_fixture("ita-iip-release-2026-q1.html.base64")
+    spec = resolve_pending.BEA_RELEASE_ADAPTERS[ITA_SERIES]
+    value, refusal = resolve_pending.bea_ita_itable_value(
+        table_raw, spec, "2026-01", ITA_RELEASE_DAY
+    )
+    assert refusal is None
+    assert value is not None
+    catalog_body = resolve_pending.bea_ita_prompt_catalog_request_body(spec)
+    table_body = resolve_pending.bea_ita_itable_request_body(spec, "2026-01", "1")
+
+    envelope = json.loads(
+        resolve_pending.bea_ita_release_snapshot_envelope(
+            spec=spec,
+            period="2026-01",
+            value=value,
+            release_url=resolve_pending.bea_ita_release_url("2026-01", ITA_RELEASE_DAY),
+            release_raw=release_raw,
+            release_retrieved_at="2026-06-24T12:30:01Z",
+            catalog_url=resolve_pending.BEA_ITABLE_DATA_URL,
+            catalog_body=catalog_body,
+            catalog_raw=table_raw,
+            catalog_retrieved_at="2026-06-24T12:30:02Z",
+            table_url=resolve_pending.BEA_ITABLE_DATA_URL,
+            table_body=table_body,
+            table_raw=table_raw,
+            table_retrieved_at="2026-06-24T12:30:03Z",
+        )
+    )
+
+    assert envelope["schemaVersion"] == "bea_ita_release_snapshot_v1"
+    for key, expected_raw in (
+        ("release", release_raw),
+        ("promptCatalog", table_raw),
+        ("table", table_raw),
+    ):
+        archived = envelope[key]
+        assert base64.b64decode(archived["bodyBase64"], validate=True) == expected_raw
+        assert archived["sha256"] == hashlib.sha256(expected_raw).hexdigest()
+    assert envelope["promptCatalog"]["request"] == catalog_body
+    assert envelope["table"]["request"] == table_body
+    assert envelope["derived"] == {
+        "period": "2026-01",
+        "sourceSeriesId": "ITA:T5.1:L18:QSA",
+        "value": value,
+    }
+
+
+def test_bea_ita_release_urls_match_verified_quarter_specific_forms() -> None:
+    assert resolve_pending.bea_ita_release_url("2026-01", ITA_RELEASE_DAY) == (
+        "https://www.bea.gov/news/2026/us-international-transactions-and-"
+        "investment-position-1st-quarter-2026-and-annual-update"
+    )
+    assert resolve_pending.bea_ita_release_url("2025-10", dt.date(2026, 3, 25)) == (
+        "https://www.bea.gov/news/2026/us-international-transactions-and-"
+        "investment-position-4th-quarter-and-year-2025"
+    )
+    assert resolve_pending.bea_ita_release_url("2026-04", dt.date(2026, 9, 24)) == (
+        "https://www.bea.gov/news/2026/us-international-transactions-and-"
+        "investment-position-2nd-quarter-2026"
+    )
+
+
+def test_bea_ita_release_page_refuses_wrong_title_date_and_embargo_time() -> None:
+    raw = _decoded_fixture("ita-iip-release-2026-q1.html.base64")
+
+    wrong_title = raw.replace(
+        b"1st Quarter 2026 and Annual Update",
+        b"2nd Quarter 2026 and Annual Update",
+    )
+    assert resolve_pending.bea_ita_release_page_refusal(
+        wrong_title, "2026-01", ITA_RELEASE_DAY
+    ) == (
+        "ITA release page does not contain expected title 'U.S. International "
+        "Transactions and Investment Position, 1st Quarter 2026 and Annual Update'"
+    )
+    wrong_date = raw.replace(b"June 24, 2026", b"June 25, 2026")
+    assert resolve_pending.bea_ita_release_page_refusal(
+        wrong_date, "2026-01", ITA_RELEASE_DAY
+    ) == (
+        "ITA release page does not contain exact registered embargo line "
+        "'EMBARGOED UNTIL RELEASE AT 8:30 a.m. EDT, Wednesday, June 24, 2026'"
+    )
+    wrong_time = raw.replace(b"8:30 a.m. EDT", b"1:00 a.m. EDT")
+    assert resolve_pending.bea_ita_release_page_refusal(
+        wrong_time, "2026-01", ITA_RELEASE_DAY
+    ) == (
+        "ITA release page does not contain exact registered embargo line "
+        "'EMBARGOED UNTIL RELEASE AT 8:30 a.m. EDT, Wednesday, June 24, 2026'"
+    )
+
+
+def test_bea_ita_prompt_catalog_refuses_missing_or_malformed_year_key() -> None:
+    raw = _decoded_fixture("ita-table-5-1-2026-q1-qsa.json.base64")
+    spec = resolve_pending.BEA_RELEASE_ADAPTERS[ITA_SERIES]
+
+    def remove_key(rows: list[dict[str, Any]]) -> None:
+        next(row for row in rows if row["ListDisplayValue"] == "2026").pop("ListKey")
+
+    missing_key = _mutate_ita_prompt_rows(raw, "Filter_#1", remove_key)
+    assert resolve_pending.bea_ita_prompt_selection(missing_key, spec, "2026-01") == (
+        None,
+        "ITA Filter_#1 selector row has the wrong key/display schema",
+    )
+
+    def stringify_key(rows: list[dict[str, Any]]) -> None:
+        next(row for row in rows if row["ListDisplayValue"] == "2026")["ListKey"] = "1"
+
+    malformed_key = _mutate_ita_prompt_rows(raw, "Filter_#1", stringify_key)
+    assert resolve_pending.bea_ita_prompt_selection(malformed_key, spec, "2026-01") == (
+        None,
+        "ITA Filter_#1 selector row has the wrong key/display schema",
+    )
+
+
+@pytest.mark.parametrize(
+    ("prompt_name", "collision", "expected_refusal"),
+    [
+        (
+            "Filter_#1",
+            {"ListKey": 1, "ListDisplayValue": "2025"},
+            "ITA Filter_#1 selector keys are not globally unique",
+        ),
+        (
+            "Filter_#2",
+            {"ListKey": 1, "ListDisplayValue": "Quarterly not adjusted"},
+            "ITA Filter_#2 selector keys are not globally unique",
+        ),
+        (
+            "Filter_#3",
+            {"ListKey": 18, "ListDisplayValue": "18 Conflicting concept"},
+            "ITA Filter_#3 selector keys are not globally unique",
+        ),
+        (
+            "Filter_#1",
+            {"ListKey": "1", "ListDisplayValue": "2025"},
+            "ITA Filter_#1 selector row has the wrong key/display schema",
+        ),
+        (
+            "Filter_#2",
+            {"ListKey": "1", "ListDisplayValue": "Quarterly not adjusted"},
+            "ITA Filter_#2 selector row has the wrong key/display schema",
+        ),
+        (
+            "Filter_#3",
+            {"ListKey": "18", "ListDisplayValue": "18 Conflicting concept"},
+            "ITA Filter_#3 selector row has the wrong key/display schema",
+        ),
+        (
+            "Filter_#1",
+            {"ListKey": 99, "ListDisplayValue": "2026"},
+            "expected one ITA prompt key for year 2026, found 2",
+        ),
+        (
+            "Filter_#2",
+            {"ListKey": 99, "ListDisplayValue": "Quarterly seasonally adjusted"},
+            "ITA prompt catalog does not authenticate the QSA selector",
+        ),
+        (
+            "Filter_#3",
+            {"ListKey": 99, "ListDisplayValue": "18 Personal transfers"},
+            "ITA prompt catalog does not authenticate line 18 Personal transfers",
+        ),
+    ],
+)
+def test_bea_ita_prompt_catalog_refuses_selector_key_collisions(
+    prompt_name: str,
+    collision: dict[str, Any],
+    expected_refusal: str,
+) -> None:
+    raw = _decoded_fixture("ita-table-5-1-2026-q1-qsa.json.base64")
+    spec = resolve_pending.BEA_RELEASE_ADAPTERS[ITA_SERIES]
+    collided = _mutate_ita_prompt_rows(
+        raw, prompt_name, lambda rows: rows.append(collision)
+    )
+
+    assert resolve_pending.bea_ita_prompt_selection(collided, spec, "2026-01") == (
+        None,
+        expected_refusal,
+    )
+
+
+def test_bea_ita_capture_timing_refuses_pre_embargo_fetches() -> None:
+    assert (
+        resolve_pending.bea_ita_capture_timing_refusal(
+            {"release page": "2026-06-24T12:29:59Z"}, ITA_RELEASE_DAY
+        )
+        == "ITA release page fetch started at 2026-06-24T12:29:59Z, before "
+        "embargo 2026-06-24T12:30:00Z"
+    )
+    assert (
+        resolve_pending.bea_ita_capture_timing_refusal(
+            {"release page": "2026-06-24T12:30:00Z"}, ITA_RELEASE_DAY
+        )
+        is None
+    )
+
+
+def test_bea_ita_parser_refuses_wrong_line_and_wrong_basis() -> None:
+    raw = _decoded_fixture("ita-table-5-1-2026-q1-qsa.json.base64")
+    spec = resolve_pending.BEA_RELEASE_ADAPTERS[ITA_SERIES]
+
+    wrong_line = _mutate_ita_table(
+        raw,
+        lambda table: next(
+            cell
+            for cell in table["TD"]
+            if cell["Row_ID"] == "6" and cell["Column_ID"] == "1"
+        ).update({"Cell_Value": "19"}),
+    )
+    value, refusal = resolve_pending.bea_ita_itable_value(
+        wrong_line, spec, "2026-01", ITA_RELEASE_DAY
+    )
+    assert value is None
+    assert refusal == "expected one exact ITA line 18 'Personal transfers' row, found 0"
+
+    wrong_basis = _mutate_ita_table(
+        raw,
+        lambda table: next(
+            cell
+            for cell in table["TD"]
+            if cell["Row_ID"] == "1" and cell["Column_ID"] == "3"
+        ).update({"Cell_Value": "Not seasonally adjusted"}),
+    )
+    value, refusal = resolve_pending.bea_ita_itable_value(
+        wrong_basis, spec, "2026-01", ITA_RELEASE_DAY
+    )
+    assert value is None
+    assert refusal == "expected one ITA QSA 2026 Q1 column, found 0"
+
+
+@pytest.mark.parametrize("raw", [b"not JSON", b'"{\\"AppId\\":62'])
+def test_bea_ita_parser_refuses_non_json_and_truncated_response(raw: bytes) -> None:
+    value, refusal = resolve_pending.bea_ita_itable_value(
+        raw,
+        resolve_pending.BEA_RELEASE_ADAPTERS[ITA_SERIES],
+        "2026-01",
+        ITA_RELEASE_DAY,
+    )
+
+    assert value is None
+    assert refusal == "ITA iTable response is not complete UTF-8 JSON"
 
 
 def test_bea_table_revision_stamp_must_equal_registered_release_day() -> None:
@@ -167,6 +500,108 @@ def test_bea_registry_binds_official_release_parser_and_keeps_alfred_as_mirror(
     assert series in resolve_pending.ALFRED_HISTORY_MIRRORS
     assert series not in resolve_pending.ALFRED_ADAPTERS
     assert register_targets.is_calendar_gated_source("bea-release", series)
+
+
+def test_bea_ita_registry_binds_every_reviewed_selector_without_a_mirror() -> None:
+    ref, registration, spec, forecast = _registration(
+        ITA_SERIES, release_day=dt.date(2026, 9, 24)
+    )
+    binding = registration["contract"]["sourceBinding"]
+
+    assert ref == "bea.ita.personal_transfer_payments.2026_q2.first_print"
+    assert forecast["unit"] == "usd_millions"
+    assert binding == {
+        "adapter": "bea-ita-itable",
+        "sourceUrl": resolve_pending.BEA_ITA_ITABLE_PAGE_URL,
+        "sourceSeriesId": "ITA:T5.1:L18:QSA",
+        "field": "Line 18: Personal transfers (QSA)",
+        "table": (
+            "U.S. International Transactions, Table 5.1, line 18 "
+            "(Personal transfers), quarterly seasonally adjusted"
+        ),
+        "transform": {
+            "operation": "identity",
+            "factor": 1,
+            "applicationId": 62,
+            "productId": "1",
+            "tableList": "62",
+            "lineNumber": "18",
+            "rowLabel": "Personal transfers",
+            "basis": "QSA",
+            "unit": "usd_millions",
+            "cadence": "quarterly",
+        },
+        "releasePolicy": "first_print",
+        "expectedReleaseWindow": {"start": "2026-09-24", "end": "2026-09-24"},
+        "allowedHosts": ["apps.bea.gov", "www.bea.gov"],
+    }
+    assert resolve_pending.bea_release_binding_matches_spec(binding, spec)
+    assert not resolve_pending.bea_release_binding_matches_spec(
+        {
+            **binding,
+            "allowedHosts": [*binding["allowedHosts"], "alfred.stlouisfed.org"],
+        },
+        spec,
+    )
+    assert (
+        prospect_targets._source_binding_errors(
+            resolve_pending.bea_release_binding_template(spec)
+        )
+        == []
+    )
+    for field, bad_value in (
+        ("applicationId", 19),
+        ("productId", "2"),
+        ("tableList", "61"),
+        ("lineNumber", "17"),
+        ("rowLabel", "Private transfer payments"),
+        ("basis", "QNSA"),
+        ("unit", "usd_billions"),
+        ("cadence", "annual"),
+    ):
+        drifted = json.loads(json.dumps(binding))
+        drifted["transform"][field] = bad_value
+        assert not resolve_pending.bea_release_binding_matches_spec(drifted, spec)
+        template = {
+            key: drifted[key]
+            for key in resolve_pending.BEA_RELEASE_BINDING_TEMPLATE_KEYS
+        }
+        assert prospect_targets._source_binding_errors(template) == [
+            "bad BEA ITA sourceBinding transform"
+        ]
+    assert "history_mirror" not in spec
+    assert ITA_SERIES not in resolve_pending.ALFRED_HISTORY_MIRRORS
+    assert ITA_SERIES not in resolve_pending.ALFRED_ADAPTERS
+    assert register_targets.is_calendar_gated_source("bea-ita-itable", ITA_SERIES)
+
+
+def test_pending_bea_ita_series_routes_to_official_release_family() -> None:
+    ref, _envelope, spec, forecast = _registration(
+        ITA_SERIES, release_day=dt.date(2026, 9, 24)
+    )
+    routed = resolve_pending.pending_adapter_refs(
+        {
+            "entries": [
+                {
+                    "kind": "prediction_recorded",
+                    "forecastSlug": "bea-ita-release",
+                    **forecast,
+                }
+            ],
+            "resolutionLinks": [
+                {
+                    "status": "pending",
+                    "forecastSlug": "bea-ita-release",
+                    "targetFactRef": ref,
+                }
+            ],
+        }
+    )
+
+    assert len(routed) == 1
+    assert routed[0][1] == "bea_release"
+    assert routed[0][2] == spec
+    assert routed[0][3:5] == ("quarter", "2026-04")
 
 
 def test_pending_bea_series_route_only_to_official_release_family() -> None:
@@ -298,6 +733,100 @@ def test_main_resolves_both_bea_series_from_real_official_fixtures(
     assert "-> 937.772 usd_billions" in output
     assert "dry-run: would append 2 row(s)" in output
     assert calls == {"release": 1, "table": 1}
+
+
+def test_main_resolves_bea_ita_from_authenticated_notice_catalog_and_table(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    ref, envelope, spec, forecast = _registration(
+        ITA_SERIES,
+        period="2026-Q1",
+        release_day=ITA_RELEASE_DAY,
+        registration_day=dt.date(2026, 6, 1),
+    )
+    log = {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "bea-ita-main",
+                **forecast,
+            }
+        ],
+        "resolutionLinks": [
+            {
+                "status": "pending",
+                "forecastSlug": "bea-ita-main",
+                "targetFactRef": ref,
+            }
+        ],
+    }
+    release_raw = _decoded_fixture("ita-iip-release-2026-q1.html.base64")
+    table_raw = _decoded_fixture("ita-table-5-1-2026-q1-qsa.json.base64")
+    expected_release_url = resolve_pending.bea_ita_release_url(
+        "2026-01", ITA_RELEASE_DAY
+    )
+    catalog_body = resolve_pending.bea_ita_prompt_catalog_request_body(spec)
+    table_body = resolve_pending.bea_ita_itable_request_body(spec, "2026-01", "1")
+    calls = {"release": 0, "catalog": 0, "table": 0}
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 6, 24)
+
+    def fake_http_request(
+        request: Any,
+        *,
+        allowed_hosts: list[str] | tuple[str, ...],
+        timeout: int = 120,
+    ) -> tuple[bytes, str, str]:
+        assert tuple(allowed_hosts) == ("apps.bea.gov", "www.bea.gov")
+        assert timeout == 120
+        if request.full_url == expected_release_url:
+            calls["release"] += 1
+            assert request.get_method() == "GET"
+            return release_raw, "2026-06-24T12:30:01Z", expected_release_url
+        assert request.full_url == resolve_pending.BEA_ITABLE_DATA_URL
+        posted = json.loads(request.data)
+        if posted == catalog_body:
+            calls["catalog"] += 1
+            return (
+                table_raw,
+                "2026-06-24T12:30:02Z",
+                resolve_pending.BEA_ITABLE_DATA_URL,
+            )
+        assert posted == table_body
+        calls["table"] += 1
+        return (
+            table_raw,
+            "2026-06-24T12:30:03Z",
+            resolve_pending.BEA_ITABLE_DATA_URL,
+        )
+
+    monkeypatch.setattr(resolve_pending.dt, "date", FixedDate)
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: "2026-06-24T12:30:04Z")
+    monkeypatch.setattr(resolve_pending, "load_thesis_log", lambda _url: log)
+    monkeypatch.setattr(
+        resolve_pending, "ledger_state", lambda *_args: ("", "blob", "b" * 40)
+    )
+    monkeypatch.setattr(
+        resolve_pending, "registration_contracts", lambda: {ref: envelope}
+    )
+    monkeypatch.setattr(resolve_pending, "http_request", fake_http_request)
+    monkeypatch.setattr(
+        resolve_pending,
+        "fred_vintage_series",
+        lambda *_args: pytest.fail("BEA ITA resolution must not call ALFRED"),
+    )
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+
+    assert resolve_pending.main() == 0
+
+    output = capsys.readouterr().out
+    assert "-> 18511.0 usd_millions" in output
+    assert "dry-run: would append 1 row(s)" in output
+    assert calls == {"release": 1, "catalog": 1, "table": 1}
 
 
 def test_main_refuses_bea_current_table_after_registered_release_day_literal(

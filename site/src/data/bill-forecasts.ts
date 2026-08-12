@@ -143,6 +143,20 @@ export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
       "compliance; and no spending is attributed to or treated as caused by " +
       "H.R. 978.",
   },
+  {
+    billSlug: "stress-119hr5595ih",
+    seriesConcept: "bea.ita.personal_transfer_payments",
+    label: "Personal-transfer payments, seasonally adjusted (2026 Q2)",
+    scopeNote:
+      "BEA ITA Table 5.1 line 18 Personal transfers, quarterly seasonally " +
+      "adjusted in millions of dollars, is a broad personal-transfers flow " +
+      "proxy (https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1). " +
+      "It does not measure the section 4475 remittance-excise base, sender " +
+      "citizenship, provider qualification, tax liability or receipts, or " +
+      "section 36C credits; no value is attributed to H.R. 5595, and this " +
+      "series never resolves any H.R. 5595 causal claim " +
+      "(https://www.congress.gov/119/bills/hr5595/BILLS-119hr5595ih.pdf).",
+  },
 ];
 
 export function getBillContextSeriesLinks(

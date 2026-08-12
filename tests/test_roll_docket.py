@@ -193,7 +193,7 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
         and (entry.get("extras") or {}).get("resolutionDateBasis") != "resolve-by-bound"
     ]
 
-    assert len(entries) == 23
+    assert len(entries) == 24
     for entry in entries:
         # Evaluate each seed the day before its own pinned release: valid
         # whenever the registry is re-seeded (a fixed review date broke on
@@ -252,6 +252,24 @@ def test_wave1_bea_rd_registry_pins_the_reviewed_bea_release() -> None:
     target = recurring_seed_target(entry, set(), dt.date(2026, 8, 15))
     assert target is not None
     assert target["expectedReleaseDate"] == "2026-10-29"
+
+
+def test_waveb_bea_ita_registry_pins_the_reviewed_release_and_anchor() -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        item
+        for item in registry["series"]
+        if item["series"] == "bea.ita.personal_transfer_payments"
+    )
+
+    assert entry["seedPeriod"] == "2026-Q2"
+    assert entry["releaseDates"] == {"2026-Q2": "2026-09-24"}
+    assert entry["releaseCalendarUrl"] == "https://www.bea.gov/news/schedule"
+    assert entry["extras"]["anchors"] == {"2026-Q1": 18511}
+    assert "resolutionDate" not in entry["extras"]
+    target = recurring_seed_target(entry, set(), dt.date(2026, 8, 12))
+    assert target is not None
+    assert target["expectedReleaseDate"] == "2026-09-24"
 
 
 def bounded_annual_seed_entry() -> dict:
