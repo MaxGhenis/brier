@@ -52,6 +52,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import register_targets  # noqa: E402
+import spawned_cells_to_ts  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -319,6 +320,11 @@ def published_catalog_index(repo_root: pathlib.Path) -> dict[str, str | None]:
         if not isinstance(row, dict) or not isinstance(row.get("slug"), str):
             raise RetrySelectionError("published-catalog row lacks a slug")
         slug = row["slug"]
+        if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", slug):
+            raise RetrySelectionError(
+                f"published-catalog slug {slug!r} is not a well-formed "
+                "catalog slug"
+            )
         data_point_id = row.get("dataPointId")
         if data_point_id is not None and not isinstance(data_point_id, str):
             raise RetrySelectionError(
@@ -358,6 +364,48 @@ def _published_identity_matches(
     return contract.get("dataPointId") == published_id
 
 
+def raw_text_catalog_slugs(repo_root: pathlib.Path) -> frozenset[str]:
+    """Slug literals scraped from site data text — the corroboration view.
+
+    Independent of the bun evaluation: every roll-published cell is a
+    static json.dumps literal in an auto-*.ts file, so a slug that this
+    scrape sees but the evaluated index lacks means the evaluator
+    regressed to a valid-but-partial catalog (the round-3 replay: a
+    zero-exit singleton index authorized re-emitting published
+    targets). The scrape may contain phantoms and misses dynamic
+    entries — it is only ever used to REFUSE, never to authorize.
+    """
+
+    site_data = repo_root / "site" / "src" / "data"
+    return frozenset(
+        spawned_cells_to_ts.existing_slugs(
+            site_data, site_data / "__retry_selector_no_output__.ts"
+        )
+    )
+
+
+def _corroborate_absence(
+    slug: str,
+    published: dict[str, str | None],
+    raw_text_slugs: frozenset[str],
+) -> None:
+    """Refuse when the evaluated index and the raw-text scrape disagree.
+
+    Absence from the index is the load-bearing direction — it is what
+    authorizes emitting a target — so it must be corroborated: if the
+    slug's literal appears in site data text while the evaluated
+    catalog claims it is unpublished, the evaluation is not to be
+    trusted and selection refuses.
+    """
+
+    if slug not in published and slug in raw_text_slugs:
+        raise RetrySelectionError(
+            f"evaluated catalog omits slug {slug!r} whose literal appears "
+            "in site data; the publication view is partial or broken — "
+            "refusing selection"
+        )
+
+
 def select_retry_targets(
     manifest: dict,
     *,
@@ -365,6 +413,7 @@ def select_retry_targets(
     allow_succeeded: bool,
     now_utc: dt.datetime,
     published: dict[str, str | None],
+    raw_text_slugs: frozenset[str] = frozenset(),
 ) -> list[dict]:
     results = manifest["results"]
     by_slug: dict[str, dict] = {}
@@ -384,6 +433,7 @@ def select_retry_targets(
         for slug, row in by_slug.items():
             if row.get("ok"):
                 continue
+            _corroborate_absence(slug, published, raw_text_slugs)
             if slug in published:
                 if not _published_identity_matches(slug, published, row):
                     raise RetrySelectionError(
@@ -414,6 +464,7 @@ def select_retry_targets(
                     f"slug {slug!r} succeeded in the recorded run; pass "
                     "--allow-succeeded to rerun it anyway"
                 )
+            _corroborate_absence(slug, published, raw_text_slugs)
             if slug in published:
                 if _published_identity_matches(slug, published, by_slug[slug]):
                     raise RetrySelectionError(
@@ -482,6 +533,7 @@ def select_retry_targets(
                     continue
                 if sibling_result.get("ok") or sibling in rebuilt_by_slug:
                     continue
+                _corroborate_absence(sibling, published, raw_text_slugs)
                 if _published_identity_matches(sibling, published, sibling_result):
                     continue
                 if sibling in published:
@@ -532,6 +584,7 @@ def main() -> int:
             allow_succeeded=args.allow_succeeded,
             now_utc=now,
             published=published_catalog_index(ROOT),
+            raw_text_slugs=raw_text_catalog_slugs(ROOT),
         )
     except RetrySelectionError as exc:
         print(f"retry selection failed: {exc}", file=sys.stderr)

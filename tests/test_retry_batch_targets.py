@@ -856,6 +856,9 @@ def test_output_envelope_matches_the_roll_selector(
         retry_batch_targets, "published_catalog_index", lambda root: {}
     )
     monkeypatch.setattr(
+        retry_batch_targets, "raw_text_catalog_slugs", lambda root: frozenset()
+    )
+    monkeypatch.setattr(
         sys,
         "argv",
         [
@@ -1171,3 +1174,83 @@ def test_generate_job_compare_accepts_bind_enrichment_and_refuses_drift(
     assert run(base, base) == 0
     assert run(enriched, drifted) == 1
     assert run(unknown, base) == 1
+
+
+def test_partial_catalog_with_real_raw_text_refuses_selection(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    # Round-3 replay: a zero-exit evaluator regression producing the
+    # valid singleton [{"slug":"unrelated-sentinel","dataPointId":null}]
+    # made main() emit all five failed targets, four already published.
+    # With the corroboration ratchet the published targets' literals in
+    # real site data contradict the partial index, and main() refuses.
+    monkeypatch.setattr(
+        retry_batch_targets,
+        "published_catalog_index",
+        lambda root: {"unrelated-sentinel": None},
+    )
+    out = tmp_path / "targets.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "retry_batch_targets.py",
+            "--batch",
+            str(NDAA_MANIFEST),
+            "--out",
+            str(out),
+            "--now-utc",
+            NDAA_WITHIN_GRACE.isoformat().replace("+00:00", "Z"),
+        ],
+    )
+    assert retry_batch_targets.main() != 0
+    assert not out.exists()
+
+
+def test_corroboration_refuses_index_negative_with_text_positive() -> None:
+    raw = frozenset({"belgium-consumer-confidence-august-2026"})
+    with pytest.raises(RetrySelectionError, match="partial or broken"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published={},
+            raw_text_slugs=raw,
+        )
+
+
+def test_corroboration_never_authorizes_from_text_alone() -> None:
+    # The scrape is refuse-only: a slug in raw text AND in the index is
+    # simply published (identity logic applies); a slug in neither is
+    # emitted. Text presence never substitutes for index presence.
+    targets = select_retry_targets(
+        load_manifest(NDAA_MANIFEST),
+        slugs=None,
+        allow_succeeded=False,
+        now_utc=NDAA_WITHIN_GRACE,
+        published=NDAA_LATER_PUBLISHED,
+        raw_text_slugs=frozenset(NDAA_LATER_PUBLISHED),
+    )
+    assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+
+
+def test_index_refuses_malformed_slug_shapes() -> None:
+    class Proc:
+        returncode = 0
+        stderr = ""
+        stdout = '[{"slug": "", "dataPointId": null}]'
+
+    import unittest.mock as mock
+
+    with mock.patch.object(
+        retry_batch_targets.subprocess, "run", return_value=Proc()
+    ):
+        with pytest.raises(RetrySelectionError, match="well-formed"):
+            retry_batch_targets.published_catalog_index(ROOT)
+    Proc.stdout = '[{"slug": "Has Spaces", "dataPointId": null}]'
+    with mock.patch.object(
+        retry_batch_targets.subprocess, "run", return_value=Proc()
+    ):
+        with pytest.raises(RetrySelectionError, match="well-formed"):
+            retry_batch_targets.published_catalog_index(ROOT)
