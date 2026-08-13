@@ -1,0 +1,387 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-13T17:40:05Z",
+  "runStartedAt": "2026-08-13T17:40:05Z",
+  "sealedAt": "2026-08-13T17:43:03Z",
+  "series": "bls.cps.employed_people_by_occupation.computer_mathematical",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "cps-computer-math-employment-august-2026",
+    "country": "US",
+    "dataPointId": "bls.cps.employed_people_by_occupation.computer_mathematical.august_2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-11",
+      "start": "2026-09-03"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-13T06:52:40Z",
+    "registeredAtUtc": "2026-08-13T06:52:40Z",
+    "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+    "registrationState": "preregistered",
+    "series": "bls.cps.employed_people_by_occupation.computer_mathematical",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-11",
+        "start": "2026-09-03"
+      },
+      "field": "Computer and mathematical occupations",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.cps.employed_people_by_occupation.computer_mathematical",
+      "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+      "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "83c7957c7a7a20d3b18b8babe138f2a1751bf02acd6f799a9246036fb456f038",
+    "targetRegistrationPath": "records/targets/2026-08-13-83c7957c7a7a20d3b18b8babe138f2a1751bf02acd6f799a9246036fb456f038.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+  "targetContentHash": "83c7957c7a7a20d3b18b8babe138f2a1751bf02acd6f799a9246036fb456f038",
+  "targetRegistrationPath": "records/targets/2026-08-13-83c7957c7a7a20d3b18b8babe138f2a1751bf02acd6f799a9246036fb456f038.json",
+  "registeredAtUtc": "2026-08-13T06:52:40Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-13T17:40:05Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "ba82adbb5c74c33789c30e7f3ea67a286a30285617f34c76419902f8751d0b75"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the September 4, 2026 resolution date is from the official BLS release calendar, while the registered expectedReleaseWindow remains September 3-11, 2026."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Note that the interval sigma is based on only four month-to-month changes, so the 80% interval is mechanically derived but sample-thin."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The failed specs.json slug check is unnecessary context for the published reasoning and could be shortened or omitted."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the clarity improvements distinguishing the September 4, 2026 official BLS calendar date from the registered September 3-11 expectedReleaseWindow, and noting that sigma rests on only four month-to-month changes. Kept the concise slug-check trace because the analyst contract requires checking specs.json and it explains why the ledger slug remains in use.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the clarity improvements distinguishing the September 4, 2026 official BLS calendar date from the registered September 3-11 expectedReleaseWindow, and noting that sigma rests on only four month-to-month changes. Kept the concise slug-check trace because the analyst contract requires checking specs.json and it explains why the ledger slug remains in use.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the clarity improvements distinguishing the September 4, 2026 official BLS calendar date from the registered September 3-11 expectedReleaseWindow, and noting that sigma rests on only four month-to-month changes. Kept the concise slug-check trace because the analyst contract requires checking specs.json and it explains why the ledger slug remains in use.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable on the core contract and forecast-method rubric, with only minor clarity improvements suggested."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/prompt.md",
+      "sha256": "149ad43926e5768cf4270e2129b1c2bad68fd5ca8e4583d5b45dcf85a713b8e5",
+      "bytes": 32473,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_command.json",
+      "sha256": "9a91a1c505aa7e1421363406047356d1d04589bfd58319b2ed0a6bb4ef17616a",
+      "bytes": 884,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "fa791e899545d4b20be0044475a09a655c61169a977f4066421aa06d3ec4e403",
+      "bytes": 1202016,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_codex_stderr.log",
+      "sha256": "41d1069445bf18c40ef2c6fae7c61ac98563cbd74d2a23adbcf0f9412899c09a",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_codex_events.jsonl",
+      "sha256": "85c529b07c3ac463239045c86929f0777bb23770977667d4281057cf9950a8ed",
+      "bytes": 1202814,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_codex_last_message.txt",
+      "sha256": "19d331b62bd9cfa8402abe9a06b9afa1e4d0e4c745cd8da37ae8dc61b212d41f",
+      "bytes": 7707,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_codex_trace.json",
+      "sha256": "53f51a655f55e0eab663599d4024d991924e7f9d508d3683383a2f0f405c385b",
+      "bytes": 567,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_stdout.txt",
+      "sha256": "19d331b62bd9cfa8402abe9a06b9afa1e4d0e4c745cd8da37ae8dc61b212d41f",
+      "bytes": 7707,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/draft_stderr.txt",
+      "sha256": "3773c3f68127849acf0e7c20eecf13d52142732b994cb89ffff8333be22fa083",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_prompt.md",
+      "sha256": "b56156558aae69a833202ca3710234755263b134ab0dd4753f0b9ded856165da",
+      "bytes": 11113,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_command.json",
+      "sha256": "ee273727fef80d230d631b5070fd7c0df7fceaa3f3c3d2fd1e0c05adbc26ad58",
+      "bytes": 880,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "3de5bd1ec509173807234c6f8cb76c3df57ea8e870560325128686d5c7c5167b",
+      "bytes": 973,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "ae7b917e7229de66ad8c3fef2802318b940b1296c4a740498ef74ef05d08a4f0",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "ad290cf066c631ad9d73b430a04b24233e41c9f29890894e64e24c439f5d0a5f",
+      "bytes": 995,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "71f66f1d797c5f381577617e483c2eee9c85887c7e6ae2bfe29e437edf4e720c",
+      "bytes": 637,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "ad1f1ba0760a81e45127c3208e12c4e87d22f73b0076cb3eacfdde0ceacfb0c2",
+      "bytes": 558,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "71f66f1d797c5f381577617e483c2eee9c85887c7e6ae2bfe29e437edf4e720c",
+      "bytes": 637,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "328cc76ba1fbf8559a6bb5904167b354adc5d7b08eb59fdeafbd59c719803dac",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/revision_prompt.md",
+      "sha256": "7d81529105ac95d40c463b648dbfb8c39dab28a4623b284f97ddf00c62bd57a3",
+      "bytes": 41753,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/command.json",
+      "sha256": "cf9cb32e8aa1a5a28bb539c3a62c6523cb3036c781417f4e0fd1257017897cd5",
+      "bytes": 878,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/codex_stdout.jsonl",
+      "sha256": "b8479071a355eaf90b956ffdb3667b99ca45455a31cc47d7069e7ea7c4525565",
+      "bytes": 9286,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/codex_stderr.log",
+      "sha256": "dc8371beba47bf56dbda6eccb81e63a76b8e00a5b987d942abc5aa62b1e534b3",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/codex_events.jsonl",
+      "sha256": "92dd933f56e414b9efd61e34688bf15ac78245165179942ce1a5d06aca9fe1e7",
+      "bytes": 9308,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/codex_last_message.txt",
+      "sha256": "230cd9c2f568b89919b99c493f3c412528f0dca5e2f69ae0b2153a1e27aac188",
+      "bytes": 8586,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/codex_trace.json",
+      "sha256": "34d637dfb780b9dc085047da05cc655fe7f364031ff6a5c3968defe2dd3bf092",
+      "bytes": 561,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/stdout.txt",
+      "sha256": "230cd9c2f568b89919b99c493f3c412528f0dca5e2f69ae0b2153a1e27aac188",
+      "bytes": 8586,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/stderr.txt",
+      "sha256": "8589b437b1bb2554fcf02a68de074c8426d2349d4caf3737aaa1f15c61634502",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/raw_response.txt",
+      "sha256": "230cd9c2f568b89919b99c493f3c412528f0dca5e2f69ae0b2153a1e27aac188",
+      "bytes": 8586,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/parsed_cells.json",
+      "sha256": "be57e37f605faa7c97ab39acfa2c34a0a74232379f55a6cf79313318822b6fc6",
+      "bytes": 8832,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/normalized_cells.json",
+      "sha256": "1bec0900846af604803b377974322e88a3ad7b30e83bf1b8beb6e104317d0e16",
+      "bytes": 26255,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/distribution.json",
+      "sha256": "9ebb88009b15f08a2b83f446bb928b89484b41edbd2f4e9d13f955dbac38316e",
+      "bytes": 13639,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/validation.json",
+      "sha256": "3b6dda35ce834c262eb5140e8089c7d22d9567ac28e7e8550dfc4f7fbc9833f2",
+      "bytes": 141,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/cells.with_activity.json",
+      "sha256": "ad81c52a392860856c9df3b1fe3c246381ad7b64b8ecb4b62c4045952f399352",
+      "bytes": 42048,
+      "createdAt": "2026-08-13T17:40:05Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-40-05z-bls-cps-employed-people-by-occupation-computer-mathematical-2026-08/manifest.json",
+      "sha256": "028ae9a848b7ef73ec376679458c3517c60fa6591784a6f5609e97b744776bf2",
+      "bytes": 16362,
+      "createdAt": "2026-08-13T17:40:05Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "cps-computer-math-employment-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "f5e7264c154885e757fdc899b18988cfd8fb8c73",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "fe367257da129e1757b2896e4debbab3c5db6e55a1266920417ba141b01196c2"
+}

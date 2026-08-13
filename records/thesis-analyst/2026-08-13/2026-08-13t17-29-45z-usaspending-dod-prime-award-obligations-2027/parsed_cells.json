@@ -1,0 +1,149 @@
+[
+  {
+    "slug": "us-dod-prime-award-obligations-fy2027-fy27-ndaa-enacted",
+    "country": "US",
+    "type": "conditional",
+    "title": "US DoD prime award obligations FY2027 if FY27 NDAA enacted",
+    "question": "If the FY2027 NDAA enactment condition is satisfied, what will USAspending API v2 report for Department of Defense agency 097 prime award obligations for fiscal year 2027, using the obligations field from /api/v2/agency/097/awards/?fiscal_year=2027, transformed to billions USD, in the registered query snapshot first print?",
+    "unit": "billions USD",
+    "pointEstimate": 518.3,
+    "ciLow": 461.8,
+    "ciHigh": 574.9,
+    "confidence": 0.8,
+    "resolutionDate": "2027-10-22",
+    "resolutionSource": "USAspending API v2 agency 097 awards endpoint",
+    "resolutionSourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+    "resolutionRule": "Resolve only if the conditionalOn event is satisfied; otherwise mark unresolved. For a satisfied condition, execute the registered USAspending API v2 query for agency 097 awards with fiscal_year=2027, read the obligations field, multiply by 1e-9 to billions USD, and use the first registered query snapshot in the expectedReleaseWindow 2027-10-15 through 2027-10-22, with lab-committed outer bound 2027-10-22. Round to the nearest 0.1 billion USD. Later API changes after the registered snapshot are irrelevant.",
+    "dataPointId": "usaspending.dod.prime_award_obligations.2027.registered_query_snapshot.fy27_ndaa_enacted",
+    "conditionalOn": "An Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 (the FY2027 NDAA; the House-reported bill is H.R. 8800, 119th Congress, House Report 119-698) is enacted into law on or before 2026-12-31.",
+    "historicalContext": [
+      {
+        "label": "FY2017 USAspending agency 097 awards obligations",
+        "value": 328.0
+      },
+      {
+        "label": "FY2018 USAspending agency 097 awards obligations",
+        "value": 365.9
+      },
+      {
+        "label": "FY2019 USAspending agency 097 awards obligations",
+        "value": 391.3
+      },
+      {
+        "label": "FY2020 USAspending agency 097 awards obligations",
+        "value": 431.9
+      },
+      {
+        "label": "FY2021 USAspending agency 097 awards obligations",
+        "value": 395.3
+      },
+      {
+        "label": "FY2022 USAspending agency 097 awards obligations",
+        "value": 424.5
+      },
+      {
+        "label": "FY2023 USAspending agency 097 awards obligations",
+        "value": 467.3
+      },
+      {
+        "label": "FY2024 USAspending agency 097 awards obligations",
+        "value": 456.9
+      },
+      {
+        "label": "FY2025 USAspending agency 097 awards obligations",
+        "value": 501.5
+      }
+    ],
+    "drivers": [
+      "FY2025 registered-query obligations were $501.5B",
+      "FY2027 NDAA enactment supports authorization path",
+      "Authorization is not itself budget authority",
+      "FY2026 YTD endpoint remains incomplete at $299.0B",
+      "Annual changes are volatile, sigma $29.5B"
+    ],
+    "sourceContext": [
+      "records/targets/2026-08-13-d3e164666cfec76acc158c22d6e10fdb9af935f4eac09a0486ea434862212132.json",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2017",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2018",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2019",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2020",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2021",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2022",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2023",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2024",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2025",
+      "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2026",
+      "https://www.govinfo.gov/app/details/CRPT-119hrpt698",
+      "https://www.govinfo.gov/content/pkg/CRPT-119hrpt698/html/CRPT-119hrpt698.htm",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-13T17:30:02Z",
+    "activityLog": [],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US DoD Prime Award Obligations FY2027 Conditional"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: this is a conditional registered-query target, not a human-judged defense-budget question. The resolver is USAspending API v2 agency 097 awards, fiscal_year=2027, obligations field, multiplied by 1e-9 to billions USD. The target registration supplies expectedReleaseWindow 2027-10-15 through 2027-10-22, so I use the lab-committed outer bound 2027-10-22 rather than inferring a release date from cadence."
+      },
+      {
+        "kind": "tool",
+        "tool": "local.target_registration",
+        "call": "jq . records/targets/2026-08-13-d3e164666cfec76acc158c22d6e10fdb9af935f4eac09a0486ea434862212132.json",
+        "result": "Registered target: catalogSlug us-dod-prime-award-obligations-fy2027-fy27-ndaa-enacted; period 2027; unit billions USD; dataPointId usaspending.dod.prime_award_obligations.2027.registered_query_snapshot.fy27_ndaa_enacted; conditionDeadline 2026-12-31; sourceUrl https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}; field obligations; transform factor 1e-9; expectedReleaseWindow start 2027-10-15 end 2027-10-22."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.awards",
+        "call": "GET registered query for fiscal_year=2017 through 2021",
+        "result": "Fetched exact USAspending agency 097 awards obligations: FY2017 327990949917.96 USD = 327.991B, FY2018 365937501255.11 USD = 365.938B, FY2019 391333992872.89 USD = 391.334B, FY2020 431883672152.30 USD = 431.884B, FY2021 395332709399.53 USD = 395.333B. FY2016 returned 304733246938.93 USD but USAspending message said account data before FY2017 Q2 were not available under the DATA Act, so I excluded FY2016 from the comparable base rate."
+      },
+      {
+        "kind": "tool",
+        "tool": "usaspending.awards",
+        "call": "GET registered query for fiscal_year=2022 through 2026",
+        "result": "Fetched exact USAspending agency 097 awards obligations: FY2022 424512414112.80 USD = 424.512B, FY2023 467273435599.16 USD = 467.273B, FY2024 456945504400.91 USD = 456.946B, FY2025 501543513238.03 USD = 501.544B. FY2026 current incomplete check returned obligations 298980123138.95 USD = 298.980B through latest_action_date 2026-08-11 with transaction_count 2641896, so I do not treat it as a full-year comparable print."
+      },
+      {
+        "kind": "tool",
+        "tool": "govinfo.house_report",
+        "call": "Fetch GovInfo H. Rept. 119-698 content page and lines around summary/appropriations relationship",
+        "result": "GovInfo H. Rept. 119-698 title is NATIONAL DEFENSE AUTHORIZATION ACT FOR FISCAL YEAR 2027; the report says it accompanies H.R. 8800. It states the President requested $1.15 trillion for national defense budget function 050, $1.14 trillion within committee jurisdiction, $1.1 trillion for Department of Defense programs, $41.4 billion for DOE national security programs, and $568 million for Maritime Administration defense-related activities. It also states the committee authorization is $251.1 billion above FY2026 NDAA levels and that the bill does not provide budget authority; subsequent appropriations acts provide budget authority."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis.specs_check",
+        "call": "curl -sS -D - https://app.thesisinstitute.org/specs.json -o /tmp/thesis-specs.json; rg slug",
+        "result": "Slug check fetch returned HTTP 404 with content-length 11289 from app.thesisinstitute.org/specs.json; local rg found slug_matches=0 for us-dod-prime-award-obligations-fy2027-fy27-ndaa-enacted. I therefore used the provided registered catalogSlug rather than inventing a new slug."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: comparable complete registered-query prints are FY2017-FY2025 obligations values of 328.0B, 365.9B, 391.3B, 431.9B, 395.3B, 424.5B, 467.3B, 456.9B, and 501.5B. The reference class has mean level 418.1B, median level 424.5B, range 328.0B-501.5B, mean annual change +21.7B, median annual change +33.6B, and annual-change sigma 29.5B. Last-print persistence is the strongest simple benchmark I can defend for this registered series: 501.5B from FY2025."
+      },
+      {
+        "kind": "text",
+        "text": "Model candidates under thesis_model_candidate_v1, summarized in trace: persistence candidate has point 501.5, p10 463.8, p50 501.5, p90 539.3, 80% interval [463.8, 539.3], 90% interval [453.2, 549.9], interval_method annual-change residual normal, calibration_n 8, train_cutoff FY2025, and walk_forward_mae 33.4. A median-change drift candidate would be 535.1, but the FY2027 authorization evidence is not direct budget authority for prime awards, so I select a shrinkage forecast halfway from persistence toward median historical growth."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 501.5B from FY2025; historical sample = FY2017-FY2025 complete registered-query values with annual changes 37.9, 25.4, 40.5, -36.6, 29.2, 42.8, -10.3, and 44.6B; adjustment components = +16.8B, equal to 50% of the +33.6B median annual change, because conditional FY2027 NDAA enactment and the House report's $1.1T DoD-program request support an upward path but the report also says authorization is not budget authority. Interval method = annual-change residual, sigma = 29.5B, nominal 80% half-width = 1.28*sigma = 1.28*29.5 = 37.7B; I widen by 1.5x to 56.6B because the forecast is two fiscal years ahead and depends on authorization-to-appropriation execution. Point = 501.5 + 16.8 = 518.3B; using unrounded point 518.325 and half-width 56.565 gives interval [461.8, 574.9]B."
+      },
+      {
+        "kind": "text",
+        "text": "Sanity check: a +/-56.6B band around each previous-year print would have covered all 8 of the FY2018-FY2025 realized annual changes. Downside risk outside the interval would be an enacted NDAA followed by appropriations delay, award timing slippage, deobligation cleanup, or a registered snapshot that still misses late-FY DoD award reporting. Upside risk outside the interval would be an unusually large procurement/RDT&E award closeout, supplemental defense appropriations, or faster USAspending posting that would land above the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional suggestion to expand historicalContext so the displayed sample matches the FY2017-FY2025 reasoning sample. I kept the specs.json 404 slug-check note because the prompt required the check and the trace records the actual public fetch result rather than treating it as outcome evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": 518.3,
+        "ciLow": 461.8,
+        "ciHigh": 574.9
+      }
+    ]
+  }
+]
