@@ -2855,19 +2855,21 @@ def history_anchor_errors(
     def quarter_label_tokens(label: str) -> set[str] | None:
         """Whitelist-only quarter reading of a history label.
 
-        Returns the set of canonical quarter tokens the label names, or
-        None to REJECT the label outright. Design (review round four):
-        instead of excising matches and scanning residue, every maximal
-        quarter-like cluster must itself BE an exact whitelisted strict
-        token — anything Q-and-numeral-shaped that is not (bare "Q2",
-        "2026 Q1/2", "Q.2", "1Q 2026") rejects the whole label, because
-        an unattributable quarter reference means the value cannot be
-        pinned to a period. Format characters are rejected rather than
-        stripped (they exist to split designators invisibly), and any
-        non-ASCII letter, numeral, or mark immediately beside a digit or
-        Q rejects (Cyrillic Ԛ, combining marks, Nl/No numerals). Prose
-        stays open: a Q whose only immediate neighbor is an ordinary
-        ASCII letter ("quarterly", "Quebec") never joins a cluster.
+        Returns the canonical quarter tokens the label names, or None
+        to REJECT it. Grammar (review rounds four and five): the folded
+        label splits into maximal cluster-alphabet segments; segments
+        connected by pure separator RUNS form a group. A group that
+        contains a Q and any numeral content (digit or Roman) is
+        quarter-relevant, and EVERY segment in it must itself be a
+        whitelisted strict token — an orphan numeral, year, or Roman
+        chained beside a quarter ("2026 Q1 / 2", "2027 (2026 Q1)")
+        rejects the label, while "2026 Q1 (2026Q1)" stays open because
+        both segments are strict. A bare Q with no numeral content in
+        its group is prose ("Grade Q") and free. Format characters
+        reject outright; ANY non-ASCII character immediately beside a
+        digit or Q rejects (confusables, fraction slashes, combining
+        marks); a Q-bearing segment glued to an ASCII letter (FY2026
+        Q1) rejects as a qualified designator.
         """
 
         if any(unicodedata.category(ch) == "Cf" for ch in label):
@@ -2877,68 +2879,78 @@ def history_anchor_errors(
         for i, ch in enumerate(folded):
             if ch in "0123456789Qq":
                 for j in (i - 1, i + 1):
-                    if 0 <= j < n:
-                        other = folded[j]
-                        suspicious = unicodedata.category(other)[0] in "LNM"
-                        if not other.isascii() and suspicious:
-                            return None
+                    if 0 <= j < n and not folded[j].isascii():
+                        return None
 
-        def participates(i: int) -> bool:
-            ch = folded[i]
-            if ch not in "Qq":
-                return True
-            for j in (i - 1, i + 1):
-                if 0 <= j < n and folded[j] in cluster_chars:
-                    return True
-            # A Q glued only to prose letters is a word, not a designator.
-            return not (
-                (i + 1 < n and folded[i + 1].isascii() and folded[i + 1].isalpha())
-                or (i > 0 and folded[i - 1].isascii() and folded[i - 1].isalpha())
-            )
-
-        tokens: set[str] = set()
+        # Segment the label: cluster-alphabet runs, glued-letter checks,
+        # and group assembly across separator runs.
+        segments: list[tuple[int, int]] = []  # [start, end) spans
         i = 0
         while i < n:
-            if folded[i] in cluster_chars and participates(i):
+            if folded[i] in cluster_chars:
                 j = i
-                last_member = i
-                while j < n:
-                    ch = folded[j]
-                    if ch in cluster_chars and participates(j):
-                        last_member = j
-                        j += 1
-                    elif (
-                        ch in cluster_seps
-                        and j + 1 < n
-                        and folded[j + 1] in cluster_chars
-                        and participates(j + 1)
-                    ):
-                        j += 1
-                    else:
-                        break
-                cluster_start = i
-                cluster = folded[i : last_member + 1]
-                i = last_member + 1
-                if not any(c in "Qq" for c in cluster):
-                    continue
-                # A Q-bearing cluster glued to an ASCII letter is a
-                # prefixed or suffixed designator (FY2026 Q1, x2026 Q1,
-                # Q1st): a fiscal or otherwise-qualified quarter is not
-                # the calendar quarter the key names — reject.
-                before = folded[cluster_start - 1] if cluster_start > 0 else ""
-                after = folded[last_member + 1] if last_member + 1 < n else ""
-                if (before.isascii() and before.isalpha()) or (
-                    after.isascii() and after.isalpha()
-                ):
-                    return None
-                m = strict_cluster.fullmatch(cluster)
-                if m is None:
-                    return None
-                year = m.group(1) or m.group(4)
-                quarter = m.group(2) or m.group(3)
-                tokens.add(f"{year}q{quarter}")
+                while j < n and folded[j] in cluster_chars:
+                    j += 1
+                segments.append((i, j))
+                i = j
             else:
                 i += 1
+
+        def seps_only(a: int, b: int) -> bool:
+            return a < b and all(c in cluster_seps for c in folded[a:b])
+
+        groups: list[list[tuple[int, int]]] = []
+        for span in segments:
+            if groups and seps_only(groups[-1][-1][1], span[0]):
+                groups[-1].append(span)
+            else:
+                groups.append([span])
+
+        tokens: set[str] = set()
+        for group in groups:
+            text_parts = [folded[a:b] for a, b in group]
+            has_q = any(("Q" in part or "q" in part) for part in text_parts)
+            has_numeral = any(
+                c in "0123456789IVXivx" for part in text_parts for c in part
+            )
+            if not (has_q and has_numeral):
+                continue
+            first_start = group[0][0]
+            last_end = group[-1][1]
+            before = folded[first_start - 1] if first_start > 0 else ""
+            after = folded[last_end] if last_end < n else ""
+            if (before.isascii() and before.isalpha()) or (
+                after.isascii() and after.isalpha()
+            ):
+                return None
+            # Greedy pairing: a segment that alone fullmatches a strict
+            # token consumes itself; a year+quarter segment pair split
+            # by exactly one space/hyphen consumes both; anything left
+            # over — orphan numerals, years, Romans — rejects.
+            idx = 0
+            while idx < len(group):
+                a1, b1 = group[idx]
+                seg = folded[a1:b1]
+                if strict_cluster.fullmatch(seg):
+                    m = strict_cluster.fullmatch(seg)
+                    year = m.group(1) or m.group(4)
+                    quarter = m.group(2) or m.group(3)
+                    tokens.add(f"{year}q{quarter}")
+                    idx += 1
+                    continue
+                if idx + 1 < len(group):
+                    a2, b2 = group[idx + 1]
+                    if b1 + 1 == a2 and folded[b1] in " -":
+                        joined = folded[a1:b2]
+                        m = strict_cluster.fullmatch(joined)
+                        if m:
+                            year = m.group(1) or m.group(4)
+                            quarter = m.group(2) or m.group(3)
+                            tokens.add(f"{year}q{quarter}")
+                            idx += 2
+                            continue
+                return None
+            # idx loop consumed everything or rejected.
         return tokens
 
     def canonical_quarters(match_iter) -> set[str]:

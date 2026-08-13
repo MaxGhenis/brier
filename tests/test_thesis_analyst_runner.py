@@ -3479,10 +3479,18 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
     # anchor key is "2026-Q1". Quarter keys now match the same quarter
     # in any standard writing; nothing else loosens.
     context = {"anchors": {"2026-Q1": 18511}}
+    # The EXACT sealed label from the refused run, pinned byte-for-byte
+    # (records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-
+    # personal-transfer-payments-2026-q2/normalized_cells.json).
     ok_cell = {
         "historicalContext": [
-            {"label": "BEA ITA Table 5.1 line 18, 2026 Q1 current vintage",
-             "value": 18511},
+            {
+                "label": (
+                    "BEA ITA Table 5.1 line 18, "
+                    "2026 Q1 current June 24 2026 vintage"
+                ),
+                "value": 18511,
+            },
         ]
     }
     assert analyst_runner.history_anchor_errors(ok_cell, context) == []
@@ -3535,6 +3543,19 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "2026 Q1 vs \u051a2",
         "2026 Q1 vs Q\u30222",
         "2026 Q1 vs Q\u2475",
+        "2026 Q1 / 2",
+        "2026 Q1 (2)",
+        "2026 Q1 (II)",
+        "2026 Q1 (2027)",
+        "2027 (2026 Q1)",
+        "2026 Q1\u20442",
+        "2026 Q1 2027",
+        "Q IV 2026",
+        "2026 Q1Q2",
+        # Deletion killers: Cf must REJECT (not strip-to-valid), and
+        # two strict groups must accumulate into distinct tokens.
+        "2026 Q\u200d1",
+        "2026 Q1 and 2026 Q2",
     ):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         errors = analyst_runner.history_anchor_errors(cell, context)
@@ -3547,6 +3568,9 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
     for label in (
         "value for 2026 Q1, quarterly seasonally adjusted",
         "Quebec series, 2026 Q1 print",
+        "Grade Q, 2026 Q1",
+        # Fullwidth digit folds open — kills removal of NFKC folding.
+        "2026 Q\uff11 print",
     ):
         prose = {"historicalContext": [{"label": label, "value": 18511}]}
         assert analyst_runner.history_anchor_errors(prose, context) == [], label
