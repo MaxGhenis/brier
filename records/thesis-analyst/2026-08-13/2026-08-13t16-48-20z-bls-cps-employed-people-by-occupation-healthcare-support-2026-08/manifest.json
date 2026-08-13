@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-13T16:48:20Z",
+  "runStartedAt": "2026-08-13T16:48:20Z",
+  "sealedAt": "2026-08-13T16:52:26Z",
+  "series": "bls.cps.employed_people_by_occupation.healthcare_support",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "cps-healthcare-support-employment-august-2026",
+    "country": "US",
+    "dataPointId": "bls.cps.employed_people_by_occupation.healthcare_support.august_2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-11",
+      "start": "2026-09-03"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-13T06:52:40Z",
+    "registeredAtUtc": "2026-08-13T06:52:40Z",
+    "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+    "registrationState": "preregistered",
+    "series": "bls.cps.employed_people_by_occupation.healthcare_support",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-11",
+        "start": "2026-09-03"
+      },
+      "field": "Healthcare support occupations",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.cps.employed_people_by_occupation.healthcare_support",
+      "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+      "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "379f132f92ac8164f175e5ca35b77424cdf1ac3f6c9c674bc0add108c7721930",
+    "targetRegistrationPath": "records/targets/2026-08-13-379f132f92ac8164f175e5ca35b77424cdf1ac3f6c9c674bc0add108c7721930.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+  "targetContentHash": "379f132f92ac8164f175e5ca35b77424cdf1ac3f6c9c674bc0add108c7721930",
+  "targetRegistrationPath": "records/targets/2026-08-13-379f132f92ac8164f175e5ca35b77424cdf1ac3f6c9c674bc0add108c7721930.json",
+  "registeredAtUtc": "2026-08-13T06:52:40Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-13T16:48:20Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "a89b3eb556f7f66923ef9df7564f7e8b3cb3ae5591c28b73d0e6bde3e4da8301"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify the phrase 'without later revisions, same-day correction grace, or later correction exceptions' if local Thesis resolver policy expects a same-day correction grace; otherwise leave as first official print only."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios could name specific August-sensitive channels, such as CPS rotation/sample noise in healthcare support and late-summer school/healthcare staffing seasonality, but the current tails are adequate."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-clarity suggestion by simplifying the rule to first official print only with no later revisions or later correction exceptions, and accepted the tail-scenario suggestion by naming CPS rotation/sample noise and late-summer healthcare staffing channels. No blocking critique items were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-clarity suggestion by simplifying the rule to first official print only with no later revisions or later correction exceptions, and accepted the tail-scenario suggestion by naming CPS rotation/sample noise and late-summer healthcare staffing channels. No blocking critique items were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; it matches the ledger target and gives a coherent persistence-based forecast with an explicit volatility interval."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/prompt.md",
+      "sha256": "e9496e8991e0b0bde5e53447ea7508b7f41dd8f7d17ec4d4ff4c89614cb036dc",
+      "bytes": 32462,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_command.json",
+      "sha256": "bd26564672ff577a504c4b28a61b1d42692b03c50bff89270012ff4f348f2b5b",
+      "bytes": 881,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "60190bb2397d6c2c721f896ad7e4395af69226a8a763effff9c7c7e82473a769",
+      "bytes": 1384469,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_codex_stderr.log",
+      "sha256": "5c86ee29ec44da52fbdbc864efb38197863c8566be711dc99ee8db30f1d05f9c",
+      "bytes": 233,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_codex_events.jsonl",
+      "sha256": "56eff3ded3c1ed3d44c7a8a749a28d09c3a9cfa9176006a87df0d9682f401467",
+      "bytes": 1385471,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_codex_last_message.txt",
+      "sha256": "d5e6ac0f9620942078bcd960a707403f71636d97a8a13469a286c8220e6fe156",
+      "bytes": 6044,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_codex_trace.json",
+      "sha256": "9439533ad7c85e559df7b6042c0ae44212e09d200d6677e9270dbb4a8c25965e",
+      "bytes": 569,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_stdout.txt",
+      "sha256": "d5e6ac0f9620942078bcd960a707403f71636d97a8a13469a286c8220e6fe156",
+      "bytes": 6044,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/draft_stderr.txt",
+      "sha256": "c4eb77e17870f0a78c074663113f99af26273b09815469eebb97398424592762",
+      "bytes": 248,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_prompt.md",
+      "sha256": "8310d85c8e8015406f9f14f0d33fe42ea6108cf67118b504e6630838745c92c0",
+      "bytes": 9439,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_command.json",
+      "sha256": "9454aff4a6593571fbb41c8e3a084366ad2c9ebaaff642a7169ffd628b27f5aa",
+      "bytes": 877,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "98ac941e775c4d50ccebb6aae003a826e4034d4cbe0da9570d38b2d8bbfe0f8f",
+      "bytes": 1678,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "27fa76760fde835d01b2b55db3b963ec138b2960009a608b1009546a560b3b83",
+      "bytes": 233,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "a9ebc02b34e9567bf28ff5d30f6ba949f895628834fc6cb2027a5716014c15e9",
+      "bytes": 1699,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "fb7109940180126d3e003a334f28c2fba0b108ec10030a302b4ac843d4db1a56",
+      "bytes": 650,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "67652d8569844f99e4c02142eceb60e83b70e8a3b64f82e72773bafab5676658",
+      "bytes": 561,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "fb7109940180126d3e003a334f28c2fba0b108ec10030a302b4ac843d4db1a56",
+      "bytes": 650,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "fa40874a0d1791e11fe0e14f9efcc4cf8758b42186a37da6e2c9d6a006c2a735",
+      "bytes": 248,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/revision_prompt.md",
+      "sha256": "2ee78f1248f991897e85c1a81dc2c36b40194c4b891f1a7f032a0a92ee1aee9d",
+      "bytes": 40092,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/command.json",
+      "sha256": "6d63ff99d0a93e7521d11414cd0812ec000ea44ef75c6decc3bd49b1a23728d3",
+      "bytes": 875,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/codex_stdout.jsonl",
+      "sha256": "b6c47e8ebb4e4ce5ce675994c6f35da5aaad7df90c576825571a24f02c276cd3",
+      "bytes": 7001,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/codex_stderr.log",
+      "sha256": "32eab4eb154661ff18a223d6d66197bf68889d6f0638010ce996b3df75b10136",
+      "bytes": 233,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/codex_events.jsonl",
+      "sha256": "09bbd3a4d8c279ffc9eb2554b5dc2cc5f35a50ab87e6e462fcd1afc0ff61de81",
+      "bytes": 7023,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/codex_last_message.txt",
+      "sha256": "1b889857fd6e6c51a6007a3bad75b065203900d8059f74962ac9edd808c8d6fd",
+      "bytes": 6449,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/codex_trace.json",
+      "sha256": "7236e3984d118a01a844c678357bc8850a28f3ceff56cf6a7b92e1cdcedf8afd",
+      "bytes": 561,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/stdout.txt",
+      "sha256": "1b889857fd6e6c51a6007a3bad75b065203900d8059f74962ac9edd808c8d6fd",
+      "bytes": 6449,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/stderr.txt",
+      "sha256": "0ed15d4c9c9edc96c42ec88690add5be1d78193cad28d7a62d91cba51c70ed48",
+      "bytes": 248,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/raw_response.txt",
+      "sha256": "1b889857fd6e6c51a6007a3bad75b065203900d8059f74962ac9edd808c8d6fd",
+      "bytes": 6449,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/parsed_cells.json",
+      "sha256": "1a4df700e0af33304b4ccaa49ec5ce24844eec5ca88981ea70ef6cf91d3422bb",
+      "bytes": 7298,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/normalized_cells.json",
+      "sha256": "ff4978f9ae2495fa9f3ef1a6525566a78cf6d35b9dabbe08a68f1b04d7aca4c1",
+      "bytes": 24699,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/distribution.json",
+      "sha256": "b8398344bdbbfd95a74df7f4e223518852a7a605e98014a1864cac73bf80e406",
+      "bytes": 13617,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/validation.json",
+      "sha256": "123f757669ee5e5ae29a73a4b712044fd56b0a4c476e69c053d95b61247e7cd5",
+      "bytes": 146,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/cells.with_activity.json",
+      "sha256": "9e29fa568c6a23958f80452ca1465c2a52070e85e9603e0dc4d66819baf802f1",
+      "bytes": 39612,
+      "createdAt": "2026-08-13T16:48:20Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-48-20z-bls-cps-employed-people-by-occupation-healthcare-support-2026-08/manifest.json",
+      "sha256": "4e3966faca9e78a3daa5ca33bd301d87a418e0a04243d55db5bd38cc60d95bff",
+      "bytes": 15599,
+      "createdAt": "2026-08-13T16:48:20Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "cps-healthcare-support-employment-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "faefff296a7243033a8f164a1e670be662038881ab2d1a42f314aa15e2c0cf7d"
+}

@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is broadly publishable, with one coherence issue around rounding the stated 12.265 million calculation to 12.26 instead of 12.27.",
+  "requiredFixes": [
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The math step says 12.223 + 0.042 = 12.265 million, but the forecast rounds this to 12.26; conventional two-decimal rounding would give 12.27 unless the unrounded adjustment is lower than stated.",
+      "actionRequested": "Either change the point estimate and interval center to 12.27 with correspondingly shifted bounds, or restate the exact unrounded adjustment so that 12.26 is the coherent rounded value."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify briefly why the ledger's 2026-09-10 resolutionDate is retained despite the checked BLS scheduled release date of 2026-09-04.",
+    "If available, name the exact BLS archived table URLs used for the 2024-2026 first-print values in the trace artifacts."
+  ]
+}

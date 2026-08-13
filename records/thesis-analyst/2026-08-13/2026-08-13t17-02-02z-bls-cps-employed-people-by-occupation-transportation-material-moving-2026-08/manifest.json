@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-13T17:02:02Z",
+  "runStartedAt": "2026-08-13T17:02:02Z",
+  "sealedAt": "2026-08-13T17:06:34Z",
+  "series": "bls.cps.employed_people_by_occupation.transportation_material_moving",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "cps-transport-material-moving-employment-august-2026",
+    "country": "US",
+    "dataPointId": "bls.cps.employed_people_by_occupation.transportation_material_moving.august_2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-10",
+      "start": "2026-09-02"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-13T16:32:19Z",
+    "registeredAtUtc": "2026-08-13T16:32:19Z",
+    "registrationCommit": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+    "registrationState": "preregistered",
+    "series": "bls.cps.employed_people_by_occupation.transportation_material_moving",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-10",
+        "start": "2026-09-02"
+      },
+      "field": "Transportation and material moving occupations",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.cps.employed_people_by_occupation.transportation_material_moving",
+      "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+      "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "5e45cb7c24096d5bf9d923f4e6c376d3ef8f27cdc78f26616b90e35848c3bb7d",
+    "targetRegistrationPath": "records/targets/2026-08-13-5e45cb7c24096d5bf9d923f4e6c376d3ef8f27cdc78f26616b90e35848c3bb7d.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+  "targetContentHash": "5e45cb7c24096d5bf9d923f4e6c376d3ef8f27cdc78f26616b90e35848c3bb7d",
+  "targetRegistrationPath": "records/targets/2026-08-13-5e45cb7c24096d5bf9d923f4e6c376d3ef8f27cdc78f26616b90e35848c3bb7d.json",
+  "registeredAtUtc": "2026-08-13T16:32:19Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-13T17:02:02Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "5ed6c03f234e159817fa14345989e1deedf79acc6a738b3bc31fa81ee2dedd53"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The math step says 12.223 + 0.042 = 12.265 million, but the forecast rounds this to 12.26; conventional two-decimal rounding would give 12.27 unless the unrounded adjustment is lower than stated.",
+        "actionRequested": "Either change the point estimate and interval center to 12.27 with correspondingly shifted bounds, or restate the exact unrounded adjustment so that 12.26 is the coherent rounded value."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify briefly why the ledger's 2026-09-10 resolutionDate is retained despite the checked BLS scheduled release date of 2026-09-04."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If available, name the exact BLS archived table URLs used for the 2024-2026 first-print values in the trace artifacts."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the coherence critique by restating the unrounded seasonal adjustment as +0.041625 million, which keeps the 12.26 point estimate internally consistent. I retained the registered 2026-09-10 resolutionDate while explicitly noting the checked BLS September 4, 2026 scheduled release discrepancy, because the ledger target contract instructs this cell to stay tied to the registered target identity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the coherence critique by restating the unrounded seasonal adjustment as +0.041625 million, which keeps the 12.26 point estimate internally consistent. I retained the registered 2026-09-10 resolutionDate while explicitly noting the checked BLS September 4, 2026 scheduled release discrepancy, because the ledger target contract instructs this cell to stay tied to the registered target identity.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the coherence critique by restating the unrounded seasonal adjustment as +0.041625 million, which keeps the 12.26 point estimate internally consistent. I retained the registered 2026-09-10 resolutionDate while explicitly noting the checked BLS September 4, 2026 scheduled release discrepancy, because the ledger target contract instructs this cell to stay tied to the registered target identity.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is broadly publishable, with one coherence issue around rounding the stated 12.265 million calculation to 12.26 instead of 12.27."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/prompt.md",
+      "sha256": "727c780a9ce2df98c7366d521962679e0e8c960fd5df92625caa6d98847e57b6",
+      "bytes": 32521,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_command.json",
+      "sha256": "0caea68379e1f1147abacb74009b8298208facf050224c1a244f3252ebd26f6c",
+      "bytes": 893,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "bc7e9b6fd5777ef7a241c98f00ee9ec420014ed947439fd758cc2a8a64fcafd9",
+      "bytes": 4324981,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_codex_stderr.log",
+      "sha256": "b9498fdd0d973e601c89dedc29fca769787a4421a334179b3e2d6c70ac433cc6",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_codex_events.jsonl",
+      "sha256": "ac650d4ae2e553f3f594b173d3d5b61cbabed481c1b6636b11b8f58ef5c0e7b6",
+      "bytes": 4326324,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_codex_last_message.txt",
+      "sha256": "3d7cb34ab3f5771234996989b8fe471b95ff7cf6144dc2a91496e37cbd2efcf3",
+      "bytes": 8695,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_codex_trace.json",
+      "sha256": "378deee82e8a5f0a21771463a96481a217e761bc5d16306670c4ad62432913ea",
+      "bytes": 569,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_stdout.txt",
+      "sha256": "3d7cb34ab3f5771234996989b8fe471b95ff7cf6144dc2a91496e37cbd2efcf3",
+      "bytes": 8695,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/draft_stderr.txt",
+      "sha256": "f7aebdc5f402b8ee763fd0f613748c4896a429dcda2a8e28f7fc1c5e2364a925",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_prompt.md",
+      "sha256": "f2adcc91c788b308cfefe4e48bb51185145b0b5ed5ddee48e977424b52727c6f",
+      "bytes": 12149,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_command.json",
+      "sha256": "931b6706ae7cec6bdbe6ca0593046284c4dd71320c300cd9cb7d1139cc9ff1eb",
+      "bytes": 889,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "0ba8a8e318682f31021edcb77a2d19b71904f1e88992dd52ca43cc0a0a6359f0",
+      "bytes": 1336,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "1bf4f2146ce251315914528d036b86df3938d7bdb4714710680e5365f9d2f492",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "a41dab2113f88f5a76ad0b34a4384404175b817fbf03301158f593dedb535689",
+      "bytes": 1358,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "e9e31ebf2b5211332435b69dca5cfd840fcf29f63e0a1539f5d91d08a554035e",
+      "bytes": 980,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "1de60055859f10abd2f74faa1f2f140fb90ffffafefa9208c5e74bd9b8d12e68",
+      "bytes": 558,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "e9e31ebf2b5211332435b69dca5cfd840fcf29f63e0a1539f5d91d08a554035e",
+      "bytes": 980,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "02e9c5036456976313da53312db7d83062c3a4a78767189b3cd670d35f31f7a9",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/revision_prompt.md",
+      "sha256": "dd4e32ef4217a1d63182ae9ab64c85b8bee6ddac1229e6b91fda116a863d7581",
+      "bytes": 43132,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/command.json",
+      "sha256": "70a2c403148f6092f239f6cec94a83e218f40e07633b8b7818affdfa7a0487f0",
+      "bytes": 887,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/codex_stdout.jsonl",
+      "sha256": "02fa3bbe80a449a61d0a3f190822962388d8b51538268fb7003be0d90c81d336",
+      "bytes": 9950,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/codex_stderr.log",
+      "sha256": "4de09c1c72097d6345e45cf8448cbad3ec921d59fd6d8edb923328db49ff9289",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/codex_events.jsonl",
+      "sha256": "71571d401ca5b8c5955bd557ded627f1bfa4d9b0b6c082f11ac089b84861b102",
+      "bytes": 9972,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/codex_last_message.txt",
+      "sha256": "f77397a16d78c8c764323ae7a5eca1f8fb498f82d97563f0bbe32277cfa12983",
+      "bytes": 9190,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/codex_trace.json",
+      "sha256": "6781ec198bc4cd2da11f477a34c67c367ae78eee8549dcd4d1cc9056c80112cd",
+      "bytes": 561,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/stdout.txt",
+      "sha256": "f77397a16d78c8c764323ae7a5eca1f8fb498f82d97563f0bbe32277cfa12983",
+      "bytes": 9190,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/stderr.txt",
+      "sha256": "b89e30d2f86d56ecf1b9aa58e67b3967d48f2166832cd301e2f79f29b7de1a86",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/raw_response.txt",
+      "sha256": "f77397a16d78c8c764323ae7a5eca1f8fb498f82d97563f0bbe32277cfa12983",
+      "bytes": 9190,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/parsed_cells.json",
+      "sha256": "5f25a8a75d104693a263d504794cad886f7e67ad17a53fe139af12637f8b6ece",
+      "bytes": 9476,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/normalized_cells.json",
+      "sha256": "6f79634f687c11b9e8dab65f2aee72c93c900219e59014ac372effa367489629",
+      "bytes": 27170,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/distribution.json",
+      "sha256": "8b8a6404a81fd6db5966586edf5344eb5d0f9553f7424e588458e1516d84284d",
+      "bytes": 13910,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/validation.json",
+      "sha256": "3bc15887973788e22d70e348bea92c5cc05a3b4e671b690337a408c210d8fa0c",
+      "bytes": 153,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/cells.with_activity.json",
+      "sha256": "1c300489138de771e8e6ea642af478e4e15801da4400438c47a58db0cf2107d5",
+      "bytes": 43638,
+      "createdAt": "2026-08-13T17:02:02Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-02-02z-bls-cps-employed-people-by-occupation-transportation-material-moving-2026-08/manifest.json",
+      "sha256": "d8ee57383415eb608fce738d57d41cbffd8e0bfa2c7d5f93d9d42e0f155b6ff6",
+      "bytes": 17112,
+      "createdAt": "2026-08-13T17:02:02Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "cps-transport-material-moving-employment-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "419c50b92dd37bdb4191e8a19fbfa90c3f7d5ff95224abdaad1349a7b31eb795"
+}

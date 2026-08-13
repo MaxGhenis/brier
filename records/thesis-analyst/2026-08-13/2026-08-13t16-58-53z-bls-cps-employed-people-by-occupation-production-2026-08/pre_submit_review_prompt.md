@@ -1,0 +1,54 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.cps.employed_people_by_occupation.production
+- period: 2026-08
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. The cell's unit must equal targetUnit below byte-for-byte, even when it is not a member of the contract's exploratory unit menu. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "cps-production-employment-august-2026"
+- country: "US"
+- targetUnit: "millions"
+- dataPointId: "bls.cps.employed_people_by_occupation.production.august_2026.first_print"
+- expectedReleaseWindow: {"end": "2026-09-10", "start": "2026-09-02"}
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.bls.gov"], "expectedReleaseWindow": {"end": "2026-09-10", "start": "2026-09-02"}, "field": "Production occupations", "releasePolicy": "first_print", "sourceSeriesId": "bls.cps.employed_people_by_occupation.production", "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm", "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)", "transform": {"factor": 0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-08-13-3bee3d472cab7a604ea2ac39aa1831fdc4ca8031670d649664e9e804dde9106a.json"
+- targetContentHash: "3bee3d472cab7a604ea2ac39aa1831fdc4ca8031670d649664e9e804dde9106a"
+- registrationCommit: "27d485d528684bbe8281fa349cfbb9587169dd5b"
+- registeredAtUtc: "2026-08-13T16:32:19Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+342815f57610431be6d243d7dfef97c974dcf85efb2a35d2d03f36c5e9743d4f
+
+# Draft forecast response
+{"slug":"cps-production-employment-august-2026","country":"US","type":"data","title":"US CPS production occupations employment, August 2026","question":"What will BLS first report in CPS Employment Situation Table A-19 for August 2026 employed people age 16 and over in Production occupations, not seasonally adjusted, in millions?","unit":"millions","pointEstimate":7.975,"ciLow":7.703,"ciHigh":8.247,"confidence":0.8,"resolutionDate":"2026-09-04","resolutionSource":"U.S. Bureau of Labor Statistics Employment Situation, CPS Table A-19","resolutionSourceUrl":"https://www.bls.gov/web/empsit/cpseea19.htm","resolutionRule":"Resolve to the first value published for August 2026 in BLS CPS Employment Situation Table A-19, row 'Production occupations,' employed persons by occupation, not seasonally adjusted, reported in thousands. Multiply the published thousands value by 0.001 and report millions to three decimals. Preserve the first print and ignore later revisions or corrections unless the registered target is amended before release.","dataPointId":"bls.cps.employed_people_by_occupation.production.august_2026.first_print","historicalContext":[{"label":"July 2026 CPS production occupations employment","value":8.121},{"label":"June 2026 CPS production occupations employment","value":7.759},{"label":"August 2025 CPS production occupations employment","value":7.482},{"label":"July 2025 CPS production occupations employment","value":7.662},{"label":"August 2024 CPS production occupations employment","value":7.777}],"drivers":["July 2026 level persistence","recent July-to-August NSA seasonal decline","CPS occupation subgroup volatility","July 2026 rebound from June"],"sourceContext":["https://www.bls.gov/web/empsit/cpseea19.htm","https://www.bls.gov/schedule/news_release/empsit.htm","https://fred.stlouisfed.org/series/LNU02032213","https://fred.stlouisfed.org/graph/fredgraph.csv?id=LNU02032213","https://fred.stlouisfed.org/release/tables?eid=3149&rid=50"],"runAt":"2026-08-13T16:59:00Z","reasoning":[{"kind":"heading","text":"August 2026 CPS production-occupation employment forecast"},{"kind":"text","text":"The registered target is BLS CPS employed people in Production occupations for August 2026, not seasonally adjusted, first print, from cpseea19.htm Table A-19. The FRED/BLS mirror labels the same current-population-survey occupation release table as A-13 and gives source code LNU02032213; I use it only as the sanctioned history mirror and keep the ledger resolver as Table A-19."},{"kind":"tool","tool":"fred.lookup","call":"curl -sS 'https://fred.stlouisfed.org/series/LNU02032213' | rg -n -C 2 'Employment Level - Production Occupations|Jul 2026|LNU02032213|Thousands of Persons|Not Seasonally Adjusted|Source'","result":"FRED series page for BLS source code LNU02032213 says Employment Level - Production Occupations; Jul 2026 = 8,121; units = Thousands of Persons, Not Seasonally Adjusted; source = U.S. Bureau of Labor Statistics; dateModified = 2026-08-07T08:32:00-05:00."},{"kind":"tool","tool":"fred.csv","call":"curl -sS 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=LNU02032213' | tail -n 25","result":"Fetched recent LNU02032213 values in thousands: 2024-07 7889, 2024-08 7777, 2024-09 7658, 2024-10 7375, 2024-11 7872, 2024-12 7940, 2025-01 8101, 2025-02 8299, 2025-03 7923, 2025-04 8081, 2025-05 7947, 2025-06 7938, 2025-07 7662, 2025-08 7482, 2025-09 7425, 2025-10 blank, 2025-11 7967, 2025-12 7959, 2026-01 7786, 2026-02 7742, 2026-03 7685, 2026-04 7883, 2026-05 7912, 2026-06 7759, 2026-07 8121."},{"kind":"tool","tool":"fred.release_table","call":"curl -sS 'https://fred.stlouisfed.org/release/tables?eid=3149&rid=50' | sed -n '1008,1038p'","result":"FRED release table row for Production occupations links LNU02032213 and reports Jul 2026 = 8,121 thousand, Jun 2026 = 7,759 thousand, and Jul 2025 = 7,662 thousand; units = Thous. of Persons."},{"kind":"tool","tool":"official.calendar","call":"Open BLS Schedule of Releases for the Employment Situation, https://www.bls.gov/schedule/news_release/empsit.htm","result":"BLS schedule lists reference month August 2026 with release date Sep. 04, 2026 and release time 08:30 AM; nearby rows include July 2026 Aug. 07, 2026 and September 2026 Oct. 02, 2026."},{"kind":"tool","tool":"model.candidates","call":"Compute thesis_model_candidate_v1-style baselines from fetched LNU02032213 history, excluding the blank 2025-10 observation and using only consecutive-month changes for residual sigma.","result":"Persistence candidate: point 8.121, p10 7.849, p50 8.121, p90 8.393, 80% interval [7.849, 8.393], 90% interval [7.772, 8.470], interval_method residual_sigma_22, calibration_n 22, train_cutoff 2026-07. Seasonal July-to-August candidate: recent Jul-Aug changes are -0.112 million in 2024 and -0.180 million in 2025, mean -0.146; point 7.975, p10 7.703, p50 7.975, p90 8.247, 80% interval [7.703, 8.247], 90% interval [7.626, 8.324], interval_method residual_sigma_22, calibration_n 22, train_cutoff 2026-07."},{"kind":"text","text":"The outside-view base rate/reference class is latest-print persistence at 8.121 million for this repeated official series. The direct same-series July-to-August NSA reference class is small but relevant: August was below July by 0.112 million in 2024 and 0.180 million in 2025, average -0.146 million. Because the question is August NSA employment and that seasonal comparison is direct, I select the seasonal candidate over pure persistence while keeping the update inside the realized month-to-month volatility."},{"kind":"text","text":"Current evidence is limited to the fetched series itself. July 2026 rebounded sharply from June by +0.362 million, so a full reversion below the 2025 August level would be too aggressive; there is no separate policy, strike, or release-specific occupation shock in the admissible evidence."},{"kind":"math","text":"Prior/update/interval: persistence model prior = 8.121 million from July 2026. Historical sample = 24 nonmissing monthly values from 2024-07 through 2026-07, with consecutive-month changes [-0.112, -0.119, -0.283, +0.497, +0.068, +0.161, +0.198, -0.376, +0.158, -0.134, -0.009, -0.276, -0.180, -0.057, -0.008, -0.173, -0.044, -0.057, +0.198, +0.029, -0.153, +0.362] million after excluding the blank 2025-10 gap; sigma = 0.212 million. Adjustment components: July-to-August NSA seasonal update = average(-0.112, -0.180) = -0.146 million; no policy or one-off adjustment. Point = 8.121 - 0.146 = 7.975 million. 80% half-width = 1.28*sigma = 1.28*0.212 = 0.272 million, so ciLow = 7.975 - 0.272 = 7.703 and ciHigh = 7.975 + 0.272 = 8.247 million."},{"kind":"text","text":"Upside risk: if July's +0.362 million rebound reflects real production-occupation hiring rather than household-survey noise, or if August avoids the recent NSA seasonal decline, the print would land above the interval at more than 8.247 million. Downside risk: if the July spike reverses like the larger negative months in 2024-2025 or production employment follows manufacturing weakness, it would land below the interval at less than 7.703 million. Either case would be outside the interval."},{"kind":"forecast","point":7.975,"ciLow":7.703,"ciHigh":8.247}]}

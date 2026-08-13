@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-13T17:06:34Z",
+  "runStartedAt": "2026-08-13T17:06:34Z",
+  "sealedAt": "2026-08-13T17:09:13Z",
+  "series": "abs.labour.employment_change.australia",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "abs-labour-employment-change-australia-august-2026",
+    "country": "AU",
+    "dataPointId": "abs.labour.employment_change.australia.august_2026.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-09-24",
+      "start": "2026-09-16"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-13T16:32:19Z",
+    "registeredAtUtc": "2026-08-13T16:32:19Z",
+    "registrationCommit": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+    "registrationState": "preregistered",
+    "series": "abs.labour.employment_change.australia",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "data.api.abs.gov.au"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-24",
+        "start": "2026-09-16"
+      },
+      "field": "LF/M3.3.1599.20.AUS.M",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "LF/M3.3.1599.20.AUS.M",
+      "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M3.3.1599.20.AUS.M?lastNObservations=30&format=jsondata",
+      "table": "Labour Force, Australia (dataflow LF: employed persons, seasonally adjusted, Australia; month-over-month change)",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "41d79da5a1eb87a3b2f27212a9afdd447b5f05fae331872be26a08d85af2175e",
+    "targetRegistrationPath": "records/targets/2026-08-13-41d79da5a1eb87a3b2f27212a9afdd447b5f05fae331872be26a08d85af2175e.json",
+    "targetUnit": "thousands",
+    "valueScale": 1
+  },
+  "registrationCommit": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+  "targetContentHash": "41d79da5a1eb87a3b2f27212a9afdd447b5f05fae331872be26a08d85af2175e",
+  "targetRegistrationPath": "records/targets/2026-08-13-41d79da5a1eb87a3b2f27212a9afdd447b5f05fae331872be26a08d85af2175e.json",
+  "registeredAtUtc": "2026-08-13T16:32:19Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-13T17:06:34Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "2b656e49a1afe51406b75d9100ae819387da611c925cc99dbda9d85af3a70036"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the resolver reasoning, keep the level-versus-change discrepancy concise so validators do not confuse the registered identity target with the explanatory ABS series mechanics."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider removing the 404 specs.json sourceContext entry if sourceContext is meant to list only affirmative evidence."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarity suggestion by tightening the resolver discussion around the registered employment-change target and ABS level-series mechanics. Rejected removing the specs.json entry because it was actually fetched during slug checking, even though it returned 404 and was not affirmative source evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarity suggestion by tightening the resolver discussion around the registered employment-change target and ABS level-series mechanics. Rejected removing the specs.json entry because it was actually fetched during slug checking, even though it returned 404 and was not affirmative source evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready with no required fixes under the rubric."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/prompt.md",
+      "sha256": "f118e1b7613bae9f1d954e89aaeae7fcfb864715bcf6ead8ea327c06d32fb2fa",
+      "bytes": 30184,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_command.json",
+      "sha256": "d8645d14c32af68ce6d627c817afd0aea9f7c33f248fa80793eb68729a4afea4",
+      "bytes": 863,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "ddd8947d04f725f5727416bf30090f77df4a8b55b0df27a0af9ea642e32783a0",
+      "bytes": 1523398,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_codex_stderr.log",
+      "sha256": "d3db23c29b8d254918b426b558be45f4b2a5f8c759ff78a7eeba9356ed0adba3",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_codex_events.jsonl",
+      "sha256": "661c280ac1fa25d2289731a58eb83fc2c6df7b835a72e41f5b00a544ec53f5c8",
+      "bytes": 1524286,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_codex_last_message.txt",
+      "sha256": "0e04534b896ef755b48143c645705a8073bfeadbe39aeaeeab89ad1fc4a35f1a",
+      "bytes": 7496,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_codex_trace.json",
+      "sha256": "8937f0f951fea95db5993367d47391fb4dfe0d0f698434a71e3c336c0830f407",
+      "bytes": 567,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_stdout.txt",
+      "sha256": "0e04534b896ef755b48143c645705a8073bfeadbe39aeaeeab89ad1fc4a35f1a",
+      "bytes": 7496,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/draft_stderr.txt",
+      "sha256": "6658dfb9be88732e25753c5f5b74669fa9a7665aff31a039f1242904abd012e0",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_prompt.md",
+      "sha256": "107e08bec5f43f2824d331914e3b15f5313cefcd1738aa55be37438e4a16720e",
+      "bytes": 10882,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_command.json",
+      "sha256": "6f29f2d97e9503f313706b2d4a6a9ada31fe1e7fc16d5b4a0fda3f6bf9d58efc",
+      "bytes": 859,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "ccc146e1281366b1c6f7bd13a4f0973717e5d52c19ea18649794e3ed723f872e",
+      "bytes": 788,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "4b357dcd68de6034b9c93a2277cec308894b05c95169dac430283c19205f6ff2",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "2617cf8fb640e6fc1bdafdb7272dcce77c4ae350a1b700a048852678c69ccc02",
+      "bytes": 810,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "a1968f2884e046d7b0f3642120ff3af9471dd928b50cba3354bbaf7e32b35898",
+      "bytes": 455,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "26f36970dd91ea85aaf385efb5a3d658be3107c60b239461df274cb06bb73468",
+      "bytes": 558,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "a1968f2884e046d7b0f3642120ff3af9471dd928b50cba3354bbaf7e32b35898",
+      "bytes": 455,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "6f3f22dc38bf12d089a08bc5dc400bb1e5fb532749ced7db41b260965668c3b1",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/revision_prompt.md",
+      "sha256": "f2a8bc970fde0de66cf60aabff0e89d7247aef79a8650d944ed7c86037d98da2",
+      "bytes": 39071,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/command.json",
+      "sha256": "322463d30e7ee1a3b73ec80dd9e97ead29a0172b7eba5d87c2967570587b7de2",
+      "bytes": 857,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/codex_stdout.jsonl",
+      "sha256": "cd3e98e3def385559a2a0f3f3f9ad29cae61ee92648efe0b3905c20f4d6fd8f5",
+      "bytes": 8420,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/codex_stderr.log",
+      "sha256": "4ef27fd11279f75eaf8f8573f94350added3ada88e4fc9e01ef49087c9cb8ae5",
+      "bytes": 233,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/codex_events.jsonl",
+      "sha256": "0891ff5dc044542b65b7f8b46558a37b1f738fb271398674b6d0ce91617e29f0",
+      "bytes": 8442,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/codex_last_message.txt",
+      "sha256": "d489e8d7e649e83e11ef77892a87a2721d5cb9f3bc9ce15a706404cfadd4ba05",
+      "bytes": 7727,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/codex_trace.json",
+      "sha256": "2786577920cb6885da7a95967d6717ffa126364f6766edccd4e95ecfeb2f72d7",
+      "bytes": 558,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/stdout.txt",
+      "sha256": "d489e8d7e649e83e11ef77892a87a2721d5cb9f3bc9ce15a706404cfadd4ba05",
+      "bytes": 7727,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/stderr.txt",
+      "sha256": "65e03c286f60a0861c8f88d21663cc55887d69eaf8ca67752aa9d5b0ee3d394f",
+      "bytes": 248,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/raw_response.txt",
+      "sha256": "d489e8d7e649e83e11ef77892a87a2721d5cb9f3bc9ce15a706404cfadd4ba05",
+      "bytes": 7727,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/parsed_cells.json",
+      "sha256": "ace4bcd1bbdbc55fac2d27d6e9b04b7b11e3436860948bdfe59a87c5769a78fa",
+      "bytes": 7973,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/normalized_cells.json",
+      "sha256": "4d29ba99cfbab7e128690f0e84199332af7f2fc78bf7ec8708ae888789afe7b3",
+      "bytes": 25307,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/distribution.json",
+      "sha256": "5234c876f242450e1e2418c0deefc412dffd37c05d7e5093343ba19ae676944a",
+      "bytes": 13550,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/validation.json",
+      "sha256": "a7277074fe8aa168460ca00dac06f80598ccbfa680d9c7003d3848e3b773d09d",
+      "bytes": 151,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/cells.with_activity.json",
+      "sha256": "4e90864582062f886ad3e38cb4f0cb8cb9ac2586249e7666379e14b4b942dd7d",
+      "bytes": 39378,
+      "createdAt": "2026-08-13T17:06:34Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t17-06-34z-abs-labour-employment-change-australia-2026-08/manifest.json",
+      "sha256": "5f0d4ded3c0fcc4d520b7c4906ef0488981244827fbe63738d529fc8daf7ab77",
+      "bytes": 14697,
+      "createdAt": "2026-08-13T17:06:34Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "abs-labour-employment-change-australia-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "849e10b1ad11639ce7c39710382dd329a01e125942fdf7ce35f28e394b28f799"
+}

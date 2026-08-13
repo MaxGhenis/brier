@@ -1,0 +1,1237 @@
+[
+  {
+    "slug": "cps-office-admin-employment-august-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US office and administrative support employment, August 2026",
+    "question": "What will BLS first report for employed people in Office and administrative support occupations in August 2026, not seasonally adjusted, in millions, in CPS Employment Situation Table A-19?",
+    "unit": "millions",
+    "pointEstimate": 16.426,
+    "ciLow": 16.199,
+    "ciHigh": 16.653,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-11",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Employment Situation, Table A-19",
+    "resolutionSourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+    "resolutionRule": "Resolve to the August 2026 total employed value for 'Office and administrative support occupations' in CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted, reported in thousands. Convert the first published BLS value to millions by multiplying by 0.001 and retain three decimal places. Ignore later revisions. The official BLS Employment Situation schedule fetched this run lists August 2026 for Sep. 04, 2026 at 08:30 AM, while the canonical registered target supplies resolutionDate 2026-09-11; this cell remains tied to the registered target date and first-print resolver.",
+    "dataPointId": "bls.cps.employed_people_by_occupation.office_administrative_support.august_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026 first print, NSA millions",
+        "value": 16.355
+      },
+      {
+        "label": "February 2026 first print, NSA millions",
+        "value": 16.38
+      },
+      {
+        "label": "March 2026 first print, NSA millions",
+        "value": 16.563
+      },
+      {
+        "label": "April 2026 first print, NSA millions",
+        "value": 16.471
+      },
+      {
+        "label": "May 2026 first print, NSA millions",
+        "value": 16.335
+      },
+      {
+        "label": "June 2026 first print, NSA millions",
+        "value": 16.184
+      },
+      {
+        "label": "July 2026 first print, NSA millions",
+        "value": 16.457
+      },
+      {
+        "label": "August 2024 first print, NSA millions",
+        "value": 15.902
+      },
+      {
+        "label": "August 2025 first print, NSA millions",
+        "value": 16.415
+      }
+    ],
+    "drivers": [
+      "July 2026 level persistence",
+      "recent July-to-August seasonal reference class",
+      "CPS occupational sampling volatility",
+      "no discrete policy mechanism identified"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/web/empsit/cpseea19.htm",
+      "https://web.archive.org/web/20260731041428/https://www.bls.gov/schedule/news_release/empsit.htm",
+      "https://web.archive.org/web/20260807133000/https://www.bls.gov/news.release/pdf/empsit.pdf",
+      "https://web.archive.org/web/20240906150000/https://www.bls.gov/news.release/archives/empsit_09062024.pdf",
+      "https://web.archive.org/web/20250905133000/https://www.bls.gov/news.release/pdf/empsit.pdf",
+      "records/thesis-analyst/2026-07-21/2026-07-21t01-10-02z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-07/normalized_cells.json"
+    ],
+    "runAt": "2026-08-13T16:58:53Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "August 2026 office and administrative support employment forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first BLS print for Office and administrative support occupations in CPS Employment Situation Table A-19, not seasonally adjusted, reported in thousands and converted to millions. The ledger target fixes slug cps-office-admin-employment-august-2026, unit millions, dataPointId bls.cps.employed_people_by_occupation.office_administrative_support.august_2026.first_print, and resolutionDate 2026-09-11."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the BLS Employment Situation schedule via the archived official schedule page.",
+        "result": "Fetched BLS schedule rows: July 2026 release Aug. 07, 2026 at 08:30 AM; August 2026 release Sep. 04, 2026 at 08:30 AM; September 2026 release Oct. 02, 2026 at 08:30 AM. This conflicts with the registered resolutionDate 2026-09-11, which I retain because the canonical target contract supplies it."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the latest first-print occupation row from the archived August 7, 2026 BLS Employment Situation PDF.",
+        "result": "The July 2026 BLS Employment Situation PDF row for Office and administrative support occupations reports employed values 16,565 thousand for July 2025 and 16,457 thousand for July 2026; unemployment values are 661 and 662 thousand, with unemployment rates 3.8 and 3.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch recent 2026 official first-print values for the same row from BLS release PDFs and the public Thesis record that preserved the earlier PDF fetches.",
+        "result": "This run re-fetched BLS PDF rows for January 2026 = 16,355 thousand, March 2026 = 16,563 thousand, April 2026 = 16,471 thousand, May 2026 = 16,335 thousand, June 2026 = 16,184 thousand, and July 2026 = 16,457 thousand; the inspected public Thesis run artifact records February 2026 = 16,380 thousand from the same BLS release family."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch July and August reference-class pairs from archived BLS Employment Situation PDFs.",
+        "result": "For the July-to-August reference class, BLS PDFs report July 2024 = 15,814 thousand and August 2024 = 15,902 thousand, a +88 thousand change; July 2025 = 16,565 thousand and August 2025 = 16,415 thousand, a -150 thousand change. The two-change mean is -31 thousand, or -0.031 million."
+      },
+      {
+        "kind": "text",
+        "text": "The outside-view base rate and reference class are last-print persistence plus the two available July-to-August first-print seasonal moves. Persistence alone is 16.457 million. The July-to-August reference-class mean change is -0.031 million, giving a seasonal benchmark of 16.426 million. No direct current signal in the fetched evidence justifies a material move away from that benchmark."
+      },
+      {
+        "kind": "text",
+        "text": "Model candidates under thesis_model_candidate_v1: persistence candidate point=16.457, p10=16.230, p50=16.457, p90=16.684, 80% interval 16.230-16.684, 90% interval 16.166-16.748, interval_method=successive-change residual normal, calibration_n=6, train_cutoff=2026-07, walk_forward_score=not computed because the first-print sample is short; seasonal-reference candidate point=16.426, p10=16.199, p50=16.426, p90=16.653, 80% interval 16.199-16.653, 90% interval 16.135-16.717, interval_method=successive-change residual normal, calibration_n=6, train_cutoff=2026-07. I select the seasonal-reference candidate because the target is a not-seasonally-adjusted August level and the adjustment is small relative to the interval."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: selected prior = July 2026 first-print persistence 16.457 million plus July-to-August seasonal reference-class mean -0.031 million; historical sample = January-July 2026 first-print levels 16.355, 16.380, 16.563, 16.471, 16.335, 16.184, 16.457 million; adjustment components = -0.031 million seasonality, 0.000 million unsupported momentum, 0.000 million policy mechanism, so point = 16.457 - 0.031 + 0.000 + 0.000 = 16.426 million. Successive changes are +0.025, +0.183, -0.092, -0.136, -0.151, and +0.273 million, giving sigma = 0.177 million. The 80% half-width is 1.28*sigma = 1.28*0.177 = 0.227 million, implying 16.426 +/- 0.227 = [16.199, 16.653] million. The sample is short but includes the latest CPS occupational first prints and would cover five of the six observed one-month moves around the selected prior scale."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk outside the interval would be an August sample or classification rebound that keeps the July surge going and prints above 16.653 million. Downside risk outside the interval would be a repeat of the March-June contraction or an office-support-specific demand shock that pulls the row below 16.199 million."
+      },
+      {
+        "kind": "text",
+        "text": "Slug check: the network fetch of https://app.thesisinstitute.org/specs.json returned a 404 page in this run, so I checked the local generated public catalog and records. The slug appears as a registered August 2026 target and I did not find an existing published forecast cell with this slug."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional suggestion to add February 2026 to historicalContext because it is used in the interval sample. I kept the registered 2026-09-11 resolutionDate while explicitly preserving the fetched Sep. 04, 2026 BLS schedule discrepancy for ledger follow-up."
+      },
+      {
+        "kind": "forecast",
+        "point": 16.426,
+        "ciLow": 16.199,
+        "ciHigh": 16.653
+      }
+    ],
+    "agentReportedRunAt": "2026-08-13T16:52:37Z",
+    "runStartedAt": "2026-08-13T16:52:26Z",
+    "promptMode": "full",
+    "registrationCommit": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+    "targetContentHash": "97182edc98810caf5f7cc705f823bcd9a54c5944671d801e01b57605272a7458",
+    "targetRegistrationPath": "records/targets/2026-08-13-97182edc98810caf5f7cc705f823bcd9a54c5944671d801e01b57605272a7458.json",
+    "registeredAtUtc": "2026-08-13T16:32:19Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 15.8585,
+        "upper": 16.9935
+      },
+      "points": [
+        {
+          "value": 15.8585,
+          "probability": 0.0
+        },
+        {
+          "value": 15.864175,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 15.86985,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 15.875525,
+          "probability": 0.005
+        },
+        {
+          "value": 15.8812,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 15.886875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 15.89255,
+          "probability": 0.01
+        },
+        {
+          "value": 15.898225,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 15.9039,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 15.909575,
+          "probability": 0.015
+        },
+        {
+          "value": 15.91525,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 15.920925,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 15.9266,
+          "probability": 0.02
+        },
+        {
+          "value": 15.932275,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 15.93795,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 15.943625,
+          "probability": 0.025
+        },
+        {
+          "value": 15.9493,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 15.954975,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 15.96065,
+          "probability": 0.03
+        },
+        {
+          "value": 15.966325,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 15.972,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 15.977675,
+          "probability": 0.035
+        },
+        {
+          "value": 15.98335,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 15.989025,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 15.9947,
+          "probability": 0.04
+        },
+        {
+          "value": 16.000375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 16.00605,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 16.011725,
+          "probability": 0.045
+        },
+        {
+          "value": 16.0174,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 16.023075,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 16.02875,
+          "probability": 0.05
+        },
+        {
+          "value": 16.034425,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 16.0401,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 16.045775,
+          "probability": 0.055
+        },
+        {
+          "value": 16.05145,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 16.057125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 16.0628,
+          "probability": 0.06
+        },
+        {
+          "value": 16.068475,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 16.07415,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 16.079825,
+          "probability": 0.065
+        },
+        {
+          "value": 16.0855,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 16.091175,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 16.09685,
+          "probability": 0.07
+        },
+        {
+          "value": 16.102525,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 16.1082,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 16.113875,
+          "probability": 0.075
+        },
+        {
+          "value": 16.11955,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 16.125225,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 16.1309,
+          "probability": 0.08
+        },
+        {
+          "value": 16.136575,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 16.14225,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 16.147925,
+          "probability": 0.085
+        },
+        {
+          "value": 16.1536,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 16.159275,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 16.16495,
+          "probability": 0.09
+        },
+        {
+          "value": 16.170625,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 16.1763,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 16.181975,
+          "probability": 0.095
+        },
+        {
+          "value": 16.18765,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 16.193325,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 16.199,
+          "probability": 0.1
+        },
+        {
+          "value": 16.204675,
+          "probability": 0.11
+        },
+        {
+          "value": 16.21035,
+          "probability": 0.12
+        },
+        {
+          "value": 16.216025,
+          "probability": 0.13
+        },
+        {
+          "value": 16.2217,
+          "probability": 0.14
+        },
+        {
+          "value": 16.227375,
+          "probability": 0.15
+        },
+        {
+          "value": 16.23305,
+          "probability": 0.16
+        },
+        {
+          "value": 16.238725,
+          "probability": 0.17
+        },
+        {
+          "value": 16.2444,
+          "probability": 0.18
+        },
+        {
+          "value": 16.250075,
+          "probability": 0.19
+        },
+        {
+          "value": 16.25575,
+          "probability": 0.2
+        },
+        {
+          "value": 16.261425,
+          "probability": 0.21
+        },
+        {
+          "value": 16.2671,
+          "probability": 0.22
+        },
+        {
+          "value": 16.272775,
+          "probability": 0.23
+        },
+        {
+          "value": 16.27845,
+          "probability": 0.24
+        },
+        {
+          "value": 16.284125,
+          "probability": 0.25
+        },
+        {
+          "value": 16.2898,
+          "probability": 0.26
+        },
+        {
+          "value": 16.295475,
+          "probability": 0.27
+        },
+        {
+          "value": 16.30115,
+          "probability": 0.28
+        },
+        {
+          "value": 16.306825,
+          "probability": 0.29
+        },
+        {
+          "value": 16.3125,
+          "probability": 0.3
+        },
+        {
+          "value": 16.318175,
+          "probability": 0.31
+        },
+        {
+          "value": 16.32385,
+          "probability": 0.32
+        },
+        {
+          "value": 16.329525,
+          "probability": 0.33
+        },
+        {
+          "value": 16.3352,
+          "probability": 0.34
+        },
+        {
+          "value": 16.340875,
+          "probability": 0.35
+        },
+        {
+          "value": 16.34655,
+          "probability": 0.36
+        },
+        {
+          "value": 16.352225,
+          "probability": 0.37
+        },
+        {
+          "value": 16.3579,
+          "probability": 0.38
+        },
+        {
+          "value": 16.363575,
+          "probability": 0.39
+        },
+        {
+          "value": 16.36925,
+          "probability": 0.4
+        },
+        {
+          "value": 16.374925,
+          "probability": 0.41
+        },
+        {
+          "value": 16.3806,
+          "probability": 0.42
+        },
+        {
+          "value": 16.386275,
+          "probability": 0.43
+        },
+        {
+          "value": 16.39195,
+          "probability": 0.44
+        },
+        {
+          "value": 16.397625,
+          "probability": 0.45
+        },
+        {
+          "value": 16.4033,
+          "probability": 0.46
+        },
+        {
+          "value": 16.408975,
+          "probability": 0.47
+        },
+        {
+          "value": 16.41465,
+          "probability": 0.48
+        },
+        {
+          "value": 16.420325,
+          "probability": 0.49
+        },
+        {
+          "value": 16.426,
+          "probability": 0.5
+        },
+        {
+          "value": 16.431675,
+          "probability": 0.51
+        },
+        {
+          "value": 16.43735,
+          "probability": 0.52
+        },
+        {
+          "value": 16.443025,
+          "probability": 0.53
+        },
+        {
+          "value": 16.4487,
+          "probability": 0.54
+        },
+        {
+          "value": 16.454375,
+          "probability": 0.55
+        },
+        {
+          "value": 16.46005,
+          "probability": 0.56
+        },
+        {
+          "value": 16.465725,
+          "probability": 0.57
+        },
+        {
+          "value": 16.4714,
+          "probability": 0.58
+        },
+        {
+          "value": 16.477075,
+          "probability": 0.59
+        },
+        {
+          "value": 16.48275,
+          "probability": 0.6
+        },
+        {
+          "value": 16.488425,
+          "probability": 0.61
+        },
+        {
+          "value": 16.4941,
+          "probability": 0.62
+        },
+        {
+          "value": 16.499775,
+          "probability": 0.63
+        },
+        {
+          "value": 16.50545,
+          "probability": 0.64
+        },
+        {
+          "value": 16.511125,
+          "probability": 0.65
+        },
+        {
+          "value": 16.5168,
+          "probability": 0.66
+        },
+        {
+          "value": 16.522475,
+          "probability": 0.67
+        },
+        {
+          "value": 16.52815,
+          "probability": 0.68
+        },
+        {
+          "value": 16.533825,
+          "probability": 0.69
+        },
+        {
+          "value": 16.5395,
+          "probability": 0.7
+        },
+        {
+          "value": 16.545175,
+          "probability": 0.71
+        },
+        {
+          "value": 16.55085,
+          "probability": 0.72
+        },
+        {
+          "value": 16.556525,
+          "probability": 0.73
+        },
+        {
+          "value": 16.5622,
+          "probability": 0.74
+        },
+        {
+          "value": 16.567875,
+          "probability": 0.75
+        },
+        {
+          "value": 16.57355,
+          "probability": 0.76
+        },
+        {
+          "value": 16.579225,
+          "probability": 0.77
+        },
+        {
+          "value": 16.5849,
+          "probability": 0.78
+        },
+        {
+          "value": 16.590575,
+          "probability": 0.79
+        },
+        {
+          "value": 16.59625,
+          "probability": 0.8
+        },
+        {
+          "value": 16.601925,
+          "probability": 0.81
+        },
+        {
+          "value": 16.6076,
+          "probability": 0.82
+        },
+        {
+          "value": 16.613275,
+          "probability": 0.83
+        },
+        {
+          "value": 16.61895,
+          "probability": 0.84
+        },
+        {
+          "value": 16.624625,
+          "probability": 0.85
+        },
+        {
+          "value": 16.6303,
+          "probability": 0.86
+        },
+        {
+          "value": 16.635975,
+          "probability": 0.87
+        },
+        {
+          "value": 16.64165,
+          "probability": 0.88
+        },
+        {
+          "value": 16.647325,
+          "probability": 0.89
+        },
+        {
+          "value": 16.653,
+          "probability": 0.9
+        },
+        {
+          "value": 16.658675,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 16.66435,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 16.670025,
+          "probability": 0.905
+        },
+        {
+          "value": 16.6757,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 16.681375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 16.68705,
+          "probability": 0.91
+        },
+        {
+          "value": 16.692725,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 16.6984,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 16.704075,
+          "probability": 0.915
+        },
+        {
+          "value": 16.70975,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 16.715425,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 16.7211,
+          "probability": 0.92
+        },
+        {
+          "value": 16.726775,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 16.73245,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 16.738125,
+          "probability": 0.925
+        },
+        {
+          "value": 16.7438,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 16.749475,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 16.75515,
+          "probability": 0.93
+        },
+        {
+          "value": 16.760825,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 16.7665,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 16.772175,
+          "probability": 0.935
+        },
+        {
+          "value": 16.77785,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 16.783525,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 16.7892,
+          "probability": 0.94
+        },
+        {
+          "value": 16.794875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 16.80055,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 16.806225,
+          "probability": 0.945
+        },
+        {
+          "value": 16.8119,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 16.817575,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 16.82325,
+          "probability": 0.95
+        },
+        {
+          "value": 16.828925,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 16.8346,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 16.840275,
+          "probability": 0.955
+        },
+        {
+          "value": 16.84595,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 16.851625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 16.8573,
+          "probability": 0.96
+        },
+        {
+          "value": 16.862975,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 16.86865,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 16.874325,
+          "probability": 0.965
+        },
+        {
+          "value": 16.88,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 16.885675,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 16.89135,
+          "probability": 0.97
+        },
+        {
+          "value": 16.897025,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 16.9027,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 16.908375,
+          "probability": 0.975
+        },
+        {
+          "value": 16.91405,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 16.919725,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 16.9254,
+          "probability": 0.98
+        },
+        {
+          "value": 16.931075,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 16.93675,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 16.942425,
+          "probability": 0.985
+        },
+        {
+          "value": 16.9481,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 16.953775,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 16.95945,
+          "probability": 0.99
+        },
+        {
+          "value": 16.965125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 16.9708,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 16.976475,
+          "probability": 0.995
+        },
+        {
+          "value": 16.98215,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 16.987825,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 16.9935,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 16.426,
+        "median": 16.426,
+        "interval80": {
+          "lower": 16.199,
+          "upper": 16.653
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/prompt.md",
+        "sha256": "165734c715b3e669f246517034f2c60109fcc7a32626e892372d8f36d688c150",
+        "bytes": 32504,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_command.json",
+        "sha256": "2f8544168bb0063c14f0b08254bb9c88038f64d50fa1485dbb1211b8455fb585",
+        "bytes": 892,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_codex_stdout.jsonl",
+        "sha256": "5444c18316391cd8fb86d9aba79cf6584bc332bda5f3669547515ef76d3fb47f",
+        "bytes": 1516973,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_codex_stderr.log",
+        "sha256": "c46ff327c18af4a5f5601c592323b242a5244d774e9fa9d15755e9a168e79817",
+        "bytes": 233,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_codex_events.jsonl",
+        "sha256": "1286fc99a699a9d6cc90b7f8f0b9b33eac61bf1a4efd758ba0c68877be850771",
+        "bytes": 1518786,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_codex_last_message.txt",
+        "sha256": "087de400c0078e2360eba54fbfff6fc3afc4f5e75603e0838d63983f8b7caacb",
+        "bytes": 7908,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_codex_trace.json",
+        "sha256": "42d78ab9397cbd94cab9b84e822bfb0d38d69304728c3e2711de0fa1d6e10717",
+        "bytes": 570,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_stdout.txt",
+        "sha256": "087de400c0078e2360eba54fbfff6fc3afc4f5e75603e0838d63983f8b7caacb",
+        "bytes": 7908,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_stderr.txt",
+        "sha256": "14d29bd0677539ac373206b7dd68cb744d300126946aa0a2921946c84c336dce",
+        "bytes": 248,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_prompt.md",
+        "sha256": "be4580e397e35af9491fc07b355e560d70467c2a31ff694e84646764b5293210",
+        "bytes": 11345,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_command.json",
+        "sha256": "19e3ffa8fa1ac1eb25386437fcf4dda0b46520cf86d3904001207d3aae1cf114",
+        "bytes": 888,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "022ce70aa77ed6dec175a68c2a1cbcc1bca14770ebbeb8e49fbbfc2f61c3d6db",
+        "bytes": 779,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_codex_stderr.log",
+        "sha256": "bc318d9bea4f2a6e978fca6e3c368757686de407bca95ed8662d89a32d799e93",
+        "bytes": 233,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_codex_events.jsonl",
+        "sha256": "cc4e514a5f4221046d7f97c56926f327f67a69971f043f94e53241e9d12885a3",
+        "bytes": 801,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_codex_last_message.txt",
+        "sha256": "04b57a525ed213ffa4698c689557f722cff54a80358626a7b464040ad0d3a2f5",
+        "bytes": 450,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_codex_trace.json",
+        "sha256": "9da271d48a868e74e547a7a7e6527056197a7eb2a6431c0ff14cd6a5c9a89cf6",
+        "bytes": 561,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_stdout.txt",
+        "sha256": "04b57a525ed213ffa4698c689557f722cff54a80358626a7b464040ad0d3a2f5",
+        "bytes": 450,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_stderr.txt",
+        "sha256": "fbbee9d553a03b0356a93b9da95b2389c294c5b86a87427ec310c3db4c9a1851",
+        "bytes": 248,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/revision_prompt.md",
+        "sha256": "7303d5f2802b5d72a5d3ebd29805f001916bd70c5652085b72567f9a2434e358",
+        "bytes": 41798,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/command.json",
+        "sha256": "0f9a0c93ebb62efa69acdb512d3081968c4e0c9addf9099044ab6c05a2f1f31b",
+        "bytes": 886,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/codex_stdout.jsonl",
+        "sha256": "d25a2cf4ca4e1aeb187e233c3f5384e4b3cf3725ceee765523be817deccfd967",
+        "bytes": 8877,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/codex_stderr.log",
+        "sha256": "f085cb13725b906a4953dc6954c07dd7bb9133b27c71c86ac868647463b3e996",
+        "bytes": 233,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/codex_events.jsonl",
+        "sha256": "9d51e7a0db97f9fa81a1d1850313db4127a5094c4b891ccb20b3ec88f0911b02",
+        "bytes": 8899,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/codex_last_message.txt",
+        "sha256": "cb124d767eb174ad7f84681581522c2085310cbe58101edebf7e3319c52ed8f2",
+        "bytes": 8286,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/codex_trace.json",
+        "sha256": "efd5b15143d9223fd2665803ced0f90415c73ced3f2c3cc9fd96014bb0655c57",
+        "bytes": 558,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/stdout.txt",
+        "sha256": "cb124d767eb174ad7f84681581522c2085310cbe58101edebf7e3319c52ed8f2",
+        "bytes": 8286,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/stderr.txt",
+        "sha256": "bdf2bbb0539d0407f0c5b26c55674a447cecac2b57ca445bd80e72d884a483ab",
+        "bytes": 248,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/raw_response.txt",
+        "sha256": "cb124d767eb174ad7f84681581522c2085310cbe58101edebf7e3319c52ed8f2",
+        "bytes": 8286,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/parsed_cells.json",
+        "sha256": "75c601ba107a7ae596425323671bb2a4bb277b22a34de5c175f1718f32e07c1c",
+        "bytes": 9353,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/normalized_cells.json",
+        "sha256": "dc7e78bfa94019ca4084d55bc21c002dc8bd2c10b8ce1a2e38e8878e90be2b0d",
+        "bytes": 27253,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/distribution.json",
+        "sha256": "994b5d409d5b283d762f73a4d1cadc0b1b12b9cf553c429043ab64d7590e6b98",
+        "bytes": 14116,
+        "createdAt": "2026-08-13T16:52:26Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/validation.json",
+        "sha256": "092ed3752339d2b6b837d9dd66093db49a2b51f096b73f41161fefbd13a3a8e5",
+        "bytes": 355,
+        "createdAt": "2026-08-13T16:52:26Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-13T16:52:26Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "6642f92bebb82d723416c63bd2af8c13cc12e02710317b23daf935fcef7e3e64"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-52-26z-bls-cps-employed-people-by-occupation-office-administrative-support-2026-08/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider opening a separate ledger follow-up for the stated Sep. 04, 2026 BLS schedule versus registered 2026-09-11 resolutionDate discrepancy, while keeping this cell tied to the registered target."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider adding February 2026 to historicalContext since it is used in the interval sample."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional suggestion to add February 2026 to historicalContext because it is used in the interval sample. I kept the registered 2026-09-11 resolutionDate while explicitly preserving the fetched Sep. 04, 2026 BLS schedule discrepancy for ledger follow-up.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional suggestion to add February 2026 to historicalContext because it is used in the interval sample. I kept the registered 2026-09-11 resolutionDate while explicitly preserving the fetched Sep. 04, 2026 BLS schedule discrepancy for ledger follow-up.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft satisfies the target contract and rubric, with no blocking publication fixes identified."
+    }
+  }
+]

@@ -1,0 +1,1223 @@
+[
+  {
+    "slug": "cps-production-employment-august-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPS production occupations employment, August 2026",
+    "question": "What will BLS first report in CPS Employment Situation Table A-19 for August 2026 employed people age 16 and over in Production occupations, not seasonally adjusted, in millions?",
+    "unit": "millions",
+    "pointEstimate": 7.975,
+    "ciLow": 7.703,
+    "ciHigh": 8.247,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-10",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Employment Situation, CPS Table A-19",
+    "resolutionSourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+    "resolutionRule": "Resolve to the first value published for August 2026 in BLS CPS Employment Situation Table A-19, row 'Production occupations,' employed persons by occupation, not seasonally adjusted, reported in thousands. Multiply the published thousands value by 0.001 and report millions to three decimals. Preserve the first print and ignore later revisions or corrections unless the registered target is amended before release.",
+    "dataPointId": "bls.cps.employed_people_by_occupation.production.august_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "July 2026 CPS production occupations employment",
+        "value": 8.121
+      },
+      {
+        "label": "June 2026 CPS production occupations employment",
+        "value": 7.759
+      },
+      {
+        "label": "August 2025 CPS production occupations employment",
+        "value": 7.482
+      },
+      {
+        "label": "July 2025 CPS production occupations employment",
+        "value": 7.662
+      },
+      {
+        "label": "August 2024 CPS production occupations employment",
+        "value": 7.777
+      }
+    ],
+    "drivers": [
+      "July 2026 level persistence",
+      "recent July-to-August NSA seasonal decline",
+      "CPS occupation subgroup volatility",
+      "July 2026 rebound from June"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/web/empsit/cpseea19.htm",
+      "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "https://fred.stlouisfed.org/series/LNU02032213",
+      "https://fred.stlouisfed.org/graph/fredgraph.csv?id=LNU02032213",
+      "https://fred.stlouisfed.org/release/tables?eid=3149&rid=50"
+    ],
+    "runAt": "2026-08-13T17:02:02Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "August 2026 CPS production-occupation employment forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The registered target is BLS CPS employed people in Production occupations for August 2026, not seasonally adjusted, first print, from cpseea19.htm Table A-19. The FRED/BLS mirror labels the same current-population-survey occupation release table as A-13 and gives source code LNU02032213; I use it only as the sanctioned history mirror and keep the ledger resolver as Table A-19."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.lookup",
+        "call": "curl -sS 'https://fred.stlouisfed.org/series/LNU02032213' | rg -n -C 2 'Employment Level - Production Occupations|Jul 2026|LNU02032213|Thousands of Persons|Not Seasonally Adjusted|Source'",
+        "result": "FRED series page for BLS source code LNU02032213 says Employment Level - Production Occupations; Jul 2026 = 8,121; units = Thousands of Persons, Not Seasonally Adjusted; source = U.S. Bureau of Labor Statistics; dateModified = 2026-08-07T08:32:00-05:00."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.csv",
+        "call": "curl -sS 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=LNU02032213' | tail -n 25",
+        "result": "Fetched recent LNU02032213 values in thousands: 2024-07 7889, 2024-08 7777, 2024-09 7658, 2024-10 7375, 2024-11 7872, 2024-12 7940, 2025-01 8101, 2025-02 8299, 2025-03 7923, 2025-04 8081, 2025-05 7947, 2025-06 7938, 2025-07 7662, 2025-08 7482, 2025-09 7425, 2025-10 blank, 2025-11 7967, 2025-12 7959, 2026-01 7786, 2026-02 7742, 2026-03 7685, 2026-04 7883, 2026-05 7912, 2026-06 7759, 2026-07 8121."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.release_table",
+        "call": "curl -sS 'https://fred.stlouisfed.org/release/tables?eid=3149&rid=50' | sed -n '1008,1038p'",
+        "result": "FRED release table row for Production occupations links LNU02032213 and reports Jul 2026 = 8,121 thousand, Jun 2026 = 7,759 thousand, and Jul 2025 = 7,662 thousand; units = Thous. of Persons."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Open BLS Schedule of Releases for the Employment Situation, https://www.bls.gov/schedule/news_release/empsit.htm",
+        "result": "BLS schedule lists reference month August 2026 with release date Sep. 04, 2026 and release time 08:30 AM; nearby rows include July 2026 Aug. 07, 2026 and September 2026 Oct. 02, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "model.candidates",
+        "call": "Compute thesis_model_candidate_v1-style baselines from fetched LNU02032213 history, excluding the blank 2025-10 observation and using only consecutive-month changes for residual sigma.",
+        "result": "Persistence candidate: point 8.121, p10 7.849, p50 8.121, p90 8.393, 80% interval [7.849, 8.393], 90% interval [7.772, 8.470], interval_method residual_sigma_22, calibration_n 22, train_cutoff 2026-07. Seasonal July-to-August candidate: recent Jul-Aug changes are -0.112 million in 2024 and -0.180 million in 2025, mean -0.146; point 7.975, p10 7.703, p50 7.975, p90 8.247, 80% interval [7.703, 8.247], 90% interval [7.626, 8.324], interval_method residual_sigma_22, calibration_n 22, train_cutoff 2026-07."
+      },
+      {
+        "kind": "text",
+        "text": "The outside-view base rate/reference class is latest-print persistence at 8.121 million for this repeated official series. The direct same-series July-to-August NSA reference class is small but relevant: August was below July by 0.112 million in 2024 and 0.180 million in 2025, average -0.146 million. Because the question is August NSA employment and that seasonal comparison is direct, I select the seasonal candidate over pure persistence while keeping the update inside the realized month-to-month volatility."
+      },
+      {
+        "kind": "text",
+        "text": "Current evidence is limited to the fetched series itself. July 2026 rebounded sharply from June by +0.362 million, so a full reversion below the 2025 August level would be too aggressive; there is no separate policy, strike, or release-specific occupation shock in the admissible evidence."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence model prior = 8.121 million from July 2026. Historical sample = 24 nonmissing monthly values from 2024-07 through 2026-07, with consecutive-month changes [-0.112, -0.119, -0.283, +0.497, +0.068, +0.161, +0.198, -0.376, +0.158, -0.134, -0.009, -0.276, -0.180, -0.057, -0.008, -0.173, -0.044, -0.057, +0.198, +0.029, -0.153, +0.362] million after excluding the blank 2025-10 gap; sigma = 0.212 million. Adjustment components: July-to-August NSA seasonal update = average(-0.112, -0.180) = -0.146 million; no policy or one-off adjustment. Point = 8.121 - 0.146 = 7.975 million. 80% half-width = 1.28*sigma = 1.28*0.212 = 0.272 million, so ciLow = 7.975 - 0.272 = 7.703 and ciHigh = 7.975 + 0.272 = 8.247 million."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: if July's +0.362 million rebound reflects real production-occupation hiring rather than household-survey noise, or if August avoids the recent NSA seasonal decline, the print would land above the interval at more than 8.247 million. Downside risk: if the July spike reverses like the larger negative months in 2024-2025 or production employment follows manufacturing weakness, it would land below the interval at less than 7.703 million. Either case would be outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking resolver fix by setting resolutionDate to the registered target contract date 2026-09-10 while retaining the fetched BLS calendar evidence that the scheduled Employment Situation release is Sep. 04, 2026 as a ledger/calendar discrepancy. Accepted the sample-size caveat: the July-to-August seasonal update is direct but based on only two fetched August transitions."
+      },
+      {
+        "kind": "forecast",
+        "point": 7.975,
+        "ciLow": 7.703,
+        "ciHigh": 8.247
+      }
+    ],
+    "agentReportedRunAt": "2026-08-13T16:59:00Z",
+    "runStartedAt": "2026-08-13T16:58:53Z",
+    "promptMode": "full",
+    "registrationCommit": "27d485d528684bbe8281fa349cfbb9587169dd5b",
+    "targetContentHash": "3bee3d472cab7a604ea2ac39aa1831fdc4ca8031670d649664e9e804dde9106a",
+    "targetRegistrationPath": "records/targets/2026-08-13-3bee3d472cab7a604ea2ac39aa1831fdc4ca8031670d649664e9e804dde9106a.json",
+    "registeredAtUtc": "2026-08-13T16:32:19Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 7.295,
+        "upper": 8.655
+      },
+      "points": [
+        {
+          "value": 7.295,
+          "probability": 0.0
+        },
+        {
+          "value": 7.3018,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 7.3086,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 7.3154,
+          "probability": 0.005
+        },
+        {
+          "value": 7.3222,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 7.329,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 7.3358,
+          "probability": 0.01
+        },
+        {
+          "value": 7.3426,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 7.3494,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 7.3562,
+          "probability": 0.015
+        },
+        {
+          "value": 7.363,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 7.3698,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 7.3766,
+          "probability": 0.02
+        },
+        {
+          "value": 7.3834,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 7.3902,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 7.397,
+          "probability": 0.025
+        },
+        {
+          "value": 7.4038,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 7.4106,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 7.4174,
+          "probability": 0.03
+        },
+        {
+          "value": 7.4242,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 7.431,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 7.4378,
+          "probability": 0.035
+        },
+        {
+          "value": 7.4446,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 7.4514,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 7.4582,
+          "probability": 0.04
+        },
+        {
+          "value": 7.465,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 7.4718,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 7.4786,
+          "probability": 0.045
+        },
+        {
+          "value": 7.4854,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 7.4922,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 7.499,
+          "probability": 0.05
+        },
+        {
+          "value": 7.5058,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 7.5126,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 7.5194,
+          "probability": 0.055
+        },
+        {
+          "value": 7.5262,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 7.533,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 7.5398,
+          "probability": 0.06
+        },
+        {
+          "value": 7.5466,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 7.5534,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 7.5602,
+          "probability": 0.065
+        },
+        {
+          "value": 7.567,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 7.5738,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 7.5806,
+          "probability": 0.07
+        },
+        {
+          "value": 7.5874,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 7.5942,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 7.601,
+          "probability": 0.075
+        },
+        {
+          "value": 7.6078,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 7.6146,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 7.6214,
+          "probability": 0.08
+        },
+        {
+          "value": 7.6282,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 7.635,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 7.6418,
+          "probability": 0.085
+        },
+        {
+          "value": 7.6486,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 7.6554,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 7.6622,
+          "probability": 0.09
+        },
+        {
+          "value": 7.669,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 7.6758,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 7.6826,
+          "probability": 0.095
+        },
+        {
+          "value": 7.6894,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 7.6962,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 7.703,
+          "probability": 0.1
+        },
+        {
+          "value": 7.7098,
+          "probability": 0.11
+        },
+        {
+          "value": 7.7166,
+          "probability": 0.12
+        },
+        {
+          "value": 7.7234,
+          "probability": 0.13
+        },
+        {
+          "value": 7.7302,
+          "probability": 0.14
+        },
+        {
+          "value": 7.737,
+          "probability": 0.15
+        },
+        {
+          "value": 7.7438,
+          "probability": 0.16
+        },
+        {
+          "value": 7.7506,
+          "probability": 0.17
+        },
+        {
+          "value": 7.7574,
+          "probability": 0.18
+        },
+        {
+          "value": 7.7642,
+          "probability": 0.19
+        },
+        {
+          "value": 7.771,
+          "probability": 0.2
+        },
+        {
+          "value": 7.7778,
+          "probability": 0.21
+        },
+        {
+          "value": 7.7846,
+          "probability": 0.22
+        },
+        {
+          "value": 7.7914,
+          "probability": 0.23
+        },
+        {
+          "value": 7.7982,
+          "probability": 0.24
+        },
+        {
+          "value": 7.805,
+          "probability": 0.25
+        },
+        {
+          "value": 7.8118,
+          "probability": 0.26
+        },
+        {
+          "value": 7.8186,
+          "probability": 0.27
+        },
+        {
+          "value": 7.8254,
+          "probability": 0.28
+        },
+        {
+          "value": 7.8322,
+          "probability": 0.29
+        },
+        {
+          "value": 7.839,
+          "probability": 0.3
+        },
+        {
+          "value": 7.8458,
+          "probability": 0.31
+        },
+        {
+          "value": 7.8526,
+          "probability": 0.32
+        },
+        {
+          "value": 7.8594,
+          "probability": 0.33
+        },
+        {
+          "value": 7.8662,
+          "probability": 0.34
+        },
+        {
+          "value": 7.873,
+          "probability": 0.35
+        },
+        {
+          "value": 7.8798,
+          "probability": 0.36
+        },
+        {
+          "value": 7.8866,
+          "probability": 0.37
+        },
+        {
+          "value": 7.8934,
+          "probability": 0.38
+        },
+        {
+          "value": 7.9002,
+          "probability": 0.39
+        },
+        {
+          "value": 7.907,
+          "probability": 0.4
+        },
+        {
+          "value": 7.9138,
+          "probability": 0.41
+        },
+        {
+          "value": 7.9206,
+          "probability": 0.42
+        },
+        {
+          "value": 7.9274,
+          "probability": 0.43
+        },
+        {
+          "value": 7.9342,
+          "probability": 0.44
+        },
+        {
+          "value": 7.941,
+          "probability": 0.45
+        },
+        {
+          "value": 7.9478,
+          "probability": 0.46
+        },
+        {
+          "value": 7.9546,
+          "probability": 0.47
+        },
+        {
+          "value": 7.9614,
+          "probability": 0.48
+        },
+        {
+          "value": 7.9682,
+          "probability": 0.49
+        },
+        {
+          "value": 7.975,
+          "probability": 0.5
+        },
+        {
+          "value": 7.9818,
+          "probability": 0.51
+        },
+        {
+          "value": 7.9886,
+          "probability": 0.52
+        },
+        {
+          "value": 7.9954,
+          "probability": 0.53
+        },
+        {
+          "value": 8.0022,
+          "probability": 0.54
+        },
+        {
+          "value": 8.009,
+          "probability": 0.55
+        },
+        {
+          "value": 8.0158,
+          "probability": 0.56
+        },
+        {
+          "value": 8.0226,
+          "probability": 0.57
+        },
+        {
+          "value": 8.0294,
+          "probability": 0.58
+        },
+        {
+          "value": 8.0362,
+          "probability": 0.59
+        },
+        {
+          "value": 8.043,
+          "probability": 0.6
+        },
+        {
+          "value": 8.0498,
+          "probability": 0.61
+        },
+        {
+          "value": 8.0566,
+          "probability": 0.62
+        },
+        {
+          "value": 8.0634,
+          "probability": 0.63
+        },
+        {
+          "value": 8.0702,
+          "probability": 0.64
+        },
+        {
+          "value": 8.077,
+          "probability": 0.65
+        },
+        {
+          "value": 8.0838,
+          "probability": 0.66
+        },
+        {
+          "value": 8.0906,
+          "probability": 0.67
+        },
+        {
+          "value": 8.0974,
+          "probability": 0.68
+        },
+        {
+          "value": 8.1042,
+          "probability": 0.69
+        },
+        {
+          "value": 8.111,
+          "probability": 0.7
+        },
+        {
+          "value": 8.1178,
+          "probability": 0.71
+        },
+        {
+          "value": 8.1246,
+          "probability": 0.72
+        },
+        {
+          "value": 8.1314,
+          "probability": 0.73
+        },
+        {
+          "value": 8.1382,
+          "probability": 0.74
+        },
+        {
+          "value": 8.145,
+          "probability": 0.75
+        },
+        {
+          "value": 8.1518,
+          "probability": 0.76
+        },
+        {
+          "value": 8.1586,
+          "probability": 0.77
+        },
+        {
+          "value": 8.1654,
+          "probability": 0.78
+        },
+        {
+          "value": 8.1722,
+          "probability": 0.79
+        },
+        {
+          "value": 8.179,
+          "probability": 0.8
+        },
+        {
+          "value": 8.1858,
+          "probability": 0.81
+        },
+        {
+          "value": 8.1926,
+          "probability": 0.82
+        },
+        {
+          "value": 8.1994,
+          "probability": 0.83
+        },
+        {
+          "value": 8.2062,
+          "probability": 0.84
+        },
+        {
+          "value": 8.213,
+          "probability": 0.85
+        },
+        {
+          "value": 8.2198,
+          "probability": 0.86
+        },
+        {
+          "value": 8.2266,
+          "probability": 0.87
+        },
+        {
+          "value": 8.2334,
+          "probability": 0.88
+        },
+        {
+          "value": 8.2402,
+          "probability": 0.89
+        },
+        {
+          "value": 8.247,
+          "probability": 0.9
+        },
+        {
+          "value": 8.2538,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 8.2606,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 8.2674,
+          "probability": 0.905
+        },
+        {
+          "value": 8.2742,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 8.281,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 8.2878,
+          "probability": 0.91
+        },
+        {
+          "value": 8.2946,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 8.3014,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 8.3082,
+          "probability": 0.915
+        },
+        {
+          "value": 8.315,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 8.3218,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 8.3286,
+          "probability": 0.92
+        },
+        {
+          "value": 8.3354,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 8.3422,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 8.349,
+          "probability": 0.925
+        },
+        {
+          "value": 8.3558,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 8.3626,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 8.3694,
+          "probability": 0.93
+        },
+        {
+          "value": 8.3762,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 8.383,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 8.3898,
+          "probability": 0.935
+        },
+        {
+          "value": 8.3966,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 8.4034,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 8.4102,
+          "probability": 0.94
+        },
+        {
+          "value": 8.417,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 8.4238,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 8.4306,
+          "probability": 0.945
+        },
+        {
+          "value": 8.4374,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 8.4442,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 8.451,
+          "probability": 0.95
+        },
+        {
+          "value": 8.4578,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 8.4646,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 8.4714,
+          "probability": 0.955
+        },
+        {
+          "value": 8.4782,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 8.485,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 8.4918,
+          "probability": 0.96
+        },
+        {
+          "value": 8.4986,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 8.5054,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 8.5122,
+          "probability": 0.965
+        },
+        {
+          "value": 8.519,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 8.5258,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 8.5326,
+          "probability": 0.97
+        },
+        {
+          "value": 8.5394,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 8.5462,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 8.553,
+          "probability": 0.975
+        },
+        {
+          "value": 8.5598,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 8.5666,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 8.5734,
+          "probability": 0.98
+        },
+        {
+          "value": 8.5802,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 8.587,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 8.5938,
+          "probability": 0.985
+        },
+        {
+          "value": 8.6006,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 8.6074,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 8.6142,
+          "probability": 0.99
+        },
+        {
+          "value": 8.621,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 8.6278,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 8.6346,
+          "probability": 0.995
+        },
+        {
+          "value": 8.6414,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 8.6482,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 8.655,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 7.975,
+        "median": 7.975,
+        "interval80": {
+          "lower": 7.703,
+          "upper": 8.247
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/prompt.md",
+        "sha256": "342815f57610431be6d243d7dfef97c974dcf85efb2a35d2d03f36c5e9743d4f",
+        "bytes": 32422,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_command.json",
+        "sha256": "27fdd5b208d98ffff694b883121a269436bee1c1c17fb7883532a2a13f2a5549",
+        "bytes": 873,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_codex_stdout.jsonl",
+        "sha256": "ed5dd106bbba99a246c81e335ac8731a16e45d48690aa5e63e591def3f2a4f0c",
+        "bytes": 1206736,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_codex_stderr.log",
+        "sha256": "a77ab43a10026c0e14ee91f5f747f8af2d83c8eef21e90296a9a5e3af6803d96",
+        "bytes": 233,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_codex_events.jsonl",
+        "sha256": "caa1c7d11f48727e11aaf1c909699ef840b30d2a72f3a399eed3fd2f73ca97aa",
+        "bytes": 1207559,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_codex_last_message.txt",
+        "sha256": "03717c36d1191fd494909aae2011889bc741867acc01b7f5acc7772f14ff9eeb",
+        "bytes": 7220,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_codex_trace.json",
+        "sha256": "bab67611ef5c2bfec0758c344675f904dd99723f537c997e26cc799ee32786a8",
+        "bytes": 567,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_stdout.txt",
+        "sha256": "03717c36d1191fd494909aae2011889bc741867acc01b7f5acc7772f14ff9eeb",
+        "bytes": 7220,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_stderr.txt",
+        "sha256": "961133076a12c0aad37cbdb0dfa7fc65f261df0332b303e076364c1b452ba85e",
+        "bytes": 248,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_prompt.md",
+        "sha256": "b101f3e47393da0bc4e1bae77a6259536784f96ece118ce55e55434366fc84e7",
+        "bytes": 10575,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_command.json",
+        "sha256": "7ecdf8e1eb4f9c69371cac5a67dab1da7ba2919e699a375b4e2d3fc8970e285f",
+        "bytes": 869,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "79b811ff0d4e1b54faebdca1e42469a9f6a271ce5a38c0b3ddd7bd1242b30a69",
+        "bytes": 24878,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_codex_stderr.log",
+        "sha256": "1ec38e1e561ba61541e2b62cf38ec86e995639986482adf8da5d8b9bf2615dbc",
+        "bytes": 233,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_codex_events.jsonl",
+        "sha256": "7079d412da02739fea0f7a6d55503afec64865c06f04eb8abb9d0747f4566ad2",
+        "bytes": 25023,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_codex_last_message.txt",
+        "sha256": "f23e578af552737905c58b90722d05303d6141ae9118d5f0bcbce7ec20dd92d1",
+        "bytes": 790,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_codex_trace.json",
+        "sha256": "b33588df9e8094967c53a6ca2555e33e5d7c98c1a2caea059b57e3ca12fc605d",
+        "bytes": 566,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_stdout.txt",
+        "sha256": "f23e578af552737905c58b90722d05303d6141ae9118d5f0bcbce7ec20dd92d1",
+        "bytes": 790,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_stderr.txt",
+        "sha256": "cd12d274aedcb17d00d82142eb2e4b3c4cb21aea913dafba27e09a9a48151b3a",
+        "bytes": 248,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/revision_prompt.md",
+        "sha256": "0695dfb915ed27f44a907998af5c25ac16ad7de93424a2abef7ec0e6460afaaa",
+        "bytes": 41368,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/command.json",
+        "sha256": "85037af11746e705862cc0ef6857afa439c5350acbed1dabd028fd7f06a1537b",
+        "bytes": 867,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/codex_stdout.jsonl",
+        "sha256": "73b6002064bd266c29fca69f6a14ef80ba68e99483025506b0530b7a3af622e7",
+        "bytes": 8229,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/codex_stderr.log",
+        "sha256": "5388b87232b1c042acb3657aa9753efc22efd8b29d043d51283515e0c73bac7a",
+        "bytes": 233,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/codex_events.jsonl",
+        "sha256": "82b671110366a35abb42b3390aa76de5d8ecbf9318dc84002076413c5e8328b1",
+        "bytes": 8251,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/codex_last_message.txt",
+        "sha256": "404fcef60742a5a1020effb45056742b59abf0905e243198017d338078d9d57f",
+        "bytes": 7653,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/codex_trace.json",
+        "sha256": "5dee332480d5a61e148a31c190d584dcfa93eb969bd1c8bc8cf597041902b61b",
+        "bytes": 561,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/stdout.txt",
+        "sha256": "404fcef60742a5a1020effb45056742b59abf0905e243198017d338078d9d57f",
+        "bytes": 7653,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/stderr.txt",
+        "sha256": "91fdfd7fb4241e7a427dee3e289a4b26acd74bc2c2d83e1c89a1edeff85eb7c7",
+        "bytes": 248,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/raw_response.txt",
+        "sha256": "404fcef60742a5a1020effb45056742b59abf0905e243198017d338078d9d57f",
+        "bytes": 7653,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/parsed_cells.json",
+        "sha256": "a5cba801c6ae96e630ee249edfe02bf82a42e0f9eddecd8bdcb18e6caf13862d",
+        "bytes": 8597,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/normalized_cells.json",
+        "sha256": "351aae83b3c38630137c88a973e06f5f2e0622bd5f4d868682d31a1b6befe371",
+        "bytes": 26003,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/distribution.json",
+        "sha256": "3a99596ee40898ad2976035f7e479f8912d15e6257e35fc748d50b60728f8996",
+        "bytes": 13622,
+        "createdAt": "2026-08-13T16:58:53Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/validation.json",
+        "sha256": "8fe5ae6464289a0b0ba872304aa3588b0acbd4974d332cccfcfe7fb437b2cfd0",
+        "bytes": 138,
+        "createdAt": "2026-08-13T16:58:53Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-13T16:58:53Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "714501b94e103a448883ee52dbd31b2abecd174d8e7674cc3977005dcc7bfe91"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t16-58-53z-bls-cps-employed-people-by-occupation-production-2026-08/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The registered target rendered locally uses resolutionDate 2026-09-10, while the draft JSON sets resolutionDate to 2026-09-04.",
+          "actionRequested": "Set the cell's resolutionDate field to 2026-09-10 to match the target contract; if keeping the Sep. 4 BLS schedule evidence, state it in reasoning as a ledger/calendar discrepancy rather than changing the target field."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Note that the July-to-August seasonal adjustment is based on only two direct August transitions, so the seasonal update is informative but sample-limited."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the blocking resolver fix by setting resolutionDate to the registered target contract date 2026-09-10 while retaining the fetched BLS calendar evidence that the scheduled Employment Situation release is Sep. 04, 2026 as a ledger/calendar discrepancy. Accepted the sample-size caveat: the July-to-August seasonal update is direct but based on only two fetched August transitions.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking resolver fix by setting resolutionDate to the registered target contract date 2026-09-10 while retaining the fetched BLS calendar evidence that the scheduled Employment Situation release is Sep. 04, 2026 as a ledger/calendar discrepancy. Accepted the sample-size caveat: the July-to-August seasonal update is direct but based on only two fetched August transitions.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publishable, but its JSON resolutionDate silently uses the BLS scheduled release day instead of the registered target's resolutionDate."
+    }
+  }
+]
