@@ -7331,24 +7331,24 @@ def fsa_crp_document_pdf_url(
     _, period_tokens = _fsa_crp_period_tokens(period)
     matches: set[str] = set()
     for href, label in parser.links:
-        url = urllib.parse.urljoin(document_url, href)
-        compact = re.sub(
-            r"[^a-z0-9]+",
-            "",
-            urllib.parse.unquote(f"{label} {urllib.parse.urlparse(url).path}").lower(),
-        )
+        # Filter on RAW strings only — no urljoin/urlparse/unquote may
+        # touch an unvalidated href. Parsing before filtering meant all
+        # unrelated page links reached urljoin, and one malformed
+        # navigation href (e.g. "https://[broken") raised an
+        # unstructured ValueError outside the refusal envelope
+        # (round-3 review). Unrelated links are filtered out untouched;
+        # only CRP-monthly PDF candidates proceed, and each must pass
+        # the raw guard BEFORE it is ever joined.
+        compact = re.sub(r"[^a-z0-9]+", "", f"{label} {href}".lower())
         if "crpmonthly" not in compact or "onepager" in compact:
             continue
         if not any(token in compact for token in period_tokens):
             continue
-        if (
-            not urllib.parse.unquote(urllib.parse.urlparse(url).path)
-            .lower()
-            .endswith(".pdf")
-        ):
+        if not href.lower().endswith(".pdf"):
             continue
         try:
             _require_fsa_crp_raw_href(href, "artifact")
+            url = urllib.parse.urljoin(document_url, href)
             _require_fsa_crp_url_kind(url, "artifact", allowed_hosts)
             _require_fsa_crp_artifact_identity(url, period)
         except ValueError as exc:

@@ -839,3 +839,37 @@ def test_raw_hrefs_refuse_before_urljoin_normalizes(href: str, message: str) -> 
     # check without ever being the reviewed link shape.
     with pytest.raises(ValueError, match=message):
         resolve_pending._require_fsa_crp_raw_href(href, "document")
+
+
+def test_malformed_unrelated_link_is_ignored_not_crashed() -> None:
+    # Round-3 review: an unrelated navigation href like "https://[broken"
+    # reached urljoin before any filter or guard and raised an
+    # unstructured "Invalid IPv6 URL" ValueError outside the refusal
+    # envelope. Unrelated links must be filtered out untouched by any
+    # parser, and selection on the REAL recovery page must still succeed.
+    real_page = (RECOVERY_ROOT / "april-2026-document.html").read_bytes()
+    poisoned = b'<a href="https://[broken">nav</a>' + real_page
+    url, refusal = resolve_pending.fsa_crp_document_pdf_url(
+        poisoned,
+        "2026-04",
+        document_url=APRIL_DOCUMENT_URL,
+        allowed_hosts=SPEC["allowed_hosts"],
+    )
+    assert refusal is None
+    assert url == APRIL_PDF_URL
+
+
+def test_malformed_candidate_link_refuses_structurally() -> None:
+    # A CRP-monthly-labeled hostile candidate must produce a STRUCTURED
+    # refusal (None + message), never an unstructured exception.
+    poisoned = _june_document_page(
+        "../CRPMonthlyApril2026.pdf",
+    )
+    url, refusal = resolve_pending.fsa_crp_document_pdf_url(
+        poisoned,
+        "2026-04",
+        document_url=APRIL_DOCUMENT_URL,
+        allowed_hosts=SPEC["allowed_hosts"],
+    )
+    assert url is None
+    assert refusal is not None and "canonical form" in refusal
