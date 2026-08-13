@@ -199,9 +199,7 @@ def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
         for entry in entries
         if entry["seedPeriod"] not in entry.get("releaseDates", {})
     }
-    assert undated == {
-        "bls.qcew.child_day_care_services.annual_avg_employment"
-    }
+    assert undated == {"bls.qcew.child_day_care_services.annual_avg_employment"}
     for entry in entries:
         # Evaluate each seed the day before its own pinned release: valid
         # whenever the registry is re-seeded (a fixed review date broke on
@@ -1190,12 +1188,9 @@ def test_conditional_pair_stops_when_release_window_opens_literally(
     )
 
 
-# The CRP pair block as it stood in the docket through 2026-08-10. The live
-# entry keeps its series/extras but the pair is paused (FSA's statistics
-# site — the sole registered source — has been down since 2026-08-04, and
-# the 2026-08-03 registrations grace-terminated); re-adding the block is
-# the deliberate act that registers a fresh pair once the source recovers.
-# The fixture preserves coverage of the monthly-pair machinery meanwhile.
+# The CRP pair block as it stood in the docket through 2026-08-10. Preserve
+# this exact terminated identity for the calendar-side resolutionDate incident
+# regression even though the live docket now carries a fresh bounded pair.
 CRP_INCIDENT_PAIR_BLOCK = {
     "conditionDeadline": "2027-09-30",
     "arms": [
@@ -1228,7 +1223,7 @@ CRP_INCIDENT_PAIR_BLOCK = {
 }
 
 
-def crp_incident_pair_entry() -> dict:
+def crp_fresh_pair_entry() -> dict:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     entry = copy.deepcopy(
         next(
@@ -1237,37 +1232,68 @@ def crp_incident_pair_entry() -> dict:
             if row["series"] == "usda.fsa.crp.enrolled_acres_total"
         )
     )
-    assert "conditionalPair" not in entry, (
-        "the live CRP entry re-grew a conditionalPair; retire this fixture "
-        "in favor of the real entry"
-    )
+    assert isinstance(entry.get("conditionalPair"), dict)
+    return entry
+
+
+def crp_incident_pair_entry() -> dict:
+    entry = crp_fresh_pair_entry()
     entry["conditionalPair"] = copy.deepcopy(CRP_INCIDENT_PAIR_BLOCK)
+    entry.pop("comment", None)
+    entry["extras"].pop("resolutionDate", None)
+    entry["extras"].pop("resolutionDateBasis", None)
+    entry["extras"]["sourceBinding"]["sourceUrl"] = (
+        "https://www.fsa.usda.gov/resources/programs/"
+        "conservation-reserve-program/statistics"
+    )
     return entry
 
 
 def test_crp_monthly_conditional_pair_routes_the_policy_snapshot() -> None:
-    entry = crp_incident_pair_entry()
+    entry = crp_fresh_pair_entry()
 
     targets = roll_docket.conditional_pair_seed_targets(
-        entry, set(), dt.date(2026, 8, 2)
+        entry, set(), dt.date(2026, 8, 13)
     )
 
     assert len(targets) == 2
     assert {target["period"] for target in targets} == {"2027-09"}
-    assert all(
-        target["dataPointId"].startswith(
+    assert [target["dataPointId"] for target in targets] == [
+        (
             "usda.fsa.crp.enrolled_acres_total.2027_09.first_print."
-        )
-        for target in targets
-    )
+            "ceiling_27_million_source_recovered_2026_08_13"
+        ),
+        (
+            "usda.fsa.crp.enrolled_acres_total.2027_09.first_print."
+            "no_fy2027_31_ceiling_source_recovered_2026_08_13"
+        ),
+    ]
+    assert not {arm["dataPointId"] for arm in CRP_INCIDENT_PAIR_BLOCK["arms"]} & {
+        target["dataPointId"] for target in targets
+    }
     assert all(
         target["expectedReleaseWindow"] == {"start": "2027-12-01", "end": "2027-12-31"}
         for target in targets
     )
     assert all(target["conditionDeadline"] == "2027-09-30" for target in targets)
-    contracts = [build_contract(target, dt.date(2026, 8, 2)) for target in targets]
+    assert all(target["country"] == "US" for target in targets)
+    assert all(target["resolutionDate"] == "2027-12-31" for target in targets)
+    assert all(
+        target["resolutionDateBasis"] == "resolve-by-bound" for target in targets
+    )
+    contracts = [build_contract(target, dt.date(2026, 8, 13)) for target in targets]
     assert all(
         contract["sourceBinding"]["adapter"] == "fsa-crp-monthly-summary"
+        for contract in contracts
+    )
+    assert all(
+        contract["sourceBinding"]["sourceUrl"]
+        == "https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp"
+        for contract in contracts
+    )
+    assert all(
+        contract["resolutionDateBasis"] == "resolve-by-bound"
+        and contract["resolutionDate"] == "2027-12-31"
         for contract in contracts
     )
 

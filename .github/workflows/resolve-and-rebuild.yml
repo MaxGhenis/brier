@@ -31,8 +31,14 @@ jobs:
 
       - name: Install resolver parser dependencies
         # IRS SOI uses legacy BIFF .xls; witnessed SBA custody replays PDF
-        # members. Missing parsers are fatal rather than silent deferrals.
-        run: pip install --user xlrd==2.0.1 pypdf==6.14.2
+        # members; FSA CRP monthly summaries resolve through the poppler
+        # pdftotext binary. Missing parsers are fatal rather than silent
+        # deferrals — without poppler the 2027 CRP resolution would
+        # refuse with "pdftotext is unavailable".
+        run: |
+          pip install --user xlrd==2.0.1 pypdf==6.14.2
+          sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+          pdftotext -v 2>&1 | head -1
 
       - name: Resolve pending cells against official prints
         id: resolve

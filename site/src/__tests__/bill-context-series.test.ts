@@ -184,4 +184,27 @@ describe("bill link integrity", () => {
       expect(known.has(pending.billSlug), pending.billSlug).toBe(true);
     }
   });
+
+  it("retains the terminated CRP history beside the fresh recovered pair", () => {
+    const crp = PENDING_CONDITIONALS.filter(
+      (pending) => pending.billSlug === "farm-bill-2-0",
+    );
+    expect(crp.map((pending) => pending.status)).toEqual([
+      "refused",
+      "pending",
+    ]);
+    expect(crp[0].note).toContain(
+      "A fresh pair may be registered if the source recovers.",
+    );
+    expect(crp[1].note).toContain("FSA recovered on 2026-08-13");
+    expect(crp[1].note).toContain(
+      "https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp",
+    );
+    expect(crp[1].note).toContain(
+      "ceiling_27_million_source_recovered_2026_08_13",
+    );
+    expect(crp[1].note).toContain(
+      "no_fy2027_31_ceiling_source_recovered_2026_08_13",
+    );
+  });
 });

@@ -2360,16 +2360,24 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
 }
 
 # FSA CRP monthly-summary preparation. The official statistics landing page
-# links dated PDF summaries rather than exposing a structured API. This family
-# therefore binds the stable landing page, selects exactly one target-month PDF,
-# extracts its layout text with the runner image's ``pdftotext`` binary, and
-# reads only the TOTAL CRP row's Acres column. The landing URL and observed PDF
-# row layout remain admission-TBV until an integrating session checks the live
-# publication. No placeholder below is an observation.
+# exposes a Month/Year table whose Summary cell links to a dated document page;
+# that page links the PDF. This family pins all three URL path classes, refuses
+# redirects, extracts the PDF's layout text with the runner image's
+# ``pdftotext`` binary, and reads only the TOTAL CRP row's Acres column.
+FSA_CRP_LANDING_URL = (
+    "https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp"
+)
+FSA_CRP_STALE_LANDING_URL = (
+    "https://www.fsa.usda.gov/resources/programs/"
+    "conservation-reserve-program/statistics"
+)
+FSA_CRP_USER_AGENT = "Mozilla/5.0 (compatible; thesis-resolver/1.0)"
+
 FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
     "usda.fsa.crp.enrolled_acres_total": {
+        "resolution_date_basis": "resolve-by-bound",
         "anchor_status": "VERIFIED",
-        # Integrator-verified 2026-07-31 against the official FSA PDFs
+        # Integrator-verified 2026-08-13 against the recovered official path
         # (printed TOTAL CRP Acres cell, page-1 sign-up-type table — never
         # derived sums: March's components cross-foot one acre under the
         # printed total because FSA totals sum unrounded acreage).
@@ -2378,10 +2386,7 @@ FSA_CRP_ADAPTERS: dict[str, dict[str, Any]] = {
             "2026-03": 26203615,
             "2026-04": 26182019,
         },
-        "source_url": (
-            "https://www.fsa.usda.gov/resources/programs/"
-            "conservation-reserve-program/statistics"
-        ),
+        "source_url": FSA_CRP_LANDING_URL,
         "allowed_hosts": ("www.fsa.usda.gov",),
         "series_id": "usda.fsa.crp.enrolled_acres_total",
         "field": "enrolled_acres_total",
@@ -6921,7 +6926,7 @@ def fsa_crp_binding_matches_spec(binding: Any, spec: Mapping[str, Any]) -> bool:
 
 
 class _FsaCrpLinkParser(HTMLParser):
-    """Collect anchor hrefs and their visible text from the FSA page."""
+    """Collect anchor hrefs and their visible text from an FSA document page."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -6949,6 +6954,58 @@ class _FsaCrpLinkParser(HTMLParser):
             self._text = []
 
 
+class _FsaCrpTableParser(HTMLParser):
+    """Preserve table cells and their links for structural Summary selection."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.tables: list[list[list[dict[str, Any]]]] = []
+        self._table: list[list[dict[str, Any]]] | None = None
+        self._row: list[dict[str, Any]] | None = None
+        self._cell: dict[str, Any] | None = None
+        self._href: str | None = None
+        self._anchor_text: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        tag = tag.lower()
+        if tag == "table" and self._table is None:
+            self._table = []
+        elif tag == "tr" and self._table is not None and self._row is None:
+            self._row = []
+        elif tag in {"th", "td"} and self._row is not None and self._cell is None:
+            self._cell = {"tag": tag, "text": [], "links": []}
+        elif tag == "a" and self._cell is not None:
+            self._href = next(
+                (value for name, value in attrs if name.lower() == "href" and value),
+                None,
+            )
+            self._anchor_text = []
+
+    def handle_data(self, data: str) -> None:
+        if self._cell is not None:
+            self._cell["text"].append(data)
+        if self._href is not None:
+            self._anchor_text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        if tag == "a" and self._cell is not None and self._href is not None:
+            self._cell["links"].append((self._href, " ".join(self._anchor_text)))
+            self._href = None
+            self._anchor_text = []
+        elif tag in {"th", "td"} and self._row is not None and self._cell is not None:
+            self._cell["text"] = " ".join(self._cell["text"])
+            self._row.append(self._cell)
+            self._cell = None
+        elif tag == "tr" and self._table is not None and self._row is not None:
+            if self._row:
+                self._table.append(self._row)
+            self._row = None
+        elif tag == "table" and self._table is not None:
+            self.tables.append(self._table)
+            self._table = None
+
+
 def _fsa_crp_normalized_text(value: str) -> str:
     return re.sub(
         r"[^a-z0-9]+",
@@ -6957,77 +7014,368 @@ def _fsa_crp_normalized_text(value: str) -> str:
     ).strip()
 
 
-def fsa_crp_summary_pdf_url(
+def _fsa_crp_compact_path(url: str) -> str:
+    path = urllib.parse.unquote(urllib.parse.urlparse(url).path)
+    return re.sub(r"[^a-z0-9]+", "", path.lower())
+
+
+def _fsa_crp_period_tokens(period: str) -> tuple[str, set[str]]:
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
+        raise ValueError(f"FSA CRP period must be YYYY-MM, got {period!r}")
+    year, month_number = period.split("-")
+    month_date = dt.date(int(year), int(month_number), 1)
+    month_name = month_date.strftime("%B").lower()
+    month_abbreviation = month_date.strftime("%b").lower()
+    return month_name, {
+        f"{month_name}{year}",
+        f"{month_abbreviation}{year}",
+        f"{year}{month_name}",
+        f"{year}{month_abbreviation}",
+    }
+
+
+_FSA_CRP_RAW_URL_RE = re.compile(r"https://[A-Za-z0-9.-]+/[A-Za-z0-9/._-]+")
+_FSA_CRP_RAW_HREF_RE = re.compile(r"(?:https://[A-Za-z0-9.-]+)?/[A-Za-z0-9/._-]+")
+
+
+def _require_fsa_crp_raw_url(raw: str, kind: str) -> None:
+    """Refuse a noncanonical URL BEFORE any parser touches it.
+
+    urlparse is lossy: it silently strips embedded TAB/LF/CR and
+    tolerates empty ;/?/#/port components, so checks that run on its
+    output validate a different string than the transport would use
+    (2026-08-13 round-2 review: TAB, LF, and CR probes reached the
+    mocked transport). The raw string must already BE the canonical
+    form — scheme, host, and a path drawn from the reviewed character
+    set — or this hop refuses with no parsing and no network.
+    """
+
+    if not _FSA_CRP_RAW_URL_RE.fullmatch(raw):
+        raise ValueError(f"FSA CRP {kind} URL is not in canonical form: {raw!r}")
+
+
+def _require_fsa_crp_raw_href(href: str, kind: str) -> None:
+    """Refuse a noncanonical href BEFORE urljoin normalizes it.
+
+    urljoin resolves dot segments and strips TAB/LF/CR, so a hostile
+    href can normalize into a clean URL that passes every post-join
+    check while never itself being the reviewed link shape. Only two
+    raw shapes are reviewed: an absolute https URL or an absolute path,
+    both over the canonical character set with no empty or dot
+    segments.
+    """
+
+    if not _FSA_CRP_RAW_HREF_RE.fullmatch(href):
+        raise ValueError(f"FSA CRP {kind} href is not in canonical form: {href!r}")
+    if href.startswith("https://"):
+        path = "/" + href.removeprefix("https://").split("/", 1)[1]
+    else:
+        path = href
+    segments = path.split("/")
+    if any(seg in ("", ".", "..") for seg in segments[1:]):
+        raise ValueError(
+            f"FSA CRP {kind} href contains empty or dot segments: {href!r}"
+        )
+
+
+def _require_fsa_crp_url_kind(
+    url: str,
+    kind: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> None:
+    """Pin one FSA hop to its reviewed host and path class."""
+
+    _require_fsa_crp_raw_url(url, kind)
+    parsed = urllib.parse.urlparse(url)
+    _require_allowed_host(url, allowed_hosts)
+    if (
+        parsed.username is not None
+        or parsed.password is not None
+        or parsed.port is not None
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+    ):
+        # parsed.params is the ;-delimited path-parameter component
+        # urlparse splits off the last segment — it never appears in
+        # parsed.path, so without this refusal a ";download" suffix
+        # would validate as the clean path yet ride along in the fetch.
+        raise ValueError(
+            f"FSA CRP {kind} URL must not contain credentials, a port, "
+            f"path parameters, query, or fragment: {url!r}"
+        )
+    # The registered contract promises EXACT paths, so the raw path is
+    # matched with no decoding at all: any percent escape, path
+    # parameter, backslash, control character, dot segment, empty
+    # segment, or case variation is noncanonical and refuses before any
+    # network access. A second decoder downstream can therefore never
+    # reveal traversal or separators this check did not see (2026-08-13
+    # review: %252e%252e%252f traversal, ";download", and /SITES/ all
+    # passed the old single-decode IGNORECASE match).
+    raw_path = parsed.path
+    if not re.fullmatch(r"[A-Za-z0-9/._-]+", raw_path):
+        raise ValueError(
+            f"FSA CRP {kind} path contains characters outside the "
+            f"reviewed canonical set: {raw_path!r}"
+        )
+    segments = raw_path.split("/")
+    if any(seg in ("", ".", "..") for seg in segments[1:]):
+        raise ValueError(
+            f"FSA CRP {kind} path contains empty or dot segments: {raw_path!r}"
+        )
+    if kind == "landing":
+        expected = urllib.parse.urlparse(FSA_CRP_LANDING_URL).path
+        if raw_path != expected:
+            raise ValueError(
+                f"FSA CRP landing path {raw_path!r} is not the exact "
+                f"reviewed path {expected!r}"
+            )
+        return
+    if kind == "document":
+        if not re.fullmatch(r"/documents/[a-z0-9][a-z0-9-]*", raw_path):
+            raise ValueError(
+                f"FSA CRP document path is outside the reviewed class: {raw_path!r}"
+            )
+        return
+    if kind == "artifact":
+        if not re.fullmatch(
+            r"/sites/default/files/\d{4}-\d{2}/[A-Za-z0-9._-]+\.pdf",
+            raw_path,
+        ):
+            raise ValueError(
+                f"FSA CRP artifact path is outside the reviewed class: {raw_path!r}"
+            )
+        return
+    raise ValueError(f"unknown FSA CRP URL kind {kind!r}")
+
+
+def _require_fsa_crp_document_identity(url: str, period: str) -> None:
+    _, period_tokens = _fsa_crp_period_tokens(period)
+    compact = _fsa_crp_compact_path(url)
+    if (
+        "crp" not in compact
+        or "onepager" in compact
+        or not any(token in compact for token in period_tokens)
+    ):
+        raise ValueError(
+            f"FSA CRP document URL does not authenticate target month {period}: {url!r}"
+        )
+
+
+def _require_fsa_crp_artifact_identity(url: str, period: str) -> None:
+    _, period_tokens = _fsa_crp_period_tokens(period)
+    compact = _fsa_crp_compact_path(url)
+    if (
+        "crpmonthly" not in compact
+        or "onepager" in compact
+        or not any(token in compact for token in period_tokens)
+    ):
+        raise ValueError(
+            f"FSA CRP artifact URL does not authenticate target month {period}: {url!r}"
+        )
+
+
+class _FsaCrpNoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Refuse redirects after validating the destination's path class."""
+
+    def __init__(
+        self,
+        kind: str,
+        allowed_hosts: list[str] | tuple[str, ...],
+    ) -> None:
+        super().__init__()
+        self.kind = kind
+        self.allowed_hosts = allowed_hosts
+
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> urllib.request.Request | None:
+        _require_fsa_crp_url_kind(newurl, self.kind, self.allowed_hosts)
+        raise ValueError(
+            f"FSA CRP {self.kind} redirects are not allowed: "
+            f"{req.full_url!r} -> {newurl!r}"
+        )
+
+
+def fsa_crp_http_get(
+    url: str,
+    *,
+    kind: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+    timeout: int = 120,
+) -> tuple[bytes, str, str]:
+    """Fetch one redirect-free FSA hop with its working transparent UA."""
+
+    _require_fsa_crp_url_kind(url, kind, allowed_hosts)
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": FSA_CRP_USER_AGENT},
+    )
+    retrieved_at = utc_now()
+    opener = urllib.request.build_opener(_FsaCrpNoRedirectHandler(kind, allowed_hosts))
+    with opener.open(request, timeout=timeout) as response:
+        final_url = response.geturl()
+        _require_fsa_crp_url_kind(final_url, kind, allowed_hosts)
+        if final_url != url:
+            raise ValueError(
+                f"FSA CRP {kind} final URL changed without an accepted "
+                f"identity transition: {url!r} -> {final_url!r}"
+            )
+        return response.read(), retrieved_at, final_url
+
+
+def fsa_crp_summary_document_url(
     raw_html: bytes,
     period: str,
     *,
     landing_url: str,
     allowed_hosts: list[str] | tuple[str, ...],
 ) -> tuple[str | None, str | None]:
-    """Select exactly one target-month CRP Monthly Summary PDF link."""
+    """Select the target row's unique Summary document link."""
 
-    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
-        raise ValueError(f"FSA CRP period must be YYYY-MM, got {period!r}")
+    month_name, _ = _fsa_crp_period_tokens(period)
+    try:
+        _require_fsa_crp_url_kind(landing_url, "landing", allowed_hosts)
+    except ValueError as exc:
+        return None, str(exc)
     try:
         html = raw_html.decode("utf-8")
     except UnicodeDecodeError:
         return None, "FSA statistics landing page is not UTF-8 HTML"
-    parser = _FsaCrpLinkParser()
+    parser = _FsaCrpTableParser()
     try:
         parser.feed(html)
         parser.close()
     except Exception as exc:  # noqa: BLE001 - malformed upstream HTML
         return None, f"FSA statistics landing page did not parse: {exc}"
 
-    year, month_number = period.split("-")
-    month_date = dt.date(int(year), int(month_number), 1)
-    month_name = month_date.strftime("%B").lower()
-    month_abbreviation = month_date.strftime("%b").lower()
-    period_tokens = {
-        f"{month_name} {year}",
-        f"{month_abbreviation} {year}",
-        f"{year} {month_name}",
-        f"{year} {month_abbreviation}",
-        f"{month_number} {year}",
-        f"{year} {month_number}",
-    }
-    matches: set[str] = set()
-    for href, label in parser.links:
-        url = urllib.parse.urljoin(landing_url, href)
-        descriptor = _fsa_crp_normalized_text(
-            f"{label} {urllib.parse.urlparse(url).path}"
+    year = period[:4]
+    target_label = f"{month_name} {year}"
+    table_matches: list[tuple[list[list[dict[str, Any]]], int, int]] = []
+    for table in parser.tables:
+        for row_index, row in enumerate(table):
+            headers = [_fsa_crp_normalized_text(str(cell["text"])) for cell in row[:3]]
+            if headers == ["month year", "summary", "one pager"]:
+                table_matches.append((table, row_index, 1))
+    if len(table_matches) != 1:
+        return None, (
+            "expected one FSA Monthly Summaries table with Month/Year, "
+            f"Summary, and One-pager columns; found {len(table_matches)}"
         )
-        padded = f" {descriptor} "
-        if "crp monthly summary" not in descriptor:
-            continue
-        if not any(f" {token} " in padded for token in period_tokens):
-            continue
-        if not urllib.parse.urlparse(url).path.lower().endswith(".pdf"):
-            continue
+    table, header_index, summary_index = table_matches[0]
+    target_rows = [
+        row
+        for row in table[header_index + 1 :]
+        if row and _fsa_crp_normalized_text(str(row[0]["text"])) == target_label
+    ]
+    if not target_rows:
+        return None, None
+    if len(target_rows) != 1:
+        return None, (
+            f"expected one {month_name.title()} {year} row in the FSA Monthly "
+            f"Summaries table, found {len(target_rows)}"
+        )
+    row = target_rows[0]
+    if summary_index >= len(row):
+        return None, "FSA target-month row has no Summary cell"
+    matches: set[str] = set()
+    for href, _label in row[summary_index]["links"]:
         try:
-            _require_allowed_host(url, allowed_hosts)
+            _require_fsa_crp_raw_href(href, "document")
+            url = urllib.parse.urljoin(landing_url, href)
+            _require_fsa_crp_url_kind(url, "document", allowed_hosts)
+            _require_fsa_crp_document_identity(url, period)
         except ValueError as exc:
             return None, str(exc)
         matches.add(url)
-    if not matches:
-        return None, None
     if len(matches) != 1:
         return None, (
+            f"expected one {month_name.title()} {year} CRP Summary document "
+            f"link, found {len(matches)}"
+        )
+    return next(iter(matches)), None
+
+
+def fsa_crp_document_pdf_url(
+    raw_html: bytes,
+    period: str,
+    *,
+    document_url: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[str | None, str | None]:
+    """Select one target-month PDF from the authenticated document page."""
+
+    _fsa_crp_period_tokens(period)
+    try:
+        _require_fsa_crp_url_kind(document_url, "document", allowed_hosts)
+        _require_fsa_crp_document_identity(document_url, period)
+    except ValueError as exc:
+        return None, str(exc)
+    try:
+        html = raw_html.decode("utf-8")
+    except UnicodeDecodeError:
+        return None, "FSA CRP document page is not UTF-8 HTML"
+    parser = _FsaCrpLinkParser()
+    try:
+        parser.feed(html)
+        parser.close()
+    except Exception as exc:  # noqa: BLE001 - malformed upstream HTML
+        return None, f"FSA CRP document page did not parse: {exc}"
+
+    _, period_tokens = _fsa_crp_period_tokens(period)
+    matches: set[str] = set()
+    for href, label in parser.links:
+        # Filter on RAW strings only — no urljoin/urlparse/unquote may
+        # touch an unvalidated href. Parsing before filtering meant all
+        # unrelated page links reached urljoin, and one malformed
+        # navigation href (e.g. "https://[broken") raised an
+        # unstructured ValueError outside the refusal envelope
+        # (round-3 review). Unrelated links are filtered out untouched;
+        # only CRP-monthly PDF candidates proceed, and each must pass
+        # the raw guard BEFORE it is ever joined.
+        compact = re.sub(r"[^a-z0-9]+", "", f"{label} {href}".lower())
+        if "crpmonthly" not in compact or "onepager" in compact:
+            continue
+        if not any(token in compact for token in period_tokens):
+            continue
+        if not href.lower().endswith(".pdf"):
+            continue
+        try:
+            _require_fsa_crp_raw_href(href, "artifact")
+            url = urllib.parse.urljoin(document_url, href)
+            _require_fsa_crp_url_kind(url, "artifact", allowed_hosts)
+            _require_fsa_crp_artifact_identity(url, period)
+        except ValueError as exc:
+            return None, str(exc)
+        matches.add(url)
+    if len(matches) != 1:
+        month_name, _ = _fsa_crp_period_tokens(period)
+        year = period[:4]
+        return None, (
             f"expected one {month_name.title()} {year} CRP Monthly Summary "
-            f"PDF, found {len(matches)}"
+            f"PDF on the FSA document page, found {len(matches)}"
         )
     return next(iter(matches)), None
 
 
 def fsa_crp_value_from_text(text: str, period: str) -> tuple[float | None, str | None]:
-    """Read the TOTAL CRP row's Acres column from layout-preserved text."""
+    """Read the page-1 TOTAL CRP row's Acres column from preserved text."""
 
     if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", period):
         raise ValueError(f"FSA CRP period must be YYYY-MM, got {period!r}")
+    # Later pages contain state tables with their own TOTAL CRP rows. The
+    # registered measure is the national sign-up-type table printed on page 1.
+    first_page = text.split("\f", 1)[0]
     if not re.search(
         r"\b(?:CRP|CONSERVATION\s+RESERVE\s+PROGRAM)\b[\s\S]{0,120}?"
         r"\bMONTHLY\s+SUMMARY\b",
-        text,
+        first_page,
         re.IGNORECASE,
     ):
         # The published header spells out the program name on its own line
@@ -7041,11 +7389,11 @@ def fsa_crp_value_from_text(text: str, period: str) -> tuple[float | None, str |
         rf"\s+{year}\b",
         re.IGNORECASE,
     )
-    if not month_pattern.search(text):
+    if not month_pattern.search(first_page):
         return None, f"PDF text does not identify target month {period}"
 
     rows: list[tuple[int, list[str]]] = []
-    lines = text.replace("\r\n", "\n").replace("\r", "\n").splitlines()
+    lines = first_page.replace("\r\n", "\n").replace("\r", "\n").splitlines()
     for index, line in enumerate(lines):
         cells = re.split(r"\s{2,}", line.strip()) if line.strip() else []
         if cells and _fsa_crp_normalized_text(cells[0]) == "total crp":
@@ -7164,12 +7512,19 @@ def fsa_crp_anchor_mismatches(
 def fsa_crp_fetch_period(
     spec: Mapping[str, Any], period: str
 ) -> tuple[float | None, bytes | None, str, str, str | None]:
-    """Fetch the landing page, select one dated PDF, and parse its total."""
+    """Fetch landing, document, and PDF hops, then parse the printed total."""
 
     landing_url = str(spec["source_url"])
     try:
-        landing_raw, landing_retrieved_at, _ = http_get(
-            landing_url, allowed_hosts=spec["allowed_hosts"]
+        _require_fsa_crp_url_kind(
+            landing_url,
+            "landing",
+            spec["allowed_hosts"],
+        )
+        landing_raw, landing_retrieved_at, _ = fsa_crp_http_get(
+            landing_url,
+            kind="landing",
+            allowed_hosts=spec["allowed_hosts"],
         )
     except (OSError, ValueError) as exc:
         return (
@@ -7179,7 +7534,7 @@ def fsa_crp_fetch_period(
             utc_now(),
             f"landing fetch failed: {exc}",
         )
-    pdf_url, refusal = fsa_crp_summary_pdf_url(
+    document_url, refusal = fsa_crp_summary_document_url(
         landing_raw,
         period,
         landing_url=landing_url,
@@ -7187,11 +7542,35 @@ def fsa_crp_fetch_period(
     )
     if refusal:
         return None, None, landing_url, landing_retrieved_at, refusal
-    if pdf_url is None:
+    if document_url is None:
         return None, None, landing_url, landing_retrieved_at, None
     try:
-        raw, retrieved_at, final_url = http_get(
-            pdf_url, allowed_hosts=spec["allowed_hosts"]
+        document_raw, document_retrieved_at, _ = fsa_crp_http_get(
+            document_url,
+            kind="document",
+            allowed_hosts=spec["allowed_hosts"],
+        )
+    except (OSError, ValueError) as exc:
+        return (
+            None,
+            None,
+            document_url,
+            utc_now(),
+            f"document fetch failed: {exc}",
+        )
+    pdf_url, refusal = fsa_crp_document_pdf_url(
+        document_raw,
+        period,
+        document_url=document_url,
+        allowed_hosts=spec["allowed_hosts"],
+    )
+    if refusal or pdf_url is None:
+        return None, None, document_url, document_retrieved_at, refusal
+    try:
+        raw, retrieved_at, final_url = fsa_crp_http_get(
+            pdf_url,
+            kind="artifact",
+            allowed_hosts=spec["allowed_hosts"],
         )
     except (OSError, ValueError) as exc:
         return None, None, pdf_url, utc_now(), f"PDF fetch failed: {exc}"
@@ -11446,6 +11825,17 @@ def main() -> int:
             if refusal:
                 print(f"  FSA CRP PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
+            if raw is not None and resolution_date_basis == "resolve-by-bound":
+                release_day = dt.date.fromisoformat(retrieved_at[:10])
+                effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
+                _capture_state, capture_verdict = bounded_resolution_window_gate(
+                    ref,
+                    dt.date.fromisoformat(effective_capture_date),
+                    bounded_window,
+                )
+                if capture_verdict:
+                    print(capture_verdict)
+                    continue
             source_url = spec["source_url"]
             source_file = fetched_url
             series_id = spec["series_id"]

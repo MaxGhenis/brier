@@ -68,6 +68,13 @@ export const PENDING_CONDITIONALS: PendingConditional[] = [
     status: "refused",
     note: "Both arms were preregistered through the trusted docket on 2026-08-03 — chronology witnessed before any forecasting. Every documented attempt failed closed and published nothing: the two August 3 rolls made four generation attempts (two failed before producing run manifests; two produced candidate cells that failed anchor validation — all visible in the public workflow logs), and after a generation ticket was minted on 2026-08-04 (public record), the ticketed local run refused when the FSA statistics site failed to serve the official summary (fetch timeout — no observations, no invented values); the refusal report on issue #128 is public, while the raw refusal trace is retained off-repo. FSA was unreachable on 2026-08-04 and still unreachable at the pair's published seven-day grace deadline (2026-08-10 18:15 UTC), so both registrations terminated together on the record rather than forecasting against a stale information set. A fresh pair may be registered if the source recovers.",
   },
+  {
+    billSlug: "farm-bill-2-0",
+    question:
+      "Fresh post-recovery registration: USDA FSA total CRP enrolled acres in the September 2027 CRP Monthly Summary — conditional on enactment of a 27,000,000-acre FY2027–31 ceiling versus no enacted FY2027–31 ceiling by 2027-09-30.",
+    status: "pending",
+    note: "FSA recovered on 2026-08-13 at https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp. The trusted docket now stages a fresh pair from that post-recovery information set, while the refused 2026-08-03 pair above remains immutable history. Its new target ids end in ceiling_27_million_source_recovered_2026_08_13 and no_fy2027_31_ceiling_source_recovered_2026_08_13. No forecast has been published yet; after both fresh arms publish, their forecast surface will appear alongside the retained refusal history.",
+  },
 ];
 
 export function getPendingConditionals(billSlug: string): PendingConditional[] {
