@@ -74,6 +74,12 @@ jobs:
       # catalog with bun; without it those tests skip silently.
       - uses: oven-sh/setup-bun@v2
 
+      # The FSA CRP recovery fixtures replay through the real poppler
+      # pdftotext binary — the same dependency the production resolver
+      # runtime installs.
+      - name: Install poppler-utils
+        run: sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+
       - name: Install package with all extras
         run: uv sync --all-extras
 
