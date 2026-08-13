@@ -3556,9 +3556,14 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         # far from any digit; controls and buffered fraction slashes
         # reject; two strict groups accumulate into distinct tokens.
         "2026 Q\u200d1",
-        "2026 Q1 x\u200d",
+        "2026 Q1 print\u200d",
         "2026 Q1 and Q\u00002",
         "2026 Q1 \u2044 2",
+        # Poison dominates mixed gaps and taints even same-token pairs.
+        "2026 Q1 , \u2044 2",
+        "2026 Q1 \u2044 , 2",
+        "2026 Q1 and \u2044 2",
+        "2026 Q1 \u2044 2026 Q1",
         "2026 Q1 and 2026 Q2",
     ):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
@@ -3579,6 +3584,11 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "2026 \uff31\uff11 print",
         "2026 Q\u0661 print",
         "2026 Q\uff11 print",
+        # Roman-letter prose stays open, including the real published
+        # G.19 label (records/.../2026-07-31t15-11-55z-fed-g19-.../
+        # normalized_cells.json).
+        "2026 Q1 in Fed G.19 table",
+        "2026 Q1 value",
     ):
         prose = {"historicalContext": [{"label": label, "value": 18511}]}
         assert analyst_runner.history_anchor_errors(prose, context) == [], label

@@ -2890,14 +2890,35 @@ def history_anchor_errors(
                     if 0 <= j < n and not folded[j].isascii():
                         return None
 
-        # Segment the label: cluster-alphabet runs, glued-letter checks,
-        # and group assembly across separator runs.
+        # Segment the label: cluster-alphabet runs, with the prose rule
+        # for letter-class members — a Roman-numeral letter (i/v/x) or a
+        # Q whose immediate neighbor is an ASCII letter outside the
+        # cluster alphabet belongs to a word ("value", "in", "Grade Q"?
+        # — Q handles its own rule below), not a designator. Without
+        # this, "2026 Q1 value" and the real G.19 label "2026 Q1 in Fed
+        # G.19 table" would falsely reject on the 'v'/'i'.
+        def is_member(i: int) -> bool:
+            ch = folded[i]
+            if ch not in cluster_chars:
+                return False
+            if ch in "IVXivx":
+                for j in (i - 1, i + 1):
+                    if 0 <= j < n:
+                        other = folded[j]
+                        if (
+                            other.isascii()
+                            and other.isalpha()
+                            and other not in cluster_chars
+                        ):
+                            return False
+            return True
+
         segments: list[tuple[int, int]] = []  # [start, end) spans
         i = 0
         while i < n:
-            if folded[i] in cluster_chars:
+            if is_member(i):
                 j = i
-                while j < n and folded[j] in cluster_chars:
+                while j < n and is_member(j):
                     j += 1
                 segments.append((i, j))
                 i = j
@@ -2913,9 +2934,15 @@ def history_anchor_errors(
             gap = folded[a:b]
             if all(c in cluster_seps for c in gap):
                 return "chain"
+            # Poison DOMINATES: any non-ASCII non-letter (fraction
+            # slashes, symbols) taints the gap even alongside prose —
+            # "and ⁄" must not launder the slash. Non-ASCII LETTERS are
+            # prose (bilingual labels), and readable ASCII (letters,
+            # commas, semicolons) separates like a sentence does.
+            for c in gap:
+                if not c.isascii() and not c.isalpha():
+                    return "poison"
             if any(c.isascii() and c not in cluster_seps for c in gap):
-                # Readable ASCII prose (letters, commas, semicolons)
-                # separates like a sentence does.
                 return "break"
             return "poison"
 
