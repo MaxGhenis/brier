@@ -5,6 +5,7 @@ import {
   buildScoreId,
   classifyScoreChronology,
   evaluateResolvedForecastRun,
+  getResolutionContractViolation,
   loadPolicyEngineLedger,
   scoreResolvedForecastRun,
   scoreResolvedForecasts,
@@ -19,12 +20,16 @@ import {
   buildRecordedPredictionRunRecords,
 } from "@/data/prediction-specs";
 import { buildBrierRewardExport } from "@/data/brier-lab";
+import { CONDITIONS, type ConditionStatus } from "@/data/conditions";
 import {
   FORECAST_CELLS,
   getForecastRunEntries,
   type ForecastCell,
 } from "@/data/forecast-cells";
-import type { TargetRegisteredLedgerEntry } from "@/data/ledger-targets";
+import {
+  THESIS_TARGET_LEDGER,
+  type TargetRegisteredLedgerEntry,
+} from "@/data/ledger-targets";
 import { WITNESSED_CUSTODY_ROOTS } from "@/data/witnessed-timeline";
 
 // The two scoring-integrity invariants: a score enters the headline only
@@ -513,6 +518,60 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
   });
   const run = () => getForecastRunEntries(cell)[0];
 
+  function publishedIdShapeFixture({
+    dataPointId,
+    series,
+    period,
+    releasePolicy,
+    conditionId,
+  }: {
+    dataPointId: string;
+    series: string;
+    period: string;
+    releasePolicy: "first_print" | "registered_query_snapshot";
+    conditionId?: string;
+  }) {
+    const condition = conditionId
+      ? CONDITIONS.find((entry) => entry.conditionId === conditionId)
+      : undefined;
+    if (conditionId && !condition) {
+      throw new Error(`missing fixture condition ${conditionId}`);
+    }
+    const slug = `bound-${dataPointId.replace(/[^a-z0-9]+/gi, "-")}`;
+    const shapedCell: ForecastCell = {
+      ...cell,
+      slug,
+      type: condition ? "conditional" : "data",
+      dataPointId,
+      conditionalOn: condition?.matchStrings[0],
+    };
+    const shapedTarget: TargetRegisteredLedgerEntry = {
+      ...registered,
+      dataPointId,
+      observationId: `obs.${dataPointId}`,
+      series,
+      period,
+      catalogSlug: slug,
+      sourceBinding: { ...binding, releasePolicy },
+    };
+    const shapedFact = boundFact({
+      dataPointId,
+      observationId: `obs.${dataPointId}`,
+      sourceBindingProjection: {
+        ...boundFact({}).sourceBindingProjection!,
+        series,
+        period,
+        releasePolicy,
+      },
+    });
+    return {
+      cell: shapedCell,
+      run: getForecastRunEntries(shapedCell)[0],
+      ledger: [shapedTarget, shapedFact] as PolicyEngineLedgerEntry[],
+      conditionId,
+    };
+  }
+
   it("scores a fully bound post-quarantine observation as contract_bound", () => {
     const evaluation = evaluateResolvedForecastRun(cell, run(), [
       registered,
@@ -520,6 +579,171 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     ]);
     expect(evaluation.exclusion).toBeUndefined();
     expect(evaluation.score?.contractBinding).toBe("contract_bound");
+  });
+
+  it("keeps open and failed registered-query conditional arms excluded", () => {
+    const fixture = publishedIdShapeFixture({
+      dataPointId:
+        "usaspending.dod.prime_award_obligations.2027." +
+        "registered_query_snapshot.fy27_ndaa_enacted",
+      series: "usaspending.dod.prime_award_obligations",
+      period: "2027",
+      releasePolicy: "registered_query_snapshot",
+      conditionId: "cond.fy27-ndaa-enactment.enacted",
+    });
+
+    const open = evaluateResolvedForecastRun(
+      fixture.cell,
+      fixture.run,
+      fixture.ledger,
+      new Map<string, ConditionStatus>([[fixture.conditionId!, "open"]]),
+    );
+    expect(open.score).toBeUndefined();
+    expect(open.exclusion).toMatchObject({
+      reason: "condition_not_satisfied",
+      detail: `${fixture.conditionId} is open`,
+    });
+
+    const failed = evaluateResolvedForecastRun(
+      fixture.cell,
+      fixture.run,
+      fixture.ledger,
+      new Map<string, ConditionStatus>([[fixture.conditionId!, "failed"]]),
+    );
+    expect(failed.score).toBeUndefined();
+    expect(failed.exclusion).toMatchObject({
+      reason: "condition_not_satisfied",
+      detail: `${fixture.conditionId} is failed`,
+    });
+  });
+
+  it("scores the satisfied FY27 NDAA registered-query arm", () => {
+    const fixture = publishedIdShapeFixture({
+      dataPointId:
+        "usaspending.dod.prime_award_obligations.2027." +
+        "registered_query_snapshot.fy27_ndaa_enacted",
+      series: "usaspending.dod.prime_award_obligations",
+      period: "2027",
+      releasePolicy: "registered_query_snapshot",
+      conditionId: "cond.fy27-ndaa-enactment.enacted",
+    });
+    const evaluation = evaluateResolvedForecastRun(
+      fixture.cell,
+      fixture.run,
+      fixture.ledger,
+      new Map<string, ConditionStatus>([[fixture.conditionId!, "satisfied"]]),
+    );
+
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("contract_bound");
+    expect(evaluation.score?.conditionStatus).toBe("satisfied");
+  });
+
+  it("scores an unconditional FY2026 registered-query observation", () => {
+    const fixture = publishedIdShapeFixture({
+      dataPointId:
+        "usaspending.dod.new_prime_awards.fy2026." +
+        "registered_query_snapshot",
+      series: "usaspending.dod.new_prime_awards",
+      period: "FY2026",
+      releasePolicy: "registered_query_snapshot",
+    });
+    const evaluation = evaluateResolvedForecastRun(
+      fixture.cell,
+      fixture.run,
+      fixture.ledger,
+    );
+
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("contract_bound");
+  });
+
+  it("scores an existing first-print conditional-pair observation", () => {
+    const fixture = publishedIdShapeFixture({
+      dataPointId: "irs.actc.total_claims.2027.first_print.current_law",
+      series: "irs.actc.total_claims",
+      period: "2027",
+      releasePolicy: "first_print",
+      conditionId: "cond.s3596-actc-threshold.current-law",
+    });
+    const evaluation = evaluateResolvedForecastRun(
+      fixture.cell,
+      fixture.run,
+      fixture.ledger,
+      new Map<string, ConditionStatus>([[fixture.conditionId!, "satisfied"]]),
+    );
+
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("contract_bound");
+    expect(evaluation.score?.conditionStatus).toBe("satisfied");
+  });
+
+  it("admits every published contract-bound data-point identity", () => {
+    const failures: string[] = [];
+    let checked = 0;
+    for (const target of THESIS_TARGET_LEDGER) {
+      if (
+        target.registrationState !== "published" ||
+        !target.targetContentHash ||
+        !target.series ||
+        !target.period ||
+        !target.sourceBinding
+      ) {
+        continue;
+      }
+      checked += 1;
+      const responseSha256 = "f".repeat(64);
+      const forecast: ForecastCell = {
+        ...cell,
+        slug: target.catalogSlug ?? `bound-${target.dataPointId}`,
+        dataPointId: target.dataPointId,
+        unit: target.unit,
+      };
+      const observation: ObservationRecordedLedgerEntry = {
+        kind: "observation_recorded",
+        observationId: target.observationId,
+        dataPointId: target.dataPointId,
+        periodLabel: target.periodLabel,
+        unit: target.unit,
+        value: 0,
+        observedAt: "2030-01-01T00:00:00Z",
+        resolvedAt: "2030-01-01T00:00:00Z",
+        acceptedSequence: target.ledgerPinLineCount ?? 1,
+        acceptedAtUtc: "2030-01-01T00:00:01Z",
+        legacyQuarantined: false,
+        sourceKind: "official_release",
+        source: target.source,
+        sourceUrl: target.sourceBinding.sourceUrl,
+        targetContentHash: target.targetContentHash,
+        ledgerRepoSha: "d".repeat(40),
+        sourceVintage: "fixture",
+        retrievedAt: "2030-01-01T00:00:00Z",
+        responseArchive: {
+          path: "records/resolutions/test/responses/test.json.gz",
+          sha256: responseSha256,
+          bytes: 1,
+          gzipSha256: "e".repeat(64),
+          gzipBytes: 1,
+          contentEncoding: "gzip",
+        },
+        sourceBindingProjection: {
+          series: target.series,
+          period: target.period,
+          releasePolicy: target.sourceBinding.releasePolicy,
+          table: target.sourceBinding.table,
+          field: target.sourceBinding.field,
+          transform: target.sourceBinding.transform,
+          unit: target.unit,
+          responseSha256,
+        },
+      };
+      const violation = getResolutionContractViolation(forecast, observation, [
+        target,
+      ]);
+      if (violation) failures.push(`${target.dataPointId}: ${violation}`);
+    }
+    expect(checked).toBeGreaterThan(0);
+    expect(failures).toEqual([]);
   });
 
   it("accepts a registered legacy id stem bound to a canonical series", () => {

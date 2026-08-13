@@ -424,20 +424,52 @@ export function ledgerHistoryAtCutoff(
   });
 }
 
+const MONTH_TOKEN =
+  "(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|" +
+  "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|" +
+  "dec(?:ember)?)";
+
+// A data-point identity is `<series>.<target period>[.<vintage/policy>][.<condition>]`.
+// Strip the whole target-specific suffix at the period boundary. In particular,
+// the release token is not necessarily terminal: conditional registrations use
+// both `first_print.<condition>` and
+// `registered_query_snapshot.<condition>`. Keeping the tail would split one
+// registered series into artificial policy/condition-specific series and make
+// contract-bound observations unscorable.
+const DATA_POINT_TARGET_SUFFIX = new RegExp(
+  String.raw`^(.*)\.(?:(?:${MONTH_TOKEN}(?:_to_${MONTH_TOKEN})?|after_(?:mpc_)?${MONTH_TOKEN})_\d{4}|(?:fy|ty|sy)\d{4}(?:_\d{2,4})?|(?:oep|award_year)_\d{4}|(?:q[1-4][_-]?\d{4}|\d{4}[-_]q[1-4])|week(?:_ending)?_\d{4}(?:[-_]\d{2}){2}|\d{4}[-_]\d{2}(?:[-_]\d{2})?|\d{4})(?:\..*)?$`,
+  "i",
+);
+
+const LEGACY_TERMINAL_RELEASE_SUFFIX =
+  /\.(?:first_print|final_first_print|official_release|original_submission|advance|final)$/;
+
+// These two accepted legacy observations put part of the canonical series
+// identity after the period. Keep the exact immutable identities explicit so
+// the general period-tail rule cannot erase a real series dimension.
+const REVIEWED_POST_PERIOD_SERIES_IDS = new Map<string, string>([
+  [
+    "census.marts.adv44x72.may_2026.monthly_change.advance",
+    "census.marts.adv44x72.monthly_change",
+  ],
+  [
+    "bea.real_gdp.saar.q1_2026.third_estimate",
+    "bea.real_gdp.saar.third_estimate",
+  ],
+]);
+
 export function ledgerSeriesId(
   observation: ObservationRecordedLedgerEntry | string,
 ): string {
   const dataPointId =
     typeof observation === "string" ? observation : observation.dataPointId;
-  return dataPointId
-    .replace(
-      /\.(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)_\d{4}|fy\d{4}|q[1-4]_?\d{4}|week(?:_ending)?_\d{4}(?:[-_]\d{2}){2}|\d{4}[-_]\d{2}(?:[-_]\d{2})?|\d{4})(?=\.|$)/i,
-      "",
-    )
-    .replace(
-      /\.(?:first_print|final_first_print|official_release|original_submission|advance|final)$/,
-      "",
-    );
+  const reviewedPostPeriodSeries =
+    REVIEWED_POST_PERIOD_SERIES_IDS.get(dataPointId);
+  if (reviewedPostPeriodSeries) return reviewedPostPeriodSeries;
+  const match = dataPointId.match(DATA_POINT_TARGET_SUFFIX);
+  // Preserve the old best-effort behavior for an unrecognized legacy period
+  // spelling while all current published spellings take the period-bound path.
+  return match?.[1] ?? dataPointId.replace(LEGACY_TERMINAL_RELEASE_SUFFIX, "");
 }
 
 function toObservationReference(

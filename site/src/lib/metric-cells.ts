@@ -43,10 +43,7 @@ export function resolveMetricCell(
   // arm (e.g. the FY27-NDAA pair on the same series) must never satisfy
   // a bill metric's hint - conditional cells surface only through
   // explicit comparison-group links.
-  const matches = FORECAST_CELLS.filter(
-    (cell) =>
-      cell.type !== "conditional" && cell.dataPointId?.startsWith(seriesHint),
-  );
+  const matches = cellsForSeries(seriesHint);
   if (matches.length === 0) return null;
   const byDate = [...matches].sort((a, b) =>
     (a.resolutionDate ?? "").localeCompare(b.resolutionDate ?? ""),

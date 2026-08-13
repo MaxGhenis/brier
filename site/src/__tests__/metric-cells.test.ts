@@ -42,6 +42,10 @@ describe("resolveMetricCell (live metric → cell join)", () => {
     const match = resolveMetricCell("census.spm.child_poverty_rate", "2099-01-01");
     expect(match).not.toBeNull();
     expect(match!.resolutionDate <= "2099-01-01").toBe(true);
+    const selectedCell = FORECAST_CELLS.find(
+      (cell) => cell.slug === match!.slug,
+    );
+    expect(selectedCell?.type).not.toBe("conditional");
   });
 });
 

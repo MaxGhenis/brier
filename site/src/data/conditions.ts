@@ -469,7 +469,7 @@ export function conditionForContract(
   conditionalOn: string | undefined,
 ): ConditionDefinition | undefined {
   if (!conditionalOn) return undefined;
-  return BY_MATCH_STRING.get(conditionalOn.trim());
+  return BY_MATCH_STRING.get(conditionalOn);
 }
 
 export function conditionStatusFor(

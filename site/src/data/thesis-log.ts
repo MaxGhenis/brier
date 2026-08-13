@@ -1576,22 +1576,95 @@ export type ResolutionContractBinding = "contract_bound" | "legacy_unbound";
 
 export const CONTRACT_BINDING_POLICY_VERSION = "contract-binding-v1";
 
-const REVIEWED_ABS_LEGACY_SERIES_ALIAS = {
-  dataPointId:
+// These published registrations predate canonical data-point-id stems. Scope
+// compatibility to each immutable registration tuple: a new mismatch still
+// fails closed until it is separately reviewed.
+const REVIEWED_LEGACY_SERIES_ALIASES = [
+  [
+    "usda.fns.snap.persons.may_2026",
+    "ce991f6991d220d23c0e726215dd851d2dc220fecb76c58a8a740d915a0eeacd",
+    "fns.snap.total_persons",
+  ],
+  [
+    "statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-06.first_print",
+    "179f91bd3a2b21417904502f7baff0eb106445c690577ba3dcf9a6580a04a2a6",
+    "statcan.gdp_by_industry.monthly_growth",
+  ],
+  [
+    "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+    "statcan.employment_insurance.regular_beneficiaries",
+  ],
+  [
+    "us.bea.core_pce.mom_sa.2026-07",
+    "32674225cad71e81ea6b8ff485cc40f0187cf9a4186ed313499c427655355a93",
+    "bea.core_pce.mom",
+  ],
+  [
+    "eurostat.unemployment_rate.euro_area.july_2026.first_print",
+    "0fbb8f5d88f4627312ef5d9d5e31cffc94afec5f3b75f5c117adba8543bb2d08",
+    "eurostat.unemployment_rate",
+  ],
+  [
     "abs.labour.unemployment_rate.australia.july_2026.first_print",
-  targetContentHash:
     "cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b",
-  canonicalSeries: "abs.labour.unemployment_rate",
-} as const;
+    "abs.labour.unemployment_rate",
+  ],
+  [
+    "eurostat.une_rt_m.unemployment_rate.belgium.2026_07.first_print",
+    "f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653",
+    "eurostat.unemployment_rate.belgium",
+  ],
+  [
+    "usda.fns.snap.persons.june_2026",
+    "fa0d017e2d4445b343793d95ea532622f4da9946c9dc0ce333ef7298be904a6d",
+    "fns.snap.total_persons",
+  ],
+  [
+    "usda.fns.snap.persons.july_2026",
+    "9a15e6578b701e805a6459126176e230c3d057077fa7f2b829d129dfa24dae30",
+    "fns.snap.total_persons",
+  ],
+  [
+    "statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-07.first_print",
+    "53b3ddc1394061e51a22b42a373fc001da9ea7198bee88023eba70524e8fb945",
+    "statcan.gdp_by_industry.monthly_growth",
+  ],
+  [
+    "statcan.employment_insurance.regular_beneficiaries.canada.july_2026.first_print",
+    "f79e329aa4df0ee4abe1cc340829573fdfb069213c3fd3a6d4d5dbdec932cb40",
+    "statcan.employment_insurance.regular_beneficiaries",
+  ],
+  [
+    "bls.wp.WPSFD4.2026-07.first_print",
+    "7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4",
+    "bls.ppi.final_demand_monthly_change",
+  ],
+  [
+    "bls.ces.total_nonfarm.payroll_employment.change.sa.2026-08.first_print",
+    "54376e2b403296fbe00a7087626388a7b47b6967974cb1856a1d50f1ce4cdda2",
+    "bls.ces.nonfarm_payrolls.change",
+  ],
+  [
+    "us.bea.core_pce.mom_sa.2026-08",
+    "a162b3fdd12be774124e5f6642c79a345a457223eb3326eb6766a70d0ba6920c",
+    "bea.core_pce.mom",
+  ],
+  [
+    "usda.fns.snap.persons.august_2026",
+    "bc941c534dcbaf1f13d1b9ba88a016f9cf51fde91019bc90beea1873ced2f0a2",
+    "fns.snap.total_persons",
+  ],
+] as const;
 
 function hasReviewedLegacySeriesAlias(
   target: TargetRegisteredLedgerEntry,
 ): boolean {
-  return (
-    target.dataPointId === REVIEWED_ABS_LEGACY_SERIES_ALIAS.dataPointId &&
-    target.targetContentHash ===
-      REVIEWED_ABS_LEGACY_SERIES_ALIAS.targetContentHash &&
-    target.series === REVIEWED_ABS_LEGACY_SERIES_ALIAS.canonicalSeries
+  return REVIEWED_LEGACY_SERIES_ALIASES.some(
+    ([dataPointId, targetContentHash, canonicalSeries]) =>
+      target.dataPointId === dataPointId &&
+      target.targetContentHash === targetContentHash &&
+      target.series === canonicalSeries,
   );
 }
 
@@ -1688,10 +1761,10 @@ export function getResolutionContractViolation(
     );
   }
   // Check the OBSERVATION's own identity against the canonical registration,
-  // not the projection's self-declared copy. Exactly one reviewed ABS
-  // registration predates canonical id stems; its immutable id and content
-  // hash scope that compatibility exception. Every other target must retain
-  // the independent observation-id-series == registration-series check.
+  // not the projection's self-declared copy. Reviewed legacy registrations
+  // predate canonical id stems; immutable ids and content hashes scope those
+  // compatibility exceptions. Every other target must retain the independent
+  // observation-id-series == registration-series check.
   const observedSeries = ledgerSeriesId(observation.dataPointId);
   const expectedObservationSeries = hasReviewedLegacySeriesAlias(target)
     ? ledgerSeriesId(target.dataPointId)
@@ -1781,9 +1854,10 @@ export function evaluateResolvedForecastRun(
   conditionOverrides?: Map<string, ConditionStatus>,
 ): ForecastRunScoreEvaluation {
   // A conditional branch is graded only when its registered condition
-  // actually occurred: both branches of a pair resolve against the same
-  // official print, and scoring the counterfactual branch would grade a
-  // hypothesis whose premise never happened (review finding F6).
+  // actually occurred. Both branches share the same official-print contract,
+  // but an open, failed, or counterfactual branch is excluded before resolution
+  // lookup; grading it would score a hypothesis whose premise never happened
+  // (review finding F6).
   const condition = conditionForCell(forecast);
   const conditionStatus = isConditionGated(forecast)
     ? conditionStatusFor(forecast, conditionOverrides)

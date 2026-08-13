@@ -8,6 +8,7 @@ import {
   PERSISTENCE_BASELINE_ALGORITHM_VERSION,
   PERSISTENCE_BASELINE_AGENT,
   buildLedgerPersistenceBaseline,
+  ledgerSeriesId,
 } from "@/data/time-series-priors";
 import {
   hasVerifiedClaimedChronology,
@@ -87,6 +88,38 @@ function fixtureLedger(includeHistory = true): PolicyEngineLedgerEntry[] {
 }
 
 describe("fair ledger-backed baselines", () => {
+  it.each([
+    ["test.series.may_2026.first_print", "test.series"],
+    ["test.series.february_to_april_2026.first_print", "test.series"],
+    ["test.series.after_mpc_june_2026.first_print", "test.series"],
+    ["test.series.fy2026.registered_query_snapshot", "test.series"],
+    [
+      "test.series.2027.registered_query_snapshot.fy27_ndaa_enacted",
+      "test.series",
+    ],
+    ["test.series.2027.first_print.current_law", "test.series"],
+    ["test.series.ty2027.current_law.final", "test.series"],
+    ["test.series.sy2026_27", "test.series"],
+    ["test.series.oep_2027", "test.series"],
+    ["test.series.award_year_2027", "test.series"],
+    ["test.series.q3_2026.first_print", "test.series"],
+    ["test.series.2026_q3.first_print", "test.series"],
+    ["test.series.2026-Q2.first_print", "test.series"],
+    ["test.series.week_ending_2026-08-08.first_print", "test.series"],
+    ["test.series.2026-08-08.preliminary", "test.series"],
+    ["test.series.2026_08.fixed_vintage_2026_12_31", "test.series"],
+    [
+      "census.marts.adv44x72.may_2026.monthly_change.advance",
+      "census.marts.adv44x72.monthly_change",
+    ],
+    [
+      "bea.real_gdp.saar.q1_2026.third_estimate",
+      "bea.real_gdp.saar.third_estimate",
+    ],
+  ])("canonicalizes published data-point suffix %s", (dataPointId, series) => {
+    expect(ledgerSeriesId(dataPointId)).toBe(series);
+  });
+
   it("uses the ledger's last print and realized history, never agent history", () => {
     const result = buildLedgerPersistenceBaseline(forecast(), fixtureLedger());
     const run = result.comparisonRun;
