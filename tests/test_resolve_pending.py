@@ -1582,6 +1582,109 @@ def test_main_qcew_branch_builds_and_projects_the_registered_fact(
     assert archive_name.startswith(expected_archive_stem)
 
 
+def test_main_qcew_branch_refuses_registered_window_drift_before_side_effects(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    series = "bls.qcew.child_day_care_services.annual_avg_employment"
+    ref = f"{series}.2025.first_print"
+    period = "2025"
+    release_date = "2026-06-02"
+    spec = resolve_pending.QCEW_ADAPTERS[series]
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(item for item in docket["series"] if item["series"] == series)
+    target = {
+        "series": series,
+        "period": period,
+        "seedPeriod": period,
+        "catalogSlug": "us-private-child-day-care-2025",
+        **entry["extras"],
+        "expectedReleaseDate": release_date,
+        "releaseCalendarUrl": entry["releaseCalendarUrl"],
+    }
+    contract = register_targets.build_contract(target, dt.date(2026, 6, 1))
+    contract["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2026-06-03",
+        "end": "2026-06-03",
+    }
+    snapshot = {
+        "schemaVersion": register_targets.V2_REGISTRATION_SCHEMA,
+        "registeredAtUtc": "2026-06-01T12:00:00Z",
+        "targets": [contract],
+    }
+    content_hash = register_targets.registration_content_hash(snapshot)
+    targets_dir = tmp_path / "records" / "targets"
+    targets_dir.mkdir(parents=True)
+    (targets_dir / f"2026-06-01-{content_hash}.json").write_bytes(
+        canonical_bytes(snapshot) + b"\n"
+    )
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "docket_series.json").write_text(
+        json.dumps({"series": [entry]})
+    )
+
+    real_date = dt.date
+
+    class ReleaseDate(real_date):
+        @classmethod
+        def today(cls):
+            return cls.fromisoformat(release_date)
+
+    def unexpected_side_effect(*_args, **_kwargs):
+        pytest.fail(
+            "registered-window refusal must precede fetch, fact construction, "
+            "archive, and append"
+        )
+
+    monkeypatch.setattr(resolve_pending, "ROOT", tmp_path)
+    monkeypatch.setattr(resolve_pending.dt, "date", ReleaseDate)
+    monkeypatch.setattr(
+        resolve_pending,
+        "load_thesis_log",
+        lambda _url: {"entries": [], "resolutionLinks": []},
+    )
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda _log: [
+            (
+                ref,
+                "qcew",
+                spec,
+                "year",
+                period,
+                release_date,
+                {"unit": "count", "resolutionDate": release_date},
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "ledger_state",
+        lambda *_args: ("", "blob", "c" * 40),
+    )
+    monkeypatch.setattr(
+        resolve_pending, "qcew_fetch_period", unexpected_side_effect
+    )
+    monkeypatch.setattr(
+        resolve_pending, "qcew_resolution_fact", unexpected_side_effect
+    )
+    monkeypatch.setattr(resolve_pending, "archive_response", unexpected_side_effect)
+    monkeypatch.setattr(
+        resolve_pending, "propose_ledger_append", unexpected_side_effect
+    )
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py"])
+
+    assert resolve_pending.main() == 0
+    output = capsys.readouterr().out
+    assert f"BINDING/ADAPTER MISMATCH (refusing, registry drift?): {ref}" in output
+    assert "nothing new to record" in output
+    assert f"resolve {ref} ->" not in output
+    assert not (tmp_path / "records" / "resolutions").exists()
+
+
 def test_main_qcew_branch_refuses_next_day_completed_fetch(
     tmp_path: pathlib.Path,
     monkeypatch,
