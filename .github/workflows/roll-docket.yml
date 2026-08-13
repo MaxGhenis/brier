@@ -332,7 +332,20 @@ jobs:
               registered = json.load(fh)
           with open("/tmp/retry-grace-recheck.json") as fh:
               recheck = json.load(fh)
-          if registered != recheck:
+          # The register job's bind step enriches each uploaded target
+          # with registrationCommit AFTER selection; the fresh selector
+          # output has no such field. Compare the selector projection:
+          # strip exactly that bind-only enrichment and require
+          # everything else equal. Any OTHER artifact-only field still
+          # refuses (conservative for future enrichment).
+          projected = {
+              **registered,
+              "targets": [
+                  {k: v for k, v in t.items() if k != "registrationCommit"}
+                  for t in registered["targets"]
+              ],
+          }
+          if projected != recheck:
               def names(payload):
                   return sorted(t["catalogSlug"] for t in payload["targets"])
 
@@ -341,7 +354,7 @@ jobs:
                   " refusing before model spend",
                   file=sys.stderr,
               )
-              print(f"  registered: {names(registered)}", file=sys.stderr)
+              print(f"  registered: {names(projected)}", file=sys.stderr)
               print(f"  recheck:    {names(recheck)}", file=sys.stderr)
               sys.exit(1)
           COMPARE

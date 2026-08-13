@@ -303,6 +303,17 @@ def published_catalog_index(repo_root: pathlib.Path) -> dict[str, str | None]:
         raise RetrySelectionError(
             f"published-catalog evaluation emitted non-JSON: {exc}"
         ) from exc
+    if not isinstance(rows, list):
+        raise RetrySelectionError(
+            "published-catalog evaluation emitted non-list JSON"
+        )
+    if not rows:
+        raise RetrySelectionError(
+            "published-catalog evaluation emitted an empty catalog; "
+            "refusing — the site catalog is never empty, so an empty "
+            "view means the evaluation broke, not that nothing is "
+            "published"
+        )
     index: dict[str, str | None] = {}
     for row in rows:
         if not isinstance(row, dict) or not isinstance(row.get("slug"), str):

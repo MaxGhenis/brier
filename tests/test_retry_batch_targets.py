@@ -1102,3 +1102,72 @@ def test_live_checkout_never_reemits_published_ndaa_targets() -> None:
             published=published,
         )
         assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+
+
+@pytest.mark.parametrize(
+    ("stdout", "match"),
+    [
+        ("[]", "empty catalog"),
+        ("{}", "non-list"),
+        ('""', "non-list"),
+    ],
+)
+def test_published_catalog_index_refuses_empty_or_nonlist_output(
+    monkeypatch: pytest.MonkeyPatch, stdout: str, match: str
+) -> None:
+    # Round-2 review reproduced []/{}/"" all becoming an empty index —
+    # and an empty index means "nothing is published", which is the
+    # exact silence that re-creates the duplicate-emit incident.
+    class Proc:
+        returncode = 0
+        stderr = ""
+
+    proc = Proc()
+    proc.stdout = stdout
+    monkeypatch.setattr(
+        retry_batch_targets.subprocess, "run", lambda *a, **k: proc
+    )
+    with pytest.raises(RetrySelectionError, match=match):
+        retry_batch_targets.published_catalog_index(ROOT)
+
+
+def _workflow_compare_source() -> str:
+    workflow = (ROOT / ".github" / "workflows" / "roll-docket.yml").read_text()
+    _, _, tail = workflow.partition("<<'COMPARE'\n")
+    body, _, _ = tail.partition("\n          COMPARE")
+    assert body, "COMPARE heredoc not found in roll-docket.yml"
+    return "\n".join(line.removeprefix(" " * 10) for line in body.splitlines())
+
+
+def test_generate_job_compare_accepts_bind_enrichment_and_refuses_drift(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Round-2 review replayed selector -> bind -> selector and showed the
+    # uploaded artifact gains registrationCommit per target, so a naive
+    # equality refused every honest retry. Run the ACTUAL workflow
+    # snippet (extracted from the YAML, dedent included) against both
+    # shapes: enrichment-only difference passes; a real selection drift
+    # refuses; an unknown artifact-only field also refuses.
+    import subprocess as sp
+
+    source = _workflow_compare_source()
+    source = source.replace(
+        '"/tmp/trusted-registration/roll-targets.json"', repr(str(tmp_path / "a.json"))
+    ).replace('"/tmp/retry-grace-recheck.json"', repr(str(tmp_path / "b.json")))
+
+    base = {"targets": [{"catalogSlug": "x", "series": "s"}]}
+    enriched = {
+        "targets": [{"catalogSlug": "x", "series": "s", "registrationCommit": "c" * 40}]
+    }
+    drifted = {"targets": [{"catalogSlug": "y", "series": "s"}]}
+    unknown = {"targets": [{"catalogSlug": "x", "series": "s", "extraField": 1}]}
+
+    def run(artifact: dict, recheck: dict) -> int:
+        (tmp_path / "a.json").write_text(json.dumps(artifact))
+        (tmp_path / "b.json").write_text(json.dumps(recheck))
+        return sp.run([sys.executable, "-c", source], capture_output=True).returncode
+
+    assert run(enriched, base) == 0
+    assert run(base, base) == 0
+    assert run(enriched, drifted) == 1
+    assert run(unknown, base) == 1
