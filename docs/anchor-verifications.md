@@ -53,31 +53,42 @@ refuses to roll that period until BLS posts one.
 
 ## FSA CRP total enrolled acres (usda.fsa.crp.enrolled_acres_total)
 
-Status: **VERIFIED** (integrator, 2026-07-31). Three anchors read directly
-off the official FSA monthly summaries, live-fetched from the statistics
-landing page (landing URL and page-1 TOTAL CRP row layout observed as
-described below):
+Status: **VERIFIED** (integrator, source path reverified 2026-08-13). FSA's
+old statistics URL now 301-redirects to the recovered official landing page:
+
+https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp
+
+The recovered page returned 200 and exposes a `Monthly Summaries` table. Each
+target Month/Year row's `Summary` cell links a dated `/documents/...` page,
+which links the `/sites/default/files/YYYY-MM/...pdf` artifact. The adapter
+authenticates and fetches exactly that three-hop chain without redirects; the
+old `/resources/programs/conservation-reserve-program/statistics` path is
+historical evidence and is deliberately refused as an adapter entry point.
+
+Three anchors are read directly from the official page-1 TOTAL CRP Acres cell:
 
 - 2025-11: 26,317,011 acres — https://www.fsa.usda.gov/sites/default/files/2026-03/CRPMonthlyNovember2025WithPageNumbers.pdf
 - 2026-03: 26,203,615 acres — https://www.fsa.usda.gov/sites/default/files/2026-06/CRPMonthlyMarch2026WithPageNumbers.pdf
 - 2026-04: 26,182,019 acres — https://www.fsa.usda.gov/sites/default/files/2026-07/CRPMonthlyApril2026WithPageNumbers.pdf
 
-Protocol notes from the live check: anchor on the printed TOTAL CRP Acres
-cell, never derived sums (March cross-foots one acre under the printed
-total; FSA sums unrounded acreage). Publication lag is ~3 months (April's
-summary posted under /files/2026-07/), which the resolution calendar must
-respect. Landing page links dated per-month document pages that carry the
-PDF URL, as the selector assumes.
-Its `anchors` mapping contains three sentinel entries rather than asserted
-acreage values, and the admission test skips while that status remains in
-place.
+Protocol notes: use the printed TOTAL CRP Acres cell, never derived sums
+(March cross-foots one acre under the printed total because FSA sums unrounded
+acreage). Publication lag is about three months (April's summary is stored
+under `/2026-07/`), so the fresh target uses a reviewed outer release bound
+rather than inferring a day from cadence. Runtime resolution re-fetches and
+exactly reproduces all three admitted anchors before reading a target month.
 
-Before changing the status to `VERIFIED`, the integrating session must verify
-the FSA Conservation Reserve Program Statistics landing URL and Monthly
-Summary total-row layout, capture at least three official published monthly
-values, replace all three sentinels with `YYYY-MM`/numeric pairs, and record
-the sources here. Runtime resolution will then re-fetch and exactly reproduce
-every admitted anchor before it reads a target month.
+The 2026-08-13 recovery fixtures archive the exact landing HTML (121,040
+bytes, SHA-256
+`f0e572b484359368042634d7413937acd174d53434667f55b092382b8a73c181`),
+April document HTML (62,639 bytes, SHA-256
+`6b076bd7e94e13bc3d32ddf9663c80201c2c94f6a1c3eebf6ce4a5ce064df695`),
+and April PDF (5,356,828 bytes, SHA-256
+`03ac66bd80f263cdaa221295eb17963fbb9be0574b846fd11f6024ca0ee4e373`).
+The artifact is the April 2026 observation vintage, created/modified in July
+2026, and prints 26,182,019 acres. See
+`tests/fixtures/fsa_crp/README.md` for URLs, HTTP metadata, and the archived
+stale-path 301 response.
 
 ## CPI-U annual average (bls.cpi.u.annual_pct_change)
 

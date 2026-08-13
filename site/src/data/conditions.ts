@@ -270,6 +270,10 @@ export const CONDITIONS: ConditionDefinition[] = [
       "Enacted TY2026 law raises but does not eliminate the cap; the " +
       "window stays open until the tax year closes.",
   },
+  // The 2026-08-13 recovered-source CRP pair deliberately reuses these
+  // legal-state identities and byte-exact match strings. Registration
+  // freshness belongs to the target dataPointIds, not to duplicate legal
+  // conditions; the terminated 2026-08-03 targets remain separate history.
   {
     type: "provision_enacted",
     conditionId: "cond.crp-acreage-ceiling-fy2027-31.enacted",
