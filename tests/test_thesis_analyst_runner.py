@@ -3552,9 +3552,13 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "2026 Q1 2027",
         "Q IV 2026",
         "2026 Q1Q2",
-        # Deletion killers: Cf must REJECT (not strip-to-valid), and
-        # two strict groups must accumulate into distinct tokens.
+        # Deletion killers: Cf must REJECT (not strip-to-valid) even
+        # far from any digit; controls and buffered fraction slashes
+        # reject; two strict groups accumulate into distinct tokens.
         "2026 Q\u200d1",
+        "2026 Q1 x\u200d",
+        "2026 Q1 and Q\u00002",
+        "2026 Q1 \u2044 2",
         "2026 Q1 and 2026 Q2",
     ):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
@@ -3569,7 +3573,11 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "value for 2026 Q1, quarterly seasonally adjusted",
         "Quebec series, 2026 Q1 print",
         "Grade Q, 2026 Q1",
-        # Fullwidth digit folds open — kills removal of NFKC folding.
+        # Precise mechanism killers: fullwidth Q opens ONLY via NFKC;
+        # Arabic-Indic 1 opens ONLY via explicit digit folding;
+        # fullwidth 1 opens via either (redundancy sanity).
+        "2026 \uff31\uff11 print",
+        "2026 Q\u0661 print",
         "2026 Q\uff11 print",
     ):
         prose = {"historicalContext": [{"label": label, "value": 18511}]}

@@ -2872,8 +2872,16 @@ def history_anchor_errors(
         Q1) rejects as a qualified designator.
         """
 
-        if any(unicodedata.category(ch) == "Cf" for ch in label):
-            return None
+        # Reject invisible and control machinery outright: format
+        # characters split designators; ASCII controls (NUL, ESC, DEL)
+        # survive whitespace folding and split "Q2" into ignored
+        # pieces. Ordinary \t\n\r are whitespace and fold to spaces.
+        for ch in label:
+            cat = unicodedata.category(ch)
+            if cat == "Cf" or cat in ("Co", "Cs", "Cn"):
+                return None
+            if cat == "Cc" and ch not in "\t\n\r":
+                return None
         folded = fold(label)
         n = len(folded)
         for i, ch in enumerate(folded):
@@ -2896,18 +2904,36 @@ def history_anchor_errors(
             else:
                 i += 1
 
-        def seps_only(a: int, b: int) -> bool:
-            return a < b and all(c in cluster_seps for c in folded[a:b])
+        def gap_kind(a: int, b: int) -> str:
+            """Classify the text between segments: 'chain' (pure
+            separators), 'break' (contains an ASCII letter — prose
+            boundary), or 'poison' (anything else, e.g. a fraction
+            slash or symbol buffered by separators — content we cannot
+            read, chaining the sides AND tainting the group)."""
+            gap = folded[a:b]
+            if all(c in cluster_seps for c in gap):
+                return "chain"
+            if any(c.isascii() and c not in cluster_seps for c in gap):
+                # Readable ASCII prose (letters, commas, semicolons)
+                # separates like a sentence does.
+                return "break"
+            return "poison"
 
         groups: list[list[tuple[int, int]]] = []
+        poisoned: list[bool] = []
         for span in segments:
-            if groups and seps_only(groups[-1][-1][1], span[0]):
-                groups[-1].append(span)
-            else:
-                groups.append([span])
+            if groups:
+                kind = gap_kind(groups[-1][-1][1], span[0])
+                if kind in ("chain", "poison"):
+                    groups[-1].append(span)
+                    if kind == "poison":
+                        poisoned[-1] = True
+                    continue
+            groups.append([span])
+            poisoned.append(False)
 
         tokens: set[str] = set()
-        for group in groups:
+        for group, group_poisoned in zip(groups, poisoned):
             text_parts = [folded[a:b] for a, b in group]
             has_q = any(("Q" in part or "q" in part) for part in text_parts)
             has_numeral = any(
@@ -2915,6 +2941,8 @@ def history_anchor_errors(
             )
             if not (has_q and has_numeral):
                 continue
+            if group_poisoned:
+                return None
             first_start = group[0][0]
             last_end = group[-1][1]
             before = folded[first_start - 1] if first_start > 0 else ""
