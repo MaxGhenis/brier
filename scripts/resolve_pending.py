@@ -7047,36 +7047,58 @@ def _require_fsa_crp_url_kind(
         parsed.username is not None
         or parsed.password is not None
         or parsed.port is not None
+        or parsed.params
         or parsed.query
         or parsed.fragment
     ):
+        # parsed.params is the ;-delimited path-parameter component
+        # urlparse splits off the last segment — it never appears in
+        # parsed.path, so without this refusal a ";download" suffix
+        # would validate as the clean path yet ride along in the fetch.
         raise ValueError(
             f"FSA CRP {kind} URL must not contain credentials, a port, "
-            f"query, or fragment: {url!r}"
+            f"path parameters, query, or fragment: {url!r}"
         )
-    decoded_path = urllib.parse.unquote(parsed.path)
+    # The registered contract promises EXACT paths, so the raw path is
+    # matched with no decoding at all: any percent escape, path
+    # parameter, backslash, control character, dot segment, empty
+    # segment, or case variation is noncanonical and refuses before any
+    # network access. A second decoder downstream can therefore never
+    # reveal traversal or separators this check did not see (2026-08-13
+    # review: %252e%252e%252f traversal, ";download", and /SITES/ all
+    # passed the old single-decode IGNORECASE match).
+    raw_path = parsed.path
+    if not re.fullmatch(r"[A-Za-z0-9/._-]+", raw_path):
+        raise ValueError(
+            f"FSA CRP {kind} path contains characters outside the "
+            f"reviewed canonical set: {raw_path!r}"
+        )
+    segments = raw_path.split("/")
+    if any(seg in ("", ".", "..") for seg in segments[1:]):
+        raise ValueError(
+            f"FSA CRP {kind} path contains empty or dot segments: {raw_path!r}"
+        )
     if kind == "landing":
         expected = urllib.parse.urlparse(FSA_CRP_LANDING_URL).path
-        if decoded_path != expected:
+        if raw_path != expected:
             raise ValueError(
-                f"FSA CRP landing path {decoded_path!r} is not the exact "
+                f"FSA CRP landing path {raw_path!r} is not the exact "
                 f"reviewed path {expected!r}"
             )
         return
     if kind == "document":
-        if not re.fullmatch(r"/documents/[a-z0-9][a-z0-9-]*", decoded_path):
+        if not re.fullmatch(r"/documents/[a-z0-9][a-z0-9-]*", raw_path):
             raise ValueError(
-                f"FSA CRP document path is outside the reviewed class: {decoded_path!r}"
+                f"FSA CRP document path is outside the reviewed class: {raw_path!r}"
             )
         return
     if kind == "artifact":
         if not re.fullmatch(
-            r"/sites/default/files/\d{4}-\d{2}/[^/]+\.pdf",
-            decoded_path,
-            re.IGNORECASE,
+            r"/sites/default/files/\d{4}-\d{2}/[A-Za-z0-9._-]+\.pdf",
+            raw_path,
         ):
             raise ValueError(
-                f"FSA CRP artifact path is outside the reviewed class: {decoded_path!r}"
+                f"FSA CRP artifact path is outside the reviewed class: {raw_path!r}"
             )
         return
     raise ValueError(f"unknown FSA CRP URL kind {kind!r}")

@@ -188,7 +188,75 @@ def test_fsa_crp_structurally_selects_summary_document_then_pdf() -> None:
         (
             f"{resolve_pending.FSA_CRP_LANDING_URL}/",
             "landing",
-            "exact reviewed path",
+            "empty or dot segments",
+        ),
+        # 2026-08-13 review probes: noncanonical shapes must refuse
+        # BEFORE any decode — a second decoder downstream must never be
+        # able to reveal traversal or separators validation did not see.
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
+            "%252e%252e%252fdocuments%252fCRPMonthlyApril2026.pdf",
+            "artifact",
+            "canonical set",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
+            "CRPMonthlyApril2026%252f..%252fsecret.pdf",
+            "artifact",
+            "canonical set",
+        ),
+        (
+            "https://www.fsa.usda.gov/SITES/DEFAULT/FILES/2026-07/"
+            "CRPMonthlyApril2026WithPageNumbers.pdf",
+            "artifact",
+            "outside the reviewed class",
+        ),
+        (
+            "https://www.fsa.usda.gov/tools/informational/reports/"
+            "conservation-statistics/crp;download",
+            "landing",
+            "path parameters",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
+            "CRPMonthly%41pril2026.pdf",
+            "artifact",
+            "canonical set",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
+            "..%2fsecret.pdf",
+            "artifact",
+            "canonical set",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
+            "CRPMonthly\\April2026.pdf",
+            "artifact",
+            "canonical set",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/../"
+            "2026-08/CRPMonthlyApril2026.pdf",
+            "artifact",
+            "empty or dot segments",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites//default/files/2026-07/"
+            "CRPMonthlyApril2026.pdf",
+            "artifact",
+            "empty or dot segments",
+        ),
+        (
+            "https://www.fsa.usda.gov/documents/APRIL-2026-document",
+            "document",
+            "outside the reviewed class",
+        ),
+        (
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
+            "CRPMonthlyApril2026.PDF",
+            "artifact",
+            "outside the reviewed class",
         ),
         (
             f"{resolve_pending.FSA_CRP_LANDING_URL}?download=1",
