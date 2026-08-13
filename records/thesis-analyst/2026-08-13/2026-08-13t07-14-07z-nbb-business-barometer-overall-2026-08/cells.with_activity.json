@@ -1,0 +1,1234 @@
+[
+  {
+    "slug": "belgium-nbb-business-barometer-august-2026",
+    "country": "BE",
+    "type": "data",
+    "title": "Belgium NBB business barometer, August 2026",
+    "question": "National Bank of Belgium monthly business surveys, overall synthetic curve for Belgium, total sector, seasonally adjusted, August 2026, first official print",
+    "unit": "index_points",
+    "pointEstimate": -11.9,
+    "ciLow": -15.1,
+    "ciHigh": -8.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-28",
+    "resolutionSource": "National Bank of Belgium business survey release",
+    "resolutionSourceUrl": "https://www.nbb.be/en/statistics/business-surveys/business-survey",
+    "resolutionRule": "Resolve to the first National Bank of Belgium published monthly business surveys overall synthetic curve for Belgium, total sector, seasonally adjusted, period 2026-08, reported in index points and rounded to one decimal. SDMX identity: DF_BUSSURVM key M.SYNC.BE.A999.S (FREQ monthly, BUSSURVM_INDICATOR synthetic curve, BE_AREA Belgium, BUSSURV_SECTOR Total, BUSSURVM_ADJ seasonally adjusted). Use the first official print only; ignore later NBB.Stat revisions, corrections after the first release, and third-party mirrors. The resolving URL remains the registered NBB business survey page; the NBB SDMX API was used only for pre-resolution history and series-identity evidence.",
+    "dataPointId": "nbb.business_barometer.overall.2026-08.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-07 overall business barometer",
+        "value": -11.9
+      },
+      {
+        "label": "2026-06 overall business barometer",
+        "value": -12.4
+      },
+      {
+        "label": "2026-05 overall business barometer",
+        "value": -13.3
+      },
+      {
+        "label": "2026-04 overall business barometer",
+        "value": -14.2
+      },
+      {
+        "label": "2026-03 overall business barometer",
+        "value": -13.7
+      },
+      {
+        "label": "2026-02 overall business barometer",
+        "value": -13.7
+      }
+    ],
+    "drivers": [
+      "July first print was -11.9 after -12.4 in June",
+      "persistence beats a trailing-3 mean in the walk-forward check",
+      "services improved in July while trade weakened",
+      "no direct August survey signal is available before the print",
+      "monthly first-print changes remain volatile"
+    ],
+    "sourceContext": [
+      "https://nsidisseminate-stat.nbb.be/rest/datastructure/BE2/DSD_BUSSURVM/1.0?references=none",
+      "https://nsidisseminate-stat.nbb.be/rest/data/DF_BUSSURVM/M.SYNC.BE.A999.S?startPeriod=2025-08&endPeriod=2026-07&dimensionAtObservation=TIME_PERIOD",
+      "https://nsidisseminate-stat.nbb.be/rest/data/DF_BUSSURVM/M.SYNC.BE.M000+T000+S000.S?startPeriod=2026-06&endPeriod=2026-07&dimensionAtObservation=TIME_PERIOD",
+      "https://app.thesisinstitute.org/specs.json",
+      "https://www.nbb.be/en/statistics/business-surveys/business-survey"
+    ],
+    "runAt": "2026-08-13T07:20:15Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium August 2026 NBB Business Barometer Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and resolver: the registered target is nbb.business_barometer.overall for 2026-08, country BE, unit index_points, dataPointId nbb.business_barometer.overall.2026-08.first_print, and ledger resolutionDate 2026-08-28. The exact resolving series is the National Bank of Belgium monthly business surveys overall synthetic curve, Belgium, total sector, seasonally adjusted, first print. I fetched https://app.thesisinstitute.org/specs.json during the run; it returned a 404 HTML page rather than a usable specs JSON, so I kept the registered ledger slug belgium-nbb-business-barometer-august-2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "nbb.dsd",
+        "call": "curl -L -sS 'https://nsidisseminate-stat.nbb.be/rest/datastructure/BE2/DSD_BUSSURVM/1.0?references=none'",
+        "result": "Fetched NBB DSD at prepared time 2026-08-13T07:17:04Z. Dimension order is 1 FREQ, 2 BUSSURVM_INDICATOR, 3 BE_AREA, 4 BUSSURV_SECTOR, 5 BUSSURVM_ADJ, 6 TIME_PERIOD; target key is M.SYNC.BE.A999.S, with DECIMALS=1 for one-decimal index-point observations."
+      },
+      {
+        "kind": "tool",
+        "tool": "nbb.sdmx",
+        "call": "curl -L -sS -H 'Accept: application/vnd.sdmx.data+json;version=1.0.0-wd' 'https://nsidisseminate-stat.nbb.be/rest/data/DF_BUSSURVM/M.SYNC.BE.A999.S?startPeriod=2025-08&endPeriod=2026-07&dimensionAtObservation=TIME_PERIOD'",
+        "result": "Fetched official NBB overall seasonally adjusted synthetic curve values: 2025-08 -8.9, 2025-09 -7.9, 2025-10 -9.1, 2025-11 -8.2, 2025-12 -11.9, 2026-01 -8.8, 2026-02 -13.7, 2026-03 -13.7, 2026-04 -14.2, 2026-05 -13.3, 2026-06 -12.4, 2026-07 -11.9 index points."
+      },
+      {
+        "kind": "tool",
+        "tool": "nbb.sdmx",
+        "call": "curl -L -sS -H 'Accept: application/vnd.sdmx.data+json;version=1.0.0-wd' 'https://nsidisseminate-stat.nbb.be/rest/data/DF_BUSSURVM/M.SYNC.BE.M000+T000+S000.S?startPeriod=2026-06&endPeriod=2026-07&dimensionAtObservation=TIME_PERIOD'",
+        "result": "Fetched official NBB sector context: manufacturing industry 2026-06 -15.7 and 2026-07 -15.5; trade 2026-06 -9.3 and 2026-07 -10.8; business-related services 2026-06 -7.4 and 2026-07 -3.8 index points."
+      },
+      {
+        "kind": "tool",
+        "tool": "model.candidates",
+        "call": "Computed thesis_model_candidate_v1 candidates from the fetched NBB 2025-08 through 2026-07 total synthetic-curve history.",
+        "result": "thesis_model_candidate_v1 persistence candidate: point -11.9, p10 -15.1, p50 -11.9, p90 -8.7, interval80 [-15.1,-8.7], interval90 [-15.6,-8.2], intervalMethod residual_change_sigma_widened, calibration_n 11, trainCutoff 2026-07, walkForwardMae 1.60. trailing3_mean candidate: point -12.5, p10 -15.7, p50 -12.5, p90 -9.3, interval80 [-15.7,-9.3], interval90 [-16.2,-8.8], intervalMethod residual_change_sigma_widened, calibration_n 9, trainCutoff 2026-07, walkForwardMae 1.84."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: trailing 12 official NBB total synthetic-curve prints range from -14.2 to -7.9 and average -11.2; the latest six average -13.2, the latest three average -12.5, and the latest print is -11.9. Because persistence beats the trailing-3 mean in the walk-forward check, the outside-view base rate and strongest benchmark is last-print persistence at -11.9."
+      },
+      {
+        "kind": "text",
+        "text": "Inside-view update: July had a third consecutive improvement from the April trough, and business-related services improved from -7.4 to -3.8, but trade worsened from -9.3 to -10.8 and manufacturing was nearly flat at -15.5. With no direct August survey signal before the print, I do not move materially away from the persistence benchmark."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = -11.9 from the July 2026 official print; historical sample = NBB total synthetic curve 2025-08 through 2026-07 with changes +1.0,-1.2,+0.9,-3.7,+3.1,-4.9,+0.0,-0.5,+0.9,+0.9,+0.5. Adjustment components: +0.2 for recent improvement momentum, -0.2 for mixed sector composition and no direct August signal, net 0.0, so point = -11.9. For the interval, sigma = 2.28 from successive fetched monthly changes; 1.28*sigma = 2.91, widened modestly to half-width 3.2 because only 7 of the last 10 changes fit within 2.91 while 8 of 10 fit within 3.2. Final 80% bounds: -11.9 - 3.2 = -15.1 and -11.9 + 3.2 = -8.7."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is a broad August improvement in manufacturing and trade matching July's services rebound, which would land above the interval if the first print is -8.6 or higher. Downside risk is renewed trade/export weakness or cost-pressure pessimism spreading across sectors, which would land below the interval if the first print is -15.2 or lower. Either outside the interval would be a sharper one-month move than the widened recent-change reference class expects."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the required traceability fix by aligning the model-candidate sample, monthly-change list, calibration counts, sigma, and interval explanation to the explicitly fetched 2025-08 through 2026-07 NBB overall-series data. Accepted the resolver-clarity suggestion by stating that the registered NBB business survey page remains the resolving URL while SDMX was used for evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": -11.9,
+        "ciLow": -15.1,
+        "ciHigh": -8.7
+      }
+    ],
+    "agentReportedRunAt": "2026-08-13T07:19:49Z",
+    "runStartedAt": "2026-08-13T07:14:07Z",
+    "promptMode": "full",
+    "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+    "targetContentHash": "afa245638a823fdcb41f346b682df3f64ccdea641eb3cd074505bf0db491730f",
+    "targetRegistrationPath": "records/targets/2026-08-13-afa245638a823fdcb41f346b682df3f64ccdea641eb3cd074505bf0db491730f.json",
+    "registeredAtUtc": "2026-08-13T06:52:40Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -19.9,
+        "upper": -3.9
+      },
+      "points": [
+        {
+          "value": -19.9,
+          "probability": 0.0
+        },
+        {
+          "value": -19.82,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -19.74,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -19.66,
+          "probability": 0.005
+        },
+        {
+          "value": -19.58,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -19.5,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -19.42,
+          "probability": 0.01
+        },
+        {
+          "value": -19.34,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -19.26,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -19.18,
+          "probability": 0.015
+        },
+        {
+          "value": -19.1,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -19.02,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -18.94,
+          "probability": 0.02
+        },
+        {
+          "value": -18.86,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -18.78,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -18.7,
+          "probability": 0.025
+        },
+        {
+          "value": -18.62,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -18.54,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -18.46,
+          "probability": 0.03
+        },
+        {
+          "value": -18.38,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -18.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -18.22,
+          "probability": 0.035
+        },
+        {
+          "value": -18.14,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -18.06,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -17.98,
+          "probability": 0.04
+        },
+        {
+          "value": -17.9,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -17.82,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -17.74,
+          "probability": 0.045
+        },
+        {
+          "value": -17.66,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -17.58,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -17.5,
+          "probability": 0.05
+        },
+        {
+          "value": -17.42,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -17.34,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -17.26,
+          "probability": 0.055
+        },
+        {
+          "value": -17.18,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -17.1,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -17.02,
+          "probability": 0.06
+        },
+        {
+          "value": -16.94,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -16.86,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -16.78,
+          "probability": 0.065
+        },
+        {
+          "value": -16.7,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -16.62,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -16.54,
+          "probability": 0.07
+        },
+        {
+          "value": -16.46,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -16.38,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -16.3,
+          "probability": 0.075
+        },
+        {
+          "value": -16.22,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -16.14,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -16.06,
+          "probability": 0.08
+        },
+        {
+          "value": -15.98,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -15.9,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -15.82,
+          "probability": 0.085
+        },
+        {
+          "value": -15.74,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -15.66,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -15.58,
+          "probability": 0.09
+        },
+        {
+          "value": -15.5,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -15.42,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -15.34,
+          "probability": 0.095
+        },
+        {
+          "value": -15.26,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -15.18,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -15.1,
+          "probability": 0.1
+        },
+        {
+          "value": -15.02,
+          "probability": 0.11
+        },
+        {
+          "value": -14.94,
+          "probability": 0.12
+        },
+        {
+          "value": -14.86,
+          "probability": 0.13
+        },
+        {
+          "value": -14.78,
+          "probability": 0.14
+        },
+        {
+          "value": -14.7,
+          "probability": 0.15
+        },
+        {
+          "value": -14.62,
+          "probability": 0.16
+        },
+        {
+          "value": -14.54,
+          "probability": 0.17
+        },
+        {
+          "value": -14.46,
+          "probability": 0.18
+        },
+        {
+          "value": -14.38,
+          "probability": 0.19
+        },
+        {
+          "value": -14.3,
+          "probability": 0.2
+        },
+        {
+          "value": -14.22,
+          "probability": 0.21
+        },
+        {
+          "value": -14.14,
+          "probability": 0.22
+        },
+        {
+          "value": -14.06,
+          "probability": 0.23
+        },
+        {
+          "value": -13.98,
+          "probability": 0.24
+        },
+        {
+          "value": -13.9,
+          "probability": 0.25
+        },
+        {
+          "value": -13.82,
+          "probability": 0.26
+        },
+        {
+          "value": -13.74,
+          "probability": 0.27
+        },
+        {
+          "value": -13.66,
+          "probability": 0.28
+        },
+        {
+          "value": -13.58,
+          "probability": 0.29
+        },
+        {
+          "value": -13.5,
+          "probability": 0.3
+        },
+        {
+          "value": -13.42,
+          "probability": 0.31
+        },
+        {
+          "value": -13.34,
+          "probability": 0.32
+        },
+        {
+          "value": -13.26,
+          "probability": 0.33
+        },
+        {
+          "value": -13.18,
+          "probability": 0.34
+        },
+        {
+          "value": -13.1,
+          "probability": 0.35
+        },
+        {
+          "value": -13.02,
+          "probability": 0.36
+        },
+        {
+          "value": -12.94,
+          "probability": 0.37
+        },
+        {
+          "value": -12.86,
+          "probability": 0.38
+        },
+        {
+          "value": -12.78,
+          "probability": 0.39
+        },
+        {
+          "value": -12.7,
+          "probability": 0.4
+        },
+        {
+          "value": -12.62,
+          "probability": 0.41
+        },
+        {
+          "value": -12.54,
+          "probability": 0.42
+        },
+        {
+          "value": -12.46,
+          "probability": 0.43
+        },
+        {
+          "value": -12.38,
+          "probability": 0.44
+        },
+        {
+          "value": -12.3,
+          "probability": 0.45
+        },
+        {
+          "value": -12.22,
+          "probability": 0.46
+        },
+        {
+          "value": -12.14,
+          "probability": 0.47
+        },
+        {
+          "value": -12.06,
+          "probability": 0.48
+        },
+        {
+          "value": -11.98,
+          "probability": 0.49
+        },
+        {
+          "value": -11.9,
+          "probability": 0.5
+        },
+        {
+          "value": -11.82,
+          "probability": 0.51
+        },
+        {
+          "value": -11.74,
+          "probability": 0.52
+        },
+        {
+          "value": -11.66,
+          "probability": 0.53
+        },
+        {
+          "value": -11.58,
+          "probability": 0.54
+        },
+        {
+          "value": -11.5,
+          "probability": 0.55
+        },
+        {
+          "value": -11.42,
+          "probability": 0.56
+        },
+        {
+          "value": -11.34,
+          "probability": 0.57
+        },
+        {
+          "value": -11.26,
+          "probability": 0.58
+        },
+        {
+          "value": -11.18,
+          "probability": 0.59
+        },
+        {
+          "value": -11.1,
+          "probability": 0.6
+        },
+        {
+          "value": -11.02,
+          "probability": 0.61
+        },
+        {
+          "value": -10.94,
+          "probability": 0.62
+        },
+        {
+          "value": -10.86,
+          "probability": 0.63
+        },
+        {
+          "value": -10.78,
+          "probability": 0.64
+        },
+        {
+          "value": -10.7,
+          "probability": 0.65
+        },
+        {
+          "value": -10.62,
+          "probability": 0.66
+        },
+        {
+          "value": -10.54,
+          "probability": 0.67
+        },
+        {
+          "value": -10.46,
+          "probability": 0.68
+        },
+        {
+          "value": -10.38,
+          "probability": 0.69
+        },
+        {
+          "value": -10.3,
+          "probability": 0.7
+        },
+        {
+          "value": -10.22,
+          "probability": 0.71
+        },
+        {
+          "value": -10.14,
+          "probability": 0.72
+        },
+        {
+          "value": -10.06,
+          "probability": 0.73
+        },
+        {
+          "value": -9.98,
+          "probability": 0.74
+        },
+        {
+          "value": -9.9,
+          "probability": 0.75
+        },
+        {
+          "value": -9.82,
+          "probability": 0.76
+        },
+        {
+          "value": -9.74,
+          "probability": 0.77
+        },
+        {
+          "value": -9.66,
+          "probability": 0.78
+        },
+        {
+          "value": -9.58,
+          "probability": 0.79
+        },
+        {
+          "value": -9.5,
+          "probability": 0.8
+        },
+        {
+          "value": -9.42,
+          "probability": 0.81
+        },
+        {
+          "value": -9.34,
+          "probability": 0.82
+        },
+        {
+          "value": -9.26,
+          "probability": 0.83
+        },
+        {
+          "value": -9.18,
+          "probability": 0.84
+        },
+        {
+          "value": -9.1,
+          "probability": 0.85
+        },
+        {
+          "value": -9.02,
+          "probability": 0.86
+        },
+        {
+          "value": -8.94,
+          "probability": 0.87
+        },
+        {
+          "value": -8.86,
+          "probability": 0.88
+        },
+        {
+          "value": -8.78,
+          "probability": 0.89
+        },
+        {
+          "value": -8.7,
+          "probability": 0.9
+        },
+        {
+          "value": -8.62,
+          "probability": 0.901666666667
+        },
+        {
+          "value": -8.54,
+          "probability": 0.903333333333
+        },
+        {
+          "value": -8.46,
+          "probability": 0.905
+        },
+        {
+          "value": -8.38,
+          "probability": 0.906666666667
+        },
+        {
+          "value": -8.3,
+          "probability": 0.908333333333
+        },
+        {
+          "value": -8.22,
+          "probability": 0.91
+        },
+        {
+          "value": -8.14,
+          "probability": 0.911666666667
+        },
+        {
+          "value": -8.06,
+          "probability": 0.913333333333
+        },
+        {
+          "value": -7.98,
+          "probability": 0.915
+        },
+        {
+          "value": -7.9,
+          "probability": 0.916666666667
+        },
+        {
+          "value": -7.82,
+          "probability": 0.918333333333
+        },
+        {
+          "value": -7.74,
+          "probability": 0.92
+        },
+        {
+          "value": -7.66,
+          "probability": 0.921666666667
+        },
+        {
+          "value": -7.58,
+          "probability": 0.923333333333
+        },
+        {
+          "value": -7.5,
+          "probability": 0.925
+        },
+        {
+          "value": -7.42,
+          "probability": 0.926666666667
+        },
+        {
+          "value": -7.34,
+          "probability": 0.928333333333
+        },
+        {
+          "value": -7.26,
+          "probability": 0.93
+        },
+        {
+          "value": -7.18,
+          "probability": 0.931666666667
+        },
+        {
+          "value": -7.1,
+          "probability": 0.933333333333
+        },
+        {
+          "value": -7.02,
+          "probability": 0.935
+        },
+        {
+          "value": -6.94,
+          "probability": 0.936666666667
+        },
+        {
+          "value": -6.86,
+          "probability": 0.938333333333
+        },
+        {
+          "value": -6.78,
+          "probability": 0.94
+        },
+        {
+          "value": -6.7,
+          "probability": 0.941666666667
+        },
+        {
+          "value": -6.62,
+          "probability": 0.943333333333
+        },
+        {
+          "value": -6.54,
+          "probability": 0.945
+        },
+        {
+          "value": -6.46,
+          "probability": 0.946666666667
+        },
+        {
+          "value": -6.38,
+          "probability": 0.948333333333
+        },
+        {
+          "value": -6.3,
+          "probability": 0.95
+        },
+        {
+          "value": -6.22,
+          "probability": 0.951666666667
+        },
+        {
+          "value": -6.14,
+          "probability": 0.953333333333
+        },
+        {
+          "value": -6.06,
+          "probability": 0.955
+        },
+        {
+          "value": -5.98,
+          "probability": 0.956666666667
+        },
+        {
+          "value": -5.9,
+          "probability": 0.958333333333
+        },
+        {
+          "value": -5.82,
+          "probability": 0.96
+        },
+        {
+          "value": -5.74,
+          "probability": 0.961666666667
+        },
+        {
+          "value": -5.66,
+          "probability": 0.963333333333
+        },
+        {
+          "value": -5.58,
+          "probability": 0.965
+        },
+        {
+          "value": -5.5,
+          "probability": 0.966666666667
+        },
+        {
+          "value": -5.42,
+          "probability": 0.968333333333
+        },
+        {
+          "value": -5.34,
+          "probability": 0.97
+        },
+        {
+          "value": -5.26,
+          "probability": 0.971666666667
+        },
+        {
+          "value": -5.18,
+          "probability": 0.973333333333
+        },
+        {
+          "value": -5.1,
+          "probability": 0.975
+        },
+        {
+          "value": -5.02,
+          "probability": 0.976666666667
+        },
+        {
+          "value": -4.94,
+          "probability": 0.978333333333
+        },
+        {
+          "value": -4.86,
+          "probability": 0.98
+        },
+        {
+          "value": -4.78,
+          "probability": 0.981666666667
+        },
+        {
+          "value": -4.7,
+          "probability": 0.983333333333
+        },
+        {
+          "value": -4.62,
+          "probability": 0.985
+        },
+        {
+          "value": -4.54,
+          "probability": 0.986666666667
+        },
+        {
+          "value": -4.46,
+          "probability": 0.988333333333
+        },
+        {
+          "value": -4.38,
+          "probability": 0.99
+        },
+        {
+          "value": -4.3,
+          "probability": 0.991666666667
+        },
+        {
+          "value": -4.22,
+          "probability": 0.993333333333
+        },
+        {
+          "value": -4.14,
+          "probability": 0.995
+        },
+        {
+          "value": -4.06,
+          "probability": 0.996666666667
+        },
+        {
+          "value": -3.98,
+          "probability": 0.998333333333
+        },
+        {
+          "value": -3.9,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": -11.9,
+        "median": -11.9,
+        "interval80": {
+          "lower": -15.1,
+          "upper": -8.7
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/prompt.md",
+        "sha256": "2b1dbcbcec5c7642ab066679ff2905bcc270d4732eb3b155e89df20dc5da646c",
+        "bytes": 33889,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_command.json",
+        "sha256": "f6ce9a9167a79408b9fb5f6ad61ae035b61c687f1e79d9d400130f0158978d82",
+        "bytes": 855,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_codex_stdout.jsonl",
+        "sha256": "86f3abe2e19316889058f5d293e78990421f9f993c0d058a964dff780fc52db6",
+        "bytes": 2815375,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_codex_stderr.log",
+        "sha256": "7296281e4078cdefaef91d64309677d08bc4412c8626a28d62b00ff105f7a9dc",
+        "bytes": 233,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_codex_events.jsonl",
+        "sha256": "4615652c05a8704628b6445d4495f1926e96564a488437d6897265862234ea4a",
+        "bytes": 2817224,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_codex_last_message.txt",
+        "sha256": "b201683dc502c85e5750f75cecdf583f3d8356d940de2252ab7cde963bb62051",
+        "bytes": 7306,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_codex_trace.json",
+        "sha256": "0494e8353e1e8bdec6025c23d0230c03ed492006e6e73a7ea1a7b2e6005d143a",
+        "bytes": 570,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_stdout.txt",
+        "sha256": "b201683dc502c85e5750f75cecdf583f3d8356d940de2252ab7cde963bb62051",
+        "bytes": 7306,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_stderr.txt",
+        "sha256": "0bfa157e73c9e432a28ad70f37642c6a34993fa355f0c186c37b09b242c6d4dc",
+        "bytes": 248,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_prompt.md",
+        "sha256": "1cfe4dd23bfd00bd0fde5ebc40a435750190112d0a3689a0c3360b14959b95b9",
+        "bytes": 10581,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_command.json",
+        "sha256": "0a7772545ed9e11f75e2f54539b757c7f0b3f38992c1fd91dc756353b22a6d06",
+        "bytes": 851,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "11207b899d5f97085b6841a20fcf509d45818de4c3b54a3dd68336d0573e3609",
+        "bytes": 1427,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_codex_stderr.log",
+        "sha256": "9fb698b6c6deef4f0484af5542659fc1b8d9c00e3581b572016c2474e39eb883",
+        "bytes": 233,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_codex_events.jsonl",
+        "sha256": "3ef63b81e2e37c604bea0d214c9dade5cc36003971249e68e987270585b9ba48",
+        "bytes": 1449,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_codex_last_message.txt",
+        "sha256": "beb932448bb44d94e3a35e64f2a68a18e00be61ff48d6a7dd739600c3271c99a",
+        "bytes": 1071,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_codex_trace.json",
+        "sha256": "166601a039b715692b6e063e4c37658b3567983b61f49cff40f76b829df076b2",
+        "bytes": 558,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_stdout.txt",
+        "sha256": "beb932448bb44d94e3a35e64f2a68a18e00be61ff48d6a7dd739600c3271c99a",
+        "bytes": 1071,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_stderr.txt",
+        "sha256": "9202c861f2b1fa74992e2a43b998d6ff042b63c9bfb1fd3d6d58b2d45eb94635",
+        "bytes": 248,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/revision_prompt.md",
+        "sha256": "1fa3a925e316362c8a1d40b32da92640cf19a1f2d6a38615fc51c009f0dfacc2",
+        "bytes": 43202,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/command.json",
+        "sha256": "0e3aa6f08f5700f135f2f62242b851e0129cc5050c77d4ab41cc0377e098a918",
+        "bytes": 849,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/codex_stdout.jsonl",
+        "sha256": "91d0aa2d803ccb6180e5d53283f82a3ff0700273a77e9f5f3fcfc2937dae4738",
+        "bytes": 11109,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/codex_stderr.log",
+        "sha256": "2dd1219f8e81ec591bd8a531b46ed6ce6be7b565ff049eb139b82ac9f571e406",
+        "bytes": 233,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/codex_events.jsonl",
+        "sha256": "81f8946906161540c727f9b0e76e584110d584a7a676925e8d658455ef9af2ba",
+        "bytes": 11215,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/codex_last_message.txt",
+        "sha256": "008a40d2c352d9dafe8be59ddaa08cad3e2a63385fc6075efbc24d66041d60da",
+        "bytes": 7866,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/codex_trace.json",
+        "sha256": "790a237c9cac526436bc585cf43e30b45e7ad9922c5aee770189bc67240e26a4",
+        "bytes": 565,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/stdout.txt",
+        "sha256": "008a40d2c352d9dafe8be59ddaa08cad3e2a63385fc6075efbc24d66041d60da",
+        "bytes": 7866,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/stderr.txt",
+        "sha256": "8e7e9a426f0eb54f367db492c3212f451a53f85fd8af2b3431e0e68d17919ff5",
+        "bytes": 248,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/raw_response.txt",
+        "sha256": "008a40d2c352d9dafe8be59ddaa08cad3e2a63385fc6075efbc24d66041d60da",
+        "bytes": 7866,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/parsed_cells.json",
+        "sha256": "c29c7d0a758a70fa76a680ad55e7539bd2b333b59578c36e154ddf75f3ffe708",
+        "bytes": 8797,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/normalized_cells.json",
+        "sha256": "bb42ad9a44840d7df31d987c6768333db4a66f3f1ef964295d85dee0c02052b2",
+        "bytes": 26124,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/distribution.json",
+        "sha256": "ee28b404ac822cdb5d7a38ae6e8a142523050418c1cf3f3b05d69897a8760c39",
+        "bytes": 13543,
+        "createdAt": "2026-08-13T07:14:07Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/validation.json",
+        "sha256": "b9daef3251d03e198a05067ec8bc175a05caf80ff7e235e470fa73d69c83d5e6",
+        "bytes": 143,
+        "createdAt": "2026-08-13T07:14:07Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-13T07:14:07Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "810d9542cccacb4bcbcf1afc98842d834a6c95a4c1e5af1716d7069d2260a4cf"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t07-14-07z-nbb-business-barometer-overall-2026-08/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "prior_update_interval",
+          "summary": "The model candidate and interval step say they use NBB history from 2025-07 through 2026-07, but the cited overall-series fetch in the trace starts at 2025-08 and does not show the 2025-07 observation needed for the first listed monthly change.",
+          "actionRequested": "Either add the official 2025-07 fetched observation to the cited trace/source context, or revise the historical sample, change list, calibration_n, and interval explanation to match only the explicitly fetched 2025-08 through 2026-07 data."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Remove or de-emphasize the failed specs.json fetch unless it is needed for audit context."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State explicitly that the resolving URL remains the registered NBB business survey page even though the evidence trace also used the NBB SDMX API."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the required traceability fix by aligning the model-candidate sample, monthly-change list, calibration counts, sigma, and interval explanation to the explicitly fetched 2025-08 through 2026-07 NBB overall-series data. Accepted the resolver-clarity suggestion by stating that the registered NBB business survey page remains the resolving URL while SDMX was used for evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the required traceability fix by aligning the model-candidate sample, monthly-change list, calibration counts, sigma, and interval explanation to the explicitly fetched 2025-08 through 2026-07 NBB overall-series data. Accepted the resolver-clarity suggestion by stating that the registered NBB business survey page remains the resolving URL while SDMX was used for evidence.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the required traceability fix by aligning the model-candidate sample, monthly-change list, calibration counts, sigma, and interval explanation to the explicitly fetched 2025-08 through 2026-07 NBB overall-series data. Accepted the resolver-clarity suggestion by stating that the registered NBB business survey page remains the resolving URL while SDMX was used for evidence.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable after tightening one traceability issue around the historical sample used for the model and interval."
+    }
+  }
+]

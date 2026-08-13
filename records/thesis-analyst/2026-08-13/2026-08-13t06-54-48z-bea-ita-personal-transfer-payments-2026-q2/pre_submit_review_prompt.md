@@ -1,0 +1,103 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bea.ita.personal_transfer_payments
+- period: 2026-Q2
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. The cell's unit must equal targetUnit below byte-for-byte, even when it is not a member of the contract's exploratory unit menu. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-personal-transfer-payments-q2-2026"
+- country: "US"
+- targetUnit: "usd_millions"
+- dataPointId: "bea.ita.personal_transfer_payments.2026_q2.first_print"
+- expectedReleaseWindow: {"end": "2026-09-24", "start": "2026-09-24"}
+- sourceBinding: {"adapter": "bea-ita-itable", "allowedHosts": ["apps.bea.gov", "www.bea.gov"], "expectedReleaseWindow": {"end": "2026-09-24", "start": "2026-09-24"}, "field": "Line 18: Personal transfers (QSA)", "releasePolicy": "first_print", "sourceSeriesId": "ITA:T5.1:L18:QSA", "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1", "table": "U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted", "transform": {"applicationId": 62, "basis": "QSA", "cadence": "quarterly", "factor": 1, "lineNumber": "18", "operation": "identity", "productId": "1", "rowLabel": "Personal transfers", "tableList": "62", "unit": "usd_millions"}}
+- targetRegistrationPath: "records/targets/2026-08-12-7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925.json"
+- targetContentHash: "7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925"
+- registrationCommit: "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84"
+- registeredAtUtc: "2026-08-12T21:16:44Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+8e4d2b859d3afecb66e53783dda0cf63daa23998e98173f43cddf548260841c7
+
+# Draft forecast response
+{
+  "slug": "us-personal-transfer-payments-q2-2026",
+  "country": "US",
+  "type": "data",
+  "title": "US Personal Transfer Payments, Q2 2026",
+  "question": "What will BEA U.S. International Transactions Table 5.1, line 18, Personal transfers, quarterly seasonally adjusted, be for 2026-Q2 on the first print, in millions of dollars?",
+  "unit": "usd_millions",
+  "pointEstimate": 18511,
+  "ciLow": 18129,
+  "ciHigh": 18893,
+  "confidence": 0.8,
+  "resolutionDate": "2026-09-24",
+  "resolutionSource": "BEA, U.S. International Transactions and Investment Position",
+  "resolutionSourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+  "resolutionRule": "Resolve to the FIRST PRINT in BEA U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted, for 2026-Q2, as displayed in the official BEA iTable source ITA:T5.1:L18:QSA. Use the printed whole number in millions of dollars, with no later revisions or corrections.",
+  "dataPointId": "bea.ita.personal_transfer_payments.2026_q2.first_print",
+  "historicalContext": [
+    { "label": "2025-Q2 BEA Table 5.1 line 18 QSA, usd_millions", "value": 18641 },
+    { "label": "2025-Q3 BEA Table 5.1 line 18 QSA, usd_millions", "value": 18596 },
+    { "label": "2025-Q4 BEA Table 5.1 line 18 QSA, usd_millions", "value": 18552 },
+    { "label": "2026-Q1 BEA Table 5.1 line 18 QSA, usd_millions", "value": 18511 },
+    { "label": "Last 11 quarter-to-quarter changes sigma, usd_millions", "value": 223.597 }
+  ],
+  "drivers": [
+    "Last-print persistence benchmark at 18,511",
+    "Recent quarterly declines are small versus the historical 80% band",
+    "No direct pre-release Q2 evidence cleared the material-deviation test",
+    "Interval widened to cover the 2023-2024 transition volatility"
+  ],
+  "sourceContext": [
+    "https://www.bea.gov/news/schedule",
+    "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+    "https://apps.bea.gov/iTablecore/data/app/GetStep",
+    "https://app.thesisinstitute.org/specs.json"
+  ],
+  "runAt": "2026-08-13T06:57:28Z",
+  "reasoning": [
+    { "kind": "heading", "text": "BEA Personal Transfers Q2 2026 First Print" },
+    { "kind": "text", "text": "Framing and exact resolver: this forecasts BEA U.S. International Transactions Table 5.1, line 18, Personal transfers, quarterly seasonally adjusted, for 2026-Q2, first print only, in millions of dollars. The registered ledger target binds slug, unit, dataPointId, sourceSeriesId ITA:T5.1:L18:QSA, and the BEA iTable resolver." },
+    { "kind": "tool", "tool": "bea.schedule", "call": "curl -sS https://www.bea.gov/news/schedule and parse the schedule row for U.S. International Transactions and Investment Position, 2nd Quarter 2026", "result": "Fetched official BEA schedule row: September 24 8:30 AM News U.S. International Transactions and Investment Position, 2nd Quarter 2026. This verifies resolutionDate 2026-09-24." },
+    { "kind": "tool", "tool": "bea.itable.selector", "call": "POST https://apps.bea.gov/iTablecore/data/app/GetStep with {\"appid\":62,\"stepnum\":2,\"data\":[[\"Product\",\"1\"],[\"TableList\",\"62\"]]}; then select Product=1, TableList=62, Filter_#1=1, Filter_#2=1, Filter_#3=18", "result": "Fetched selector authentication for Table 5.1: year_key_2026=1, frequency_key=1 for Quarterly seasonally adjusted, line_key=18 for Personal transfers; selected 2026 request body included Filter_#1=1, Filter_#2=1, Filter_#3=18." },
+    { "kind": "tool", "tool": "bea.itable.history", "call": "POST BEA GetStep selected Table 5.1 line 18 QSA for official years 2023-2026 and parse line 18 cells through the latest available print", "result": "Fetched BEA Table 5.1 line 18 QSA values in usd_millions: 2023-Q2=16749; 2023-Q3=17074; 2023-Q4=17499; 2024-Q1=18023; 2024-Q2=18405; 2024-Q3=18642; 2024-Q4=18737; 2025-Q1=18688; 2025-Q2=18641; 2025-Q3=18596; 2025-Q4=18552; 2026-Q1=18511. Table stamp: Release Date: June 24, 2026 - Next Release Date: September 24, 2026." },
+    { "kind": "tool", "tool": "thesis.slug_check", "call": "curl -sS -D - https://app.thesisinstitute.org/specs.json and curl -sS -D - https://app.thesisinstitute.org/", "result": "Fetched slug-check endpoint https://app.thesisinstitute.org/specs.json: HTTP 404 with 11289-byte HTML error page; fetched app root: HTTP 200 with 384682-byte forecasts page. Because the required specs JSON was unavailable, I keep the registered catalogSlug us-personal-transfer-payments-q2-2026 rather than inventing an alternate slug." },
+    { "kind": "text", "text": "Base rate / reference class: the last 12 comparable BEA first-print/current iTable observations range from 16,749 to 18,737 usd_millions, with the latest four prints 18,641, 18,596, 18,552, and 18,511. The default base rate prior for this repeated level series is last-print persistence at 18,511 because recent changes are modest and no direct Q2 pre-release signal was fetched." },
+    { "kind": "tool", "tool": "model_candidates.local", "call": "Compute thesis_model_candidate_v1 persistence candidate from fetched BEA values, using successive changes for interval calibration", "result": "Generated persistence candidate: point=18511, p10=18225, p50=18511, p90=18797, ci80=[18225,18797], ci90=[18143,18879], interval_method=1.28*sample_stdev_successive_changes_last_12_official_iTable_prints, calibration_n=11, train_cutoff=2026-Q1, walk_forward_mae_last8=117.5. Successive changes were 325, 425, 524, 382, 237, 95, -49, -47, -45, -44, -41." },
+    { "kind": "math", "text": "Prior/update/interval: selected prior is last-print persistence from BEA Table 5.1 line 18 QSA, 2026-Q1 = 18,511 usd_millions. Historical sample is the last 12 fetched quarterly values, with successive changes [325, 425, 524, 382, 237, 95, -49, -47, -45, -44, -41]. Adjustment components: recent momentum is about -41 to -49 per quarter, but the material-deviation threshold is max(1 rounding unit, 25% of the 80% band) = max(1, 191), so no direct evidence justifies moving the point away from persistence. For interval, sigma = 223.597 from successive changes; 1.28*sigma = 286.204. I widen the half-width to 382, about 1.34x the 1.28*sigma width, because the same fetched 12-quarter reference class includes 2023-2024 transition changes up to 524 and a 382 width covers 8 of the last 10 one-step changes. Final implied bounds: 18,511 - 382 = 18,129 and 18,511 + 382 = 18,893 usd_millions." },
+    { "kind": "text", "text": "Upside risk: a renewed broad rise in secondary-income personal transfers like the 2023-Q4 to 2024-Q1 jump of +524 would land above the interval. Downside risk: a sharper reversal in personal-transfer payments, larger than the recent -41 to -49 declines and worse than -382 from Q1, would land below the interval. Outside the interval would require a Q2 level below 18,129 or above 18,893." },
+    { "kind": "forecast", "point": 18511, "ciLow": 18129, "ciHigh": 18893 }
+  ]
+}

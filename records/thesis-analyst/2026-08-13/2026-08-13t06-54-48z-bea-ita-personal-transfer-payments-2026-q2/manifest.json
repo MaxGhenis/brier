@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-13T06:54:48Z",
+  "runStartedAt": "2026-08-13T06:54:48Z",
+  "sealedAt": "2026-08-13T06:59:12Z",
+  "series": "bea.ita.personal_transfer_payments",
+  "period": "2026-Q2",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2026-Q1": 18511
+    },
+    "catalogSlug": "us-personal-transfer-payments-q2-2026",
+    "country": "US",
+    "dataPointId": "bea.ita.personal_transfer_payments.2026_q2.first_print",
+    "expectedReleaseDate": "2026-09-24",
+    "expectedReleaseWindow": {
+      "end": "2026-09-24",
+      "start": "2026-09-24"
+    },
+    "period": "2026-Q2",
+    "registeredAt": "2026-08-12T21:16:44Z",
+    "registeredAtUtc": "2026-08-12T21:16:44Z",
+    "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+    "seedPeriod": "2026-Q2",
+    "series": "bea.ita.personal_transfer_payments",
+    "sourceBinding": {
+      "adapter": "bea-ita-itable",
+      "allowedHosts": [
+        "apps.bea.gov",
+        "www.bea.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-24",
+        "start": "2026-09-24"
+      },
+      "field": "Line 18: Personal transfers (QSA)",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ITA:T5.1:L18:QSA",
+      "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=62&step=6&isuri=1&tablelist=62&product=1",
+      "table": "U.S. International Transactions, Table 5.1, line 18 (Personal transfers), quarterly seasonally adjusted",
+      "transform": {
+        "applicationId": 62,
+        "basis": "QSA",
+        "cadence": "quarterly",
+        "factor": 1,
+        "lineNumber": "18",
+        "operation": "identity",
+        "productId": "1",
+        "rowLabel": "Personal transfers",
+        "tableList": "62",
+        "unit": "usd_millions"
+      }
+    },
+    "targetContentHash": "7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925",
+    "targetRegistrationPath": "records/targets/2026-08-12-7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925.json",
+    "targetUnit": "usd_millions",
+    "valueScale": 1
+  },
+  "registrationCommit": "d50ffb7c957ea27fad25c6e0c6fee0aa2471bc84",
+  "targetContentHash": "7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925",
+  "targetRegistrationPath": "records/targets/2026-08-12-7226e22181e3efd6ac0e1740ffc7d079b1a45949f34982c6290fd74391665925.json",
+  "registeredAtUtc": "2026-08-12T21:16:44Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-13T06:54:48Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "6de336c84f48b3da4af7a828a197d14017ee6d1779b64efa3fcf06643258f1c7"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that historical iTable values used for modeling may be current/revised history, while the target itself resolves only to the 2026-Q2 first print."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the BEA schedule row in resolutionSource or reasoning exactly as 'U.S. International Transactions and Investment Position, 2nd Quarter 2026' for audit readability."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarity suggestions by naming the BEA schedule row exactly as U.S. International Transactions and Investment Position, 2nd Quarter 2026, and by clarifying that the modeling history is the current iTable history available before the 2026-Q2 first print while the resolver remains first-print only. No required fixes were identified.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarity suggestions by naming the BEA schedule row exactly as U.S. International Transactions and Investment Position, 2nd Quarter 2026, and by clarifying that the modeling history is the current iTable history available before the 2026-Q2 first print while the resolver remains first-print only. No required fixes were identified.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft satisfies the target contract and rubric with no blocking publication issues."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/prompt.md",
+      "sha256": "8e4d2b859d3afecb66e53783dda0cf63daa23998e98173f43cddf548260841c7",
+      "bytes": 32595,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_command.json",
+      "sha256": "bc86bf096d4ab1cfa7e213fda5f33a58af26d924fed5fd765c0039a7149b47b1",
+      "bytes": 859,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_stdout.jsonl",
+      "sha256": "ddccb221a744315957e358cd61d0e8a43232f78d84bd200735ac53eb07742c62",
+      "bytes": 1379972,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_stderr.log",
+      "sha256": "65382905059a036177592062d126ff5477a18d1c9d5b33b61468a991a6764e92",
+      "bytes": 233,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_events.jsonl",
+      "sha256": "2bea2c0b3e1329d16740fef29efcb18db3331f7a3e95ad2fae4eb28c73c3c7d0",
+      "bytes": 1380963,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_last_message.txt",
+      "sha256": "f2a986139a1957ac997dda37fd0bc86669e47c0397a5ad44d20a20f1e71bcb08",
+      "bytes": 6963,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_codex_trace.json",
+      "sha256": "9f9c205bde1e946a7908c910a03b144e885c23c5d85083a4eb5f95746549a2bf",
+      "bytes": 567,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_stdout.txt",
+      "sha256": "f2a986139a1957ac997dda37fd0bc86669e47c0397a5ad44d20a20f1e71bcb08",
+      "bytes": 6963,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/draft_stderr.txt",
+      "sha256": "60f7fed5e4077e409656789a81815a6dfed56e89d7a5049634f4935a9cf1b32b",
+      "bytes": 248,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_prompt.md",
+      "sha256": "0b906ef8bca518960216d965b24f8cbe9c86fcbd23a845b5f8b4fbc4a77c3648",
+      "bytes": 10491,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_command.json",
+      "sha256": "a4a4e8896ec782062a3965cbbf1059962acd58e176e9dafc6348974f76a2f467",
+      "bytes": 855,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "f0f3eedd9e7e1830f72d3576e9b1cc6d0214531a6c88eff95bcf6ecfbf2352f7",
+      "bytes": 808,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_stderr.log",
+      "sha256": "83a0667781ed24ea5d5a69a4f2615786861208ebb9e56ed070fc39c2989ec850",
+      "bytes": 233,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_events.jsonl",
+      "sha256": "bb31af3885cfcddf510b7bf0492fb408b97ec9bf8fd02badb99b2666cd8767b8",
+      "bytes": 830,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_last_message.txt",
+      "sha256": "99499568140878bd30b8fb8bd63bed1d99e1786fa162a62a4258effa86efb2db",
+      "bytes": 482,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_codex_trace.json",
+      "sha256": "7d9ee6c9c54550f0274e18c9d393907c11225fee8e391992df9838a3a57685b8",
+      "bytes": 558,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_stdout.txt",
+      "sha256": "99499568140878bd30b8fb8bd63bed1d99e1786fa162a62a4258effa86efb2db",
+      "bytes": 482,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/pre_submit_review_stderr.txt",
+      "sha256": "354700716935bee8c74971a191de3ea1d80d550d4131fab296f3c12d5d52eff6",
+      "bytes": 248,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/revision_prompt.md",
+      "sha256": "05dd72591829a950ade8032431a28ea1b494260c905810b2deea2c32d61f6112",
+      "bytes": 40976,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/command.json",
+      "sha256": "9d91ec59adcfffe8ded4fd9ea340f6ea790e81fb0d6f440e43b414e47a4b2f40",
+      "bytes": 853,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/codex_stdout.jsonl",
+      "sha256": "f26c3c1fce3ffcf72db18288cc28d3c0d941625d67e12dbd52a09d8bd3222dcd",
+      "bytes": 8621,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/codex_stderr.log",
+      "sha256": "3bcb9b53f3b5b93cd2331e1374ac96063661af11dec813147ee607e08b24fb4d",
+      "bytes": 233,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/codex_events.jsonl",
+      "sha256": "d9f69d10c89c4f6522e030f0d1923a5fe32f9bb050ca6124741b6708104855a8",
+      "bytes": 8643,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/codex_last_message.txt",
+      "sha256": "893e141a4d2e3a5ce8866bc0038698008e006899e0f02178c0b92fd2a1852d45",
+      "bytes": 7915,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/codex_trace.json",
+      "sha256": "c5c7491942365ec56337de484d30921d27c0fafdd7fcb009614cae38a0349ae6",
+      "bytes": 560,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/stdout.txt",
+      "sha256": "893e141a4d2e3a5ce8866bc0038698008e006899e0f02178c0b92fd2a1852d45",
+      "bytes": 7915,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/stderr.txt",
+      "sha256": "f804f0d9b20c9c9ae94df80c4db3881c4da57c8377cb9139d219f9e477a7015a",
+      "bytes": 248,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/raw_response.txt",
+      "sha256": "893e141a4d2e3a5ce8866bc0038698008e006899e0f02178c0b92fd2a1852d45",
+      "bytes": 7915,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/parsed_cells.json",
+      "sha256": "ca0789c8ae47472288c45506110137d9fecdbcfc4912ac86ce71fcb9bd8c0467",
+      "bytes": 8147,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/normalized_cells.json",
+      "sha256": "1f3402ce530c55f0ef990462454c112b06e9bc90f6ed63d63ac6efc35764c248",
+      "bytes": 25899,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/distribution.json",
+      "sha256": "e15fad4f970da32f0a7c8ff9c880f909829cdd7d7f7c2e5f1c14f230d829f031",
+      "bytes": 13968,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/validation.json",
+      "sha256": "b986982fb6804d66d69e5a2800fcc784b7989ae1bb944ca643d2051f8da75387",
+      "bytes": 138,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/cells.with_activity.json",
+      "sha256": "bb6058f0615c89838253c751557522d6124f3461b55746432513267b1ae8af9c",
+      "bytes": 39953,
+      "createdAt": "2026-08-13T06:54:48Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-54-48z-bea-ita-personal-transfer-payments-2026-q2/manifest.json",
+      "sha256": "17b2a6b6bb953132d4d92bde735b9b1644a3cea06ffb682ec8768099e74d00ca",
+      "bytes": 14921,
+      "createdAt": "2026-08-13T06:54:48Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-personal-transfer-payments-q2-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "448b17e91d8ee0fa53f512a75460719c172b1358",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "9cef25d4c38264c478ff69df1807b16af3458ceb9fa7c320b2100fd3dc0c667c"
+}

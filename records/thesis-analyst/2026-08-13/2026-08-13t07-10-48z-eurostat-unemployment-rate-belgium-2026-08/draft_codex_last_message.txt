@@ -1,0 +1,110 @@
+{
+  "slug": "belgium-unemployment-rate-august-2026",
+  "country": "BE",
+  "type": "data",
+  "title": "Belgium unemployment rate, August 2026",
+  "question": "What will Eurostat first publish for Belgium's monthly seasonally adjusted unemployment rate in dataset une_rt_m, freq=M, s_adj=SA, age=TOTAL, sex=T, unit=PC_ACT, geo=BE, for August 2026?",
+  "unit": "percent",
+  "pointEstimate": 6.3,
+  "ciLow": 6.1,
+  "ciHigh": 6.5,
+  "confidence": 0.8,
+  "resolutionDate": "2026-10-05",
+  "resolutionSource": "Eurostat monthly unemployment euro-indicators release / une_rt_m data page",
+  "resolutionSourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+  "resolutionRule": "Resolve to the first Eurostat print in table une_rt_m for geo=BE, s_adj=SA, sex=T, age=TOTAL, unit=PC_ACT, time=2026-08, reported in percent to one decimal. Use the first official value published for that monthly observation; do not substitute later revisions. The registered ledger target expected release window ends 2026-10-05; the official Eurostat calendar event fetched during drafting lists Unemployment, period August 2026, on 2026-10-01T11:00Z.",
+  "dataPointId": "eurostat.une_rt_m.unemployment_rate.belgium.2026_08.first_print",
+  "historicalContext": [
+    {
+      "label": "Eurostat une_rt_m BE total SA unemployment, 2026-02",
+      "value": 6.3
+    },
+    {
+      "label": "Eurostat une_rt_m BE total SA unemployment, 2026-03",
+      "value": 6.2
+    },
+    {
+      "label": "Eurostat une_rt_m BE total SA unemployment, 2026-04",
+      "value": 6.2
+    },
+    {
+      "label": "Eurostat une_rt_m BE total SA unemployment, 2026-05",
+      "value": 6.3
+    },
+    {
+      "label": "Eurostat une_rt_m BE total SA unemployment, 2026-06",
+      "value": 6.3
+    }
+  ],
+  "drivers": [
+    "June 2026 last print at 6.3%",
+    "Persistence beats mean-change drift in walk-forward checks",
+    "Two unreleased monthly steps to August",
+    "Recent monthly-change sigma is 0.083 pp",
+    "No direct public signal justifies moving from persistence"
+  ],
+  "sourceContext": [
+    "https://ec.europa.eu/eurostat/o/calendars/eventsJson?start=2026-09-27T00%3A00%3A00%2B02%3A00&end=2026-10-06T00%3A00%3A00%2B02%3A00&theme=0&category=0&keywords=Unemployment&isEuroindicator=true&authorInclude=&authorExclude=",
+    "https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar",
+    "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?format=JSON&lang=en&freq=M&s_adj=SA&age=TOTAL&unit=PC_ACT&sex=T&geo=BE&startPeriod=2024-08&endPeriod=2026-07",
+    "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.BE?format=JSON&startPeriod=2024-08&endPeriod=2026-06",
+    "https://app.thesisinstitute.org/specs.json"
+  ],
+  "runAt": "2026-08-13T07:11:03Z",
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "Belgium August 2026 Unemployment"
+    },
+    {
+      "kind": "text",
+      "text": "Framing: the registered target is Eurostat une_rt_m, monthly seasonally adjusted unemployment, Belgium, total sex, total age, percentage of population in the labour force, for August 2026, first print. The canonical ledger binds slug belgium-unemployment-rate-august-2026, unit percent, dataPointId eurostat.une_rt_m.unemployment_rate.belgium.2026_08.first_print, and resolutionDate 2026-10-05. I keep that ledger resolutionDate and note the official Eurostat calendar event separately."
+    },
+    {
+      "kind": "tool",
+      "tool": "shell.curl",
+      "call": "curl -sS -L 'https://ec.europa.eu/eurostat/o/calendars/eventsJson?start=2026-09-27T00%3A00%3A00%2B02%3A00&end=2026-10-06T00%3A00%3A00%2B02%3A00&theme=0&category=0&keywords=Unemployment&isEuroindicator=true&authorInclude=&authorExclude='",
+      "result": "Official Eurostat calendar JSON returned 1 event: recordid 22494146, title Unemployment, period August 2026, start 2026-10-01T11:00Z, datasetCodes une_rt_m, euroind true, preliminary false."
+    },
+    {
+      "kind": "tool",
+      "tool": "shell.curl",
+      "call": "curl -sS -L 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?format=JSON&lang=en&freq=M&s_adj=SA&age=TOTAL&unit=PC_ACT&sex=T&geo=BE&startPeriod=2024-08&endPeriod=2026-07'",
+      "result": "Eurostat statistics API updated 2026-08-12T23:00:00+0200 for freq=M s_adj=SA age=TOTAL unit=PC_ACT sex=T geo=BE. Values fetched: 2024-08 5.7, 2024-09 5.8, 2024-10 5.8, 2024-11 5.9, 2024-12 6.0, 2025-01 6.1, 2025-02 6.2, 2025-03 6.2, 2025-04 6.1, 2025-05 6.0, 2025-06 6.1, 2025-07 6.1, 2025-08 6.1, 2025-09 6.3, 2025-10 6.4, 2025-11 6.4, 2025-12 6.4, 2026-01 6.3, 2026-02 6.3, 2026-03 6.2, 2026-04 6.2, 2026-05 6.3, 2026-06 6.3; July 2026 was not present in the fetched response."
+    },
+    {
+      "kind": "tool",
+      "tool": "shell.curl",
+      "call": "curl -sS -L 'https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.BE?format=JSON&startPeriod=2024-08&endPeriod=2026-06'",
+      "result": "Eurostat SDMX cross-check updated 2026-08-12T23:00:00+0200 returned time indexes 2024-08 through 2026-06 and values 5.7, 5.8, 5.8, 5.9, 6.0, 6.1, 6.2, 6.2, 6.1, 6.0, 6.1, 6.1, 6.1, 6.3, 6.4, 6.4, 6.4, 6.3, 6.3, 6.2, 6.2, 6.3, 6.3."
+    },
+    {
+      "kind": "tool",
+      "tool": "shell.python",
+      "call": "Compute model candidates from the fetched Eurostat BE total SA history ending 2026-06.",
+      "result": "thesis_model_candidate_v1 persistence: point 6.3, p10 6.1, p50 6.3, p90 6.5, 80 interval [6.1, 6.5], 90 interval [6.1, 6.5], interval_method two-step monthly-change residual sigma rounded/widened to one decimal, calibration_n 22 changes, train_cutoff 2026-06, walk_forward_mae 0.056. Mean-change drift candidate: point about 6.4 from mean monthly change +0.027, walk_forward_mae 0.082, weaker than persistence."
+    },
+    {
+      "kind": "text",
+      "text": "Base rate/reference class: the last 23 comparable Eurostat Belgium total SA monthly unemployment prints run from 5.7% to 6.4%, mean 6.139%, median 6.2%, and latest 6.3%. The last 22 month-to-month changes are +0.1, 0.0, +0.1, +0.1, +0.1, +0.1, 0.0, -0.1, -0.1, +0.1, 0.0, 0.0, +0.2, +0.1, 0.0, 0.0, -0.1, 0.0, -0.1, 0.0, +0.1, 0.0 pp. Last-print persistence is the prior because its walk-forward MAE, 0.056 pp, beats mean-change drift's 0.082 pp."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: prior = selected persistence candidate at 6.3 from the fetched 2024-08 to 2026-06 official history; adjustment components = 0.0 pp momentum update and 0.0 pp current-evidence update because no direct public release-specific signal was fetched that clears the update test; point = 6.3 + 0.0 + 0.0 = 6.3. Interval method = two-step residual monthly-change volatility because July and August are both unreleased from the June latest print. From the 22 fetched monthly changes, sigma = 0.083 pp; two-step sigma = sqrt(2)*0.083 = 0.117 pp; 80% half-width = 1.28*0.117 = 0.150 pp. Raw 80% interval is 6.3 +/- 0.150 = [6.150, 6.450], widened to one-decimal published bounds [6.1, 6.5] to avoid understating discrete publication rounding over a two-month horizon."
+    },
+    {
+      "kind": "text",
+      "text": "Inside view: Belgium's official series has been flat at 6.2-6.3 since February 2026 after a late-2025 high of 6.4. I fetched no official Belgian or Eurostat current signal that would justify moving materially from the 6.3 persistence prior, so the forecast stays at 6.3 rather than adding a narrative drift."
+    },
+    {
+      "kind": "text",
+      "text": "Upside risk outside the interval: a July-August deterioration like the 2025-08 to 2025-10 rise of +0.3 pp, or a country-specific labour-force shock, would land above the interval. Downside risk outside the interval: a renewed two-month improvement matching or exceeding the 2026-02 to 2026-04 decline of -0.1 pp plus additional acceleration would land below the interval."
+    },
+    {
+      "kind": "forecast",
+      "point": 6.3,
+      "ciLow": 6.1,
+      "ciHigh": 6.5
+    }
+  ]
+}

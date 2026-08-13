@@ -1,0 +1,389 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-13T06:59:12Z",
+  "runStartedAt": "2026-08-13T06:59:12Z",
+  "sealedAt": "2026-08-13T07:04:09Z",
+  "series": "statjp.cpi.tokyo_all_items_yoy",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "japan-tokyo-cpi-annual-rate-august-2026-prelim",
+    "country": "JP",
+    "dataPointId": "statjp.cpi.tokyo_all_items_annual_rate.august_2026.preliminary",
+    "expectedReleaseWindow": {
+      "end": "2026-09-04",
+      "start": "2026-08-27"
+    },
+    "period": "2026-08",
+    "registeredAt": "2026-08-13T06:52:40Z",
+    "registeredAtUtc": "2026-08-13T06:52:40Z",
+    "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+    "registrationState": "preregistered",
+    "series": "statjp.cpi.tokyo_all_items_yoy",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.e-stat.go.jp",
+        "www.stat.go.jp"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-04",
+        "start": "2026-08-27"
+      },
+      "field": "0001",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "statjp.tokyo_cpi.all_items",
+      "sourceUrl": "https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-t.html",
+      "table": "2020-base CPI Tokyo ku-area mid-month preliminary; machine-readable vintage is the release's e-Stat table 1-2 workbook (all items, series code 0001), YoY computed from rounded index",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "82577eb48271c967cb46d1b849159bced15e61bba38be263d2ad43b3fe4d3f2e",
+    "targetRegistrationPath": "records/targets/2026-08-13-82577eb48271c967cb46d1b849159bced15e61bba38be263d2ad43b3fe4d3f2e.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "448b17e91d8ee0fa53f512a75460719c172b1358",
+  "targetContentHash": "82577eb48271c967cb46d1b849159bced15e61bba38be263d2ad43b3fe4d3f2e",
+  "targetRegistrationPath": "records/targets/2026-08-13-82577eb48271c967cb46d1b849159bced15e61bba38be263d2ad43b3fe4d3f2e.json",
+  "registeredAtUtc": "2026-08-13T06:52:40Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-13T06:59:12Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "3d4bd66aa56f65ab21b46a394c4377f9717fa6877605664ca80b1d224b2f8a9e"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolutionRule adds a 2025-base fallback that can read like a changed resolver rather than a disclosed ledger discrepancy.",
+        "actionRequested": "Keep the resolver anchored to the registered dataPointId, allowed hosts, first_print policy, field 0001, and the ledger sourceBinding; move the 2025-base schedule/revision issue into reasoning as a discrepancy note instead of making it an alternate rule."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The prior/update/interval step is strong; consider shortening the resolver discrepancy sentence to reduce ambiguity."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The catalog.slug_check against a 404 shell is not material to the forecast and can be omitted from reasoning if space is constrained."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by removing the 2025-base fallback from the resolution rule and keeping the formal resolver anchored to the registered sourceBinding, field 0001, first_print policy, dataPointId, and ledger resolutionDate. The 2025-base schedule/revision issue remains only as a public discrepancy and uncertainty note in the reasoning.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by removing the 2025-base fallback from the resolution rule and keeping the formal resolver anchored to the registered sourceBinding, field 0001, first_print policy, dataPointId, and ledger resolutionDate. The 2025-base schedule/revision issue remains only as a public discrepancy and uncertainty note in the reasoning.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by removing the 2025-base fallback from the resolution rule and keeping the formal resolver anchored to the registered sourceBinding, field 0001, first_print policy, dataPointId, and ledger resolutionDate. The 2025-base schedule/revision issue remains only as a public discrepancy and uncertainty note in the reasoning.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after tightening the resolver language so the JSON does not broaden the ledger-bound source contract."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/prompt.md",
+      "sha256": "d4cb8b6da7057870381def8a0e71c57837904998a937662aac420f388c698adc",
+      "bytes": 34020,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_command.json",
+      "sha256": "7e2534c6f552ceea5f4a91f5cfd3782f04a50e345f4f091fe369b876c10d50c4",
+      "bytes": 855,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "85756434328db25c8419017b922175607d80d1802ce7ab30776912185a9861f8",
+      "bytes": 2235988,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_codex_stderr.log",
+      "sha256": "27234e1cbfe5cd8d6acb3299e20d40be7e1f588cb810c3a1aad72af8826364c9",
+      "bytes": 233,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_codex_events.jsonl",
+      "sha256": "5855c3bef4feca8be5f0723fc5a68b6995f30747cf9b74452878f678e171dbe4",
+      "bytes": 2287918,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_codex_last_message.txt",
+      "sha256": "1923924c215bc7fa5175bd6223969f71bcd5e79aa3b9e0471a2a87f306af1046",
+      "bytes": 8439,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_codex_trace.json",
+      "sha256": "8a2ad3099ef183ef897b12ece3a3a32b1ea48f1db658405604b51bad62b2a0b1",
+      "bytes": 570,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_stdout.txt",
+      "sha256": "1923924c215bc7fa5175bd6223969f71bcd5e79aa3b9e0471a2a87f306af1046",
+      "bytes": 8439,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/draft_stderr.txt",
+      "sha256": "d1fe79ce9640beeec3c8d436288bddae88c157987a32be783c89a516f8421550",
+      "bytes": 248,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_prompt.md",
+      "sha256": "515c80698848e9142a40443ffe6eb938e4806c0772f90d84b09f8efb7fded7a9",
+      "bytes": 11845,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_command.json",
+      "sha256": "bbc9e665ea497022569a10dfe875b567eaf76536b45395d6778352d077ea80e1",
+      "bytes": 851,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9ffdf7eb9dd031ec9964079c6c8b4cea7fb3c636254204cd55c1eeb6b43e5815",
+      "bytes": 1321,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "2bc4f7d2b2d71b65f42f2bf5a365a2fbb674d5bab2a1c03128efba629c873fcf",
+      "bytes": 233,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "2e092cc9d81120da92e7c877d632e7c3f7f63d36f0efd1355d535b05d0a40ef0",
+      "bytes": 1343,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "2c0f3022e658bfbc55a10e05de6979f60da91bfcb05378b21d9c44d5abc92fbb",
+      "bytes": 965,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "b58a45e9589aae3eee1174aa431e466d5240bebe34fbdf3c1f1b0810159ccaec",
+      "bytes": 558,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "2c0f3022e658bfbc55a10e05de6979f60da91bfcb05378b21d9c44d5abc92fbb",
+      "bytes": 965,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "fbf0812b5bfb814e2601e6e7aad153aad61954bd182c19a1e91eba41ed96da26",
+      "bytes": 248,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/revision_prompt.md",
+      "sha256": "f17f072a9b1ca0da7b2dc3551c096a536c2d281779bd90796da948e8a66868e0",
+      "bytes": 44360,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/command.json",
+      "sha256": "a7cc6185a61c4820872848b06befb409ed2a3d8b71e7c159914e95f4878f5fd8",
+      "bytes": 849,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/codex_stdout.jsonl",
+      "sha256": "11cd6b30fe13e8923891c3c37f66115153a680238486aaf6a21083f3d6fe0779",
+      "bytes": 9060,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/codex_stderr.log",
+      "sha256": "39c7dcfb90882281212d284b8ada27b0258a9fc9d6654bd4852d08c0a859db7d",
+      "bytes": 233,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/codex_events.jsonl",
+      "sha256": "0d9cc85b7f0e9512abce6d327042bfb96b2c2d7f350d2d716648ad1605b8241b",
+      "bytes": 9082,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/codex_last_message.txt",
+      "sha256": "be36d3c92729aca3be6482bcbaabf37c9295013be500e0714fb80fdf510b4748",
+      "bytes": 8473,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/codex_trace.json",
+      "sha256": "2f6aae15e43af43e2dc4da698d885b8cda8e903c33214693b4619cd5bcd35383",
+      "bytes": 560,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/stdout.txt",
+      "sha256": "be36d3c92729aca3be6482bcbaabf37c9295013be500e0714fb80fdf510b4748",
+      "bytes": 8473,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/stderr.txt",
+      "sha256": "b8d8c0696761d492debe0b0d2c6915f24a29daff864a07c033e0bda5f52f0294",
+      "bytes": 248,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/raw_response.txt",
+      "sha256": "be36d3c92729aca3be6482bcbaabf37c9295013be500e0714fb80fdf510b4748",
+      "bytes": 8473,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/parsed_cells.json",
+      "sha256": "d98421d91bb55c77f1fa6c9f7733c29fefae29342242b9dea90fa97593cf72f2",
+      "bytes": 9472,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/normalized_cells.json",
+      "sha256": "c9ae9ab2c65c051aa054ef9e38b376e1f43a0572a0246ebc1d2d69ade99a8ec6",
+      "bytes": 26732,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/distribution.json",
+      "sha256": "99cd4a22e07c2a4e854e610f07216684b84a4d24d08c1e57c4d55bf0402e96b1",
+      "bytes": 13476,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/validation.json",
+      "sha256": "c23b441736db58240ea8e95f317de9106c6ba5b18fe3d8774b66f6798a9a5e49",
+      "bytes": 147,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/cells.with_activity.json",
+      "sha256": "3d7adb824fe5ae95834aa4e9f9451a7ece490fd33b87e422f4131444c12fdbaa",
+      "bytes": 41691,
+      "createdAt": "2026-08-13T06:59:12Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-13/2026-08-13t06-59-12z-statjp-cpi-tokyo-all-items-yoy-2026-08/manifest.json",
+      "sha256": "ae9e12d3f518e926e5d1157defb2d4d3efb26a625a649b3abc75954446a8b475",
+      "bytes": 15432,
+      "createdAt": "2026-08-13T06:59:12Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "japan-tokyo-cpi-annual-rate-august-2026-prelim",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "448b17e91d8ee0fa53f512a75460719c172b1358",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "9407dfbc6f034ddb355ed76448b4afaa5c9bba5f15815bb2d9580431deeb78db"
+}

@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is publishable after tightening one traceability issue around the historical sample used for the model and interval.",
+  "requiredFixes": [
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The model candidate and interval step say they use NBB history from 2025-07 through 2026-07, but the cited overall-series fetch in the trace starts at 2025-08 and does not show the 2025-07 observation needed for the first listed monthly change.",
+      "actionRequested": "Either add the official 2025-07 fetched observation to the cited trace/source context, or revise the historical sample, change list, calibration_n, and interval explanation to match only the explicitly fetched 2025-08 through 2026-07 data."
+    }
+  ],
+  "optionalSuggestions": [
+    "Remove or de-emphasize the failed specs.json fetch unless it is needed for audit context.",
+    "State explicitly that the resolving URL remains the registered NBB business survey page even though the evidence trace also used the NBB SDMX API."
+  ]
+}
