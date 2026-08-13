@@ -2832,33 +2832,12 @@ def history_anchor_errors(
     errors = []
 
     quarter_key = re.compile(r"^(\d{4})[-_ ]?[Qq]([1-4])$|^[Qq]([1-4])[-_ ]?(\d{4})$")
-    # Strict, canonicalizable quarter writings on a Unicode-folded label:
-    # word boundaries on both sides (a year may not extend "x2026" or
-    # "FY2026"; a quarter digit may not continue), single space/hyphen
-    # separators after folding.
-    quarter_strict = re.compile(
-        r"(?<!\w)(\d{4})[- ]?[Qq]([1-4])(?!\w)"
-        r"|(?<!\w)[Qq]([1-4])[- ]?(\d{4})(?!\w)"
-    )
-    # Residue detectors: after excising strict tokens, ANY remaining
-    # Q-designator-ish content — Q next to a digit or Roman numeral in
-    # either direction, one optional separator — is a quarter reference
-    # the extractor could not attribute, and fails the label closed.
-    # (?![A-Za-z]) keeps ordinary words: "1 quarterly" is prose,
-    # "1Q 2026" is a designator.
-    quarter_residue = re.compile(
-        r"[Qq][\s\-/]?[0-9IVXivx]|[0-9][\s\-/]?[Qq](?![A-Za-z])"
-    )
+    strict_cluster = re.compile(r"^(\d{4})[- ]?[Qq]([1-4])$|^[Qq]([1-4])[- ]?(\d{4})$")
 
     def fold(label: str) -> str:
         folded = unicodedata.normalize("NFKC", label)
-        # Strip format characters (ZWJ/ZWNJ/ZWSP/bidi marks, ...) that
-        # can invisibly split a designator, and fold every Unicode
-        # decimal digit to ASCII so no digit variant hides a quarter.
         chars = []
         for ch in folded:
-            if unicodedata.category(ch) == "Cf":
-                continue
             if ch.isdigit():
                 try:
                     chars.append(str(unicodedata.digit(ch)))
@@ -2870,47 +2849,119 @@ def history_anchor_errors(
         folded = re.sub(r"[‐‑‒–—―−]", "-", folded)
         return re.sub(r"\s+", " ", folded)
 
+    CLUSTER_CHARS = set("0123456789IVXivxQq")
+    CLUSTER_SEPS = set(" -/._()")
+
+    def quarter_label_tokens(label: str) -> set[str] | None:
+        """Whitelist-only quarter reading of a history label.
+
+        Returns the set of canonical quarter tokens the label names, or
+        None to REJECT the label outright. Design (review round four):
+        instead of excising matches and scanning residue, every maximal
+        quarter-like cluster must itself BE an exact whitelisted strict
+        token — anything Q-and-numeral-shaped that is not (bare "Q2",
+        "2026 Q1/2", "Q.2", "1Q 2026") rejects the whole label, because
+        an unattributable quarter reference means the value cannot be
+        pinned to a period. Format characters are rejected rather than
+        stripped (they exist to split designators invisibly), and any
+        non-ASCII letter, numeral, or mark immediately beside a digit or
+        Q rejects (Cyrillic Ԛ, combining marks, Nl/No numerals). Prose
+        stays open: a Q whose only immediate neighbor is an ordinary
+        ASCII letter ("quarterly", "Quebec") never joins a cluster.
+        """
+
+        if any(unicodedata.category(ch) == "Cf" for ch in label):
+            return None
+        folded = fold(label)
+        n = len(folded)
+        for i, ch in enumerate(folded):
+            if ch in "0123456789Qq":
+                for j in (i - 1, i + 1):
+                    if 0 <= j < n:
+                        other = folded[j]
+                        if not other.isascii() and unicodedata.category(other)[0] in "LNM":
+                            return None
+
+        def participates(i: int) -> bool:
+            ch = folded[i]
+            if ch not in "Qq":
+                return True
+            for j in (i - 1, i + 1):
+                if 0 <= j < n and folded[j] in CLUSTER_CHARS:
+                    return True
+            # A Q glued only to prose letters is a word, not a designator.
+            return not (
+                (i + 1 < n and folded[i + 1].isascii() and folded[i + 1].isalpha())
+                or (i > 0 and folded[i - 1].isascii() and folded[i - 1].isalpha())
+            )
+
+        tokens: set[str] = set()
+        i = 0
+        while i < n:
+            if folded[i] in CLUSTER_CHARS and participates(i):
+                j = i
+                last_member = i
+                while j < n:
+                    ch = folded[j]
+                    if ch in CLUSTER_CHARS and participates(j):
+                        last_member = j
+                        j += 1
+                    elif (
+                        ch in CLUSTER_SEPS
+                        and j + 1 < n
+                        and folded[j + 1] in CLUSTER_CHARS
+                        and participates(j + 1)
+                    ):
+                        j += 1
+                    else:
+                        break
+                cluster_start = i
+                cluster = folded[i : last_member + 1]
+                i = last_member + 1
+                if not any(c in "Qq" for c in cluster):
+                    continue
+                # A Q-bearing cluster glued to an ASCII letter is a
+                # prefixed or suffixed designator (FY2026 Q1, x2026 Q1,
+                # Q1st): a fiscal or otherwise-qualified quarter is not
+                # the calendar quarter the key names — reject.
+                before = folded[cluster_start - 1] if cluster_start > 0 else ""
+                after = folded[last_member + 1] if last_member + 1 < n else ""
+                if (before.isascii() and before.isalpha()) or (
+                    after.isascii() and after.isalpha()
+                ):
+                    return None
+                m = strict_cluster.fullmatch(cluster)
+                if m is None:
+                    return None
+                year = m.group(1) or m.group(4)
+                quarter = m.group(2) or m.group(3)
+                tokens.add(f"{year}q{quarter}")
+            else:
+                i += 1
+        return tokens
+
     def canonical_quarters(match_iter) -> set[str]:
-        tokens = set()
+        result = set()
         for m in match_iter:
             year = m.group(1) or m.group(4)
             quarter = m.group(2) or m.group(3)
-            tokens.add(f"{year}q{quarter}")
-        return tokens
+            result.add(f"{year}q{quarter}")
+        return result
 
     def mentions(key: str, label: str) -> bool:
-        # A key that IS a quarter token never takes the literal
-        # shortcut (which would hit inside "12026-Q15"). The label is
-        # NFKC-folded (fullwidth digits, exotic spaces and hyphens),
-        # then two detectors run: strict canonicalizable writings and a
-        # broad any-Q-digit scan. FAIL CLOSED whenever the broad scan
-        # sees a quarter reference the strict extractor cannot
-        # canonicalize (bare "Q2", "FY2026 Q1", "éQ1 2026") — an
-        # unattributable quarter mention means the value cannot be
-        # pinned to a period. Among canonicalized tokens, exactly one
-        # distinct quarter must remain and equal the key's: a
-        # comparison label counts for neither period; the same quarter
-        # written twice still counts. Motivating case: the 2026-08-12
-        # BEA ITA run fetched the byte-exact official value labeled
-        # "2026 Q1" and was refused against "2026-Q1" on
-        # hyphen-versus-space. Non-quarter keys keep literal-substring
-        # semantics, and the value check below is unchanged.
+        # Quarter keys never take the literal shortcut; the label is
+        # read by the whitelist-only cluster grammar above and counts
+        # only when it names exactly ONE distinct quarter equal to the
+        # key's. Motivating case: the 2026-08-12 BEA ITA run fetched
+        # the byte-exact official value labeled "2026 Q1" and was
+        # refused against "2026-Q1" on hyphen-versus-space. Non-quarter
+        # keys keep literal-substring semantics; the value check below
+        # is unchanged.
         key_match = quarter_key.fullmatch(key.strip())
         if key_match is None:
             return key in label
-        folded = fold(label)
-        strict = list(quarter_strict.finditer(folded))
-        # Span identity, not counts: excise the strict spans, then any
-        # Q-designator-ish residue means an unattributable quarter
-        # reference — fail closed.
-        residue = list(folded)
-        for m in strict:
-            for i in range(m.start(), m.end()):
-                residue[i] = " "
-        if quarter_residue.search("".join(residue)):
-            return False
-        tokens = canonical_quarters(strict)
-        if len(tokens) != 1:
+        tokens = quarter_label_tokens(label)
+        if tokens is None or len(tokens) != 1:
             return False
         return tokens == canonical_quarters([key_match])
 

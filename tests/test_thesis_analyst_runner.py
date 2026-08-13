@@ -3525,6 +3525,16 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "Q\u0662 print",
         "Q1/2 print",
         "1Q 2026 print",
+        "2026 Q1/2 print",
+        "2026 Q1/II",
+        "Q1 2026/2",
+        "2026 Q1 vs Q\u0301\u0032",
+        "2026 Q1 vs Q.2",
+        "2026 Q1 vs Q_2",
+        "2026 Q1 vs Q\u20442",
+        "2026 Q1 vs \u051a2",
+        "2026 Q1 vs Q\u30222",
+        "2026 Q1 vs Q\u2475",
     ):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         errors = analyst_runner.history_anchor_errors(cell, context)
@@ -3534,11 +3544,12 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
     ]}
     assert analyst_runner.history_anchor_errors(twice, context) == []
     # Prose "quarterly" after a digit is not a designator.
-    prose = {"historicalContext": [
-        {"label": "value for 2026 Q1, quarterly seasonally adjusted",
-         "value": 18511}
-    ]}
-    assert analyst_runner.history_anchor_errors(prose, context) == []
+    for label in (
+        "value for 2026 Q1, quarterly seasonally adjusted",
+        "Quebec series, 2026 Q1 print",
+    ):
+        prose = {"historicalContext": [{"label": label, "value": 18511}]}
+        assert analyst_runner.history_anchor_errors(prose, context) == [], label
     # The value check still refuses a wrong number on a matching label.
     wrong = {"historicalContext": [{"label": "2026 Q1", "value": 20000}]}
     errors = analyst_runner.history_anchor_errors(wrong, context)
