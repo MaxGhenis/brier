@@ -2834,18 +2834,32 @@ def history_anchor_errors(
     quarter_key = re.compile(r"^(\d{4})[-_ ]?[Qq]([1-4])$|^[Qq]([1-4])[-_ ]?(\d{4})$")
     strict_cluster = re.compile(r"^(\d{4})[- ]?[Qq]([1-4])$|^[Qq]([1-4])[- ]?(\d{4})$")
 
+    # Raw non-ASCII non-letter content folds to this sentinel instead
+    # of its NFKC image, so a fullwidth ！ cannot launder into ASCII
+    # prose before gap classification (review round eight: 430 of 437
+    # compatibility characters bypassed that way). Private-use, so the
+    # raw-label guard has already rejected any genuine occurrence.
+    poison_mark = "\ue000"
+
     def fold(label: str) -> str:
-        folded = unicodedata.normalize("NFKC", label)
         chars = []
-        for ch in folded:
-            if ch.isdigit():
-                try:
+        for ch in label:
+            if not ch.isascii():
+                cat = unicodedata.category(ch)
+                if cat == "Nd":
+                    # True decimal digits fold to ASCII.
                     chars.append(str(unicodedata.digit(ch)))
                     continue
-                except (TypeError, ValueError):
-                    pass
+                if not ch.isalpha():
+                    # Symbols, punctuation, and No/Nl numerals keep
+                    # their taint through folding.
+                    chars.append(poison_mark)
+                    continue
+                # Letters (including fullwidth Ｑ) fold normally.
+                chars.append(unicodedata.normalize("NFKC", ch))
+                continue
             chars.append(ch)
-        folded = "".join(chars)
+        folded = unicodedata.normalize("NFKC", "".join(chars))
         folded = re.sub(r"[‐‑‒–—―−]", "-", folded)
         return re.sub(r"\s+", " ", folded)
 
@@ -2889,6 +2903,8 @@ def history_anchor_errors(
                 for j in (i - 1, i + 1):
                     if 0 <= j < n and not folded[j].isascii():
                         return None
+                    if 0 <= j < n and folded[j] == poison_mark:
+                        return None
 
         # Segment the label: cluster-alphabet runs, with the prose rule
         # for letter-class members — a Roman-numeral letter (i/v/x) or a
@@ -2897,20 +2913,30 @@ def history_anchor_errors(
         # — Q handles its own rule below), not a designator. Without
         # this, "2026 Q1 value" and the real G.19 label "2026 Q1 in Fed
         # G.19 table" would falsely reject on the 'v'/'i'.
+        # Word-level Roman rule (round eight): an i/v/x participates
+        # only when its entire maximal ASCII-letter run is Roman/Q
+        # material — "vintage" and "via" are words even though they
+        # open with Roman letters; "xiv" and "QIV" are designators.
+        letter_run_ok = [False] * n
+        i0 = 0
+        while i0 < n:
+            if folded[i0].isascii() and folded[i0].isalpha():
+                j0 = i0
+                while j0 < n and folded[j0].isascii() and folded[j0].isalpha():
+                    j0 += 1
+                run_is_roman = all(c in "IVXivxQq" for c in folded[i0:j0])
+                for k in range(i0, j0):
+                    letter_run_ok[k] = run_is_roman
+                i0 = j0
+            else:
+                i0 += 1
+
         def is_member(i: int) -> bool:
             ch = folded[i]
             if ch not in cluster_chars:
                 return False
-            if ch in "IVXivx":
-                for j in (i - 1, i + 1):
-                    if 0 <= j < n:
-                        other = folded[j]
-                        if (
-                            other.isascii()
-                            and other.isalpha()
-                            and other not in cluster_chars
-                        ):
-                            return False
+            if ch in "IVXivx" and not letter_run_ok[i]:
+                return False
             return True
 
         segments: list[tuple[int, int]] = []  # [start, end) spans
@@ -2934,15 +2960,18 @@ def history_anchor_errors(
             gap = folded[a:b]
             if all(c in cluster_seps for c in gap):
                 return "chain"
-            # Poison DOMINATES: any non-ASCII non-letter (fraction
-            # slashes, symbols) taints the gap even alongside prose —
-            # "and ⁄" must not launder the slash. Non-ASCII LETTERS are
-            # prose (bilingual labels), and readable ASCII (letters,
-            # commas, semicolons) separates like a sentence does.
-            for c in gap:
-                if not c.isascii() and not c.isalpha():
-                    return "poison"
-            if any(c.isascii() and c not in cluster_seps for c in gap):
+            # Poison DOMINATES: the fold sentinel (raw non-ASCII
+            # non-letter content) taints the gap even alongside prose —
+            # "and ⁄" must not launder the slash. Letters of ANY script
+            # are prose (bilingual labels, spaced confusables per the
+            # round-eight ruling), and readable ASCII (commas,
+            # semicolons) separates like a sentence does.
+            if poison_mark in gap:
+                return "poison"
+            if any(
+                c.isalpha() or (c.isascii() and c not in cluster_seps)
+                for c in gap
+            ):
                 return "break"
             return "poison"
 

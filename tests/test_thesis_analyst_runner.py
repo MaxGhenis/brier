@@ -3565,6 +3565,12 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "2026 Q1 and \u2044 2",
         "2026 Q1 \u2044 2026 Q1",
         "2026 Q1 and 2026 Q2",
+        # NFKC must not launder poison: fullwidth punctuation and
+        # No-category numerals keep their taint through folding.
+        "2026 Q1\uff012",
+        "2026 Q1 and \uff01 2",
+        "Q\u00b9 2026",
+        "2026 QIV,",
     ):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         errors = analyst_runner.history_anchor_errors(cell, context)
@@ -3589,6 +3595,12 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         # normalized_cells.json).
         "2026 Q1 in Fed G.19 table",
         "2026 Q1 value",
+        "2026 Q1 vintage",
+        "2026 Q1 via BEA",
+        # Pinned round-eight rulings: a SPACED confusable letter and a
+        # comma-isolated orphan read as prose; glued forms reject.
+        "2026 Q1 \u051a 2",
+        "2026 Q1 , 2",
     ):
         prose = {"historicalContext": [{"label": label, "value": 18511}]}
         assert analyst_runner.history_anchor_errors(prose, context) == [], label
