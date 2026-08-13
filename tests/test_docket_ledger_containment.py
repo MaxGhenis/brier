@@ -87,6 +87,23 @@ def _units_agree(
     return abs(target_scale - catalog_scale / value_scale) < 1e-9
 
 
+def _target_period_identity(entry: dict[str, Any]) -> tuple[str, object]:
+    """Mirror resolver aliases when deciding whether a target period is new."""
+
+    period = entry.get("period")
+    extras = entry.get("extras")
+    binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    if (
+        isinstance(binding, dict)
+        and binding.get("releasePolicy") == "registered_query_snapshot"
+        and isinstance(period, str)
+    ):
+        fiscal_year = re.fullmatch(r"(?:fy_?)?(\d{4})", period, re.IGNORECASE)
+        if fiscal_year:
+            return ("registered_query_snapshot_fiscal_year", fiscal_year.group(1))
+    return ("literal", period)
+
+
 def _object(raw: bytes, label: str) -> dict[str, Any]:
     try:
         value = json.loads(raw)
@@ -135,8 +152,7 @@ def _assert_containment(
             r"[0-9a-f]{64}", catalog[digest_key]
         ), f"{label}.{digest_key} must be a SHA-256 digest"
     assert (
-        type(catalog["observation_rows"]) is int
-        and catalog["observation_rows"] >= 0
+        type(catalog["observation_rows"]) is int and catalog["observation_rows"] >= 0
     ), f"{label}.observation_rows must be a non-negative integer"
     assert (
         type(catalog["current_assertion_rows"]) is int
@@ -187,15 +203,12 @@ def _assert_containment(
             continue
         if uuid in by_uuid:
             malformed_catalog_rows.append(
-                f"duplicate uuid {uuid} "
-                f"({by_uuid[uuid]['concept']}, {concept})"
+                f"duplicate uuid {uuid} ({by_uuid[uuid]['concept']}, {concept})"
             )
             continue
         shape_problem = _row_shape_problem(row)
         if shape_problem:
-            malformed_catalog_rows.append(
-                f"row {index} ({concept}): {shape_problem}"
-            )
+            malformed_catalog_rows.append(f"row {index} ({concept}): {shape_problem}")
             continue
         by_uuid[uuid] = row
     assert not malformed_catalog_rows, (
@@ -207,7 +220,7 @@ def _assert_containment(
     mismatched_refs: list[str] = []
     cadence_mismatches: list[str] = []
     unit_mismatches: list[str] = []
-    uuid_owners: dict[str, list[str]] = {}
+    uuid_owners: dict[str, list[tuple[str, object, tuple[str, object]]]] = {}
     for index, entry in enumerate(docket_rows):
         series = entry.get("series") if type(entry) is dict else None
         ledger = entry.get("ledger") if type(entry) is dict else None
@@ -222,7 +235,9 @@ def _assert_containment(
             missing_refs.append(f"row {index}: {series!r}")
             continue
 
-        uuid_owners.setdefault(ledger["uuid"], []).append(series)
+        uuid_owners.setdefault(ledger["uuid"], []).append(
+            (series, entry.get("period"), _target_period_identity(entry))
+        )
         # Rows are addressed by uuid: catalog v3 concepts are not unique
         # (state splits and entity-drift lineages share a concept), and the
         # uuid is exactly the identity the registry promises never to
@@ -328,9 +343,24 @@ def _assert_containment(
                 f"({(expected.get('entity') or {}).get('role')})"
             )
 
-    duplicate_uuids = {
-        uuid: owners for uuid, owners in uuid_owners.items() if len(owners) > 1
-    }
+    # Multiple reviewed one-shot periods may intentionally target the same
+    # canonical Ledger series. Permit UUID reuse only for the SAME docket
+    # series across distinct, explicit periods; different series, missing
+    # periods, or duplicate periods still indicate an ambiguous pin.
+    duplicate_uuids: dict[str, list[tuple[str, object]]] = {}
+    for uuid, owners in uuid_owners.items():
+        if len(owners) <= 1:
+            continue
+        series = {owner[0] for owner in owners}
+        periods = [owner[1] for owner in owners]
+        period_identities = [owner[2] for owner in owners]
+        reviewed_period_reuse = (
+            len(series) == 1
+            and all(isinstance(period, str) and period for period in periods)
+            and len(set(period_identities)) == len(period_identities)
+        )
+        if not reviewed_period_reuse:
+            duplicate_uuids[uuid] = owners
     failures: list[str] = []
     if missing_refs:
         failures.append(
@@ -348,7 +378,10 @@ def _assert_containment(
         failures.append(
             "duplicate docket ledger UUIDs:\n- "
             + "\n- ".join(
-                f"{uuid}: {', '.join(owners)}"
+                f"{uuid}: "
+                + ", ".join(
+                    f"{series}@{period!r}" for series, period, _identity in owners
+                )
                 for uuid, owners in sorted(duplicate_uuids.items())
             )
         )
@@ -419,14 +452,16 @@ def _row_shape_problem(row: dict[str, Any]) -> str | None:
                 type(field_value) is not str or not field_value
             ):
                 return f"{what}.{field} must be a nonempty string or null"
-    for key in ("unit", "cadence", "first_observed_period",
-                "last_observed_period"):
-        if row[key] is not None and (
-            type(row[key]) is not str or not row[key]
-        ):
+    for key in ("unit", "cadence", "first_observed_period", "last_observed_period"):
+        if row[key] is not None and (type(row[key]) is not str or not row[key]):
             return f"{key} must be a nonempty string or null"
-    for key in ("family_patterns", "sources", "aliases", "source_concepts",
-                "rid_patterns"):
+    for key in (
+        "family_patterns",
+        "sources",
+        "aliases",
+        "source_concepts",
+        "rid_patterns",
+    ):
         if type(row[key]) is not list or any(
             type(item) is not str for item in row[key]
         ):
@@ -458,8 +493,14 @@ def _row_shape_problem(row: dict[str, Any]) -> str | None:
 # Country spellings as the docket uses them -> catalog geography ids.
 # Kept in sync, deliberately by duplication, with the stamper: this gate
 # re-derives every pin with its OWN implementation of the rules.
-COUNTRY_IDS = {"US": "0100000US", "CA": "CA", "GB": "GB", "AU": "AU",
-               "JP": "JP", "BE": "BE"}
+COUNTRY_IDS = {
+    "US": "0100000US",
+    "CA": "CA",
+    "GB": "GB",
+    "AU": "AU",
+    "JP": "JP",
+    "BE": "BE",
+}
 
 
 def _derive_expected_pin(
@@ -485,7 +526,8 @@ def _derive_expected_pin(
     expected_id = COUNTRY_IDS.get(country) if country else None
     if not observed:
         compatible = [
-            r for r in candidates
+            r
+            for r in candidates
             if expected_id is None
             or (r.get("geography") or {}).get("id") == expected_id
         ]
@@ -493,34 +535,34 @@ def _derive_expected_pin(
             return compatible[0], None
         return None, f"{name}: {len(compatible)} placeholders after country check"
     pool = [
-        r for r in observed
+        r
+        for r in observed
         if (r.get("geography") or {}).get("level") == "country"
-        and (expected_id is None
-             or (r.get("geography") or {}).get("id") == expected_id)
+        and (expected_id is None or (r.get("geography") or {}).get("id") == expected_id)
     ]
     expected_cadence = CADENCE_MAP.get(entry.get("cadence"))
     if expected_cadence is not None:
         pool = [r for r in pool if r.get("cadence") == expected_cadence]
     pool = [
-        r for r in pool
-        if _units_agree(extras.get("targetUnit"), r.get("unit"),
-                        extras.get("valueScale"))
+        r
+        for r in pool
+        if _units_agree(
+            extras.get("targetUnit"), r.get("unit"), extras.get("valueScale")
+        )
     ]
     if not pool:
         return None, f"{name}: no candidate survives the filters"
     binding = extras.get("sourceBinding") or {}
     source_id = binding.get("sourceSeriesId") or binding.get("field")
     if source_id is not None:
-        bound = [r for r in pool
-                 if source_id in (r.get("source_concepts") or [])]
+        bound = [r for r in pool if source_id in (r.get("source_concepts") or [])]
         if len(bound) == 1:
             return bound[0], None
         if len(bound) > 1:
             return None, f"{name}: source binding matches several rows"
         if len(pool) > 1:
             return None, (
-                f"{name}: declared binding {source_id!r} needed but matched "
-                "nothing"
+                f"{name}: declared binding {source_id!r} needed but matched nothing"
             )
         return pool[0], None
     if len(pool) == 1:
@@ -617,6 +659,49 @@ def test_containment_resolves_duplicate_concepts_by_uuid(
         )
 
 
+def test_containment_allows_one_ledger_series_across_distinct_target_periods(
+    tmp_path: pathlib.Path,
+) -> None:
+    row = _catalog_row()
+
+    def entry(period: str) -> dict[str, Any]:
+        return {
+            "series": row["concept"],
+            "cadence": "monthly",
+            "period": period,
+            "slug": f"unrelated-{period}",
+            "ledger": {"uuid": row["uuid"], "concept": row["concept"]},
+        }
+
+    distinct_periods = _docket_file(tmp_path, [entry("2030-01"), entry("2030-02")])
+    _assert_containment(
+        _catalog_shell([row]),
+        "test catalog",
+        docket_path=distinct_periods,
+    )
+
+    duplicate_period = _docket_file(tmp_path, [entry("2030-01"), entry("2030-01")])
+    with pytest.raises(AssertionError, match="duplicate docket ledger UUIDs"):
+        _assert_containment(
+            _catalog_shell([row]),
+            "test catalog",
+            docket_path=duplicate_period,
+        )
+
+    registered_query_aliases = [entry("2027"), entry("FY2027")]
+    for alias_entry in registered_query_aliases:
+        alias_entry["extras"] = {
+            "sourceBinding": {"releasePolicy": "registered_query_snapshot"}
+        }
+    alias_period = _docket_file(tmp_path, registered_query_aliases)
+    with pytest.raises(AssertionError, match="duplicate docket ledger UUIDs"):
+        _assert_containment(
+            _catalog_shell([row]),
+            "test catalog",
+            docket_path=alias_period,
+        )
+
+
 def test_containment_units_agree_modulo_declared_transform(
     tmp_path: pathlib.Path,
 ) -> None:
@@ -652,9 +737,7 @@ def test_containment_units_agree_modulo_declared_transform(
     ):
         bad = _docket_file(tmp_path, [entry(bad_extras)])
         with pytest.raises(AssertionError, match="unit mismatches"):
-            _assert_containment(
-                _catalog_shell([row]), "test catalog", docket_path=bad
-            )
+            _assert_containment(_catalog_shell([row]), "test catalog", docket_path=bad)
 
 
 def test_containment_rejects_stale_uuid(tmp_path: pathlib.Path) -> None:
@@ -685,10 +768,7 @@ def _authoritative_chronicle_catalog(pin: dict[str, Any]) -> dict[str, Any]:
     branch = pin.get("branch")
     assert type(repo) is str and repo, "committed ledger pin repo is invalid"
     assert type(branch) is str and branch, "committed ledger pin branch is invalid"
-    url = (
-        f"https://raw.githubusercontent.com/{repo}/refs/heads/{branch}/"
-        f"{CATALOG_PATH}"
-    )
+    url = f"https://raw.githubusercontent.com/{repo}/refs/heads/{branch}/{CATALOG_PATH}"
     request = urllib.request.Request(
         url, headers={"User-Agent": "thesis-containment-test"}
     )
@@ -697,8 +777,7 @@ def _authoritative_chronicle_catalog(pin: dict[str, Any]) -> dict[str, Any]:
             raw = response.read()
     except (OSError, urllib.error.URLError) as exc:
         pytest.fail(
-            "authoritative Chronicle catalog fetch must succeed in CI: "
-            f"{url}: {exc}"
+            f"authoritative Chronicle catalog fetch must succeed in CI: {url}: {exc}"
         )
     return _object(raw, "authoritative Chronicle catalog")
 
@@ -812,19 +891,20 @@ def test_containment_rejects_wrong_sibling_pin(tmp_path: pathlib.Path) -> None:
         "cadence": "monthly",
         "slug": "u3",
         "extras": {"targetUnit": "percent"},
-        "ledger": {"uuid": late["uuid"],
-                   "concept": "bls.cps.unemployment_rate"},
+        "ledger": {"uuid": late["uuid"], "concept": "bls.cps.unemployment_rate"},
     }
     docket_path = _docket_file(tmp_path, [entry])
     with pytest.raises(AssertionError, match="not the canonical resolution"):
         _assert_containment(
-            _catalog_shell([early, late]), "test catalog",
+            _catalog_shell([early, late]),
+            "test catalog",
             docket_path=docket_path,
         )
     entry["ledger"]["uuid"] = early["uuid"]
     docket_path = _docket_file(tmp_path, [entry])
     _assert_containment(
-        _catalog_shell([early, late]), "test catalog",
+        _catalog_shell([early, late]),
+        "test catalog",
         docket_path=docket_path,
     )
 
@@ -870,7 +950,8 @@ def test_containment_rejects_masquerades(tmp_path: pathlib.Path) -> None:
     relabeled = _catalog_row(status="docket-only")  # keeps count/entity
     with pytest.raises(AssertionError, match="not a placeholder"):
         _assert_containment(
-            _catalog_shell([relabeled]), "test catalog",
+            _catalog_shell([relabeled]),
+            "test catalog",
             docket_path=docket_path,
         )
 
@@ -882,28 +963,43 @@ def test_residual_polish_from_final_review(tmp_path: pathlib.Path) -> None:
     with pytest.raises(AssertionError, match="exactly 3"):
         _assert_containment(float_version, "t", docket_path=_docket_file(tmp_path, []))
     # An observed pin may not answer a declared targetUnit with unit null.
-    row = _catalog_row(uuid="00000000-0000-4000-8000-00000000000d",
-                       concept="unitless.series", unit=None)
+    row = _catalog_row(
+        uuid="00000000-0000-4000-8000-00000000000d",
+        concept="unitless.series",
+        unit=None,
+    )
     entry = {
-        "series": "unitless.series", "cadence": "monthly", "slug": "u",
+        "series": "unitless.series",
+        "cadence": "monthly",
+        "slug": "u",
         "extras": {"targetUnit": "percent"},
         "ledger": {"uuid": row["uuid"], "concept": row["concept"]},
     }
     with pytest.raises(AssertionError, match="no unit at all"):
-        _assert_containment(_catalog_shell([row]), "t",
-                            docket_path=_docket_file(tmp_path, [entry]))
+        _assert_containment(
+            _catalog_shell([row]), "t", docket_path=_docket_file(tmp_path, [entry])
+        )
     # A placeholder's seeded cadence must agree with its entry.
     ph = _catalog_row(
         uuid="00000000-0000-4000-8000-00000000000e",
-        concept="weekly.placeholder", status="docket-only",
-        cadence="week_ending", unit=None, entity=None, sources=[],
-        rid_patterns=[], first_observed_period=None,
-        last_observed_period=None, observation_count=0,
+        concept="weekly.placeholder",
+        status="docket-only",
+        cadence="week_ending",
+        unit=None,
+        entity=None,
+        sources=[],
+        rid_patterns=[],
+        first_observed_period=None,
+        last_observed_period=None,
+        observation_count=0,
     )
     entry = {
-        "series": "weekly.placeholder", "cadence": "annual", "slug": "w",
+        "series": "weekly.placeholder",
+        "cadence": "annual",
+        "slug": "w",
         "ledger": {"uuid": ph["uuid"], "concept": ph["concept"]},
     }
     with pytest.raises(AssertionError, match="placeholder cadence"):
-        _assert_containment(_catalog_shell([ph]), "t",
-                            docket_path=_docket_file(tmp_path, [entry]))
+        _assert_containment(
+            _catalog_shell([ph]), "t", docket_path=_docket_file(tmp_path, [entry])
+        )

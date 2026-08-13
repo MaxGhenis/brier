@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { resolveMetricCell } from "@/lib/metric-cells";
+import { FORECAST_CELLS } from "@/data/forecast-cells";
+import { cellsForSeries, resolveMetricCell } from "@/lib/metric-cells";
 
 describe("resolveMetricCell (live metric → cell join)", () => {
   it("fails closed on missing or vague hints", () => {
@@ -41,5 +42,33 @@ describe("resolveMetricCell (live metric → cell join)", () => {
     const match = resolveMetricCell("census.spm.child_poverty_rate", "2099-01-01");
     expect(match).not.toBeNull();
     expect(match!.resolutionDate <= "2099-01-01").toBe(true);
+    const selectedCell = FORECAST_CELLS.find(
+      (cell) => cell.slug === match!.slug,
+    );
+    expect(selectedCell?.type).not.toBe("conditional");
+  });
+});
+
+describe("conditional arms never satisfy unconditional metric hints", () => {
+  it("excludes type=conditional cells from hint resolution", () => {
+    // Use a currently published mixed series so this remains a deletion
+    // check before the FY27-NDAA arms themselves publish. The NDAA pair will
+    // share the same shape: conditional arms beside unconditional metrics.
+    const series = "census.spm.child_poverty_rate";
+    const raw = FORECAST_CELLS.filter((cell) =>
+      cell.dataPointId?.startsWith(series),
+    );
+    expect(raw.some((cell) => cell.type === "conditional")).toBe(true);
+    expect(raw.some((cell) => cell.type !== "conditional")).toBe(true);
+
+    const matches = cellsForSeries(series);
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.every((cell) => cell.type !== "conditional")).toBe(true);
+
+    const match = resolveMetricCell(series);
+    expect(match).not.toBeNull();
+    expect(
+      FORECAST_CELLS.find((cell) => cell.slug === match?.slug)?.type,
+    ).not.toBe("conditional");
   });
 });

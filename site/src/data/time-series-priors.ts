@@ -15,6 +15,7 @@ import type {
   ObservationRecordedLedgerEntry,
   PolicyEngineLedgerEntry,
 } from "./thesis-log";
+import type { TargetRegisteredLedgerEntry } from "./ledger-targets";
 
 export const TIME_SERIES_PRIOR_VARIANT_ID = "time-series-prior";
 export const PERSISTENCE_BASELINE_AGENT = "brier.time_series_prior";
@@ -122,7 +123,10 @@ export function buildLedgerPersistenceBaseline(
         ? "ledger has no pre-cutoff observations for the target series"
         : "ledger has fewer than two pre-cutoff observations, so realized volatility is unavailable",
       candidates.map(toObservationReference),
-      candidates[0] ? ledgerSeriesId(candidates[0]) : undefined,
+      candidates[0]
+        ? (registeredObservationSeriesIdentity(candidates[0], ledger) ??
+            undefined)
+        : undefined,
     );
   }
 
@@ -323,6 +327,9 @@ function buildLastPrintPriorInterval(
   ledger: PolicyEngineLedgerEntry[],
   cutoff: string,
 ): PriorInterval | null {
+  if (!forecast.dataPointId) return null;
+  const seriesId = registeredTargetSeriesIdentity(forecast.dataPointId, ledger);
+  if (!seriesId) return null;
   const history = ledgerHistoryAtCutoff(forecast, ledger, cutoff);
   if (history.length < 2) return null;
   const latest = history.at(-1);
@@ -343,7 +350,7 @@ function buildLastPrintPriorInterval(
     historyPoints: history.length,
     latest: toObservationReference(latest),
     observations,
-    seriesId: ledgerSeriesId(latest),
+    seriesId,
     intervalMethod: "ledger_realized_step_change_p80",
   };
 }
@@ -396,7 +403,11 @@ export function ledgerHistoryAtCutoff(
   cutoff: string,
 ): ObservationRecordedLedgerEntry[] {
   if (!forecast.dataPointId) return [];
-  const targetSeriesId = ledgerSeriesId(forecast.dataPointId);
+  const registrations = registrationsByDataPointId(ledger);
+  const targetSeriesId = contractSeries(
+    registrations.get(forecast.dataPointId),
+  );
+  if (!targetSeriesId) return [];
   const cutoffTime = Date.parse(cutoff);
   if (!Number.isFinite(cutoffTime)) return [];
 
@@ -409,7 +420,8 @@ export function ledgerHistoryAtCutoff(
     (entry): entry is ObservationRecordedLedgerEntry =>
       entry.kind === "observation_recorded" &&
       entry.unit === forecast.unit &&
-      ledgerSeriesId(entry) === targetSeriesId &&
+      observationSeriesFromRegistrations(entry, registrations) ===
+        targetSeriesId &&
       Date.parse(entry.observedAt) <= cutoffTime &&
       typeof entry.acceptedAtUtc === "string" &&
       Date.parse(entry.acceptedAtUtc) <= cutoffTime,
@@ -424,20 +436,256 @@ export function ledgerHistoryAtCutoff(
   });
 }
 
-export function ledgerSeriesId(
-  observation: ObservationRecordedLedgerEntry | string,
-): string {
-  const dataPointId =
-    typeof observation === "string" ? observation : observation.dataPointId;
-  return dataPointId
-    .replace(
-      /\.(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)_\d{4}|fy\d{4}|q[1-4]_?\d{4}|week(?:_ending)?_\d{4}(?:[-_]\d{2}){2}|\d{4}[-_]\d{2}(?:[-_]\d{2})?|\d{4})(?=\.|$)/i,
-      "",
-    )
-    .replace(
-      /\.(?:first_print|final_first_print|official_release|original_submission|advance|final)$/,
-      "",
-    );
+interface LegacyObservationSeriesIdentity {
+  dataPointId: string;
+  observationId: string;
+  periodLabel: string;
+  unit: Unit;
+  value: number;
+  acceptedSequence: number;
+  acceptedCommit: string;
+  acceptedAtUtc: string;
+  observedAt: string;
+  sourceUrl: string;
+  legacyQuarantined: boolean;
+  series: string;
+}
+
+// These five pinned observations predate contract-bound series projections,
+// but are still needed to preserve the published claims normalization scales.
+// Compatibility is exact and immutable: a suffix, value, period label, unit,
+// registration, ledger sequence, or accepting commit change makes the row
+// ineligible. New rows must carry a registered contract and matching
+// sourceBindingProjection instead.
+const REVIEWED_LEGACY_OBSERVATION_SERIES: readonly LegacyObservationSeriesIdentity[] =
+  [
+    {
+      dataPointId: "us.dol.initial_claims.sa.week_2026-06-13",
+      observationId: "obs.us.dol.initial_claims.sa.week_2026-06-13",
+      periodLabel: "June 2026",
+      unit: "thousands",
+      value: 226,
+      acceptedSequence: 43,
+      acceptedCommit: "6c9209434048317c15355f42e019339efbd0d6ea",
+      acceptedAtUtc: "2026-06-19T13:18:22Z",
+      observedAt: "2026-06-18",
+      sourceUrl: "https://www.dol.gov/ui/data.pdf",
+      legacyQuarantined: true,
+      series: "us.dol.initial_claims.sa",
+    },
+    {
+      dataPointId: "us.dol.initial_claims.sa.week_2026-06-20",
+      observationId: "obs.us.dol.initial_claims.sa.week_2026-06-20",
+      periodLabel: "2026-06-20",
+      unit: "thousands",
+      value: 215,
+      acceptedSequence: 104,
+      acceptedCommit: "b67cbfcb5f08d07b856c3463858c765e6755a6f9",
+      acceptedAtUtc: "2026-07-07T17:41:17Z",
+      observedAt: "2026-06-25",
+      sourceUrl:
+        "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA&vintage_date=2026-06-25",
+      legacyQuarantined: true,
+      series: "us.dol.initial_claims.sa",
+    },
+    {
+      dataPointId: "us.dol.initial_claims.sa.week_2026-07-04",
+      observationId: "obs.us.dol.initial_claims.sa.week_2026-07-04",
+      periodLabel: "2026-07-04",
+      unit: "thousands",
+      value: 215,
+      acceptedSequence: 105,
+      acceptedCommit: "ed97a5e2fa9036897d9dfdf1bae5c9727791ab87",
+      acceptedAtUtc: "2026-07-09T16:15:28Z",
+      observedAt: "2026-07-09",
+      sourceUrl:
+        "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA&vintage_date=2026-07-09",
+      legacyQuarantined: true,
+      series: "us.dol.initial_claims.sa",
+    },
+    {
+      dataPointId: "dol.eta.continued_claims.sa.week_2026-06-27.first_print",
+      observationId:
+        "obs.dol.eta.continued_claims.sa.week_2026-06-27.first_print",
+      periodLabel: "2026-06-27",
+      unit: "millions",
+      value: 1.814,
+      acceptedSequence: 106,
+      acceptedCommit: "ed97a5e2fa9036897d9dfdf1bae5c9727791ab87",
+      acceptedAtUtc: "2026-07-09T16:15:28Z",
+      observedAt: "2026-07-09",
+      sourceUrl:
+        "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA&vintage_date=2026-07-09",
+      legacyQuarantined: true,
+      series: "dol.eta.continued_claims.sa",
+    },
+    {
+      dataPointId: "dol.eta.continued_claims.sa.week_2026-07-04.first_print",
+      observationId:
+        "obs.dol.eta.continued_claims.sa.week_2026-07-04.first_print",
+      periodLabel: "2026-07-04",
+      unit: "millions",
+      value: 1.805,
+      acceptedSequence: 144,
+      acceptedCommit: "18a269223d27db111681e2e1af38a7c674c1da87",
+      acceptedAtUtc: "2026-07-18T16:28:37Z",
+      observedAt: "2026-07-16",
+      sourceUrl:
+        "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA&vintage_date=2026-07-16",
+      legacyQuarantined: false,
+      series: "dol.eta.continued_claims.sa",
+    },
+  ];
+
+function registrationsByDataPointId(
+  ledger: PolicyEngineLedgerEntry[],
+): Map<string, TargetRegisteredLedgerEntry> {
+  const registrations = new Map<string, TargetRegisteredLedgerEntry>();
+  const ambiguous = new Set<string>();
+  for (const entry of ledger) {
+    if (entry.kind !== "target_registered") continue;
+    if (registrations.has(entry.dataPointId)) {
+      ambiguous.add(entry.dataPointId);
+      continue;
+    }
+    registrations.set(entry.dataPointId, entry);
+  }
+  for (const dataPointId of ambiguous) registrations.delete(dataPointId);
+  return registrations;
+}
+
+function contractSeries(
+  target: TargetRegisteredLedgerEntry | undefined,
+): string | null {
+  return target?.targetContentHash &&
+    target.sourceBinding &&
+    typeof target.series === "string" &&
+    target.series.length > 0 &&
+    typeof target.period === "string" &&
+    target.period.length > 0
+    ? target.series
+    : null;
+}
+
+export function registeredTargetSeriesIdentity(
+  dataPointId: string,
+  ledger: PolicyEngineLedgerEntry[],
+): string | null {
+  return contractSeries(registrationsByDataPointId(ledger).get(dataPointId));
+}
+
+function projectionMatchesRegistration(
+  observation: ObservationRecordedLedgerEntry,
+  target: TargetRegisteredLedgerEntry,
+): boolean {
+  const projection = observation.sourceBindingProjection;
+  const binding = target.sourceBinding;
+  if (
+    !projection ||
+    !binding ||
+    !target.targetContentHash ||
+    !target.series ||
+    !target.period ||
+    observation.dataPointId !== target.dataPointId ||
+    observation.observationId !== target.observationId ||
+    observation.unit !== target.unit ||
+    observation.legacyQuarantined !== false ||
+    observation.targetContentHash !== target.targetContentHash ||
+    !observation.retrievedAt ||
+    !observation.ledgerRepoSha ||
+    !observation.sourceVintage ||
+    projection.series !== target.series ||
+    projection.period !== target.period ||
+    projection.releasePolicy !== binding.releasePolicy ||
+    projection.table !== binding.table ||
+    projection.field !== binding.field ||
+    projection.unit !== target.unit ||
+    canonicalStringify(projection.transform) !==
+      canonicalStringify(binding.transform)
+  ) {
+    return false;
+  }
+  if (
+    typeof target.ledgerPinLineCount === "number" &&
+    (typeof observation.acceptedSequence !== "number" ||
+      observation.acceptedSequence < target.ledgerPinLineCount)
+  ) {
+    return false;
+  }
+  const allowedHosts = binding.allowedHosts;
+  if (allowedHosts && allowedHosts.length > 0) {
+    const sourceUrl = observation.sourceUrl ?? projection.sourceUrl;
+    try {
+      if (!sourceUrl || !allowedHosts.includes(new URL(sourceUrl).hostname)) {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+  return (
+    Boolean(observation.responseArchive) &&
+    projection.responseSha256 === observation.responseArchive?.sha256
+  );
+}
+
+function legacyObservationSeriesIdentity(
+  observation: ObservationRecordedLedgerEntry,
+  target: TargetRegisteredLedgerEntry | undefined,
+): string | null {
+  if (
+    !target ||
+    target.series ||
+    target.targetContentHash ||
+    target.sourceBinding ||
+    target.dataPointId !== observation.dataPointId ||
+    target.observationId !== observation.observationId ||
+    target.unit !== observation.unit ||
+    observation.targetContentHash ||
+    observation.sourceBindingProjection
+  ) {
+    return null;
+  }
+  return (
+    REVIEWED_LEGACY_OBSERVATION_SERIES.find(
+      (identity) =>
+        identity.dataPointId === observation.dataPointId &&
+        identity.observationId === observation.observationId &&
+        identity.periodLabel === observation.periodLabel &&
+        identity.unit === observation.unit &&
+        identity.value === observation.value &&
+        identity.acceptedSequence === observation.acceptedSequence &&
+        identity.acceptedCommit === observation.acceptedCommit &&
+        identity.acceptedAtUtc === observation.acceptedAtUtc &&
+        identity.observedAt === observation.observedAt &&
+        identity.sourceUrl === observation.sourceUrl &&
+        identity.legacyQuarantined === observation.legacyQuarantined,
+    )?.series ?? null
+  );
+}
+
+export function registeredObservationSeriesIdentity(
+  observation: ObservationRecordedLedgerEntry,
+  ledger: PolicyEngineLedgerEntry[],
+): string | null {
+  return observationSeriesFromRegistrations(
+    observation,
+    registrationsByDataPointId(ledger),
+  );
+}
+
+function observationSeriesFromRegistrations(
+  observation: ObservationRecordedLedgerEntry,
+  registrations: Map<string, TargetRegisteredLedgerEntry>,
+): string | null {
+  const target = registrations.get(observation.dataPointId);
+  const series = contractSeries(target);
+  if (series) {
+    return target && projectionMatchesRegistration(observation, target)
+      ? series
+      : null;
+  }
+  return legacyObservationSeriesIdentity(observation, target);
 }
 
 function toObservationReference(

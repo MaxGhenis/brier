@@ -540,9 +540,7 @@ def bounded_annual_first_print_seed_target(
             raise ValueError
         start = dt.date.fromisoformat(window["start"])
         end = dt.date.fromisoformat(window["end"])
-        resolution_date = dt.date.fromisoformat(
-            str(extras.get("resolutionDate"))
-        )
+        resolution_date = dt.date.fromisoformat(str(extras.get("resolutionDate")))
     except ValueError:
         print(
             f"  warning: skip {entry.get('series', '?')}: malformed bounded "
@@ -615,14 +613,10 @@ def conditional_pair_seed_targets(
     if cadence not in {"annual", "monthly"}:
         return skip("requires annual or monthly cadence")
     period = entry.get("period")
-    period_pattern = (
-        r"\d{4}" if cadence == "annual" else r"\d{4}-(0[1-9]|1[0-2])"
-    )
+    period_pattern = r"\d{4}" if cadence == "annual" else r"\d{4}-(0[1-9]|1[0-2])"
     period_shape = "YYYY" if cadence == "annual" else "YYYY-MM"
     if not isinstance(period, str) or not re.fullmatch(period_pattern, period):
-        return skip(
-            f"requires an explicit {period_shape} period, got {period!r}"
-        )
+        return skip(f"requires an explicit {period_shape} period, got {period!r}")
     try:
         deadline = dt.date.fromisoformat(str(pair.get("conditionDeadline")))
     except (TypeError, ValueError):
@@ -650,15 +644,11 @@ def conditional_pair_seed_targets(
         return skip(f"has unsupported resolutionDateBasis {basis!r}")
     if basis == "resolve-by-bound":
         if extras.get("resolutionDate") != window["end"]:
-            return skip(
-                "resolve-by-bound requires resolutionDate to equal window end"
-            )
+            return skip("resolve-by-bound requires resolutionDate to equal window end")
     if start <= deadline:
         return skip("release window must open after the condition deadline")
     if today >= start:
-        return skip(
-            f"forecast generation must precede release window start {start}"
-        )
+        return skip(f"forecast generation must precede release window start {start}")
     if today >= deadline:
         return skip(f"condition deadline {deadline} has passed")
     arms = pair.get("arms")
@@ -696,20 +686,30 @@ def conditional_pair_seed_targets(
             for value in (slug, data_point_id, conditional, condition_id)
         ):
             return skip(
-                "arms require catalogSlug, dataPointId, conditional, and "
-                "conditionId"
+                "arms require catalogSlug, dataPointId, conditional, and conditionId"
             )
-        # Every arm resolves against the series' first print for THIS
-        # period; a mislabeled id would route the resolver to a different
-        # tax year's workbook.
+        # Every arm resolves under the binding's declared release policy for
+        # THIS period. Registered-query snapshots carry that policy token in
+        # their ids; every other conditional-pair family retains the
+        # first_print spelling. A mismatch would route the resolver under
+        # different vintage semantics than the committed source binding.
+        binding = extras["sourceBinding"]
+        release_policy = binding.get("releasePolicy")
+        resolution_token = (
+            "registered_query_snapshot"
+            if release_policy == "registered_query_snapshot"
+            else "first_print"
+        )
         if not re.fullmatch(
             rf"{re.escape(entry['series'])}\.{re.escape(period_token)}"
-            r"\.first_print\.[a-z0-9_]+",
+            rf"\.{re.escape(resolution_token)}\.[a-z0-9_]+",
             data_point_id,
         ):
             return skip(
-                f"arm dataPointId {data_point_id!r} is not "
-                f"{entry['series']}.{period}.first_print.<condition_token>"
+                f"arm dataPointId {data_point_id!r} does not match "
+                f"sourceBinding.releasePolicy {release_policy!r}; expected "
+                f"{entry['series']}.{period}.{resolution_token}."
+                "<condition_token>"
             )
         seen_slugs.add(slug)
         seen_ids.add(data_point_id)
@@ -884,9 +884,7 @@ def target_extras_for_period(entry: dict, period: str) -> dict | None:
         if not isinstance(release_date, str):
             raise ValueError("missing date")
         dt.date.fromisoformat(release_date)
-        if not isinstance(calendar_url, str) or not calendar_url.startswith(
-            "https://"
-        ):
+        if not isinstance(calendar_url, str) or not calendar_url.startswith("https://"):
             raise ValueError("missing HTTPS calendar URL")
     except ValueError:
         print(
@@ -925,9 +923,7 @@ def advance_past_released_native_periods(
     release_dates = entry.get("releaseDates")
     while True:
         release_value = (
-            release_dates.get(candidate)
-            if isinstance(release_dates, dict)
-            else None
+            release_dates.get(candidate) if isinstance(release_dates, dict) else None
         )
         try:
             release_day = dt.date.fromisoformat(str(release_value))
@@ -1031,10 +1027,7 @@ def main() -> int:
         if isinstance(entry.get("conditionalPair"), dict):
             pair_targets = conditional_pair_seed_targets(entry, existing, today)
             if not pair_targets:
-                print(
-                    f"  skip {entry['series']}: no eligible conditional-pair "
-                    "arm"
-                )
+                print(f"  skip {entry['series']}: no eligible conditional-pair arm")
                 continue
             # Unpublished arms of a pair are one atomic unit: registering
             # or forecasting one arm ahead of its sibling would let the
@@ -1109,9 +1102,7 @@ def main() -> int:
             continue
         next_result = next_roll_period(entry, existing, observed_slugs, today)
         if next_result is None:
-            print(
-                f"  skip {entry['series']}: no eligible successor within horizon"
-            )
+            print(f"  skip {entry['series']}: no eligible successor within horizon")
             continue
         nxt, latest_slug = next_result
         nxt = advance_past_released_native_periods(entry, nxt, today)

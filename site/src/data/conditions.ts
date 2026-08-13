@@ -360,6 +360,54 @@ export const CONDITIONS: ConditionDefinition[] = [
       "Satisfied only when the deadline passes with the $2,500 threshold " +
       "unchanged; failed by any enacted change to it.",
   },
+  // The FY27 NDAA enactment pair on DoD prime-award obligations. The
+  // enacted condition is vehicle-independent: any Act authorizing DoD
+  // appropriations for FY2027 satisfies it, with H.R. 8800 (119th
+  // Congress, House Report 119-698) named as the House-reported vehicle.
+  // The no-NDAA condition is its literal negation over the same deadline,
+  // so exactly one arm's premise holds once 2026-12-31 passes — unlike
+  // the threshold pairs above, this pair partitions on enactment alone.
+  // Both arms measure the same registered FY2027 obligations query; the
+  // pair reads timing-of-authorization effects (enacted NDAA versus
+  // continuing-resolution authority) and never attributes any specific
+  // program, award, or dollar to the Act.
+  {
+    type: "provision_enacted",
+    conditionId: "cond.fy27-ndaa-enactment.enacted",
+    description:
+      "An Act authorizing appropriations for military activities of the " +
+      "Department of Defense for fiscal year 2027 (the FY2027 NDAA) is " +
+      "enacted into law on or before 2026-12-31.",
+    matchStrings: [
+      "An Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 (the FY2027 NDAA; the House-reported bill is H.R. 8800, 119th Congress, House Report 119-698) is enacted into law on or before 2026-12-31.",
+    ],
+    status: "open",
+    resolvesBy: "2026-12-31",
+    provisionDescription:
+      "FY2027 National Defense Authorization Act enacted into law",
+    statutoryTest:
+      "An Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 is enacted into law on or before 2026-12-31 (public record: congress.gov became-law status of H.R. 8800 or any successor FY2027 NDAA vehicle).",
+    checkSource: PROVISION_ENACTED_CHECK_SOURCE,
+    deadline: "2026-12-31",
+    complementOf: "cond.fy27-ndaa-enactment.not-enacted",
+  },
+  {
+    type: "recorded_status",
+    conditionId: "cond.fy27-ndaa-enactment.not-enacted",
+    description:
+      "No FY2027 National Defense Authorization Act is enacted into law " +
+      "on or before 2026-12-31.",
+    matchStrings: [
+      "No Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 (the FY2027 NDAA; the House-reported bill is H.R. 8800, 119th Congress) is enacted into law on or before 2026-12-31.",
+    ],
+    status: "open",
+    resolvesBy: "2026-12-31",
+    complementOf: "cond.fy27-ndaa-enactment.enacted",
+    note:
+      "The literal negation of the enacted condition over the same " +
+      "deadline: exactly one of the two premises holds once 2026-12-31 " +
+      "passes, so exactly one arm scores.",
+  },
 ];
 
 const BY_MATCH_STRING = new Map<string, ConditionDefinition>(
@@ -421,7 +469,7 @@ export function conditionForContract(
   conditionalOn: string | undefined,
 ): ConditionDefinition | undefined {
   if (!conditionalOn) return undefined;
-  return BY_MATCH_STRING.get(conditionalOn.trim());
+  return BY_MATCH_STRING.get(conditionalOn);
 }
 
 export function conditionStatusFor(

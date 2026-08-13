@@ -57,7 +57,6 @@ import {
 import {
   buildLedgerPersistenceBaseline,
   ledgerHistoryAtCutoff,
-  ledgerSeriesId,
   TIME_SERIES_PRIOR_VARIANT_ID,
 } from "./time-series-priors";
 import {
@@ -1576,25 +1575,6 @@ export type ResolutionContractBinding = "contract_bound" | "legacy_unbound";
 
 export const CONTRACT_BINDING_POLICY_VERSION = "contract-binding-v1";
 
-const REVIEWED_ABS_LEGACY_SERIES_ALIAS = {
-  dataPointId:
-    "abs.labour.unemployment_rate.australia.july_2026.first_print",
-  targetContentHash:
-    "cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b",
-  canonicalSeries: "abs.labour.unemployment_rate",
-} as const;
-
-function hasReviewedLegacySeriesAlias(
-  target: TargetRegisteredLedgerEntry,
-): boolean {
-  return (
-    target.dataPointId === REVIEWED_ABS_LEGACY_SERIES_ALIAS.dataPointId &&
-    target.targetContentHash ===
-      REVIEWED_ABS_LEGACY_SERIES_ALIAS.targetContentHash &&
-    target.series === REVIEWED_ABS_LEGACY_SERIES_ALIAS.canonicalSeries
-  );
-}
-
 export function classifyResolutionContractBinding(
   target: TargetRegisteredLedgerEntry | undefined,
   observation: ObservationRecordedLedgerEntry,
@@ -1687,19 +1667,18 @@ export function getResolutionContractViolation(
       "response bytes"
     );
   }
-  // Check the OBSERVATION's own identity against the canonical registration,
-  // not the projection's self-declared copy. Exactly one reviewed ABS
-  // registration predates canonical id stems; its immutable id and content
-  // hash scope that compatibility exception. Every other target must retain
-  // the independent observation-id-series == registration-series check.
-  const observedSeries = ledgerSeriesId(observation.dataPointId);
-  const expectedObservationSeries = hasReviewedLegacySeriesAlias(target)
-    ? ledgerSeriesId(target.dataPointId)
-    : target.series;
-  if (observedSeries !== expectedObservationSeries) {
+  // dataPointId is opaque: the exact registration is the identity authority.
+  // Never derive a series by stripping a period or release-looking suffix.
+  if (observation.dataPointId !== target.dataPointId) {
     return (
-      `observation series ${JSON.stringify(observedSeries)} does not match ` +
-      `the registration series ${JSON.stringify(expectedObservationSeries)}`
+      `observation dataPointId ${JSON.stringify(observation.dataPointId)} ` +
+      `does not match the registration's ${JSON.stringify(target.dataPointId)}`
+    );
+  }
+  if (observation.observationId !== target.observationId) {
+    return (
+      `observation id ${JSON.stringify(observation.observationId)} does not ` +
+      `match the registration's ${JSON.stringify(target.observationId)}`
     );
   }
   if (projection.series !== target.series) {
@@ -1781,9 +1760,10 @@ export function evaluateResolvedForecastRun(
   conditionOverrides?: Map<string, ConditionStatus>,
 ): ForecastRunScoreEvaluation {
   // A conditional branch is graded only when its registered condition
-  // actually occurred: both branches of a pair resolve against the same
-  // official print, and scoring the counterfactual branch would grade a
-  // hypothesis whose premise never happened (review finding F6).
+  // actually occurred. Both branches share the same official-print contract,
+  // but an open, failed, or counterfactual branch is excluded before resolution
+  // lookup; grading it would score a hypothesis whose premise never happened
+  // (review finding F6).
   const condition = conditionForCell(forecast);
   const conditionStatus = isConditionGated(forecast)
     ? conditionStatusFor(forecast, conditionOverrides)

@@ -297,8 +297,8 @@ export default async function BillDetailPage({
                   yet, so no enacted-vs-baseline pair can be preregistered.
                   When a metric&apos;s series is admitted and a pair is
                   registered through the privileged path, both arms — enacted
-                  and baseline — appear here and are scored publicly either
-                  way.
+                  and baseline — appear here; only the arm whose registered
+                  condition is satisfied is scored publicly.
                 </>
               ) : (
                 <>
@@ -306,7 +306,8 @@ export default async function BillDetailPage({
                   metrics map to admitted series, but no enacted-vs-baseline
                   pair is registered for this bill yet. Pairs are registered
                   only through the privileged path; when one lands, both arms
-                  appear here and are scored publicly either way.
+                  appear here, and only the arm whose registered condition is
+                  satisfied is scored publicly.
                 </>
               )}
             </div>

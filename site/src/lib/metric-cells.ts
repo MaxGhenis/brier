@@ -39,9 +39,11 @@ export function resolveMetricCell(
   today: string = new Date().toISOString().slice(0, 10),
 ): MetricCellMatch | null {
   if (!seriesHint || !isConfidentHint(seriesHint)) return null;
-  const matches = FORECAST_CELLS.filter((cell) =>
-    cell.dataPointId?.startsWith(seriesHint),
-  );
+  // Metric hints are unconditional accountability joins: a conditional
+  // arm (e.g. the FY27-NDAA pair on the same series) must never satisfy
+  // a bill metric's hint - conditional cells surface only through
+  // explicit comparison-group links.
+  const matches = cellsForSeries(seriesHint);
   if (matches.length === 0) return null;
   const byDate = [...matches].sort((a, b) =>
     (a.resolutionDate ?? "").localeCompare(b.resolutionDate ?? ""),
@@ -70,7 +72,8 @@ export function resolveMetricCell(
 
 export function cellsForSeries(seriesHint: string): ForecastCell[] {
   if (!isConfidentHint(seriesHint)) return [];
-  return FORECAST_CELLS.filter((cell) =>
-    cell.dataPointId?.startsWith(seriesHint),
+  return FORECAST_CELLS.filter(
+    (cell) =>
+      cell.type !== "conditional" && cell.dataPointId?.startsWith(seriesHint),
   );
 }

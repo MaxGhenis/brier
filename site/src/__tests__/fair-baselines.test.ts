@@ -9,6 +9,7 @@ import {
   PERSISTENCE_BASELINE_AGENT,
   buildLedgerPersistenceBaseline,
 } from "@/data/time-series-priors";
+import type { TargetRegisteredLedgerEntry } from "@/data/ledger-targets";
 import {
   hasVerifiedClaimedChronology,
   scoreResolvedForecasts,
@@ -18,6 +19,21 @@ import {
 } from "@/data/thesis-log";
 
 const RUN_AT = "2026-04-10T12:00:00Z";
+const SERIES = "test.series";
+const TARGET_CONTENT_HASH = "a".repeat(64);
+const RESPONSE_SHA256 = "b".repeat(64);
+
+const binding = {
+  adapter: "generic-url" as const,
+  sourceUrl: "https://example.test/series",
+  sourceSeriesId: "TEST",
+  field: "value",
+  table: "fixture",
+  transform: { operation: "identity", factor: 1 },
+  releasePolicy: "first_print" as const,
+  allowedHosts: ["example.test"],
+  expectedReleaseWindow: { start: "2026-01-01", end: "2026-12-31" },
+};
 
 function forecast(agent = "agent.with.no.special.prefix"): ForecastCell {
   return {
@@ -57,6 +73,7 @@ function observation(
   observedAt: string,
 ): ObservationRecordedLedgerEntry {
   const dataPointId = `test.series.${period}_2026.first_print`;
+  const registeredPeriod = `${period}_2026`;
   return {
     kind: "observation_recorded",
     observationId: `obs.${dataPointId}`,
@@ -69,21 +86,79 @@ function observation(
     // History eligibility requires ledger acceptance, not just the
     // publisher's claimed date; the clean fixture case accepts on print.
     acceptedAtUtc: observedAt,
+    acceptedSequence: 1,
+    legacyQuarantined: false,
     sourceKind: "official_release",
     source: "Fixture agency",
     sourceUrl: `https://example.test/${period}`,
+    targetContentHash: TARGET_CONTENT_HASH,
+    ledgerRepoSha: "c".repeat(40),
+    sourceVintage: observedAt.slice(0, 10),
+    retrievedAt: observedAt,
+    responseArchive: {
+      path: `fixture/${period}.json.gz`,
+      sha256: RESPONSE_SHA256,
+      bytes: 1,
+      gzipSha256: "d".repeat(64),
+      gzipBytes: 1,
+      contentEncoding: "gzip",
+    },
+    sourceBindingProjection: {
+      series: SERIES,
+      period: registeredPeriod,
+      releasePolicy: binding.releasePolicy,
+      table: binding.table,
+      field: binding.field,
+      transform: binding.transform,
+      unit: "percent",
+      responseSha256: RESPONSE_SHA256,
+    },
+  };
+}
+
+function registration(
+  period: string,
+  observedAt: string,
+): TargetRegisteredLedgerEntry {
+  const dataPointId = `test.series.${period}_2026.first_print`;
+  return {
+    kind: "target_registered",
+    dataPointId,
+    observationId: `obs.${dataPointId}`,
+    country: "US",
+    periodLabel: `${period} 2026`,
+    unit: "percent",
+    resolutionDate: observedAt.slice(0, 10),
+    resolutionSource: "Fixture agency",
+    resolutionRule: "First print",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Fixture agency",
+    note: "fixture",
+    registrationState: "published",
+    registeredAt: "2026-01-01T00:00:00Z",
+    targetContentHash: TARGET_CONTENT_HASH,
+    series: SERIES,
+    period: `${period}_2026`,
+    catalogSlug: `fixture-${period}`,
+    valueScale: 1,
+    sourceBinding: binding,
   };
 }
 
 function fixtureLedger(includeHistory = true): PolicyEngineLedgerEntry[] {
-  const history = includeHistory
+  const rows: Array<readonly [string, number, string]> = includeHistory
     ? [
-        observation("mar", 12, "2026-04-01T12:00:00Z"),
-        observation("jan", 10, "2026-02-01T12:00:00Z"),
-        observation("feb", 14, "2026-03-01T12:00:00Z"),
+        ["mar", 12, "2026-04-01T12:00:00Z"],
+        ["jan", 10, "2026-02-01T12:00:00Z"],
+        ["feb", 14, "2026-03-01T12:00:00Z"],
       ]
     : [];
-  return [...history, observation("apr", 13, "2026-05-01T12:00:00Z")];
+  rows.push(["apr", 13, "2026-05-01T12:00:00Z"]);
+  return rows.flatMap(([period, value, observedAt]) => [
+    registration(period, observedAt),
+    observation(period, value, observedAt),
+  ]);
 }
 
 describe("fair ledger-backed baselines", () => {

@@ -38,9 +38,7 @@ APEL_SERIES = {
 def apel_templates() -> list[dict]:
     doc = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     return [
-        entry
-        for entry in doc["series"]
-        if entry["series"].startswith("usaspending.")
+        entry for entry in doc["series"] if entry["series"].startswith("usaspending.")
     ]
 
 
@@ -58,9 +56,7 @@ def test_apel_templates_carry_exactly_the_template_keys() -> None:
         assert not (set(binding) & SOURCE_BINDING_DERIVED_KEYS)
         assert binding["adapter"] == "usaspending-api"
         assert binding["releasePolicy"] == "registered_query_snapshot"
-        assert binding["sourceUrl"].startswith(
-            "https://api.usaspending.gov/api/v2/"
-        )
+        assert binding["sourceUrl"].startswith("https://api.usaspending.gov/api/v2/")
         transform = binding["transform"]
         assert transform["operation"] in {
             "multiply",
@@ -78,12 +74,13 @@ def test_apel_templates_carry_exactly_the_template_keys() -> None:
 
 
 def test_registry_and_resolver_specs_match_bidirectionally_on_all_seven_keys() -> None:
-    registry = {entry["series"]: entry for entry in apel_templates()}
+    templates = apel_templates()
     specs = resolve_pending.USASPENDING_ADAPTERS
-    assert set(registry) == APEL_SERIES
+    assert {entry["series"] for entry in templates} == APEL_SERIES
     assert set(specs) == APEL_SERIES
 
-    for series, entry in registry.items():
+    for entry in templates:
+        series = entry["series"]
         spec = specs[series]
         binding = entry["extras"]["sourceBinding"]
         assert resolve_pending.usaspending_binding_template(spec) == binding
@@ -125,9 +122,7 @@ def test_wave_b1_specs_resolve_in_chronicle_usd_millions() -> None:
         "usaspending.cdfi.assistance_transaction_obligations": 319_455_176.0,
         "usaspending.ondcp.hidta_al95001_obligations": 271_657_675.6,
         "usaspending.ntia.broadband_al11038_obligations": 409_852_406.47,
-        "usaspending.usfs.minnesota_place_of_performance_obligations": (
-            46_832_556.79
-        ),
+        "usaspending.usfs.minnesota_place_of_performance_obligations": (46_832_556.79),
     }
     registry = {entry["series"]: entry for entry in apel_templates()}
 
@@ -137,8 +132,9 @@ def test_wave_b1_specs_resolve_in_chronicle_usd_millions() -> None:
         assert spec["unit"] == "usd_millions"
         assert spec["scale"] == 1e-6
         assert spec["round"] == 8
-        assert round(raw_anchor * spec["scale"], spec["round"]) == (
-            entry["extras"]["anchors"]["2025"]
+        assert (
+            round(raw_anchor * spec["scale"], spec["round"])
+            == (entry["extras"]["anchors"]["2025"])
         )
 
 
@@ -196,9 +192,7 @@ def test_recipient_post_body_is_the_exact_registered_fy2026_query() -> None:
                 }
             ],
             "award_type_codes": ["A", "B", "C", "D"],
-            "time_period": [
-                {"end_date": "2026-09-30", "start_date": "2025-10-01"}
-            ],
+            "time_period": [{"end_date": "2026-09-30", "start_date": "2025-10-01"}],
         },
         "limit": 100,
         "page": 2,
@@ -247,9 +241,7 @@ def test_share_post_bodies_only_differ_by_registered_filter() -> None:
             }
         ],
         "award_type_codes": ["A", "B", "C", "D"],
-        "time_period": [
-            {"end_date": "2026-09-30", "start_date": "2025-10-01"}
-        ],
+        "time_period": [{"end_date": "2026-09-30", "start_date": "2025-10-01"}],
     }
     assert denominator == {
         "filters": base_filters,
@@ -378,10 +370,13 @@ def test_cdfi_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
         "ed1225baa11ce0e294590cab40927060f62ebea1df9ea094909b797a0f06f0f1"
     )
     assert evidence["responseByteLength"] == 1_137
-    assert resolve_pending.usaspending_fiscal_year_amount(
-        {"results": evidence["resultRows"]},
-        "2025",
-    ) == 319_455_176.0
+    assert (
+        resolve_pending.usaspending_fiscal_year_amount(
+            {"results": evidence["resultRows"]},
+            "2025",
+        )
+        == 319_455_176.0
+    )
 
 
 def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
@@ -393,9 +388,9 @@ def test_cdfi_spec_preserves_the_wave_a_scope_caveats() -> None:
         "fiscal year total"
     )
     assert "signed net federal_action_obligation" in spec["source_concept"]
-    assert "non-award financial-account obligations and outlays" in spec[
-        "evidence_notes"
-    ]
+    assert (
+        "non-award financial-account obligations and outlays" in spec["evidence_notes"]
+    )
     assert "bill-specific amended-section-113 activity" in spec["evidence_notes"]
     # The Wave A exclusion review round 1 found dropped: the series says
     # nothing about downstream CDFI outcomes.
@@ -435,10 +430,13 @@ def test_hidta_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
         "5caa8207b4160327a16411454468ccf7383dbde16f47312e311ac7a798898b95"
     )
     assert evidence["responseByteLength"] == 1_130
-    assert resolve_pending.usaspending_fiscal_year_amount(
-        {"results": evidence["resultRows"]},
-        "2025",
-    ) == 271_657_675.6
+    assert (
+        resolve_pending.usaspending_fiscal_year_amount(
+            {"results": evidence["resultRows"]},
+            "2025",
+        )
+        == 271_657_675.6
+    )
 
 
 def test_hidta_spec_preserves_the_wave_a_scope_caveats() -> None:
@@ -452,12 +450,8 @@ def test_hidta_spec_preserves_the_wave_a_scope_caveats() -> None:
     assert spec["transform"]["programNumbers"] == ["95.001"]
     assert "agency" not in spec["transform"]
     assert "whole Assistance Listing 95.001" in spec["evidence_notes"]
-    assert "section 707(s) supplemental competitive grants" in spec[
-        "evidence_notes"
-    ]
-    assert "all HIDTA financial-account obligations, outlays" in spec[
-        "evidence_notes"
-    ]
+    assert "section 707(s) supplemental competitive grants" in spec["evidence_notes"]
+    assert "all HIDTA financial-account obligations, outlays" in spec["evidence_notes"]
     assert "bill-caused spending" in spec["evidence_notes"]
 
 
@@ -494,10 +488,13 @@ def test_ntia_broadband_post_body_byte_matches_wave_a_capture_and_anchor() -> No
         "bcda917cb217ca7fb442ff3b32aa291e11696326043d3a33205b66b9ef13cf64"
     )
     assert evidence["responseByteLength"] == 1_132
-    assert resolve_pending.usaspending_fiscal_year_amount(
-        {"results": evidence["resultRows"]},
-        "2025",
-    ) == 409_852_406.47
+    assert (
+        resolve_pending.usaspending_fiscal_year_amount(
+            {"results": evidence["resultRows"]},
+            "2025",
+        )
+        == 409_852_406.47
+    )
 
 
 def test_ntia_broadband_spec_preserves_the_wave_a_scope_caveats() -> None:
@@ -517,9 +514,10 @@ def test_ntia_broadband_spec_preserves_the_wave_a_scope_caveats() -> None:
     assert "outcomes of the proposed 6G Task Force" in spec["evidence_notes"]
     assert "spending caused or authorized by H.R. 2449" in spec["evidence_notes"]
     assert "all NTIA, NIST, Commerce, or FCC obligations" in spec["evidence_notes"]
-    assert "all obligations or outlays of federal account 013-0565" in spec[
-        "evidence_notes"
-    ]
+    assert (
+        "all obligations or outlays of federal account 013-0565"
+        in spec["evidence_notes"]
+    )
 
 
 def test_usfs_minnesota_post_body_byte_matches_wave_a_capture_and_anchor() -> None:
@@ -663,9 +661,7 @@ def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> No
     assert old_series not in registry
     assert old_series not in resolve_pending.USASPENDING_ADAPTERS
     entry = registry[series]
-    assert entry["slug"] == (
-        "us-dhs-title-vi-award-transaction-obligations-{period}"
-    )
+    assert entry["slug"] == ("us-dhs-title-vi-award-transaction-obligations-{period}")
     binding = entry["extras"]["sourceBinding"]
     assert binding["sourceSeriesId"] == (
         "usaspending.search.spending_over_time.dhs.title_vi."
@@ -680,9 +676,7 @@ def test_dhs_series_is_narrow_and_account_obligations_request_stays_open() -> No
     assert spec["label"] == (
         "DHS Title VI award-transaction obligations, fiscal year total"
     )
-    assert spec["source_concept"].startswith(
-        "aggregated_amount of award transactions"
-    )
+    assert spec["source_concept"].startswith("aggregated_amount of award transactions")
 
     request = json.loads(
         (
@@ -828,10 +822,7 @@ def test_main_reads_usaspending_binding_from_real_registration_envelope(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    ref = (
-        "usaspending.dod.prime_award_obligations.fy2026."
-        "registered_query_snapshot"
-    )
+    ref = "usaspending.dod.prime_award_obligations.fy2026.registered_query_snapshot"
     registration = resolve_pending.registration_contracts()[ref]
     assert set(registration) == {"targetContentHash", "contract", "ledgerPin"}
     assert registration["contract"]["dataPointId"] == ref
@@ -839,7 +830,10 @@ def test_main_reads_usaspending_binding_from_real_registration_envelope(
     spec = resolve_pending.USASPENDING_ADAPTERS[
         "usaspending.dod.prime_award_obligations"
     ]
-    forecast = {"resolutionDate": "2026-10-15", "unit": spec["unit"]}
+    # Registered-query targets conservatively publish the window end as their
+    # resolutionDate, but the resolver must capture the first snapshot from
+    # the registered window's start.
+    forecast = {"resolutionDate": "2026-10-22", "unit": spec["unit"]}
 
     class FixedDate(dt.date):
         @classmethod
@@ -863,7 +857,7 @@ def test_main_reads_usaspending_binding_from_real_registration_envelope(
                 spec,
                 "fiscal_year",
                 "2026",
-                "2026-10-15",
+                "2026-10-22",
                 forecast,
             )
         ],
@@ -898,14 +892,14 @@ def test_main_reads_usaspending_binding_from_real_registration_envelope(
     output = capsys.readouterr().out
     assert requests == [
         (
-            "https://api.usaspending.gov/api/v2/agency/097/awards/"
-            "?fiscal_year=2026",
+            "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year=2026",
             None,
         )
     ]
     assert f"  resolve {ref} -> 250.5 billions USD" in output.splitlines()
     assert "dry-run: would append 1 row(s)" in output
     assert "NO REGISTERED SNAPSHOT WINDOW" not in output
+    assert "release 2026-10-22 not reached" not in output
 
 
 def recipient_page(
@@ -924,10 +918,13 @@ def test_distinct_recipient_count_deduplicates_across_complete_pages() -> None:
         recipient_page(1, True, ["A", "B", None]),
         recipient_page(2, False, ["B", "C"]),
     ]
-    assert resolve_pending.usaspending_distinct_recipient_count(
-        pages,
-        recipient_transform(),
-    ) == 3
+    assert (
+        resolve_pending.usaspending_distinct_recipient_count(
+            pages,
+            recipient_transform(),
+        )
+        == 3
+    )
 
 
 def test_distinct_recipient_count_fails_closed_on_incomplete_or_bad_pages() -> None:
@@ -1040,9 +1037,7 @@ def test_fy_ratio_handles_zero_and_refuses_missing_or_impossible_amounts() -> No
 
 
 def test_snapshot_evidence_envelope_preserves_every_exchange_and_derivation() -> None:
-    source_url = (
-        "https://api.usaspending.gov/api/v2/search/spending_over_time/"
-    )
+    source_url = "https://api.usaspending.gov/api/v2/search/spending_over_time/"
     denominator, numerator = resolve_pending.usaspending_share_bodies(
         "2026",
         share_transform(),
@@ -1068,9 +1063,7 @@ def test_snapshot_evidence_envelope_preserves_every_exchange_and_derivation() ->
 
     assert archived.endswith(b"\n")
     assert canonical_bytes(evidence) + b"\n" == archived
-    assert evidence["schemaVersion"] == (
-        "usaspending_registered_query_snapshot_v1"
-    )
+    assert evidence["schemaVersion"] == ("usaspending_registered_query_snapshot_v1")
     assert evidence["sourceUrl"] == source_url
     assert evidence["derived"] == derived
     assert [row["requestBody"] for row in evidence["exchanges"]] == [
@@ -1139,23 +1132,115 @@ def test_snapshot_registration_requires_an_explicit_window() -> None:
     # Snapshot semantics are stamped into the id so graders and readers can
     # never mistake the outcome for a source first print.
     assert contract["dataPointId"] == (
-        "usaspending.dod.prime_award_obligations.fy2026."
-        "registered_query_snapshot"
+        "usaspending.dod.prime_award_obligations.fy2026.registered_query_snapshot"
     )
 
 
 def test_parse_ref_period_handles_fiscal_year_snapshot_ids() -> None:
     parsed = resolve_pending.parse_ref_period(
-        "usaspending.dod.prime_award_obligations.fy2026."
-        "registered_query_snapshot",
+        "usaspending.dod.prime_award_obligations.fy2026.registered_query_snapshot",
         "usaspending.dod.prime_award_obligations",
     )
     assert parsed == ("fiscal_year", "2026")
+    conditional_ref = (
+        "usaspending.dod.prime_award_obligations.2027."
+        "registered_query_snapshot.fy27_ndaa_enacted"
+    )
+    assert (
+        resolve_pending.parse_usaspending_ref_fiscal_year(
+            conditional_ref,
+            "usaspending.dod.prime_award_obligations",
+        )
+        == "2027"
+    )
+    assert (
+        resolve_pending.parse_usaspending_ref_fiscal_year(
+            conditional_ref.replace(".registered_query_snapshot.", ".first_print."),
+            "usaspending.dod.prime_award_obligations",
+        )
+        is None
+    )
+    assert resolve_pending.usaspending_fiscal_year_dates("2027") == (
+        "2026-10-01",
+        "2027-09-30",
+    )
     # Monthly and quarterly parsing is untouched.
     assert resolve_pending.parse_ref_period(
         "bea.pce_price_index.monthly_change.june_2026.first_print",
         "bea.pce_price_index.monthly_change",
     ) == ("month", "2026-06")
+
+
+def test_condition_suffixed_usaspending_refs_route_and_bind_canonical_series() -> None:
+    series = "usaspending.dod.prime_award_obligations"
+    refs = [
+        f"{series}.2027.registered_query_snapshot.fy27_ndaa_enacted",
+        f"{series}.2027.registered_query_snapshot.no_fy27_ndaa",
+    ]
+    wrong_policy_ref = f"{series}.2027.first_print.fy27_ndaa_enacted"
+    entries = []
+    links = []
+    for index, ref in enumerate([*refs, wrong_policy_ref]):
+        slug = f"conditional-{index}"
+        entries.append(
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": slug,
+                "resolutionDate": "2027-10-22",
+            }
+        )
+        links.append(
+            {
+                "forecastSlug": slug,
+                "targetFactRef": ref,
+                "status": "pending",
+            }
+        )
+
+    routed = resolve_pending.pending_adapter_refs(
+        {"entries": entries, "resolutionLinks": links}
+    )
+    assert [row[0] for row in routed] == refs
+    for ref, kind, spec, period_type, period, _, forecast in routed:
+        assert kind == "usaspending"
+        assert period_type == "fiscal_year"
+        assert period == "2027"
+        assert spec["target_series"] == series
+        source_url = spec["url_template"].format(fiscal_year=period)
+        row = resolve_pending.generic_fact(
+            ref,
+            spec,
+            period_type,
+            period,
+            250.5,
+            dt.date(2027, 10, 15),
+            source_url,
+            "snapshot.json",
+        )
+        binding = {
+            **resolve_pending.usaspending_binding_template(spec),
+            "expectedReleaseWindow": {
+                "start": "2027-10-15",
+                "end": "2027-10-22",
+            },
+            "allowedHosts": ["api.usaspending.gov"],
+        }
+        projection = resolve_pending.source_binding_projection(
+            {
+                "contract": {
+                    "series": series,
+                    "period": "2027",
+                    "unit": spec["unit"],
+                    "sourceBinding": binding,
+                }
+            },
+            row,
+            b'{"obligations":250500000000}',
+        )
+        assert row["measure"]["concept"] == series
+        assert projection["series"] == series
+        assert projection["concept"] == series
+        assert forecast["resolutionDate"] == "2027-10-22"
 
 
 def test_extract_json_field_walks_paths_and_list_matches() -> None:
@@ -1206,17 +1291,11 @@ def test_append_gate_verdict_ignores_skipped_twins() -> None:
     verdict = resolve_pending.append_gate_verdict
     # The multi-event gate workflow leaves skipped twins on the same head;
     # they are non-verdicts, not failures (the 2026-07-18 outage tail).
-    assert verdict(
-        [{"conclusion": "success"}, {"conclusion": "skipped"}]
-    ) is True
+    assert verdict([{"conclusion": "success"}, {"conclusion": "skipped"}]) is True
     assert verdict([{"conclusion": "success"}]) is True
     # A real adverse conclusion always refuses, whatever else passed.
-    assert verdict(
-        [{"conclusion": "success"}, {"conclusion": "failure"}]
-    ) is False
-    assert verdict(
-        [{"conclusion": "skipped"}, {"conclusion": "cancelled"}]
-    ) is False
+    assert verdict([{"conclusion": "success"}, {"conclusion": "failure"}]) is False
+    assert verdict([{"conclusion": "skipped"}, {"conclusion": "cancelled"}]) is False
     # All-skipped means the gate never judged the proposal: refuse.
     assert verdict([{"conclusion": "skipped"}]) is False
     assert verdict([]) is False

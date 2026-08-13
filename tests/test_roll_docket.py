@@ -885,9 +885,17 @@ def apel_snapshot_entries() -> list[dict]:
 
 def test_real_apel_seeds_build_eleven_preregistered_snapshot_contracts() -> None:
     entries = apel_snapshot_entries()
-    assert len(entries) == 11
+    assert len(entries) == 12
+    snapshot_entries = [
+        entry for entry in entries if not isinstance(entry.get("conditionalPair"), dict)
+    ]
+    pair_entries = [
+        entry for entry in entries if isinstance(entry.get("conditionalPair"), dict)
+    ]
+    assert len(snapshot_entries) == 11
+    assert len(pair_entries) == 1
 
-    for entry in entries:
+    for entry in snapshot_entries:
         assert entry["cadence"] == "annual"
         assert entry["period"] == "FY2026"
         assert entry["extras"]["expectedReleaseWindow"] == {
@@ -917,6 +925,45 @@ def test_real_apel_seeds_build_eleven_preregistered_snapshot_contracts() -> None
             contract["sourceBinding"]["expectedReleaseWindow"]
             == (entry["extras"]["expectedReleaseWindow"])
         )
+        assert contract["sourceBinding"]["allowedHosts"] == ["api.usaspending.gov"]
+
+    pair_entry = pair_entries[0]
+    assert pair_entry["series"] == "usaspending.dod.prime_award_obligations"
+    assert pair_entry["period"] == "2027"
+    assert pair_entry["extras"]["expectedReleaseWindow"] == {
+        "start": "2027-10-15",
+        "end": "2027-10-22",
+    }
+    targets = roll_docket.conditional_pair_seed_targets(
+        pair_entry,
+        set(),
+        dt.date(2026, 8, 1),
+    )
+    assert len(targets) == 2
+    assert [target["dataPointId"] for target in targets] == [
+        "usaspending.dod.prime_award_obligations.2027."
+        "registered_query_snapshot.fy27_ndaa_enacted",
+        "usaspending.dod.prime_award_obligations.2027."
+        "registered_query_snapshot.no_fy27_ndaa",
+    ]
+    for target, arm in zip(targets, pair_entry["conditionalPair"]["arms"]):
+        assert target["period"] == "2027"
+        assert target["catalogSlug"] == arm["catalogSlug"]
+        assert target["conditional"] == arm["conditional"]
+        assert target["conditionId"] == arm["conditionId"]
+        assert target["conditionDeadline"] == "2026-12-31"
+        contract = register_targets.build_contract(target, dt.date(2026, 8, 1))
+        assert contract["dataPointId"] == arm["dataPointId"]
+        assert contract["conditional"] == arm["conditional"]
+        assert contract["conditionId"] == arm["conditionId"]
+        assert contract["conditionDeadline"] == "2026-12-31"
+        assert contract["sourceBinding"]["releasePolicy"] == (
+            "registered_query_snapshot"
+        )
+        assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+            "start": "2027-10-15",
+            "end": "2027-10-22",
+        }
         assert contract["sourceBinding"]["allowedHosts"] == ["api.usaspending.gov"]
 
 
@@ -1037,6 +1084,18 @@ def conditional_pair_entry() -> dict:
             entry
             for entry in docket["series"]
             if entry["series"] == "irs.actc.total_claims"
+        )
+    )
+
+
+def ndaa_conditional_pair_entry() -> dict:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    return copy.deepcopy(
+        next(
+            entry
+            for entry in docket["series"]
+            if entry["series"] == "usaspending.dod.prime_award_obligations"
+            and isinstance(entry.get("conditionalPair"), dict)
         )
     )
 
@@ -1371,6 +1430,38 @@ def test_conditional_pair_rejects_mislabeled_data_point_year() -> None:
         roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
         == []
     )
+
+
+@pytest.mark.parametrize("mutation", ["arm-token", "policy", "missing-policy"])
+def test_conditional_pair_refuses_release_policy_token_mismatch(
+    mutation: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = ndaa_conditional_pair_entry()
+    if mutation == "arm-token":
+        arm = entry["conditionalPair"]["arms"][0]
+        arm["dataPointId"] = arm["dataPointId"].replace(
+            ".registered_query_snapshot.", ".first_print."
+        )
+        expected_policy = "registered_query_snapshot"
+        expected_token = "registered_query_snapshot"
+    elif mutation == "policy":
+        entry = conditional_pair_entry()
+        entry["extras"]["sourceBinding"]["releasePolicy"] = "registered_query_snapshot"
+        expected_policy = "registered_query_snapshot"
+        expected_token = "registered_query_snapshot"
+    else:
+        entry["extras"]["sourceBinding"].pop("releasePolicy")
+        expected_policy = None
+        expected_token = "first_print"
+
+    assert (
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
+        == []
+    )
+    warning = capsys.readouterr().err
+    assert f"does not match sourceBinding.releasePolicy {expected_policy!r}" in warning
+    assert f".{expected_token}.<condition_token>" in warning
 
 
 def test_capped_selection_never_splits_a_pair_unit() -> None:

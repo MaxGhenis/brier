@@ -2590,6 +2590,53 @@
     "uuid": "282e0e7a-6290-4114-aaf8-caaf96b99418",
     "concept": "sba.disaster.loan_program.post_charge_off_recovery"
    }
+  },
+  {
+   "series": "usaspending.dod.prime_award_obligations",
+   "cadence": "annual",
+   "period": "2027",
+   "comment": "Both arms measure the same registered query: DoD (agency 097) prime award obligations for fiscal year 2027, snapshot in the 2027-10 window. The pair reads the timing-of-authorization question - obligations under an enacted FY2027 NDAA versus under continuing-resolution authority - and never attributes any specific program, award, or dollar to the Act.",
+   "conditionalPair": {
+    "conditionDeadline": "2026-12-31",
+    "arms": [
+     {
+      "catalogSlug": "us-dod-prime-award-obligations-fy2027-fy27-ndaa-enacted",
+      "dataPointId": "usaspending.dod.prime_award_obligations.2027.registered_query_snapshot.fy27_ndaa_enacted",
+      "conditionId": "cond.fy27-ndaa-enactment.enacted",
+      "conditional": "An Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 (the FY2027 NDAA; the House-reported bill is H.R. 8800, 119th Congress, House Report 119-698) is enacted into law on or before 2026-12-31."
+     },
+     {
+      "catalogSlug": "us-dod-prime-award-obligations-fy2027-no-fy27-ndaa",
+      "dataPointId": "usaspending.dod.prime_award_obligations.2027.registered_query_snapshot.no_fy27_ndaa",
+      "conditionId": "cond.fy27-ndaa-enactment.not-enacted",
+      "conditional": "No Act authorizing appropriations for military activities of the Department of Defense for fiscal year 2027 (the FY2027 NDAA; the House-reported bill is H.R. 8800, 119th Congress) is enacted into law on or before 2026-12-31."
+     }
+    ]
+   },
+   "extras": {
+    "expectedReleaseWindow": {
+     "start": "2027-10-15",
+     "end": "2027-10-22"
+    },
+    "valueScale": 1e-09,
+    "targetUnit": "billions USD",
+    "sourceBinding": {
+     "adapter": "usaspending-api",
+     "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+     "sourceSeriesId": "usaspending.agency.097.awards.obligations",
+     "field": "obligations",
+     "table": "USAspending API v2, agency 097 (DoD) award summary, prime award obligations, fiscal year to date",
+     "transform": {
+      "operation": "multiply",
+      "factor": 1e-09
+     },
+     "releasePolicy": "registered_query_snapshot"
+    }
+   },
+   "ledger": {
+    "uuid": "a2649fd9-f382-4003-ba70-01030bc93b5e",
+    "concept": "usaspending.dod.prime_award_obligations"
+   }
   }
  ]
 }

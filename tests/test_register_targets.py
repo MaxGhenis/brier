@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import datetime as dt
 import json
 import pathlib
@@ -3622,7 +3623,11 @@ def conditional_pair_targets(
     series: str = "irs.actc.total_claims",
 ) -> list[dict]:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
-    entry = next(e for e in docket["series"] if e["series"] == series)
+    entry = next(
+        e
+        for e in docket["series"]
+        if e["series"] == series and isinstance(e.get("conditionalPair"), dict)
+    )
     return [
         {
             "series": entry["series"],
@@ -3636,6 +3641,109 @@ def conditional_pair_targets(
         }
         for arm in entry["conditionalPair"]["arms"]
     ]
+
+
+def test_conditional_authentication_selects_exact_period_for_reused_series() -> None:
+    series = "usaspending.dod.prime_award_obligations"
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entries = [entry for entry in docket["series"] if entry["series"] == series]
+    assert {entry["period"] for entry in entries} == {"FY2026", "2027"}
+
+    conditional_target = conditional_pair_targets(series)[0]
+    conditional_contract = register_targets.build_contract(
+        conditional_target, dt.date(2026, 8, 1)
+    )
+    register_targets.require_conditional_docket_template(
+        conditional_contract,
+        entries,
+        "2026-08-01T00:00:00Z",
+    )
+    assert [
+        entry["period"]
+        for entry in register_targets.matching_docket_templates(
+            conditional_contract, entries
+        )
+    ] == ["2027"]
+
+    snapshot_entry = next(
+        entry for entry in entries if not isinstance(entry.get("conditionalPair"), dict)
+    )
+    snapshot_target = {
+        **snapshot_entry["extras"],
+        "series": series,
+        "period": snapshot_entry["period"],
+        "catalogSlug": snapshot_entry["slug"].format(period="fy2026"),
+    }
+    snapshot_contract = register_targets.build_contract(
+        snapshot_target, dt.date(2026, 8, 1)
+    )
+    register_targets.require_conditional_docket_template(
+        snapshot_contract,
+        entries,
+        "2026-08-01T00:00:00Z",
+    )
+
+    unconditional_2027 = {
+        **conditional_target,
+        "catalogSlug": "unconditional-dod-prime-award-obligations-fy2027",
+        "dataPointId": (
+            "usaspending.dod.prime_award_obligations.2027.registered_query_snapshot"
+        ),
+    }
+    for key in ("conditional", "conditionId", "conditionDeadline"):
+        unconditional_2027.pop(key)
+    with pytest.raises(register_targets.RegistrationError, match="conditional-only"):
+        register_targets.require_conditional_docket_template(
+            register_targets.build_contract(unconditional_2027, dt.date(2026, 8, 1)),
+            entries,
+        )
+
+    alias_unconditional_entry = copy.deepcopy(snapshot_entry)
+    alias_unconditional_entry["period"] = "FY2027"
+    alias_entries = [*entries, alias_unconditional_entry]
+    assert {
+        entry["period"]
+        for entry in register_targets.matching_docket_templates(
+            conditional_contract, alias_entries
+        )
+    } == {"2027", "FY2027"}
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="exactly one committed docket entry",
+    ):
+        register_targets.require_conditional_docket_template(
+            conditional_contract,
+            alias_entries,
+            "2026-08-01T00:00:00Z",
+        )
+
+    alias_unconditional_target = {
+        **unconditional_2027,
+        "period": "FY2027",
+        "dataPointId": (
+            "usaspending.dod.prime_award_obligations.fy2027.registered_query_snapshot"
+        ),
+    }
+    with pytest.raises(register_targets.RegistrationError, match="conditional-only"):
+        register_targets.require_conditional_docket_template(
+            register_targets.build_contract(
+                alias_unconditional_target, dt.date(2026, 8, 1)
+            ),
+            alias_entries,
+        )
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="exactly one committed docket entry",
+    ):
+        duplicate_pair_entry = next(
+            entry for entry in entries if isinstance(entry.get("conditionalPair"), dict)
+        )
+        register_targets.require_conditional_docket_template(
+            conditional_contract,
+            [*entries, copy.deepcopy(duplicate_pair_entry)],
+            "2026-08-01T00:00:00Z",
+        )
 
 
 def test_registration_must_precede_every_release_window_literally() -> None:

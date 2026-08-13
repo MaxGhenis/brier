@@ -49,9 +49,7 @@ def test_grace_days_pins_the_site_constant() -> None:
     # constants must never drift apart. docket_publication's publication
     # gate pins the same number.
     source = (ROOT / "site" / "src" / "data" / "ledger-targets.ts").read_text()
-    match = re.search(
-        r"TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS\s*=\s*(\d+)", source
-    )
+    match = re.search(r"TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS\s*=\s*(\d+)", source)
     assert match, "site grace constant not found"
     assert int(match.group(1)) == ORPHAN_GRACE_DAYS
 
@@ -97,9 +95,7 @@ def test_rebuilds_every_field_from_the_snapshot_not_the_manifest() -> None:
     forged["resolutionPolicy"] = "attacker policy"
     forged["targetUnit"] = "attacker unit"
     forged["sourceBinding"] = {"adapter": "attacker"}
-    rebuilt = retry_batch_targets.rebuild_target_from_snapshot(
-        forged, label="forged"
-    )
+    rebuilt = retry_batch_targets.rebuild_target_from_snapshot(forged, label="forged")
     assert rebuilt == clean
     assert rebuilt["sourceBinding"]["adapter"] != "attacker"
     assert "resolutionSource" not in rebuilt
@@ -195,9 +191,7 @@ def test_row_anchors_disagreeing_with_the_docket_are_refused() -> None:
     forged = copy.deepcopy(failed_row(manifest)["target"])
     forged["anchors"] = {"2025": 999.0}
     with pytest.raises(RetrySelectionError, match="disagree with the committed docket"):
-        retry_batch_targets.rebuild_target_from_snapshot(
-            forged, label="forged-anchors"
-        )
+        retry_batch_targets.rebuild_target_from_snapshot(forged, label="forged-anchors")
 
 
 def test_ticketed_manifests_are_refused(tmp_path: pathlib.Path) -> None:
@@ -228,15 +222,13 @@ def test_bounded_contracts_are_refused(
 
     manifest = real_manifest()
     row = copy.deepcopy(failed_row(manifest)["target"])
-    real_snapshot = json.loads(
-        (ROOT / row["targetRegistrationPath"]).read_text()
-    )
+    real_snapshot = json.loads((ROOT / row["targetRegistrationPath"]).read_text())
     bounded = copy.deepcopy(real_snapshot)
     contract = bounded["targets"][0]
     contract["resolutionDateBasis"] = "resolve-by-bound"
-    contract["resolutionDate"] = contract["sourceBinding"][
-        "expectedReleaseWindow"
-    ]["end"]
+    contract["resolutionDate"] = contract["sourceBinding"]["expectedReleaseWindow"][
+        "end"
+    ]
     new_hash = registration_content_hash(bounded)
 
     fake_root = tmp_path
@@ -403,9 +395,7 @@ def test_publication_grace_gate_refuses_late_runs() -> None:
         docket_publication.PublicationError, match="orphan grace deadline"
     ):
         docket_publication.require_run_within_grace(target, late_start, [])
-    with pytest.raises(
-        docket_publication.PublicationError, match="sealed after"
-    ):
+    with pytest.raises(docket_publication.PublicationError, match="sealed after"):
         docket_publication.require_run_within_grace(
             target, in_grace_start, [{"runAt": "2026-08-14T17:54:06Z"}]
         )
@@ -447,9 +437,7 @@ def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
         sys.path.pop(0)
 
     base_row = failed_row(real_manifest())["target"]
-    base_snapshot = json.loads(
-        (ROOT / base_row["targetRegistrationPath"]).read_text()
-    )
+    base_snapshot = json.loads((ROOT / base_row["targetRegistrationPath"]).read_text())
     registered_at = base_snapshot["registeredAtUtc"]
 
     reg_dir = tmp_path / "records" / "targets"
@@ -457,7 +445,22 @@ def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
     scripts_dir = tmp_path / "scripts"
     scripts_dir.mkdir(parents=True)
     (scripts_dir / "docket_series.json").write_text(
-        json.dumps({"series": []})
+        json.dumps(
+            {
+                "series": [
+                    {
+                        "series": "test.pair.series",
+                        "period": "FY2026",
+                        "extras": {"anchors": {"2025": 1}},
+                    },
+                    {
+                        "series": "test.pair.series",
+                        "period": "2027-09",
+                        "extras": {"anchors": {"2026": 2}},
+                    },
+                ]
+            }
+        )
     )
     rows = []
     slugs = []
@@ -469,7 +472,8 @@ def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
         contract["period"] = "2027-09"
         contract["catalogSlug"] = slug
         contract["dataPointId"] = (
-            f"test.pair.series.2027_09.first_print.{cond_id.replace('-', '_')}"
+            "test.pair.series.2027_09.registered_query_snapshot."
+            f"{cond_id.replace('-', '_')}"
         )
         contract["conditional"] = f"condition {cond_id} holds"
         contract["conditionId"] = f"cond.test.{cond_id}"
@@ -536,6 +540,13 @@ def test_lone_failed_arm_with_published_sibling_is_retryable(
     # The conditional identity fields survive projection intact.
     assert targets[0]["conditionId"] == "cond.test.enacted"
     assert targets[0]["conditionDeadline"] == "2027-09-30"
+    assert targets[0]["dataPointId"] == (
+        "test.pair.series.2027_09.registered_query_snapshot.enacted"
+    )
+    assert targets[0]["sourceBinding"]["releasePolicy"] == ("registered_query_snapshot")
+    # Duplicate-series docket authority is selected by the contract's exact
+    # period, never by whichever entry happens to appear first.
+    assert targets[0]["anchors"] == {"2026": 2}
 
 
 def test_sibling_snapshot_substitution_is_refused(
@@ -557,9 +568,7 @@ def test_sibling_snapshot_substitution_is_refused(
         if row["target"]["catalogSlug"] == arm_b:
             row["target"]["targetRegistrationPath"] = f"records/targets/{name}"
             row["target"]["targetContentHash"] = base_row["targetContentHash"]
-            row["target"]["registeredAtUtc"] = unrelated_snapshot[
-                "registeredAtUtc"
-            ]
+            row["target"]["registeredAtUtc"] = unrelated_snapshot["registeredAtUtc"]
     monkeypatch.setattr(retry_batch_targets, "ROOT", tmp_path)
     with pytest.raises(RetrySelectionError, match="not the manifest row's slug"):
         select_retry_targets(
@@ -615,18 +624,14 @@ def test_validate_cells_forwards_the_grace_flag(
             }
         )
     )
-    (tmp_path / manifest_rel).write_text(
-        json.dumps({"ok": False, "cellsPath": None})
-    )
+    (tmp_path / manifest_rel).write_text(json.dumps({"ok": False, "cellsPath": None}))
 
     captured: dict = {}
 
     def capture_binding(repo, result, manifest, cells, **kwargs):
         captured.update(kwargs)
 
-    monkeypatch.setattr(
-        docket_publication, "validate_run_binding", capture_binding
-    )
+    monkeypatch.setattr(docket_publication, "validate_run_binding", capture_binding)
     monkeypatch.setattr(
         docket_publication, "validate_run_file_inventory", lambda *a, **k: None
     )
@@ -650,11 +655,11 @@ def test_workflow_wires_the_retry_grace_flag() -> None:
     workflow = (ROOT / ".github" / "workflows" / "roll-docket.yml").read_text()
     # Match the executable line, not prose: a comment mentioning the flag
     # must not satisfy this pin.
-    assert 'args+=(--enforce-run-grace)' in workflow
+    assert "args+=(--enforce-run-grace)" in workflow
     assert workflow.count("RETRY_BATCH: ${{ github.event.inputs.retry_batch }}") >= 2
-    assert (
-        workflow.count("github.event.inputs.retry_batch == ''") >= 3
-    ), "adoption + both registration write steps must skip in retry mode"
+    assert workflow.count("github.event.inputs.retry_batch == ''") >= 3, (
+        "adoption + both registration write steps must skip in retry mode"
+    )
 
 
 def test_final_push_loops_rebind_after_every_rebase() -> None:
@@ -725,9 +730,7 @@ def test_seed_contracts_reconstruct_with_their_seed_period() -> None:
     contract = snapshot["targets"][0]
     assert "seedPeriod" in contract, "fixture registration is no longer a seed"
     assert set(contract) <= retry_batch_targets.KNOWN_CONTRACT_KEYS
-    rebuilt = register_targets.rebuild_registered_target(
-        snapshot, path=seed_path
-    )
+    rebuilt = register_targets.rebuild_registered_target(snapshot, path=seed_path)
     assert rebuilt["seedPeriod"] == contract["seedPeriod"]
     assert rebuilt["registeredAtUtc"] == snapshot["registeredAtUtc"]
 
@@ -769,9 +772,7 @@ def test_enforce_run_grace_cli_flag_reaches_the_binding_check(
 
     monkeypatch.setattr(docket_publication, "load_bundle", fake_load_bundle)
     monkeypatch.setattr(docket_publication, "validate_cells", fake_validate_cells)
-    monkeypatch.setattr(
-        docket_publication, "validate_batch_path", lambda batch: batch
-    )
+    monkeypatch.setattr(docket_publication, "validate_batch_path", lambda batch: batch)
     args.apply = False
     args.allow_published_wave = False
     args.trusted_targets = "trusted.json"
@@ -829,9 +830,7 @@ def test_enforce_run_grace_cli_flag_reaches_the_binding_check(
         createdAt="2026-08-14T17:00:00Z",
     )
     late_cell = [{"runAt": "2026-08-14T17:54:06Z"}]
-    with pytest.raises(
-        docket_publication.PublicationError, match="sealed after"
-    ):
+    with pytest.raises(docket_publication.PublicationError, match="sealed after"):
         docket_publication.validate_run_binding(
             tmp_path,
             result,

@@ -613,13 +613,8 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         ]
     adapter = (target_context.get("sourceBinding") or {}).get("adapter")
     fetch_command = BASE_RATE_FETCH_COMMANDS.get(adapter)
-    if fetch_command:
-        series = target_context.get("series")
-        if not series:
-            stem = str(target_context.get("dataPointId", "")).rsplit(
-                ".first_print", 1
-            )[0]
-            series = ".".join(stem.split(".")[:-1]) or stem
+    series = target_context.get("series")
+    if fetch_command and isinstance(series, str) and series:
         lines += [
             "",
             "# Resolution-grade base-rate fetch (run this — do not substitute)",
