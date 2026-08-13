@@ -2831,7 +2831,12 @@ def history_anchor_errors(
     errors = []
 
     quarter_key = re.compile(r"^(\d{4})[-_ ]?[Qq]([1-4])$|^[Qq]([1-4])[-_ ]?(\d{4})$")
-    quarter_in_label = re.compile(r"(\d{4})[-_ ]?[Qq]([1-4])|[Qq]([1-4])[-_ ]?(\d{4})")
+    # Boundary-delimited: a year may not extend a longer digit run
+    # ("12026 Q15") and a quarter digit may not continue ("Q10", "20260").
+    quarter_in_label = re.compile(
+        r"(?<!\d)(\d{4})[-_ ]?[Qq]([1-4])(?!\d)"
+        r"|(?<![0-9A-Za-z])[Qq]([1-4])[-_ ]?(\d{4})(?!\d)"
+    )
 
     def canonical_quarters(match_iter) -> set[str]:
         tokens = set()
@@ -2842,20 +2847,24 @@ def history_anchor_errors(
         return tokens
 
     def mentions(key: str, label: str) -> bool:
-        # Literal substring is the contract for every key shape. A key
-        # that IS a quarter token additionally matches the same quarter
-        # written another standard way ("2026-Q1" vs BEA's "2026 Q1"):
-        # the 2026-08-12 BEA ITA run fetched the byte-exact official
-        # value and was refused purely on hyphen-versus-space. The
-        # normalization never crosses quarters or years, and the value
-        # check below still enforces the official number.
-        if key in label:
-            return True
+        # A key that IS a quarter token matches only via boundary-safe
+        # quarter extraction — no literal shortcut, which would hit
+        # inside longer tokens ("2026-Q1" in "12026-Q15") — and only
+        # when the label names exactly ONE distinct quarter: a
+        # comparison label ("2026 Q1 to 2026 Q2") cannot attribute its
+        # value to either period, so it counts for neither. The
+        # motivating case: the 2026-08-12 BEA ITA run fetched the
+        # byte-exact official value labeled "2026 Q1" and was refused
+        # against the "2026-Q1" key purely on hyphen-versus-space.
+        # Every other key shape keeps literal-substring semantics, and
+        # the value check below still enforces the official number.
         key_match = quarter_key.fullmatch(key.strip())
         if key_match is None:
+            return key in label
+        label_tokens = canonical_quarters(quarter_in_label.finditer(label))
+        if len(label_tokens) != 1:
             return False
-        key_token = canonical_quarters([key_match])
-        return bool(key_token & canonical_quarters(quarter_in_label.finditer(label)))
+        return label_tokens == canonical_quarters([key_match])
 
     for key, expected_raw in anchors.items():
         try:

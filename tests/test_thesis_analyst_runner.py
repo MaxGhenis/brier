@@ -690,8 +690,8 @@ def test_custody_rejects_forged_parse_phase_and_loose_error_equality(
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -757,8 +757,8 @@ def test_custody_requires_explicit_null_presentation(tmp_path: Path) -> None:
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -793,8 +793,8 @@ def test_custody_rejects_a_failure_phase_that_presents_as_complete(
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -836,8 +836,8 @@ def test_custody_requires_the_phase_artifacts_typed(tmp_path: Path) -> None:
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -3490,11 +3490,31 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
     for label in ("2026Q1 print", "Q1 2026 seasonally adjusted", "2026-Q1"):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         assert analyst_runner.history_anchor_errors(cell, context) == [], label
-    # A DIFFERENT quarter or year never matches.
-    for label in ("2026 Q2 print", "2025 Q1 print"):
+    # A DIFFERENT quarter or year never matches, and neither do
+    # malformed digit runs, out-of-range quarters, or the key appearing
+    # inside a longer token (the round-one review's exploit labels).
+    for label in (
+        "2026 Q2 print",
+        "2025 Q1 print",
+        "12026 Q15 print",
+        "2026 Q10 print",
+        "Q1 20260 print",
+        "12026-Q15 print",
+    ):
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         errors = analyst_runner.history_anchor_errors(cell, context)
         assert errors and "no historicalContext entry mentions" in errors[0], label
+    # A label naming multiple distinct quarters cannot attribute its
+    # value to either period; the same quarter written twice still can.
+    ambiguous = {"historicalContext": [
+        {"label": "Comparison 2026 Q1 to 2026 Q2; Q2 value", "value": 18511}
+    ]}
+    errors = analyst_runner.history_anchor_errors(ambiguous, context)
+    assert errors and "no historicalContext entry mentions" in errors[0]
+    twice = {"historicalContext": [
+        {"label": "2026 Q1 (2026Q1) print", "value": 18511}
+    ]}
+    assert analyst_runner.history_anchor_errors(twice, context) == []
     # The value check still refuses a wrong number on a matching label.
     wrong = {"historicalContext": [{"label": "2026 Q1", "value": 20000}]}
     errors = analyst_runner.history_anchor_errors(wrong, context)
