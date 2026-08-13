@@ -2849,8 +2849,8 @@ def history_anchor_errors(
         folded = re.sub(r"[‐‑‒–—―−]", "-", folded)
         return re.sub(r"\s+", " ", folded)
 
-    CLUSTER_CHARS = set("0123456789IVXivxQq")
-    CLUSTER_SEPS = set(" -/._()")
+    cluster_chars = set("0123456789IVXivxQq")
+    cluster_seps = set(" -/._()")
 
     def quarter_label_tokens(label: str) -> set[str] | None:
         """Whitelist-only quarter reading of a history label.
@@ -2879,7 +2879,8 @@ def history_anchor_errors(
                 for j in (i - 1, i + 1):
                     if 0 <= j < n:
                         other = folded[j]
-                        if not other.isascii() and unicodedata.category(other)[0] in "LNM":
+                        suspicious = unicodedata.category(other)[0] in "LNM"
+                        if not other.isascii() and suspicious:
                             return None
 
         def participates(i: int) -> bool:
@@ -2887,7 +2888,7 @@ def history_anchor_errors(
             if ch not in "Qq":
                 return True
             for j in (i - 1, i + 1):
-                if 0 <= j < n and folded[j] in CLUSTER_CHARS:
+                if 0 <= j < n and folded[j] in cluster_chars:
                     return True
             # A Q glued only to prose letters is a word, not a designator.
             return not (
@@ -2898,18 +2899,18 @@ def history_anchor_errors(
         tokens: set[str] = set()
         i = 0
         while i < n:
-            if folded[i] in CLUSTER_CHARS and participates(i):
+            if folded[i] in cluster_chars and participates(i):
                 j = i
                 last_member = i
                 while j < n:
                     ch = folded[j]
-                    if ch in CLUSTER_CHARS and participates(j):
+                    if ch in cluster_chars and participates(j):
                         last_member = j
                         j += 1
                     elif (
-                        ch in CLUSTER_SEPS
+                        ch in cluster_seps
                         and j + 1 < n
-                        and folded[j + 1] in CLUSTER_CHARS
+                        and folded[j + 1] in cluster_chars
                         and participates(j + 1)
                     ):
                         j += 1
