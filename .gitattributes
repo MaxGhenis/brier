@@ -11,3 +11,10 @@ challenge/** -text
 # QCEW CSV fixtures are byte-for-byte official BLS responses. Preserve the
 # agency's CRLF line endings and review them through their authenticated hash.
 tests/fixtures/qcew/*.csv binary
+
+# EIA dnav fixtures are byte-for-byte official responses. Preserve the
+# source HTML line endings, the legacy XLS container, and the no-newline API
+# error response so their documented SHA-256 digests remain reproducible.
+tests/fixtures/eia_dnav/*.html binary
+tests/fixtures/eia_dnav/*.xls binary
+tests/fixtures/eia_dnav/api-no-key.json binary

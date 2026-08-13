@@ -46,10 +46,10 @@ challenge = [
     "sigstore==4.5.0; python_version >= '3.11'",
 ]
 resolver = [
-    # IRS SOI Publication 1304 prints are legacy BIFF .xls workbooks; xlrd 2.x
-    # is the .xls-only parser (no xlsx, no formulas), exact-pinned like
-    # receipt/sigstore. resolve_pending.py imports it lazily and fails closed
-    # with an install hint when absent.
+    # IRS SOI Publication 1304 and EIA DNav prints are legacy BIFF .xls
+    # workbooks; xlrd 2.x is the .xls-only parser (no xlsx, no formulas),
+    # exact-pinned like receipt/sigstore. resolve_pending.py imports it lazily
+    # and fails closed with an install hint when absent.
     "xlrd==2.0.1",
     # SBA loan-performance resolution replays the hash-pinned PDF member from
     # witnessed custody and therefore needs the same strict parser as capture.
@@ -78,7 +78,7 @@ dev = [
     "black>=26.3.1",
     "ruff>=0.15.7",
     "pyyaml>=6.0.2",
-    # The IRS SOI adapter fixtures parse real .xls workbooks in tests.
+    # The IRS SOI and EIA DNav adapter fixtures parse real .xls workbooks.
     "xlrd==2.0.1",
 ]
 

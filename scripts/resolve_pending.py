@@ -2359,6 +2359,59 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
     },
 }
 
+# EIA DNav annual-history preparation. The API equivalent is key-gated, while
+# the reviewed DNav page and its linked BIFF workbook are recurring, keyless
+# official artifacts. DNav rewrites the workbook on its monthly publishing
+# cycle even when the annual series has not advanced, so neither Last-Modified
+# nor the workbook's generic "Next Release Date" establishes an annual print.
+# Resolution requires the requested annual row inside the registered bounded
+# Natural Gas Annual window, authenticates the page -> workbook link plus the
+# workbook's sourcekey/header/unit, and archives both exact responses together.
+EIA_DNAV_ADAPTERS: dict[str, dict[str, Any]] = {
+    "eia.ng.vented_flared.us.annual": {
+        "resolution_date_basis": "resolve-by-bound",
+        "anchor_status": "VERIFIED",
+        # Live-fetched 2026-08-13 from N9040US2a.xls. These are the exact
+        # annual MMcf cells, not sums of the preliminary monthly series.
+        "anchors": {"2022": 271682, "2023": 324207, "2024": 335163},
+        "source_url": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+        "workbook_url": (
+            "https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls"
+        ),
+        "allowed_hosts": ("www.eia.gov",),
+        "series_id": "N9040US2",
+        "field": "annual_value_mmcf",
+        "source_table": (
+            "EIA DNav U.S. Natural Gas Vented and Flared annual history "
+            "workbook, Data 1 sheet"
+        ),
+        "sheet_name": "Data 1",
+        "first_year": 1936,
+        "series_title": "U.S. Natural Gas Vented and Flared (MMcf)",
+        "page_title": (
+            "U.S. Natural Gas Vented and Flared (Million Cubic Feet)"
+        ),
+        "unit": "million_cubic_feet",
+        "country": "US",
+        "label": "U.S. natural gas vented and flared",
+        "measure_concept": "eia.ng.vented_flared.us.annual",
+        "source_name": "eia_dnav",
+        "concept_authority": "eia",
+        "source_concept": "N9040US2",
+        "evidence_notes": (
+            "EIA N9040US2 annual value for {period}, read from the Data 1 "
+            "sheet of the exact DNav workbook linked by {source_url}. The "
+            "DNav HTML and workbook bytes are archived together; a monthly "
+            "file refresh without the requested annual row never resolves."
+        ),
+        "filters": {
+            "geography": "United States",
+            "frequency": "annual",
+            "sourcekey": "N9040US2",
+        },
+    }
+}
+
 # FSA CRP monthly-summary preparation. The official statistics landing page
 # exposes a Month/Year table whose Summary cell links to a dated document page;
 # that page links the PDF. This family pins all three URL path classes, refuses
@@ -8950,6 +9003,349 @@ def irs_soi_pub1304_anchor_mismatches(
     return problems
 
 
+EIA_DNAV_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+EIA_DNAV_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+EIA_DNAV_ENVELOPE_SCHEMA = "eia_dnav_annual_xls_capture_v1"
+
+
+def eia_dnav_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "adapter": "eia-dnav-xls",
+        "sourceUrl": spec["source_url"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": {"operation": "identity", "factor": 1},
+        "releasePolicy": "first_print",
+    }
+
+
+def eia_dnav_binding_matches_spec(
+    binding: Mapping[str, Any], spec: Mapping[str, Any]
+) -> bool:
+    """Require the registered seven-key binding to match the reviewed spec."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - EIA_DNAV_BINDING_DERIVED_KEYS
+        != EIA_DNAV_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    projected = {key: binding[key] for key in EIA_DNAV_BINDING_TEMPLATE_KEYS}
+    if canonical_bytes(projected) != canonical_bytes(eia_dnav_binding_template(spec)):
+        return False
+    expected_hosts = set(spec["allowed_hosts"])
+    allowed_hosts = binding.get("allowedHosts")
+    return isinstance(allowed_hosts, list) and set(allowed_hosts) == expected_hosts
+
+
+def eia_dnav_verified_anchors(
+    spec: Mapping[str, Any],
+) -> dict[str, float] | None:
+    anchors = spec.get("anchors")
+    if (
+        spec.get("anchor_status") != "VERIFIED"
+        or not isinstance(anchors, dict)
+        or len(anchors) < 3
+    ):
+        return None
+    verified: dict[str, float] = {}
+    for year, expected in anchors.items():
+        if not isinstance(year, str) or re.fullmatch(r"\d{4}", year) is None:
+            return None
+        if isinstance(expected, bool) or not isinstance(expected, (int, float)):
+            return None
+        value = float(expected)
+        if not math.isfinite(value) or value < 0 or not value.is_integer():
+            return None
+        verified[year] = value
+    return verified
+
+
+def _eia_dnav_normalized_text(value: Any) -> str:
+    return " ".join(str(value).split()).strip()
+
+
+def eia_dnav_values_from_xls(
+    raw: bytes, spec: Mapping[str, Any]
+) -> tuple[dict[str, float] | None, str | None]:
+    """Authenticate N9040US2 and return its annual workbook cells."""
+
+    try:
+        import xlrd  # noqa: PLC0415 - optional resolver dependency
+    except ImportError:
+        return None, (
+            "xlrd is unavailable; install the resolver extra "
+            "(xlrd==2.0.1) to parse EIA DNav .xls prints"
+        )
+    try:
+        book = xlrd.open_workbook(file_contents=raw)
+    except Exception as exc:  # noqa: BLE001 - fail closed on any BIFF drift
+        return None, f"workbook parse failed: {exc}"
+    sheet_name = str(spec["sheet_name"])
+    if book.sheet_names() != ["Contents", sheet_name]:
+        return None, (
+            f"expected exact EIA sheet inventory ['Contents', {sheet_name!r}], "
+            f"found {book.sheet_names()!r}"
+        )
+    contents = book.sheet_by_name("Contents")
+    sheet = book.sheet_by_name(sheet_name)
+    if contents.nrows != 15 or contents.ncols != 6:
+        return None, (
+            "EIA contents sheet shape changed to "
+            f"{contents.nrows}x{contents.ncols}"
+        )
+    if sheet.nrows < 4 or sheet.ncols != 2:
+        return None, f"EIA data sheet shape changed to {sheet.nrows}x{sheet.ncols}"
+    expected_title = str(spec["series_title"])
+    expected_filename = posixpath.basename(
+        urlparse(str(spec["workbook_url"])).path
+    ).lower()
+    identity_checks = (
+        (sheet.cell_value(0, 0), "Back to Contents"),
+        (sheet.cell_value(0, 1), f"Data 1: {expected_title}"),
+        (sheet.cell_value(1, 0), "Sourcekey"),
+        (sheet.cell_value(1, 1), spec["series_id"]),
+        (sheet.cell_value(2, 0), "Date"),
+        (sheet.cell_value(2, 1), expected_title),
+        (contents.cell_value(2, 1), expected_title),
+        (contents.cell_value(6, 1), sheet_name),
+        (contents.cell_value(6, 2), expected_title),
+        (contents.cell_value(6, 3), 1.0),
+        (contents.cell_value(6, 4), "Annual"),
+        (str(contents.cell_value(10, 2)).lower(), expected_filename),
+    )
+    for actual, expected in identity_checks:
+        if _eia_dnav_normalized_text(actual) != _eia_dnav_normalized_text(expected):
+            return None, (
+                f"EIA workbook identity mismatch: expected {expected!r}, "
+                f"found {actual!r}"
+            )
+    values: dict[str, float] = {}
+    previous_year = None
+    for row in range(3, sheet.nrows):
+        date_value = sheet.cell_value(row, 0)
+        value = sheet.cell_value(row, 1)
+        if (
+            isinstance(date_value, bool)
+            or not isinstance(date_value, (int, float))
+            or isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+            or float(value) < 0
+            or not float(value).is_integer()
+        ):
+            return None, f"invalid EIA annual row {row}: {date_value!r}, {value!r}"
+        try:
+            stamp = xlrd.xldate_as_datetime(date_value, book.datemode)
+        except (OverflowError, TypeError, ValueError) as exc:
+            return None, f"invalid EIA annual date at row {row}: {exc}"
+        if (stamp.month, stamp.day, stamp.hour, stamp.minute, stamp.second) != (
+            6,
+            30,
+            0,
+            0,
+            0,
+        ):
+            return None, f"EIA annual row {row} is not dated June 30: {stamp!r}"
+        year = str(stamp.year)
+        if previous_year is not None and stamp.year != previous_year + 1:
+            return None, f"EIA annual rows are not contiguous at {year}"
+        if year in values:
+            return None, f"duplicate EIA annual row for {year}"
+        values[year] = float(value)
+        previous_year = stamp.year
+    first_year = int(min(values))
+    if first_year != spec["first_year"]:
+        return None, (
+            f"EIA first annual row changed from {spec['first_year']} to "
+            f"{first_year}"
+        )
+    latest_year = int(max(values))
+    latest_marker = contents.cell_value(6, 5)
+    if (
+        isinstance(latest_marker, bool)
+        or not isinstance(latest_marker, (int, float))
+        or not float(latest_marker).is_integer()
+        or int(latest_marker) != latest_year
+    ):
+        return None, (
+            f"EIA latest-data marker {latest_marker!r} disagrees with "
+            f"last annual row {latest_year}"
+        )
+    return values, None
+
+
+def eia_dnav_workbook_link(html: bytes, spec: Mapping[str, Any]) -> str | None:
+    """Authenticate the exact canonical page title and its XLS sibling link."""
+
+    try:
+        text = html.decode("utf-8")
+    except UnicodeDecodeError:
+        try:
+            text = html.decode("windows-1252")
+        except UnicodeDecodeError:
+            return None
+    normalized = _eia_dnav_normalized_text(unescape(re.sub(r"<[^>]+>", " ", text)))
+    expected_page_title = str(spec["page_title"])
+    if expected_page_title not in normalized:
+        return None
+    links = re.findall(r"href\s*=\s*['\"]?([^'\"\s>]+)", text, flags=re.I)
+    expected_filename = posixpath.basename(
+        urlparse(str(spec["workbook_url"])).path
+    ).lower()
+    workbook_links = [
+        urllib.parse.urljoin(str(spec["source_url"]), link)
+        for link in links
+        if posixpath.basename(urlparse(link).path).lower() == expected_filename
+    ]
+    if workbook_links != [spec["workbook_url"]]:
+        return None
+    return workbook_links[0]
+
+
+def eia_dnav_anchor_mismatches(
+    values: Mapping[str, float], anchors: Mapping[str, float]
+) -> list[str]:
+    problems = []
+    for year, expected in sorted(anchors.items()):
+        got = values.get(year)
+        if got is None:
+            problems.append(f"{year}=missing (official {expected})")
+        elif got != expected:
+            problems.append(f"{year}={got} (official {expected})")
+    return problems
+
+
+def eia_dnav_capture_envelope(
+    *,
+    page_url: str,
+    page_raw: bytes,
+    page_retrieved_at: str,
+    workbook_url: str,
+    workbook_raw: bytes,
+    workbook_retrieved_at: str,
+    period: str,
+    value: float,
+    source_series_id: str,
+    unit: str,
+) -> bytes:
+    """Archive every response that authenticated the mutable annual print."""
+
+    return canonical_bytes(
+        {
+            "schemaVersion": EIA_DNAV_ENVELOPE_SCHEMA,
+            "page": {
+                "url": page_url,
+                "retrievedAt": page_retrieved_at,
+                "bytes": len(page_raw),
+                "sha256": hashlib.sha256(page_raw).hexdigest(),
+                "bodyBase64": base64.b64encode(page_raw).decode(),
+            },
+            "workbook": {
+                "url": workbook_url,
+                "retrievedAt": workbook_retrieved_at,
+                "bytes": len(workbook_raw),
+                "sha256": hashlib.sha256(workbook_raw).hexdigest(),
+                "bodyBase64": base64.b64encode(workbook_raw).decode(),
+            },
+            "derived": {
+                "sourceSeriesId": source_series_id,
+                "period": period,
+                "unit": unit,
+                "value": value,
+            },
+        }
+    )
+
+
+def eia_dnav_http_get(
+    url: str,
+    *,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[bytes, str, str]:
+    """Fetch one mutable DNav artifact and timestamp the completed read."""
+
+    raw, _request_started_at, final_url = http_get(
+        url, allowed_hosts=allowed_hosts
+    )
+    # http_get timestamps immediately before opening the request. DNav URLs
+    # are mutable, so first-print custody needs the time all response bytes
+    # were actually in hand; this also lets the post-fetch gate reject a read
+    # that straddles the registered window's UTC boundary.
+    return raw, utc_now(), final_url
+
+
+def eia_dnav_fetch_year(
+    spec: Mapping[str, Any], year: str
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch/authenticate the DNav page and linked workbook for one year."""
+
+    if re.fullmatch(r"\d{4}", year) is None:
+        return None, None, str(spec["source_url"]), utc_now(), "period must be YYYY"
+    try:
+        page_raw, page_retrieved_at, page_url = eia_dnav_http_get(
+            str(spec["source_url"]), allowed_hosts=spec["allowed_hosts"]
+        )
+    except (http.client.IncompleteRead, OSError, ValueError) as exc:
+        return (
+            None,
+            None,
+            str(spec["source_url"]),
+            utc_now(),
+            f"page fetch failed: {exc}",
+        )
+    if page_url != spec["source_url"]:
+        return None, page_raw, page_url, page_retrieved_at, (
+            "EIA DNav page redirected away from the registered exact URL"
+        )
+    workbook_url = eia_dnav_workbook_link(page_raw, spec)
+    if workbook_url is None:
+        return None, page_raw, page_url, page_retrieved_at, (
+            "EIA DNav page did not authenticate the exact N9040US2 XLS sibling"
+        )
+    try:
+        workbook_raw, workbook_retrieved_at, final_workbook_url = eia_dnav_http_get(
+            workbook_url, allowed_hosts=spec["allowed_hosts"]
+        )
+    except (http.client.IncompleteRead, OSError, ValueError) as exc:
+        return None, None, workbook_url, utc_now(), f"workbook fetch failed: {exc}"
+    if final_workbook_url != workbook_url:
+        return None, workbook_raw, final_workbook_url, workbook_retrieved_at, (
+            "EIA workbook redirected away from the page-linked exact URL"
+        )
+    values, refusal = eia_dnav_values_from_xls(workbook_raw, spec)
+    if refusal or values is None:
+        return None, workbook_raw, workbook_url, workbook_retrieved_at, refusal
+    value = values.get(year)
+    if value is None:
+        # A monthly DNav refresh without the target annual row is not a parse
+        # failure and never a first print; leave the target pending.
+        return None, None, workbook_url, workbook_retrieved_at, None
+    envelope = eia_dnav_capture_envelope(
+        page_url=page_url,
+        page_raw=page_raw,
+        page_retrieved_at=page_retrieved_at,
+        workbook_url=workbook_url,
+        workbook_raw=workbook_raw,
+        workbook_retrieved_at=workbook_retrieved_at,
+        period=year,
+        value=value,
+        source_series_id=str(spec["series_id"]),
+        unit=str(spec["unit"]),
+    )
+    return value, envelope, workbook_url, workbook_retrieved_at, None
+
+
 def qcew_period_parts(spec: Mapping[str, Any], period: str) -> tuple[str, str, str]:
     """Return ``(year, qtr, API path token)`` for one admitted QCEW variant."""
 
@@ -9665,6 +10061,25 @@ def pending_adapter_refs(
                         "qcew",
                         spec,
                         parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        eia_dnav_stem = next(
+            (stem for stem in EIA_DNAV_ADAPTERS if ref.startswith(stem + ".")),
+            None,
+        )
+        if eia_dnav_stem:
+            parsed = parse_ref_period(ref, eia_dnav_stem)
+            if parsed and parsed[0] == "year":
+                out.append(
+                    (
+                        ref,
+                        "eia_dnav",
+                        EIA_DNAV_ADAPTERS[eia_dnav_stem],
+                        "year",
                         parsed[1],
                         release_date,
                         forecast,
@@ -11079,6 +11494,7 @@ FAMILY_ADAPTERS = {
     "bea_release": {"bea-release", "bea-ita-itable"},
     "bls_api": {"bls-api"},
     "census_spm": {"census-spm-annual-report"},
+    "eia_dnav": {"eia-dnav-xls"},
     "fsa_crp": {"fsa-crp-monthly-summary"},
     "irs_soi_pub1304": {"irs-soi-pub1304"},
     "qcew": {"bls-qcew"},
@@ -11274,6 +11690,10 @@ def main() -> int:
         tuple[str, str, str],
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
+    eia_dnav_cache: dict[
+        tuple[str, str],
+        tuple[float | None, bytes | None, str, str, str | None],
+    ] = {}
     qcew_contracts: dict[str, dict[str, Any]] | None = None
     a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
     intl_cache: dict[Any, tuple] = {}
@@ -11369,6 +11789,22 @@ def main() -> int:
             if not sba_pdf_binding_matches_spec(binding, spec):
                 print(
                     "  BINDING/ADAPTER MISMATCH (refusing, full SBA PDF "
+                    f"registry drift?): {ref}"
+                )
+                continue
+        if kind == "eia_dnav":
+            verified_anchors = eia_dnav_verified_anchors(spec)
+            if verified_anchors is None:
+                print(
+                    f"  EIA DNAV ADAPTER UNVERIFIED (refusing): {ref} — "
+                    "three live official-workbook anchors are required"
+                )
+                continue
+            registered_contract = (registration or {}).get("contract") or {}
+            binding = registered_contract.get("sourceBinding") or {}
+            if not eia_dnav_binding_matches_spec(binding, spec):
+                print(
+                    "  BINDING/ADAPTER MISMATCH (refusing, full EIA DNav "
                     f"registry drift?): {ref}"
                 )
                 continue
@@ -12064,6 +12500,57 @@ def main() -> int:
                 fetched_url,
             )
             extension = "csv"
+        elif kind == "eia_dnav":
+            cache_key = (str(spec["series_id"]), period)
+            if cache_key not in eia_dnav_cache:
+                eia_dnav_cache[cache_key] = eia_dnav_fetch_year(spec, period)
+            value, raw, fetched_url, retrieved_at, refusal = eia_dnav_cache[cache_key]
+            if refusal and "xlrd is unavailable" in refusal:
+                print(f"  EIA DNAV ENVIRONMENT FAILURE (fatal): {ref} — {refusal}")
+                environment_failures.append(f"{ref}: {refusal}")
+                continue
+            if refusal:
+                print(f"  EIA DNAV PARSE REFUSAL (refusing): {ref} — {refusal}")
+                continue
+            if raw is not None:
+                # Re-parse the workbook stored inside the envelope so the
+                # anchor gate covers the exact bytes about to be archived.
+                try:
+                    envelope = json.loads(raw)
+                    workbook_raw = base64.b64decode(
+                        envelope["workbook"]["bodyBase64"], validate=True
+                    )
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+                    print(f"  EIA DNAV ENVELOPE REFUSAL (refusing): {ref} — {exc}")
+                    continue
+                values, identity_refusal = eia_dnav_values_from_xls(workbook_raw, spec)
+                if identity_refusal or values is None:
+                    print(
+                        f"  EIA DNAV PARSE REFUSAL (refusing): {ref} — "
+                        f"{identity_refusal}"
+                    )
+                    continue
+                mismatches = eia_dnav_anchor_mismatches(values, verified_anchors)
+                if mismatches:
+                    print(
+                        f"  ANCHOR MISMATCH (refusing, wrong EIA series?): {ref} — "
+                        + "; ".join(mismatches)
+                    )
+                    continue
+                effective_capture_date = max(retrieved_at[:10], utc_now()[:10])
+                _capture_state, capture_verdict = bounded_resolution_window_gate(
+                    ref,
+                    dt.date.fromisoformat(effective_capture_date),
+                    bounded_window,
+                )
+                if capture_verdict:
+                    print(capture_verdict)
+                    continue
+                release_day = dt.date.fromisoformat(retrieved_at[:10])
+            source_url = spec["source_url"]
+            source_file = fetched_url
+            series_id = spec["series_id"]
+            extension = "json"
         elif kind == "cms_provider_data":
             metastore_key = spec["metastore_url"]
             if metastore_key not in cms_metastore_cache:

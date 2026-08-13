@@ -2041,6 +2041,49 @@
    ]
   },
   {
+   "series": "eia.ng.vented_flared.us.annual",
+   "cadence": "annual",
+   "period": "2025",
+   "seedPeriod": "2025",
+   "slug": "us-natural-gas-vented-flared-{period}",
+   "extras": {
+    "country": "US",
+    "valueScale": 1,
+    "targetUnit": "million_cubic_feet",
+    "resolutionDate": "2026-10-31",
+    "resolutionDateBasis": "resolve-by-bound",
+    "expectedReleaseWindow": {
+     "start": "2026-10-01",
+     "end": "2026-10-31"
+    },
+    "anchors": {
+     "2022": 271682,
+     "2023": 324207,
+     "2024": 335163
+    },
+    "sourceBinding": {
+     "adapter": "eia-dnav-xls",
+     "sourceUrl": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+     "sourceSeriesId": "N9040US2",
+     "field": "annual_value_mmcf",
+     "table": "EIA DNav U.S. Natural Gas Vented and Flared annual history workbook, Data 1 sheet",
+     "transform": {
+      "operation": "identity",
+      "factor": 1
+     },
+     "releasePolicy": "first_print"
+    }
+   },
+   "ledger": {
+    "uuid": "52011655-2184-4c46-9f22-a97d5db88959",
+    "concept": "eia.ng.vented_flared.us.annual"
+   },
+   "comment": "Broad U.S. natural-gas venting-and-flaring outcome and timing-tracking context only. Not facility-level activity, compliance, enforcement, fees, or emissions reductions under S. 1188; no annual value or change is attributed to or treated as caused by the FLARE Act.",
+   "billSlugs": [
+    "flare-act-s1188-119"
+   ]
+  },
+  {
    "series": "bls.cps.employed_people_by_occupation.business_financial_operations",
    "cadence": "monthly",
    "slug": "cps-business-financial-employment-{month}-{year}",

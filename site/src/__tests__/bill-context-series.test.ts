@@ -94,6 +94,10 @@ describe("bill context-series links", () => {
     expect(childCare).toContain("self-employment");
     expect(childCare).toContain("slots/affordability/capacity");
     expect(childCare).toContain("attributable to the bill");
+    const flare = bySlug.get("eia.ng.vented_flared.us.annual")?.scopeNote;
+    expect(flare).toContain("outcome and timing-tracking context only");
+    expect(flare).toContain("no annual value or change is attributed");
+    expect(flare).toContain("FLARE Act");
   });
 
   it("stays in lockstep with the bill-context docket admissions", () => {
@@ -157,6 +161,12 @@ describe("bill context-series links", () => {
     expect(getBillContextSeriesLinks("no-such-bill")).toHaveLength(0);
     expect(getBillContextSeriesLinks("remit-act-hr5595-119")).toHaveLength(1);
     expect(getBillContextSeriesLinks("stress-119hr5595ih")).toHaveLength(0);
+    const flareLinks = getBillContextSeriesLinks("flare-act-s1188-119");
+    expect(flareLinks).toHaveLength(1);
+    expect(flareLinks[0]).toMatchObject({
+      seriesConcept: "eia.ng.vented_flared.us.annual",
+      label: "U.S. natural gas vented and flared (2025 annual value)",
+    });
   });
 });
 

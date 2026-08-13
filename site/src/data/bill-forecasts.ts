@@ -102,6 +102,17 @@ export interface BillContextSeriesLink {
 
 export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
   {
+    billSlug: "flare-act-s1188-119",
+    seriesConcept: "eia.ng.vented_flared.us.annual",
+    label: "U.S. natural gas vented and flared (2025 annual value)",
+    scopeNote:
+      "Broad U.S. natural-gas venting-and-flaring outcome and " +
+      "timing-tracking context only. Not facility-level activity, " +
+      "compliance, enforcement, fees, or emissions reductions under S. " +
+      "1188; no annual value or change is attributed to or treated as " +
+      "caused by the FLARE Act.",
+  },
+  {
     billSlug: "cdfi-fund-s2718-119",
     seriesConcept: "usaspending.cdfi.assistance_transaction_obligations",
     label: "CDFI Fund assistance-transaction obligations (FY2026)",

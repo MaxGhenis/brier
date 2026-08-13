@@ -745,12 +745,16 @@ function roundComparable(value: number) {
 
 function formatCompact(value: number, unit: Unit) {
   const fractionDigits =
-    unit === "percent" || unit === "percent_growth" || unit === "millions"
+    unit === "percent" ||
+    unit === "percent_growth" ||
+    unit === "millions" ||
+    unit === "million_cubic_feet"
       ? 1
       : 0;
-  return value.toLocaleString(undefined, {
+  const formatted = value.toLocaleString(undefined, {
     maximumFractionDigits: fractionDigits,
   });
+  return unit === "million_cubic_feet" ? `${formatted} MMcf` : formatted;
 }
 
 export function buildPriorDistributionForTest(
