@@ -46,11 +46,13 @@ import datetime as dt
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import register_targets  # noqa: E402
+import spawned_cells_to_ts  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -256,12 +258,162 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
     return rebuilt
 
 
+def published_catalog_index(repo_root: pathlib.Path) -> dict[str, str | None]:
+    """slug -> dataPointId for every published cell, from the EVALUATED
+    site catalog.
+
+    The batch manifest freezes outcomes at the original roll; a later
+    retry may have published some of its failed targets, and the publish
+    leg refuses a regenerated duplicate of a published cell (run
+    31728802794). The selector therefore reads CURRENT publication
+    state. That state comes from executing the catalog module itself
+    (scripts/dump_published_cells.ts under bun) — a regex over TS source
+    is not authoritative: measured against the evaluated catalog it
+    missed 186 dynamically constructed slugs (OEWS, SNAP) and invented
+    10 phantoms, and a phantom is authorization to split a conditional
+    pair. Every failure here refuses selection; an empty or partial
+    view must never fall through to "nothing is published".
+    """
+
+    script = repo_root / "scripts" / "dump_published_cells.ts"
+    try:
+        proc = subprocess.run(
+            ["bun", str(script)],
+            capture_output=True,
+            text=True,
+            cwd=repo_root,
+            timeout=300,
+        )
+    except FileNotFoundError as exc:
+        raise RetrySelectionError(
+            "published-catalog evaluation needs bun on PATH; refusing to "
+            "select without an authoritative publication view"
+        ) from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RetrySelectionError(
+            "published-catalog evaluation timed out"
+        ) from exc
+    if proc.returncode != 0:
+        raise RetrySelectionError(
+            "published-catalog evaluation failed: "
+            + proc.stderr.strip()[-400:]
+        )
+    try:
+        rows = json.loads(proc.stdout)
+    except ValueError as exc:
+        raise RetrySelectionError(
+            f"published-catalog evaluation emitted non-JSON: {exc}"
+        ) from exc
+    if not isinstance(rows, list):
+        raise RetrySelectionError(
+            "published-catalog evaluation emitted non-list JSON"
+        )
+    if not rows:
+        raise RetrySelectionError(
+            "published-catalog evaluation emitted an empty catalog; "
+            "refusing — the site catalog is never empty, so an empty "
+            "view means the evaluation broke, not that nothing is "
+            "published"
+        )
+    index: dict[str, str | None] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("slug"), str):
+            raise RetrySelectionError("published-catalog row lacks a slug")
+        slug = row["slug"]
+        if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", slug):
+            raise RetrySelectionError(
+                f"published-catalog slug {slug!r} is not a well-formed "
+                "catalog slug"
+            )
+        data_point_id = row.get("dataPointId")
+        if data_point_id is not None and not isinstance(data_point_id, str):
+            raise RetrySelectionError(
+                f"published-catalog row {slug!r} has a non-string dataPointId"
+            )
+        if slug in index and index[slug] != data_point_id:
+            raise RetrySelectionError(
+                f"published-catalog slug {slug!r} appears with conflicting "
+                "registration identities"
+            )
+        index[slug] = data_point_id
+    return index
+
+
+def _published_identity_matches(
+    slug: str, published: dict[str, str | None], row: dict
+) -> bool:
+    """True iff the published cell at ``slug`` IS this row's registration.
+
+    Publication satisfies a target (or a pair sibling) only when the
+    published cell's dataPointId equals the one in the row's VERIFIED
+    registration snapshot — slug membership alone is not identity: a
+    fresh registration can reuse a slug whose old occupant published
+    under a different dataPointId, and treating that as satisfied would
+    split a conditional pair. A published cell without a dataPointId
+    never matches (fail closed).
+    """
+
+    if slug not in published:
+        return False
+    published_id = published[slug]
+    if published_id is None:
+        return False
+    contract = load_verified_snapshot(row["target"], label=f"target {slug}")[0][
+        "targets"
+    ][0]
+    return contract.get("dataPointId") == published_id
+
+
+def raw_text_catalog_slugs(repo_root: pathlib.Path) -> frozenset[str]:
+    """Slug literals scraped from site data text — the corroboration view.
+
+    Independent of the bun evaluation: every roll-published cell is a
+    static json.dumps literal in an auto-*.ts file, so a slug that this
+    scrape sees but the evaluated index lacks means the evaluator
+    regressed to a valid-but-partial catalog (the round-3 replay: a
+    zero-exit singleton index authorized re-emitting published
+    targets). The scrape may contain phantoms and misses dynamic
+    entries — it is only ever used to REFUSE, never to authorize.
+    """
+
+    site_data = repo_root / "site" / "src" / "data"
+    return frozenset(
+        spawned_cells_to_ts.existing_slugs(
+            site_data, site_data / "__retry_selector_no_output__.ts"
+        )
+    )
+
+
+def _corroborate_absence(
+    slug: str,
+    published: dict[str, str | None],
+    raw_text_slugs: frozenset[str],
+) -> None:
+    """Refuse when the evaluated index and the raw-text scrape disagree.
+
+    Absence from the index is the load-bearing direction — it is what
+    authorizes emitting a target — so it must be corroborated: if the
+    slug's literal appears in site data text while the evaluated
+    catalog claims it is unpublished, the evaluation is not to be
+    trusted and selection refuses.
+    """
+
+    if slug not in published and slug in raw_text_slugs:
+        raise RetrySelectionError(
+            f"evaluated catalog omits slug {slug!r} whose literal appears "
+            "in site data; the publication view is partial or broken — "
+            "refusing selection"
+        )
+
+
 def select_retry_targets(
     manifest: dict,
     *,
     slugs: list[str] | None,
     allow_succeeded: bool,
     now_utc: dt.datetime,
+    published: dict[str, str | None],
+    raw_text_slugs: frozenset[str] = frozenset(),
 ) -> list[dict]:
     results = manifest["results"]
     by_slug: dict[str, dict] = {}
@@ -277,11 +429,28 @@ def select_retry_targets(
         by_slug[slug] = result
 
     if slugs is None:
-        chosen = [slug for slug, row in by_slug.items() if not row.get("ok")]
+        chosen = []
+        for slug, row in by_slug.items():
+            if row.get("ok"):
+                continue
+            _corroborate_absence(slug, published, raw_text_slugs)
+            if slug in published:
+                if not _published_identity_matches(slug, published, row):
+                    raise RetrySelectionError(
+                        f"slug {slug!r} is published under a different "
+                        "registration than this batch's verified snapshot; "
+                        "refusing — this target can never publish and the "
+                        "registry needs human review"
+                    )
+                # A later retry already published this exact registration;
+                # never re-emit a published target (roll seed invariant).
+                print(f"  skip {slug}: already published")
+                continue
+            chosen.append(slug)
         if not chosen:
             raise RetrySelectionError(
-                "no failed targets in this batch; pass --slugs to retry "
-                "specific targets"
+                "no unpublished failed targets remain in this batch; "
+                "every recorded failure is already published"
             )
     else:
         chosen = []
@@ -294,6 +463,19 @@ def select_retry_targets(
                 raise RetrySelectionError(
                     f"slug {slug!r} succeeded in the recorded run; pass "
                     "--allow-succeeded to rerun it anyway"
+                )
+            _corroborate_absence(slug, published, raw_text_slugs)
+            if slug in published:
+                if _published_identity_matches(slug, published, by_slug[slug]):
+                    raise RetrySelectionError(
+                        f"slug {slug!r} is already published; a published "
+                        "target is never re-emitted"
+                    )
+                raise RetrySelectionError(
+                    f"slug {slug!r} is published under a different "
+                    "registration than this batch's verified snapshot; "
+                    "refusing — this target can never publish and the "
+                    "registry needs human review"
                 )
             chosen.append(slug)
 
@@ -323,9 +505,10 @@ def select_retry_targets(
     # Pair atomicity (roll_docket F10): a conditional pair's unpublished
     # arms are one unit — publishing one arm ahead of a sibling that also
     # remains unpublished would hand the later arm extra information.
-    # Retrying a lone failed arm is valid only when every sibling in the
-    # recorded batch succeeded (published); otherwise the retry must
-    # carry the whole failed set together. Arm-ness of BOTH sides comes
+    # Retrying a lone failed arm is valid only when every failed sibling
+    # is either selected alongside it or already published (by the
+    # original run or a later retry); otherwise the retry must carry the
+    # whole unpublished failed set together. Arm-ness of BOTH sides comes
     # from verified registration snapshots — manifest rows contribute
     # only membership and recorded outcomes, so omitting fields from a
     # sibling row cannot hide the pair.
@@ -348,12 +531,24 @@ def select_retry_targets(
                     or sibling_contract.get("period") != rebuilt.get("period")
                 ):
                     continue
-                if not sibling_result.get("ok") and sibling not in rebuilt_by_slug:
+                if sibling_result.get("ok") or sibling in rebuilt_by_slug:
+                    continue
+                _corroborate_absence(sibling, published, raw_text_slugs)
+                if _published_identity_matches(sibling, published, sibling_result):
+                    continue
+                if sibling in published:
                     raise RetrySelectionError(
                         f"target {slug} is a conditional arm whose sibling "
-                        f"{sibling} also failed and is not selected; "
-                        "unpublished pair arms retry together or not at all"
+                        f"{sibling} slug is published under a different "
+                        "registration than the sibling's verified snapshot; "
+                        "the pair is wedged and the registry needs human "
+                        "review"
                     )
+                raise RetrySelectionError(
+                    f"target {slug} is a conditional arm whose sibling "
+                    f"{sibling} also failed and is not selected; "
+                    "unpublished pair arms retry together or not at all"
+                )
     return targets
 
 
@@ -388,6 +583,8 @@ def main() -> int:
             slugs=slugs,
             allow_succeeded=args.allow_succeeded,
             now_utc=now,
+            published=published_catalog_index(ROOT),
+            raw_text_slugs=raw_text_catalog_slugs(ROOT),
         )
     except RetrySelectionError as exc:
         print(f"retry selection failed: {exc}", file=sys.stderr)
