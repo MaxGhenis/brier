@@ -2840,14 +2840,33 @@ def history_anchor_errors(
         r"(?<!\w)(\d{4})[- ]?[Qq]([1-4])(?!\w)"
         r"|(?<!\w)[Qq]([1-4])[- ]?(\d{4})(?!\w)"
     )
-    # Broad designator detector: ANY Q-digit mention, however written or
-    # bounded. Deliberately wider than the strict form — the gap between
-    # the two is exactly the set of quarter references we cannot
-    # attribute, and any such reference fails the label closed.
-    quarter_broad = re.compile(r"[Qq]\s*[1-4](?!\d)")
+    # Residue detectors: after excising strict tokens, ANY remaining
+    # Q-designator-ish content — Q next to a digit or Roman numeral in
+    # either direction, one optional separator — is a quarter reference
+    # the extractor could not attribute, and fails the label closed.
+    # (?![A-Za-z]) keeps ordinary words: "1 quarterly" is prose,
+    # "1Q 2026" is a designator.
+    quarter_residue = re.compile(
+        r"[Qq][\s\-/]?[0-9IVXivx]|[0-9][\s\-/]?[Qq](?![A-Za-z])"
+    )
 
     def fold(label: str) -> str:
         folded = unicodedata.normalize("NFKC", label)
+        # Strip format characters (ZWJ/ZWNJ/ZWSP/bidi marks, ...) that
+        # can invisibly split a designator, and fold every Unicode
+        # decimal digit to ASCII so no digit variant hides a quarter.
+        chars = []
+        for ch in folded:
+            if unicodedata.category(ch) == "Cf":
+                continue
+            if ch.isdigit():
+                try:
+                    chars.append(str(unicodedata.digit(ch)))
+                    continue
+                except (TypeError, ValueError):
+                    pass
+            chars.append(ch)
+        folded = "".join(chars)
         folded = re.sub(r"[‐‑‒–—―−]", "-", folded)
         return re.sub(r"\s+", " ", folded)
 
@@ -2881,7 +2900,14 @@ def history_anchor_errors(
             return key in label
         folded = fold(label)
         strict = list(quarter_strict.finditer(folded))
-        if len(quarter_broad.findall(folded)) != len(strict):
+        # Span identity, not counts: excise the strict spans, then any
+        # Q-designator-ish residue means an unattributable quarter
+        # reference — fail closed.
+        residue = list(folded)
+        for m in strict:
+            for i in range(m.start(), m.end()):
+                residue[i] = " "
+        if quarter_residue.search("".join(residue)):
             return False
         tokens = canonical_quarters(strict)
         if len(tokens) != 1:
