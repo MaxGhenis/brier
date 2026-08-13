@@ -46,6 +46,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from urllib.parse import urlparse
@@ -2829,6 +2830,238 @@ def history_anchor_errors(
         return []
     history = cell.get("historicalContext") or []
     errors = []
+
+    quarter_key = re.compile(r"^(\d{4})[-_ ]?[Qq]([1-4])$|^[Qq]([1-4])[-_ ]?(\d{4})$")
+    strict_cluster = re.compile(r"^(\d{4})[- ]?[Qq]([1-4])$|^[Qq]([1-4])[- ]?(\d{4})$")
+
+    # Raw non-ASCII non-letter content folds to this sentinel instead
+    # of its NFKC image, so a fullwidth ！ cannot launder into ASCII
+    # prose before gap classification (review round eight: 430 of 437
+    # compatibility characters bypassed that way). Private-use, so the
+    # raw-label guard has already rejected any genuine occurrence.
+    poison_mark = "\ue000"
+
+    def fold(label: str) -> str:
+        chars = []
+        for ch in label:
+            if not ch.isascii():
+                cat = unicodedata.category(ch)
+                if cat == "Nd":
+                    # True decimal digits fold to ASCII.
+                    chars.append(str(unicodedata.digit(ch)))
+                    continue
+                if not ch.isalpha():
+                    # Symbols, punctuation, and No/Nl numerals keep
+                    # their taint through folding.
+                    chars.append(poison_mark)
+                    continue
+                # Letters (including fullwidth Ｑ) fold normally.
+                chars.append(unicodedata.normalize("NFKC", ch))
+                continue
+            chars.append(ch)
+        folded = unicodedata.normalize("NFKC", "".join(chars))
+        folded = re.sub(r"[‐‑‒–—―−]", "-", folded)
+        return re.sub(r"\s+", " ", folded)
+
+    cluster_chars = set("0123456789IVXivxQq")
+    cluster_seps = set(" -/._()")
+
+    def quarter_label_tokens(label: str) -> set[str] | None:
+        """Whitelist-only quarter reading of a history label.
+
+        Returns the canonical quarter tokens the label names, or None
+        to REJECT it. Grammar (review rounds four and five): the folded
+        label splits into maximal cluster-alphabet segments; segments
+        connected by pure separator RUNS form a group. A group that
+        contains a Q and any numeral content (digit or Roman) is
+        quarter-relevant, and EVERY segment in it must itself be a
+        whitelisted strict token — an orphan numeral, year, or Roman
+        chained beside a quarter ("2026 Q1 / 2", "2027 (2026 Q1)")
+        rejects the label, while "2026 Q1 (2026Q1)" stays open because
+        both segments are strict. A bare Q with no numeral content in
+        its group is prose ("Grade Q") and free. Format characters
+        reject outright; ANY non-ASCII character immediately beside a
+        digit or Q rejects (confusables, fraction slashes, combining
+        marks); a Q-bearing segment glued to an ASCII letter (FY2026
+        Q1) rejects as a qualified designator.
+        """
+
+        # Reject invisible and control machinery outright: format
+        # characters split designators; ASCII controls (NUL, ESC, DEL)
+        # survive whitespace folding and split "Q2" into ignored
+        # pieces. Ordinary \t\n\r are whitespace and fold to spaces.
+        for ch in label:
+            cat = unicodedata.category(ch)
+            if cat == "Cf" or cat in ("Co", "Cs", "Cn"):
+                return None
+            if cat == "Cc" and ch not in "\t\n\r":
+                return None
+        folded = fold(label)
+        n = len(folded)
+        for i, ch in enumerate(folded):
+            if ch in "0123456789Qq":
+                for j in (i - 1, i + 1):
+                    if 0 <= j < n and not folded[j].isascii():
+                        return None
+                    if 0 <= j < n and folded[j] == poison_mark:
+                        return None
+
+        # Segment the label: cluster-alphabet runs, with the prose rule
+        # for letter-class members — a Roman-numeral letter (i/v/x) or a
+        # Q whose immediate neighbor is an ASCII letter outside the
+        # cluster alphabet belongs to a word ("value", "in", "Grade Q"?
+        # — Q handles its own rule below), not a designator. Without
+        # this, "2026 Q1 value" and the real G.19 label "2026 Q1 in Fed
+        # G.19 table" would falsely reject on the 'v'/'i'.
+        # Word-level Roman rule (round eight): an i/v/x participates
+        # only when its entire maximal ASCII-letter run is Roman/Q
+        # material — "vintage" and "via" are words even though they
+        # open with Roman letters; "xiv" and "QIV" are designators.
+        letter_run_ok = [False] * n
+        i0 = 0
+        while i0 < n:
+            if folded[i0].isascii() and folded[i0].isalpha():
+                j0 = i0
+                while j0 < n and folded[j0].isascii() and folded[j0].isalpha():
+                    j0 += 1
+                run_is_roman = all(c in "IVXivxQq" for c in folded[i0:j0])
+                for k in range(i0, j0):
+                    letter_run_ok[k] = run_is_roman
+                i0 = j0
+            else:
+                i0 += 1
+
+        def is_member(i: int) -> bool:
+            ch = folded[i]
+            if ch not in cluster_chars:
+                return False
+            if ch in "IVXivx" and not letter_run_ok[i]:
+                return False
+            return True
+
+        segments: list[tuple[int, int]] = []  # [start, end) spans
+        i = 0
+        while i < n:
+            if is_member(i):
+                j = i
+                while j < n and is_member(j):
+                    j += 1
+                segments.append((i, j))
+                i = j
+            else:
+                i += 1
+
+        def gap_kind(a: int, b: int) -> str:
+            """Classify the text between segments: 'chain' (pure
+            separators), 'break' (contains an ASCII letter — prose
+            boundary), or 'poison' (anything else, e.g. a fraction
+            slash or symbol buffered by separators — content we cannot
+            read, chaining the sides AND tainting the group)."""
+            gap = folded[a:b]
+            if all(c in cluster_seps for c in gap):
+                return "chain"
+            # Poison DOMINATES: the fold sentinel (raw non-ASCII
+            # non-letter content) taints the gap even alongside prose —
+            # "and ⁄" must not launder the slash. Letters of ANY script
+            # are prose (bilingual labels, spaced confusables per the
+            # round-eight ruling), and readable ASCII (commas,
+            # semicolons) separates like a sentence does.
+            if poison_mark in gap:
+                return "poison"
+            if any(
+                c.isalpha() or (c.isascii() and c not in cluster_seps)
+                for c in gap
+            ):
+                return "break"
+            return "poison"
+
+        groups: list[list[tuple[int, int]]] = []
+        poisoned: list[bool] = []
+        for span in segments:
+            if groups:
+                kind = gap_kind(groups[-1][-1][1], span[0])
+                if kind in ("chain", "poison"):
+                    groups[-1].append(span)
+                    if kind == "poison":
+                        poisoned[-1] = True
+                    continue
+            groups.append([span])
+            poisoned.append(False)
+
+        tokens: set[str] = set()
+        for group, group_poisoned in zip(groups, poisoned):
+            text_parts = [folded[a:b] for a, b in group]
+            has_q = any(("Q" in part or "q" in part) for part in text_parts)
+            has_numeral = any(
+                c in "0123456789IVXivx" for part in text_parts for c in part
+            )
+            if not (has_q and has_numeral):
+                continue
+            if group_poisoned:
+                return None
+            first_start = group[0][0]
+            last_end = group[-1][1]
+            before = folded[first_start - 1] if first_start > 0 else ""
+            after = folded[last_end] if last_end < n else ""
+            if (before.isascii() and before.isalpha()) or (
+                after.isascii() and after.isalpha()
+            ):
+                return None
+            # Greedy pairing: a segment that alone fullmatches a strict
+            # token consumes itself; a year+quarter segment pair split
+            # by exactly one space/hyphen consumes both; anything left
+            # over — orphan numerals, years, Romans — rejects.
+            idx = 0
+            while idx < len(group):
+                a1, b1 = group[idx]
+                seg = folded[a1:b1]
+                if strict_cluster.fullmatch(seg):
+                    m = strict_cluster.fullmatch(seg)
+                    year = m.group(1) or m.group(4)
+                    quarter = m.group(2) or m.group(3)
+                    tokens.add(f"{year}q{quarter}")
+                    idx += 1
+                    continue
+                if idx + 1 < len(group):
+                    a2, b2 = group[idx + 1]
+                    if b1 + 1 == a2 and folded[b1] in " -":
+                        joined = folded[a1:b2]
+                        m = strict_cluster.fullmatch(joined)
+                        if m:
+                            year = m.group(1) or m.group(4)
+                            quarter = m.group(2) or m.group(3)
+                            tokens.add(f"{year}q{quarter}")
+                            idx += 2
+                            continue
+                return None
+            # idx loop consumed everything or rejected.
+        return tokens
+
+    def canonical_quarters(match_iter) -> set[str]:
+        result = set()
+        for m in match_iter:
+            year = m.group(1) or m.group(4)
+            quarter = m.group(2) or m.group(3)
+            result.add(f"{year}q{quarter}")
+        return result
+
+    def mentions(key: str, label: str) -> bool:
+        # Quarter keys never take the literal shortcut; the label is
+        # read by the whitelist-only cluster grammar above and counts
+        # only when it names exactly ONE distinct quarter equal to the
+        # key's. Motivating case: the 2026-08-12 BEA ITA run fetched
+        # the byte-exact official value labeled "2026 Q1" and was
+        # refused against "2026-Q1" on hyphen-versus-space. Non-quarter
+        # keys keep literal-substring semantics; the value check below
+        # is unchanged.
+        key_match = quarter_key.fullmatch(key.strip())
+        if key_match is None:
+            return key in label
+        tokens = quarter_label_tokens(label)
+        if tokens is None or len(tokens) != 1:
+            return False
+        return tokens == canonical_quarters([key_match])
+
     for key, expected_raw in anchors.items():
         try:
             expected = float(expected_raw)
@@ -2839,7 +3072,8 @@ def history_anchor_errors(
         mentioned = [
             entry
             for entry in history
-            if isinstance(entry, dict) and str(key) in str(entry.get("label", ""))
+            if isinstance(entry, dict)
+            and mentions(str(key), str(entry.get("label", "")))
         ]
         if not mentioned:
             errors.append(

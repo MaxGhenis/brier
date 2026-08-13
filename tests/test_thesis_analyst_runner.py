@@ -690,8 +690,8 @@ def test_custody_rejects_forged_parse_phase_and_loose_error_equality(
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -757,8 +757,8 @@ def test_custody_requires_explicit_null_presentation(tmp_path: Path) -> None:
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -793,8 +793,8 @@ def test_custody_rejects_a_failure_phase_that_presents_as_complete(
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -836,8 +836,8 @@ def test_custody_requires_the_phase_artifacts_typed(tmp_path: Path) -> None:
 
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
-        from verify_custody import CustodyError, verify_run
         import run_thesis_analyst as runner_mod
+        from verify_custody import CustodyError, verify_run
     finally:
         sys.path.pop(0)
 
@@ -3471,3 +3471,145 @@ def test_target_context_surfaces_the_resolution_parser_command() -> None:
         {"series": "x.y", "sourceBinding": {"adapter": "alfred-fred"}}
     )
     assert "Resolution-grade base-rate fetch" not in plain
+
+
+def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
+    # The 2026-08-12 BEA ITA run fetched the byte-exact official value
+    # (18511) labeled "2026 Q1" and was refused because the docket
+    # anchor key is "2026-Q1". Quarter keys now match the same quarter
+    # in any standard writing; nothing else loosens.
+    context = {"anchors": {"2026-Q1": 18511}}
+    # The EXACT sealed label from the refused run, pinned byte-for-byte
+    # (records/thesis-analyst/2026-08-12/2026-08-12t21-18-43z-bea-ita-
+    # personal-transfer-payments-2026-q2/normalized_cells.json).
+    ok_cell = {
+        "historicalContext": [
+            {
+                "label": (
+                    "BEA ITA Table 5.1 line 18, "
+                    "2026 Q1 current June 24 2026 vintage"
+                ),
+                "value": 18511,
+            },
+        ]
+    }
+    assert analyst_runner.history_anchor_errors(ok_cell, context) == []
+    # Same quarter, other writings.
+    for label in ("2026Q1 print", "Q1 2026 seasonally adjusted", "2026-Q1"):
+        cell = {"historicalContext": [{"label": label, "value": 18511}]}
+        assert analyst_runner.history_anchor_errors(cell, context) == [], label
+    # A DIFFERENT quarter or year never matches, and neither do
+    # malformed digit runs, out-of-range quarters, or the key appearing
+    # inside a longer token (the round-one review's exploit labels).
+    for label in (
+        "2026 Q2 print",
+        "2025 Q1 print",
+        "12026 Q15 print",
+        "2026 Q10 print",
+        "Q1 20260 print",
+        "12026-Q15 print",
+    ):
+        cell = {"historicalContext": [{"label": label, "value": 18511}]}
+        errors = analyst_runner.history_anchor_errors(cell, context)
+        assert errors and "no historicalContext entry mentions" in errors[0], label
+    # A label naming multiple distinct quarters cannot attribute its
+    # value to either period; the same quarter written twice still can.
+    # ...including with Unicode separators, bare quarter references,
+    # and prefixed years (the round-two review's fail-open labels): any
+    # quarter mention the extractor cannot canonicalize fails closed.
+    for label in (
+        "Comparison 2026 Q1 to 2026 Q2; Q2 value",
+        "Comparison 2026 Q1 to 2026 Q2; Q2 value",
+        "Comparison 2026 Q1 to Q2; Q2 value",
+        "2026 Q1 vs 2026‑Q2",
+        "FY2026 Q1",
+        "x2026 Q1",
+        "١Q1 2026",
+        "１Q1 2026",
+        "éQ1 2026",
+        "Q12026 vs Q2",
+        "2026 Q1 vs 2026 Q\u200d2",
+        "QII print",
+        "Q\u0662 print",
+        "Q1/2 print",
+        "1Q 2026 print",
+        "2026 Q1/2 print",
+        "2026 Q1/II",
+        "Q1 2026/2",
+        "2026 Q1 vs Q\u0301\u0032",
+        "2026 Q1 vs Q.2",
+        "2026 Q1 vs Q_2",
+        "2026 Q1 vs Q\u20442",
+        "2026 Q1 vs \u051a2",
+        "2026 Q1 vs Q\u30222",
+        "2026 Q1 vs Q\u2475",
+        "2026 Q1 / 2",
+        "2026 Q1 (2)",
+        "2026 Q1 (II)",
+        "2026 Q1 (2027)",
+        "2027 (2026 Q1)",
+        "2026 Q1\u20442",
+        "2026 Q1 2027",
+        "Q IV 2026",
+        "2026 Q1Q2",
+        # Deletion killers: Cf must REJECT (not strip-to-valid) even
+        # far from any digit; controls and buffered fraction slashes
+        # reject; two strict groups accumulate into distinct tokens.
+        "2026 Q\u200d1",
+        "2026 Q1 print\u200d",
+        "2026 Q1 and Q\u00002",
+        "2026 Q1 \u2044 2",
+        # Poison dominates mixed gaps and taints even same-token pairs.
+        "2026 Q1 , \u2044 2",
+        "2026 Q1 \u2044 , 2",
+        "2026 Q1 and \u2044 2",
+        "2026 Q1 \u2044 2026 Q1",
+        "2026 Q1 and 2026 Q2",
+        # NFKC must not launder poison: fullwidth punctuation and
+        # No-category numerals keep their taint through folding.
+        "2026 Q1\uff012",
+        "2026 Q1 and \uff01 2",
+        "Q\u00b9 2026",
+        "2026 QIV,",
+    ):
+        cell = {"historicalContext": [{"label": label, "value": 18511}]}
+        errors = analyst_runner.history_anchor_errors(cell, context)
+        assert errors and "no historicalContext entry mentions" in errors[0], label
+    twice = {"historicalContext": [
+        {"label": "2026 Q1 (2026Q1) print", "value": 18511}
+    ]}
+    assert analyst_runner.history_anchor_errors(twice, context) == []
+    # Prose "quarterly" after a digit is not a designator.
+    for label in (
+        "value for 2026 Q1, quarterly seasonally adjusted",
+        "Quebec series, 2026 Q1 print",
+        "Grade Q, 2026 Q1",
+        # Precise mechanism killers: fullwidth Q opens ONLY via NFKC;
+        # Arabic-Indic 1 opens ONLY via explicit digit folding;
+        # fullwidth 1 opens via either (redundancy sanity).
+        "2026 \uff31\uff11 print",
+        "2026 Q\u0661 print",
+        "2026 Q\uff11 print",
+        # Roman-letter prose stays open, including the real published
+        # G.19 label (records/.../2026-07-31t15-11-55z-fed-g19-.../
+        # normalized_cells.json).
+        "2026 Q1 in Fed G.19 table",
+        "2026 Q1 value",
+        "2026 Q1 vintage",
+        "2026 Q1 via BEA",
+        # Pinned round-eight rulings: a SPACED confusable letter and a
+        # comma-isolated orphan read as prose; glued forms reject.
+        "2026 Q1 \u051a 2",
+        "2026 Q1 , 2",
+    ):
+        prose = {"historicalContext": [{"label": label, "value": 18511}]}
+        assert analyst_runner.history_anchor_errors(prose, context) == [], label
+    # The value check still refuses a wrong number on a matching label.
+    wrong = {"historicalContext": [{"label": "2026 Q1", "value": 20000}]}
+    errors = analyst_runner.history_anchor_errors(wrong, context)
+    assert errors and "contradict" in errors[0]
+    # Non-quarter keys keep literal-substring semantics exactly.
+    year_context = {"anchors": {"2024": 88.2}}
+    miss = {"historicalContext": [{"label": "FY24 print", "value": 88.2}]}
+    errors = analyst_runner.history_anchor_errors(miss, year_context)
+    assert errors and "no historicalContext entry mentions" in errors[0]
