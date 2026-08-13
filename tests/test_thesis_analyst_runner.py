@@ -3506,11 +3506,23 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         assert errors and "no historicalContext entry mentions" in errors[0], label
     # A label naming multiple distinct quarters cannot attribute its
     # value to either period; the same quarter written twice still can.
-    ambiguous = {"historicalContext": [
-        {"label": "Comparison 2026 Q1 to 2026 Q2; Q2 value", "value": 18511}
-    ]}
-    errors = analyst_runner.history_anchor_errors(ambiguous, context)
-    assert errors and "no historicalContext entry mentions" in errors[0]
+    # ...including with Unicode separators, bare quarter references,
+    # and prefixed years (the round-two review's fail-open labels): any
+    # quarter mention the extractor cannot canonicalize fails closed.
+    for label in (
+        "Comparison 2026 Q1 to 2026 Q2; Q2 value",
+        "Comparison 2026 Q1 to 2026 Q2; Q2 value",
+        "Comparison 2026 Q1 to Q2; Q2 value",
+        "2026 Q1 vs 2026‑Q2",
+        "FY2026 Q1",
+        "x2026 Q1",
+        "١Q1 2026",
+        "１Q1 2026",
+        "éQ1 2026",
+    ):
+        cell = {"historicalContext": [{"label": label, "value": 18511}]}
+        errors = analyst_runner.history_anchor_errors(cell, context)
+        assert errors and "no historicalContext entry mentions" in errors[0], label
     twice = {"historicalContext": [
         {"label": "2026 Q1 (2026Q1) print", "value": 18511}
     ]}

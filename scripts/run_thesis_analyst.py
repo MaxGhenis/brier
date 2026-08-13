@@ -46,6 +46,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from urllib.parse import urlparse
@@ -2831,12 +2832,24 @@ def history_anchor_errors(
     errors = []
 
     quarter_key = re.compile(r"^(\d{4})[-_ ]?[Qq]([1-4])$|^[Qq]([1-4])[-_ ]?(\d{4})$")
-    # Boundary-delimited: a year may not extend a longer digit run
-    # ("12026 Q15") and a quarter digit may not continue ("Q10", "20260").
-    quarter_in_label = re.compile(
-        r"(?<!\d)(\d{4})[-_ ]?[Qq]([1-4])(?!\d)"
-        r"|(?<![0-9A-Za-z])[Qq]([1-4])[-_ ]?(\d{4})(?!\d)"
+    # Strict, canonicalizable quarter writings on a Unicode-folded label:
+    # word boundaries on both sides (a year may not extend "x2026" or
+    # "FY2026"; a quarter digit may not continue), single space/hyphen
+    # separators after folding.
+    quarter_strict = re.compile(
+        r"(?<!\w)(\d{4})[- ]?[Qq]([1-4])(?!\w)"
+        r"|(?<!\w)[Qq]([1-4])[- ]?(\d{4})(?!\w)"
     )
+    # Broad designator detector: ANY Q-digit mention, however written or
+    # bounded. Deliberately wider than the strict form — the gap between
+    # the two is exactly the set of quarter references we cannot
+    # attribute, and any such reference fails the label closed.
+    quarter_broad = re.compile(r"[Qq]\s*[1-4](?!\d)")
+
+    def fold(label: str) -> str:
+        folded = unicodedata.normalize("NFKC", label)
+        folded = re.sub(r"[‐‑‒–—―−]", "-", folded)
+        return re.sub(r"\s+", " ", folded)
 
     def canonical_quarters(match_iter) -> set[str]:
         tokens = set()
@@ -2847,24 +2860,33 @@ def history_anchor_errors(
         return tokens
 
     def mentions(key: str, label: str) -> bool:
-        # A key that IS a quarter token matches only via boundary-safe
-        # quarter extraction — no literal shortcut, which would hit
-        # inside longer tokens ("2026-Q1" in "12026-Q15") — and only
-        # when the label names exactly ONE distinct quarter: a
-        # comparison label ("2026 Q1 to 2026 Q2") cannot attribute its
-        # value to either period, so it counts for neither. The
-        # motivating case: the 2026-08-12 BEA ITA run fetched the
-        # byte-exact official value labeled "2026 Q1" and was refused
-        # against the "2026-Q1" key purely on hyphen-versus-space.
-        # Every other key shape keeps literal-substring semantics, and
-        # the value check below still enforces the official number.
+        # A key that IS a quarter token never takes the literal
+        # shortcut (which would hit inside "12026-Q15"). The label is
+        # NFKC-folded (fullwidth digits, exotic spaces and hyphens),
+        # then two detectors run: strict canonicalizable writings and a
+        # broad any-Q-digit scan. FAIL CLOSED whenever the broad scan
+        # sees a quarter reference the strict extractor cannot
+        # canonicalize (bare "Q2", "FY2026 Q1", "éQ1 2026") — an
+        # unattributable quarter mention means the value cannot be
+        # pinned to a period. Among canonicalized tokens, exactly one
+        # distinct quarter must remain and equal the key's: a
+        # comparison label counts for neither period; the same quarter
+        # written twice still counts. Motivating case: the 2026-08-12
+        # BEA ITA run fetched the byte-exact official value labeled
+        # "2026 Q1" and was refused against "2026-Q1" on
+        # hyphen-versus-space. Non-quarter keys keep literal-substring
+        # semantics, and the value check below is unchanged.
         key_match = quarter_key.fullmatch(key.strip())
         if key_match is None:
             return key in label
-        label_tokens = canonical_quarters(quarter_in_label.finditer(label))
-        if len(label_tokens) != 1:
+        folded = fold(label)
+        strict = list(quarter_strict.finditer(folded))
+        if len(quarter_broad.findall(folded)) != len(strict):
             return False
-        return label_tokens == canonical_quarters([key_match])
+        tokens = canonical_quarters(strict)
+        if len(tokens) != 1:
+            return False
+        return tokens == canonical_quarters([key_match])
 
     for key, expected_raw in anchors.items():
         try:
