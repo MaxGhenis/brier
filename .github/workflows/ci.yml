@@ -70,6 +70,10 @@ jobs:
         with:
           python-version: "3.14"
 
+      # The retry selector's published-catalog tests evaluate the site
+      # catalog with bun; without it those tests skip silently.
+      - uses: oven-sh/setup-bun@v2
+
       - name: Install package with all extras
         run: uv sync --all-extras
 

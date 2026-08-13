@@ -95,7 +95,17 @@ def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     ]:
         if f.resolve() == out_ts.resolve():
             continue  # rerunning over our own previous output is not a collision
-        slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text()))
+        # Both key forms: hand-formatted files use `slug:`, this script's
+        # own json.dumps output uses `"slug":`. The left boundary keeps
+        # suffix keys (relatedSlug:, "oldslug":) out; escaped JSON inside
+        # trace strings (\"slug\") cannot match — the backslash breaks
+        # the pattern. KNOWN BLINDNESS: slugs constructed dynamically in
+        # TS code (OEWS, SNAP) never appear as literals, so this scan is
+        # a collision HEURISTIC only — any publication decision must use
+        # the evaluated catalog (scripts/dump_published_cells.ts).
+        slugs |= set(
+            re.findall(r'(?<![A-Za-z0-9_])"?slug"?:\s*"([^"]+)"', f.read_text())
+        )
     return slugs
 
 

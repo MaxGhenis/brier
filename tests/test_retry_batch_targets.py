@@ -5,6 +5,7 @@ import datetime as dt
 import json
 import pathlib
 import re
+import shutil
 import sys
 
 import pytest
@@ -64,7 +65,7 @@ def test_grace_days_pins_the_site_constant() -> None:
 def test_selects_exactly_the_recorded_failures_by_default() -> None:
     targets = select_retry_targets(
         real_manifest(), slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-    )
+    , published=frozenset())
     assert sorted(t["catalogSlug"] for t in targets) == [
         "us-dod-prime-award-obligations-fy2026",
         "us-dod-prime-contract-obligations-fy2026",
@@ -135,7 +136,7 @@ def test_anchored_targets_reconstruct_with_docket_anchors() -> None:
     manifest = load_manifest(B1_MANIFEST)
     targets = select_retry_targets(
         manifest, slugs=None, allow_succeeded=False, now_utc=B1_WITHIN_GRACE
-    )
+    , published=frozenset())
     assert len(targets) == 3
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     by_series = {row.get("series"): row for row in docket["series"]}
@@ -158,7 +159,7 @@ def test_bind_refuses_stale_or_absent_anchors(tmp_path: pathlib.Path) -> None:
     manifest = load_manifest(B1_MANIFEST)
     targets = select_retry_targets(
         manifest, slugs=None, allow_succeeded=False, now_utc=B1_WITHIN_GRACE
-    )
+    , published=frozenset())
 
     good = tmp_path / "good.json"
     good.write_text(json.dumps({"targets": targets}, indent=1) + "\n")
@@ -296,7 +297,7 @@ def test_refuses_every_target_past_its_grace_window() -> None:
     with pytest.raises(RetrySelectionError, match="expired-unforecast ratchet"):
         select_retry_targets(
             real_manifest(), slugs=None, allow_succeeded=False, now_utc=PAST_GRACE
-        )
+        , published=frozenset())
 
 
 def test_refuses_future_registration_instants() -> None:
@@ -307,6 +308,7 @@ def test_refuses_future_registration_instants() -> None:
             slugs=None,
             allow_succeeded=False,
             now_utc=before_registration,
+            published={},
         )
 
 
@@ -318,10 +320,11 @@ def test_succeeded_slug_requires_explicit_override() -> None:
             slugs=[ok_slug],
             allow_succeeded=False,
             now_utc=WITHIN_GRACE,
+            published={},
         )
     targets = select_retry_targets(
         real_manifest(), slugs=[ok_slug], allow_succeeded=True, now_utc=WITHIN_GRACE
-    )
+    , published=frozenset())
     assert [t["catalogSlug"] for t in targets] == [ok_slug]
 
 
@@ -332,6 +335,7 @@ def test_unknown_slug_is_refused() -> None:
             slugs=["no-such-slug"],
             allow_succeeded=False,
             now_utc=WITHIN_GRACE,
+            published={},
         )
 
 
@@ -373,7 +377,7 @@ def test_missing_snapshot_is_refused(
     with pytest.raises(RetrySelectionError, match="snapshot missing"):
         select_retry_targets(
             manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-        )
+        , published=frozenset())
 
 
 def test_publication_grace_gate_refuses_late_runs() -> None:
@@ -413,7 +417,7 @@ def test_select_output_is_immune_to_forged_manifest_rows() -> None:
     # forged rows would leak into the output and this equality breaks.
     clean = select_retry_targets(
         real_manifest(), slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-    )
+    , published=frozenset())
     forged_manifest = real_manifest()
     for result in forged_manifest["results"]:
         if not result.get("ok"):
@@ -422,7 +426,7 @@ def test_select_output_is_immune_to_forged_manifest_rows() -> None:
             result["target"]["targetUnit"] = "attacker unit"
     forged = select_retry_targets(
         forged_manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-    )
+    , published=frozenset())
     assert forged == clean
 
 
@@ -508,7 +512,7 @@ def test_narrowing_to_one_unpublished_pair_arm_is_refused(
     with pytest.raises(RetrySelectionError, match="retry together or not at all"):
         select_retry_targets(
             manifest, slugs=[arm_a], allow_succeeded=False, now_utc=WITHIN_GRACE
-        )
+        , published=frozenset())
     # Both arms together: fine (and the default failed-set selection
     # naturally includes both).
     both = select_retry_targets(
@@ -516,11 +520,12 @@ def test_narrowing_to_one_unpublished_pair_arm_is_refused(
         slugs=[arm_a, arm_b],
         allow_succeeded=False,
         now_utc=WITHIN_GRACE,
+        published={},
     )
     assert sorted(t["catalogSlug"] for t in both) == sorted([arm_a, arm_b])
     default = select_retry_targets(
         manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-    )
+    , published=frozenset())
     assert sorted(t["catalogSlug"] for t in default) == sorted([arm_a, arm_b])
 
 
@@ -534,7 +539,7 @@ def test_lone_failed_arm_with_published_sibling_is_retryable(
     monkeypatch.setattr(retry_batch_targets, "ROOT", tmp_path)
     targets = select_retry_targets(
         manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-    )
+    , published=frozenset())
     assert [t["catalogSlug"] for t in targets] == [arm_a]
     assert targets[0]["conditional"] == "condition enacted holds"
     # The conditional identity fields survive projection intact.
@@ -573,7 +578,7 @@ def test_sibling_snapshot_substitution_is_refused(
     with pytest.raises(RetrySelectionError, match="not the manifest row's slug"):
         select_retry_targets(
             manifest, slugs=[arm_a], allow_succeeded=False, now_utc=WITHIN_GRACE
-        )
+        , published=frozenset())
 
 
 def test_recorded_outcomes_must_be_booleans() -> None:
@@ -582,7 +587,7 @@ def test_recorded_outcomes_must_be_booleans() -> None:
     with pytest.raises(RetrySelectionError, match="boolean recorded outcome"):
         select_retry_targets(
             manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
-        )
+        , published=frozenset())
 
 
 def test_validate_cells_forwards_the_grace_flag(
@@ -845,6 +850,14 @@ def test_output_envelope_matches_the_roll_selector(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     out = tmp_path / "roll-targets.json"
+    # This batch's DoD slugs have since published on the live checkout;
+    # pin the publication view empty so the envelope stays exercised.
+    monkeypatch.setattr(
+        retry_batch_targets, "published_catalog_index", lambda root: {}
+    )
+    monkeypatch.setattr(
+        retry_batch_targets, "raw_text_catalog_slugs", lambda root: frozenset()
+    )
     monkeypatch.setattr(
         sys,
         "argv",
@@ -864,3 +877,380 @@ def test_output_envelope_matches_the_roll_selector(
     assert set(payload) == {"targets"}
     assert raw == json.dumps(payload, indent=1) + "\n"
     assert len(payload["targets"]) == 2
+
+
+NDAA_MANIFEST = (
+    ROOT
+    / "records"
+    / "thesis-analyst"
+    / "batches"
+    / "2026-08-13"
+    / "auto-roll-31721125238-a1.json"
+)
+NDAA_WITHIN_GRACE = dt.datetime(2026, 8, 13, 23, 0, tzinfo=dt.timezone.utc)
+NDAA_ENACTED = "us-dod-prime-award-obligations-fy2027-fy27-ndaa-enacted"
+NDAA_SIBLING = "us-dod-prime-award-obligations-fy2027-no-fy27-ndaa"
+NDAA_SIBLING_ID = (
+    "usaspending.dod.prime_award_obligations.2027"
+    ".registered_query_snapshot.no_fy27_ndaa"
+)
+NDAA_LATER_PUBLISHED = {
+    NDAA_SIBLING: NDAA_SIBLING_ID,
+    "belgium-consumer-confidence-august-2026": (
+        "nbb.consumer_confidence.indicator.2026-08.first_print"
+    ),
+    "cps-computer-math-employment-august-2026": (
+        "bls.cps.employed_people_by_occupation"
+        ".computer_mathematical.august_2026.first_print"
+    ),
+    "cps-office-admin-employment-august-2026": (
+        "bls.cps.employed_people_by_occupation"
+        ".office_administrative_support.august_2026.first_print"
+    ),
+}
+
+
+def test_skips_published_failures_and_logs_each_skip(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # Run 31728802794: a second retry of the NDAA batch re-emitted the
+    # four targets a first retry had already published, and the publish
+    # leg refused the duplicate cells. The selector must drop published
+    # slugs from the default selection — visibly, one line per skip.
+    targets = select_retry_targets(
+        load_manifest(NDAA_MANIFEST),
+        slugs=None,
+        allow_succeeded=False,
+        now_utc=NDAA_WITHIN_GRACE,
+        published=NDAA_LATER_PUBLISHED,
+    )
+    assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+    out = capsys.readouterr().out
+    for slug in sorted(NDAA_LATER_PUBLISHED):
+        assert f"skip {slug}: already published" in out
+
+
+def test_pair_atomicity_accepts_a_published_sibling() -> None:
+    # Both NDAA arms failed in the recorded batch; the sibling arm has
+    # since published via a later retry. The lone remaining arm retries
+    # alone — a published sibling satisfies pair atomicity exactly as a
+    # recorded-ok sibling does.
+    targets = select_retry_targets(
+        load_manifest(NDAA_MANIFEST),
+        slugs=[NDAA_ENACTED],
+        allow_succeeded=False,
+        now_utc=NDAA_WITHIN_GRACE,
+        published=NDAA_LATER_PUBLISHED,
+    )
+    assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+    assert targets[0]["conditional"] is not None
+
+
+def test_pair_atomicity_still_refuses_unpublished_failed_sibling() -> None:
+    # Same manifest, but WITHOUT the sibling published: selecting one
+    # arm alone must still refuse — the fix must not widen the original
+    # invariant for genuinely unpublished siblings.
+    with pytest.raises(RetrySelectionError, match="retry together"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_ENACTED],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published={},
+        )
+
+
+def test_refuses_named_slug_that_already_published() -> None:
+    with pytest.raises(RetrySelectionError, match="already published"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_SIBLING],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=NDAA_LATER_PUBLISHED,
+        )
+
+
+def test_refuses_when_every_failure_already_published() -> None:
+    all_failed_published = {
+        **NDAA_LATER_PUBLISHED,
+        NDAA_ENACTED: (
+            "usaspending.dod.prime_award_obligations.2027"
+            ".registered_query_snapshot.fy27_ndaa_enacted"
+        ),
+    }
+    with pytest.raises(RetrySelectionError, match="no unpublished failed"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=all_failed_published,
+        )
+
+
+def test_published_catalog_index_evaluates_the_real_catalog() -> None:
+    # The authoritative view executes the catalog module (bun); a regex
+    # over TS source measured 186 misses (dynamic OEWS/SNAP slugs) and
+    # 10 phantoms against it. Pin the shape and the incident identities.
+    if shutil.which("bun") is None:
+        pytest.skip("bun not on PATH")
+    index = retry_batch_targets.published_catalog_index(ROOT)
+    assert len(index) >= 819
+    for slug, data_point_id in NDAA_LATER_PUBLISHED.items():
+        assert index[slug] == data_point_id
+    # Dynamically constructed entries a source regex cannot see:
+    assert any(s.startswith("oews-") or "occupation" in s for s in index)
+
+
+def test_published_catalog_index_refuses_without_bun(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # An unavailable evaluator must refuse selection, never degrade to
+    # "nothing is published" (that silence re-creates the incident).
+    def missing(*args: object, **kwargs: object) -> object:
+        raise FileNotFoundError("bun")
+
+    monkeypatch.setattr(retry_batch_targets.subprocess, "run", missing)
+    with pytest.raises(RetrySelectionError, match="needs bun"):
+        retry_batch_targets.published_catalog_index(ROOT)
+
+
+def test_default_mode_refuses_published_slug_with_foreign_identity() -> None:
+    # A published cell occupying the slug under a DIFFERENT registration
+    # is not fulfillment — and it means this target can never publish.
+    published = dict(NDAA_LATER_PUBLISHED)
+    published["belgium-consumer-confidence-august-2026"] = (
+        "nbb.consumer_confidence.indicator.2026-07.first_print"
+    )
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+def test_named_mode_refuses_published_slug_with_foreign_identity() -> None:
+    published = {NDAA_SIBLING: "usaspending.dod.some_other_registration"}
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_SIBLING],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+def test_pair_atomicity_rejects_sibling_published_under_foreign_identity() -> None:
+    # Sol round-1 reproduction: slug membership alone authorized
+    # splitting a pair when the sibling slug was occupied by a DIFFERENT
+    # registration. Identity must match the verified sibling snapshot.
+    published = dict(NDAA_LATER_PUBLISHED)
+    published[NDAA_SIBLING] = "usaspending.dod.some_other_registration"
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_ENACTED],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+def test_pair_atomicity_rejects_sibling_published_without_identity() -> None:
+    # A published cell lacking a dataPointId can never prove it is the
+    # sibling registration; the pair must refuse to split (fail closed).
+    published = {NDAA_SIBLING: None}
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_ENACTED],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+
+def test_live_checkout_never_reemits_published_ndaa_targets() -> None:
+    # End-to-end against THIS checkout's real publication state. The
+    # four later-published targets must never re-emit; the enacted arm
+    # is selected while it remains unpublished, and once it publishes
+    # the selection refuses as fully rescued — both are honest states,
+    # so this test never rots as the checkout advances.
+    if shutil.which("bun") is None:
+        pytest.skip("bun not on PATH")
+    published = retry_batch_targets.published_catalog_index(ROOT)
+    for slug, data_point_id in NDAA_LATER_PUBLISHED.items():
+        assert published[slug] == data_point_id
+    if NDAA_ENACTED in published:
+        with pytest.raises(RetrySelectionError, match="no unpublished failed"):
+            select_retry_targets(
+                load_manifest(NDAA_MANIFEST),
+                slugs=None,
+                allow_succeeded=False,
+                now_utc=NDAA_WITHIN_GRACE,
+                published=published,
+            )
+    else:
+        targets = select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+        assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+
+
+@pytest.mark.parametrize(
+    ("stdout", "match"),
+    [
+        ("[]", "empty catalog"),
+        ("{}", "non-list"),
+        ('""', "non-list"),
+    ],
+)
+def test_published_catalog_index_refuses_empty_or_nonlist_output(
+    monkeypatch: pytest.MonkeyPatch, stdout: str, match: str
+) -> None:
+    # Round-2 review reproduced []/{}/"" all becoming an empty index —
+    # and an empty index means "nothing is published", which is the
+    # exact silence that re-creates the duplicate-emit incident.
+    class Proc:
+        returncode = 0
+        stderr = ""
+
+    proc = Proc()
+    proc.stdout = stdout
+    monkeypatch.setattr(
+        retry_batch_targets.subprocess, "run", lambda *a, **k: proc
+    )
+    with pytest.raises(RetrySelectionError, match=match):
+        retry_batch_targets.published_catalog_index(ROOT)
+
+
+def _workflow_compare_source() -> str:
+    workflow = (ROOT / ".github" / "workflows" / "roll-docket.yml").read_text()
+    _, _, tail = workflow.partition("<<'COMPARE'\n")
+    body, _, _ = tail.partition("\n          COMPARE")
+    assert body, "COMPARE heredoc not found in roll-docket.yml"
+    return "\n".join(line.removeprefix(" " * 10) for line in body.splitlines())
+
+
+def test_generate_job_compare_accepts_bind_enrichment_and_refuses_drift(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Round-2 review replayed selector -> bind -> selector and showed the
+    # uploaded artifact gains registrationCommit per target, so a naive
+    # equality refused every honest retry. Run the ACTUAL workflow
+    # snippet (extracted from the YAML, dedent included) against both
+    # shapes: enrichment-only difference passes; a real selection drift
+    # refuses; an unknown artifact-only field also refuses.
+    import subprocess as sp
+
+    source = _workflow_compare_source()
+    source = source.replace(
+        '"/tmp/trusted-registration/roll-targets.json"', repr(str(tmp_path / "a.json"))
+    ).replace('"/tmp/retry-grace-recheck.json"', repr(str(tmp_path / "b.json")))
+
+    base = {"targets": [{"catalogSlug": "x", "series": "s"}]}
+    enriched = {
+        "targets": [{"catalogSlug": "x", "series": "s", "registrationCommit": "c" * 40}]
+    }
+    drifted = {"targets": [{"catalogSlug": "y", "series": "s"}]}
+    unknown = {"targets": [{"catalogSlug": "x", "series": "s", "extraField": 1}]}
+
+    def run(artifact: dict, recheck: dict) -> int:
+        (tmp_path / "a.json").write_text(json.dumps(artifact))
+        (tmp_path / "b.json").write_text(json.dumps(recheck))
+        return sp.run([sys.executable, "-c", source], capture_output=True).returncode
+
+    assert run(enriched, base) == 0
+    assert run(base, base) == 0
+    assert run(enriched, drifted) == 1
+    assert run(unknown, base) == 1
+
+
+def test_partial_catalog_with_real_raw_text_refuses_selection(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    # Round-3 replay: a zero-exit evaluator regression producing the
+    # valid singleton [{"slug":"unrelated-sentinel","dataPointId":null}]
+    # made main() emit all five failed targets, four already published.
+    # With the corroboration ratchet the published targets' literals in
+    # real site data contradict the partial index, and main() refuses.
+    monkeypatch.setattr(
+        retry_batch_targets,
+        "published_catalog_index",
+        lambda root: {"unrelated-sentinel": None},
+    )
+    out = tmp_path / "targets.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "retry_batch_targets.py",
+            "--batch",
+            str(NDAA_MANIFEST),
+            "--out",
+            str(out),
+            "--now-utc",
+            NDAA_WITHIN_GRACE.isoformat().replace("+00:00", "Z"),
+        ],
+    )
+    assert retry_batch_targets.main() != 0
+    assert not out.exists()
+
+
+def test_corroboration_refuses_index_negative_with_text_positive() -> None:
+    raw = frozenset({"belgium-consumer-confidence-august-2026"})
+    with pytest.raises(RetrySelectionError, match="partial or broken"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published={},
+            raw_text_slugs=raw,
+        )
+
+
+def test_corroboration_never_authorizes_from_text_alone() -> None:
+    # The scrape is refuse-only: a slug in raw text AND in the index is
+    # simply published (identity logic applies); a slug in neither is
+    # emitted. Text presence never substitutes for index presence.
+    targets = select_retry_targets(
+        load_manifest(NDAA_MANIFEST),
+        slugs=None,
+        allow_succeeded=False,
+        now_utc=NDAA_WITHIN_GRACE,
+        published=NDAA_LATER_PUBLISHED,
+        raw_text_slugs=frozenset(NDAA_LATER_PUBLISHED),
+    )
+    assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+
+
+def test_index_refuses_malformed_slug_shapes() -> None:
+    class Proc:
+        returncode = 0
+        stderr = ""
+        stdout = '[{"slug": "", "dataPointId": null}]'
+
+    import unittest.mock as mock
+
+    with mock.patch.object(
+        retry_batch_targets.subprocess, "run", return_value=Proc()
+    ):
+        with pytest.raises(RetrySelectionError, match="well-formed"):
+            retry_batch_targets.published_catalog_index(ROOT)
+    Proc.stdout = '[{"slug": "Has Spaces", "dataPointId": null}]'
+    with mock.patch.object(
+        retry_batch_targets.subprocess, "run", return_value=Proc()
+    ):
+        with pytest.raises(RetrySelectionError, match="well-formed"):
+            retry_batch_targets.published_catalog_index(ROOT)
