@@ -7034,6 +7034,50 @@ def _fsa_crp_period_tokens(period: str) -> tuple[str, set[str]]:
     }
 
 
+_FSA_CRP_RAW_URL_RE = re.compile(r"https://[A-Za-z0-9.-]+/[A-Za-z0-9/._-]+")
+_FSA_CRP_RAW_HREF_RE = re.compile(r"(?:https://[A-Za-z0-9.-]+)?/[A-Za-z0-9/._-]+")
+
+
+def _require_fsa_crp_raw_url(raw: str, kind: str) -> None:
+    """Refuse a noncanonical URL BEFORE any parser touches it.
+
+    urlparse is lossy: it silently strips embedded TAB/LF/CR and
+    tolerates empty ;/?/#/port components, so checks that run on its
+    output validate a different string than the transport would use
+    (2026-08-13 round-2 review: TAB, LF, and CR probes reached the
+    mocked transport). The raw string must already BE the canonical
+    form — scheme, host, and a path drawn from the reviewed character
+    set — or this hop refuses with no parsing and no network.
+    """
+
+    if not _FSA_CRP_RAW_URL_RE.fullmatch(raw):
+        raise ValueError(f"FSA CRP {kind} URL is not in canonical form: {raw!r}")
+
+
+def _require_fsa_crp_raw_href(href: str, kind: str) -> None:
+    """Refuse a noncanonical href BEFORE urljoin normalizes it.
+
+    urljoin resolves dot segments and strips TAB/LF/CR, so a hostile
+    href can normalize into a clean URL that passes every post-join
+    check while never itself being the reviewed link shape. Only two
+    raw shapes are reviewed: an absolute https URL or an absolute path,
+    both over the canonical character set with no empty or dot
+    segments.
+    """
+
+    if not _FSA_CRP_RAW_HREF_RE.fullmatch(href):
+        raise ValueError(f"FSA CRP {kind} href is not in canonical form: {href!r}")
+    if href.startswith("https://"):
+        path = "/" + href.removeprefix("https://").split("/", 1)[1]
+    else:
+        path = href
+    segments = path.split("/")
+    if any(seg in ("", ".", "..") for seg in segments[1:]):
+        raise ValueError(
+            f"FSA CRP {kind} href contains empty or dot segments: {href!r}"
+        )
+
+
 def _require_fsa_crp_url_kind(
     url: str,
     kind: str,
@@ -7041,6 +7085,7 @@ def _require_fsa_crp_url_kind(
 ) -> None:
     """Pin one FSA hop to its reviewed host and path class."""
 
+    _require_fsa_crp_raw_url(url, kind)
     parsed = urllib.parse.urlparse(url)
     _require_allowed_host(url, allowed_hosts)
     if (
@@ -7241,8 +7286,9 @@ def fsa_crp_summary_document_url(
         return None, "FSA target-month row has no Summary cell"
     matches: set[str] = set()
     for href, _label in row[summary_index]["links"]:
-        url = urllib.parse.urljoin(landing_url, href)
         try:
+            _require_fsa_crp_raw_href(href, "document")
+            url = urllib.parse.urljoin(landing_url, href)
             _require_fsa_crp_url_kind(url, "document", allowed_hosts)
             _require_fsa_crp_document_identity(url, period)
         except ValueError as exc:
@@ -7302,6 +7348,7 @@ def fsa_crp_document_pdf_url(
         ):
             continue
         try:
+            _require_fsa_crp_raw_href(href, "artifact")
             _require_fsa_crp_url_kind(url, "artifact", allowed_hosts)
             _require_fsa_crp_artifact_identity(url, period)
         except ValueError as exc:

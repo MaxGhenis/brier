@@ -197,13 +197,13 @@ def test_fsa_crp_structurally_selects_summary_document_then_pdf() -> None:
             "https://www.fsa.usda.gov/sites/default/files/2026-07/"
             "%252e%252e%252fdocuments%252fCRPMonthlyApril2026.pdf",
             "artifact",
-            "canonical set",
+            "canonical form",
         ),
         (
             "https://www.fsa.usda.gov/sites/default/files/2026-07/"
             "CRPMonthlyApril2026%252f..%252fsecret.pdf",
             "artifact",
-            "canonical set",
+            "canonical form",
         ),
         (
             "https://www.fsa.usda.gov/SITES/DEFAULT/FILES/2026-07/"
@@ -215,25 +215,24 @@ def test_fsa_crp_structurally_selects_summary_document_then_pdf() -> None:
             "https://www.fsa.usda.gov/tools/informational/reports/"
             "conservation-statistics/crp;download",
             "landing",
-            "path parameters",
+            "canonical form",
         ),
         (
             "https://www.fsa.usda.gov/sites/default/files/2026-07/"
             "CRPMonthly%41pril2026.pdf",
             "artifact",
-            "canonical set",
+            "canonical form",
         ),
         (
-            "https://www.fsa.usda.gov/sites/default/files/2026-07/"
-            "..%2fsecret.pdf",
+            "https://www.fsa.usda.gov/sites/default/files/2026-07/..%2fsecret.pdf",
             "artifact",
-            "canonical set",
+            "canonical form",
         ),
         (
             "https://www.fsa.usda.gov/sites/default/files/2026-07/"
             "CRPMonthly\\April2026.pdf",
             "artifact",
-            "canonical set",
+            "canonical form",
         ),
         (
             "https://www.fsa.usda.gov/sites/default/files/2026-07/../"
@@ -261,13 +260,13 @@ def test_fsa_crp_structurally_selects_summary_document_then_pdf() -> None:
         (
             f"{resolve_pending.FSA_CRP_LANDING_URL}?download=1",
             "landing",
-            "query",
+            "canonical form",
         ),
         (
             "http://www.fsa.usda.gov/tools/informational/reports/"
             "conservation-statistics/crp",
             "landing",
-            "HTTPS",
+            "canonical form",
         ),
         (
             "https://example.com/tools/informational/reports/"
@@ -783,3 +782,60 @@ def test_fsa_crp_published_anchor_fixtures_reproduce_values() -> None:
         got, refusal = resolve_pending.fsa_crp_value_from_text(text, period)
         assert refusal is None
         assert got == expected
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://www.fsa.usda.gov/tools/informational/reports/"
+        "conservation\t-statistics/crp",
+        "https://www.fsa.usda.gov/tools/informational/reports/"
+        "conservation\n-statistics/crp",
+        "https://www.fsa.usda.gov/tools/informational/reports/"
+        "conservation\r-statistics/crp",
+        "https://www.fsa.usda.gov/tools/informational/reports/"
+        "conservation-statistics/crp;",
+        "https://www.fsa.usda.gov/tools/informational/reports/"
+        "conservation-statistics/crp?",
+        "https://www.fsa.usda.gov/tools/informational/reports/"
+        "conservation-statistics/crp#",
+        "https://www.fsa.usda.gov:/tools/informational/reports/"
+        "conservation-statistics/crp",
+    ],
+)
+def test_lossy_parse_shapes_refuse_before_transport(
+    url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Round-2 review: urlparse strips embedded TAB/LF/CR and tolerates
+    # bare ;/?/#/port components, so post-parse checks validated a
+    # different string than the transport used — TAB, LF, and CR probes
+    # reached the mocked opener. The raw-string guard must refuse
+    # BEFORE any parser or socket: the tripwire below detonates if the
+    # transport is ever reached.
+    def tripwire(*args: object, **kwargs: object) -> object:
+        raise AssertionError("transport reached for a noncanonical URL")
+
+    monkeypatch.setattr(resolve_pending.urllib.request, "build_opener", tripwire)
+    with pytest.raises(ValueError, match="canonical form"):
+        resolve_pending.fsa_crp_http_get(
+            url, kind="landing", allowed_hosts=SPEC["allowed_hosts"]
+        )
+
+
+@pytest.mark.parametrize(
+    ("href", "message"),
+    [
+        ("../sites/default/files/2026-07/CRPMonthlyApril2026.pdf", "canonical form"),
+        ("/documents/../sites/x.pdf", "empty or dot segments"),
+        ("//evil.example/sites/default/files/2026-07/x.pdf", "empty or dot segments"),
+        ("/documents/april\t-2026", "canonical form"),
+        ("documents/april-2026-crp-monthly-summary", "canonical form"),
+        ("https://www.fsa.usda.gov/documents/./april-2026", "empty or dot segments"),
+    ],
+)
+def test_raw_hrefs_refuse_before_urljoin_normalizes(href: str, message: str) -> None:
+    # urljoin resolves dot segments and strips TAB/LF/CR, so a hostile
+    # href can normalize into a clean URL that passes every post-join
+    # check without ever being the reviewed link shape.
+    with pytest.raises(ValueError, match=message):
+        resolve_pending._require_fsa_crp_raw_href(href, "document")
