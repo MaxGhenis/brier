@@ -3613,3 +3613,26 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
     miss = {"historicalContext": [{"label": "FY24 print", "value": 88.2}]}
     errors = analyst_runner.history_anchor_errors(miss, year_context)
     assert errors and "no historicalContext entry mentions" in errors[0]
+
+
+def test_target_context_never_guesses_parser_series_from_data_point_id() -> None:
+    missing_series = analyst_runner.format_target_context(
+        {
+            "dataPointId": (
+                "irs.actc.total_claims.2027.first_print.foreign_suffix"
+            ),
+            "sourceBinding": {"adapter": "irs-soi-pub1304"},
+        }
+    )
+    assert "Resolution-grade base-rate fetch" not in missing_series
+    assert "IRS_SOI_PUB1304_ADAPTERS" not in missing_series
+
+    exact_series = analyst_runner.format_target_context(
+        {
+            "series": "irs.actc.total_claims",
+            "dataPointId": "opaque.unrelated.stem.2027.first_print",
+            "sourceBinding": {"adapter": "irs-soi-pub1304"},
+        }
+    )
+    assert "IRS_SOI_PUB1304_ADAPTERS['irs.actc.total_claims']" in exact_series
+    assert "IRS_SOI_PUB1304_ADAPTERS['opaque.unrelated.stem']" not in exact_series

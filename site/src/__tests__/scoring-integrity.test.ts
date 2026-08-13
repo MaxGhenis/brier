@@ -30,6 +30,12 @@ import {
   THESIS_TARGET_LEDGER,
   type TargetRegisteredLedgerEntry,
 } from "@/data/ledger-targets";
+import {
+  buildLedgerPersistenceBaseline,
+  ledgerHistoryAtCutoff,
+  registeredObservationSeriesIdentity,
+  registeredTargetSeriesIdentity,
+} from "@/data/time-series-priors";
 import { WITNESSED_CUSTODY_ROOTS } from "@/data/witnessed-timeline";
 
 // The two scoring-integrity invariants: a score enters the headline only
@@ -98,6 +104,20 @@ describe("chronology gate", () => {
 });
 
 describe("target normalization scale", () => {
+  const series = "census.spm.child_poverty_rate";
+  const targetContentHash = "a".repeat(64);
+  const responseSha256 = "b".repeat(64);
+  const binding = {
+    adapter: "generic-url" as const,
+    sourceUrl: "https://example.test/series",
+    sourceSeriesId: "TEST",
+    field: "value",
+    table: "fixture",
+    transform: { operation: "identity", factor: 1 },
+    releasePolicy: "first_print" as const,
+    allowedHosts: ["example.test"],
+    expectedReleaseWindow: { start: "2026-01-01", end: "2026-12-31" },
+  };
   // Any real custody root the public chain witnessed with a complete,
   // headline-eligible inventory before the fixture outcome below. The
   // fixture run carries it so normalization and pairing mechanics are
@@ -142,29 +162,46 @@ describe("target normalization scale", () => {
     reasoning: [{ kind: "forecast", point: 2, ciLow: 1, ciHigh: 3 }],
   };
 
-  const target: TargetRegisteredLedgerEntry = {
-    kind: "target_registered",
-    dataPointId: baseCell.dataPointId!,
-    observationId: `obs.${baseCell.dataPointId}`,
-    country: "US",
-    periodLabel: "April 2026",
-    unit: "percent",
-    resolutionDate: baseCell.resolutionDate,
-    resolutionSource: "Test",
-    resolutionRule: "Test",
-    resolutionPolicy: "first_print",
-    sourceKind: "official_release",
-    source: "Test",
-    note: "fixture",
-    registeredAt: "2026-04-10T00:00:00Z",
-  };
+  function registration(
+    period: string,
+    dataPointId = `${series}.${period}`,
+    registeredSeries = series,
+  ): TargetRegisteredLedgerEntry {
+    return {
+      kind: "target_registered",
+      dataPointId,
+      observationId: `obs.${dataPointId}`,
+      country: "US",
+      periodLabel: period,
+      unit: "percent",
+      resolutionDate:
+        period === "2025" ? baseCell.resolutionDate : "2026-12-31",
+      resolutionSource: "Test",
+      resolutionRule: "Test",
+      resolutionPolicy: "first_print",
+      sourceKind: "official_release",
+      source: "Test",
+      note: "fixture",
+      registrationState: "published",
+      registeredAt: "2026-04-10T00:00:00Z",
+      targetContentHash,
+      series: registeredSeries,
+      period,
+      catalogSlug: `fixture-${period}`,
+      valueScale: 1,
+      sourceBinding: binding,
+    };
+  }
+
+  const target = registration("2025", baseCell.dataPointId!);
 
   function observation(
     period: string,
     value: number,
     observedAt: string,
+    dataPointId = `${series}.${period}`,
+    registeredSeries = series,
   ): ObservationRecordedLedgerEntry {
-    const dataPointId = `census.spm.child_poverty_rate.${period}`;
     return {
       kind: "observation_recorded",
       observationId: `obs.${dataPointId}`,
@@ -176,8 +213,33 @@ describe("target normalization scale", () => {
       resolvedAt: observedAt,
       // Normalization history requires ledger acceptance at the cutoff.
       acceptedAtUtc: observedAt,
+      acceptedSequence: 1,
+      legacyQuarantined: false,
       sourceKind: "official_release",
       source: "Test",
+      sourceUrl: "https://example.test/series",
+      targetContentHash,
+      ledgerRepoSha: "c".repeat(40),
+      sourceVintage: observedAt.slice(0, 10),
+      retrievedAt: observedAt,
+      responseArchive: {
+        path: `fixture/${period}.json.gz`,
+        sha256: responseSha256,
+        bytes: 1,
+        gzipSha256: "d".repeat(64),
+        gzipBytes: 1,
+        contentEncoding: "gzip",
+      },
+      sourceBindingProjection: {
+        series: registeredSeries,
+        period,
+        releasePolicy: binding.releasePolicy,
+        table: binding.table,
+        field: binding.field,
+        transform: binding.transform,
+        unit: "percent",
+        responseSha256,
+      },
     };
   }
 
@@ -186,6 +248,9 @@ describe("target normalization scale", () => {
     observation("2023", 14, "2026-03-01T00:00:00Z"),
     observation("2024", 12, "2026-04-01T00:00:00Z"),
   ];
+  const historyRegistrations = ["2022", "2023", "2024"].map((period) =>
+    registration(period),
+  );
   // Observed AFTER the custody root's external witness so publication
   // proof holds for the fixture score.
   const outcome = observation("2025", 3, "2026-08-01T12:00:00Z");
@@ -193,7 +258,9 @@ describe("target normalization scale", () => {
   it("derives the correct scale from pre-registration ledger dispersion", () => {
     const ledger: PolicyEngineLedgerEntry[] = [
       target,
+      ...historyRegistrations,
       ...history,
+      registration("2026"),
       observation("2026", 1_000_000, "2026-04-10T00:00:01Z"),
     ];
     const { scale, source, observationCount } = targetNormalizationScale(
@@ -223,7 +290,11 @@ describe("target normalization scale", () => {
         { label: "t-1", value: 1_000_000 },
       ],
     };
-    const ledger: PolicyEngineLedgerEntry[] = [target, ...history];
+    const ledger: PolicyEngineLedgerEntry[] = [
+      target,
+      ...historyRegistrations,
+      ...history,
+    ];
     expect(targetNormalizationScale(fabricated, ledger)).toEqual(
       targetNormalizationScale(honest, ledger),
     );
@@ -232,6 +303,7 @@ describe("target normalization scale", () => {
   it("publishes raw CRPS but excludes an unavailable scale from rewards", () => {
     const ledger: PolicyEngineLedgerEntry[] = [
       target,
+      ...historyRegistrations.slice(0, 2),
       ...history.slice(0, 2),
       outcome,
     ];
@@ -272,6 +344,226 @@ describe("target normalization scale", () => {
     expect(reward.pairedComparison.pairedTargets).toBe(1);
     expect(reward.pairedComparison.crpsRatioGeomean).toEqual(
       expect.any(Number),
+    );
+  });
+
+  it("ignores contract-bound observations from a foreign suffix series", () => {
+    const cleanLedger: PolicyEngineLedgerEntry[] = [target, outcome];
+    const foreignSeries = `${series}.foreign`;
+    const foreignRows = [
+      ["2022", 20, "2026-02-01T00:00:00Z"],
+      ["2023", 20, "2026-03-01T00:00:00Z"],
+      ["2024", 30, "2026-04-01T00:00:00Z"],
+    ] as const;
+    const pollutedLedger: PolicyEngineLedgerEntry[] = [
+      ...cleanLedger,
+      ...foreignRows.flatMap(([period, value, observedAt]) => {
+        const dataPointId = `${series}.${period}.first_print.foreign`;
+        return [
+          registration(period, dataPointId, foreignSeries),
+          observation(period, value, observedAt, dataPointId, foreignSeries),
+        ];
+      }),
+    ];
+
+    const cleanBaseline = buildLedgerPersistenceBaseline(baseCell, cleanLedger);
+    const pollutedBaseline = buildLedgerPersistenceBaseline(
+      baseCell,
+      pollutedLedger,
+    );
+    expect(pollutedBaseline).toEqual(cleanBaseline);
+    expect(pollutedBaseline.record).toMatchObject({
+      status: "unavailable",
+      observationRefs: [],
+    });
+    expect(pollutedBaseline.comparisonRun).toBeNull();
+
+    const cleanNormalization = targetNormalizationScale(baseCell, cleanLedger);
+    const pollutedNormalization = targetNormalizationScale(
+      baseCell,
+      pollutedLedger,
+    );
+    expect(pollutedNormalization).toEqual(cleanNormalization);
+    expect(pollutedNormalization).toMatchObject({
+      scale: null,
+      source: "unavailable",
+      observationCount: 0,
+    });
+
+    const run = getForecastRunEntries(baseCell)[0];
+    const cleanScore = scoreResolvedForecastRun(baseCell, run, cleanLedger);
+    const pollutedScore = scoreResolvedForecastRun(
+      baseCell,
+      run,
+      pollutedLedger,
+    );
+    expect(pollutedScore).toEqual(cleanScore);
+    expect(pollutedScore?.normalizationScale).toBeNull();
+    expect(pollutedScore?.normalizedCrps).toBeNull();
+  });
+});
+
+describe("authenticated legacy series identities", () => {
+  it("ignores a same-id clone whose pinned legacy value was changed", () => {
+    const series = "us.dol.initial_claims.sa";
+    const targetDataPointId = `${series}.week_2026-07-11`;
+    const targetContentHash = "9".repeat(64);
+    const target: TargetRegisteredLedgerEntry = {
+      kind: "target_registered",
+      dataPointId: targetDataPointId,
+      observationId: `obs.${targetDataPointId}`,
+      country: "US",
+      periodLabel: "2026-07-11",
+      unit: "thousands",
+      resolutionDate: "2026-07-16",
+      resolutionSource: "U.S. Department of Labor",
+      resolutionRule: "First print",
+      resolutionPolicy: "first_print",
+      sourceKind: "official_release",
+      source: "U.S. Department of Labor",
+      note: "fixture",
+      registrationState: "published",
+      registeredAt: "2026-07-10T00:00:00Z",
+      targetContentHash,
+      series,
+      period: "week_2026-07-11",
+      catalogSlug: "fixture-initial-claims",
+      valueScale: 1,
+      sourceBinding: {
+        adapter: "generic-url",
+        sourceUrl: "https://www.dol.gov/ui/data.pdf",
+        sourceSeriesId: "ICSA",
+        field: "value",
+        table: "weekly claims",
+        transform: { operation: "identity", factor: 1 },
+        releasePolicy: "first_print",
+        allowedHosts: ["www.dol.gov"],
+        expectedReleaseWindow: {
+          start: "2026-07-16",
+          end: "2026-07-16",
+        },
+      },
+    };
+    const forecast: ForecastCell = {
+      slug: "fixture-initial-claims",
+      country: "US",
+      type: "data",
+      title: "Initial claims",
+      question: "Initial claims?",
+      unit: "thousands",
+      pointEstimate: 220,
+      ciLow: 200,
+      ciHigh: 240,
+      confidence: 0.8,
+      resolutionDate: "2026-07-16",
+      resolutionSource: "U.S. Department of Labor",
+      resolutionRule: "First print",
+      dataPointId: targetDataPointId,
+      historicalContext: [],
+      drivers: [],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-10T00:00:00Z",
+        agent: "fixture.agent",
+        model: "fixture-model",
+        sourceContext: [],
+      },
+      reasoning: [{ kind: "forecast", point: 220, ciLow: 200, ciHigh: 240 }],
+    };
+    const legacyRows = [
+      {
+        dataPointId: `${series}.week_2026-06-13`,
+        periodLabel: "June 2026",
+        value: 226,
+        acceptedSequence: 43,
+        acceptedCommit: "6c9209434048317c15355f42e019339efbd0d6ea",
+        acceptedAtUtc: "2026-06-19T13:18:22Z",
+        observedAt: "2026-06-18",
+        sourceUrl: "https://www.dol.gov/ui/data.pdf",
+      },
+      {
+        dataPointId: `${series}.week_2026-06-20`,
+        periodLabel: "2026-06-20",
+        value: 215,
+        acceptedSequence: 104,
+        acceptedCommit: "b67cbfcb5f08d07b856c3463858c765e6755a6f9",
+        acceptedAtUtc: "2026-07-07T17:41:17Z",
+        observedAt: "2026-06-25",
+        sourceUrl:
+          "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA&vintage_date=2026-06-25",
+      },
+      {
+        dataPointId: `${series}.week_2026-07-04`,
+        periodLabel: "2026-07-04",
+        value: 215,
+        acceptedSequence: 105,
+        acceptedCommit: "ed97a5e2fa9036897d9dfdf1bae5c9727791ab87",
+        acceptedAtUtc: "2026-07-09T16:15:28Z",
+        observedAt: "2026-07-09",
+        sourceUrl:
+          "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA&vintage_date=2026-07-09",
+      },
+    ] as const;
+    const legacyRegistrations: TargetRegisteredLedgerEntry[] = legacyRows.map(
+      (row) => ({
+        kind: "target_registered",
+        dataPointId: row.dataPointId,
+        observationId: `obs.${row.dataPointId}`,
+        country: "US",
+        periodLabel: row.periodLabel,
+        unit: "thousands",
+        resolutionDate: row.observedAt.slice(0, 10),
+        resolutionSource: "U.S. Department of Labor",
+        resolutionRule: "First print",
+        resolutionPolicy: "first_print",
+        sourceKind: "official_release",
+        source: "U.S. Department of Labor",
+        note: "legacy fixture",
+      }),
+    );
+    const legacyObservations: ObservationRecordedLedgerEntry[] = legacyRows.map(
+      (row) => ({
+        kind: "observation_recorded",
+        observationId: `obs.${row.dataPointId}`,
+        dataPointId: row.dataPointId,
+        periodLabel: row.periodLabel,
+        unit: "thousands",
+        value: row.value,
+        observedAt: row.observedAt,
+        resolvedAt: row.observedAt,
+        acceptedSequence: row.acceptedSequence,
+        acceptedAtUtc: row.acceptedAtUtc,
+        acceptedCommit: row.acceptedCommit,
+        legacyQuarantined: true,
+        sourceKind: "official_release",
+        source: "U.S. Department of Labor",
+        sourceUrl: row.sourceUrl,
+      }),
+    );
+    const cleanLedger: PolicyEngineLedgerEntry[] = [
+      target,
+      ...legacyRegistrations,
+      ...legacyObservations,
+    ];
+    const changedClone: ObservationRecordedLedgerEntry = {
+      ...legacyObservations[2],
+      value: 999,
+    };
+    const pollutedLedger = [...cleanLedger, changedClone];
+
+    expect(
+      registeredObservationSeriesIdentity(changedClone, pollutedLedger),
+    ).toBeNull();
+    expect(
+      ledgerHistoryAtCutoff(forecast, pollutedLedger, target.registeredAt!),
+    ).toEqual(
+      ledgerHistoryAtCutoff(forecast, cleanLedger, target.registeredAt!),
+    );
+    expect(buildLedgerPersistenceBaseline(forecast, pollutedLedger)).toEqual(
+      buildLedgerPersistenceBaseline(forecast, cleanLedger),
+    );
+    expect(targetNormalizationScale(forecast, pollutedLedger)).toEqual(
+      targetNormalizationScale(forecast, cleanLedger),
     );
   });
 });
@@ -678,20 +970,23 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     expect(evaluation.score?.conditionStatus).toBe("satisfied");
   });
 
-  it("admits every published contract-bound data-point identity", () => {
+  it("derives every published series from its exact registered contract", () => {
     const failures: string[] = [];
-    let checked = 0;
-    for (const target of THESIS_TARGET_LEDGER) {
+    const publishedTargets = THESIS_TARGET_LEDGER.filter(
+      (target) => target.registrationState === "published",
+    );
+    for (const target of publishedTargets) {
       if (
-        target.registrationState !== "published" ||
         !target.targetContentHash ||
         !target.series ||
         !target.period ||
         !target.sourceBinding
       ) {
+        failures.push(
+          `${target.dataPointId}: published registration lacks a complete series contract`,
+        );
         continue;
       }
-      checked += 1;
       const responseSha256 = "f".repeat(64);
       const forecast: ForecastCell = {
         ...cell,
@@ -737,18 +1032,50 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
           responseSha256,
         },
       };
-      const violation = getResolutionContractViolation(forecast, observation, [
-        target,
-      ]);
+      const fixtureLedger: PolicyEngineLedgerEntry[] = [target, observation];
+      const violation = getResolutionContractViolation(
+        forecast,
+        observation,
+        fixtureLedger,
+      );
       if (violation) failures.push(`${target.dataPointId}: ${violation}`);
+      if (
+        registeredTargetSeriesIdentity(target.dataPointId, fixtureLedger) !==
+        target.series
+      ) {
+        failures.push(
+          `${target.dataPointId}: target series was not registered`,
+        );
+      }
+      if (
+        registeredObservationSeriesIdentity(observation, fixtureLedger) !==
+        target.series
+      ) {
+        failures.push(
+          `${target.dataPointId}: observation series was not contract-bound`,
+        );
+      }
+      const history = ledgerHistoryAtCutoff(
+        forecast,
+        fixtureLedger,
+        "2030-01-02T00:00:00Z",
+      );
+      if (
+        history.length !== 1 ||
+        history[0].observationId !== observation.observationId
+      ) {
+        failures.push(
+          `${target.dataPointId}: exact registered observation was not history-eligible`,
+        );
+      }
     }
-    expect(checked).toBeGreaterThan(0);
+    expect(publishedTargets.length).toBeGreaterThan(0);
     expect(failures).toEqual([]);
   });
 
-  it("accepts a registered legacy id stem bound to a canonical series", () => {
-    // This exact early ABS target inherited a descriptive dataPointId stem
-    // that is not byte-identical to its canonical contract.series.
+  it("accepts an opaque registered id bound to its canonical series", () => {
+    // dataPointId is opaque. This early ABS target's descriptive id stem is
+    // intentionally not byte-identical to its authoritative contract.series.
     const legacyDataPointId =
       "abs.labour.unemployment_rate.australia.july_2026.first_print";
     const legacyTargetContentHash =
@@ -772,16 +1099,15 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
       series: canonicalSeries,
     };
     const legacyRun = getForecastRunEntries(legacyCell)[0];
-    const evaluation = evaluateResolvedForecastRun(
-      legacyCell,
-      legacyRun,
-      [legacyTarget, legacyFact],
-    );
+    const evaluation = evaluateResolvedForecastRun(legacyCell, legacyRun, [
+      legacyTarget,
+      legacyFact,
+    ]);
     expect(evaluation.exclusion).toBeUndefined();
     expect(evaluation.score?.contractBinding).toBe("contract_bound");
   });
 
-  it("rejects an unreviewed registered-id series alias", () => {
+  it("accepts a novel opaque id when its exact contract binds the series", () => {
     const aliasDataPointId = "test.bound.series.unreviewed_alias.2026";
     const aliasCell = { ...cell, dataPointId: aliasDataPointId };
     const aliasTarget: TargetRegisteredLedgerEntry = {
@@ -794,42 +1120,23 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
       observationId: `obs.${aliasDataPointId}`,
     });
     const aliasRun = getForecastRunEntries(aliasCell)[0];
-    const evaluation = evaluateResolvedForecastRun(
-      aliasCell,
-      aliasRun,
-      [aliasTarget, aliasFact],
-    );
-    expect(evaluation.exclusion?.reason).toBe("contract_violation");
-    expect(evaluation.exclusion?.detail).toContain("registration series");
+    const evaluation = evaluateResolvedForecastRun(aliasCell, aliasRun, [
+      aliasTarget,
+      aliasFact,
+    ]);
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("contract_bound");
   });
 
-  it("rejects the reviewed legacy id under a different content hash", () => {
-    const legacyDataPointId =
-      "abs.labour.unemployment_rate.australia.july_2026.first_print";
-    const canonicalSeries = "abs.labour.unemployment_rate";
-    const legacyCell = { ...cell, dataPointId: legacyDataPointId };
-    const wrongHashTarget: TargetRegisteredLedgerEntry = {
-      ...registered,
-      dataPointId: legacyDataPointId,
-      observationId: `obs.${legacyDataPointId}`,
-      series: canonicalSeries,
-    };
-    const wrongHashFact = boundFact({
-      dataPointId: legacyDataPointId,
-      observationId: `obs.${legacyDataPointId}`,
-    });
-    wrongHashFact.sourceBindingProjection = {
-      ...wrongHashFact.sourceBindingProjection!,
-      series: canonicalSeries,
-    };
-    const legacyRun = getForecastRunEntries(legacyCell)[0];
-    const evaluation = evaluateResolvedForecastRun(
-      legacyCell,
-      legacyRun,
-      [wrongHashTarget, wrongHashFact],
-    );
+  it("rejects an observation bound to a different target content hash", () => {
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({ targetContentHash: "f".repeat(64) }),
+    ]);
     expect(evaluation.exclusion?.reason).toBe("contract_violation");
-    expect(evaluation.exclusion?.detail).toContain("registration series");
+    expect(evaluation.exclusion?.detail).toContain(
+      "recorded against target contract",
+    );
   });
 
   it("rejects a projection whose series contradicts the registration", () => {
@@ -846,6 +1153,16 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     ]);
     expect(evaluation.exclusion?.reason).toBe("contract_violation");
     expect(evaluation.exclusion?.detail).toContain("series");
+  });
+
+  it("rejects an observation whose opaque id is not the registered id", () => {
+    const violation = getResolutionContractViolation(
+      cell,
+      boundFact({ dataPointId: `${cell.dataPointId}.foreign` }),
+      [registered],
+    );
+    expect(violation).toContain("dataPointId");
+    expect(violation).toContain("does not match the registration");
   });
 
   it("rejects an observation fetched from a non-allowed publisher host", () => {

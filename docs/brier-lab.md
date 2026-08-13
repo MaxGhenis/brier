@@ -49,6 +49,12 @@ absolute error remain public, while normalized CRPS, normalized absolute error,
 sharpness, reward, leaderboard means, and paired skill are null or exclude the
 row.
 
+Same-series membership comes from exact target registrations and each
+observation's matching contract hash and source-binding projection;
+`dataPointId` is opaque and is never parsed for a series-looking prefix. Only
+an explicit, pinned tuple can supply identity for a legacy observation that
+predates those contracts.
+
 Persistence baselines are generated only for chronology-verified scored
 primary targets. Their point is the last same-series observation archived in
 the PolicyEngine Ledger at the primary run's `recordedAt` cutoff, and their
