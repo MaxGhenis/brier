@@ -33,6 +33,7 @@ import csv
 import datetime as dt
 import gzip
 import hashlib
+import html.parser as html_parser
 import http.client
 import io
 import json
@@ -2375,9 +2376,12 @@ EIA_DNAV_ADAPTERS: dict[str, dict[str, Any]] = {
         # annual MMcf cells, not sums of the preliminary monthly series.
         "anchors": {"2022": 271682, "2023": 324207, "2024": 335163},
         "source_url": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
-        "workbook_url": (
-            "https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls"
-        ),
+        "workbook_url": ("https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls"),
+        # The byte-pinned official page uses this one relative spelling. Treat
+        # it as a sealed source token, never as a generally accepted relative
+        # path: it must match before any URL parser or resolver sees it.
+        "workbook_href": "../hist_xls/N9040US2a.xls",
+        "workbook_link_text": "Download Data (XLS File)",
         "allowed_hosts": ("www.eia.gov",),
         "series_id": "N9040US2",
         "field": "annual_value_mmcf",
@@ -2388,9 +2392,7 @@ EIA_DNAV_ADAPTERS: dict[str, dict[str, Any]] = {
         "sheet_name": "Data 1",
         "first_year": 1936,
         "series_title": "U.S. Natural Gas Vented and Flared (MMcf)",
-        "page_title": (
-            "U.S. Natural Gas Vented and Flared (Million Cubic Feet)"
-        ),
+        "page_title": ("U.S. Natural Gas Vented and Flared (Million Cubic Feet)"),
         "unit": "million_cubic_feet",
         "country": "US",
         "label": "U.S. natural gas vented and flared",
@@ -9035,10 +9037,7 @@ def eia_dnav_binding_matches_spec(
 
     if not isinstance(binding, dict):
         return False
-    if (
-        set(binding) - EIA_DNAV_BINDING_DERIVED_KEYS
-        != EIA_DNAV_BINDING_TEMPLATE_KEYS
-    ):
+    if set(binding) - EIA_DNAV_BINDING_DERIVED_KEYS != EIA_DNAV_BINDING_TEMPLATE_KEYS:
         return False
     projected = {key: binding[key] for key in EIA_DNAV_BINDING_TEMPLATE_KEYS}
     if canonical_bytes(projected) != canonical_bytes(eia_dnav_binding_template(spec)):
@@ -9075,6 +9074,142 @@ def _eia_dnav_normalized_text(value: Any) -> str:
     return " ".join(str(value).split()).strip()
 
 
+def _eia_dnav_raw_hrefs(start_tag_text: str) -> list[str]:
+    """Return actual href values without HTMLParser's entity decoding.
+
+    Use the same quote-aware token boundaries as ``HTMLParser`` itself. A
+    global regex can mistake href-looking bytes inside another attribute's
+    quoted value for the active anchor href.
+    """
+
+    tag = html_parser.tagfind_tolerant.match(start_tag_text, 1)
+    if tag is None:
+        return []
+    raw_hrefs: list[str] = []
+    position = tag.end()
+    while position < len(start_tag_text):
+        attribute = html_parser.attrfind_tolerant.match(start_tag_text, position)
+        if attribute is None:
+            break
+        name, assignment, raw_value = attribute.group(1, 2, 3)
+        if name.lower() == "href" and assignment:
+            if raw_value[:1] in {"'", '"'} and raw_value[-1:] == raw_value[:1]:
+                raw_value = raw_value[1:-1]
+            raw_hrefs.append(raw_value)
+        position = attribute.end()
+    return raw_hrefs
+
+
+class _EiaDnavPageParser(HTMLParser):
+    """Collect visible text and active anchor hrefs from one DNav page."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.text: list[str] = []
+        self.links: list[tuple[str, str]] = []
+        self._href: str | None = None
+        self._anchor_text: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() != "a":
+            return
+        # HTMLParser decodes character references in ``attrs``. Recover the
+        # href spelling from this structurally identified anchor's original
+        # start-tag text so identity is checked against the untouched token.
+        raw_hrefs = _eia_dnav_raw_hrefs(self.get_starttag_text())
+        parsed_hrefs = [
+            value
+            for name, value in attrs
+            if name.lower() == "href" and value is not None
+        ]
+        self._href = None
+        if len(raw_hrefs) == 1 and len(parsed_hrefs) == 1:
+            self._href = raw_hrefs[0]
+        self._anchor_text = []
+
+    def handle_data(self, data: str) -> None:
+        self.text.append(data)
+        if self._href is not None:
+            self._anchor_text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "a" and self._href is not None:
+            self.links.append((self._href, " ".join(self._anchor_text)))
+            self._href = None
+            self._anchor_text = []
+
+
+_EIA_DNAV_RAW_URL_RE = re.compile(r"https://[A-Za-z0-9.-]+/[A-Za-z0-9/._-]+")
+_EIA_DNAV_RAW_HREF_RE = re.compile(r"[A-Za-z0-9/._-]+")
+
+
+def _require_eia_dnav_raw_url(raw: str, kind: str) -> None:
+    """Refuse a noncanonical transport URL before a parser touches it."""
+
+    if not _EIA_DNAV_RAW_URL_RE.fullmatch(raw):
+        raise ValueError(f"EIA DNav {kind} URL is not in canonical form: {raw!r}")
+
+
+def _require_eia_dnav_url(
+    url: str,
+    *,
+    expected_url: str,
+    kind: str,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> None:
+    """Pin one raw DNav transport hop to its exact reviewed identity."""
+
+    _require_eia_dnav_raw_url(url, kind)
+    parsed = urllib.parse.urlparse(url)
+    _require_allowed_host(url, allowed_hosts)
+    if (
+        parsed.username is not None
+        or parsed.password is not None
+        or parsed.port is not None
+        or parsed.params
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError(
+            f"EIA DNav {kind} URL must not contain credentials, a port, "
+            f"path parameters, query, or fragment: {url!r}"
+        )
+    raw_path = parsed.path
+    if not re.fullmatch(r"[A-Za-z0-9/._-]+", raw_path):
+        raise ValueError(
+            f"EIA DNav {kind} path contains characters outside the "
+            f"reviewed canonical set: {raw_path!r}"
+        )
+    if any(segment in ("", ".", "..") for segment in raw_path.split("/")[1:]):
+        raise ValueError(
+            f"EIA DNav {kind} path contains empty or dot segments: {raw_path!r}"
+        )
+    if url != expected_url:
+        raise ValueError(
+            f"EIA DNav {kind} URL is not the exact reviewed URL: "
+            f"{url!r} != {expected_url!r}"
+        )
+
+
+def _require_eia_dnav_workbook_href(href: str, spec: Mapping[str, Any]) -> None:
+    """Authenticate the untouched official href before any resolution.
+
+    EIA's byte-pinned page currently spells this link with one leading ``..``
+    segment. That exact reviewed literal is the sole exception to the normal
+    absolute-href shape: no other relative, dot-segment, absolute, or
+    scheme-relative spelling is accepted or passed to ``urljoin``.
+    """
+
+    if not _EIA_DNAV_RAW_HREF_RE.fullmatch(href):
+        raise ValueError(f"EIA DNav workbook href is not in canonical form: {href!r}")
+    expected_href = str(spec["workbook_href"])
+    if href != expected_href:
+        raise ValueError(
+            "EIA DNav workbook href is not the exact reviewed raw literal: "
+            f"{href!r} != {expected_href!r}"
+        )
+
+
 def eia_dnav_values_from_xls(
     raw: bytes, spec: Mapping[str, Any]
 ) -> tuple[dict[str, float] | None, str | None]:
@@ -9101,8 +9236,7 @@ def eia_dnav_values_from_xls(
     sheet = book.sheet_by_name(sheet_name)
     if contents.nrows != 15 or contents.ncols != 6:
         return None, (
-            "EIA contents sheet shape changed to "
-            f"{contents.nrows}x{contents.ncols}"
+            f"EIA contents sheet shape changed to {contents.nrows}x{contents.ncols}"
         )
     if sheet.nrows < 4 or sheet.ncols != 2:
         return None, f"EIA data sheet shape changed to {sheet.nrows}x{sheet.ncols}"
@@ -9167,8 +9301,7 @@ def eia_dnav_values_from_xls(
     first_year = int(min(values))
     if first_year != spec["first_year"]:
         return None, (
-            f"EIA first annual row changed from {spec['first_year']} to "
-            f"{first_year}"
+            f"EIA first annual row changed from {spec['first_year']} to {first_year}"
         )
     latest_year = int(max(values))
     latest_marker = contents.cell_value(6, 5)
@@ -9186,7 +9319,7 @@ def eia_dnav_values_from_xls(
 
 
 def eia_dnav_workbook_link(html: bytes, spec: Mapping[str, Any]) -> str | None:
-    """Authenticate the exact canonical page title and its XLS sibling link."""
+    """Authenticate the page and its untouched, structurally active XLS href."""
 
     try:
         text = html.decode("utf-8")
@@ -9195,22 +9328,30 @@ def eia_dnav_workbook_link(html: bytes, spec: Mapping[str, Any]) -> str | None:
             text = html.decode("windows-1252")
         except UnicodeDecodeError:
             return None
-    normalized = _eia_dnav_normalized_text(unescape(re.sub(r"<[^>]+>", " ", text)))
+    parser = _EiaDnavPageParser()
+    parser.feed(text)
+    parser.close()
+    normalized = _eia_dnav_normalized_text(" ".join(parser.text))
     expected_page_title = str(spec["page_title"])
     if expected_page_title not in normalized:
         return None
-    links = re.findall(r"href\s*=\s*['\"]?([^'\"\s>]+)", text, flags=re.I)
-    expected_filename = posixpath.basename(
-        urlparse(str(spec["workbook_url"])).path
-    ).lower()
-    workbook_links = [
-        urllib.parse.urljoin(str(spec["source_url"]), link)
-        for link in links
-        if posixpath.basename(urlparse(link).path).lower() == expected_filename
+    expected_filename = posixpath.basename(urlparse(str(spec["workbook_url"])).path)
+    expected_link_text = _eia_dnav_normalized_text(spec["workbook_link_text"])
+    workbook_hrefs = [
+        href
+        for href, link_text in parser.links
+        if expected_filename.lower() in href.lower()
+        or _eia_dnav_normalized_text(link_text) == expected_link_text
     ]
-    if workbook_links != [spec["workbook_url"]]:
+    if len(workbook_hrefs) != 1:
         return None
-    return workbook_links[0]
+    try:
+        _require_eia_dnav_workbook_href(workbook_hrefs[0], spec)
+    except ValueError:
+        return None
+    # Identity is established by the exact raw source token above. Do not
+    # normalize it: return the separately reviewed canonical transport URL.
+    return str(spec["workbook_url"])
 
 
 def eia_dnav_anchor_mismatches(
@@ -9268,20 +9409,83 @@ def eia_dnav_capture_envelope(
     )
 
 
+class _EiaDnavNoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Validate a redirect target's raw identity, then refuse every redirect."""
+
+    def __init__(
+        self,
+        *,
+        expected_url: str,
+        kind: str,
+        allowed_hosts: list[str] | tuple[str, ...],
+    ) -> None:
+        super().__init__()
+        self.expected_url = expected_url
+        self.kind = kind
+        self.allowed_hosts = allowed_hosts
+
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> urllib.request.Request | None:
+        _require_eia_dnav_url(
+            newurl,
+            expected_url=self.expected_url,
+            kind=self.kind,
+            allowed_hosts=self.allowed_hosts,
+        )
+        raise ValueError(
+            f"EIA DNav {self.kind} redirects are not allowed: "
+            f"{req.full_url!r} -> {newurl!r}"
+        )
+
+
 def eia_dnav_http_get(
     url: str,
     *,
+    expected_url: str,
+    kind: str,
     allowed_hosts: list[str] | tuple[str, ...],
+    timeout: int = 120,
 ) -> tuple[bytes, str, str]:
-    """Fetch one mutable DNav artifact and timestamp the completed read."""
+    """Fetch one exact, redirect-free DNav hop and timestamp its full read."""
 
-    raw, _request_started_at, final_url = http_get(
-        url, allowed_hosts=allowed_hosts
+    _require_eia_dnav_url(
+        url,
+        expected_url=expected_url,
+        kind=kind,
+        allowed_hosts=allowed_hosts,
     )
-    # http_get timestamps immediately before opening the request. DNav URLs
-    # are mutable, so first-print custody needs the time all response bytes
-    # were actually in hand; this also lets the post-fetch gate reject a read
-    # that straddles the registered window's UTC boundary.
+    request = urllib.request.Request(url, headers={"User-Agent": INTL_USER_AGENT})
+    opener = urllib.request.build_opener(
+        _EiaDnavNoRedirectHandler(
+            expected_url=expected_url,
+            kind=kind,
+            allowed_hosts=allowed_hosts,
+        )
+    )
+    with opener.open(request, timeout=timeout) as response:
+        final_url = response.geturl()
+        _require_eia_dnav_url(
+            final_url,
+            expected_url=expected_url,
+            kind=kind,
+            allowed_hosts=allowed_hosts,
+        )
+        if final_url != url:
+            raise ValueError(
+                f"EIA DNav {kind} final URL changed without an accepted "
+                f"identity transition: {url!r} -> {final_url!r}"
+            )
+        raw = response.read()
+    # DNav URLs are mutable, so first-print custody needs the time all response
+    # bytes were actually in hand; this also lets the post-fetch gate reject a
+    # read that straddles the registered window's UTC boundary.
     return raw, utc_now(), final_url
 
 
@@ -9294,7 +9498,10 @@ def eia_dnav_fetch_year(
         return None, None, str(spec["source_url"]), utc_now(), "period must be YYYY"
     try:
         page_raw, page_retrieved_at, page_url = eia_dnav_http_get(
-            str(spec["source_url"]), allowed_hosts=spec["allowed_hosts"]
+            str(spec["source_url"]),
+            expected_url=str(spec["source_url"]),
+            kind="page",
+            allowed_hosts=spec["allowed_hosts"],
         )
     except (http.client.IncompleteRead, OSError, ValueError) as exc:
         return (
@@ -9305,23 +9512,38 @@ def eia_dnav_fetch_year(
             f"page fetch failed: {exc}",
         )
     if page_url != spec["source_url"]:
-        return None, page_raw, page_url, page_retrieved_at, (
-            "EIA DNav page redirected away from the registered exact URL"
+        return (
+            None,
+            page_raw,
+            page_url,
+            page_retrieved_at,
+            ("EIA DNav page redirected away from the registered exact URL"),
         )
     workbook_url = eia_dnav_workbook_link(page_raw, spec)
     if workbook_url is None:
-        return None, page_raw, page_url, page_retrieved_at, (
-            "EIA DNav page did not authenticate the exact N9040US2 XLS sibling"
+        return (
+            None,
+            page_raw,
+            page_url,
+            page_retrieved_at,
+            ("EIA DNav page did not authenticate the exact N9040US2 XLS sibling"),
         )
     try:
         workbook_raw, workbook_retrieved_at, final_workbook_url = eia_dnav_http_get(
-            workbook_url, allowed_hosts=spec["allowed_hosts"]
+            workbook_url,
+            expected_url=str(spec["workbook_url"]),
+            kind="workbook",
+            allowed_hosts=spec["allowed_hosts"],
         )
     except (http.client.IncompleteRead, OSError, ValueError) as exc:
         return None, None, workbook_url, utc_now(), f"workbook fetch failed: {exc}"
     if final_workbook_url != workbook_url:
-        return None, workbook_raw, final_workbook_url, workbook_retrieved_at, (
-            "EIA workbook redirected away from the page-linked exact URL"
+        return (
+            None,
+            workbook_raw,
+            final_workbook_url,
+            workbook_retrieved_at,
+            ("EIA workbook redirected away from the page-linked exact URL"),
         )
     values, refusal = eia_dnav_values_from_xls(workbook_raw, spec)
     if refusal or values is None:

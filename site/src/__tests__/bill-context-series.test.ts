@@ -166,6 +166,7 @@ describe("bill context-series links", () => {
     expect(flareLinks[0]).toMatchObject({
       seriesConcept: "eia.ng.vented_flared.us.annual",
       label: "U.S. natural gas vented and flared (2025 annual value)",
+      pendingForecastLane: "ticketed-attested",
     });
   });
 });

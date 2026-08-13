@@ -100,9 +100,7 @@ def _rk_double(value: float) -> bytes:
     return struct.pack("<I", (bits >> 32) & 0xFFFFFFFC)
 
 
-def capture_envelope(
-    *, period: str = "2024", value: float = 335_163.0
-) -> bytes:
+def capture_envelope(*, period: str = "2024", value: float = 335_163.0) -> bytes:
     return resolve_pending.eia_dnav_capture_envelope(
         page_url=SPEC["source_url"],
         page_raw=PAGE.read_bytes(),
@@ -148,9 +146,12 @@ def test_real_workbook_authenticates_identity_and_exact_annual_anchors() -> None
         "2023": 324_207.0,
         "2024": 335_163.0,
     }
-    assert resolve_pending.eia_dnav_anchor_mismatches(
-        values, resolve_pending.eia_dnav_verified_anchors(SPEC) or {}
-    ) == []
+    assert (
+        resolve_pending.eia_dnav_anchor_mismatches(
+            values, resolve_pending.eia_dnav_verified_anchors(SPEC) or {}
+        )
+        == []
+    )
 
 
 def test_official_annual_schedule_is_bound_to_the_n9040us2_series() -> None:
@@ -191,9 +192,7 @@ def test_official_annual_schedule_is_bound_to_the_n9040us2_series() -> None:
             "expected exact EIA sheet inventory",
         ),
         (
-            lambda raw: _replace_nth(
-                raw, b"Vented and Flared", b"Ventee and Flared"
-            ),
+            lambda raw: _replace_nth(raw, b"Vented and Flared", b"Ventee and Flared"),
             "workbook identity mismatch",
         ),
         (
@@ -205,9 +204,7 @@ def test_official_annual_schedule_is_bound_to_the_n9040us2_series() -> None:
             "expected 'Annual'",
         ),
         (
-            lambda raw: _replace_nth(
-                raw, b"n9040us2a.xls", b"n9040us3a.xls"
-            ),
+            lambda raw: _replace_nth(raw, b"n9040us2a.xls", b"n9040us3a.xls"),
             "expected 'n9040us2a.xls'",
         ),
     ],
@@ -301,6 +298,7 @@ def test_workbook_parser_refuses_truncated_leading_history() -> None:
 
 
 def test_page_authenticates_the_exact_title_and_workbook_link() -> None:
+    assert SPEC["workbook_href"] == "../hist_xls/N9040US2a.xls"
     assert (
         resolve_pending.eia_dnav_workbook_link(PAGE.read_bytes(), SPEC)
         == SPEC["workbook_url"]
@@ -432,9 +430,12 @@ def test_live_docket_seed_rolls_to_the_exact_bounded_contract() -> None:
 def test_bounded_seed_stops_when_its_window_opens() -> None:
     entry = docket_entry()
 
-    assert roll_docket.bounded_annual_first_print_seed_target(
-        entry, set(), dt.date(2026, 9, 30)
-    ) is not None
+    assert (
+        roll_docket.bounded_annual_first_print_seed_target(
+            entry, set(), dt.date(2026, 9, 30)
+        )
+        is not None
+    )
     assert (
         roll_docket.bounded_annual_first_print_seed_target(
             entry, set(), dt.date(2026, 10, 1)
@@ -534,21 +535,90 @@ def test_capture_envelope_binds_both_exact_artifacts_and_derived_value() -> None
     assert raw == resolve_pending.canonical_bytes(envelope)
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://www.eia.gov/dnav/ng/hist/./n9040us2a.htm",
+        "https://www.eia.gov/dnav/ng/hist/../hist/n9040us2a.htm",
+        "https://www.eia.gov//dnav/ng/hist/n9040us2a.htm",
+        "https://www.eia.gov/dnav/ng//hist/n9040us2a.htm",
+        "//www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+        "/dnav/ng/hist/n9040us2a.htm",
+        "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm?",
+        "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm\t",
+    ],
+    ids=[
+        "dot-segment",
+        "parent-segment",
+        "host-path-double-slash",
+        "internal-double-slash",
+        "scheme-relative",
+        "absolute-path",
+        "empty-query",
+        "control-character",
+    ],
+)
+def test_noncanonical_eia_transport_urls_refuse_before_build_opener(
+    url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def tripwire(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("transport reached for a noncanonical EIA URL")
+
+    monkeypatch.setattr(resolve_pending.urllib.request, "build_opener", tripwire)
+
+    with pytest.raises(ValueError, match="canonical|empty or dot segments"):
+        resolve_pending.eia_dnav_http_get(
+            url,
+            expected_url=SPEC["source_url"],
+            kind="page",
+            allowed_hosts=SPEC["allowed_hosts"],
+        )
+
+
 def test_eia_http_get_timestamps_the_completed_response_read(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def fake_http_get(url: str, *, allowed_hosts):
-        assert url == SPEC["workbook_url"]
-        assert allowed_hosts == SPEC["allowed_hosts"]
-        return b"workbook bytes", "2026-10-31T23:59:58Z", url
+    read_completed = False
 
-    monkeypatch.setattr(resolve_pending, "http_get", fake_http_get)
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def geturl(self) -> str:
+            return SPEC["workbook_url"]
+
+        def read(self) -> bytes:
+            nonlocal read_completed
+            read_completed = True
+            return b"workbook bytes"
+
+    class FakeOpener:
+        def open(self, request, *, timeout: int):
+            assert request.full_url == SPEC["workbook_url"]
+            assert timeout == 120
+            return FakeResponse()
+
+    def fake_build_opener(handler):
+        assert isinstance(handler, resolve_pending._EiaDnavNoRedirectHandler)
+        return FakeOpener()
+
+    def completed_at() -> str:
+        assert read_completed
+        return "2026-11-01T00:00:01Z"
+
     monkeypatch.setattr(
-        resolve_pending, "utc_now", lambda: "2026-11-01T00:00:01Z"
+        resolve_pending.urllib.request, "build_opener", fake_build_opener
     )
+    monkeypatch.setattr(resolve_pending, "utc_now", completed_at)
 
     assert resolve_pending.eia_dnav_http_get(
-        SPEC["workbook_url"], allowed_hosts=SPEC["allowed_hosts"]
+        SPEC["workbook_url"],
+        expected_url=SPEC["workbook_url"],
+        kind="workbook",
+        allowed_hosts=SPEC["allowed_hosts"],
     ) == (
         b"workbook bytes",
         "2026-11-01T00:00:01Z",
@@ -561,8 +631,12 @@ def test_fetch_authenticates_page_then_archives_the_linked_workbook(
 ) -> None:
     calls: list[str] = []
 
-    def fake_get(url: str, *, allowed_hosts) -> tuple[bytes, str, str]:
+    def fake_get(
+        url: str, *, expected_url: str, kind: str, allowed_hosts
+    ) -> tuple[bytes, str, str]:
         assert allowed_hosts == SPEC["allowed_hosts"]
+        assert url == expected_url
+        assert kind == ("page" if url == SPEC["source_url"] else "workbook")
         calls.append(url)
         if url == SPEC["source_url"]:
             return PAGE.read_bytes(), "2026-08-13T18:53:10Z", url
@@ -578,9 +652,7 @@ def test_fetch_authenticates_page_then_archives_the_linked_workbook(
     assert calls == [SPEC["source_url"], SPEC["workbook_url"]]
     assert value == 335_163
     assert raw is not None
-    assert json.loads(raw)["workbook"]["sha256"] == FIXTURE_PINS[
-        "N9040US2a.xls"
-    ][1]
+    assert json.loads(raw)["workbook"]["sha256"] == FIXTURE_PINS["N9040US2a.xls"][1]
     assert fetched_url == SPEC["workbook_url"]
     assert retrieved_at == "2026-08-13T18:53:11Z"
     assert refusal is None
@@ -589,8 +661,12 @@ def test_fetch_authenticates_page_then_archives_the_linked_workbook(
 def test_fetch_leaves_a_missing_target_year_pending_without_archiving(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def fake_get(url: str, *, allowed_hosts) -> tuple[bytes, str, str]:
+    def fake_get(
+        url: str, *, expected_url: str, kind: str, allowed_hosts
+    ) -> tuple[bytes, str, str]:
         assert allowed_hosts == SPEC["allowed_hosts"]
+        assert url == expected_url
+        assert kind == ("page" if url == SPEC["source_url"] else "workbook")
         raw = PAGE.read_bytes() if url == SPEC["source_url"] else WORKBOOK.read_bytes()
         return raw, "2026-08-13T18:53:10Z", url
 
@@ -628,8 +704,12 @@ def test_fetch_rejects_a_non_year_period_without_network(
 def test_fetch_refuses_same_host_nonexact_redirects(
     monkeypatch: pytest.MonkeyPatch, redirect: str
 ) -> None:
-    def fake_get(url: str, *, allowed_hosts) -> tuple[bytes, str, str]:
+    def fake_get(
+        url: str, *, expected_url: str, kind: str, allowed_hosts
+    ) -> tuple[bytes, str, str]:
         assert allowed_hosts == SPEC["allowed_hosts"]
+        assert url == expected_url
+        assert kind == ("page" if url == SPEC["source_url"] else "workbook")
         if url == SPEC["source_url"]:
             final = f"{url}?download=1" if redirect == "page" else url
             return PAGE.read_bytes(), "2026-08-13T18:53:10Z", final
@@ -651,9 +731,13 @@ def test_fetch_does_not_request_a_workbook_from_an_unauthenticated_page(
 ) -> None:
     calls = 0
 
-    def fake_get(url: str, *, allowed_hosts) -> tuple[bytes, str, str]:
+    def fake_get(
+        url: str, *, expected_url: str, kind: str, allowed_hosts
+    ) -> tuple[bytes, str, str]:
         nonlocal calls
         assert allowed_hosts == SPEC["allowed_hosts"]
+        assert url == expected_url == SPEC["source_url"]
+        assert kind == "page"
         calls += 1
         return b"<html>wrong page</html>", "2026-08-13T18:53:10Z", url
 
@@ -668,6 +752,117 @@ def test_fetch_does_not_request_a_workbook_from_an_unauthenticated_page(
     assert refusal == (
         "EIA DNav page did not authenticate the exact N9040US2 XLS sibling"
     )
+
+
+@pytest.mark.parametrize(
+    "markup",
+    [
+        ("<a href='./../hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        ("<a href='../../ng/hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        ("<a href='../hist/..//hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        ("<a href='/dnav/ng/hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        (
+            "<a href='https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<a href='//www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        ("<a href='..&#47;hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        ("<span data-href='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</span>"),
+        ("<div href='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</div>"),
+        ("<a title=\" href='../hist_xls/N9040US2a.xls'\">Download Data (XLS File)</a>"),
+        (
+            "<a/href='BAD' title=\" href='../hist_xls/N9040US2a.xls'\">"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<a href=`BAD` title=\" href='../hist_xls/N9040US2a.xls'\">"
+            "Download Data (XLS File)</a>"
+        ),
+    ],
+    ids=[
+        "dot-relative-alias",
+        "parent-relative-alias",
+        "repeated-separator-alias",
+        "absolute-path-alias",
+        "absolute-url-alias",
+        "scheme-relative-alias",
+        "character-reference-alias",
+        "inert-data-href",
+        "non-anchor-href",
+        "anchor-inert-attribute-soup",
+        "bad-real-href-plus-inert-reviewed-text",
+        "backtick-real-href-plus-inert-reviewed-text",
+    ],
+)
+def test_raw_workbook_href_aliases_refuse_before_workbook_transport(
+    markup: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    page_raw = (
+        f"<html><body><h1>{SPEC['page_title']}</h1>{markup}</body></html>"
+    ).encode()
+    build_opener_calls = 0
+
+    class PageResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def geturl(self) -> str:
+            return SPEC["source_url"]
+
+        def read(self) -> bytes:
+            return page_raw
+
+    class PageOpener:
+        def open(self, request, *, timeout: int):
+            assert request.full_url == SPEC["source_url"]
+            assert timeout == 120
+            return PageResponse()
+
+    def guarded_build_opener(handler):
+        nonlocal build_opener_calls
+        build_opener_calls += 1
+        if build_opener_calls != 1:
+            raise AssertionError("workbook transport reached for a raw href alias")
+        assert isinstance(handler, resolve_pending._EiaDnavNoRedirectHandler)
+        return PageOpener()
+
+    monkeypatch.setattr(
+        resolve_pending.urllib.request, "build_opener", guarded_build_opener
+    )
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: "2026-08-13T18:53:10Z")
+
+    value, _raw, fetched_url, _retrieved_at, refusal = (
+        resolve_pending.eia_dnav_fetch_year(SPEC, "2024")
+    )
+
+    assert build_opener_calls == 1
+    assert value is None
+    assert fetched_url == SPEC["source_url"]
+    assert refusal == (
+        "EIA DNav page did not authenticate the exact N9040US2 XLS sibling"
+    )
+
+
+def test_eia_redirect_handler_refuses_every_redirect() -> None:
+    handler = resolve_pending._EiaDnavNoRedirectHandler(
+        expected_url=SPEC["source_url"],
+        kind="page",
+        allowed_hosts=SPEC["allowed_hosts"],
+    )
+    request = resolve_pending.urllib.request.Request(SPEC["source_url"])
+
+    with pytest.raises(ValueError, match="redirects are not allowed"):
+        handler.redirect_request(request, None, 302, "Found", {}, SPEC["source_url"])
+    with pytest.raises(ValueError, match="canonical form"):
+        handler.redirect_request(
+            request, None, 302, "Found", {}, f"{SPEC['source_url']}?download=1"
+        )
 
 
 @pytest.mark.parametrize(
@@ -777,9 +972,7 @@ def test_resolver_defers_or_refuses_without_fetching_outside_window(
     def unexpected_fetch(*_args, **_kwargs):
         raise AssertionError("EIA fetch ran outside the registered window")
 
-    output = _run_main(
-        monkeypatch, capsys, now=now, fetch=unexpected_fetch
-    )
+    output = _run_main(monkeypatch, capsys, now=now, fetch=unexpected_fetch)
 
     assert expected in output
     assert f"resolve {REF}" not in output

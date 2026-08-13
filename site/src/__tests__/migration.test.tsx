@@ -20,6 +20,7 @@ vi.mock("next/link", () => ({
 
 // Import components after mocks are set up
 import HomePage from "../app/page";
+import BillDetailPage from "../app/bills/[slug]/page";
 import DocsPage from "../app/docs/page";
 import ForecastLedgerPage from "../app/forecasts/ledger/page";
 import { GET as getForecastLedgerJson } from "../app/forecasts/ledger.json/route";
@@ -49,6 +50,27 @@ import {
 } from "../data/thesis-log";
 
 describe("Next.js migration", () => {
+  describe("Bill detail", () => {
+    it("renders the FLARE bounded target as awaiting the ticketed lane", async () => {
+      render(
+        await BillDetailPage({
+          params: Promise.resolve({ slug: "flare-act-s1188-119" }),
+        }),
+      );
+
+      expect(
+        screen.getByText(
+          "Admitted to the docket — awaiting ticketed registration and generation through the attested lane.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          /first registered forecast arrives with the next roll/i,
+        ),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe("Homepage", () => {
     it("renders without crashing", () => {
       render(<HomePage />);

@@ -96,6 +96,8 @@ export interface BillContextSeriesLink {
   seriesConcept: string;
   /** Short display label for the series. */
   label: string;
+  /** Generation lane for an admitted series whose first cell is pending. */
+  pendingForecastLane?: "ticketed-attested";
   /** Verbatim-rendered scope boundary: what this series is NOT. */
   scopeNote: string;
 }
@@ -105,6 +107,7 @@ export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
     billSlug: "flare-act-s1188-119",
     seriesConcept: "eia.ng.vented_flared.us.annual",
     label: "U.S. natural gas vented and flared (2025 annual value)",
+    pendingForecastLane: "ticketed-attested",
     scopeNote:
       "Broad U.S. natural-gas venting-and-flaring outcome and " +
       "timing-tracking context only. Not facility-level activity, " +

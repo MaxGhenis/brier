@@ -445,8 +445,18 @@ export default async function BillDetailPage({
                           {link.label}
                         </p>
                         <p className="m-0 mt-1 text-[0.8rem] leading-[1.55] text-[var(--theme-text-muted)]">
-                          Admitted to the docket — the first registered
-                          forecast arrives with the next roll.
+                          {link.pendingForecastLane === "ticketed-attested" ? (
+                            <>
+                              Admitted to the docket — awaiting ticketed
+                              registration and generation through the attested
+                              lane.
+                            </>
+                          ) : (
+                            <>
+                              Admitted to the docket — the first registered
+                              forecast arrives with the next roll.
+                            </>
+                          )}
                         </p>
                       </div>
                     )}
