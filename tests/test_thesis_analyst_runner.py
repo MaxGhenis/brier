@@ -3471,3 +3471,36 @@ def test_target_context_surfaces_the_resolution_parser_command() -> None:
         {"series": "x.y", "sourceBinding": {"adapter": "alfred-fred"}}
     )
     assert "Resolution-grade base-rate fetch" not in plain
+
+
+def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
+    # The 2026-08-12 BEA ITA run fetched the byte-exact official value
+    # (18511) labeled "2026 Q1" and was refused because the docket
+    # anchor key is "2026-Q1". Quarter keys now match the same quarter
+    # in any standard writing; nothing else loosens.
+    context = {"anchors": {"2026-Q1": 18511}}
+    ok_cell = {
+        "historicalContext": [
+            {"label": "BEA ITA Table 5.1 line 18, 2026 Q1 current vintage",
+             "value": 18511},
+        ]
+    }
+    assert analyst_runner.history_anchor_errors(ok_cell, context) == []
+    # Same quarter, other writings.
+    for label in ("2026Q1 print", "Q1 2026 seasonally adjusted", "2026-Q1"):
+        cell = {"historicalContext": [{"label": label, "value": 18511}]}
+        assert analyst_runner.history_anchor_errors(cell, context) == [], label
+    # A DIFFERENT quarter or year never matches.
+    for label in ("2026 Q2 print", "2025 Q1 print"):
+        cell = {"historicalContext": [{"label": label, "value": 18511}]}
+        errors = analyst_runner.history_anchor_errors(cell, context)
+        assert errors and "no historicalContext entry mentions" in errors[0], label
+    # The value check still refuses a wrong number on a matching label.
+    wrong = {"historicalContext": [{"label": "2026 Q1", "value": 20000}]}
+    errors = analyst_runner.history_anchor_errors(wrong, context)
+    assert errors and "contradict" in errors[0]
+    # Non-quarter keys keep literal-substring semantics exactly.
+    year_context = {"anchors": {"2024": 88.2}}
+    miss = {"historicalContext": [{"label": "FY24 print", "value": 88.2}]}
+    errors = analyst_runner.history_anchor_errors(miss, year_context)
+    assert errors and "no historicalContext entry mentions" in errors[0]

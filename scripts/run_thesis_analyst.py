@@ -2829,6 +2829,34 @@ def history_anchor_errors(
         return []
     history = cell.get("historicalContext") or []
     errors = []
+
+    quarter_key = re.compile(r"^(\d{4})[-_ ]?[Qq]([1-4])$|^[Qq]([1-4])[-_ ]?(\d{4})$")
+    quarter_in_label = re.compile(r"(\d{4})[-_ ]?[Qq]([1-4])|[Qq]([1-4])[-_ ]?(\d{4})")
+
+    def canonical_quarters(match_iter) -> set[str]:
+        tokens = set()
+        for m in match_iter:
+            year = m.group(1) or m.group(4)
+            quarter = m.group(2) or m.group(3)
+            tokens.add(f"{year}q{quarter}")
+        return tokens
+
+    def mentions(key: str, label: str) -> bool:
+        # Literal substring is the contract for every key shape. A key
+        # that IS a quarter token additionally matches the same quarter
+        # written another standard way ("2026-Q1" vs BEA's "2026 Q1"):
+        # the 2026-08-12 BEA ITA run fetched the byte-exact official
+        # value and was refused purely on hyphen-versus-space. The
+        # normalization never crosses quarters or years, and the value
+        # check below still enforces the official number.
+        if key in label:
+            return True
+        key_match = quarter_key.fullmatch(key.strip())
+        if key_match is None:
+            return False
+        key_token = canonical_quarters([key_match])
+        return bool(key_token & canonical_quarters(quarter_in_label.finditer(label)))
+
     for key, expected_raw in anchors.items():
         try:
             expected = float(expected_raw)
@@ -2839,7 +2867,8 @@ def history_anchor_errors(
         mentioned = [
             entry
             for entry in history
-            if isinstance(entry, dict) and str(key) in str(entry.get("label", ""))
+            if isinstance(entry, dict)
+            and mentions(str(key), str(entry.get("label", "")))
         ]
         if not mentioned:
             errors.append(

@@ -144,7 +144,7 @@ export const BILL_CONTEXT_SERIES_LINKS: BillContextSeriesLink[] = [
       "H.R. 978.",
   },
   {
-    billSlug: "stress-119hr5595ih",
+    billSlug: "remit-act-hr5595-119",
     seriesConcept: "bea.ita.personal_transfer_payments",
     label: "Personal-transfer payments, seasonally adjusted (2026 Q2)",
     scopeNote:

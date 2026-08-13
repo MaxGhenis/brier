@@ -138,6 +138,33 @@ describe("bill context-series links", () => {
       "usaspending.cdfi.assistance_transaction_obligations",
     );
     expect(getBillContextSeriesLinks("no-such-bill")).toHaveLength(0);
-    expect(getBillContextSeriesLinks("stress-119hr5595ih")).toHaveLength(1);
+    expect(getBillContextSeriesLinks("remit-act-hr5595-119")).toHaveLength(1);
+    expect(getBillContextSeriesLinks("stress-119hr5595ih")).toHaveLength(0);
+  });
+});
+
+import { loadBills } from "@/data/bills";
+import {
+  BILL_FORECAST_LINKS,
+  PENDING_CONDITIONALS,
+} from "@/data/bill-forecasts";
+
+describe("bill link integrity", () => {
+  // The 8/12 BEA ITA link pointed at the stress-corpus slug
+  // (stress-119hr5595ih) instead of the live page slug, so the REMIT
+  // card rendered nowhere. Every link surface must name a real bill.
+  const known = new Set(loadBills().map((bill) => bill.slug));
+  it("every context-series link names a live bill page", () => {
+    for (const link of BILL_CONTEXT_SERIES_LINKS) {
+      expect(known.has(link.billSlug), link.billSlug).toBe(true);
+    }
+  });
+  it("every forecast link and pending conditional names a live bill page", () => {
+    for (const link of BILL_FORECAST_LINKS) {
+      expect(known.has(link.billSlug), link.billSlug).toBe(true);
+    }
+    for (const pending of PENDING_CONDITIONALS) {
+      expect(known.has(pending.billSlug), pending.billSlug).toBe(true);
+    }
   });
 });
