@@ -2224,15 +2224,55 @@ for _spec in BLS_API_ADAPTERS.values():
             "latest month."
         )
 
-# QCEW open-data preparation. The parser and fetch path are deliberately
-# fail-closed until the mandatory three live-source anchors can be reproduced
-# and recorded in docs/anchor-verifications.md. The current execution
-# environment cannot reach
-# data.bls.gov, and a repository forecast is not an acceptable substitute for
-# an official observation. Changing ``anchor_status`` without adding at least
-# three anchors still fails the runtime gate.
+# QCEW open-data preparation. Every admitted slice carries at least three
+# values reproduced from the live official endpoint and recorded in
+# docs/anchor-verifications.md. Resolution re-fetches those same slices and
+# refuses on drift before trusting the target response; a repository fixture
+# or forecast is never an observation.
 QCEW_API_URL = (
-    "https://data.bls.gov/cew/data/api/{year}/{quarter}/industry/{industry}.csv"
+    "https://data.bls.gov/cew/data/api/{year}/{api_period}/industry/{industry}.csv"
+)
+# Exact ordered annual-average layout published by BLS:
+# https://www.bls.gov/cew/additional-resources/open-data/csv-data-slices.htm
+QCEW_ANNUAL_CSV_FIELDS = (
+    "area_fips",
+    "own_code",
+    "industry_code",
+    "agglvl_code",
+    "size_code",
+    "year",
+    "qtr",
+    "disclosure_code",
+    "annual_avg_estabs",
+    "annual_avg_emplvl",
+    "total_annual_wages",
+    "taxable_annual_wages",
+    "annual_contributions",
+    "annual_avg_wkly_wage",
+    "avg_annual_pay",
+    "lq_disclosure_code",
+    "lq_annual_avg_estabs",
+    "lq_annual_avg_emplvl",
+    "lq_total_annual_wages",
+    "lq_taxable_annual_wages",
+    "lq_annual_contributions",
+    "lq_annual_avg_wkly_wage",
+    "lq_avg_annual_pay",
+    "oty_disclosure_code",
+    "oty_annual_avg_estabs_chg",
+    "oty_annual_avg_estabs_pct_chg",
+    "oty_annual_avg_emplvl_chg",
+    "oty_annual_avg_emplvl_pct_chg",
+    "oty_total_annual_wages_chg",
+    "oty_total_annual_wages_pct_chg",
+    "oty_taxable_annual_wages_chg",
+    "oty_taxable_annual_wages_pct_chg",
+    "oty_annual_contributions_chg",
+    "oty_annual_contributions_pct_chg",
+    "oty_annual_avg_wkly_wage_chg",
+    "oty_annual_avg_wkly_wage_pct_chg",
+    "oty_avg_annual_pay_chg",
+    "oty_avg_annual_pay_pct_chg",
 )
 QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
     "bls.qcew.aircraft_manufacturing.establishments": {
@@ -2242,6 +2282,7 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
         # every anchor before trusting the adapter.
         "anchor_status": "VERIFIED",
         "anchors": {"2024-07": 1314, "2024-10": 1332, "2025-01": 1379},
+        "period_type": "quarter",
         "area_fips": "US000",
         "own_code": "5",
         "industry_code": "336411",
@@ -2256,14 +2297,72 @@ QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
             "QCEW NAICS-based quarterly industry CSV, private ownership, "
             "NAICS 336411 Aircraft manufacturing"
         ),
+        # One already-published registration predates the named bls-qcew
+        # adapter. Preserve only its exact immutable generic-url contract;
+        # no other generic registration may enter this family.
+        "legacy_binding_adapter": "generic-url",
+        "legacy_source_table": (
+            "QCEW NAICS-Based Quarterly CSV Files, 2026 quarterly by industry, "
+            "private ownership, NAICS 336411 Aircraft manufacturing"
+        ),
         "concept_authority": "bls",
         "source_concept": (
             "area_fips=US000;own_code=5;industry_code=336411;"
             "size_code=0;field=qtrly_estabs"
         ),
-        # Keep the registered www.bls.gov source page on the fact. The exact
-        # fetched data.bls.gov response is separately hash-bound and archived.
+        # Keep the reviewed www.bls.gov landing page in the registration
+        # binding and legacy fact URL. source_file and the response archive
+        # bind the exact fetched data.bls.gov endpoint and bytes.
         "source_page": "https://www.bls.gov/cew/downloadable-data-files.htm",
+    },
+    "bls.qcew.child_day_care_services.annual_avg_employment": {
+        # Live-fetched from the official annual industry slices on
+        # 2026-08-12 UTC. The runtime gate re-fetches all three values before
+        # trusting a target print; see docs/anchor-verifications.md.
+        "anchor_status": "VERIFIED",
+        "anchors": {"2023": 954796, "2024": 983412, "2025": 991735},
+        "period_type": "year",
+        "area_fips": "US000",
+        "own_code": "5",
+        "industry_code": "624410",
+        "agglvl_code": "18",
+        "size_code": "0",
+        "field": "annual_avg_emplvl",
+        "unit": "count",
+        "label": "US private child day care services annual-average employment",
+        "measure_concept": ("bls.qcew.child_day_care_services.annual_avg_employment"),
+        "source_name": "bls_qcew",
+        "source_table": (
+            "QCEW NAICS-based annual averages industry CSV, U.S. total, "
+            "private ownership, NAICS 624410 Child care services"
+        ),
+        "concept_authority": "bls",
+        "source_concept": (
+            "area_fips=US000;own_code=5;industry_code=624410;"
+            "agglvl_code=18;size_code=0;qtr=A;field=annual_avg_emplvl"
+        ),
+        "source_series_id_includes_agglvl": True,
+        # This identifies the recurring annual slice. The target contract's
+        # period and exact fetched URL bind the year, so future dated rolls do
+        # not inherit a stale year literal from the docket template.
+        "source_series_id_includes_period": False,
+        "source_page": "https://www.bls.gov/cew/downloadable-data-files.htm",
+        "release_calendar_url": "https://www.bls.gov/cew/release-calendar.htm",
+        "evidence_notes": (
+            "First BLS QCEW preliminary annual-average employment print for "
+            "{period}, captured from {source_url} on the exact Q4 full-data "
+            "release day authenticated by the official QCEW calendar. The "
+            "selector is U.S. total, private ownership, NAICS 624410, and "
+            "field annual_avg_emplvl; later revisions are excluded."
+        ),
+        "filters": {
+            "area_fips": "US000",
+            "own_code": "5",
+            "industry_code": "624410",
+            "agglvl_code": "18",
+            "size_code": "0",
+            "qtr": "A",
+        },
     },
 }
 
@@ -3933,9 +4032,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
     "usaspending.cdfi.assistance_transaction_obligations": {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
-        "series_id": (
-            "usaspending.search.spending_over_time.cdfi.program_obligations"
-        ),
+        "series_id": ("usaspending.search.spending_over_time.cdfi.program_obligations"),
         "label": (
             "CDFI Fund financial-assistance award-transaction obligations, "
             "fiscal year total"
@@ -4059,8 +4156,7 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
         "field": ("results[time_period.fiscal_year={fiscal_year}].aggregated_amount"),
         "series_id": (
-            "usaspending.search.spending_over_time.ntia."
-            "broadband_program_obligations"
+            "usaspending.search.spending_over_time.ntia.broadband_program_obligations"
         ),
         "label": (
             "Assistance Listing 11.038 Public Wireless Supply Chain Innovation "
@@ -6515,7 +6611,7 @@ def generic_fact(
             ).format(period=period, source_url=source_url),
         },
         "aggregation": {"method": "level"},
-        "filters": {},
+        "filters": copy.deepcopy(spec.get("filters", {})),
         "source": {
             "source_name": spec["source_name"],
             "source_table": spec["source_table"],
@@ -8464,57 +8560,97 @@ def irs_soi_pub1304_anchor_mismatches(
     return problems
 
 
+def qcew_period_parts(spec: Mapping[str, Any], period: str) -> tuple[str, str, str]:
+    """Return ``(year, qtr, API path token)`` for one admitted QCEW variant."""
+
+    period_type = spec.get("period_type")
+    if period_type == "quarter":
+        if not re.fullmatch(r"\d{4}-(01|04|07|10)", period):
+            raise ValueError(f"QCEW period must be a quarter start, got {period!r}")
+        quarter = str((int(period[5:7]) - 1) // 3 + 1)
+        return period[:4], quarter, quarter
+    if period_type == "year":
+        if not re.fullmatch(r"\d{4}", period):
+            raise ValueError(f"annual QCEW period must be YYYY, got {period!r}")
+        return period, "A", "a"
+    raise ValueError(f"unsupported QCEW period type {period_type!r}")
+
+
 def qcew_api_url(spec: dict[str, Any], period: str) -> str:
-    """Official QCEW industry-slice URL for canonical quarter ``YYYY-MM``."""
-    if not re.fullmatch(r"\d{4}-(01|04|07|10)", period):
-        raise ValueError(f"QCEW period must be a quarter start, got {period!r}")
-    quarter = (int(period[5:7]) - 1) // 3 + 1
+    """Official quarterly or annual QCEW industry-slice URL."""
+    year, _qtr, api_period = qcew_period_parts(spec, period)
     return QCEW_API_URL.format(
-        year=period[:4],
-        quarter=quarter,
+        year=year,
+        api_period=api_period,
         industry=spec["industry_code"],
     )
 
 
 def qcew_source_series_id(spec: dict[str, Any], period: str) -> str:
-    quarter = (int(period[5:7]) - 1) // 3 + 1
-    return (
-        f"area_fips={spec['area_fips']};own_code={spec['own_code']};"
-        f"industry_code={spec['industry_code']};size_code={spec['size_code']};"
-        f"year={period[:4]};qtr={quarter}"
-    )
+    year, qtr, _api_period = qcew_period_parts(spec, period)
+    parts = [
+        f"area_fips={spec['area_fips']}",
+        f"own_code={spec['own_code']}",
+        f"industry_code={spec['industry_code']}",
+    ]
+    if spec.get("source_series_id_includes_agglvl"):
+        parts.append(f"agglvl_code={spec['agglvl_code']}")
+    parts.append(f"size_code={spec['size_code']}")
+    if spec.get("source_series_id_includes_period", True):
+        parts.append(f"year={year}")
+    parts.append(f"qtr={qtr}")
+    return ";".join(parts)
 
 
 def qcew_value_from_csv(
     raw: bytes, spec: dict[str, Any], period: str
 ) -> tuple[float | None, str | None]:
     """Extract one disclosed, exact QCEW row; ambiguous input fails closed."""
-    quarter = str((int(period[5:7]) - 1) // 3 + 1)
+    year, qtr, _api_period = qcew_period_parts(spec, period)
     expected = {
         "area_fips": spec["area_fips"],
         "own_code": spec["own_code"],
         "industry_code": spec["industry_code"],
         "agglvl_code": spec["agglvl_code"],
         "size_code": spec["size_code"],
-        "year": period[:4],
-        "qtr": quarter,
+        "year": year,
+        "qtr": qtr,
     }
+    if not raw.endswith(b"\n"):
+        return None, "QCEW CSV response is truncated (missing terminal newline)"
     try:
         text = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
         return None, "response is not UTF-8 CSV"
-    reader = csv.DictReader(io.StringIO(text))
-    required = {*expected, "disclosure_code", spec["field"]}
-    if reader.fieldnames is None or not required.issubset(
-        {name.strip() for name in reader.fieldnames}
-    ):
-        return None, "QCEW CSV is missing required columns"
+    try:
+        rows = list(csv.reader(io.StringIO(text, newline="")))
+    except csv.Error as exc:
+        return None, f"QCEW CSV is malformed ({exc})"
+    if not rows:
+        return None, "QCEW CSV is empty"
+    parsed_fieldnames = rows[0]
+    fieldnames = [name.strip() for name in parsed_fieldnames]
+    if not fieldnames or any(not name for name in fieldnames):
+        return None, "QCEW CSV has an empty column name"
+    if len(fieldnames) != len(set(fieldnames)):
+        return None, "QCEW CSV has duplicate column names"
+    if spec.get("period_type") == "year":
+        if parsed_fieldnames != list(QCEW_ANNUAL_CSV_FIELDS):
+            return None, (
+                "QCEW CSV does not match the official ordered 38-column annual layout"
+            )
+    else:
+        required = {*expected, "disclosure_code", spec["field"]}
+        if not required.issubset(set(fieldnames)):
+            return None, "QCEW CSV is missing required columns"
     matches: list[dict[str, str]] = []
-    for source_row in reader:
-        row = {
-            str(key).strip(): str(value or "").strip()
-            for key, value in source_row.items()
-        }
+    for line_number, values in enumerate(rows[1:], start=2):
+        if len(values) != len(fieldnames):
+            return None, (
+                f"QCEW CSV row {line_number} has {len(values)} fields; "
+                f"expected {len(fieldnames)} (truncated or malformed response)"
+            )
+        row = {key: str(value).strip() for key, value in zip(fieldnames, values)}
         if all(row.get(key) == value for key, value in expected.items()):
             matches.append(row)
     if len(matches) != 1:
@@ -8552,15 +8688,200 @@ def qcew_anchor_mismatches(
 
 def qcew_adapter_verified(spec: dict[str, Any]) -> bool:
     """Whether the adapter has passed the mandatory live-anchor gate."""
-    return (
-        spec.get("anchor_status") == "VERIFIED" and len(spec.get("anchors") or {}) >= 3
+    anchors = spec.get("anchors")
+    if spec.get("anchor_status") != "VERIFIED" or not isinstance(anchors, dict):
+        return False
+    pattern = r"\d{4}" if spec.get("period_type") == "year" else r"\d{4}-(01|04|07|10)"
+    return len(anchors) >= 3 and all(
+        isinstance(period, str)
+        and re.fullmatch(pattern, period)
+        and not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and math.isfinite(float(value))
+        and float(value).is_integer()
+        and float(value) >= 0
+        for period, value in anchors.items()
     )
+
+
+def qcew_cache_key(spec: dict[str, Any], period: str) -> tuple[str, str, str]:
+    """Cache by full slice identity, not only NAICS and period."""
+
+    return (
+        qcew_api_url(spec, period),
+        qcew_source_series_id(spec, period),
+        str(spec["field"]),
+    )
+
+
+def qcew_binding_matches_spec(
+    binding: Mapping[str, Any],
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+) -> bool:
+    """Authenticate every QCEW registration field against trusted code."""
+
+    adapter = binding.get("adapter")
+    legacy = qcew_is_legacy_binding(binding, spec)
+    if adapter != "bls-qcew" and not legacy:
+        return False
+    expected_keys = {
+        "adapter",
+        "sourceUrl",
+        "sourceSeriesId",
+        "field",
+        "table",
+        "transform",
+        "releasePolicy",
+        "expectedReleaseWindow",
+        "allowedHosts",
+    }
+    if set(binding) != expected_keys:
+        return False
+    api_host = urlparse(qcew_api_url(dict(spec), period)).hostname
+    page_host = urlparse(str(spec["source_page"])).hostname
+    expected_hosts = [page_host] if legacy else sorted({api_host, page_host})
+    expected_table = (
+        spec.get("legacy_source_table") if legacy else spec.get("source_table")
+    )
+    expected_window = {
+        "start": release_day.isoformat(),
+        "end": release_day.isoformat(),
+    }
+    return (
+        binding.get("sourceUrl") == spec.get("source_page")
+        and binding.get("sourceSeriesId") == qcew_source_series_id(dict(spec), period)
+        and binding.get("field") == spec.get("field")
+        and binding.get("table") == expected_table
+        and binding.get("transform") == {"operation": "identity", "factor": 1}
+        and binding.get("releasePolicy") == "first_print"
+        and binding.get("expectedReleaseWindow") == expected_window
+        and binding.get("allowedHosts") == expected_hosts
+    )
+
+
+def qcew_is_legacy_binding(binding: Mapping[str, Any], spec: Mapping[str, Any]) -> bool:
+    """Recognize only an explicitly declared, nonempty legacy adapter."""
+
+    legacy_adapter = spec.get("legacy_binding_adapter")
+    return (
+        isinstance(legacy_adapter, str)
+        and bool(legacy_adapter)
+        and binding.get("adapter") == legacy_adapter
+    )
+
+
+def qcew_calendar_authority_matches_spec(
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+    docket_entries: list[Mapping[str, Any]] | None = None,
+) -> bool:
+    """Bind dated QCEW targets to the one trusted BLS calendar authority."""
+
+    expected_calendar = spec.get("release_calendar_url")
+    if expected_calendar is None:
+        # The immutable legacy aircraft registration predates the recurring
+        # docket and keeps its original one-day window unchanged.
+        return True
+    if not isinstance(expected_calendar, str) or not expected_calendar:
+        return False
+    if docket_entries is None:
+        try:
+            payload = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+        except (OSError, json.JSONDecodeError):
+            return False
+        loaded_entries = payload.get("series") if isinstance(payload, dict) else None
+        if not isinstance(loaded_entries, list):
+            return False
+        docket_entries = loaded_entries
+    matches = [
+        entry
+        for entry in docket_entries
+        if entry.get("series") == spec.get("measure_concept")
+    ]
+    if len(matches) != 1:
+        return False
+    entry = matches[0]
+    release_dates = entry.get("releaseDates")
+    return (
+        entry.get("releaseCalendarUrl") == expected_calendar
+        and isinstance(release_dates, Mapping)
+        and release_dates.get(period) == release_day.isoformat()
+    )
+
+
+def qcew_registration_matches_spec(
+    binding: Mapping[str, Any],
+    spec: Mapping[str, Any],
+    period: str,
+    release_day: dt.date,
+    docket_entries: list[Mapping[str, Any]] | None = None,
+) -> bool:
+    """Authenticate both the QCEW source binding and calendar authority."""
+
+    return qcew_binding_matches_spec(binding, spec, period, release_day) and (
+        qcew_calendar_authority_matches_spec(
+            spec,
+            period,
+            release_day,
+            docket_entries,
+        )
+    )
+
+
+def qcew_fact_source_url(
+    binding: Mapping[str, Any], spec: Mapping[str, Any], fetched_url: str
+) -> str:
+    """Preserve the legacy landing-page fact URL; expose new CSV fetches."""
+
+    if qcew_is_legacy_binding(binding, spec):
+        return str(binding["sourceUrl"])
+    return fetched_url
+
+
+def qcew_resolution_fact(
+    ref: str,
+    spec: dict[str, Any],
+    period_type: str,
+    period: str,
+    value: float,
+    release_day: dt.date,
+    binding: Mapping[str, Any],
+    fetched_url: str,
+) -> tuple[dict[str, Any], str]:
+    """Build the production QCEW fact and its stable archive series id."""
+
+    row = generic_fact(
+        ref,
+        spec,
+        period_type,
+        period,
+        value,
+        release_day,
+        qcew_fact_source_url(binding, spec, fetched_url),
+        fetched_url,
+    )
+    if qcew_is_legacy_binding(binding, spec):
+        # Preserve the exact pre-generalization aircraft archive identity.
+        series_id = (
+            f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
+            f"{spec['industry_code']}-{spec['size_code']}"
+        )
+    else:
+        series_id = (
+            f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
+            f"{spec['industry_code']}-{spec['agglvl_code']}-"
+            f"{spec['size_code']}-{spec['field']}"
+        )
+    return row, series_id
 
 
 def qcew_fetch_period(
     spec: dict[str, Any], period: str
 ) -> tuple[float | None, bytes | None, str, str, str | None]:
-    """Fetch and parse one official QCEW quarterly industry slice."""
+    """Fetch and parse one official QCEW quarterly or annual industry slice."""
     url = qcew_api_url(spec, period)
     retrieved_at = utc_now()
     request = urllib.request.Request(
@@ -8573,10 +8894,63 @@ def qcew_fetch_period(
     try:
         with urllib.request.urlopen(request, timeout=120) as response:
             raw = response.read()
-    except (urllib.error.HTTPError, urllib.error.URLError):
+            final_url = response.geturl()
+            content_type = response.headers.get_content_type()
+            declared_length = response.headers.get("Content-Length")
+            # Timestamp the completed read. Stable QCEW URLs are mutable, so
+            # request start is not sufficient first-print custody.
+            retrieved_at = utc_now()
+    except (http.client.IncompleteRead, urllib.error.HTTPError, urllib.error.URLError):
         return None, None, url, retrieved_at, None
+    if final_url != url:
+        return None, raw, url, retrieved_at, "QCEW fetch redirected off exact URL"
+    if content_type != "text/csv":
+        return (
+            None,
+            raw,
+            url,
+            retrieved_at,
+            (f"QCEW response has unexpected content type {content_type!r}"),
+        )
+    if declared_length is not None:
+        try:
+            expected_length = int(declared_length)
+        except ValueError:
+            return None, raw, url, retrieved_at, "QCEW Content-Length is malformed"
+        if expected_length != len(raw):
+            return (
+                None,
+                raw,
+                url,
+                retrieved_at,
+                (
+                    f"QCEW response length {len(raw)} differs from Content-Length "
+                    f"{expected_length}"
+                ),
+            )
     value, refusal = qcew_value_from_csv(raw, spec, period)
     return value, raw, url, retrieved_at, refusal
+
+
+def qcew_postfetch_window_refusal(
+    retrieved_at: str,
+    release_day: dt.date,
+    decision_at: str | None = None,
+) -> str | None:
+    """Refuse a mutable QCEW response completed after its one-day window."""
+
+    try:
+        fetched_day = dt.date.fromisoformat(retrieved_at[:10])
+        decision_day = dt.date.fromisoformat((decision_at or utc_now())[:10])
+    except ValueError:
+        return "QCEW retrieval timestamp is malformed"
+    effective_day = max(fetched_day, decision_day)
+    if effective_day > release_day:
+        return (
+            f"QCEW response completed on {effective_day}, after registered "
+            f"release day {release_day}"
+        )
+    return None
 
 
 def claims_fact(
@@ -8890,12 +9264,13 @@ def pending_adapter_refs(
         )
         if qcew_stem:
             parsed = parse_ref_period(ref, qcew_stem)
-            if parsed and parsed[0] == "quarter":
+            spec = QCEW_ADAPTERS[qcew_stem]
+            if parsed and parsed[0] == spec["period_type"]:
                 out.append(
                     (
                         ref,
                         "qcew",
-                        QCEW_ADAPTERS[qcew_stem],
+                        spec,
                         parsed[0],
                         parsed[1],
                         release_date,
@@ -10272,8 +10647,12 @@ def attach_resolution_provenance(
     target_contracts: dict[str, dict[str, Any]],
     extension: str = "csv",
 ) -> dict[str, Any]:
-    # Archive first so the assertion version can bind the response digest;
-    # computing it before archiving would leave the bytes out of identity.
+    registration = target_contracts.get(str(row["source_record_id"]))
+    projection = None
+    if registration:
+        # Projection is a refusal gate. Run it before writing any response so
+        # a rejected row cannot leave an orphan archive in a mixed run.
+        projection = source_binding_projection(registration, row, raw)
     response_archive = archive_response(
         run_dir,
         series_id=series_id,
@@ -10289,12 +10668,9 @@ def attach_resolution_provenance(
         "responseArchive": response_archive,
     }
     output["assertionVersion"] = assertion_version(output)
-    registration = target_contracts.get(str(row["source_record_id"]))
     if registration:
         output["targetContentHash"] = registration["targetContentHash"]
-        output["sourceBindingProjection"] = source_binding_projection(
-            registration, row, raw
-        )
+        output["sourceBindingProjection"] = projection
     return output
 
 
@@ -10502,7 +10878,7 @@ def main() -> int:
     # loudly instead of deferring forever behind green exits.
     environment_failures: list[str] = []
     qcew_cache: dict[
-        tuple[str, str],
+        tuple[str, str, str],
         tuple[float | None, bytes | None, str, str, str | None],
     ] = {}
     qcew_contracts: dict[str, dict[str, Any]] | None = None
@@ -10522,6 +10898,7 @@ def main() -> int:
     sba_timeline_loaded = False
     loop_contracts = registration_contracts()
     for ref, kind, spec, period_type, period, source_vintage, forecast in adapter_todo:
+        qcew_row: dict[str, Any] | None = None
         if ref in existing_ids:
             print(f"  already recorded: {ref}")
             continue
@@ -10551,6 +10928,12 @@ def main() -> int:
             )
             continue
         mismatched = binding_adapter_mismatch(kind, loop_contracts.get(ref))
+        if kind == "qcew" and mismatched == spec.get("legacy_binding_adapter"):
+            legacy_binding = ((registration or {}).get("contract") or {}).get(
+                "sourceBinding"
+            ) or {}
+            if qcew_binding_matches_spec(legacy_binding, spec, period, release_day):
+                mismatched = None
         if mismatched:
             print(
                 f"  BINDING/ADAPTER MISMATCH (skipping, registered "
@@ -11220,28 +11603,13 @@ def main() -> int:
             registration = qcew_contracts.get(ref) or {}
             contract = registration.get("contract") or {}
             binding = contract.get("sourceBinding") or {}
-            expected_series_id = qcew_source_series_id(spec, period)
-            expected_window = {
-                "start": release_day.isoformat(),
-                "end": release_day.isoformat(),
-            }
-            source_host = urlparse(spec["source_page"]).hostname
-            if (
-                binding.get("adapter") != "generic-url"
-                or binding.get("sourceUrl") != spec["source_page"]
-                or binding.get("field") != spec["field"]
-                or binding.get("sourceSeriesId") != expected_series_id
-                or binding.get("releasePolicy") != "first_print"
-                or binding.get("expectedReleaseWindow") != expected_window
-                or source_host not in (binding.get("allowedHosts") or [])
-                or binding.get("transform") != {"operation": "identity", "factor": 1}
-            ):
+            if not qcew_registration_matches_spec(binding, spec, period, release_day):
                 print(f"  BINDING/ADAPTER MISMATCH (refusing, registry drift?): {ref}")
                 continue
             anchor_values: dict[str, float | None] = {}
             anchor_fetch_failed = False
             for anchor_period in spec["anchors"]:
-                cache_key = (spec["industry_code"], anchor_period)
+                cache_key = qcew_cache_key(spec, anchor_period)
                 if cache_key not in qcew_cache:
                     qcew_cache[cache_key] = qcew_fetch_period(spec, anchor_period)
                 anchor_value, anchor_raw, _, _, anchor_refusal = qcew_cache[cache_key]
@@ -11258,20 +11626,29 @@ def main() -> int:
                     + "; ".join(mismatches)
                 )
                 continue
-            cache_key = (spec["industry_code"], period)
+            cache_key = qcew_cache_key(spec, period)
             if cache_key not in qcew_cache:
                 qcew_cache[cache_key] = qcew_fetch_period(spec, period)
             value, raw, fetched_url, retrieved_at, refusal = qcew_cache[cache_key]
             if refusal:
                 print(f"  QCEW PARSE REFUSAL (refusing): {ref} — {refusal}")
                 continue
-            source_url = spec["source_page"]
-            source_file = fetched_url
-            series_id = (
-                f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
-                f"{spec['industry_code']}-{spec['size_code']}"
+            window_refusal = qcew_postfetch_window_refusal(retrieved_at, release_day)
+            if window_refusal:
+                print(
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — {window_refusal}"
+                )
+                continue
+            qcew_row, series_id = qcew_resolution_fact(
+                ref,
+                spec,
+                period_type,
+                period,
+                value,
+                release_day,
+                binding,
+                fetched_url,
             )
-            release_day = dt.date.fromisoformat(retrieved_at[:10])
             extension = "csv"
         elif kind == "cms_provider_data":
             metastore_key = spec["metastore_url"]
@@ -11594,6 +11971,9 @@ def main() -> int:
         if kind == "sba_pdf":
             assert sba_resolution is not None
             row = sba_pdf_fact(ref, spec, period, sba_resolution)
+        elif kind == "qcew":
+            assert qcew_row is not None
+            row = qcew_row
         else:
             row = generic_fact(
                 ref,

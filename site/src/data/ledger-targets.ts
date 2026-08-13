@@ -14,6 +14,7 @@ export type TargetSourceAdapter =
   | "alfred-fred"
   | "bea-ita-itable"
   | "bea-release"
+  | "bls-qcew"
   | "census-spm-annual-report"
   | "eurostat-api"
   | "fsa-crp-monthly-summary"

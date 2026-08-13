@@ -57,6 +57,7 @@ SOURCE_ADAPTERS = {
     "alfred-fred",
     "bea-ita-itable",
     "bea-release",
+    "bls-qcew",
     "census-spm-annual-report",
     "eurostat-api",
     "fsa-crp-monthly-summary",
@@ -73,6 +74,7 @@ SOURCE_ADAPTERS = {
 SOURCE_ADAPTER_ALLOWED_HOSTS = {
     "bea-ita-itable": {"apps.bea.gov", "www.bea.gov"},
     "bea-release": {"apps.bea.gov", "www.bea.gov"},
+    "bls-qcew": {"data.bls.gov", "www.bls.gov"},
     "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
     "sba-loan-program-performance-pdf": {"legacy.sba.gov", "www.sba.gov"},
 }
@@ -87,6 +89,7 @@ CALENDAR_GATED_SOURCE_ADAPTERS = NATIVE_INTL_SOURCE_ADAPTERS | {
     "alfred-fred",
     "bea-ita-itable",
     "bea-release",
+    "bls-qcew",
 }
 RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
 RESOLUTION_DATE_BASES = {"release-calendar", "resolve-by-bound"}
