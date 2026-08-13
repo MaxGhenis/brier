@@ -95,7 +95,11 @@ def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     ]:
         if f.resolve() == out_ts.resolve():
             continue  # rerunning over our own previous output is not a collision
-        slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text()))
+        # Both key forms: hand-formatted files use `slug:`, this script's
+        # own json.dumps output uses `"slug":`. Escaped JSON inside trace
+        # strings (\"slug\") cannot match — the backslash breaks the
+        # pattern — so only real object keys count.
+        slugs |= set(re.findall(r'"?slug"?:\s*"([^"]+)"', f.read_text()))
     return slugs
 
 

@@ -51,6 +51,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import register_targets  # noqa: E402
+import spawned_cells_to_ts  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -256,12 +257,32 @@ def rebuild_target_from_snapshot(row_target: dict, *, label: str) -> dict:
     return rebuilt
 
 
+def published_catalog_slugs(repo_root: pathlib.Path) -> frozenset[str]:
+    """Every catalog slug already published on this checkout.
+
+    The batch manifest freezes outcomes at the original roll; a later
+    retry may have published some of its failed targets, and the publish
+    leg refuses a regenerated duplicate of a published cell (run
+    31728802794). The selector therefore reads CURRENT publication
+    state — through the same scanner the publish leg's collision guard
+    uses, so the two views cannot diverge — never recorded history.
+    """
+
+    site_data = repo_root / "site" / "src" / "data"
+    return frozenset(
+        spawned_cells_to_ts.existing_slugs(
+            site_data, site_data / "__retry_selector_no_output__.ts"
+        )
+    )
+
+
 def select_retry_targets(
     manifest: dict,
     *,
     slugs: list[str] | None,
     allow_succeeded: bool,
     now_utc: dt.datetime,
+    published: frozenset[str],
 ) -> list[dict]:
     results = manifest["results"]
     by_slug: dict[str, dict] = {}
@@ -277,11 +298,20 @@ def select_retry_targets(
         by_slug[slug] = result
 
     if slugs is None:
-        chosen = [slug for slug, row in by_slug.items() if not row.get("ok")]
+        chosen = []
+        for slug, row in by_slug.items():
+            if row.get("ok"):
+                continue
+            if slug in published:
+                # A later retry already published this target; never
+                # re-emit a published slug (roll seed invariant).
+                print(f"  skip {slug}: already published")
+                continue
+            chosen.append(slug)
         if not chosen:
             raise RetrySelectionError(
-                "no failed targets in this batch; pass --slugs to retry "
-                "specific targets"
+                "no unpublished failed targets remain in this batch; pass "
+                "--slugs to retry specific targets"
             )
     else:
         chosen = []
@@ -294,6 +324,11 @@ def select_retry_targets(
                 raise RetrySelectionError(
                     f"slug {slug!r} succeeded in the recorded run; pass "
                     "--allow-succeeded to rerun it anyway"
+                )
+            if slug in published:
+                raise RetrySelectionError(
+                    f"slug {slug!r} is already published; a published "
+                    "target is never re-emitted"
                 )
             chosen.append(slug)
 
@@ -323,9 +358,10 @@ def select_retry_targets(
     # Pair atomicity (roll_docket F10): a conditional pair's unpublished
     # arms are one unit — publishing one arm ahead of a sibling that also
     # remains unpublished would hand the later arm extra information.
-    # Retrying a lone failed arm is valid only when every sibling in the
-    # recorded batch succeeded (published); otherwise the retry must
-    # carry the whole failed set together. Arm-ness of BOTH sides comes
+    # Retrying a lone failed arm is valid only when every failed sibling
+    # is either selected alongside it or already published (by the
+    # original run or a later retry); otherwise the retry must carry the
+    # whole unpublished failed set together. Arm-ness of BOTH sides comes
     # from verified registration snapshots — manifest rows contribute
     # only membership and recorded outcomes, so omitting fields from a
     # sibling row cannot hide the pair.
@@ -348,7 +384,11 @@ def select_retry_targets(
                     or sibling_contract.get("period") != rebuilt.get("period")
                 ):
                     continue
-                if not sibling_result.get("ok") and sibling not in rebuilt_by_slug:
+                if (
+                    not sibling_result.get("ok")
+                    and sibling not in rebuilt_by_slug
+                    and sibling not in published
+                ):
                     raise RetrySelectionError(
                         f"target {slug} is a conditional arm whose sibling "
                         f"{sibling} also failed and is not selected; "
@@ -388,6 +428,7 @@ def main() -> int:
             slugs=slugs,
             allow_succeeded=args.allow_succeeded,
             now_utc=now,
+            published=published_catalog_slugs(ROOT),
         )
     except RetrySelectionError as exc:
         print(f"retry selection failed: {exc}", file=sys.stderr)
