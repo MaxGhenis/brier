@@ -912,3 +912,34 @@ def test_judge_loader_screens_review_end_to_end(tmp_path: pathlib.Path) -> None:
     )
     with pytest.raises(ValueError, match="summary must be a string"):
         judge.load_batch_runs([batch_path], max_runs=5)
+
+
+def test_existing_slugs_sees_both_key_forms_and_rejects_lookalikes(
+    tmp_path: pathlib.Path,
+) -> None:
+    # This script's own json.dumps output writes quoted keys; the scan
+    # was blind to every auto-*.ts it generated until 2026-08-13 (PR
+    # #181 review). It must see both forms, ignore suffix keys and
+    # escaped JSON inside trace strings, and it remains a HEURISTIC:
+    # dynamically constructed slugs are invisible, so publication
+    # decisions use the evaluated catalog, never this scan.
+    site_data = tmp_path
+    (site_data / "forecast-examples").mkdir()
+    # A commented-out literal still counts: the scan reads source text,
+    # and over-matching only makes the collision guard more conservative.
+    (site_data / "forecast-examples" / "a.ts").write_text(
+        'export const A = [{ slug: "bare-one" }];\n'
+        '// slug: "commented-four"\n'
+    )
+    (site_data / "forecast-examples" / "auto-b.ts").write_text(
+        '[{ "slug": "quoted-two",'
+        ' "trace": "{\\"slug\\": \\"escaped-never\\"}",'
+        ' "myslug": "suffix-never", relatedSlug: "camel-never" }]\n'
+    )
+    (site_data / "forecast-cells.ts").write_text(
+        'const CELLS = [{ slug: "cells-three" }];\n'
+    )
+    got = spawned_cells_to_ts.existing_slugs(
+        site_data, site_data / "__none__.ts"
+    )
+    assert got == {"bare-one", "quoted-two", "cells-three", "commented-four"}

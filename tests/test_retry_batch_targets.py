@@ -5,6 +5,7 @@ import datetime as dt
 import json
 import pathlib
 import re
+import shutil
 import sys
 
 import pytest
@@ -307,7 +308,7 @@ def test_refuses_future_registration_instants() -> None:
             slugs=None,
             allow_succeeded=False,
             now_utc=before_registration,
-            published=frozenset(),
+            published={},
         )
 
 
@@ -319,7 +320,7 @@ def test_succeeded_slug_requires_explicit_override() -> None:
             slugs=[ok_slug],
             allow_succeeded=False,
             now_utc=WITHIN_GRACE,
-            published=frozenset(),
+            published={},
         )
     targets = select_retry_targets(
         real_manifest(), slugs=[ok_slug], allow_succeeded=True, now_utc=WITHIN_GRACE
@@ -334,7 +335,7 @@ def test_unknown_slug_is_refused() -> None:
             slugs=["no-such-slug"],
             allow_succeeded=False,
             now_utc=WITHIN_GRACE,
-            published=frozenset(),
+            published={},
         )
 
 
@@ -519,7 +520,7 @@ def test_narrowing_to_one_unpublished_pair_arm_is_refused(
         slugs=[arm_a, arm_b],
         allow_succeeded=False,
         now_utc=WITHIN_GRACE,
-        published=frozenset(),
+        published={},
     )
     assert sorted(t["catalogSlug"] for t in both) == sorted([arm_a, arm_b])
     default = select_retry_targets(
@@ -852,7 +853,7 @@ def test_output_envelope_matches_the_roll_selector(
     # This batch's DoD slugs have since published on the live checkout;
     # pin the publication view empty so the envelope stays exercised.
     monkeypatch.setattr(
-        retry_batch_targets, "published_catalog_slugs", lambda root: frozenset()
+        retry_batch_targets, "published_catalog_index", lambda root: {}
     )
     monkeypatch.setattr(
         sys,
@@ -886,14 +887,24 @@ NDAA_MANIFEST = (
 NDAA_WITHIN_GRACE = dt.datetime(2026, 8, 13, 23, 0, tzinfo=dt.timezone.utc)
 NDAA_ENACTED = "us-dod-prime-award-obligations-fy2027-fy27-ndaa-enacted"
 NDAA_SIBLING = "us-dod-prime-award-obligations-fy2027-no-fy27-ndaa"
-NDAA_LATER_PUBLISHED = frozenset(
-    {
-        NDAA_SIBLING,
-        "belgium-consumer-confidence-august-2026",
-        "cps-computer-math-employment-august-2026",
-        "cps-office-admin-employment-august-2026",
-    }
+NDAA_SIBLING_ID = (
+    "usaspending.dod.prime_award_obligations.2027"
+    ".registered_query_snapshot.no_fy27_ndaa"
 )
+NDAA_LATER_PUBLISHED = {
+    NDAA_SIBLING: NDAA_SIBLING_ID,
+    "belgium-consumer-confidence-august-2026": (
+        "nbb.consumer_confidence.indicator.2026-08.first_print"
+    ),
+    "cps-computer-math-employment-august-2026": (
+        "bls.cps.employed_people_by_occupation"
+        ".computer_mathematical.august_2026.first_print"
+    ),
+    "cps-office-admin-employment-august-2026": (
+        "bls.cps.employed_people_by_occupation"
+        ".office_administrative_support.august_2026.first_print"
+    ),
+}
 
 
 def test_skips_published_failures_and_logs_each_skip(
@@ -942,7 +953,7 @@ def test_pair_atomicity_still_refuses_unpublished_failed_sibling() -> None:
             slugs=[NDAA_ENACTED],
             allow_succeeded=False,
             now_utc=NDAA_WITHIN_GRACE,
-            published=frozenset(),
+            published={},
         )
 
 
@@ -958,7 +969,13 @@ def test_refuses_named_slug_that_already_published() -> None:
 
 
 def test_refuses_when_every_failure_already_published() -> None:
-    all_failed_published = NDAA_LATER_PUBLISHED | {NDAA_ENACTED}
+    all_failed_published = {
+        **NDAA_LATER_PUBLISHED,
+        NDAA_ENACTED: (
+            "usaspending.dod.prime_award_obligations.2027"
+            ".registered_query_snapshot.fy27_ndaa_enacted"
+        ),
+    }
     with pytest.raises(RetrySelectionError, match="no unpublished failed"):
         select_retry_targets(
             load_manifest(NDAA_MANIFEST),
@@ -969,36 +986,119 @@ def test_refuses_when_every_failure_already_published() -> None:
         )
 
 
-def test_published_catalog_slugs_uses_the_collision_guard_scanner(
-    tmp_path: pathlib.Path,
+def test_published_catalog_index_evaluates_the_real_catalog() -> None:
+    # The authoritative view executes the catalog module (bun); a regex
+    # over TS source measured 186 misses (dynamic OEWS/SNAP slugs) and
+    # 10 phantoms against it. Pin the shape and the incident identities.
+    if shutil.which("bun") is None:
+        pytest.skip("bun not on PATH")
+    index = retry_batch_targets.published_catalog_index(ROOT)
+    assert len(index) >= 819
+    for slug, data_point_id in NDAA_LATER_PUBLISHED.items():
+        assert index[slug] == data_point_id
+    # Dynamically constructed entries a source regex cannot see:
+    assert any(s.startswith("oews-") or "occupation" in s for s in index)
+
+
+def test_published_catalog_index_refuses_without_bun(
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    site_data = tmp_path / "site" / "src" / "data"
-    (site_data / "forecast-examples").mkdir(parents=True)
-    (site_data / "forecast-examples" / "a.ts").write_text(
-        'export const A = [{ slug: "alpha-one" }, { slug: "alpha-two" }];\n'
-    )
-    # The auto-published form this fix exists for: json.dumps quoted keys
-    # (run 31728802794's four cells live in an auto-*.ts of this shape),
-    # plus escaped JSON in a trace string, which must NOT count.
-    (site_data / "forecast-examples" / "auto-b.ts").write_text(
-        '[{ "slug": "auto-four", "trace": "{\\"slug\\": \\"fake-five\\"}" }]\n'
-    )
-    (site_data / "forecast-cells.ts").write_text(
-        'const CELLS = [{ slug: "cells-three" }];\n'
-    )
-    assert retry_batch_targets.published_catalog_slugs(tmp_path) == frozenset(
-        {"alpha-one", "alpha-two", "auto-four", "cells-three"}
-    )
+    # An unavailable evaluator must refuse selection, never degrade to
+    # "nothing is published" (that silence re-creates the incident).
+    def missing(*args: object, **kwargs: object) -> object:
+        raise FileNotFoundError("bun")
+
+    monkeypatch.setattr(retry_batch_targets.subprocess, "run", missing)
+    with pytest.raises(RetrySelectionError, match="needs bun"):
+        retry_batch_targets.published_catalog_index(ROOT)
 
 
-def test_live_checkout_selects_only_the_unpublished_ndaa_arm() -> None:
-    # End-to-end against THIS checkout's real publication state: the
-    # exact selection the re-dispatched retry of the NDAA batch performs.
-    targets = select_retry_targets(
-        load_manifest(NDAA_MANIFEST),
-        slugs=None,
-        allow_succeeded=False,
-        now_utc=NDAA_WITHIN_GRACE,
-        published=retry_batch_targets.published_catalog_slugs(ROOT),
+def test_default_mode_refuses_published_slug_with_foreign_identity() -> None:
+    # A published cell occupying the slug under a DIFFERENT registration
+    # is not fulfillment — and it means this target can never publish.
+    published = dict(NDAA_LATER_PUBLISHED)
+    published["belgium-consumer-confidence-august-2026"] = (
+        "nbb.consumer_confidence.indicator.2026-07.first_print"
     )
-    assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+def test_named_mode_refuses_published_slug_with_foreign_identity() -> None:
+    published = {NDAA_SIBLING: "usaspending.dod.some_other_registration"}
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_SIBLING],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+def test_pair_atomicity_rejects_sibling_published_under_foreign_identity() -> None:
+    # Sol round-1 reproduction: slug membership alone authorized
+    # splitting a pair when the sibling slug was occupied by a DIFFERENT
+    # registration. Identity must match the verified sibling snapshot.
+    published = dict(NDAA_LATER_PUBLISHED)
+    published[NDAA_SIBLING] = "usaspending.dod.some_other_registration"
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_ENACTED],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+def test_pair_atomicity_rejects_sibling_published_without_identity() -> None:
+    # A published cell lacking a dataPointId can never prove it is the
+    # sibling registration; the pair must refuse to split (fail closed).
+    published = {NDAA_SIBLING: None}
+    with pytest.raises(RetrySelectionError, match="different registration"):
+        select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=[NDAA_ENACTED],
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+
+
+
+def test_live_checkout_never_reemits_published_ndaa_targets() -> None:
+    # End-to-end against THIS checkout's real publication state. The
+    # four later-published targets must never re-emit; the enacted arm
+    # is selected while it remains unpublished, and once it publishes
+    # the selection refuses as fully rescued — both are honest states,
+    # so this test never rots as the checkout advances.
+    if shutil.which("bun") is None:
+        pytest.skip("bun not on PATH")
+    published = retry_batch_targets.published_catalog_index(ROOT)
+    for slug, data_point_id in NDAA_LATER_PUBLISHED.items():
+        assert published[slug] == data_point_id
+    if NDAA_ENACTED in published:
+        with pytest.raises(RetrySelectionError, match="no unpublished failed"):
+            select_retry_targets(
+                load_manifest(NDAA_MANIFEST),
+                slugs=None,
+                allow_succeeded=False,
+                now_utc=NDAA_WITHIN_GRACE,
+                published=published,
+            )
+    else:
+        targets = select_retry_targets(
+            load_manifest(NDAA_MANIFEST),
+            slugs=None,
+            allow_succeeded=False,
+            now_utc=NDAA_WITHIN_GRACE,
+            published=published,
+        )
+        assert [t["catalogSlug"] for t in targets] == [NDAA_ENACTED]

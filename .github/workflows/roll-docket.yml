@@ -81,6 +81,10 @@ jobs:
       registration_artifact: ${{ steps.targets.outputs.registration_artifact }}
     steps:
       - uses: astral-sh/setup-uv@v5
+      # Retry selection evaluates the published-cell catalog with bun
+      # (scripts/dump_published_cells.ts); selection refuses if it is
+      # missing rather than degrading to "nothing is published".
+      - uses: oven-sh/setup-bun@v2
       - uses: actions/checkout@v5
         with:
           ref: main
@@ -295,12 +299,16 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - name: Re-check retry grace before spending generation time
-        # Advisory fail-fast (the trusted gate is --enforce-run-grace at
-        # publication): re-running the selector here refuses the whole
-        # batch if any target's grace lapsed between dispatch and this
-        # job starting, instead of burning analyst runs that publication
-        # will reject.
+      - name: Re-check retry selection before spending generation time
+        # Fail-fast rebind (the trusted gate remains publication's own
+        # rebased re-verification): re-running the selector at this
+        # job's later source_sha refuses the batch if any target's
+        # grace lapsed OR the publication state drifted (a target
+        # publishing between dispatch and here) — and the result must
+        # EQUAL the privileged artifact byte-for-byte as JSON, or a
+        # selection made against the stale dispatch-time checkout could
+        # still generate targets the rebased publish leg will refuse
+        # (the run-31728802794 incident class).
         if: github.event.inputs.retry_batch != ''
         env:
           RETRY_BATCH: ${{ github.event.inputs.retry_batch }}
@@ -316,6 +324,27 @@ jobs:
             args+=(--slugs "$RETRY_SLUGS")
           fi
           "${args[@]}"
+          python3 - <<'COMPARE'
+          import json
+          import sys
+
+          with open("/tmp/trusted-registration/roll-targets.json") as fh:
+              registered = json.load(fh)
+          with open("/tmp/retry-grace-recheck.json") as fh:
+              recheck = json.load(fh)
+          if registered != recheck:
+              def names(payload):
+                  return sorted(t["catalogSlug"] for t in payload["targets"])
+
+              print(
+                  "retry selection drifted between dispatch and generation;"
+                  " refusing before model spend",
+                  file=sys.stderr,
+              )
+              print(f"  registered: {names(registered)}", file=sys.stderr)
+              print(f"  recheck:    {names(recheck)}", file=sys.stderr)
+              sys.exit(1)
+          COMPARE
 
       - name: Enable the agent sandbox
         uses: ./.github/actions/enable-agent-sandbox
