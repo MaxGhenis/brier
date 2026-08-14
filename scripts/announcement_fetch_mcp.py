@@ -200,7 +200,12 @@ def fetch_announcement(url: str, *, allowed_url: str) -> dict[str, Any]:
     )
     headers = {
         "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.1",
-        "User-Agent": "Thesis-attested-announcement-fetch/1.0",
+        # The transparent compatible form the resolver families pin:
+        # several official hosts' WAFs (FSA measured 2026-08-14: reset
+        # in ~1s on the old bespoke token, HTTP 200 in 0.3s on this)
+        # drop non-browser-shaped agents, and an announcement fetch
+        # that cannot complete blocks every resolve-by-bound publish.
+        "User-Agent": "Mozilla/5.0 (compatible; thesis-resolver/1.0)",
     }
 
     connection_error: OSError | http.client.HTTPException | None = None
