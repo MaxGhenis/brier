@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-14T03:35:36Z",
+  "runStartedAt": "2026-08-14T03:35:36Z",
+  "sealedAt": "2026-08-14T03:40:00Z",
+  "series": "eia.ng.vented_flared.us.annual",
+  "period": "2025",
+  "conditional": null,
+  "targetContext": {
+    "anchors": {
+      "2022": 271682,
+      "2023": 324207,
+      "2024": 335163
+    },
+    "catalogSlug": "us-natural-gas-vented-flared-2025",
+    "country": "US",
+    "dataPointId": "eia.ng.vented_flared.us.annual.2025.first_print",
+    "expectedReleaseWindow": {
+      "end": "2026-10-31",
+      "start": "2026-10-01"
+    },
+    "period": "2025",
+    "registeredAt": "2026-08-14T03:17:36Z",
+    "registeredAtUtc": "2026-08-14T03:17:36Z",
+    "registrationCommit": "18b92f8f25e21f3a35f8565cad2368ead6da4209",
+    "registrationState": "preregistered",
+    "resolutionDate": "2026-10-31",
+    "resolutionDateBasis": "resolve-by-bound",
+    "seedPeriod": "2025",
+    "series": "eia.ng.vented_flared.us.annual",
+    "sourceBinding": {
+      "adapter": "eia-dnav-xls",
+      "allowedHosts": [
+        "www.eia.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-31",
+        "start": "2026-10-01"
+      },
+      "field": "annual_value_mmcf",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "N9040US2",
+      "sourceUrl": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+      "table": "EIA DNav U.S. Natural Gas Vented and Flared annual history workbook, Data 1 sheet",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "e4f85c5b0ed9e1799c3a66733a53c5bf9772398e09a015a29bd6a3753df02e91",
+    "targetRegistrationPath": "records/targets/2026-08-14-e4f85c5b0ed9e1799c3a66733a53c5bf9772398e09a015a29bd6a3753df02e91.json",
+    "targetUnit": "million_cubic_feet",
+    "valueScale": 1
+  },
+  "registrationCommit": "18b92f8f25e21f3a35f8565cad2368ead6da4209",
+  "targetContentHash": "e4f85c5b0ed9e1799c3a66733a53c5bf9772398e09a015a29bd6a3753df02e91",
+  "targetRegistrationPath": "records/targets/2026-08-14-e4f85c5b0ed9e1799c3a66733a53c5bf9772398e09a015a29bd6a3753df02e91.json",
+  "registeredAtUtc": "2026-08-14T03:17:36Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.9",
+    "model": "gpt-5.5",
+    "promptHash": "a954cfd8c691f4cd12c7a4113c64edd394ad14c29144722a857ac4b768905fe0",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-14T03:35:36Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "0f92140bc14ff522d016e4cd9f35dcf2da32c07fe0939a7cb53faac0ff7d30a9"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider removing the failed specs.json check from sourceContext because it adds noise and is not part of the resolver evidence."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider relabeling historicalContext values as current official workbook vintage values rather than first-print historical values, since the base-rate history is fetched from the current resolver workbook."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to remove the failed specs.json check from sourceContext because it was not resolver evidence, and relabeled historicalContext values as current official workbook vintage values rather than historical first-print values. No required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to remove the failed specs.json check from sourceContext because it was not resolver evidence, and relabeled historicalContext values as current official workbook vintage values rather than historical first-print values. No required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable against the target contract; the local resolver fetch confirms the latest four base-rate values used in the draft."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/prompt.md",
+      "sha256": "aa2fa0040f935d17a0ff9e03ad568ef0959e35d540a1308db2a19e6abf1131fe",
+      "bytes": 36466,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_command.json",
+      "sha256": "4cbad6debe01384a5c1c460f85648e67d4bae19ffd0e95c9686269676ad59690",
+      "bytes": 1991,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_codex_stdout.jsonl",
+      "sha256": "c97305a91911106da784e85fcf94e2c48a57cc5698685a9d554c1a71db646188",
+      "bytes": 110955,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_codex_events.jsonl",
+      "sha256": "6391175045635dfa36b7b28a1740f69ef153cf93ab870a4f52d273b133268667",
+      "bytes": 111409,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_codex_last_message.txt",
+      "sha256": "e96f152fbb26c72e2afcd37bcf11a048f4df0936e963f1236360ffa7676e40c7",
+      "bytes": 6945,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_codex_trace.json",
+      "sha256": "97ff8f3070066fa2d396ba4caae89c303c380c251d555cb95ad338bee0f20347",
+      "bytes": 567,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_stdout.txt",
+      "sha256": "e96f152fbb26c72e2afcd37bcf11a048f4df0936e963f1236360ffa7676e40c7",
+      "bytes": 6945,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_prompt.md",
+      "sha256": "66db2f42461c3eb7055778a279a42a4906551a727ecefc9f49309f36a2f4e2d5",
+      "bytes": 12482,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_command.json",
+      "sha256": "5424934433678b3ff8e649cc4d9787f8f199298fa280fdea3ea786ca72d6b83d",
+      "bytes": 1117,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "4256224aee616d72176eb81edd206ec8bcae32ef48091ee0cf4444e2f076673d",
+      "bytes": 2051,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "0627348090ec61e61d25a31f9a5afbc296ce7bceeadf460fef54d5b78220e1a9",
+      "bytes": 2112,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "544c1fd2b0ccbe8d2bea0c4635fbd5c88b312bea969abc02c5a7f22d99836420",
+      "bytes": 536,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_codex_trace.json",
+      "sha256": "29401f8a5d5c927a2a22d654a6da109adf73714ba21b57d2fdee52bed87b35f9",
+      "bytes": 563,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_stdout.txt",
+      "sha256": "544c1fd2b0ccbe8d2bea0c4635fbd5c88b312bea969abc02c5a7f22d99836420",
+      "bytes": 536,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/revision_prompt.md",
+      "sha256": "178e445ed385ab194301c5c143ab3d51ae9018a78573806861702519baa932bb",
+      "bytes": 44883,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/command.json",
+      "sha256": "6864d4a2c5b6b418ec11f72f38b76ceb18c084e9320e92ffdd1e458938924b71",
+      "bytes": 1985,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/codex_stdout.jsonl",
+      "sha256": "8da2c877630ed1d7e1941cd7541de1e7c0c08122ddfee14cf4f499dedbbea031",
+      "bytes": 7703,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/codex_events.jsonl",
+      "sha256": "b8c661cbf39dc18046fe8a8fe8e972302645749970f9a92e1870a089efe507b6",
+      "bytes": 7725,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/codex_last_message.txt",
+      "sha256": "7b173f9382e50c47804554a0a74592a79f56ad5f275737c8893560f738590536",
+      "bytes": 7049,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/codex_trace.json",
+      "sha256": "8a6b4429f2b385fafbffbf915e31b11c0a56a52982a4f14acb0828706204608c",
+      "bytes": 562,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/stdout.txt",
+      "sha256": "7b173f9382e50c47804554a0a74592a79f56ad5f275737c8893560f738590536",
+      "bytes": 7049,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/raw_response.txt",
+      "sha256": "7b173f9382e50c47804554a0a74592a79f56ad5f275737c8893560f738590536",
+      "bytes": 7049,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/parsed_cells.json",
+      "sha256": "b5e0f64eb5497e158504f73025cd6b1a4ff03748e4176ff87667724a6ff44279",
+      "bytes": 7271,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/normalized_cells.json",
+      "sha256": "2d6dd378207fd36c37aed2ee1733f8a596ae31c8ce1b003b13e599c055d2110b",
+      "bytes": 25351,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/distribution.json",
+      "sha256": "5dc9590085f924530be03221e0a431f50c432f1bcf1a69d34fe10024f8945739",
+      "bytes": 14296,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/validation.json",
+      "sha256": "53b84befc391f997640f9657a5d15fa42318df917f2191a7e89da316230d0ebd",
+      "bytes": 134,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/cells.with_activity.json",
+      "sha256": "436f16616177bf394c8d72b429b6b63e96431c9a5cc980176b71ed59cc0e880a",
+      "bytes": 39032,
+      "createdAt": "2026-08-14T03:35:36Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-14/2026-08-14t03-35-36z-eia-ng-vented-flared-us-annual-2025/manifest.json",
+      "sha256": "0be2ba984c2521855169f2c614c4ee225b56885d8bd081f750657e2f123968ec",
+      "bytes": 14598,
+      "createdAt": "2026-08-14T03:35:36Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-natural-gas-vented-flared-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "9668e4a5e6c627704caca6ec9ba518739597a0d5",
+  "generationTicket": {
+    "ticketId": "2026-08-14-415d8dc5225036cf587efabb57b34982177205f74e4ffed30e218202bdb02531",
+    "ticketPath": "records/tickets/2026-08-14/2026-08-14-415d8dc5225036cf587efabb57b34982177205f74e4ffed30e218202bdb02531.json",
+    "nonceSha256": "a48fe16a8c19778bc79b676062398d7ef26b95a06797905be17f40f8ae3502e8"
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "f60e35ff913b123eac9204bd11a5f00ec7702e4aae8d642844540ac4570ab279"
+}

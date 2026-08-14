@@ -1,0 +1,109 @@
+{
+  "slug": "us-natural-gas-vented-flared-2025",
+  "country": "US",
+  "type": "data",
+  "title": "U.S. natural gas vented and flared, 2025",
+  "question": "What will EIA report as the FIRST PRINT annual value for U.S. Natural Gas Vented and Flared, series N9040US2, calendar year 2025, in million cubic feet, in the EIA DNav annual history workbook Data 1 sheet?",
+  "unit": "million_cubic_feet",
+  "pointEstimate": 335163,
+  "ciLow": 206110,
+  "ciHigh": 464216,
+  "confidence": 0.8,
+  "resolutionDate": "2026-10-31",
+  "resolutionSource": "EIA, U.S. Natural Gas Vented and Flared annual DNav history",
+  "resolutionSourceUrl": "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+  "resolutionRule": "Resolve from the first print for EIA source series N9040US2, U.S. Natural Gas Vented and Flared (MMcf), annual 2025 value, read from the Data 1 sheet of the DNav U.S. Natural Gas Vented and Flared annual history workbook linked from https://www.eia.gov/dnav/ng/hist/n9040us2a.htm. Use the integer MMcf value as first published; later revisions are irrelevant. resolutionDate byte-echoes the Thesis registered resolve-by-bound outer deadline 2026-10-31, not an inferred EIA scheduled release day.",
+  "dataPointId": "eia.ng.vented_flared.us.annual.2025.first_print",
+  "historicalContext": [
+    {
+      "label": "EIA N9040US2 2019 current official workbook vintage value, MMcf",
+      "value": 539480
+    },
+    {
+      "label": "EIA N9040US2 2020 current official workbook vintage value, MMcf",
+      "value": 339272
+    },
+    {
+      "label": "EIA N9040US2 2021 current official workbook vintage value, MMcf",
+      "value": 287775
+    },
+    {
+      "label": "EIA N9040US2 2022 current official workbook vintage value, MMcf",
+      "value": 271682
+    },
+    {
+      "label": "EIA N9040US2 2023 current official workbook vintage value, MMcf",
+      "value": 324207
+    },
+    {
+      "label": "EIA N9040US2 2024 current official workbook vintage value, MMcf",
+      "value": 335163
+    }
+  ],
+  "drivers": [
+    "2024 persistence benchmark at 335,163 MMcf",
+    "2023-2024 rebound after 2020-2022 lower plateau",
+    "large annual jump volatility in 2018-2020",
+    "no direct current signal fetched to override persistence"
+  ],
+  "sourceContext": [
+    "https://www.eia.gov/dnav/ng/hist/n9040us2a.htm",
+    "https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls"
+  ],
+  "runAt": "2026-08-14T03:37:03Z",
+  "activityLog": [],
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "U.S. natural gas vented and flared 2025"
+    },
+    {
+      "kind": "text",
+      "text": "Framing: the registered target is EIA N9040US2, U.S. Natural Gas Vented and Flared, annual 2025, million cubic feet, first print. This is a resolve-by-bound target, so the resolutionDate is the Thesis lab-committed outer deadline 2026-10-31, not a scheduled EIA release day inferred from cadence; the official announcement URL authenticates methodology/source identity only."
+    },
+    {
+      "kind": "tool",
+      "tool": "thesis_announcement_fetch.fetch_official_announcement",
+      "call": "fetch_official_announcement(url='https://www.eia.gov/dnav/ng/hist/n9040us2a.htm')",
+      "result": "Fetched exact registered officialAnnouncementUrl. requestedUrl=https://www.eia.gov/dnav/ng/hist/n9040us2a.htm; finalUrl=https://www.eia.gov/dnav/ng/hist/n9040us2a.htm; statusCode=200; responseBytes=7615; responseSha256=00b6c41be70b9f52463fd4536344372e50dcf96b25b0b58078e989bbf6362e6a."
+    },
+    {
+      "kind": "tool",
+      "tool": "resolve_pending.eia_dnav_fetch_year",
+      "call": "for y in 2019 2020 2021 2022 2023 2024: r.eia_dnav_fetch_year(r.EIA_DNAV_ADAPTERS['eia.ng.vented_flared.us.annual'], y)[0]",
+      "result": "Exact registered EIA DNav workbook parser values fetched this run: 2019=539480.0 MMcf, 2020=339272.0, 2021=287775.0, 2022=271682.0, 2023=324207.0, 2024=335163.0."
+    },
+    {
+      "kind": "tool",
+      "tool": "resolve_pending.eia_dnav_fetch_year",
+      "call": "for y in 2013 2014 2015 2016 2017 2018: r.eia_dnav_fetch_year(r.EIA_DNAV_ADAPTERS['eia.ng.vented_flared.us.annual'], y)[0]",
+      "result": "Earlier exact registered parser values fetched this run: 2013=260394.0 MMcf, 2014=293916.0, 2015=289545.0, 2016=230410.0, 2017=255488.0, 2018=470601.0."
+    },
+    {
+      "kind": "text",
+      "text": "Base rate / reference class: using the current official N9040US2 workbook vintage fetched on 2026-08-14, the last 12 annual values for 2013-2024 have mean 324,827.75 MMcf, median 291,730.5, range 230,410-539,480, and latest print 335,163. For this repeated annual level series, last-print persistence at 335,163 MMcf is the benchmark prior; there is no fetched direct 2025 current signal that clears the update test."
+    },
+    {
+      "kind": "text",
+      "text": "Model candidate thesis_model_candidate_v1: persistence candidate point=335163, p10=206110, p50=335163, p90=464216, interval80=[206110,464216], interval90=[169310,501016], interval_method='one-step annual change residual normal approximation from 2014-2024 changes', calibration_n=11, train_cutoff=2024, walk_forward_mae=67034.27 MMcf. I select this candidate because no official current evidence fetched in this run justifies a material departure from persistence."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: prior = 2024 last-print persistence = 335,163 MMcf from EIA N9040US2. Historical sample = 2013-2024 current official workbook values. Annual one-step changes for 2014-2024 are +33,522, -4,371, -59,135, +25,078, +215,113, +68,879, -200,208, -51,497, -16,093, +52,525, +10,956; sample sigma = 100,822.35 MMcf. Updates = 0 MMcf because no direct current 2025 signal was fetched and the latest two official prints already embody recent operations. 80% half-width = 1.28*sigma = 129,052.61 MMcf, rounded to 129,053. Point = 335,163; implied bounds = 335,163 - 129,053 = 206,110 and 335,163 + 129,053 = 464,216. Resolve-by-bound/methodology-transition regime consideration: no revised-methodology official backcast print was fetched, so the admissible base rate remains the current official series and I do not pre-apply a fabricated revision adjustment."
+    },
+    {
+      "kind": "text",
+      "text": "Counter-consideration: upside risk outside the interval would come from a 2018-like operational/regulatory episode that lifts venting and flaring by more than about 129,000 MMcf from 2024; downside risk outside the interval would require a broad drop below 206,110 MMcf, larger than any recent non-2019-to-2020 normalization except the 2020 swing itself."
+    },
+    {
+      "kind": "text",
+      "text": "Review disposition: accepted the suggestion to remove the failed specs.json check from sourceContext because it was not resolver evidence, and relabeled historicalContext values as current official workbook vintage values rather than historical first-print values. No required fixes were raised."
+    },
+    {
+      "kind": "forecast",
+      "point": 335163,
+      "ciLow": 206110,
+      "ciHigh": 464216
+    }
+  ]
+}
