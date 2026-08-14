@@ -485,7 +485,9 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     cells_path.write_text(json.dumps([cell]))
     (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
 
-    loaded = spawned_cells_to_ts.load_cells(cells_path)[0]
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
 
     assert "provenance" not in run
@@ -513,7 +515,9 @@ def test_converter_validation_uses_sealed_bounded_manifest_context(
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     errors = spawned_cells_to_ts.validate(
         loaded,
         set(),
@@ -565,14 +569,17 @@ def test_loaded_manifest_ticket_reaches_published_prediction_run(
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    unlabeled = spawned_cells_to_ts.load_cells(cells_path)[0]
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    unlabeled = cells[0]
     unlabeled_run = spawned_cells_to_ts.to_forecast_cell(unlabeled)["predictionRun"]
     assert "provenance" not in unlabeled_run
     assert "generationTicket" not in unlabeled_run
 
-    loaded = spawned_cells_to_ts.load_cells(
-        cells_path, provenance="local_operator_attested"
-    )[0]
+    spawned_cells_to_ts.carry_sealed_run_metadata(
+        cells, tmp_path, provenance="local_operator_attested"
+    )
+    loaded = cells[0]
     run = spawned_cells_to_ts.to_forecast_cell(
         loaded, provenance="local_operator_attested"
     )["predictionRun"]
@@ -620,7 +627,7 @@ def test_ci_conversion_refuses_ticketed_manifest_literally(
     cells_path.write_text(json.dumps([cell]))
 
     with pytest.raises(ValueError) as error:
-        spawned_cells_to_ts.load_cells(cells_path, provenance="ci")
+        spawned_cells_to_ts.carry_sealed_run_metadata([cell], tmp_path, provenance="ci")
 
     assert str(error.value) == (
         "ticketed runs must be converted with --provenance local_operator_attested"
@@ -913,26 +920,355 @@ def test_later_branch_commit_cannot_expand_known_legacy_records(
         spawned_cells_to_ts.load_cells(cells_path)
 
 
-def test_promotion_refuses_current_five_print_cell(
+def reviewed_history_floor_fixture(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[pathlib.Path, str, dict]:
+    repo = tmp_path / "reviewed-repo"
+    scripts_dir = repo / "scripts"
+    scripts_dir.mkdir(parents=True)
+    authorization = {
+        "targetPeriod": "2030-01",
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "availablePeriods": [
+            {"type": "month", "value": f"2029-{index:02d}"} for index in range(1, 5)
+        ],
+    }
+    registry = {
+        "series": [
+            {
+                "series": "test.reviewed_rate",
+                "period": "2030-01",
+                "extras": {"historyFloorAuthorization": authorization},
+            }
+        ]
+    }
+    (scripts_dir / "docket_series.json").write_text(json.dumps(registry) + "\n")
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "scripts/docket_series.json"], cwd=repo, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=History Floor Fixture",
+            "-c",
+            "user.email=history-floor-fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Review short-history authorization",
+        ],
+        cwd=repo,
+        check=True,
+    )
+    checkout_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo, text=True
+    ).strip()
+    monkeypatch.setattr(spawned_cells_to_ts, "ROOT", repo)
+    return repo, checkout_sha, authorization
+
+
+def reviewed_four_print_cell() -> dict:
+    cell = probe_cell("2030-01-15")
+    cell.update(
+        {
+            "slug": "borrowed-history-authorization-probe",
+            "dataPointId": "test.borrowed_history_authorization.2030-01",
+            "drivers": ["four-print official history"],
+            "runAt": "2026-07-01T04:00:00Z",
+            "historicalContext": [
+                {
+                    "period": {"type": "month", "value": f"2029-{index:02d}"},
+                    "label": f"2029-{index:02d}",
+                    "value": 16 + index,
+                }
+                for index in range(1, 5)
+            ],
+            "historyAvailability": {
+                "status": "official_source_exposes_fewer_than_six_prints",
+                "availablePrintCount": 4,
+                "detail": "The official source exposes exactly four prints.",
+            },
+            "reasoning": [
+                {"kind": "heading", "text": "Short-history probe"},
+                {
+                    "kind": "text",
+                    "text": "The reference class is the last 4 prints.",
+                },
+                {
+                    "kind": "tool",
+                    "tool": "official.history",
+                    "call": "Fetch the official history",
+                    "result": "Fetched 17, 18, 19, and 20.",
+                },
+                {
+                    "kind": "tool",
+                    "tool": "official.calendar",
+                    "call": "Fetch the official release calendar",
+                    "result": "Release date 2030-01-15.",
+                },
+                {
+                    "kind": "tool",
+                    "tool": "official.metadata",
+                    "call": "Fetch the official series metadata",
+                    "result": "The inventory contains 4 prints.",
+                },
+                {
+                    "kind": "math",
+                    "text": (
+                        "Prior/update/interval: base rate 20; sigma = 7.8125, "
+                        "so 1.28*sigma = 10 and the interval is [10, 30]."
+                    ),
+                },
+                {
+                    "kind": "text",
+                    "text": "Outside the interval if the series breaks regime.",
+                },
+                {"kind": "forecast", "point": 20, "ciLow": 10, "ciHigh": 30},
+            ],
+        }
+    )
+    return cell
+
+
+def test_backdated_current_run_cannot_borrow_reviewed_history_authorization(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo, checkout_sha, authorization = reviewed_history_floor_fixture(
+        tmp_path, monkeypatch
+    )
+    cell = reviewed_four_print_cell()
+    resolved = spawned_cells_to_ts.reviewed_history_floor_authorization(
+        repo,
+        checkout_sha=checkout_sha,
+        series="test.reviewed_rate",
+        target_period="2030-01",
+    )
+    assert resolved == authorization
+    assert (
+        spawned_cells_to_ts.validate(
+            cell,
+            set(),
+            agent_version="2.5.10",
+            trusted_history_authorization=resolved,
+        )
+        == []
+    )
+
+    run_dir = repo / "records/thesis-analyst/2030-01-01/backdated-current-probe"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([cell]))
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                checkoutSha=checkout_sha,
+                series="test.reviewed_rate",
+                period="2030-01",
+                cellsPath=cells_path.relative_to(repo).as_posix(),
+            )
+        )
+    )
+
+    authorization_lookups = []
+
+    def record_authorization_lookup(*args: object, **kwargs: object) -> dict:
+        authorization_lookups.append((args, kwargs))
+        return authorization
+
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "reviewed_history_floor_authorization",
+        record_authorization_lookup,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"agentVersion 2\.5\.10 requires custody_root\.json",
+    ):
+        spawned_cells_to_ts.load_cells(cells_path)
+    assert authorization_lookups == []
+
+
+def test_backdated_current_six_print_run_still_requires_custody(
     tmp_path: pathlib.Path,
 ) -> None:
+    cell = probe_cell("2030-01-15")
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
     (tmp_path / "manifest.json").write_text(
         json.dumps(successful_manifest(agent=sealed_agent("2.5.10")))
     )
-    cell = probe_cell("2026-07-17")
-    cell["runAt"] = "2026-07-01T04:00:00Z"
-    cell["historicalContext"] = cell["historicalContext"][:5]
-    cells_path = tmp_path / "normalized_cells.json"
-    cells_path.write_text(json.dumps([cell]))
 
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
-    errors = spawned_cells_to_ts.validate(
-        loaded,
-        set(),
-        agent_version=loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"],
+    with pytest.raises(
+        ValueError,
+        match=r"agentVersion 2\.5\.10 requires custody_root\.json",
+    ):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_history_authorization_lookup_follows_current_custody_authentication(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Unit-level call-order coverage: the real verifier is replaced so this
+    # test isolates the exact verify -> sealed-identity lookup sequence. A
+    # separate integration test exercises a genuine runner custody root.
+    repo, checkout_sha, authorization = reviewed_history_floor_fixture(
+        tmp_path, monkeypatch
+    )
+    run_dir = repo / "records/thesis-analyst/2030-01-01/rooted-current-probe"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([reviewed_four_print_cell()]))
+    (run_dir / "custody_root.json").write_text("{}\n")
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                checkoutSha=checkout_sha,
+                series="test.reviewed_rate",
+                period="2030-01",
+                cellsPath=cells_path.relative_to(repo).as_posix(),
+                custodyRootSha256="c" * 64,
+            )
+        )
     )
 
-    assert any("has 5 distinct canonical prints" in error for error in errors)
+    import verify_custody
+
+    events = []
+
+    def verify_first(candidate: pathlib.Path) -> None:
+        events.append(("verify", candidate))
+
+    def authorize_second(
+        repo_root: pathlib.Path,
+        *,
+        checkout_sha: object,
+        series: object,
+        target_period: object,
+    ) -> dict:
+        events.append(
+            (
+                "authorize",
+                repo_root,
+                checkout_sha,
+                series,
+                target_period,
+            )
+        )
+        return authorization
+
+    monkeypatch.setattr(verify_custody, "verify_run", verify_first)
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "reviewed_history_floor_authorization",
+        authorize_second,
+    )
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+
+    assert events == [
+        ("verify", run_dir),
+        (
+            "authorize",
+            repo,
+            checkout_sha,
+            "test.reviewed_rate",
+            "2030-01",
+        ),
+    ]
+    assert loaded[spawned_cells_to_ts.SEALED_HISTORY_AUTHORIZATION_KEY] == authorization
+
+
+def test_invalid_current_custody_refuses_before_history_authorization_lookup(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo, checkout_sha, authorization = reviewed_history_floor_fixture(
+        tmp_path, monkeypatch
+    )
+    run_dir = repo / "records/thesis-analyst/2030-01-01/invalid-current-root"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([reviewed_four_print_cell()]))
+    (run_dir / "custody_root.json").write_text("{}\n")
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                checkoutSha=checkout_sha,
+                series="test.reviewed_rate",
+                period="2030-01",
+                cellsPath=cells_path.relative_to(repo).as_posix(),
+                custodyRootSha256="c" * 64,
+            )
+        )
+    )
+
+    authorization_lookups = []
+
+    def record_authorization_lookup(*args: object, **kwargs: object) -> dict:
+        authorization_lookups.append((args, kwargs))
+        return authorization
+
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "reviewed_history_floor_authorization",
+        record_authorization_lookup,
+    )
+
+    import verify_custody
+
+    with pytest.raises(
+        verify_custody.CustodyError,
+        match="unsupported custody schema",
+    ):
+        spawned_cells_to_ts.load_cells(cells_path)
+    assert authorization_lookups == []
+
+
+def test_in_place_replacement_cannot_bypass_current_custody(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target.ts"
+    cell = probe_cell("2030-01-15")
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    target.write_text(f"export const CELLS = {json.dumps([cell])};\n")
+    original = target.read_text()
+
+    run_dir = tmp_path / "upgrade"
+    run_dir.mkdir()
+    upgrades_path = run_dir / "cells.with_activity.json"
+    upgrades_path.write_text(json.dumps([cell]))
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                cellsPath=str(upgrades_path),
+            )
+        )
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["replace_cells_in_place.py", str(target), str(upgrades_path)],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"agentVersion 2\.5\.10 requires custody_root\.json",
+    ):
+        replace_cells_in_place.main()
+    assert target.read_text() == original
 
 
 @pytest.mark.parametrize(
@@ -1159,7 +1495,9 @@ def test_agent_planted_review_dies_at_the_carrier(
     (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
 
     # The successful manifest has no review: the planted review must not survive.
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     assert "preSubmitReview" not in loaded
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
     assert "preSubmitReview" not in run
@@ -1186,7 +1524,9 @@ def test_manifest_review_overrides_any_cell_claim(
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     assert loaded["preSubmitReview"]["summary"] == "Runner-sealed review."
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
     assert run["preSubmitReview"]["summary"] == "Runner-sealed review."

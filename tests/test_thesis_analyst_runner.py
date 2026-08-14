@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import generation_tickets  # noqa: E402
 import median_rollout_ensemble as median_ensemble  # noqa: E402
 import run_thesis_analyst as analyst_runner  # noqa: E402
+import spawned_cells_to_ts  # noqa: E402
 from history_floor import (  # noqa: E402
     canonical_period_identities_from_label,
     canonical_period_identity,
@@ -3081,6 +3082,44 @@ def test_history_floor_refuses_five_entry_run_with_custody_clean_record(
     )
     _custody_passes(out_dir)
     assert not generated_ts.exists()
+
+
+def test_history_floor_accepts_current_run_with_genuine_custody_root(
+    tmp_path: Path,
+) -> None:
+    generated_ts = tmp_path / "current-rooted.ts"
+    code, out_dir = _run_fake_codex_case(
+        tmp_path,
+        "six-print-current-history",
+        history_floor_test_cell(6),
+        extra_args=["--write-ts", str(generated_ts)],
+    )
+
+    assert code == 0
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is True
+    assert spawned_cells_to_ts.agent_version_enforces_history_floor(
+        manifest["agent"]["agentVersion"]
+    )
+    _custody_passes(out_dir)
+
+    [loaded] = spawned_cells_to_ts.load_cells(out_dir / "cells.with_activity.json")
+    sealed_version = loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"]
+    sealed_authorization = loaded.get(
+        spawned_cells_to_ts.SEALED_HISTORY_AUTHORIZATION_KEY
+    )
+    assert sealed_version == manifest["agent"]["agentVersion"]
+    assert loaded["custodyRootSha256"] == manifest["custodyRootSha256"]
+    assert (
+        spawned_cells_to_ts.validate(
+            loaded,
+            set(),
+            agent_version=sealed_version,
+            trusted_history_authorization=sealed_authorization,
+        )
+        == []
+    )
+    assert generated_ts.exists()
 
 
 def test_history_floor_accepts_six_numeric_entries() -> None:

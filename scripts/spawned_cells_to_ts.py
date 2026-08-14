@@ -15,7 +15,6 @@ import sys
 from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-CUSTODY_ENFORCEMENT_DATE = "2026-07-10"
 # Immutable parent of the commit that introduced the 2.5.10 history floor.
 # A custody-less run may use the legacy floor only if both its manifest and
 # cells are byte-identical to this already-known records tree. Using HEAD here
@@ -648,7 +647,13 @@ def carry_sealed_run_metadata(
     provenance: str | None = None,
     manifest: object | None = None,
 ) -> None:
-    """Replace any input claims with metadata read from the run manifest."""
+    """Replace input claims with already-authenticated manifest metadata.
+
+    This low-level carrier deliberately cannot resolve or attach reviewed
+    docket authorizations. Publication callers must authenticate the
+    manifest/cells pair through ``load_cells``; only that boundary may attach
+    an authorization resolved from a custody-bound current-version manifest.
+    """
 
     if provenance is not None and provenance not in PROVENANCE_VALUES:
         raise ValueError(f"unsupported prediction-run provenance: {provenance!r}")
@@ -686,23 +691,6 @@ def carry_sealed_run_metadata(
     ):
         raise ValueError(f"manifest targetContext is invalid: {manifest_path}")
     validation_ticket = manifest.get("generationTicket")
-    trusted_history_authorization = None
-    if any(
-        history_floor_requires_authorization(cell, sealed_agent.get("agentVersion"))
-        for cell in cells
-    ):
-        try:
-            trusted_history_authorization = reviewed_history_floor_authorization(
-                ROOT,
-                checkout_sha=manifest.get("checkoutSha"),
-                series=manifest.get("series"),
-                target_period=manifest.get("period"),
-            )
-        except ValueError as exc:
-            raise ValueError(
-                "cannot authenticate reviewed history-floor authorization from "
-                f"{manifest_path}: {exc}"
-            ) from exc
     if provenance == "ci" and has_ticket:
         raise ValueError(
             "ticketed runs must be converted with --provenance local_operator_attested"
@@ -729,8 +717,6 @@ def carry_sealed_run_metadata(
             cell[SEALED_TARGET_CONTEXT_KEY] = sealed_target_context
         if isinstance(validation_ticket, dict):
             cell[SEALED_VALIDATION_TICKET_KEY] = validation_ticket
-        if trusted_history_authorization is not None:
-            cell[SEALED_HISTORY_AUTHORIZATION_KEY] = trusted_history_authorization
 
 
 def to_forecast_cell(
@@ -835,13 +821,10 @@ def load_cells(
         raise ValueError(f"cell input lacks manifest.json: {path}")
     manifest_bytes = manifest_path.read_bytes()
     manifest = json.loads(manifest_bytes)
-    carry_sealed_run_metadata(
-        cells,
-        path.parent,
-        provenance=provenance,
-        manifest=manifest,
-    )
-    agent_version = manifest["agent"]["agentVersion"]
+    sealed_agent = sealed_agent_meta(path.parent, manifest=manifest)
+    if sealed_agent is None:
+        raise ValueError(f"run manifest has no sealed agent metadata: {manifest_path}")
+    agent_version = sealed_agent["agentVersion"]
     if custody_path.exists():
         from verify_custody import verify_run
 
@@ -854,9 +837,12 @@ def load_cells(
                 "manifest cellsPath does not name converter input: "
                 f"{declared} != {path}"
             )
-        for cell in cells:
-            cell["custodyRootSha256"] = manifest["custodyRootSha256"]
-    elif not agent_version_enforces_history_floor(agent_version):
+    elif agent_version_enforces_history_floor(agent_version):
+        raise ValueError(
+            "history-floor-enforcing agentVersion "
+            f"{agent_version} requires custody_root.json: {path}"
+        )
+    else:
         authenticate_legacy_record(
             path,
             manifest_path,
@@ -864,12 +850,33 @@ def load_cells(
             cells_bytes=cells_bytes,
             manifest_bytes=manifest_bytes,
         )
-    elif any(
-        str(cell.get("runAt", ""))[:10] >= CUSTODY_ENFORCEMENT_DATE for cell in cells
-    ):
-        raise ValueError(
-            f"run on/after {CUSTODY_ENFORCEMENT_DATE} lacks custody_root.json: {path}"
-        )
+
+    trusted_history_authorization = None
+    if any(history_floor_requires_authorization(cell, agent_version) for cell in cells):
+        try:
+            trusted_history_authorization = reviewed_history_floor_authorization(
+                ROOT,
+                checkout_sha=manifest.get("checkoutSha"),
+                series=manifest.get("series"),
+                target_period=manifest.get("period"),
+            )
+        except ValueError as exc:
+            raise ValueError(
+                "cannot authenticate reviewed history-floor authorization from "
+                f"{manifest_path}: {exc}"
+            ) from exc
+    carry_sealed_run_metadata(
+        cells,
+        path.parent,
+        provenance=provenance,
+        manifest=manifest,
+    )
+    if trusted_history_authorization is not None:
+        for cell in cells:
+            cell[SEALED_HISTORY_AUTHORIZATION_KEY] = trusted_history_authorization
+    if custody_path.exists():
+        for cell in cells:
+            cell["custodyRootSha256"] = manifest["custodyRootSha256"]
     return cells
 
 
