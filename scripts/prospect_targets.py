@@ -329,6 +329,7 @@ def _source_binding_errors(value: Any) -> list[str]:
         "bea-release",
         "bls-qcew",
         "census-spm-annual-report",
+        "eia-dnav-xls",
         "eurostat-api",
         "fsa-crp-monthly-summary",
         "generic-url",

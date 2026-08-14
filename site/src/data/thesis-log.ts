@@ -703,6 +703,7 @@ function isUnit(unit: string): unit is Unit {
     "usd_monthly",
     "thousands",
     "millions",
+    "million_cubic_feet",
     "per_1000_live_births",
     "ratio",
     "percent_growth",

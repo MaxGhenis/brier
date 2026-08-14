@@ -27,6 +27,7 @@ ALLOWED_UNITS = {
     "usd_monthly",
     "thousands",
     "millions",
+    "million_cubic_feet",
     "per_1000_live_births",
     "ratio",
     "minutes",

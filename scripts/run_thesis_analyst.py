@@ -651,6 +651,14 @@ def format_generation_ticket(ticket: dict[str, str] | None) -> str:
 # not change that; an explicit command does. PERIOD is chosen by the agent
 # (recent published periods); anchor values themselves are never injected.
 BASE_RATE_FETCH_COMMANDS = {
+    "eia-dnav-xls": (
+        "  pip install --user xlrd==2.0.1 >/dev/null 2>&1; "
+        "python3 -c \"import sys; sys.path.insert(0, 'scripts'); "
+        "import resolve_pending as r; "
+        "print(r.eia_dnav_fetch_year("
+        "r.EIA_DNAV_ADAPTERS['{series}'], 'PERIOD')[0])\""
+        "   # PERIOD = an annual reference year like 2024"
+    ),
     "irs-soi-pub1304": (
         "  pip install --user xlrd==2.0.1 >/dev/null 2>&1; "
         "python3 -c \"import sys; sys.path.insert(0, 'scripts'); "
@@ -735,7 +743,8 @@ def build_fast_prompt(
             if target_context and target_context.get("targetUnit")
             else (
                 "percent|count|thousands|millions|usd|usd_millions|"
-                "usd_billions|gbp_billions|ratio|percent_growth"
+                "usd_billions|gbp_billions|million_cubic_feet|ratio|"
+                "percent_growth"
             )
         ),
         "pointEstimate": 0,

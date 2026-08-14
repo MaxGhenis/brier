@@ -466,6 +466,9 @@ def test_real_bounded_annual_seeds_are_reviewable_and_bound_to_docket() -> None:
         "irs.soi.credit_30d.total_claims",
         "irs.soi.credit_30d.total_credit_amount",
         "irs.actc.total_credit_amount",
+        # EIA DNav first print, admitted 2026-08-13 against the bounded
+        # October Natural Gas Annual publication month.
+        "eia.ng.vented_flared.us.annual",
         # SBA custody family, admitted 2026-08-08 (no release calendar;
         # bounded basis is the selector requirement for annual seeds).
         "sba.disaster.loan_program.charge_off_amount",

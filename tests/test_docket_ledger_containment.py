@@ -585,11 +585,11 @@ def _docket_file(tmp_path: pathlib.Path, entries: list[dict[str, Any]]):
 
 def test_docket_is_contained_in_frozen_catalog_fixture() -> None:
     raw = FIXTURE_PATH.read_bytes()
-    # Copied byte-for-byte from Chronicle #165's deterministically regenerated
-    # post-curation catalog.
-    assert len(raw) == 190_230
+    # Copied byte-for-byte from Chronicle #167's deterministically regenerated
+    # post-EIA catalog.
+    assert len(raw) == 190_855
     assert hashlib.sha256(raw).hexdigest() == (
-        "3a572f62d15b09e8c5e9a7e2c9d0ad0bd6111a54182fd552ef4fdd2f0cd89b3f"
+        "92f51a2181d0b26276e59fda6309bd8f849dc1f2050c26ddb38d9f6ad392082a"
     )
     _assert_containment(_object(raw, "frozen catalog fixture"), "fixture")
 

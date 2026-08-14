@@ -1,5 +1,51 @@
 # Anchor verifications — resolver-debt lane
 
+## EIA U.S. natural gas vented and flared (eia.ng.vented_flared.us.annual)
+
+Status: **VERIFIED CURRENT VINTAGE** (2026-08-13 UTC), not retrospective
+first-print custody. The official keyless dnav workbook was fetched from
+[`N9040US2a.xls`](https://www.eia.gov/dnav/ng/hist_xls/N9040US2a.xls) as a
+31,232-byte response with SHA-256
+`2097906a434f257678ed09ab34cb1a5bb6bd070b9430e0edfed3a32b738b3a92`.
+Its `Contents` sheet identifies one annual series named `U.S. Natural Gas
+Vented and Flared (MMcf)`, latest year 2024. On `Data 1`, cell `B2` fixes the
+source key as `N9040US2`, and the header at `B3` repeats the measure and MMcf
+unit.
+
+The exact selector matches the requested four-digit year displayed by the
+`YYYY`-formatted cell in column A, then reads the numeric MMcf value in column
+B. These three raw workbook rows reproduce the admitted anchors without a
+transform:
+
+| Annual period | Raw workbook cells (`Data 1`) | Value (MMcf) |
+|---|---|---:|
+| 2022 | `A90:B90` | 271,682 |
+| 2023 | `A91:B91` | 324,207 |
+| 2024 | `A92:B92` | 335,163 |
+
+The workbook and its official [dnav history
+page](https://www.eia.gov/dnav/ng/hist/n9040us2a.htm) share EIA's
+`Last-Modified: Tue, 28 Jul 2026 17:21:06 GMT` response header. The frozen
+workbook is therefore current-vintage identity and parser evidence as of the
+fetch, not proof of what EIA served when each historical value first appeared.
+Forward resolution must establish first-print custody by saving the first
+authenticated workbook in the registered release window that contains the
+target annual row.
+
+EIA's [Natural Gas Annual](https://www.eia.gov/naturalgas/annual/) page says
+the current edition contains 2024 data and the next release is October 2026;
+its [upcoming reports schedule](https://www.eia.gov/reports/upcoming.php)
+independently places the Natural Gas Annual in October 2026. With no official
+day, the only supported 2025 window is 2026-10-01 through 2026-10-31. The
+landing page's linked [annual summary
+table](https://www.eia.gov/dnav/ng/ng_sum_lsum_dcu_nus_a.htm) closes the
+identity chain: its `Vented and Flared` row carries the same 2020-2024 MMcf
+values and links the exact `n9040us2a.htm` history page. Thesis freezes that
+59,307-byte response at SHA-256
+`19990844a4f4b1b961292eaed8e59e87e2a8b3b4d065db691eb1e74f23f9eb9a`.
+The frozen source and schedule responses, headers, hashes, and the API's
+key-gated verdict are documented in `tests/fixtures/eia_dnav/README.md`.
+
 ## QCEW aircraft manufacturing establishments (bls.qcew.aircraft_manufacturing.establishments)
 
 Verified 2026-07-25 (UTC) by the integrating session against the live

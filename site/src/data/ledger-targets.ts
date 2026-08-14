@@ -16,6 +16,7 @@ export type TargetSourceAdapter =
   | "bea-release"
   | "bls-qcew"
   | "census-spm-annual-report"
+  | "eia-dnav-xls"
   | "eurostat-api"
   | "fsa-crp-monthly-summary"
   | "generic-url"

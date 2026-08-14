@@ -59,6 +59,7 @@ SOURCE_ADAPTERS = {
     "bea-release",
     "bls-qcew",
     "census-spm-annual-report",
+    "eia-dnav-xls",
     "eurostat-api",
     "fsa-crp-monthly-summary",
     "generic-url",
@@ -76,6 +77,7 @@ SOURCE_ADAPTER_ALLOWED_HOSTS = {
     "bea-release": {"apps.bea.gov", "www.bea.gov"},
     "bls-qcew": {"data.bls.gov", "www.bls.gov"},
     "census-spm-annual-report": {"www.census.gov", "www2.census.gov"},
+    "eia-dnav-xls": {"www.eia.gov"},
     "sba-loan-program-performance-pdf": {"legacy.sba.gov", "www.sba.gov"},
 }
 NATIVE_INTL_SOURCE_ADAPTERS = {

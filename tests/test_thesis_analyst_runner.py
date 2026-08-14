@@ -1008,6 +1008,7 @@ def test_fast_prompt_offers_the_unit_menu_only_without_a_registration():
         check=True,
     )
     assert "percent|count|thousands" in result.stdout
+    assert "million_cubic_feet" in result.stdout
     assert "the registered targetUnit, byte-for-byte" not in result.stdout
 
 
@@ -3466,6 +3467,19 @@ def test_target_context_surfaces_the_resolution_parser_command() -> None:
     )
     assert "FSA_CRP_ADAPTERS['usda.fsa.crp.enrolled_acres_total']" in crp
     assert "fsa_crp_fetch_period" in crp
+
+    eia = analyst_runner.format_target_context(
+        {
+            "series": "eia.ng.vented_flared.us.annual",
+            "sourceBinding": {"adapter": "eia-dnav-xls"},
+        }
+    )
+    assert "EIA_DNAV_ADAPTERS['eia.ng.vented_flared.us.annual']" in eia
+    assert "eia_dnav_fetch_year" in eia
+    assert "xlrd==2.0.1" in eia
+    assert "PERIOD" in eia
+    for anchor_value in ("271682", "324207", "335163"):
+        assert anchor_value not in eia
 
     plain = analyst_runner.format_target_context(
         {"series": "x.y", "sourceBinding": {"adapter": "alfred-fred"}}

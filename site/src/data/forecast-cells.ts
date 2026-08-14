@@ -96,6 +96,7 @@ export type Unit =
   | "usd_monthly"
   | "thousands"
   | "millions"
+  | "million_cubic_feet"
   | "per_1000_live_births"
   | "ratio"
   | "minutes"
@@ -7734,6 +7735,8 @@ export function formatValue(value: number, unit: Unit): string {
       return `${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}k`;
     case "millions":
       return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}M`;
+    case "million_cubic_feet":
+      return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} MMcf`;
     case "per_1000_live_births":
       return `${value.toFixed(2)} per 1,000`;
     case "ratio":

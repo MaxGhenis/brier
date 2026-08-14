@@ -64,6 +64,15 @@ def test_leakage_gate_fires_on_fresh_cells_with_top_level_run_at() -> None:
     assert not any("leakage" in error for error in errors_ok), errors_ok
 
 
+def test_million_cubic_feet_is_a_canonical_exploratory_unit() -> None:
+    cell = probe_cell("2026-07-17")
+    cell["unit"] = "million_cubic_feet"
+
+    errors = spawned_cells_to_ts.validate(cell, set())
+
+    assert not any("not allowed" in error for error in errors), errors
+
+
 # The committed 2026-08-07 DoD registration whose immutable unit
 # ("billions USD") is not an ALLOWED_UNITS member — the incident that
 # motivated the registration-authenticated exemption.
