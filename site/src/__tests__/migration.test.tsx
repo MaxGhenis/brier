@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 // Mock next/link to render as a simple <a> tag
 vi.mock("next/link", () => ({
@@ -64,20 +64,28 @@ describe("Next.js migration", () => {
         }),
       );
 
-      const published = FORECAST_CELLS.some(
+      const eiaCell = FORECAST_CELLS.find(
         (cell) =>
           cell.dataPointId ===
           "eia.ng.vented_flared.us.annual.2025.first_print",
       );
-      if (published) {
+      if (eiaCell) {
         expect(
           screen.queryByText(
             "Admitted to the docket — awaiting ticketed registration and generation through the attested lane.",
           ),
         ).not.toBeInTheDocument();
-        expect(
-          screen.getAllByText(/vented and flared/i).length,
-        ).toBeGreaterThan(0);
+        // The published surface must actually render: the cell's own
+        // card with its forecast values, not merely the series label
+        // (which the pending state also shows).
+        const card = screen.getByText(eiaCell.title).closest("a");
+        expect(card).not.toBeNull();
+        expect(within(card as HTMLElement).getByText("Current forecast"))
+          .toBeInTheDocument();
+        expect(within(card as HTMLElement).getByText(eiaCell.pointLabel))
+          .toBeInTheDocument();
+        expect(within(card as HTMLElement).getByText(eiaCell.ciLabel))
+          .toBeInTheDocument();
       } else {
         expect(
           screen.getByText(
