@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import subprocess
 import sys
 
 import pytest
@@ -23,7 +24,7 @@ import spawned_cells_to_ts  # noqa: E402
 import verify_wave_reproducibility  # noqa: E402
 
 
-def sealed_agent(version: str = "2.5.9") -> dict[str, str]:
+def sealed_agent(version: str = "2.5.10") -> dict[str, str]:
     return {
         "agent": "thesis.analyst",
         "agentVersion": version,
@@ -741,20 +742,175 @@ def test_promotion_rejects_malformed_sealed_agent_version(
 @pytest.mark.parametrize(
     "agent_version", ["2.5.9-alpha+build", "2.2.0+median3", "0.0.0"]
 )
-def test_promotion_accepts_strict_valid_semver(
+def test_sealed_agent_meta_accepts_strict_valid_semver(
     tmp_path: pathlib.Path, agent_version: str
 ) -> None:
     (tmp_path / "manifest.json").write_text(
         json.dumps(successful_manifest(agent=sealed_agent(agent_version)))
     )
-    cells_path = tmp_path / "normalized_cells.json"
-    cell = stampable_cell()
+
+    meta = spawned_cells_to_ts.sealed_agent_meta(tmp_path)
+
+    assert meta is not None
+    assert meta["agentVersion"] == agent_version
+
+
+def test_promotion_refuses_handmade_pre_floor_manifest(
+    tmp_path: pathlib.Path,
+) -> None:
+    cell = probe_cell("2026-07-17")
     cell["runAt"] = "2026-07-01T00:00:00Z"
+    cell["historicalContext"] = cell["historicalContext"][:5]
+    cells_path = tmp_path / "cells.with_activity.json"
     cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.9"),
+                cellsPath="records/thesis-analyst/forged/cells.with_activity.json",
+            )
+        )
+    )
 
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    with pytest.raises(ValueError, match="outside the repository records tree"):
+        spawned_cells_to_ts.load_cells(cells_path)
 
-    assert loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"] == agent_version
+
+def test_promotion_refuses_copied_real_legacy_manifest_with_other_cells(
+    tmp_path: pathlib.Path,
+) -> None:
+    real_manifest = (
+        ROOT
+        / "records/thesis-analyst/2026-06-17"
+        / "2026-06-17t02-04-41z-abs-labour-employment-change-2026-05"
+        / "manifest.json"
+    )
+    (tmp_path / "manifest.json").write_bytes(real_manifest.read_bytes())
+    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="outside the repository records tree"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def committed_legacy_fixture(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    declared_cells_path: str | None = None,
+) -> tuple[pathlib.Path, pathlib.Path]:
+    repo = tmp_path / "repo"
+    run_relative = pathlib.Path(
+        "records/thesis-analyst/2026-07-01/legacy-binding-fixture"
+    )
+    run_dir = repo / run_relative
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+    manifest_path = run_dir / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.0.0"),
+                cellsPath=(
+                    declared_cells_path
+                    or (run_relative / "cells.with_activity.json").as_posix()
+                ),
+            )
+        )
+    )
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "records"], cwd=repo, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=Legacy Fixture",
+            "-c",
+            "user.email=legacy-fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Commit legacy fixture",
+        ],
+        cwd=repo,
+        check=True,
+    )
+    commit = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo, text=True
+    ).strip()
+    monkeypatch.setattr(spawned_cells_to_ts, "ROOT", repo)
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "LEGACY_HISTORY_RECORDS_COMMIT",
+        commit,
+    )
+    return manifest_path, cells_path
+
+
+@pytest.mark.parametrize("changed_artifact", ["manifest", "cells"])
+def test_promotion_refuses_legacy_bytes_changed_after_known_commit(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    changed_artifact: str,
+) -> None:
+    manifest_path, cells_path = committed_legacy_fixture(tmp_path, monkeypatch)
+    if changed_artifact == "manifest":
+        manifest = json.loads(manifest_path.read_text())
+        manifest["agent"]["promptHash"] = "c" * 64
+        manifest_path.write_text(json.dumps(manifest))
+    else:
+        cells_path.write_bytes(cells_path.read_bytes() + b"\n")
+
+    with pytest.raises(ValueError, match="bytes differ from the known committed"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_promotion_refuses_committed_legacy_manifest_bound_to_other_cells(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _manifest_path, cells_path = committed_legacy_fixture(
+        tmp_path,
+        monkeypatch,
+        declared_cells_path=(
+            "records/thesis-analyst/2026-07-01/legacy-binding-fixture/other.json"
+        ),
+    )
+
+    with pytest.raises(ValueError, match="cellsPath does not name converter input"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_later_branch_commit_cannot_expand_known_legacy_records(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _manifest_path, cells_path = committed_legacy_fixture(tmp_path, monkeypatch)
+    cells_path.write_bytes(cells_path.read_bytes() + b"\n")
+    subprocess.run(["git", "add", "records"], cwd=tmp_path / "repo", check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=Legacy Fixture",
+            "-c",
+            "user.email=legacy-fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Change legacy fixture after cutoff",
+        ],
+        cwd=tmp_path / "repo",
+        check=True,
+    )
+
+    with pytest.raises(ValueError, match="bytes differ from the known committed"):
+        spawned_cells_to_ts.load_cells(cells_path)
 
 
 def test_promotion_refuses_current_five_print_cell(
@@ -856,6 +1012,51 @@ def test_promotion_keeps_valid_pre_floor_record_with_legacy_history() -> None:
         spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]["agentVersion"]
         == "2.5.9"
     )
+
+
+def test_all_committed_pre_floor_records_replay_through_promotion() -> None:
+    manifests: list[tuple[pathlib.Path, dict, str]] = []
+    for manifest_path in sorted(
+        (ROOT / "records/thesis-analyst").rglob("manifest.json")
+    ):
+        manifest = json.loads(manifest_path.read_text())
+        agent = manifest.get("agent") if isinstance(manifest, dict) else None
+        version = agent.get("agentVersion") if isinstance(agent, dict) else None
+        if (
+            manifest.get("ok") is True
+            and spawned_cells_to_ts.valid_agent_version(version)
+            and not spawned_cells_to_ts.agent_version_enforces_history_floor(version)
+        ):
+            manifests.append((manifest_path, manifest, version))
+
+    assert len(manifests) == 509
+    cell_count = 0
+    history_row_count = 0
+    rooted_count = 0
+    for manifest_path, manifest, version in manifests:
+        rooted_count += int((manifest_path.parent / "custody_root.json").is_file())
+        cells_path = ROOT / manifest["cellsPath"]
+        loaded = spawned_cells_to_ts.load_cells(cells_path)
+        assert len(loaded) == 1, cells_path
+        for cell in loaded:
+            sealed_version = cell[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"]
+            assert sealed_version == version
+            assert (
+                spawned_cells_to_ts.history_floor_errors(
+                    cell,
+                    agent_version=sealed_version,
+                )
+                == []
+            ), cells_path
+            projected = spawned_cells_to_ts.to_forecast_cell(cell)
+            assert projected["predictionRun"]["agentVersion"] == version
+            cell_count += 1
+            history_row_count += len(cell["historicalContext"])
+
+    assert cell_count == 509
+    assert history_row_count == 2_637
+    assert rooted_count == 326
+    assert len(manifests) - rooted_count == 183
 
 
 def test_recorded_failed_manifest_never_promotes(tmp_path: pathlib.Path) -> None:

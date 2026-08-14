@@ -3663,6 +3663,49 @@ def test_pre_floor_version_still_requires_three_legacy_points() -> None:
 
 
 @pytest.mark.parametrize(
+    "history, expected_error",
+    [
+        ([[], [], []], "historicalContext[0] must be an object"),
+        ([{}, {}], "historicalContext[0] has no nonempty label"),
+        (["x", 7, None], "historicalContext[0] must be an object"),
+    ],
+)
+def test_pre_floor_version_refuses_malformed_legacy_history_shapes(
+    history: list[object],
+    expected_error: str,
+) -> None:
+    cell = history_floor_test_cell(3)
+    cell["historicalContext"] = history
+
+    report = history_floor_validation(cell, agent_version="2.5.9")
+
+    assert report["ok"] is False
+    assert expected_error in report["cells"][0]["errors"]
+
+
+@pytest.mark.parametrize(
+    "row, expected_error",
+    [
+        ({"label": "   ", "value": 1.0}, "has no nonempty label"),
+        ({"label": "legacy", "value": float("inf")}, "has no finite numeric value"),
+        ({"label": "legacy", "value": float("nan")}, "has no finite numeric value"),
+        ({"label": "legacy", "value": True}, "has no finite numeric value"),
+    ],
+)
+def test_pre_floor_version_requires_labeled_finite_numeric_legacy_rows(
+    row: dict[str, object],
+    expected_error: str,
+) -> None:
+    cell = history_floor_test_cell(3)
+    cell["historicalContext"][0] = row
+
+    report = history_floor_validation(cell, agent_version="2.5.9")
+
+    assert report["ok"] is False
+    assert any(expected_error in error for error in report["cells"][0]["errors"])
+
+
+@pytest.mark.parametrize(
     "agent_version",
     [
         None,

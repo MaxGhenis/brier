@@ -852,9 +852,15 @@ def provenance_replay_cell() -> dict:
         "resolutionRule": "Use the first published synthetic agency value.",
         "dataPointId": "agency.synthetic.rate.2030_01.first_print",
         "historicalContext": [
-            {"label": "2029-10", "value": 1.0},
-            {"label": "2029-11", "value": 0.9},
-            {"label": "2029-12", "value": 1.1},
+            {
+                "period": {"type": "month", "value": f"2029-{month:02d}"},
+                "label": f"2029-{month:02d}",
+                "value": value,
+            }
+            for month, value in enumerate(
+                [0.8, 1.0, 0.9, 1.0, 0.9, 1.1],
+                start=7,
+            )
         ],
         "drivers": ["recent level", "release volatility"],
         "sourceContext": [
@@ -909,7 +915,7 @@ def convert_provenance_replay_candidate(
                 "ok": True,
                 "agent": {
                     "agent": "thesis.analyst",
-                    "agentVersion": "2.5.9",
+                    "agentVersion": "2.5.10",
                     "promptHash": "a" * 64,
                     "toolPolicyHash": "b" * 64,
                 },

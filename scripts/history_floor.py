@@ -288,6 +288,28 @@ def _period_label_syntax_problem(label: Any) -> str | None:
     return problem
 
 
+def _history_row_structure_errors(entry: Any, index: int) -> list[str]:
+    """Validate the legacy-safe structure shared by every history regime."""
+
+    if not isinstance(entry, dict):
+        return [f"historicalContext[{index}] must be an object"]
+
+    errors: list[str] = []
+    label = entry.get("label")
+    value = entry.get("value")
+    if not isinstance(label, str) or not label.strip():
+        errors.append(f"historicalContext[{index}] has no nonempty label")
+    finite_numeric = False
+    if not isinstance(value, bool) and isinstance(value, (int, float)):
+        try:
+            finite_numeric = math.isfinite(float(value))
+        except (OverflowError, ValueError):
+            finite_numeric = False
+    if not finite_numeric:
+        errors.append(f"historicalContext[{index}] has no finite numeric value")
+    return errors
+
+
 def _numeric_history_rows(
     cell: dict[str, Any],
 ) -> tuple[list[tuple[str, str]], list[str]]:
@@ -298,21 +320,10 @@ def _numeric_history_rows(
     identities: list[tuple[str, str]] = []
     errors: list[str] = []
     for index, entry in enumerate(history):
+        errors.extend(_history_row_structure_errors(entry, index))
         if not isinstance(entry, dict):
-            errors.append(f"historicalContext[{index}] must be an object")
             continue
         label = entry.get("label")
-        value = entry.get("value")
-        if not isinstance(label, str) or not label.strip():
-            errors.append(f"historicalContext[{index}] has no nonempty label")
-        finite_numeric = False
-        if not isinstance(value, bool) and isinstance(value, (int, float)):
-            try:
-                finite_numeric = math.isfinite(float(value))
-            except (OverflowError, ValueError):
-                finite_numeric = False
-        if not finite_numeric:
-            errors.append(f"historicalContext[{index}] has no finite numeric value")
         identity = canonical_period_identity(entry.get("period"))
         if identity is None:
             errors.append(
@@ -540,9 +551,16 @@ def history_floor_errors(
     else:
         version_errors = []
         if not agent_version_enforces_history_floor(agent_version):
-            if not isinstance(history, list) or len(history) < HISTORY_MINIMUM_PRINTS:
-                return [f"needs >={HISTORY_MINIMUM_PRINTS} historical points"]
-            return []
+            if not isinstance(history, list):
+                return ["historicalContext must be a list"]
+            errors = [
+                error
+                for index, entry in enumerate(history)
+                for error in _history_row_structure_errors(entry, index)
+            ]
+            if len(history) < HISTORY_MINIMUM_PRINTS:
+                errors.append(f"needs >={HISTORY_MINIMUM_PRINTS} historical points")
+            return errors
 
     identities, errors = _numeric_history_rows(cell)
     errors = version_errors + errors

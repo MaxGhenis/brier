@@ -10,11 +10,17 @@ import argparse
 import json
 import pathlib
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CUSTODY_ENFORCEMENT_DATE = "2026-07-10"
+# Immutable parent of the commit that introduced the 2.5.10 history floor.
+# A custody-less run may use the legacy floor only if both its manifest and
+# cells are byte-identical to this already-known records tree. Using HEAD here
+# would let a later branch commit manufacture a new grandfathered record.
+LEGACY_HISTORY_RECORDS_COMMIT = "9668e4a5e6c627704caca6ec9ba518739597a0d5"
 PROVENANCE_VALUES = {"ci", "local_operator_attested"}
 
 ALLOWED_UNITS = {
@@ -66,6 +72,7 @@ REQUIRED = [
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 try:
     from history_floor import (
+        agent_version_enforces_history_floor,
         history_floor_errors,
         history_floor_requires_authorization,
         reviewed_history_floor_authorization,
@@ -487,8 +494,6 @@ def agent_stamp() -> dict:
     that never produced it, and broke wave reproducibility until the wave was
     regenerated into that same untruth (2026-07-25).
     """
-    import subprocess
-
     builder = (
         pathlib.Path(__file__).resolve().parents[1]
         / "agents/thesis-analyst/build_prompt.py"
@@ -499,12 +504,94 @@ def agent_stamp() -> dict:
     return meta
 
 
-def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
+def _analyst_record_relative_path(path: pathlib.Path) -> pathlib.PurePosixPath:
+    """Return a canonical records-tree path or fail closed."""
+
+    try:
+        resolved = path.resolve(strict=True)
+        relative = resolved.relative_to(ROOT.resolve(strict=True))
+    except (FileNotFoundError, ValueError) as exc:
+        raise ValueError(
+            f"legacy grandfather input is outside the repository records tree: {path}"
+        ) from exc
+    if not resolved.is_file() or relative.parts[:2] != ("records", "thesis-analyst"):
+        raise ValueError(
+            f"legacy grandfather input is outside the analyst records tree: {path}"
+        )
+    return pathlib.PurePosixPath(relative.as_posix())
+
+
+def _require_legacy_committed_bytes(
+    actual_bytes: bytes,
+    relative: pathlib.PurePosixPath,
+) -> None:
+    """Bind one legacy artifact to the immutable pre-floor Git tree."""
+
+    committed = subprocess.run(
+        [
+            "git",
+            "--no-replace-objects",
+            "-C",
+            str(ROOT),
+            "show",
+            f"{LEGACY_HISTORY_RECORDS_COMMIT}:{relative.as_posix()}",
+        ],
+        capture_output=True,
+        check=False,
+    )
+    if committed.returncode != 0:
+        raise ValueError(
+            "legacy grandfather input is not a known committed record at "
+            f"{LEGACY_HISTORY_RECORDS_COMMIT}: {relative.as_posix()}"
+        )
+    if committed.stdout != actual_bytes:
+        raise ValueError(
+            "legacy grandfather input bytes differ from the known committed record: "
+            f"{relative.as_posix()}"
+        )
+
+
+def authenticate_legacy_record(
+    path: pathlib.Path,
+    manifest_path: pathlib.Path,
+    manifest: dict,
+    *,
+    cells_bytes: bytes,
+    manifest_bytes: bytes,
+) -> None:
+    """Authenticate a custody-less pre-floor manifest/cells pair."""
+
+    cells_relative = _analyst_record_relative_path(path)
+    manifest_relative = _analyst_record_relative_path(manifest_path)
+    if (
+        manifest_relative.name != "manifest.json"
+        or manifest_relative.parent != cells_relative.parent
+    ):
+        raise ValueError(
+            "legacy grandfather manifest and cells are not siblings in one "
+            "committed analyst record"
+        )
+    declared = manifest.get("cellsPath")
+    if not isinstance(declared, str) or declared != cells_relative.as_posix():
+        raise ValueError(
+            "legacy manifest cellsPath does not name converter input: "
+            f"{declared!r} != {cells_relative.as_posix()!r}"
+        )
+    _require_legacy_committed_bytes(manifest_bytes, manifest_relative)
+    _require_legacy_committed_bytes(cells_bytes, cells_relative)
+
+
+def sealed_agent_meta(
+    run_dir: pathlib.Path,
+    *,
+    manifest: object | None = None,
+) -> dict | None:
     """Agent identity recorded in a run's manifest, if it has one."""
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         return None
-    manifest = json.loads(manifest_path.read_text())
+    if manifest is None:
+        manifest = json.loads(manifest_path.read_bytes())
     if not isinstance(manifest, dict):
         raise ValueError(f"run manifest is not an object: {manifest_path}")
     if manifest.get("ok") is not True:
@@ -523,13 +610,21 @@ def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
     return meta
 
 
-def sealed_generation_ticket(run_dir: pathlib.Path) -> dict | None:
+def sealed_generation_ticket(
+    run_dir: pathlib.Path,
+    *,
+    manifest: object | None = None,
+) -> dict | None:
     """Return the publishable ticket identity sealed into a run manifest."""
 
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         return None
-    ticket = json.loads(manifest_path.read_text()).get("generationTicket")
+    if manifest is None:
+        manifest = json.loads(manifest_path.read_bytes())
+    if not isinstance(manifest, dict):
+        raise ValueError(f"run manifest is not an object: {manifest_path}")
+    ticket = manifest.get("generationTicket")
     if ticket is None:
         return None
     if not isinstance(ticket, dict) or not all(
@@ -551,6 +646,7 @@ def carry_sealed_run_metadata(
     run_dir: pathlib.Path,
     *,
     provenance: str | None = None,
+    manifest: object | None = None,
 ) -> None:
     """Replace any input claims with metadata read from the run manifest."""
 
@@ -570,10 +666,11 @@ def carry_sealed_run_metadata(
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         raise ValueError(f"cell input lacks manifest.json: {run_dir}")
-    sealed_agent = sealed_agent_meta(run_dir)
+    if manifest is None:
+        manifest = json.loads(manifest_path.read_bytes())
+    sealed_agent = sealed_agent_meta(run_dir, manifest=manifest)
     if sealed_agent is None:
         raise ValueError(f"run manifest has no sealed agent metadata: {manifest_path}")
-    manifest = json.loads(manifest_path.read_text())
     if not isinstance(manifest, dict):
         raise ValueError(f"run manifest is not an object: {manifest_path}")
     sealed_review = manifest.get("preSubmitReview")
@@ -613,7 +710,7 @@ def carry_sealed_run_metadata(
     sealed_ticket = None
     if provenance == "local_operator_attested":
         try:
-            sealed_ticket = sealed_generation_ticket(run_dir)
+            sealed_ticket = sealed_generation_ticket(run_dir, manifest=manifest)
         except ValueError as exc:
             raise ValueError(
                 "--provenance local_operator_attested requires a valid "
@@ -728,19 +825,27 @@ def load_cells(
 ) -> list[dict]:
     from normalize_spawn_json import scrub_signed_zeros
 
-    cells = scrub_signed_zeros(json.loads(path.read_text()))
+    cells_bytes = path.read_bytes()
+    cells = scrub_signed_zeros(json.loads(cells_bytes))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
     if not manifest_path.exists():
         raise ValueError(f"cell input lacks manifest.json: {path}")
-    carry_sealed_run_metadata(cells, path.parent, provenance=provenance)
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
+    carry_sealed_run_metadata(
+        cells,
+        path.parent,
+        provenance=provenance,
+        manifest=manifest,
+    )
+    agent_version = manifest["agent"]["agentVersion"]
     if custody_path.exists():
         from verify_custody import verify_run
 
         verify_run(path.parent)
-        manifest = json.loads(manifest_path.read_text())
         declared = pathlib.Path(manifest["cellsPath"])
         if not declared.is_absolute():
             declared = ROOT / declared
@@ -751,6 +856,14 @@ def load_cells(
             )
         for cell in cells:
             cell["custodyRootSha256"] = manifest["custodyRootSha256"]
+    elif not agent_version_enforces_history_floor(agent_version):
+        authenticate_legacy_record(
+            path,
+            manifest_path,
+            manifest,
+            cells_bytes=cells_bytes,
+            manifest_bytes=manifest_bytes,
+        )
     elif any(
         str(cell.get("runAt", ""))[:10] >= CUSTODY_ENFORCEMENT_DATE for cell in cells
     ):
