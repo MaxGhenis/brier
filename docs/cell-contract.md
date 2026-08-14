@@ -64,6 +64,28 @@ step; one math derivation; one disconfirming consideration ("outside the
 interval if…"); final forecast step exactly matching the cell numbers;
 historicalContext >=3 real points; ciLow < point < ciHigh.
 
+New thesis.analyst generations require at least 6 distinct numeric
+`historicalContext` prints whenever the official source exposes them. If the
+official source exposes fewer than 6, fetch every available print and add this
+top-level structured attestation alongside `historicalContext` (with the
+actual count and a nonempty detail):
+
+```json
+{
+  "historyAvailability": {
+    "status": "official_source_exposes_fewer_than_six_prints",
+    "availablePrintCount": 5,
+    "detail": "Series began recently; the official source exposes only these five prints."
+  }
+}
+```
+
+The runner checks the exact status, count agreement, and nonempty detail; it
+does not infer the exception from free text. This declaration is an auditable
+agent claim, not independent proof that the official source lacks older
+prints. It remains in the run artifacts and is omitted from the generated
+catalog cell.
+
 `resolutionDate` has two target-context branches:
 
 - `resolutionDateBasis` absent or `release-calendar` (the default): verify the

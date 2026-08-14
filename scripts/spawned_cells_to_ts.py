@@ -81,6 +81,7 @@ def private_source_hits(cell: dict) -> list[str]:
         "drivers": cell.get("drivers"),
         "reasoning": cell.get("reasoning"),
         "historicalContext": cell.get("historicalContext"),
+        "historyAvailability": cell.get("historyAvailability"),
     }
     for name, value in fields.items():
         text = json.dumps(value, ensure_ascii=False, sort_keys=True)
@@ -535,9 +536,7 @@ def carry_sealed_run_metadata(
         cell.pop("preSubmitReview", None)
     sealed_agent = sealed_agent_meta(run_dir)
     manifest_path = run_dir / "manifest.json"
-    manifest = (
-        json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    )
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     sealed_review = manifest.get("preSubmitReview")
     if sealed_review is not None and not isinstance(sealed_review, dict):
         raise ValueError(f"manifest preSubmitReview is invalid: {manifest_path}")
@@ -553,8 +552,7 @@ def carry_sealed_run_metadata(
     validation_ticket = manifest.get("generationTicket")
     if provenance == "ci" and has_ticket:
         raise ValueError(
-            "ticketed runs must be converted with --provenance "
-            "local_operator_attested"
+            "ticketed runs must be converted with --provenance local_operator_attested"
         )
     sealed_ticket = None
     if provenance == "local_operator_attested":
@@ -640,8 +638,7 @@ def to_forecast_cell(
             for key in ("ticketId", "ticketPath")
         ):
             raise ValueError(
-                "--provenance local_operator_attested requires a valid "
-                "generationTicket"
+                "--provenance local_operator_attested requires a valid generationTicket"
             )
         out["predictionRun"]["provenance"] = "local_operator_attested"
         out["predictionRun"]["generationTicket"] = {

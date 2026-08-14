@@ -24,12 +24,9 @@ from canonical_json import canonical_sha256  # noqa: E402
 
 NONCE = "a" * 64
 TICKET_ID = "2030-01-10-deadbeef"
-TICKET_RELATIVE = pathlib.PurePosixPath(
-    f"records/tickets/2030-01-10/{TICKET_ID}.json"
-)
+TICKET_RELATIVE = pathlib.PurePosixPath(f"records/tickets/2030-01-10/{TICKET_ID}.json")
 RUN_RELATIVE = pathlib.PurePosixPath(
-    "records/thesis-analyst/2030-01-10/"
-    "2030-01-10t12-00-00z-agency-test-rate"
+    "records/thesis-analyst/2030-01-10/2030-01-10t12-00-00z-agency-test-rate"
 )
 RUN_STARTED_AT = "2030-01-10T12:00:00Z"
 DRAFT_STARTED_AT = "2030-01-10T12:00:01Z"
@@ -40,9 +37,7 @@ FINAL_STARTED_AT = "2030-01-10T12:00:21Z"
 FINAL_FINISHED_AT = "2030-01-10T12:00:30Z"
 SEALED_AT = "2030-01-10T12:01:00Z"
 NOW_UTC = dt.datetime(2030, 1, 10, 13, tzinfo=dt.timezone.utc)
-BOUNDED_ANNOUNCEMENT_URL = (
-    "https://example.gov/spm-methodology-announcement"
-)
+BOUNDED_ANNOUNCEMENT_URL = "https://example.gov/spm-methodology-announcement"
 
 
 @dataclass
@@ -120,9 +115,7 @@ def run_manifest_path(fixture: AttestedFixture) -> pathlib.Path:
     return run_path(fixture, "manifest.json")
 
 
-def rewrite_run_manifest(
-    fixture: AttestedFixture, mutate: Any
-) -> dict[str, Any]:
+def rewrite_run_manifest(fixture: AttestedFixture, mutate: Any) -> dict[str, Any]:
     path = run_manifest_path(fixture)
     manifest = json.loads(path.read_text())
     mutate(manifest)
@@ -184,9 +177,7 @@ def rewrite_final_response(
         "stdout.txt": response.encode(),
         "raw_response.txt": response.encode(),
         "parsed_cells.json": json.dumps(parsed, indent=2).encode(),
-        "normalized_cells.json": (
-            json.dumps(normalized, indent=2) + "\n"
-        ).encode(),
+        "normalized_cells.json": (json.dumps(normalized, indent=2) + "\n").encode(),
     }
     for filename, payload in replacements.items():
         rewrite_run_artifact(fixture, filename, payload)
@@ -413,8 +404,7 @@ def attested_bundle(
 
     bundle = tmp_path / "bundle"
     batch_relative = pathlib.PurePosixPath(
-        "records/thesis-analyst/batches/2030-01-10/"
-        f"attested-{TICKET_ID}.json"
+        f"records/thesis-analyst/batches/2030-01-10/attested-{TICKET_ID}.json"
     )
     fixture = AttestedFixture(
         repo,
@@ -503,6 +493,7 @@ def attested_bundle(
         target,
         policy["promptMode"],
         generation_ticket=generation_tickets.ticket_manifest_binding(prompt_context),
+        agent_version=prompt_meta.get("agentVersion"),
     )
     validation_errors = [
         error
@@ -572,18 +563,14 @@ def attested_bundle(
         )
         raw_jsonl = codex_jsonl(response, events=events)
         parsed_stream = analyst.parse_codex_jsonl(raw_jsonl, "")
-        artifact(
-            f"{prefix}codex_stdout.jsonl", "codex_stdout_jsonl", raw_jsonl
-        )
+        artifact(f"{prefix}codex_stdout.jsonl", "codex_stdout_jsonl", raw_jsonl)
         artifact(f"{prefix}codex_stderr.log", "codex_stderr_log", b"")
         artifact(
             f"{prefix}codex_events.jsonl",
             "codex_events_jsonl",
             parsed_stream["eventsJsonl"],
         )
-        artifact(
-            f"{prefix}codex_last_message.txt", "codex_last_message", response
-        )
+        artifact(f"{prefix}codex_last_message.txt", "codex_last_message", response)
         artifact(
             f"{prefix}codex_trace.json",
             "codex_trace",
@@ -610,9 +597,7 @@ def attested_bundle(
                 indent=2,
             ),
         )
-        stdout_ref = artifact(
-            f"{prefix}stdout.txt", stdout_artifact_type, response
-        )
+        stdout_ref = artifact(f"{prefix}stdout.txt", stdout_artifact_type, response)
         artifact(f"{prefix}stderr.txt", "stderr", b"")
         return command, stdout_ref
 
@@ -624,9 +609,7 @@ def attested_bundle(
         stdout_artifact_type="draft_forecast",
         started_at=DRAFT_STARTED_AT,
         finished_at=DRAFT_FINISHED_AT,
-        announcement_url=(
-            target["sourceBinding"]["sourceUrl"] if bounded else None
-        ),
+        announcement_url=(target["sourceBinding"]["sourceUrl"] if bounded else None),
         events=(
             [announcement_fetch_event(target["sourceBinding"]["sourceUrl"])]
             if bounded
@@ -641,9 +624,7 @@ def attested_bundle(
         original_prompt=prompt,
         draft_response=draft_response,
     )
-    artifact(
-        "pre_submit_review_prompt.md", "review_prompt", review_prompt
-    )
+    artifact("pre_submit_review_prompt.md", "review_prompt", review_prompt)
     review_command, review_ref = stage(
         prefix="pre_submit_review_",
         model=policy["reviewCodexModel"],
@@ -669,9 +650,7 @@ def attested_bundle(
         stdout_artifact_type="stdout",
         started_at=FINAL_STARTED_AT,
         finished_at=FINAL_FINISHED_AT,
-        announcement_url=(
-            target["sourceBinding"]["sourceUrl"] if bounded else None
-        ),
+        announcement_url=(target["sourceBinding"]["sourceUrl"] if bounded else None),
     )
     artifact("raw_response.txt", "raw_response", last_message)
     artifact("parsed_cells.json", "parsed_cell", json.dumps(parsed_cells, indent=2))
@@ -794,12 +773,9 @@ def test_bounded_target_context_flows_through_prompt_reconstruction(
     target = attested_bundle.ticket["targets"][0]
 
     assert 'resolutionDateBasis: "resolve-by-bound"' in prompt
+    assert f'registeredResolveByBound: "{target["resolutionDate"]}"' in prompt
     assert (
-        f'registeredResolveByBound: "{target["resolutionDate"]}"' in prompt
-    )
-    assert (
-        f'officialAnnouncementUrl: "{target["sourceBinding"]["sourceUrl"]}"'
-        in prompt
+        f'officialAnnouncementUrl: "{target["sourceBinding"]["sourceUrl"]}"' in prompt
     )
     assert "Thesis lab commitments" in prompt
     assert "announcement authenticates methodology identity only" in prompt
@@ -1040,9 +1016,7 @@ def test_superseded_ticket_is_refused(attested_bundle: AttestedFixture) -> None:
         }
     )
     generation_tickets.validate_ticket(successor)
-    write_payload(
-        attested_bundle.repo.joinpath(*successor_relative.parts), successor
-    )
+    write_payload(attested_bundle.repo.joinpath(*successor_relative.parts), successor)
 
     with pytest.raises(verifier.AttestedBundleError) as caught:
         verify(attested_bundle)
@@ -1074,9 +1048,10 @@ def test_wrong_batch_day_is_refused(attested_bundle: AttestedFixture) -> None:
     old_path = attested_bundle.bundle.joinpath(
         "repo", *attested_bundle.batch_relative.parts
     )
-    wrong_relative = pathlib.PurePosixPath(
-        "records/thesis-analyst/batches/2030-01-11"
-    ) / attested_bundle.batch_relative.name
+    wrong_relative = (
+        pathlib.PurePosixPath("records/thesis-analyst/batches/2030-01-11")
+        / attested_bundle.batch_relative.name
+    )
     wrong_path = attested_bundle.bundle.joinpath("repo", *wrong_relative.parts)
     wrong_path.parent.mkdir(parents=True)
     old_path.rename(wrong_path)
@@ -1432,8 +1407,7 @@ def test_nonzero_effective_command_is_refused(
     with pytest.raises(verifier.AttestedBundleError) as caught:
         verify(attested_bundle)
     assert str(caught.value) == (
-        "command shape check failed: run 0 command.json did not complete "
-        "successfully"
+        "command shape check failed: run 0 command.json did not complete successfully"
     )
 
 
@@ -1452,8 +1426,7 @@ def test_boolean_effective_command_code_is_refused(
     with pytest.raises(verifier.AttestedBundleError) as caught:
         verify(attested_bundle)
     assert str(caught.value) == (
-        "command shape check failed: run 0 command.json did not complete "
-        "successfully"
+        "command shape check failed: run 0 command.json did not complete successfully"
     )
 
 
@@ -1496,8 +1469,7 @@ def test_output_bearing_timeout_matches_runner_success_semantics(
     cells[0]["activityLog"] = [
         artifact
         for artifact in manifest["artifacts"]
-        if artifact.get("artifactType")
-        not in {"cells_with_activity", "manifest"}
+        if artifact.get("artifactType") not in {"cells_with_activity", "manifest"}
     ]
     rewrite_run_artifact(
         attested_bundle,
@@ -1751,9 +1723,7 @@ def test_invalid_utf8_batch_is_a_typed_refusal(
 def test_malformed_codex_event_is_a_typed_refusal(
     attested_bundle: AttestedFixture,
 ) -> None:
-    malformed = json.dumps(
-        {"type": "item.completed", "item": "not-an-object"}
-    ).encode()
+    malformed = json.dumps({"type": "item.completed", "item": "not-an-object"}).encode()
     rewrite_run_artifact(attested_bundle, "codex_stdout.jsonl", malformed)
 
     with pytest.raises(verifier.AttestedBundleError) as caught:

@@ -61,6 +61,19 @@ DEFAULT_RECORD_ROOT = ROOT / "records" / "thesis-analyst"
 CDF_POINT_COUNT = 201
 INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1"
 AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1"
+HISTORY_PRINT_FLOOR = 6
+HISTORY_FLOOR_AGENT_VERSION = "2.5.10"
+HISTORY_FLOOR_AGENT_VERSION_PARTS = (2, 5, 10)
+HISTORY_AVAILABILITY_STATUS = "official_source_exposes_fewer_than_six_prints"
+HISTORY_AVAILABILITY_PROMPT_EXAMPLE = {
+    "historyAvailability": {
+        "status": HISTORY_AVAILABILITY_STATUS,
+        "availablePrintCount": 5,
+        "detail": (
+            "Series began recently; the official source exposes only these five prints."
+        ),
+    }
+}
 ANNOUNCEMENT_MCP_SERVER = "thesis_announcement_fetch"
 ANNOUNCEMENT_MCP_TOOL = "fetch_official_announcement"
 ANNOUNCEMENT_MCP_SCRIPT = SCRIPTS / "announcement_fetch_mcp.py"
@@ -544,9 +557,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             lines.append(f"- {key}: {json.dumps(value, sort_keys=True)}")
     if target_context.get("resolutionDateBasis") == "resolve-by-bound":
         bound = target_context.get("resolutionDate")
-        announcement_url = (target_context.get("sourceBinding") or {}).get(
-            "sourceUrl"
-        )
+        announcement_url = (target_context.get("sourceBinding") or {}).get("sourceUrl")
         lines += [
             "",
             "# Resolve-by-bound target contract (machine checked)",
@@ -624,7 +635,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "line-item estimates, adjacent products) fails anchored "
             "validation even when it is a real official series. For each of "
             "the most recent published periods (fetch at least the latest "
-            "four), run:",
+            "six), run:",
             fetch_command.format(series=series),
         ]
     return "\n".join(lines)
@@ -790,9 +801,9 @@ def build_fast_prompt(
     target_context_text = f"{target_context_block}\n\n" if target_context_block else ""
     ticket_block = format_generation_ticket(ticket)
     ticket_text = f"{ticket_block}\n" if ticket_block else ""
-    bounded_target = (
-        (target_context or {}).get("resolutionDateBasis") == "resolve-by-bound"
-    )
+    bounded_target = (target_context or {}).get(
+        "resolutionDateBasis"
+    ) == "resolve-by-bound"
     if bounded_target:
         resolution_source_rule = (
             "- resolutionSourceUrl must byte-echo the registered official "
@@ -865,7 +876,9 @@ def build_fast_prompt(
         f"{domain_notes}\n\n"
         "# Default promoted forecasting practices\n"
         "- Resolve the exact first-print target before inside-view evidence.\n"
-        "- Fetch and state the recent official-source reference class.\n"
+        "- Fetch and state the recent official-source reference class: at "
+        "least 6 distinct prints are MANDATORY whenever the official source "
+        "exposes them.\n"
         "- Anchor on the outside-view base rate before current-release "
         "adjustments.\n"
         "- Separate level, momentum, one-off, and policy-mechanism effects "
@@ -911,7 +924,13 @@ def build_fast_prompt(
         "- Use confidence 0.8 exactly.\n"
         "- ciLow < pointEstimate < ciHigh, except discrete policy-rate "
         "targets may put the modal point at an interval edge if needed.\n"
-        "- historicalContext must contain at least 3 numeric fetched points.\n"
+        "- historicalContext must contain at least 6 distinct numeric fetched "
+        "prints. Validation refuses fewer whenever the official source "
+        "exposes 6 or more.\n"
+        "- Only when the official source exposes fewer than 6 prints, fetch "
+        "all available prints and add this top-level attestation (replace 5 "
+        "with the actual count and give a nonempty detail): "
+        f"{json.dumps(HISTORY_AVAILABILITY_PROMPT_EXAMPLE)}\n"
         "- sourceContext must contain at least 2 source URLs actually used.\n"
         "- sourceContext, reasoning, drivers, and tool calls must not cite or "
         "use private meeting notes, call transcripts, email/chat content, "
@@ -1673,10 +1692,9 @@ def announcement_mcp_config(
         f"{server}.cwd=" + json.dumps(str(checkout_root)),
         f"{server}.required=true",
         f'{server}.enabled_tools=["{ANNOUNCEMENT_MCP_TOOL}"]',
-        f"{server}.startup_timeout_sec="
-        f"{ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS}",
+        f"{server}.startup_timeout_sec={ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS}",
         f"{server}.tool_timeout_sec={ANNOUNCEMENT_MCP_TOOL_TIMEOUT_SECONDS}",
-        f"{server}.tools.{ANNOUNCEMENT_MCP_TOOL}.approval_mode=\"approve\"",
+        f'{server}.tools.{ANNOUNCEMENT_MCP_TOOL}.approval_mode="approve"',
     ]
 
 
@@ -1698,9 +1716,10 @@ def enforce_ticket_codex_stream_binding(
 ) -> dict[str, Any]:
     """Fail a ticket stage when raw JSONL and the Codex -o file disagree."""
 
-    if command_result.get("backend") != "codex" or command_result.get(
-        "returnCode"
-    ) != 0:
+    if (
+        command_result.get("backend") != "codex"
+        or command_result.get("returnCode") != 0
+    ):
         return command_result
     raw_stdout = command_result.get("codexStdoutRaw")
     raw_stderr = command_result.get("codexStderrRaw")
@@ -1806,8 +1825,7 @@ def workspace_guard_violations(
             )
         for line in sorted(set(pre_git) - set(post_git)):
             violations.append(
-                "workspace tree entry cleared during agent stage: "
-                f"{line.strip()}"
+                f"workspace tree entry cleared during agent stage: {line.strip()}"
             )
     return violations
 
@@ -1855,9 +1873,7 @@ def run_codex_agent_command(
     cmd.extend(["-C", str(ROOT), "-s", sandbox, prompt])
     logged_cmd = [*cmd[:-1], "<prompt>"]
 
-    guard_pre = (
-        workspace_guard_snapshot(out_dir) if sandbox != "read-only" else None
-    )
+    guard_pre = workspace_guard_snapshot(out_dir) if sandbox != "read-only" else None
 
     started_at = utc_now()
     terminated_after_output = False
@@ -2579,16 +2595,13 @@ def _reject_unencodable_numbers(value: Any, path: str = "cell") -> None:
     if isinstance(value, int):
         if abs(value) > 2**53:
             raise RuntimeError(
-                f"{path} carries an integer outside the exactly "
-                "representable range"
+                f"{path} carries an integer outside the exactly representable range"
             )
     elif isinstance(value, float):
         if value != value or value in (float("inf"), float("-inf")):
             raise RuntimeError(f"{path} carries a non-finite number")
         if abs(value) > 1e300:
-            raise RuntimeError(
-                f"{path} carries a float too large to canonicalize"
-            )
+            raise RuntimeError(f"{path} carries a float too large to canonicalize")
     elif isinstance(value, dict):
         for key, item in value.items():
             _reject_unencodable_numbers(item, f"{path}.{key}")
@@ -2643,6 +2656,72 @@ def seal_normalized_cells(
     return materialize_run_distributions(cells)
 
 
+def agent_version_enforces_history_floor(agent_version: Any) -> bool:
+    """Grandfather only runs carrying a valid pre-floor agent version.
+
+    Publication replays include many valid pre-floor cells with fewer than
+    six prints. Their sealed manifests carry valid older analyst versions.
+    Missing or malformed metadata fails closed so it cannot bypass the floor.
+    """
+
+    if not isinstance(agent_version, str):
+        return True
+    match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:[-+][0-9A-Za-z.-]+)?", agent_version)
+    if match is None:
+        return True
+    return (
+        tuple(int(part) for part in match.groups()) >= HISTORY_FLOOR_AGENT_VERSION_PARTS
+    )
+
+
+def history_floor_errors(cell: dict[str, Any]) -> list[str]:
+    """Require six distinct numeric prints or a structured source limit.
+
+    The model-authored declaration is an explicit, auditable claim, not proof
+    that the source truly is young. Exact status and count checks avoid prose
+    sniffing and ensure the agent fetched every print it says is available.
+    """
+
+    labels: set[str] = set()
+    history = cell.get("historicalContext")
+    if isinstance(history, list):
+        for entry in history:
+            if not isinstance(entry, dict):
+                continue
+            label = entry.get("label")
+            value = entry.get("value")
+            if not isinstance(label, str) or not label.strip():
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                continue
+            if not math.isfinite(float(value)):
+                continue
+            labels.add(label.strip().casefold())
+
+    print_count = len(labels)
+    if print_count >= HISTORY_PRINT_FLOOR:
+        return []
+
+    availability = cell.get("historyAvailability")
+    if (
+        isinstance(availability, dict)
+        and availability.get("status") == HISTORY_AVAILABILITY_STATUS
+        and type(availability.get("availablePrintCount")) is int
+        and availability["availablePrintCount"] == print_count
+        and isinstance(availability.get("detail"), str)
+        and bool(availability["detail"].strip())
+    ):
+        return []
+
+    noun = "print" if print_count == 1 else "prints"
+    return [
+        f"historicalContext has {print_count} distinct numeric {noun}; at least "
+        f"{HISTORY_PRINT_FLOOR} are mandatory unless historyAvailability has "
+        f"status {HISTORY_AVAILABILITY_STATUS!r}, availablePrintCount "
+        f"{print_count}, and nonempty detail"
+    ]
+
+
 def validate_cells(
     cells: list[dict],
     allow_existing_slug: bool = False,
@@ -2650,6 +2729,7 @@ def validate_cells(
     prompt_mode: str = "full",
     collision_exclusion: pathlib.Path | None = None,
     generation_ticket: dict[str, Any] | None = None,
+    agent_version: Any = HISTORY_FLOOR_AGENT_VERSION,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -2674,6 +2754,8 @@ def validate_cells(
         )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
+        if agent_version_enforces_history_floor(agent_version):
+            errors.extend(history_floor_errors(cell))
         errors.extend(target_context_validation_errors(cell, target_context))
         if prompt_mode in {"ladder", "ladder_v2"}:
             errors.extend(ladder_validation_errors(cell))
@@ -2775,17 +2857,14 @@ def bounded_announcement_errors(
     ):
         try:
             canonical_bound = (
-                datetime.strptime(registered_bound, "%Y-%m-%d")
-                .date()
-                .isoformat()
+                datetime.strptime(registered_bound, "%Y-%m-%d").date().isoformat()
                 == registered_bound
             )
         except ValueError:
             canonical_bound = False
     if not canonical_bound:
         errors.append(
-            "resolve-by-bound target has no canonical registered "
-            "resolutionDate bound"
+            "resolve-by-bound target has no canonical registered resolutionDate bound"
         )
     elif cell.get("resolutionDate") != registered_bound:
         errors.append(
@@ -2793,9 +2872,7 @@ def bounded_announcement_errors(
             f"{registered_bound!r}"
         )
     binding = target_context.get("sourceBinding")
-    announcement_url = (
-        binding.get("sourceUrl") if isinstance(binding, dict) else None
-    )
+    announcement_url = binding.get("sourceUrl") if isinstance(binding, dict) else None
     if not isinstance(announcement_url, str) or not announcement_url:
         errors.append(
             "resolve-by-bound target has no registered official announcement "
@@ -2972,10 +3049,7 @@ def history_anchor_errors(
             # semicolons) separates like a sentence does.
             if poison_mark in gap:
                 return "poison"
-            if any(
-                c.isalpha() or (c.isascii() and c not in cluster_seps)
-                for c in gap
-            ):
+            if any(c.isalpha() or (c.isascii() and c not in cluster_seps) for c in gap):
                 return "break"
             return "poison"
 
@@ -3224,6 +3298,9 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
         ),
         "dataPointId": f"{series}.{slugify(period)}.first_print",
         "historicalContext": [
+            {"label": "t-6", "value": 4.9},
+            {"label": "t-5", "value": 5.0},
+            {"label": "t-4", "value": 5.1},
             {"label": "t-3", "value": 5.0},
             {"label": "t-2", "value": 5.1},
             {"label": "t-1", "value": 5.2},
@@ -3239,15 +3316,18 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
             {
                 "kind": "text",
                 "text": (
-                    "Reference class base rate from the last 3 prints is 5.1, "
-                    "with recent values clustered between 5.0 and 5.2."
+                    "Reference class base rate from the last 6 prints is 5.1, "
+                    "with recent values clustered between 4.9 and 5.2."
                 ),
             },
             {
                 "kind": "tool",
                 "tool": "official.lookup",
                 "call": f"official.lookup(series='{series}', period='{period}')",
-                "result": "{t_minus_3: 5.0, t_minus_2: 5.1, t_minus_1: 5.2}",
+                "result": (
+                    "{t_minus_6: 4.9, t_minus_5: 5.0, t_minus_4: 5.1, "
+                    "t_minus_3: 5.0, t_minus_2: 5.1, t_minus_1: 5.2}"
+                ),
             },
             {
                 "kind": "tool",
@@ -3931,6 +4011,7 @@ def main() -> int:
             target_context,
             args.prompt_mode,
             generation_ticket=generation_ticket,
+            agent_version=runtime_meta.get("agentVersion"),
         )
     except (
         ValueError,

@@ -428,9 +428,7 @@ def _validate_analyst_result(
         raise StrategyPublicationError("strategy run prompt mode differs from its lane")
     if canonical_bytes(manifest.get("targetContext")) != canonical_bytes(target):
         raise StrategyPublicationError("run targetContext differs from trusted target")
-    _validate_manifest_identity(
-        manifest, target, ("series", "period", "conditional")
-    )
+    _validate_manifest_identity(manifest, target, ("series", "period", "conditional"))
     expected_ok = result.get("ok") is True
     if manifest.get("ok") is not expected_ok:
         raise StrategyPublicationError("batch and run success status differ")
@@ -517,6 +515,11 @@ def _validate_analyst_result(
             allow_existing_slug=True,
             target_context=target,
             prompt_mode=prompt_mode,
+            agent_version=(
+                manifest.get("agent", {}).get("agentVersion")
+                if isinstance(manifest.get("agent"), dict)
+                else None
+            ),
         )
         if bool(report.get("ok")) != expected_ok:
             raise StrategyPublicationError(
@@ -951,9 +954,7 @@ def _load_bundle(
             "strategy bundle repo inventory is not a regular directory"
         )
     if manifest_path.is_symlink() or not manifest_path.is_file():
-        raise StrategyPublicationError(
-            "strategy bundle manifest is not a regular file"
-        )
+        raise StrategyPublicationError("strategy bundle manifest is not a regular file")
     manifest = _load_object(manifest_path, "strategy bundle manifest")
     selection, _, _ = _validate_selection(selection_path)
     expected_header = {

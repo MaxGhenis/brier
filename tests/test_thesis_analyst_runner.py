@@ -179,6 +179,8 @@ def test_print_prompt_contains_question_spec():
     assert "# Cell contract (verbatim" in result.stdout
     assert "Default promoted practices" in result.stdout
     assert "outside-view base rate before current-news adjustments" in result.stdout
+    assert "At least 6 distinct prints are MANDATORY" in " ".join(result.stdout.split())
+    assert "official_source_exposes_fewer_than_six_prints" in result.stdout
 
 
 def test_fast_prompt_inlines_contract_and_allows_optional_repo_reads():
@@ -214,6 +216,9 @@ def test_fast_prompt_inlines_contract_and_allows_optional_repo_reads():
     assert "Every tool step result must include at least one fetched numeric" in (
         result.stdout
     )
+    assert "at least 6 distinct prints are MANDATORY" in result.stdout
+    assert "Validation refuses fewer" in result.stdout
+    assert "official_source_exposes_fewer_than_six_prints" in result.stdout
     assert "- series: boe.bank_rate" in result.stdout
     assert "Bank of England MPC" in result.stdout
     assert "docs/cell-contract.md" in result.stdout
@@ -707,9 +712,7 @@ def test_custody_rejects_forged_parse_phase_and_loose_error_equality(
             if Path(str(ref["path"])).name != "manifest.json"
         ]
         manifest["artifacts"] = refs
-        runner_mod.finalize_manifest(
-            out_dir, manifest["runStartedAt"], manifest, refs
-        )
+        runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
 
     def forge_parse_complete(manifest) -> None:
         manifest["error"]["phase"] = "parse"
@@ -773,9 +776,7 @@ def test_custody_requires_explicit_null_presentation(tmp_path: Path) -> None:
         if Path(str(ref["path"])).name != "manifest.json"
     ]
     manifest["artifacts"] = refs
-    runner_mod.finalize_manifest(
-        out_dir, manifest["runStartedAt"], manifest, refs
-    )
+    runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
     with pytest.raises(CustodyError, match="does not present as failed"):
         verify_run(out_dir)
 
@@ -811,9 +812,7 @@ def test_custody_rejects_a_failure_phase_that_presents_as_complete(
         if Path(str(ref["path"])).name != "manifest.json"
     ]
     manifest["artifacts"] = refs
-    runner_mod.finalize_manifest(
-        out_dir, manifest["runStartedAt"], manifest, refs
-    )
+    runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
 
     with pytest.raises(CustodyError, match="does not present as failed"):
         verify_run(out_dir)
@@ -844,15 +843,12 @@ def test_custody_requires_the_phase_artifacts_typed(tmp_path: Path) -> None:
     refs = [
         ref
         for ref in manifest["artifacts"]
-        if Path(str(ref["path"])).name
-        not in {"normalized_cells.json", "manifest.json"}
+        if Path(str(ref["path"])).name not in {"normalized_cells.json", "manifest.json"}
     ]
     (out_dir / "normalized_cells.json").unlink()
     manifest["artifacts"] = refs
     manifest.pop("custodyRootSha256", None)
-    runner_mod.finalize_manifest(
-        out_dir, manifest["runStartedAt"], manifest, refs
-    )
+    runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
     with pytest.raises(CustodyError):
         verify_run(out_dir)
 
@@ -1209,15 +1205,15 @@ def test_generation_ticket_refuses_non_codex_executable_override() -> None:
 
     assert completed.returncode != 0
     assert completed.stderr.strip() == (
-        "ticket mode refuses THESIS_CODEX_BIN unless its executable basename is "
-        "codex"
+        "ticket mode refuses THESIS_CODEX_BIN unless its executable basename is codex"
     )
 
 
 def test_ticket_manifest_binding_requires_exact_canonical_context() -> None:
     ticket = generation_ticket_context()
-    assert generation_tickets.ticket_record_path(ticket["ticketId"]).as_posix() == (
-        ticket["ticketPath"]
+    assert (
+        generation_tickets.ticket_record_path(ticket["ticketId"]).as_posix()
+        == (ticket["ticketPath"])
     )
     assert generation_tickets.ticket_manifest_binding(ticket) == {
         "ticketId": ticket["ticketId"],
@@ -2068,9 +2064,7 @@ def test_codex_network_run_records_grant_and_clean_guard(tmp_path):
     codex_home.mkdir()
     (codex_home / "auth.json").write_text("{}\n")
     fake_codex = tmp_path / "fake_codex.py"
-    write_fake_codex(
-        fake_codex, review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
-    )
+    write_fake_codex(fake_codex, review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8))
 
     env = {
         **os.environ,
@@ -2112,9 +2106,7 @@ def test_codex_network_run_records_grant_and_clean_guard(tmp_path):
     trace = json.loads((out_dir / "codex_trace.json").read_text())
     assert trace["networkAccess"] is True
     assert trace["sandbox"] == "workspace-write"
-    assert "Outbound network access is enabled" in (
-        out_dir / "prompt.md"
-    ).read_text()
+    assert "Outbound network access is enabled" in (out_dir / "prompt.md").read_text()
 
 
 def test_codex_network_run_fails_closed_on_workspace_mutation(tmp_path):
@@ -2208,7 +2200,7 @@ def review_test_cell(
             "kind": "tool",
             "tool": "official.lookup",
             "call": "official.lookup(series='test.reviewed_rate')",
-            "result": "Fetched t-3 4.9, t-2 5.0, t-1 5.2.",
+            "result": ("Fetched t-6 4.8, t-5 4.9, t-4 5.0, t-3 4.9, t-2 5.0, t-1 5.2."),
         },
         {
             "kind": "tool",
@@ -2225,7 +2217,7 @@ def review_test_cell(
         {
             "kind": "text",
             "text": (
-                "Base rate prior from the reference class of the last 3 "
+                "Base rate prior from the reference class of the last 6 "
                 "prints is the recent center near 5.1 before the small "
                 "current-release adjustment."
             ),
@@ -2272,6 +2264,9 @@ def review_test_cell(
         ),
         "dataPointId": "test.reviewed_rate.january_2030.first_print",
         "historicalContext": [
+            {"label": "t-6", "value": 4.8},
+            {"label": "t-5", "value": 4.9},
+            {"label": "t-4", "value": 5.0},
             {"label": "t-3", "value": 4.9},
             {"label": "t-2", "value": 5.0},
             {"label": "t-1", "value": 5.2},
@@ -2312,9 +2307,7 @@ def test_ticket_codex_stream_binding_refuses_o_file_only_success() -> None:
         "backend": "codex",
         "returnCode": 0,
         "stderr": "",
-        "codexStdoutRaw": json.dumps(
-            {"type": "turn.completed", "usage": {}}
-        ),
+        "codexStdoutRaw": json.dumps({"type": "turn.completed", "usage": {}}),
         "codexStderrRaw": "",
         "codexLastMessage": '{"pointEstimate": 1}',
         "codexTrace": {"effectiveReturnCode": 0, "lastError": None},
@@ -2324,9 +2317,7 @@ def test_ticket_codex_stream_binding_refuses_o_file_only_success() -> None:
 
     assert bound["returnCode"] == 1
     assert bound["codexTrace"]["effectiveReturnCode"] == 1
-    assert "raw JSONL and the codex_last_message artifact disagree" in bound[
-        "stderr"
-    ]
+    assert "raw JSONL and the codex_last_message artifact disagree" in bound["stderr"]
     assert result["returnCode"] == 0
 
 
@@ -2371,25 +2362,17 @@ def test_collision_exclusion_ignores_only_the_exact_generated_wave(
     monkeypatch.setattr(analyst_runner, "ROOT", tmp_path)
 
     blocked = analyst_runner.validate_cells([cell])
-    assert any(
-        "slug collides" in error
-        for error in blocked["cells"][0]["errors"]
-    )
+    assert any("slug collides" in error for error in blocked["cells"][0]["errors"])
 
-    allowed = analyst_runner.validate_cells(
-        [cell], collision_exclusion=own_wave
-    )
+    allowed = analyst_runner.validate_cells([cell], collision_exclusion=own_wave)
     assert allowed["ok"] is True
 
     (examples / "competing-wave.ts").write_text(
         f'export const wave = [{{ slug: "{cell["slug"]}" }}];\n'
     )
-    still_blocked = analyst_runner.validate_cells(
-        [cell], collision_exclusion=own_wave
-    )
+    still_blocked = analyst_runner.validate_cells([cell], collision_exclusion=own_wave)
     assert any(
-        "slug collides" in error
-        for error in still_blocked["cells"][0]["errors"]
+        "slug collides" in error for error in still_blocked["cells"][0]["errors"]
     )
 
 
@@ -2422,6 +2405,9 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                     ),
                     "dataPointId": "test.runtime_model.january_2030.first_print",
                     "historicalContext": [
+                        {"label": "t-6", "value": 4.8},
+                        {"label": "t-5", "value": 4.9},
+                        {"label": "t-4", "value": 5.0},
                         {"label": "t-3", "value": 4.9},
                         {"label": "t-2", "value": 5.0},
                         {"label": "t-1", "value": 5.2},
@@ -2442,14 +2428,17 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                             "kind": "text",
                             "text": (
                                 "The base-rate reference class is the last "
-                                "three synthetic prints around 5.0 percent."
+                                "six synthetic prints around 5.0 percent."
                             ),
                         },
                         {
                             "kind": "tool",
                             "tool": "official.lookup",
                             "call": "lookup synthetic latest values",
-                            "result": "Fetched t-3 4.9, t-2 5.0, t-1 5.2.",
+                            "result": (
+                                "Fetched t-6 4.8, t-5 4.9, t-4 5.0, "
+                                "t-3 4.9, t-2 5.0, t-1 5.2."
+                            ),
                         },
                         {
                             "kind": "tool",
@@ -2970,8 +2959,8 @@ def test_ladder_v2_prompt_swaps_the_derivation_contract() -> None:
 
     # v1 keeps the parametric discipline; v2 replaces it with the
     # quantile-native contract and never demands the sigma idiom.
-    assert 'sigma = X' in v1 and "1.28*sigma" in v1
-    assert 'sigma = X' not in v2 and "1.28*sigma" not in v2
+    assert "sigma = X" in v1 and "1.28*sigma" in v1
+    assert "sigma = X" not in v2 and "1.28*sigma" not in v2
     assert "10th percentile at X" in v2
     assert "90th percentile at Z" in v2
     assert "promptMode ladder_v2" in v2
@@ -3029,6 +3018,120 @@ def test_canonical_steps_are_stripped_to_contract_keys(tmp_path: Path) -> None:
     assert steps[2] == {"kind": "forecast", "point": 5, "ciLow": 4, "ciHigh": 6}
 
 
+def history_floor_test_cell(print_count: int) -> dict:
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["historicalContext"] = [
+        {"label": f"print-{index}", "value": 4.5 + index / 10}
+        for index in range(1, print_count + 1)
+    ]
+    return cell
+
+
+def history_floor_validation(
+    cell: dict,
+    agent_version: object = analyst_runner.HISTORY_FLOOR_AGENT_VERSION,
+) -> dict:
+    return analyst_runner.validate_cells(
+        [cell],
+        allow_existing_slug=True,
+        agent_version=agent_version,
+    )
+
+
+def test_history_floor_refuses_five_entry_run_with_custody_clean_record(
+    tmp_path: Path,
+) -> None:
+    code, out_dir = _run_fake_codex_case(
+        tmp_path,
+        "five-print-history",
+        history_floor_test_cell(5),
+    )
+
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    errors = manifest["validation"]["cells"][0]["errors"]
+    assert any(
+        "historicalContext has 5 distinct numeric prints" in error
+        and "at least 6 are mandatory" in error
+        for error in errors
+    )
+    _custody_passes(out_dir)
+
+
+def test_history_floor_accepts_six_numeric_entries() -> None:
+    assert history_floor_validation(history_floor_test_cell(6))["ok"] is True
+
+
+def test_history_floor_accepts_fewer_with_structured_attestation() -> None:
+    cell = history_floor_test_cell(4)
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "detail": "The official series began four releases ago.",
+    }
+
+    assert history_floor_validation(cell)["ok"] is True
+
+
+def test_history_floor_refuses_short_history_without_attestation() -> None:
+    report = history_floor_validation(history_floor_test_cell(4))
+
+    assert report["ok"] is False
+    assert any("historyAvailability" in error for error in report["cells"][0]["errors"])
+
+
+@pytest.mark.parametrize(
+    "availability",
+    [
+        {
+            "status": "official_source_exposes_fewer_than_six_prints",
+            "availablePrintCount": 4,
+            "detail": "   ",
+        },
+        {
+            "status": "official_source_exposes_fewer_than_six_prints",
+            "availablePrintCount": 3,
+            "detail": "Only four official prints exist.",
+        },
+        {
+            "status": "fewer_than_six",
+            "availablePrintCount": 4,
+            "detail": "Only four official prints exist.",
+        },
+    ],
+)
+def test_history_floor_refuses_malformed_attestation(availability: dict) -> None:
+    cell = history_floor_test_cell(4)
+    cell["historyAvailability"] = availability
+
+    assert history_floor_validation(cell)["ok"] is False
+
+
+def test_history_floor_does_not_retroactively_change_published_replays() -> None:
+    assert (
+        history_floor_validation(history_floor_test_cell(5), agent_version="2.5.9")[
+            "ok"
+        ]
+        is True
+    )
+
+
+@pytest.mark.parametrize("agent_version", [None, "fixture", "2.5"])
+def test_history_floor_missing_or_malformed_version_fails_closed(
+    agent_version: object,
+) -> None:
+    report = history_floor_validation(
+        history_floor_test_cell(5), agent_version=agent_version
+    )
+
+    assert report["ok"] is False
+    assert any(
+        "historicalContext has 5 distinct numeric prints" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
 def test_history_anchor_gate_passes_matching_values() -> None:
     cell = {
         "historicalContext": [
@@ -3053,18 +3156,14 @@ def test_history_anchor_gate_refuses_wrong_vintage() -> None:
             {"label": "2024 ACS 1-year U.S. B28005 65+ broadband share", "value": 84.8},
         ]
     }
-    errors = analyst_runner.history_anchor_errors(
-        cell, {"anchors": {"2024": 88.2}}
-    )
+    errors = analyst_runner.history_anchor_errors(cell, {"anchors": {"2024": 88.2}})
     assert len(errors) == 1
     assert "contradict" in errors[0] and "88.2" in errors[0]
 
 
 def test_history_anchor_gate_requires_anchored_periods() -> None:
     cell = {"historicalContext": [{"label": "2022 share", "value": 84.8}]}
-    errors = analyst_runner.history_anchor_errors(
-        cell, {"anchors": {"2024": 88.2}}
-    )
+    errors = analyst_runner.history_anchor_errors(cell, {"anchors": {"2024": 88.2}})
     assert len(errors) == 1 and "no historicalContext entry" in errors[0]
 
 
@@ -3089,9 +3188,7 @@ def test_target_context_binds_the_preregistered_conditional_verbatim() -> None:
     exact = {"conditionalOn": registered}
     drifted = {"conditionalOn": registered.replace("$1", "one dollar")}
     context = {"conditional": registered}
-    assert (
-        analyst_runner.target_context_validation_errors(exact, context) == []
-    )
+    assert analyst_runner.target_context_validation_errors(exact, context) == []
     errors = analyst_runner.target_context_validation_errors(drifted, context)
     assert len(errors) == 1 and "conditionalOn" in errors[0]
     missing = analyst_runner.target_context_validation_errors({}, context)
@@ -3122,9 +3219,7 @@ def test_bounded_target_context_renders_bound_and_announcement() -> None:
     assert "does not establish the bound or expected release window" in block
     assert "outer bound, not a scheduled release day" in block
     assert "resolutionDate must byte-echo the registered resolve-by bound" in block
-    assert (
-        "thesis_announcement_fetch.fetch_official_announcement" in block
-    )
+    assert "thesis_announcement_fetch.fetch_official_announcement" in block
     assert "reasoning-token claim" in block
 
 
@@ -3144,7 +3239,7 @@ def test_bounded_announcement_mcp_config_is_exact_and_target_scoped() -> None:
         'newsroom/spm-announcement.html"]',
         'mcp_servers.thesis_announcement_fetch.cwd="/trusted/checkout"',
         "mcp_servers.thesis_announcement_fetch.required=true",
-        'mcp_servers.thesis_announcement_fetch.enabled_tools=['
+        "mcp_servers.thesis_announcement_fetch.enabled_tools=["
         '"fetch_official_announcement"]',
         "mcp_servers.thesis_announcement_fetch.startup_timeout_sec=10",
         "mcp_servers.thesis_announcement_fetch.tool_timeout_sec=30",
@@ -3190,9 +3285,7 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         target_context=context,
         generation_ticket={
             "ticketId": "2030-01-10-deadbeef",
-            "ticketPath": (
-                "records/tickets/2030-01-10/2030-01-10-deadbeef.json"
-            ),
+            "ticketPath": ("records/tickets/2030-01-10/2030-01-10-deadbeef.json"),
             "nonceSha256": "a" * 64,
         },
     )["ok"]
@@ -3217,8 +3310,7 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         missing_bound, missing_context
     )
     assert errors == [
-        "resolve-by-bound target has no canonical registered resolutionDate "
-        "bound"
+        "resolve-by-bound target has no canonical registered resolutionDate bound"
     ]
 
     malformed_context = {**context, "resolutionDate": "2027-02-29"}
@@ -3226,8 +3318,7 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         bounded_cell(), malformed_context
     )
     assert errors == [
-        "resolve-by-bound target has no canonical registered resolutionDate "
-        "bound"
+        "resolve-by-bound target has no canonical registered resolutionDate bound"
     ]
 
 
@@ -3237,9 +3328,12 @@ def test_calendar_target_context_does_not_require_announcement_tool_fetch() -> N
         "sourceBinding": {"sourceUrl": "https://example.com/calendar"},
     }
     assert analyst_runner.target_context_validation_errors(cell, context) == []
-    assert analyst_runner.target_context_validation_errors(
-        cell, {**context, "resolutionDateBasis": "release-calendar"}
-    ) == []
+    assert (
+        analyst_runner.target_context_validation_errors(
+            cell, {**context, "resolutionDateBasis": "release-calendar"}
+        )
+        == []
+    )
 
 
 def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
@@ -3278,9 +3372,7 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
     assert not dst.exists()
 
     # Wrong-typed fields refuse with the type named.
-    src.write_text(
-        json.dumps([{"reasoning": "prose", "historicalContext": []}])
-    )
+    src.write_text(json.dumps([{"reasoning": "prose", "historicalContext": []}]))
     result = subprocess.run(
         [sys.executable, str(script), str(src), str(dst)],
         capture_output=True,
@@ -3467,6 +3559,8 @@ def test_target_context_surfaces_the_resolution_parser_command() -> None:
     )
     assert "FSA_CRP_ADAPTERS['usda.fsa.crp.enrolled_acres_total']" in crp
     assert "fsa_crp_fetch_period" in crp
+    assert "fetch at least the latest six" in crp
+    assert "fetch at least the latest four" not in crp
 
     eia = analyst_runner.format_target_context(
         {
@@ -3500,8 +3594,7 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "historicalContext": [
             {
                 "label": (
-                    "BEA ITA Table 5.1 line 18, "
-                    "2026 Q1 current June 24 2026 vintage"
+                    "BEA ITA Table 5.1 line 18, 2026 Q1 current June 24 2026 vintage"
                 ),
                 "value": 18511,
             },
@@ -3589,9 +3682,7 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         errors = analyst_runner.history_anchor_errors(cell, context)
         assert errors and "no historicalContext entry mentions" in errors[0], label
-    twice = {"historicalContext": [
-        {"label": "2026 Q1 (2026Q1) print", "value": 18511}
-    ]}
+    twice = {"historicalContext": [{"label": "2026 Q1 (2026Q1) print", "value": 18511}]}
     assert analyst_runner.history_anchor_errors(twice, context) == []
     # Prose "quarterly" after a digit is not a designator.
     for label in (
@@ -3632,9 +3723,7 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
 def test_target_context_never_guesses_parser_series_from_data_point_id() -> None:
     missing_series = analyst_runner.format_target_context(
         {
-            "dataPointId": (
-                "irs.actc.total_claims.2027.first_print.foreign_suffix"
-            ),
+            "dataPointId": ("irs.actc.total_claims.2027.first_print.foreign_suffix"),
             "sourceBinding": {"adapter": "irs-soi-pub1304"},
         }
     )

@@ -88,8 +88,13 @@ double-count it as extra evidence.
    announcement pins methodology identity; it does not establish the deadline
    or release window. Do not invent a scheduled day.
 2. **Fetch the history.** Pull the recent series history (6–24 prints) from
-   the official source or its sanctioned mirror per the skill. This is the
-   only admissible evidence: numbers you fetched this run.
+   the official source or its sanctioned mirror per the skill. At least 6
+   distinct prints are MANDATORY when the official source exposes them, and
+   validation refuses fewer. If the source exposes fewer than 6, fetch all of
+   them and add `historyAvailability` with status
+   `official_source_exposes_fewer_than_six_prints`, the matching
+   `availablePrintCount`, and a nonempty `detail`. This is the only admissible
+   evidence: numbers you fetched this run.
 3. **Outside view first.** Compute the base-rate prior: the distribution of
    recent comparable prints (level, change, or surprise — whichever the
    question asks). State it explicitly in the trace. For repeated official
