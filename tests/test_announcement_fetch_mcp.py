@@ -615,3 +615,15 @@ def test_stdio_server_uses_newline_delimited_json_rpc() -> None:
     assert responses[0]["result"]["protocolVersion"] == "2025-06-18"
     assert responses[1]["result"]["tools"][0]["name"] == fetch_mcp.TOOL_NAME
     assert completed.stderr == ""
+
+
+def test_fetch_headers_use_the_transparent_resolver_user_agent() -> None:
+    # FSA's WAF resets connections on the old bespoke token
+    # ("Thesis-attested-announcement-fetch/1.0": reset in ~1s measured
+    # 2026-08-14) while serving the resolver families' transparent
+    # compatible form in ~0.3s. An announcement fetch that cannot
+    # complete blocks every resolve-by-bound publish, so the UA is
+    # pinned to the exact working form here.
+    source = pathlib.Path(fetch_mcp.__file__).read_text()
+    assert '"User-Agent": "Mozilla/5.0 (compatible; thesis-resolver/1.0)"' in source
+    assert "Thesis-attested-announcement-fetch/1.0" not in source
