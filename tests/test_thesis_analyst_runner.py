@@ -17,7 +17,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import generation_tickets  # noqa: E402
 import median_rollout_ensemble as median_ensemble  # noqa: E402
 import run_thesis_analyst as analyst_runner  # noqa: E402
-from history_floor import validate_history_floor_authorization  # noqa: E402
+from history_floor import (  # noqa: E402
+    canonical_period_identities_from_label,
+    canonical_period_identity,
+    validate_history_floor_authorization,
+)
 from run_thesis_analyst import (  # noqa: E402
     interval_distribution,
 )
@@ -2274,7 +2278,7 @@ def review_test_cell(
         "historicalContext": [
             {
                 "period": {"type": "month", "value": f"2029-{index:02d}"},
-                "label": f"t-{7 - index}",
+                "label": f"2029-{index:02d}",
                 "value": value,
             }
             for index, value in enumerate([4.8, 4.9, 5.0, 4.9, 5.0, 5.2], start=1)
@@ -2418,7 +2422,7 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                                 "type": "month",
                                 "value": f"2029-{index:02d}",
                             },
-                            "label": f"t-{7 - index}",
+                            "label": f"2029-{index:02d}",
                             "value": value,
                         }
                         for index, value in enumerate(
@@ -3036,7 +3040,7 @@ def history_floor_test_cell(print_count: int) -> dict:
     cell["historicalContext"] = [
         {
             "period": {"type": "month", "value": f"2029-{index:02d}"},
-            "label": f"print-{index}",
+            "label": f"2029-{index:02d}",
             "value": 4.5 + index / 10,
         }
         for index in range(1, print_count + 1)
@@ -3259,6 +3263,355 @@ def test_history_floor_counts_canonical_periods_not_alias_labels() -> None:
     assert any("has 3 distinct canonical prints" in error for error in errors)
 
 
+def test_history_floor_refuses_labels_that_contradict_forged_periods(
+    tmp_path: Path,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for row in cell["historicalContext"]:
+        row["label"] = "April 2029"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    # The existing anchor path trusts the structured period and therefore
+    # passes. The shared floor must independently bind each parseable label.
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = analyst_runner.validate_cells(
+        [cell], allow_existing_slug=True, target_context=target
+    )
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("label period month 2029-04 does not match" in error for error in errors)
+    assert any("has 1 distinct canonical prints" in error for error in errors)
+
+    code, out_dir = _run_fake_codex_case(tmp_path, "mismatched-period-labels", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert any(
+        "label period month 2029-04 does not match" in error
+        for error in manifest["validation"]["cells"][0]["errors"]
+    )
+    _custody_passes(out_dir)
+
+
+def test_history_floor_refuses_overlapping_contradictory_period_tokens() -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["label"] = f"April 2029-{index:02d}"
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any(
+        "label has ambiguous or unsupported period syntax" in error for error in errors
+    )
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_orphan_period_tokens_beside_forged_periods() -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["period"] = {"type": "month", "value": f"2026-{index:02d}"}
+        row["label"] = f"April value for 2026-{index:02d}"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    # The anchor check sees each planted numeric token. The shared floor must
+    # also reject the unbound month token rather than count those six aliases.
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any(
+        "label has ambiguous or unsupported period syntax" in error for error in errors
+    )
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "label_template",
+    [
+        "month 4 value for {period}",
+        "Q.2 value for {period}",
+        "{period} / may",
+    ],
+)
+def test_history_floor_closed_label_grammar_blocks_ascii_aliases(
+    label_template: str,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        period = f"2026-{index:02d}"
+        row["period"] = {"type": "month", "value": period}
+        row["label"] = label_template.format(period=period)
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("closed single-period label grammar" in error for error in errors)
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_fullwidth_orphan_tokens_beside_forged_periods(
+    tmp_path: Path,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["period"] = {"type": "month", "value": f"2026-{index:02d}"}
+        row["label"] = f"Ａｐｒｉｌ value for 2026-{index:02d}"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = analyst_runner.validate_cells(
+        [cell], allow_existing_slug=True, target_context=target
+    )
+    assert report["ok"] is False
+    assert any(
+        "characters outside printable ASCII" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+    code, out_dir = _run_fake_codex_case(tmp_path, "fullwidth-period-labels", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    _custody_passes(out_dir)
+
+
+@pytest.mark.parametrize("solidus", ["⁄", "∕", "／"])
+def test_history_floor_refuses_unicode_solidus_period_aliases(
+    solidus: str,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["period"] = {"type": "month", "value": f"2026-{index:02d}"}
+        row["label"] = f"2026-{index:02d}{solidus}04"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("characters outside printable ASCII" in error for error in errors)
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_six_shorthand_period_ranges() -> None:
+    labels = [
+        "December/January 2029",
+        "January/February 2029",
+        "February/March 2029",
+        "March/April 2029",
+        "April/May 2029",
+        "May/June 2029",
+    ]
+    cell = history_floor_test_cell(6)
+    for row, label in zip(cell["historicalContext"], labels):
+        row["label"] = label
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any(
+        "label has ambiguous or unsupported period syntax" in error for error in errors
+    )
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "label, expected_error",
+    [
+        ("latest print", "label has ambiguous or unsupported period syntax"),
+        (
+            "March 2029 / April 2029",
+            "label has ambiguous or unsupported period syntax",
+        ),
+        (
+            "January/February 2029",
+            "label has ambiguous or unsupported period syntax",
+        ),
+        (
+            "１2029-01２",
+            "label has ambiguous or unsupported period syntax",
+        ),
+        (
+            "January 2029\u200b",
+            "label has ambiguous or unsupported period syntax",
+        ),
+    ],
+)
+def test_history_floor_refuses_unbound_or_ambiguous_labels(
+    label: str, expected_error: str
+) -> None:
+    cell = history_floor_test_cell(6)
+    cell["historicalContext"][0]["label"] = label
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    assert any(expected_error in error for error in report["cells"][0]["errors"])
+
+
+def test_history_floor_refuses_unicode_digit_aliases_of_one_month() -> None:
+    aliases = [
+        "2026-04",
+        "２０２６-０４",
+        "٢٠٢٦-٠٤",
+        "۲۰۲۶-۰۴",
+        "२०२६-०४",
+        "২০২৬-০৪",
+    ]
+    cell = history_floor_test_cell(6)
+    cell["historicalContext"] = [
+        {
+            "period": {"type": "month", "value": alias},
+            "label": "April 2026",
+            "value": 5.0,
+        }
+        for alias in aliases
+    ]
+
+    assert canonical_period_identity(cell["historicalContext"][0]["period"]) == (
+        "month",
+        "2026-04",
+    )
+    assert all(
+        canonical_period_identity(row["period"]) is None
+        for row in cell["historicalContext"][1:]
+    )
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("has no valid canonical period identity" in error for error in errors)
+    assert any("has 1 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "label, expected",
+    [
+        ("April 2026", ("month", "2026-04")),
+        ("Sept. 2026", ("month", "2026-09")),
+        ("2026 April", ("month", "2026-04")),
+        ("2026-Q1", ("quarter", "2026-Q1")),
+        ("2026 Q1", ("quarter", "2026-Q1")),
+        ("Q1 2026", ("quarter", "2026-Q1")),
+        ("calendar year 2026", ("year", "2026")),
+        ("FY2026", ("fiscal_year", "2026")),
+        ("fiscal year 2026", ("fiscal_year", "2026")),
+        ("2026-04-03", ("week_ending", "2026-04-03")),
+        ("week ending 2026-04-03", ("week_ending", "2026-04-03")),
+    ],
+)
+def test_history_floor_parses_supported_display_label_periods(
+    label: str, expected: tuple[str, str]
+) -> None:
+    assert canonical_period_identities_from_label(label) == {expected}
+
+
+@pytest.mark.parametrize(
+    "label",
+    [
+        "January/February 2026",
+        "2026-01/02",
+        "2026-Q1/Q2",
+        "2029 Q1/2",
+        "Q1/2 2029",
+        "2026/27",
+        "week ending 2026-04-03/10",
+        "１2026-04２",
+        "April 2026 / May ２０２６",
+        "April ²⁰²⁶ / 2026-01",
+        "April ②⓪②⑥ / 2026-01",
+        "2026-01 April",
+        "FY2026 Q1",
+        "FYQ1 2029",
+        "2029 quarter 1",
+        "2026 QIV",
+        "2026 QI",
+        "2026 Q1 / II",
+        "2026-Q1 April",
+        "2026-01 Q4",
+        "week ending 2026-04-03 Q1",
+        "Ｑ1 2029",
+        "ＦＹ2029",
+        "fiscal\u00a0year 2026",
+        "fiscal\u2028year 2026",
+        "week\u00a0ending 2026",
+        "week\u2028ending 2026",
+        "2026-Q1⁄2",
+        "2026 Q1⁄2",
+        "2026-01⁄02",
+        "2026-01∕02",
+        "2026-01／02",
+        "2026⁄27",
+        "week ending 2026-04-03⁄10",
+        "2026−04",
+        "2026˗04",
+        "2026➖04",
+        "2̶0̶2̶6̶-0̶4̶ / 2026-01",
+        "Аpril value for 2026-01",
+        "April 2026 value may be revised",
+        "2026-04 value may be revised",
+        "2026-01 / may",
+        "2026-01 and may",
+        "may value for 2026-01",
+        "month 4 value for 2026-01",
+        "M04 value for 2026-01",
+        "Q.2 value for 2026-01",
+        "Q_1 2029",
+        "Q.1 2029",
+        "Q-1 2029",
+        "1Q 2029",
+        "2029-QTR1",
+        "April 2026 fiscally adjusted",
+        "April 2026 FYI preliminary",
+    ],
+)
+def test_history_floor_label_parser_rejects_hidden_period_shorthand(
+    label: str,
+) -> None:
+    assert canonical_period_identities_from_label(label) == set()
+
+
+def test_history_floor_refuses_oversized_json_integer_with_diagnostic() -> None:
+    cell = history_floor_test_cell(6)
+    cell["historicalContext"][0]["value"] = 10**400
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    assert (
+        "historicalContext[0] has no finite numeric value"
+        in report["cells"][0]["errors"]
+    )
+
+
 def test_history_floor_refuses_short_history_without_attestation() -> None:
     report = history_floor_validation(history_floor_test_cell(4))
 
@@ -3309,7 +3662,21 @@ def test_pre_floor_version_still_requires_three_legacy_points() -> None:
     assert "needs >=3 historical points" in report["cells"][0]["errors"]
 
 
-@pytest.mark.parametrize("agent_version", [None, "fixture", "2.5"])
+@pytest.mark.parametrize(
+    "agent_version",
+    [
+        None,
+        "fixture",
+        "2.5",
+        "02.5.9",
+        "2.05.9",
+        "2.5.09",
+        "2.5.9+.",
+        "2.5.9-..",
+        "2.5.9-01",
+        "２.５.９",
+    ],
+)
 def test_history_floor_missing_or_malformed_version_fails_closed(
     agent_version: object,
 ) -> None:
@@ -3320,6 +3687,49 @@ def test_history_floor_missing_or_malformed_version_fails_closed(
     assert report["ok"] is False
     assert any(
         "historicalContext has 5 distinct canonical prints" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
+@pytest.mark.parametrize("agent_version", ["2.5.9-alpha+build", "2.2.0+median3"])
+def test_history_floor_preserves_valid_complex_pre_floor_versions(
+    agent_version: str,
+) -> None:
+    assert (
+        history_floor_validation(
+            history_floor_test_cell(5), agent_version=agent_version
+        )["ok"]
+        is True
+    )
+
+
+def test_history_floor_refuses_overlong_version_without_crashing() -> None:
+    report = history_floor_validation(
+        history_floor_test_cell(5), agent_version=f"{'9' * 5000}.0.0"
+    )
+
+    assert report["ok"] is False
+    assert (
+        "sealed agentVersion is missing or malformed; current history floor applies"
+        in report["cells"][0]["errors"]
+    )
+    assert any(
+        "historicalContext has 5 distinct canonical prints" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
+@pytest.mark.parametrize("agent_version", ["2.5.10-0", "2.5.10-alpha"])
+def test_floor_version_family_prereleases_cannot_waive_existing_check(
+    agent_version: str,
+) -> None:
+    report = history_floor_validation(
+        history_floor_test_cell(5), agent_version=agent_version
+    )
+
+    assert report["ok"] is False
+    assert not any(
+        "agentVersion is missing or malformed" in error
         for error in report["cells"][0]["errors"]
     )
 
@@ -3614,6 +4024,23 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
             "period": {"type": "year", "value": "2023"},
         }
     ]
+
+    # A period object cannot manufacture its own corroborating display label.
+    # Preserve the missing label as null so shared validation refuses it.
+    missing_label = history_floor_test_cell(6)
+    missing_label["historicalContext"][0].pop("label")
+    src.write_text(json.dumps([missing_label]))
+    result = subprocess.run(
+        [sys.executable, str(script), str(src), str(dst)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    [normalized] = json.loads(dst.read_text())
+    assert normalized["historicalContext"][0]["label"] is None
+    report = history_floor_validation(normalized)
+    assert report["ok"] is False
+    assert "historicalContext[0] has no nonempty label" in report["cells"][0]["errors"]
 
 
 def test_full_prompt_embeds_the_cell_contract_verbatim() -> None:

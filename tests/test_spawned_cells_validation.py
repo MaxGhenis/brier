@@ -60,7 +60,7 @@ def probe_cell(resolution_date: str) -> dict:
             "historicalContext": [
                 {
                     "period": {"type": "month", "value": f"2026-{index:02d}"},
-                    "label": f"t-{7 - index}",
+                    "label": f"2026-{index:02d}",
                     "value": 17 + index,
                 }
                 for index in range(1, 7)
@@ -407,19 +407,22 @@ def test_published_stamp_names_the_run_agent_not_the_working_tree() -> None:
     assert spawned_cells_to_ts.SEALED_AGENT_KEY not in run
 
 
-def test_stamp_falls_back_to_live_agent_when_run_sealed_none() -> None:
-    """Pre-manifest inputs keep working: fall back, never crash."""
+def test_stamp_refuses_when_run_sealed_agent_is_absent() -> None:
+    with pytest.raises(ValueError, match="lacks sealed agent metadata"):
+        spawned_cells_to_ts.to_forecast_cell(stampable_cell())
 
-    run = spawned_cells_to_ts.to_forecast_cell(stampable_cell())["predictionRun"]
-    assert run["agentVersion"] == spawned_cells_to_ts.agent_stamp()["agentVersion"]
-    assert "provenance" not in run
-    assert "generationTicket" not in run
+
+def test_metadata_carrier_refuses_when_run_manifest_is_absent(
+    tmp_path: pathlib.Path,
+) -> None:
+    with pytest.raises(ValueError, match="lacks manifest.json"):
+        spawned_cells_to_ts.carry_sealed_run_metadata([stampable_cell()], tmp_path)
 
 
 def test_explicit_ci_stamp_is_not_inferred() -> None:
-    run = spawned_cells_to_ts.to_forecast_cell(stampable_cell(), provenance="ci")[
-        "predictionRun"
-    ]
+    cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
+    run = spawned_cells_to_ts.to_forecast_cell(cell, provenance="ci")["predictionRun"]
 
     assert run["provenance"] == "ci"
     assert "generationTicket" not in run
@@ -427,6 +430,7 @@ def test_explicit_ci_stamp_is_not_inferred() -> None:
 
 def test_attested_stamp_carries_public_ticket_identity() -> None:
     cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
     cell[spawned_cells_to_ts.SEALED_GENERATION_TICKET_KEY] = {
         "ticketId": "2030-01-11-deadbeef",
         "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
@@ -445,6 +449,7 @@ def test_attested_stamp_carries_public_ticket_identity() -> None:
 
 def test_unsealed_cell_cannot_self_claim_attested_provenance() -> None:
     cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
     cell["generationTicket"] = {
         "ticketId": "2030-01-11-deadbeef",
         "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
@@ -477,6 +482,7 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     cell[spawned_cells_to_ts.SEALED_VALIDATION_TICKET_KEY] = ticket_context()
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
 
     loaded = spawned_cells_to_ts.load_cells(cells_path)[0]
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
@@ -620,7 +626,7 @@ def test_ci_conversion_refuses_ticketed_manifest_literally(
     )
 
 
-def test_local_attested_conversion_requires_valid_manifest_ticket_literally(
+def test_local_attested_conversion_requires_manifest_literally(
     tmp_path: pathlib.Path,
 ) -> None:
     import json
@@ -636,10 +642,7 @@ def test_local_attested_conversion_requires_valid_manifest_ticket_literally(
             provenance="local_operator_attested",
         )
 
-    assert str(error.value) == (
-        "--provenance local_operator_attested requires a valid "
-        f"generationTicket in {tmp_path / 'manifest.json'}"
-    )
+    assert str(error.value) == (f"cell input lacks manifest.json: {cells_path}")
 
 
 def test_replacement_and_replay_preserve_existing_run_label() -> None:
@@ -706,7 +709,20 @@ def test_sealed_agent_meta_rejects_incomplete_manifest_identity(
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path / "missing") is None
 
 
-@pytest.mark.parametrize("agent_version", ["fixture", "2.5"])
+@pytest.mark.parametrize(
+    "agent_version",
+    [
+        "fixture",
+        "2.5",
+        "02.5.9",
+        "2.05.9",
+        "2.5.09",
+        "2.5.9+.",
+        "2.5.9-..",
+        "2.5.9-01",
+        "２.５.９",
+    ],
+)
 def test_promotion_rejects_malformed_sealed_agent_version(
     tmp_path: pathlib.Path, agent_version: str
 ) -> None:
@@ -714,10 +730,31 @@ def test_promotion_rejects_malformed_sealed_agent_version(
         json.dumps(successful_manifest(agent=sealed_agent(agent_version)))
     )
     cells_path = tmp_path / "normalized_cells.json"
-    cells_path.write_text(json.dumps([stampable_cell()]))
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T00:00:00Z"
+    cells_path.write_text(json.dumps([cell]))
 
     with pytest.raises(ValueError, match="agentVersion is malformed"):
         spawned_cells_to_ts.load_cells(cells_path)
+
+
+@pytest.mark.parametrize(
+    "agent_version", ["2.5.9-alpha+build", "2.2.0+median3", "0.0.0"]
+)
+def test_promotion_accepts_strict_valid_semver(
+    tmp_path: pathlib.Path, agent_version: str
+) -> None:
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(agent=sealed_agent(agent_version)))
+    )
+    cells_path = tmp_path / "normalized_cells.json"
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T00:00:00Z"
+    cells_path.write_text(json.dumps([cell]))
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+
+    assert loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"] == agent_version
 
 
 def test_promotion_refuses_current_five_print_cell(
@@ -740,6 +777,61 @@ def test_promotion_refuses_current_five_print_cell(
     )
 
     assert any("has 5 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "period",
+    [
+        {"type": [], "value": "2026-01"},
+        {"type": {}, "value": "2026-01"},
+        {"type": "month", "value": []},
+    ],
+)
+def test_shared_validation_refuses_unhashable_period_containers(
+    period: dict[str, object],
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["historicalContext"][0]["period"] = period
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.10",
+    )
+
+    assert "historicalContext[0] has no valid canonical period identity" in errors
+
+
+@pytest.mark.parametrize("row", [[], "row", 7, None])
+def test_shared_validation_refuses_non_object_history_rows(
+    row: object,
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["historicalContext"] = [row]
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.10",
+    )
+
+    assert "historicalContext[0] must be an object" in errors
+
+
+@pytest.mark.parametrize("history", [None, "rows", 7, {}])
+def test_shared_validation_refuses_non_list_history(
+    history: object,
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["historicalContext"] = history
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.10",
+    )
+
+    assert "historicalContext must be a list" in errors
 
 
 def test_promotion_keeps_valid_pre_floor_record_with_legacy_history() -> None:
@@ -777,10 +869,13 @@ def test_recorded_failed_manifest_never_promotes(tmp_path: pathlib.Path) -> None
         spawned_cells_to_ts.load_cells(cells_path)
 
 
-def test_recorded_input_without_manifest_never_uses_live_fallback(
-    tmp_path: pathlib.Path,
+@pytest.mark.parametrize(
+    "filename", ["cells.with_activity.json", "normalized_cells.json"]
+)
+def test_cell_input_without_manifest_never_uses_live_fallback(
+    tmp_path: pathlib.Path, filename: str
 ) -> None:
-    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path = tmp_path / filename
     cells_path.write_text(json.dumps([stampable_cell()]))
 
     with pytest.raises(ValueError, match="lacks manifest.json"):
@@ -794,6 +889,7 @@ def test_reviewer_text_matching_the_screen_is_withheld() -> None:
     # evidence: the projection withholds the matching string behind the
     # marker while the run record keeps the original.
     cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
     cell["preSubmitReview"] = {
         "schemaVersion": "thesis_pre_submit_review_v1",
         "status": "completed",
@@ -859,8 +955,9 @@ def test_agent_planted_review_dies_at_the_carrier(
     }
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
 
-    # No manifest at all: the planted review must not survive loading.
+    # The successful manifest has no review: the planted review must not survive.
     [loaded] = spawned_cells_to_ts.load_cells(cells_path)
     assert "preSubmitReview" not in loaded
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]

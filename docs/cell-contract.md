@@ -76,7 +76,13 @@ entry carries a canonical `period` identity independent of its display label:
 `month` uses `YYYY-MM`, `quarter` uses `YYYY-Q1` through `YYYY-Q4`, `year` and
 `fiscal_year` use `YYYY`, and `week_ending` uses `YYYY-MM-DD`. Validation counts
 unique `(type, value)` identities, so alternate labels for one period never
-become additional prints.
+become additional prints. The display label must unambiguously identify that
+same canonical period. For floor-enforcing cells, the whole trimmed label must
+match one closed printable-ASCII form: `YYYY-MM`, `Month YYYY`, `YYYY Month`,
+`YYYY-QN`, `YYYY QN`, `QN YYYY`, `YYYY`, `calendar year YYYY`, `FY2026`,
+`fiscal year YYYY`, `YYYY-MM-DD`, or `week ending YYYY-MM-DD`. Extra source or
+revision prose, relative labels such as `t-1`, contradictory or multi-period
+labels, ranges, and non-ASCII text refuse.
 
 If the official source exposes fewer than 6 prints, fetch every available
 print. A floor exception exists only when the exact series and target period

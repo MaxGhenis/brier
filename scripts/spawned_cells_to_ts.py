@@ -267,15 +267,19 @@ def validate(
         errs.append("runAt not ISO-8601")
     if not str(cell["resolutionSourceUrl"]).startswith("https://"):
         errs.append("resolutionSourceUrl not https")
-    for h in cell["historicalContext"]:
-        if isinstance(h.get("value"), str):
-            cleaned = h["value"].replace("%", "").replace(",", "").strip()
-            try:
-                h["value"] = float(cleaned)
-            except ValueError:
-                errs.append(f"non-numeric historical value: {h['value']!r}")
-        if isinstance(h.get("value"), float) and h["value"].is_integer():
-            h["value"] = int(h["value"])
+    history = cell["historicalContext"]
+    if isinstance(history, list):
+        for h in history:
+            if not isinstance(h, dict):
+                continue
+            if isinstance(h.get("value"), str):
+                cleaned = h["value"].replace("%", "").replace(",", "").strip()
+                try:
+                    h["value"] = float(cleaned)
+                except ValueError:
+                    errs.append(f"non-numeric historical value: {h['value']!r}")
+            if isinstance(h.get("value"), float) and h["value"].is_integer():
+                h["value"] = int(h["value"])
     errs.extend(
         history_floor_errors(
             cell,
@@ -476,11 +480,11 @@ SEALED_HISTORY_AUTHORIZATION_KEY = "_sealedHistoryFloorAuthorization"
 def agent_stamp() -> dict:
     """Version/hash metadata from the live agent definition.
 
-    Fallback only. A recorded run's stamp must come from its own sealed
-    manifest (SEALED_AGENT_KEY) — stamping live metadata made published
-    provenance track HEAD instead of the run: editing any skill silently
-    restamped every previously published cell with a version that never
-    produced it, and broke wave reproducibility until the wave was
+    Metadata utility only, never a publication fallback. A run's stamp must
+    come from its own sealed manifest (SEALED_AGENT_KEY) — stamping live
+    metadata made published provenance track HEAD instead of the run: editing
+    any skill silently restamped every previously published cell with a version
+    that never produced it, and broke wave reproducibility until the wave was
     regenerated into that same untruth (2026-07-25).
     """
     import subprocess
@@ -563,16 +567,15 @@ def carry_sealed_run_metadata(
         # private_source_hits and then masked as if a reviewer wrote it.
         # Only the sealed manifest may attach it, below.
         cell.pop("preSubmitReview", None)
-    sealed_agent = sealed_agent_meta(run_dir)
     manifest_path = run_dir / "manifest.json"
-    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    if not manifest_path.exists():
+        raise ValueError(f"cell input lacks manifest.json: {run_dir}")
+    sealed_agent = sealed_agent_meta(run_dir)
+    if sealed_agent is None:
+        raise ValueError(f"run manifest has no sealed agent metadata: {manifest_path}")
+    manifest = json.loads(manifest_path.read_text())
     if not isinstance(manifest, dict):
         raise ValueError(f"run manifest is not an object: {manifest_path}")
-    if sealed_agent is None:
-        # Genuinely ad-hoc input has no recorded manifest. Bind validation and
-        # output to the live agent definition; recorded inputs may never take
-        # this fallback because sealed_agent_meta fails malformed manifests.
-        sealed_agent = agent_stamp()
     sealed_review = manifest.get("preSubmitReview")
     if sealed_review is not None and not isinstance(sealed_review, dict):
         raise ValueError(f"manifest preSubmitReview is invalid: {manifest_path}")
@@ -622,8 +625,7 @@ def carry_sealed_run_metadata(
                 f"generationTicket in {manifest_path}"
             )
     for cell in cells:
-        if sealed_agent:
-            cell[SEALED_AGENT_KEY] = sealed_agent
+        cell[SEALED_AGENT_KEY] = sealed_agent
         if sealed_ticket:
             cell[SEALED_GENERATION_TICKET_KEY] = sealed_ticket
         if sealed_target_context is not None:
@@ -668,7 +670,12 @@ def to_forecast_cell(
         out["conditionalOn"] = cell["conditionalOn"]
     if cell.get("predictionDistribution"):
         out["predictionDistribution"] = cell["predictionDistribution"]
-    stamp = cell.get(SEALED_AGENT_KEY) or agent_stamp()
+    stamp = cell.get(SEALED_AGENT_KEY)
+    required_stamp = ("agent", "agentVersion", "promptHash", "toolPolicyHash")
+    if not isinstance(stamp, dict) or not all(
+        isinstance(stamp.get(key), str) and stamp[key] for key in required_stamp
+    ):
+        raise ValueError("cell lacks sealed agent metadata")
     out["predictionRun"] = {
         "kind": "recorded-agent-run",
         "runAt": cell["runAt"],
@@ -726,13 +733,8 @@ def load_cells(
         raise ValueError(f"cell input must be a JSON list: {path}")
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
-    looks_recorded = (
-        path.name == "cells.with_activity.json"
-        or custody_path.exists()
-        or any(isinstance(cell, dict) and "activityLog" in cell for cell in cells)
-    )
-    if looks_recorded and not manifest_path.exists():
-        raise ValueError(f"recorded cell input lacks manifest.json: {path}")
+    if not manifest_path.exists():
+        raise ValueError(f"cell input lacks manifest.json: {path}")
     carry_sealed_run_metadata(cells, path.parent, provenance=provenance)
     if custody_path.exists():
         from verify_custody import verify_run

@@ -936,9 +936,16 @@ def build_fast_prompt(
         "- historicalContext must contain at least 6 distinct numeric fetched "
         "prints. Every entry needs a canonical period object: type month with "
         "YYYY-MM, quarter with YYYY-Q1..Q4, year/fiscal_year with YYYY, or "
-        "week_ending with YYYY-MM-DD. Labels are display text and do not make "
-        "duplicate canonical periods distinct. Validation refuses fewer unless "
-        "the sealed checkout carries the reviewed authorization below.\n"
+        "week_ending with YYYY-MM-DD. Its label must unambiguously name that "
+        "same period. The whole trimmed label must be one closed printable-ASCII "
+        "form: YYYY-MM, Month YYYY, YYYY Month, YYYY-QN, YYYY QN, QN YYYY, "
+        "YYYY, calendar year YYYY, FY2026, fiscal year YYYY, YYYY-MM-DD, or "
+        "week ending YYYY-MM-DD. Never add source names, first-print or revision "
+        "prose, ranges, or a second period cue to the label. Relative, "
+        "contradictory, non-ASCII, and multi-period labels refuse. Alternate "
+        "labels do not make duplicate canonical periods distinct. "
+        "Validation refuses fewer unless the sealed checkout carries the "
+        "reviewed authorization below.\n"
         "- Only when the official source exposes fewer than 6 prints, fetch "
         "all available prints and add this top-level audit commentary (replace "
         "5 with the actual count and give a nonempty detail): "
@@ -3292,32 +3299,32 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
         "historicalContext": [
             {
                 "period": {"type": "month", "value": "2025-01"},
-                "label": "t-6",
+                "label": "2025-01",
                 "value": 4.9,
             },
             {
                 "period": {"type": "month", "value": "2025-02"},
-                "label": "t-5",
+                "label": "2025-02",
                 "value": 5.0,
             },
             {
                 "period": {"type": "month", "value": "2025-03"},
-                "label": "t-4",
+                "label": "2025-03",
                 "value": 5.1,
             },
             {
                 "period": {"type": "month", "value": "2025-04"},
-                "label": "t-3",
+                "label": "2025-04",
                 "value": 5.0,
             },
             {
                 "period": {"type": "month", "value": "2025-05"},
-                "label": "t-2",
+                "label": "2025-05",
                 "value": 5.1,
             },
             {
                 "period": {"type": "month", "value": "2025-06"},
-                "label": "t-1",
+                "label": "2025-06",
                 "value": 5.2,
             },
         ],

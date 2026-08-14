@@ -182,7 +182,10 @@ def main() -> int:
                     rows.append(parsed)
             elif (v := to_number(h.get("value"))) is not None:
                 row = {
-                    "label": h.get("label") or str(h.get("period", "?")),
+                    # Keep the submitted display label exactly. Synthesizing a
+                    # missing label from the structured period would let one
+                    # model-authored field silently vouch for the other.
+                    "label": h.get("label"),
                     "value": v,
                 }
                 if "period" in h:

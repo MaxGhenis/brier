@@ -93,8 +93,15 @@ double-count it as extra evidence.
    validation refuses fewer. Give every historical entry a structured
    canonical period independent of its display label: `month`/`YYYY-MM`,
    `quarter`/`YYYY-Q1`…`YYYY-Q4`, `year` or `fiscal_year`/`YYYY`, or
-   `week_ending`/`YYYY-MM-DD`. Alternate labels for one canonical period are
-   one print. If the source exposes fewer than 6, fetch all of them and add
+   `week_ending`/`YYYY-MM-DD`. The label must unambiguously name that same
+   period. The whole trimmed label must be one closed, printable-ASCII period
+   form: `YYYY-MM`, `Month YYYY`, `YYYY Month`, `YYYY-QN`, `YYYY QN`,
+   `QN YYYY`, `YYYY`, `calendar year YYYY`, `FY2026`, `fiscal year YYYY`,
+   `YYYY-MM-DD`, or `week ending YYYY-MM-DD`. Do not add source names,
+   `first print`, revision prose, ranges, or a second period cue to the label.
+   Relative, contradictory, non-ASCII, and multi-period labels refuse.
+   Alternate labels for one canonical period are one print. If the source
+   exposes fewer than 6, fetch all of them and add
    `historyAvailability` with status
    `official_source_exposes_fewer_than_six_prints`, the matching
    `availablePrintCount`, and a nonempty `detail`. That is audit commentary,
