@@ -35,6 +35,7 @@ import TargetArchitecturePage from "../app/forecasts/targets/page";
 import ThesisPage from "../app/thesis/page";
 import { ForecastRuntime } from "../components/ForecastRuntime";
 import { FORECAST_CELLS, getForecastCell } from "../data/forecast-cells";
+import { resolveMetricCell } from "../lib/metric-cells";
 import { buildTargetArchitectureProjection } from "../data/thesis-target-architecture";
 import {
   buildTargetArchitectureChunkHashPayload,
@@ -64,12 +65,11 @@ describe("Next.js migration", () => {
         }),
       );
 
-      const eiaCell = FORECAST_CELLS.find(
-        (cell) =>
-          cell.dataPointId ===
-          "eia.ng.vented_flared.us.annual.2025.first_print",
-      );
-      if (eiaCell) {
+      // Resolve exactly the way the page does: the context-series card
+      // renders the MetricCellMatch (which carries the display labels),
+      // never the raw ForecastCell.
+      const eiaMatch = resolveMetricCell("eia.ng.vented_flared.us.annual");
+      if (eiaMatch) {
         expect(
           screen.queryByText(
             "Admitted to the docket — awaiting ticketed registration and generation through the attested lane.",
@@ -78,13 +78,13 @@ describe("Next.js migration", () => {
         // The published surface must actually render: the cell's own
         // card with its forecast values, not merely the series label
         // (which the pending state also shows).
-        const card = screen.getByText(eiaCell.title).closest("a");
+        const card = screen.getByText(eiaMatch.title).closest("a");
         expect(card).not.toBeNull();
         expect(within(card as HTMLElement).getByText("Current forecast"))
           .toBeInTheDocument();
-        expect(within(card as HTMLElement).getByText(eiaCell.pointLabel))
+        expect(within(card as HTMLElement).getByText(eiaMatch.pointLabel))
           .toBeInTheDocument();
-        expect(within(card as HTMLElement).getByText(eiaCell.ciLabel))
+        expect(within(card as HTMLElement).getByText(eiaMatch.ciLabel))
           .toBeInTheDocument();
       } else {
         expect(
