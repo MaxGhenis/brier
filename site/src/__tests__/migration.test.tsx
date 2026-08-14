@@ -51,18 +51,40 @@ import {
 
 describe("Next.js migration", () => {
   describe("Bill detail", () => {
-    it("renders the FLARE bounded target as awaiting the ticketed lane", async () => {
+    it("renders the FLARE bounded target honestly for its lane state", async () => {
+      // State-adaptive (the #181 precedent): before the ticketed lane
+      // publishes the EIA cell, the page must carry the ticketed-lane
+      // pending card; after publication the forecast surface replaces
+      // it. Both are honest states — pinning only the pending card made
+      // the publish leg's own site test refuse the publish that removes
+      // the card. The next-roll promise is wrong in every state.
       render(
         await BillDetailPage({
           params: Promise.resolve({ slug: "flare-act-s1188-119" }),
         }),
       );
 
-      expect(
-        screen.getByText(
-          "Admitted to the docket — awaiting ticketed registration and generation through the attested lane.",
-        ),
-      ).toBeInTheDocument();
+      const published = FORECAST_CELLS.some(
+        (cell) =>
+          cell.dataPointId ===
+          "eia.ng.vented_flared.us.annual.2025.first_print",
+      );
+      if (published) {
+        expect(
+          screen.queryByText(
+            "Admitted to the docket — awaiting ticketed registration and generation through the attested lane.",
+          ),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getAllByText(/vented and flared/i).length,
+        ).toBeGreaterThan(0);
+      } else {
+        expect(
+          screen.getByText(
+            "Admitted to the docket — awaiting ticketed registration and generation through the attested lane.",
+          ),
+        ).toBeInTheDocument();
+      }
       expect(
         screen.queryByText(
           /first registered forecast arrives with the next roll/i,
