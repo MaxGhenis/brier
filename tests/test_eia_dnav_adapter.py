@@ -305,6 +305,19 @@ def test_page_authenticates_the_exact_title_and_workbook_link() -> None:
     )
 
 
+def test_page_ignores_template_anchor_and_authenticates_active_sibling() -> None:
+    html = (
+        f"<html><body><h1>{SPEC['page_title']}</h1>"
+        "<template><template>inert</template>"
+        "<a href='../hist_xls/N9040US2a.xls'>"
+        "Download Data (XLS File)</a></template>"
+        "<a href='../hist_xls/N9040US2a.xls'>"
+        "Download Data (XLS File)</a></body></html>"
+    ).encode()
+
+    assert resolve_pending.eia_dnav_workbook_link(html, SPEC) == SPEC["workbook_url"]
+
+
 @pytest.mark.parametrize(
     "html",
     [
@@ -770,6 +783,74 @@ def test_fetch_does_not_request_a_workbook_from_an_unauthenticated_page(
             "Download Data (XLS File)</a>"
         ),
         ("<a href='..&#47;hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        (
+            "<a href='../hist_xls/N9040US2a.xls' "
+            "HREF='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"
+        ),
+        ("<a href HREF='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        ("<a HREF='../hist_xls/N9040US2a.xls' href>Download Data (XLS File)</a>"),
+        ("<a HREF>Download Data (XLS File)</a>"),
+        ("<a href=''>Download Data (XLS File)</a>"),
+        (
+            "<a href HREF='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<a href HREF='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<a href/>Download Data (XLS File)"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<template><template>inert</template>"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a></template>"
+        ),
+        ("<template/><a href='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</a>"),
+        (
+            "<svg><template><a href "
+            "HREF='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a></template></svg>"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<math><template><a href "
+            "HREF='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a></template></math>"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<select><a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a></select>"
+        ),
+        (
+            "<template><script/></template>"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<a href><table><tr></a></tr></table>"
+            "Download Data (XLS File)</a>"
+            "<a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a>"
+        ),
+        (
+            "<noscript><a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a></noscript>"
+        ),
+        (
+            "<frameset><a href='../hist_xls/N9040US2a.xls'>"
+            "Download Data (XLS File)</a></frameset>"
+        ),
         ("<span data-href='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</span>"),
         ("<div href='../hist_xls/N9040US2a.xls'>Download Data (XLS File)</div>"),
         ("<a title=\" href='../hist_xls/N9040US2a.xls'\">Download Data (XLS File)</a>"),
@@ -790,6 +871,23 @@ def test_fetch_does_not_request_a_workbook_from_an_unauthenticated_page(
         "absolute-url-alias",
         "scheme-relative-alias",
         "character-reference-alias",
+        "duplicate-assigned-href",
+        "bare-then-assigned-href",
+        "assigned-then-bare-href",
+        "bare-only-href",
+        "empty-assigned-href",
+        "ambiguous-candidate-before-valid-anchor",
+        "unclosed-ambiguous-candidate-before-valid-anchor",
+        "self-closing-bare-candidate-before-valid-anchor",
+        "nested-template-anchor",
+        "self-closing-template-anchor",
+        "svg-template-ambiguous-candidate",
+        "mathml-template-ambiguous-candidate",
+        "select-suppressed-anchor",
+        "self-closing-nonvoid-before-anchor",
+        "table-repaired-bare-candidate-before-valid-anchor",
+        "noscript-anchor",
+        "frameset-anchor",
         "inert-data-href",
         "non-anchor-href",
         "anchor-inert-attribute-soup",
@@ -797,7 +895,7 @@ def test_fetch_does_not_request_a_workbook_from_an_unauthenticated_page(
         "backtick-real-href-plus-inert-reviewed-text",
     ],
 )
-def test_raw_workbook_href_aliases_refuse_before_workbook_transport(
+def test_unauthenticated_workbook_markup_refuses_before_workbook_transport(
     markup: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     page_raw = (

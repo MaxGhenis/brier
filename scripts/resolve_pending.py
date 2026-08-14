@@ -9074,69 +9074,149 @@ def _eia_dnav_normalized_text(value: Any) -> str:
     return " ".join(str(value).split()).strip()
 
 
-def _eia_dnav_raw_hrefs(start_tag_text: str) -> list[str]:
-    """Return actual href values without HTMLParser's entity decoding.
+def _eia_dnav_raw_hrefs(start_tag_text: str) -> list[str | None]:
+    """Return every raw href occurrence without entity decoding.
 
     Use the same quote-aware token boundaries as ``HTMLParser`` itself. A
     global regex can mistake href-looking bytes inside another attribute's
-    quoted value for the active anchor href.
+    quoted value for the active anchor href. Bare/boolean occurrences are
+    represented by ``None`` so duplicate-attribute ambiguity cannot disappear.
     """
 
     tag = html_parser.tagfind_tolerant.match(start_tag_text, 1)
     if tag is None:
         return []
-    raw_hrefs: list[str] = []
+    raw_hrefs: list[str | None] = []
     position = tag.end()
     while position < len(start_tag_text):
         attribute = html_parser.attrfind_tolerant.match(start_tag_text, position)
         if attribute is None:
             break
         name, assignment, raw_value = attribute.group(1, 2, 3)
-        if name.lower() == "href" and assignment:
-            if raw_value[:1] in {"'", '"'} and raw_value[-1:] == raw_value[:1]:
-                raw_value = raw_value[1:-1]
-            raw_hrefs.append(raw_value)
+        if name.lower() == "href":
+            if assignment is None:
+                raw_hrefs.append(None)
+            else:
+                raw_value = raw_value or ""
+                if raw_value[:1] in {"'", '"'} and raw_value[-1:] == raw_value[:1]:
+                    raw_value = raw_value[1:-1]
+                raw_hrefs.append(raw_value)
         position = attribute.end()
     return raw_hrefs
 
 
 class _EiaDnavPageParser(HTMLParser):
-    """Collect visible text and active anchor hrefs from one DNav page."""
+    """Collect visible text and document-active anchors from one DNav page."""
+
+    _HTML_VOID_ELEMENTS = {
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr",
+    }
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.text: list[str] = []
-        self.links: list[tuple[str, str]] = []
+        self.links: list[tuple[str | None, tuple[str | None, ...], str]] = []
         self._href: str | None = None
+        self._raw_hrefs: tuple[str | None, ...] = ()
         self._anchor_text: list[str] = []
+        self._anchor_open = False
+        self._template_depth = 0
+        self.ambiguous_html_seen = False
+        self.unauthenticatable_href_seen = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag.lower() != "a":
+        tag = tag.lower()
+        if tag in {"base", "frameset", "math", "noscript", "select", "svg"}:
+            # ``template`` is inert only in the HTML namespace. Rather than
+            # misclassify active foreign-content anchors or anchors suppressed
+            # by HTML5's select insertion mode, refuse constructs absent from
+            # the reviewed official DNav fixture.
+            self.ambiguous_html_seen = True
             return
+        if tag == "template":
+            self._template_depth += 1
+            return
+        if self._template_depth or tag != "a":
+            return
+        # HTML5 closes an active anchor when another ``<a>`` start tag begins.
+        # Preserve that first candidate instead of overwriting its ambiguity.
+        self._finish_anchor()
         # HTMLParser decodes character references in ``attrs``. Recover the
         # href spelling from this structurally identified anchor's original
         # start-tag text so identity is checked against the untouched token.
-        raw_hrefs = _eia_dnav_raw_hrefs(self.get_starttag_text())
-        parsed_hrefs = [
-            value
-            for name, value in attrs
-            if name.lower() == "href" and value is not None
-        ]
+        raw_hrefs = tuple(_eia_dnav_raw_hrefs(self.get_starttag_text()))
+        parsed_hrefs = [value for name, value in attrs if name.lower() == "href"]
         self._href = None
-        if len(raw_hrefs) == 1 and len(parsed_hrefs) == 1:
+        href_is_authenticatable = len(raw_hrefs) == 1 and len(parsed_hrefs) == 1
+        if href_is_authenticatable:
+            raw_href = raw_hrefs[0]
+            parsed_href = parsed_hrefs[0]
+            href_is_authenticatable = bool(raw_href and parsed_href)
+        if href_is_authenticatable:
             self._href = raw_hrefs[0]
+        elif raw_hrefs or parsed_hrefs:
+            # An href-bearing anchor whose sole browser-active token cannot be
+            # proven is a page-level refusal. That ambiguity must not disappear
+            # through HTML5/Python differences in anchor text or end-tag repair.
+            self.unauthenticatable_href_seen = True
+        self._raw_hrefs = raw_hrefs
         self._anchor_text = []
+        self._anchor_open = True
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        tag = tag.lower()
+        if tag not in self._HTML_VOID_ELEMENTS:
+            # HTML5 ignores ``/>`` on non-void HTML elements, whereas
+            # ``HTMLParser`` synthesizes an end tag. Reject the ambiguous page
+            # rather than exposing anchors that a browser may keep nested in
+            # raw-text, RCDATA, select, or other non-void content.
+            self.ambiguous_html_seen = True
+        super().handle_startendtag(tag, attrs)
 
     def handle_data(self, data: str) -> None:
+        if self._template_depth:
+            return
         self.text.append(data)
-        if self._href is not None:
+        if self._anchor_open:
             self._anchor_text.append(data)
 
     def handle_endtag(self, tag: str) -> None:
-        if tag.lower() == "a" and self._href is not None:
-            self.links.append((self._href, " ".join(self._anchor_text)))
-            self._href = None
-            self._anchor_text = []
+        tag = tag.lower()
+        if tag == "template":
+            if self._template_depth:
+                self._template_depth -= 1
+            return
+        if self._template_depth or tag != "a" or not self._anchor_open:
+            return
+        self._finish_anchor()
+
+    def close(self) -> None:
+        super().close()
+        # HTML5 retains an unclosed anchor through EOF. Record it so a malformed
+        # candidate cannot disappear merely because its explicit end tag did.
+        self._finish_anchor()
+
+    def _finish_anchor(self) -> None:
+        if not self._anchor_open:
+            return
+        self.links.append((self._href, self._raw_hrefs, " ".join(self._anchor_text)))
+        self._anchor_open = False
+        self._href = None
+        self._raw_hrefs = ()
+        self._anchor_text = []
 
 
 _EIA_DNAV_RAW_URL_RE = re.compile(r"https://[A-Za-z0-9.-]+/[A-Za-z0-9/._-]+")
@@ -9331,19 +9411,24 @@ def eia_dnav_workbook_link(html: bytes, spec: Mapping[str, Any]) -> str | None:
     parser = _EiaDnavPageParser()
     parser.feed(text)
     parser.close()
+    if parser.ambiguous_html_seen or parser.unauthenticatable_href_seen:
+        return None
     normalized = _eia_dnav_normalized_text(" ".join(parser.text))
     expected_page_title = str(spec["page_title"])
     if expected_page_title not in normalized:
         return None
     expected_filename = posixpath.basename(urlparse(str(spec["workbook_url"])).path)
     expected_link_text = _eia_dnav_normalized_text(spec["workbook_link_text"])
-    workbook_hrefs = [
+    workbook_hrefs: list[str | None] = [
         href
-        for href, link_text in parser.links
-        if expected_filename.lower() in href.lower()
+        for href, raw_hrefs, link_text in parser.links
+        if any(
+            raw_href is not None and expected_filename.lower() in raw_href.lower()
+            for raw_href in raw_hrefs
+        )
         or _eia_dnav_normalized_text(link_text) == expected_link_text
     ]
-    if len(workbook_hrefs) != 1:
+    if len(workbook_hrefs) != 1 or workbook_hrefs[0] is None:
         return None
     try:
         _require_eia_dnav_workbook_href(workbook_hrefs[0], spec)
