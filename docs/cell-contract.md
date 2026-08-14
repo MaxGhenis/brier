@@ -27,7 +27,13 @@ later scoring and Brier training.
   "resolutionRule": "Exact series/table/line, first print, rounding, condition policy",
   "dataPointId": "agency.dataset.concept.period.first_print",
   "conditionalOn": "(conditionals only) checkable condition w/ provision ref",
-  "historicalContext": [{ "label": "…", "value": 0 }],
+  "historicalContext": [
+    {
+      "period": { "type": "month", "value": "2026-04" },
+      "label": "April 2026",
+      "value": 0
+    }
+  ],
   "drivers": ["3-5 short driver phrases"],
   "sourceContext": ["urls actually fetched this run (>=2)"],
   "runAt": "real `date -u +%Y-%m-%dT%H:%M:%SZ` at generation",
@@ -65,10 +71,44 @@ interval if…"); final forecast step exactly matching the cell numbers;
 historicalContext >=3 real points; ciLow < point < ciHigh.
 
 New thesis.analyst generations require at least 6 distinct numeric
-`historicalContext` prints whenever the official source exposes them. If the
-official source exposes fewer than 6, fetch every available print and add this
-top-level structured attestation alongside `historicalContext` (with the
-actual count and a nonempty detail):
+`historicalContext` prints whenever the official source exposes them. Each
+entry carries a canonical `period` identity independent of its display label:
+`month` uses `YYYY-MM`, `quarter` uses `YYYY-Q1` through `YYYY-Q4`, `year` and
+`fiscal_year` use `YYYY`, and `week_ending` uses `YYYY-MM-DD`. Validation counts
+unique `(type, value)` identities, so alternate labels for one period never
+become additional prints.
+
+If the official source exposes fewer than 6 prints, fetch every available
+print. A floor exception exists only when the exact series and target period
+have a reviewed authorization in the sealed checkout's
+`scripts/docket_series.json`. Like every docket change, that authorization is
+committed and reviewed before the run. It records the canonical inventory:
+
+```json
+{
+  "extras": {
+    "historyFloorAuthorization": {
+      "targetPeriod": "2026-06",
+      "status": "official_source_exposes_fewer_than_six_prints",
+      "availablePrintCount": 5,
+      "availablePeriods": [
+        { "type": "month", "value": "2026-01" },
+        { "type": "month", "value": "2026-02" },
+        { "type": "month", "value": "2026-03" },
+        { "type": "month", "value": "2026-04" },
+        { "type": "month", "value": "2026-05" }
+      ]
+    }
+  }
+}
+```
+
+The runner reads that registry from the manifest's sealed `checkoutSha` and
+requires the run's canonical period set to match it exactly. A copied registry
+fragment, target-context field, or cell field has no authority.
+
+The agent may also add this top-level audit commentary alongside
+`historicalContext` (with the actual count and a nonempty detail):
 
 ```json
 {
@@ -80,11 +120,11 @@ actual count and a nonempty detail):
 }
 ```
 
-The runner checks the exact status, count agreement, and nonempty detail; it
-does not infer the exception from free text. This declaration is an auditable
-agent claim, not independent proof that the official source lacks older
-prints. It remains in the run artifacts and is omitted from the generated
-catalog cell.
+The runner checks the exact status, canonical-count agreement, and nonempty
+detail when this commentary is present. It remains in the run artifacts and
+is omitted from the generated catalog cell. It is model-authored commentary,
+not authorization: even a syntactically valid declaration can never waive the
+floor without the matching reviewed docket entry from the sealed checkout.
 
 `resolutionDate` has two target-context branches:
 

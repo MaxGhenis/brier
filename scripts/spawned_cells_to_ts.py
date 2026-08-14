@@ -65,6 +65,12 @@ REQUIRED = [
 # side cannot drift.
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 try:
+    from history_floor import (
+        history_floor_errors,
+        history_floor_requires_authorization,
+        reviewed_history_floor_authorization,
+        valid_agent_version,
+    )
     from private_source_screen import (
         PRIVATE_SOURCE_MARKER,  # noqa: F401  (re-exported for tests/tools)
         PRIVATE_SOURCE_RE,
@@ -203,6 +209,8 @@ def validate(
     *,
     target_context: dict | None = None,
     generation_ticket: dict | None = None,
+    agent_version: object = None,
+    trusted_history_authorization: dict | None = None,
 ) -> list[str]:
     if target_context is None:
         carried_context = cell.get(SEALED_TARGET_CONTEXT_KEY)
@@ -259,8 +267,6 @@ def validate(
         errs.append("runAt not ISO-8601")
     if not str(cell["resolutionSourceUrl"]).startswith("https://"):
         errs.append("resolutionSourceUrl not https")
-    if len(cell["historicalContext"]) < 2:
-        errs.append("needs >=2 historical points")
     for h in cell["historicalContext"]:
         if isinstance(h.get("value"), str):
             cleaned = h["value"].replace("%", "").replace(",", "").strip()
@@ -270,6 +276,13 @@ def validate(
                 errs.append(f"non-numeric historical value: {h['value']!r}")
         if isinstance(h.get("value"), float) and h["value"].is_integer():
             h["value"] = int(h["value"])
+    errs.extend(
+        history_floor_errors(
+            cell,
+            agent_version=agent_version,
+            trusted_history_authorization=trusted_history_authorization,
+        )
+    )
     if len(cell["sourceContext"]) < 2:
         errs.append("needs >=2 source URLs")
     # Mirror of trace-depth.test.ts: sourceContext entries are public URLs,
@@ -455,6 +468,9 @@ SEALED_GENERATION_TICKET_KEY = "_sealedGenerationTicket"
 # runner, replay, and converter paths.
 SEALED_TARGET_CONTEXT_KEY = "_sealedTargetContext"
 SEALED_VALIDATION_TICKET_KEY = "_sealedValidationGenerationTicket"
+# Validation-only reviewed docket authorization resolved from the sealed Git
+# checkout named by the run manifest. Never accept this key from input JSON.
+SEALED_HISTORY_AUTHORIZATION_KEY = "_sealedHistoryFloorAuthorization"
 
 
 def agent_stamp() -> dict:
@@ -484,11 +500,23 @@ def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         return None
-    meta = json.loads(manifest_path.read_text()).get("agent")
+    manifest = json.loads(manifest_path.read_text())
+    if not isinstance(manifest, dict):
+        raise ValueError(f"run manifest is not an object: {manifest_path}")
+    if manifest.get("ok") is not True:
+        raise ValueError(f"run manifest is not successful: {manifest_path}")
+    meta = manifest.get("agent")
     if not isinstance(meta, dict):
-        return None
+        raise ValueError(f"run manifest has no sealed agent metadata: {manifest_path}")
     required = ("agent", "agentVersion", "promptHash", "toolPolicyHash")
-    return meta if all(meta.get(key) for key in required) else None
+    if not all(isinstance(meta.get(key), str) and meta[key] for key in required):
+        raise ValueError(f"run manifest agent metadata is incomplete: {manifest_path}")
+    if not valid_agent_version(meta["agentVersion"]):
+        raise ValueError(f"run manifest agentVersion is malformed: {manifest_path}")
+    for key in ("promptHash", "toolPolicyHash"):
+        if re.fullmatch(r"[0-9a-f]{64}", meta[key]) is None:
+            raise ValueError(f"run manifest {key} is malformed: {manifest_path}")
+    return meta
 
 
 def sealed_generation_ticket(run_dir: pathlib.Path) -> dict | None:
@@ -529,6 +557,7 @@ def carry_sealed_run_metadata(
         cell.pop(SEALED_GENERATION_TICKET_KEY, None)
         cell.pop(SEALED_TARGET_CONTEXT_KEY, None)
         cell.pop(SEALED_VALIDATION_TICKET_KEY, None)
+        cell.pop(SEALED_HISTORY_AUTHORIZATION_KEY, None)
         # Review metadata is runner-authored, never agent-authored: an
         # agent-planted preSubmitReview would otherwise be excluded from
         # private_source_hits and then masked as if a reviewer wrote it.
@@ -537,6 +566,13 @@ def carry_sealed_run_metadata(
     sealed_agent = sealed_agent_meta(run_dir)
     manifest_path = run_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    if not isinstance(manifest, dict):
+        raise ValueError(f"run manifest is not an object: {manifest_path}")
+    if sealed_agent is None:
+        # Genuinely ad-hoc input has no recorded manifest. Bind validation and
+        # output to the live agent definition; recorded inputs may never take
+        # this fallback because sealed_agent_meta fails malformed manifests.
+        sealed_agent = agent_stamp()
     sealed_review = manifest.get("preSubmitReview")
     if sealed_review is not None and not isinstance(sealed_review, dict):
         raise ValueError(f"manifest preSubmitReview is invalid: {manifest_path}")
@@ -550,6 +586,23 @@ def carry_sealed_run_metadata(
     ):
         raise ValueError(f"manifest targetContext is invalid: {manifest_path}")
     validation_ticket = manifest.get("generationTicket")
+    trusted_history_authorization = None
+    if any(
+        history_floor_requires_authorization(cell, sealed_agent.get("agentVersion"))
+        for cell in cells
+    ):
+        try:
+            trusted_history_authorization = reviewed_history_floor_authorization(
+                ROOT,
+                checkout_sha=manifest.get("checkoutSha"),
+                series=manifest.get("series"),
+                target_period=manifest.get("period"),
+            )
+        except ValueError as exc:
+            raise ValueError(
+                "cannot authenticate reviewed history-floor authorization from "
+                f"{manifest_path}: {exc}"
+            ) from exc
     if provenance == "ci" and has_ticket:
         raise ValueError(
             "ticketed runs must be converted with --provenance local_operator_attested"
@@ -577,6 +630,8 @@ def carry_sealed_run_metadata(
             cell[SEALED_TARGET_CONTEXT_KEY] = sealed_target_context
         if isinstance(validation_ticket, dict):
             cell[SEALED_VALIDATION_TICKET_KEY] = validation_ticket
+        if trusted_history_authorization is not None:
+            cell[SEALED_HISTORY_AUTHORIZATION_KEY] = trusted_history_authorization
 
 
 def to_forecast_cell(
@@ -669,9 +724,16 @@ def load_cells(
     cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
-    carry_sealed_run_metadata(cells, path.parent, provenance=provenance)
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
+    looks_recorded = (
+        path.name == "cells.with_activity.json"
+        or custody_path.exists()
+        or any(isinstance(cell, dict) and "activityLog" in cell for cell in cells)
+    )
+    if looks_recorded and not manifest_path.exists():
+        raise ValueError(f"recorded cell input lacks manifest.json: {path}")
+    carry_sealed_run_metadata(cells, path.parent, provenance=provenance)
     if custody_path.exists():
         from verify_custody import verify_run
 
@@ -722,7 +784,22 @@ def main() -> int:
     seen = set()
     for path in inputs:
         for cell in load_cells(pathlib.Path(path), provenance=args.provenance):
-            errs = validate(cell, taken | seen)
+            sealed_agent = cell.get(SEALED_AGENT_KEY)
+            sealed_authorization = cell.get(SEALED_HISTORY_AUTHORIZATION_KEY)
+            errs = validate(
+                cell,
+                taken | seen,
+                agent_version=(
+                    sealed_agent.get("agentVersion")
+                    if isinstance(sealed_agent, dict)
+                    else None
+                ),
+                trusted_history_authorization=(
+                    sealed_authorization
+                    if isinstance(sealed_authorization, dict)
+                    else None
+                ),
+            )
             if errs:
                 failed.append((cell.get("slug", "?"), errs))
             else:

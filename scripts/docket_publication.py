@@ -1056,6 +1056,12 @@ def validate_cells(
             agent_version=(
                 agent.get("agentVersion") if isinstance(agent, dict) else None
             ),
+            checkout_sha=(manifest.get("checkoutSha") if manifest else None),
+            series=(manifest.get("series") if manifest else None),
+            target_period=(manifest.get("period") if manifest else None),
+            # The staged bundle is data, not authority and may not even be a
+            # Git checkout. Read reviewed authorization from trusted code.
+            history_registry_root=ROOT,
         )
         if bool(report.get("ok")) != expected_ok:
             raise PublicationError(

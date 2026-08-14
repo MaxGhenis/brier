@@ -90,11 +90,19 @@ double-count it as extra evidence.
 2. **Fetch the history.** Pull the recent series history (6–24 prints) from
    the official source or its sanctioned mirror per the skill. At least 6
    distinct prints are MANDATORY when the official source exposes them, and
-   validation refuses fewer. If the source exposes fewer than 6, fetch all of
-   them and add `historyAvailability` with status
+   validation refuses fewer. Give every historical entry a structured
+   canonical period independent of its display label: `month`/`YYYY-MM`,
+   `quarter`/`YYYY-Q1`…`YYYY-Q4`, `year` or `fiscal_year`/`YYYY`, or
+   `week_ending`/`YYYY-MM-DD`. Alternate labels for one canonical period are
+   one print. If the source exposes fewer than 6, fetch all of them and add
+   `historyAvailability` with status
    `official_source_exposes_fewer_than_six_prints`, the matching
-   `availablePrintCount`, and a nonempty `detail`. This is the only admissible
-   evidence: numbers you fetched this run.
+   `availablePrintCount`, and a nonempty `detail`. That is audit commentary,
+   not permission to bypass the floor: validation also requires an exact
+   series/target-period authorization, including the complete canonical
+   period inventory, committed to the reviewed docket in the sealed checkout.
+   The agent cannot create or replace that authorization. Fetched numbers are
+   the only admissible forecast evidence.
 3. **Outside view first.** Compute the base-rate prior: the distribution of
    recent comparable prints (level, change, or surprise — whichever the
    question asks). State it explicitly in the trace. For repeated official

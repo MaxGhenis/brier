@@ -23,6 +23,21 @@ import spawned_cells_to_ts  # noqa: E402
 import verify_wave_reproducibility  # noqa: E402
 
 
+def sealed_agent(version: str = "2.5.9") -> dict[str, str]:
+    return {
+        "agent": "thesis.analyst",
+        "agentVersion": version,
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+    }
+
+
+def successful_manifest(**overrides: object) -> dict:
+    manifest: dict = {"ok": True, "agent": sealed_agent()}
+    manifest.update(overrides)
+    return manifest
+
+
 def probe_cell(resolution_date: str) -> dict:
     cell = {key: "?" for key in spawned_cells_to_ts.REQUIRED}
     cell.update(
@@ -43,8 +58,12 @@ def probe_cell(resolution_date: str) -> dict:
             "resolutionSourceUrl": "https://example.gov/data",
             "runAt": "2026-07-10T04:05:26Z",
             "historicalContext": [
-                {"label": "t-2", "value": 18},
-                {"label": "t-1", "value": 19},
+                {
+                    "period": {"type": "month", "value": f"2026-{index:02d}"},
+                    "label": f"t-{7 - index}",
+                    "value": 17 + index,
+                }
+                for index in range(1, 7)
             ],
             "sourceContext": [
                 "https://example.gov/a",
@@ -80,9 +99,7 @@ DOD_REGISTRATION_PATH = (
     "records/targets/"
     "2026-08-07-59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907.json"
 )
-DOD_CONTENT_HASH = (
-    "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907"
-)
+DOD_CONTENT_HASH = "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907"
 
 
 def registered_dod_context() -> dict:
@@ -137,16 +154,12 @@ def test_forged_contexts_cannot_buy_the_unit_exemption() -> None:
 
     tampered = registered_dod_context()
     tampered["targetContentHash"] = "0" * 64
-    wrong_hash = spawned_cells_to_ts.validate(
-        cell, set(), target_context=tampered
-    )
+    wrong_hash = spawned_cells_to_ts.validate(cell, set(), target_context=tampered)
     assert any("not allowed" in error for error in wrong_hash), wrong_hash
 
     foreign = registered_dod_context()
     foreign["catalogSlug"] = "some-other-slug"
-    wrong_slug = spawned_cells_to_ts.validate(
-        cell, set(), target_context=foreign
-    )
+    wrong_slug = spawned_cells_to_ts.validate(cell, set(), target_context=foreign)
     assert any("not allowed" in error for error in wrong_slug), wrong_slug
 
 
@@ -162,9 +175,7 @@ def bounded_context(start: str = "2026-07-11") -> dict:
 def ticket_context() -> dict:
     return {
         "ticketId": "2026-07-10-deadbeef",
-        "ticketPath": (
-            "records/tickets/2026-07-10/2026-07-10-deadbeef.json"
-        ),
+        "ticketPath": ("records/tickets/2026-07-10/2026-07-10-deadbeef.json"),
         "nonceSha256": "a" * 64,
     }
 
@@ -173,9 +184,7 @@ def test_bounded_cell_requires_ticket_context_literally() -> None:
     cell = probe_cell("2026-07-17")
     cell["runStartedAt"] = "2026-07-10T04:00:00Z"
 
-    errors = spawned_cells_to_ts.validate(
-        cell, set(), target_context=bounded_context()
-    )
+    errors = spawned_cells_to_ts.validate(cell, set(), target_context=bounded_context())
 
     assert "resolve-by-bound target requires generation ticket context" in errors
     ticketed = spawned_cells_to_ts.validate(
@@ -342,9 +351,7 @@ def test_sigma_gate_still_binds_every_other_prompt_mode() -> None:
             }
         ]
         errors = spawned_cells_to_ts.validate(cell, set())
-        assert any(
-            "interval derivation" in error for error in errors
-        ), (mode, errors)
+        assert any("interval derivation" in error for error in errors), (mode, errors)
 
 
 def stampable_cell() -> dict:
@@ -410,9 +417,9 @@ def test_stamp_falls_back_to_live_agent_when_run_sealed_none() -> None:
 
 
 def test_explicit_ci_stamp_is_not_inferred() -> None:
-    run = spawned_cells_to_ts.to_forecast_cell(
-        stampable_cell(), provenance="ci"
-    )["predictionRun"]
+    run = spawned_cells_to_ts.to_forecast_cell(stampable_cell(), provenance="ci")[
+        "predictionRun"
+    ]
 
     assert run["provenance"] == "ci"
     assert "generationTicket" not in run
@@ -486,10 +493,12 @@ def test_converter_validation_uses_sealed_bounded_manifest_context(
 ) -> None:
     import json
 
-    manifest = {
-        "targetContext": bounded_context(),
-        "generationTicket": ticket_context(),
-    }
+    manifest = successful_manifest(
+        **{
+            "targetContext": bounded_context(),
+            "generationTicket": ticket_context(),
+        }
+    )
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     cell = probe_cell("2026-07-17")
     cell["runStartedAt"] = "2026-07-01T03:55:00Z"
@@ -498,7 +507,11 @@ def test_converter_validation_uses_sealed_bounded_manifest_context(
     cells_path.write_text(json.dumps([cell]))
 
     [loaded] = spawned_cells_to_ts.load_cells(cells_path)
-    errors = spawned_cells_to_ts.validate(loaded, set())
+    errors = spawned_cells_to_ts.validate(
+        loaded,
+        set(),
+        agent_version=loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"],
+    )
 
     assert "resolve-by-bound target requires generation ticket context" not in errors
     assert not any("expectedReleaseWindow.start" in error for error in errors)
@@ -529,19 +542,16 @@ def test_loaded_manifest_ticket_reaches_published_prediction_run(
 ) -> None:
     import json
 
-    manifest = {
-        "agent": {
-            "agent": "thesis.analyst",
-            "agentVersion": "3.0.0",
-            "promptHash": "b" * 64,
-            "toolPolicyHash": "c" * 64,
-        },
-        "generationTicket": {
-            "ticketId": "2030-01-11-deadbeef",
-            "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
-            "nonceSha256": "a" * 64,
-        },
-    }
+    manifest = successful_manifest(
+        **{
+            "agent": sealed_agent("3.0.0"),
+            "generationTicket": {
+                "ticketId": "2030-01-11-deadbeef",
+                "ticketPath": ("records/tickets/2030-01-11/2030-01-11-deadbeef.json"),
+                "nonceSha256": "a" * 64,
+            },
+        }
+    )
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     cell = stampable_cell()
     cell["runAt"] = "2026-07-01T00:00:00Z"
@@ -549,9 +559,7 @@ def test_loaded_manifest_ticket_reaches_published_prediction_run(
     cells_path.write_text(json.dumps([cell]))
 
     unlabeled = spawned_cells_to_ts.load_cells(cells_path)[0]
-    unlabeled_run = spawned_cells_to_ts.to_forecast_cell(unlabeled)[
-        "predictionRun"
-    ]
+    unlabeled_run = spawned_cells_to_ts.to_forecast_cell(unlabeled)["predictionRun"]
     assert "provenance" not in unlabeled_run
     assert "generationTicket" not in unlabeled_run
 
@@ -597,7 +605,7 @@ def test_ci_conversion_refuses_ticketed_manifest_literally(
     import json
 
     (tmp_path / "manifest.json").write_text(
-        json.dumps({"generationTicket": {"untrusted": "shape"}})
+        json.dumps(successful_manifest(generationTicket={"untrusted": "shape"}))
     )
     cell = stampable_cell()
     cell["runAt"] = "2026-07-01T00:00:00Z"
@@ -608,8 +616,7 @@ def test_ci_conversion_refuses_ticketed_manifest_literally(
         spawned_cells_to_ts.load_cells(cells_path, provenance="ci")
 
     assert str(error.value) == (
-        "ticketed runs must be converted with --provenance "
-        "local_operator_attested"
+        "ticketed runs must be converted with --provenance local_operator_attested"
     )
 
 
@@ -648,13 +655,14 @@ def test_replacement_and_replay_preserve_existing_run_label() -> None:
     assert replace_cells_in_place.existing_run_provenance(legacy) is None
     assert verify_wave_reproducibility.committed_run_provenance(labeled) == "ci"
     assert verify_wave_reproducibility.committed_run_provenance(legacy) is None
-    assert verify_wave_reproducibility.trusted_replay_provenance(
-        labeled, [{"results": []}]
-    ) == "ci"
     assert (
         verify_wave_reproducibility.trusted_replay_provenance(
-            legacy, [{"results": []}]
+            labeled, [{"results": []}]
         )
+        == "ci"
+    )
+    assert (
+        verify_wave_reproducibility.trusted_replay_provenance(legacy, [{"results": []}])
         is None
     )
 
@@ -681,15 +689,102 @@ def test_replacement_and_replay_preserve_existing_run_label() -> None:
 def test_sealed_agent_meta_rejects_incomplete_manifest_identity(
     tmp_path: pathlib.Path,
 ) -> None:
-    """A half-filled agent block must fall back, not publish blanks."""
+    """A recorded half-filled agent block must fail, not fall back."""
 
     import json
 
     (tmp_path / "manifest.json").write_text(
-        json.dumps({"agent": {"agent": "thesis.analyst", "agentVersion": ""}})
+        json.dumps(
+            {
+                "ok": True,
+                "agent": {"agent": "thesis.analyst", "agentVersion": ""},
+            }
+        )
     )
-    assert spawned_cells_to_ts.sealed_agent_meta(tmp_path) is None
+    with pytest.raises(ValueError, match="agent metadata is incomplete"):
+        spawned_cells_to_ts.sealed_agent_meta(tmp_path)
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path / "missing") is None
+
+
+@pytest.mark.parametrize("agent_version", ["fixture", "2.5"])
+def test_promotion_rejects_malformed_sealed_agent_version(
+    tmp_path: pathlib.Path, agent_version: str
+) -> None:
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(agent=sealed_agent(agent_version)))
+    )
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="agentVersion is malformed"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_promotion_refuses_current_five_print_cell(
+    tmp_path: pathlib.Path,
+) -> None:
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(agent=sealed_agent("2.5.10")))
+    )
+    cell = probe_cell("2026-07-17")
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    cell["historicalContext"] = cell["historicalContext"][:5]
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    errors = spawned_cells_to_ts.validate(
+        loaded,
+        set(),
+        agent_version=loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"],
+    )
+
+    assert any("has 5 distinct canonical prints" in error for error in errors)
+
+
+def test_promotion_keeps_valid_pre_floor_record_with_legacy_history() -> None:
+    cells_path = (
+        ROOT
+        / "records/thesis-analyst/2026-08-12"
+        / "2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15"
+        / "cells.with_activity.json"
+    )
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    assert all("period" not in row for row in loaded["historicalContext"])
+    assert (
+        spawned_cells_to_ts.validate(
+            loaded,
+            set(),
+            agent_version=loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"],
+        )
+        == []
+    )
+    assert (
+        spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]["agentVersion"]
+        == "2.5.9"
+    )
+
+
+def test_recorded_failed_manifest_never_promotes(tmp_path: pathlib.Path) -> None:
+    manifest = successful_manifest()
+    manifest["ok"] = False
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="run manifest is not successful"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_recorded_input_without_manifest_never_uses_live_fallback(
+    tmp_path: pathlib.Path,
+) -> None:
+    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="lacks manifest.json"):
+        spawned_cells_to_ts.load_cells(cells_path)
 
 
 def test_reviewer_text_matching_the_screen_is_withheld() -> None:
@@ -777,15 +872,15 @@ def test_manifest_review_overrides_any_cell_claim(
 ) -> None:
     import json
 
-    manifest = {
-        "preSubmitReview": {
+    manifest = successful_manifest(
+        preSubmitReview={
             "schemaVersion": "thesis_pre_submit_review_v1",
             "status": "completed",
             "summary": "Runner-sealed review.",
             "findings": [],
             "dispositions": [],
         }
-    }
+    )
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     cell = stampable_cell()
     cell["runAt"] = "2026-07-01T04:00:00Z"
@@ -906,9 +1001,7 @@ def test_judge_loader_screens_review_end_to_end(tmp_path: pathlib.Path) -> None:
     marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
     assert marker in blob
     assert "planted" not in blob
-    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(
-        blob.replace(marker, "")
-    )
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(blob.replace(marker, ""))
     # A malformed dict where the summary string belongs refuses with a
     # typed error instead of smuggling content past compaction.
     manifest_path.write_text(
@@ -937,8 +1030,7 @@ def test_existing_slugs_sees_both_key_forms_and_rejects_lookalikes(
     # A commented-out literal still counts: the scan reads source text,
     # and over-matching only makes the collision guard more conservative.
     (site_data / "forecast-examples" / "a.ts").write_text(
-        'export const A = [{ slug: "bare-one" }];\n'
-        '// slug: "commented-four"\n'
+        'export const A = [{ slug: "bare-one" }];\n// slug: "commented-four"\n'
     )
     (site_data / "forecast-examples" / "auto-b.ts").write_text(
         '[{ "slug": "quoted-two",'
@@ -948,7 +1040,5 @@ def test_existing_slugs_sees_both_key_forms_and_rejects_lookalikes(
     (site_data / "forecast-cells.ts").write_text(
         'const CELLS = [{ slug: "cells-three" }];\n'
     )
-    got = spawned_cells_to_ts.existing_slugs(
-        site_data, site_data / "__none__.ts"
-    )
+    got = spawned_cells_to_ts.existing_slugs(site_data, site_data / "__none__.ts")
     assert got == {"bare-one", "quoted-two", "cells-three", "commented-four"}

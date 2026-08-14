@@ -1447,6 +1447,9 @@ def _check_replay(
     prompt_evidence: dict[int, PromptEvidence],
 ) -> None:
     policy = state.ticket["policy"]
+    trusted_checkout = state.path
+    for _part in state.relative.parts:
+        trusted_checkout = trusted_checkout.parent
     replayed_validations: list[dict[str, Any]] = []
     for run in runs:
         evidence = prompt_evidence[run.index]
@@ -1572,6 +1575,10 @@ def _check_replay(
             policy["promptMode"],
             generation_ticket=state.manifest_binding,
             agent_version=evidence.runtime_meta.get("agentVersion"),
+            checkout_sha=run.manifest.get("checkoutSha"),
+            series=run.manifest.get("series"),
+            target_period=run.manifest.get("period"),
+            history_registry_root=trusted_checkout,
         )
         recorded_validation = _json_artifact(
             bundle_repo,

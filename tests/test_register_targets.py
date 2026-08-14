@@ -852,6 +852,7 @@ def provenance_replay_cell() -> dict:
         "resolutionRule": "Use the first published synthetic agency value.",
         "dataPointId": "agency.synthetic.rate.2030_01.first_print",
         "historicalContext": [
+            {"label": "2029-10", "value": 1.0},
             {"label": "2029-11", "value": 0.9},
             {"label": "2029-12", "value": 1.1},
         ],
@@ -898,8 +899,24 @@ def convert_provenance_replay_candidate(
     candidate_name: str,
     provenance: str | None,
 ) -> pathlib.Path:
-    cells_path = tmp_path / "cells.json"
+    run_dir = tmp_path / f"run-{candidate_name}"
+    run_dir.mkdir(exist_ok=True)
+    cells_path = run_dir / "cells.json"
     cells_path.write_text(json.dumps([provenance_replay_cell()]) + "\n")
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "agent": {
+                    "agent": "thesis.analyst",
+                    "agentVersion": "2.5.9",
+                    "promptHash": "a" * 64,
+                    "toolPolicyHash": "b" * 64,
+                },
+            }
+        )
+        + "\n"
+    )
     batch_path = tmp_path / "batch.json"
     batch_path.write_text("{}\n")
     candidate = tmp_path / candidate_name

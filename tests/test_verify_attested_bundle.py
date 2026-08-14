@@ -452,8 +452,12 @@ def attested_bundle(
             "resolutionRule": target["resolutionRule"],
             "dataPointId": target["dataPointId"],
             "historicalContext": [
-                {"label": "2029-11", "value": 0.8},
-                {"label": "2029-12", "value": 0.9},
+                {
+                    "period": {"type": "month", "value": f"2029-{month:02d}"},
+                    "label": f"2029-{month:02d}",
+                    "value": value,
+                }
+                for month, value in enumerate([0.7, 0.8, 0.9, 0.8, 0.9, 1.0], start=6)
             ],
             "drivers": ["Synthetic momentum"],
             "sourceContext": [target["resolutionSourceUrl"]],

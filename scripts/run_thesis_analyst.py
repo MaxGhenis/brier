@@ -53,6 +53,13 @@ from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
 from generation_tickets import TicketError, ticket_manifest_binding
+from history_floor import (
+    HISTORY_AVAILABILITY_STATUS,
+    HISTORY_FLOOR_AGENT_VERSION,
+    canonical_period_identity,
+    history_floor_requires_authorization,
+    reviewed_history_floor_authorization,
+)
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENT_ROOT = ROOT / "agents" / "thesis-analyst"
@@ -61,10 +68,6 @@ DEFAULT_RECORD_ROOT = ROOT / "records" / "thesis-analyst"
 CDF_POINT_COUNT = 201
 INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1"
 AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1"
-HISTORY_PRINT_FLOOR = 6
-HISTORY_FLOOR_AGENT_VERSION = "2.5.10"
-HISTORY_FLOOR_AGENT_VERSION_PARTS = (2, 5, 10)
-HISTORY_AVAILABILITY_STATUS = "official_source_exposes_fewer_than_six_prints"
 HISTORY_AVAILABILITY_PROMPT_EXAMPLE = {
     "historyAvailability": {
         "status": HISTORY_AVAILABILITY_STATUS,
@@ -767,7 +770,13 @@ def build_fast_prompt(
         "resolutionSourceUrl": "https://official-source.example",
         "resolutionRule": "First-print rule with rounding and revision policy",
         "dataPointId": "agency.dataset.concept.period.first_print",
-        "historicalContext": [{"label": "latest", "value": 0}],
+        "historicalContext": [
+            {
+                "period": {"type": "month", "value": "2026-04"},
+                "label": "Human-readable period label",
+                "value": 0,
+            }
+        ],
         "drivers": ["short driver phrases"],
         "sourceContext": ["https://urls-actually-used"],
         "runAt": "date -u +%Y-%m-%dT%H:%M:%SZ",
@@ -925,12 +934,18 @@ def build_fast_prompt(
         "- ciLow < pointEstimate < ciHigh, except discrete policy-rate "
         "targets may put the modal point at an interval edge if needed.\n"
         "- historicalContext must contain at least 6 distinct numeric fetched "
-        "prints. Validation refuses fewer whenever the official source "
-        "exposes 6 or more.\n"
+        "prints. Every entry needs a canonical period object: type month with "
+        "YYYY-MM, quarter with YYYY-Q1..Q4, year/fiscal_year with YYYY, or "
+        "week_ending with YYYY-MM-DD. Labels are display text and do not make "
+        "duplicate canonical periods distinct. Validation refuses fewer unless "
+        "the sealed checkout carries the reviewed authorization below.\n"
         "- Only when the official source exposes fewer than 6 prints, fetch "
-        "all available prints and add this top-level attestation (replace 5 "
-        "with the actual count and give a nonempty detail): "
+        "all available prints and add this top-level audit commentary (replace "
+        "5 with the actual count and give a nonempty detail): "
         f"{json.dumps(HISTORY_AVAILABILITY_PROMPT_EXAMPLE)}\n"
+        "  This model-authored commentary never authorizes an exception: a "
+        "reviewed docket entry in the sealed checkout must independently list "
+        "the exact target period, available count, and canonical periods.\n"
         "- sourceContext must contain at least 2 source URLs actually used.\n"
         "- sourceContext, reasoning, drivers, and tool calls must not cite or "
         "use private meeting notes, call transcripts, email/chat content, "
@@ -2656,72 +2671,6 @@ def seal_normalized_cells(
     return materialize_run_distributions(cells)
 
 
-def agent_version_enforces_history_floor(agent_version: Any) -> bool:
-    """Grandfather only runs carrying a valid pre-floor agent version.
-
-    Publication replays include many valid pre-floor cells with fewer than
-    six prints. Their sealed manifests carry valid older analyst versions.
-    Missing or malformed metadata fails closed so it cannot bypass the floor.
-    """
-
-    if not isinstance(agent_version, str):
-        return True
-    match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:[-+][0-9A-Za-z.-]+)?", agent_version)
-    if match is None:
-        return True
-    return (
-        tuple(int(part) for part in match.groups()) >= HISTORY_FLOOR_AGENT_VERSION_PARTS
-    )
-
-
-def history_floor_errors(cell: dict[str, Any]) -> list[str]:
-    """Require six distinct numeric prints or a structured source limit.
-
-    The model-authored declaration is an explicit, auditable claim, not proof
-    that the source truly is young. Exact status and count checks avoid prose
-    sniffing and ensure the agent fetched every print it says is available.
-    """
-
-    labels: set[str] = set()
-    history = cell.get("historicalContext")
-    if isinstance(history, list):
-        for entry in history:
-            if not isinstance(entry, dict):
-                continue
-            label = entry.get("label")
-            value = entry.get("value")
-            if not isinstance(label, str) or not label.strip():
-                continue
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                continue
-            if not math.isfinite(float(value)):
-                continue
-            labels.add(label.strip().casefold())
-
-    print_count = len(labels)
-    if print_count >= HISTORY_PRINT_FLOOR:
-        return []
-
-    availability = cell.get("historyAvailability")
-    if (
-        isinstance(availability, dict)
-        and availability.get("status") == HISTORY_AVAILABILITY_STATUS
-        and type(availability.get("availablePrintCount")) is int
-        and availability["availablePrintCount"] == print_count
-        and isinstance(availability.get("detail"), str)
-        and bool(availability["detail"].strip())
-    ):
-        return []
-
-    noun = "print" if print_count == 1 else "prints"
-    return [
-        f"historicalContext has {print_count} distinct numeric {noun}; at least "
-        f"{HISTORY_PRINT_FLOOR} are mandatory unless historyAvailability has "
-        f"status {HISTORY_AVAILABILITY_STATUS!r}, availablePrintCount "
-        f"{print_count}, and nonempty detail"
-    ]
-
-
 def validate_cells(
     cells: list[dict],
     allow_existing_slug: bool = False,
@@ -2730,6 +2679,10 @@ def validate_cells(
     collision_exclusion: pathlib.Path | None = None,
     generation_ticket: dict[str, Any] | None = None,
     agent_version: Any = HISTORY_FLOOR_AGENT_VERSION,
+    checkout_sha: Any = None,
+    series: Any = None,
+    target_period: Any = None,
+    history_registry_root: pathlib.Path | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -2745,17 +2698,34 @@ def validate_cells(
     seen: set[str] = set()
     rows = []
     ok = True
+    trusted_history_authorization = None
+    authorization_error = None
+    if any(history_floor_requires_authorization(cell, agent_version) for cell in cells):
+        try:
+            trusted_history_authorization = reviewed_history_floor_authorization(
+                history_registry_root or ROOT,
+                checkout_sha=checkout_sha,
+                series=series,
+                target_period=target_period,
+            )
+        except ValueError as exc:
+            authorization_error = str(exc)
     for cell in cells:
         errors = validate(
             cell,
             taken | seen,
             target_context=target_context,
             generation_ticket=generation_ticket,
+            agent_version=agent_version,
+            trusted_history_authorization=trusted_history_authorization,
         )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
-        if agent_version_enforces_history_floor(agent_version):
-            errors.extend(history_floor_errors(cell))
+        if authorization_error:
+            errors.append(
+                "cannot authenticate reviewed history-floor authorization: "
+                + authorization_error
+            )
         errors.extend(target_context_validation_errors(cell, target_context))
         if prompt_mode in {"ladder", "ladder_v2"}:
             errors.extend(ladder_validation_errors(cell))
@@ -2894,9 +2864,10 @@ def history_anchor_errors(
 ) -> list[str]:
     """Fail closed when fetched history contradicts operator-verified anchors.
 
-    `anchors` in the target context maps a period token (a substring the
-    matching historicalContext label must contain, e.g. "2024") to the
-    official value verified out-of-band from the resolver's own source.
+    `anchors` in the target context maps a period token to the official value
+    verified out-of-band from the resolver's own source. Current cells match
+    that token through their canonical period object. Pre-2.5.10 cells retain
+    the hardened label parser below for replay compatibility.
     Anchors are deliberately NOT injected into the prompt
     (format_target_context omits the key): the agent must fetch its base
     rate independently, and this gate refuses runs whose fetched values
@@ -3140,6 +3111,23 @@ def history_anchor_errors(
             return False
         return tokens == canonical_quarters([key_match])
 
+    def canonical_period_mentions(key: str, period: Any) -> bool:
+        identity = canonical_period_identity(period)
+        if identity is None:
+            return False
+        period_type, period_value = identity
+        stripped = key.strip()
+        if period_type == "quarter":
+            key_match = quarter_key.fullmatch(stripped)
+            if key_match is None:
+                return False
+            year = key_match.group(1) or key_match.group(4)
+            quarter = key_match.group(2) or key_match.group(3)
+            return period_value == f"{year}-Q{quarter}"
+        if period_type in {"month", "year", "fiscal_year", "week_ending"}:
+            return period_value == stripped
+        return False
+
     for key, expected_raw in anchors.items():
         try:
             expected = float(expected_raw)
@@ -3151,7 +3139,11 @@ def history_anchor_errors(
             entry
             for entry in history
             if isinstance(entry, dict)
-            and mentions(str(key), str(entry.get("label", "")))
+            and (
+                canonical_period_mentions(str(key), entry.get("period"))
+                if "period" in entry
+                else mentions(str(key), str(entry.get("label", "")))
+            )
         ]
         if not mentioned:
             errors.append(
@@ -3298,12 +3290,36 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
         ),
         "dataPointId": f"{series}.{slugify(period)}.first_print",
         "historicalContext": [
-            {"label": "t-6", "value": 4.9},
-            {"label": "t-5", "value": 5.0},
-            {"label": "t-4", "value": 5.1},
-            {"label": "t-3", "value": 5.0},
-            {"label": "t-2", "value": 5.1},
-            {"label": "t-1", "value": 5.2},
+            {
+                "period": {"type": "month", "value": "2025-01"},
+                "label": "t-6",
+                "value": 4.9,
+            },
+            {
+                "period": {"type": "month", "value": "2025-02"},
+                "label": "t-5",
+                "value": 5.0,
+            },
+            {
+                "period": {"type": "month", "value": "2025-03"},
+                "label": "t-4",
+                "value": 5.1,
+            },
+            {
+                "period": {"type": "month", "value": "2025-04"},
+                "label": "t-3",
+                "value": 5.0,
+            },
+            {
+                "period": {"type": "month", "value": "2025-05"},
+                "label": "t-2",
+                "value": 5.1,
+            },
+            {
+                "period": {"type": "month", "value": "2025-06"},
+                "label": "t-1",
+                "value": 5.2,
+            },
         ],
         "drivers": ["recent momentum", "release volatility", "labour-market slack"],
         "sourceContext": [
@@ -4012,6 +4028,9 @@ def main() -> int:
             args.prompt_mode,
             generation_ticket=generation_ticket,
             agent_version=runtime_meta.get("agentVersion"),
+            checkout_sha=checkout_sha,
+            series=args.series,
+            target_period=args.period,
         )
     except (
         ValueError,
@@ -4125,7 +4144,7 @@ def main() -> int:
         generation_ticket=generation_ticket,
     )
 
-    if args.write_ts:
+    if args.write_ts and manifest["ok"]:
         write_ts_module(cells_path, pathlib.Path(args.write_ts), args.const_name)
 
     print(json.dumps(manifest, indent=2))

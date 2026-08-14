@@ -100,6 +100,8 @@ def main() -> int:
     target, upgrades_path = sys.argv[1], sys.argv[2]
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from spawned_cells_to_ts import (
+        SEALED_AGENT_KEY,
+        SEALED_HISTORY_AUTHORIZATION_KEY,
         carry_sealed_run_metadata,
         to_forecast_cell,
         validate,
@@ -154,9 +156,24 @@ def main() -> int:
                     f"({len(upgraded) - len(published)} suffix chars dropped)"
                 )
                 cell = {**cell, "resolutionSource": published}
+        sealed_agent = cell.get(SEALED_AGENT_KEY)
+        sealed_authorization = cell.get(SEALED_HISTORY_AUTHORIZATION_KEY)
         errs = [
             e
-            for e in validate(cell, set())
+            for e in validate(
+                cell,
+                set(),
+                agent_version=(
+                    sealed_agent.get("agentVersion")
+                    if isinstance(sealed_agent, dict)
+                    else None
+                ),
+                trusted_history_authorization=(
+                    sealed_authorization
+                    if isinstance(sealed_authorization, dict)
+                    else None
+                ),
+            )
             if "collide" not in e and "dataPointId" not in e
         ]
         if errs:

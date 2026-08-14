@@ -20,11 +20,22 @@ import sys
 FETCH_TYPES = {"tool", "data_fetch", "cross_check", "external_anchor"}
 # quantitative derivation steps → kind: math
 MATH_TYPES = {
-    "math", "volatility", "momentum", "synthesis", "mean_reversion",
-    "seasonality", "trend_adjustment",
+    "math",
+    "volatility",
+    "momentum",
+    "synthesis",
+    "mean_reversion",
+    "seasonality",
+    "trend_adjustment",
 }
-TEXT_TYPES = {"text", "heading", "base_rate", "counter_consideration",
-              "reference-class", "reference_class"}
+TEXT_TYPES = {
+    "text",
+    "heading",
+    "base_rate",
+    "counter_consideration",
+    "reference-class",
+    "reference_class",
+}
 
 
 CANON_STEP_KEYS = {
@@ -51,23 +62,29 @@ def norm_steps(cell: dict) -> list[dict]:
         if t in FETCH_TYPES:
             dot = detail.find(". ")
             call = detail[: dot + 1] if dot > 0 else detail[:140]
-            out.append({
-                "kind": "tool",
-                "tool": s.get("tool", "data.fetch"),
-                "call": call if isinstance(call, str) else "data.fetch",
-                "result": detail,
-            })
+            out.append(
+                {
+                    "kind": "tool",
+                    "tool": s.get("tool", "data.fetch"),
+                    "call": call if isinstance(call, str) else "data.fetch",
+                    "result": detail,
+                }
+            )
         elif t in ("forecast", "final"):
-            out.append({
-                "kind": "forecast",
-                "point": cell["pointEstimate"],
-                "ciLow": cell["ciLow"],
-                "ciHigh": cell["ciHigh"],
-            })
+            out.append(
+                {
+                    "kind": "forecast",
+                    "point": cell["pointEstimate"],
+                    "ciLow": cell["ciLow"],
+                    "ciHigh": cell["ciHigh"],
+                }
+            )
         elif t in MATH_TYPES:
             out.append({"kind": "math", "text": detail})
         else:
-            out.append({"kind": "heading" if t == "heading" else "text", "text": detail})
+            out.append(
+                {"kind": "heading" if t == "heading" else "text", "text": detail}
+            )
     return out
 
 
@@ -76,19 +93,14 @@ def parse_history_sentence(s: str) -> dict | None:
     'Bank Rate held at 3.75% on 19 March 2026 (...)'. Returns None if no
     confident match."""
     import re
-    m = re.search(
-        r"([A-Z][a-z]{2,9}\.? 20\d\d)\s*:?\s*(-?\d+(?:\.\d+)?)\s*%", s
-    )
+
+    m = re.search(r"([A-Z][a-z]{2,9}\.? 20\d\d)\s*:?\s*(-?\d+(?:\.\d+)?)\s*%", s)
     if m:
         return {"label": m.group(1), "value": float(m.group(2))}
-    m = re.search(
-        r"(-?\d+(?:\.\d+)?)\s*%\s+on\s+(\d{1,2} [A-Z][a-z]{2,9} 20\d\d)", s
-    )
+    m = re.search(r"(-?\d+(?:\.\d+)?)\s*%\s+on\s+(\d{1,2} [A-Z][a-z]{2,9} 20\d\d)", s)
     if m:
         return {"label": m.group(2), "value": float(m.group(1))}
-    m = re.search(
-        r"(-?\d+(?:\.\d+)?)\s*%\s+in\s+([A-Z][a-z]{2,9} 20\d\d)", s
-    )
+    m = re.search(r"(-?\d+(?:\.\d+)?)\s*%\s+in\s+([A-Z][a-z]{2,9} 20\d\d)", s)
     if m:
         return {"label": m.group(2), "value": float(m.group(1))}
     return None
@@ -169,7 +181,16 @@ def main() -> int:
                 if parsed:
                     rows.append(parsed)
             elif (v := to_number(h.get("value"))) is not None:
-                rows.append({"label": h.get("label") or h.get("period", "?"), "value": v})
+                row = {
+                    "label": h.get("label") or str(h.get("period", "?")),
+                    "value": v,
+                }
+                if "period" in h:
+                    # Preserve the model's structured identity verbatim. The
+                    # shared validator owns canonical-shape checks; this
+                    # normalizer must neither discard nor infer authority.
+                    row["period"] = h["period"]
+                rows.append(row)
         c["historicalContext"] = rows
     json.dump(cells, open(sys.argv[2], "w"), indent=1)
     print(f"normalized {len(cells)} cells -> {sys.argv[2]}")

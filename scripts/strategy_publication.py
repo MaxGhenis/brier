@@ -520,6 +520,12 @@ def _validate_analyst_result(
                 if isinstance(manifest.get("agent"), dict)
                 else None
             ),
+            checkout_sha=manifest.get("checkoutSha"),
+            series=manifest.get("series"),
+            target_period=manifest.get("period"),
+            # The staged bundle is data, not authority and may not even be a
+            # Git checkout. Read reviewed authorization from trusted code.
+            history_registry_root=ROOT,
         )
         if bool(report.get("ok")) != expected_ok:
             raise StrategyPublicationError(

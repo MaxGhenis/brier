@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import generation_tickets  # noqa: E402
 import median_rollout_ensemble as median_ensemble  # noqa: E402
 import run_thesis_analyst as analyst_runner  # noqa: E402
+from history_floor import validate_history_floor_authorization  # noqa: E402
 from run_thesis_analyst import (  # noqa: E402
     interval_distribution,
 )
@@ -399,7 +400,13 @@ def test_empty_cell_payload_fails_instead_of_green_manifest(
     assert "empty cell payload" in manifest["error"]["message"]
 
 
-def _run_fake_codex_case(tmp_path: Path, name: str, cell) -> tuple[int, Path]:
+def _run_fake_codex_case(
+    tmp_path: Path,
+    name: str,
+    cell,
+    *,
+    extra_args: list[str] | None = None,
+) -> tuple[int, Path]:
     out_dir = tmp_path / name
     codex_home = tmp_path / f"{name}-codex-home"
     codex_home.mkdir()
@@ -423,6 +430,7 @@ def _run_fake_codex_case(tmp_path: Path, name: str, cell) -> tuple[int, Path]:
             "gpt-5.5",
             "--out-dir",
             str(out_dir),
+            *(extra_args or []),
         ],
         cwd=ROOT,
         env=env,
@@ -2264,12 +2272,12 @@ def review_test_cell(
         ),
         "dataPointId": "test.reviewed_rate.january_2030.first_print",
         "historicalContext": [
-            {"label": "t-6", "value": 4.8},
-            {"label": "t-5", "value": 4.9},
-            {"label": "t-4", "value": 5.0},
-            {"label": "t-3", "value": 4.9},
-            {"label": "t-2", "value": 5.0},
-            {"label": "t-1", "value": 5.2},
+            {
+                "period": {"type": "month", "value": f"2029-{index:02d}"},
+                "label": f"t-{7 - index}",
+                "value": value,
+            }
+            for index, value in enumerate([4.8, 4.9, 5.0, 4.9, 5.0, 5.2], start=1)
         ],
         "drivers": [
             "recent reference class",
@@ -2405,12 +2413,17 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                     ),
                     "dataPointId": "test.runtime_model.january_2030.first_print",
                     "historicalContext": [
-                        {"label": "t-6", "value": 4.8},
-                        {"label": "t-5", "value": 4.9},
-                        {"label": "t-4", "value": 5.0},
-                        {"label": "t-3", "value": 4.9},
-                        {"label": "t-2", "value": 5.0},
-                        {"label": "t-1", "value": 5.2},
+                        {
+                            "period": {
+                                "type": "month",
+                                "value": f"2029-{index:02d}",
+                            },
+                            "label": f"t-{7 - index}",
+                            "value": value,
+                        }
+                        for index, value in enumerate(
+                            [4.8, 4.9, 5.0, 4.9, 5.0, 5.2], start=1
+                        )
                     ],
                     "drivers": [
                         "recent reference class",
@@ -3021,7 +3034,11 @@ def test_canonical_steps_are_stripped_to_contract_keys(tmp_path: Path) -> None:
 def history_floor_test_cell(print_count: int) -> dict:
     cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
     cell["historicalContext"] = [
-        {"label": f"print-{index}", "value": 4.5 + index / 10}
+        {
+            "period": {"type": "month", "value": f"2029-{index:02d}"},
+            "label": f"print-{index}",
+            "value": 4.5 + index / 10,
+        }
         for index in range(1, print_count + 1)
     ]
     return cell
@@ -3041,10 +3058,12 @@ def history_floor_validation(
 def test_history_floor_refuses_five_entry_run_with_custody_clean_record(
     tmp_path: Path,
 ) -> None:
+    generated_ts = tmp_path / "must-not-promote.ts"
     code, out_dir = _run_fake_codex_case(
         tmp_path,
         "five-print-history",
         history_floor_test_cell(5),
+        extra_args=["--write-ts", str(generated_ts)],
     )
 
     assert code == 1
@@ -3052,33 +3071,199 @@ def test_history_floor_refuses_five_entry_run_with_custody_clean_record(
     assert manifest["ok"] is False
     errors = manifest["validation"]["cells"][0]["errors"]
     assert any(
-        "historicalContext has 5 distinct numeric prints" in error
+        "historicalContext has 5 distinct canonical prints" in error
         and "at least 6 are mandatory" in error
         for error in errors
     )
     _custody_passes(out_dir)
+    assert not generated_ts.exists()
 
 
 def test_history_floor_accepts_six_numeric_entries() -> None:
     assert history_floor_validation(history_floor_test_cell(6))["ok"] is True
 
 
-def test_history_floor_accepts_fewer_with_structured_attestation() -> None:
+def test_history_floor_counts_distinct_periods_with_identical_values() -> None:
+    cell = history_floor_test_cell(6)
+    for row in cell["historicalContext"]:
+        row["value"] = 5.0
+
+    assert history_floor_validation(cell)["ok"] is True
+
+
+def test_history_floor_refuses_agent_only_attestation_even_with_detail_x() -> None:
     cell = history_floor_test_cell(4)
     cell["historyAvailability"] = {
         "status": "official_source_exposes_fewer_than_six_prints",
         "availablePrintCount": 4,
-        "detail": "The official series began four releases ago.",
+        "detail": "x",
+    }
+    cell["_sealedAgentMeta"] = {
+        "agent": "thesis.analyst",
+        "agentVersion": "2.5.9",
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+    }
+    cell["_sealedHistoryFloorAuthorization"] = {
+        "targetPeriod": "2030-01",
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "availablePeriods": [
+            {"type": "month", "value": f"2029-{index:02d}"} for index in range(1, 5)
+        ],
     }
 
-    assert history_floor_validation(cell)["ok"] is True
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    assert any(
+        "reviewed docket authorizes this exact series and target period" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
+def test_history_floor_accepts_exact_reviewed_docket_authorization(
+    tmp_path: Path,
+) -> None:
+    periods = [{"type": "month", "value": f"2029-{index:02d}"} for index in range(1, 5)]
+    registry = {
+        "series": [
+            {
+                "series": "test.reviewed_rate",
+                "period": "2030-01",
+                "extras": {
+                    "historyFloorAuthorization": {
+                        "targetPeriod": "2030-01",
+                        "status": "official_source_exposes_fewer_than_six_prints",
+                        "availablePrintCount": 4,
+                        "availablePeriods": periods,
+                    }
+                },
+            }
+        ]
+    }
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "docket_series.json").write_text(
+        json.dumps(registry) + "\n"
+    )
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "add", "scripts/docket_series.json"], cwd=tmp_path, check=True
+    )
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-qm",
+            "Review young-series authorization",
+        ],
+        cwd=tmp_path,
+        check=True,
+    )
+    checkout_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    cell = history_floor_test_cell(4)
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "detail": "The official source contains four prints.",
+    }
+    report = analyst_runner.validate_cells(
+        [cell],
+        allow_existing_slug=True,
+        agent_version="2.5.10",
+        checkout_sha=checkout_sha,
+        series="test.reviewed_rate",
+        target_period="2030-01",
+        history_registry_root=tmp_path,
+    )
+
+    assert report["ok"] is True, report
+
+
+def test_reviewed_authorization_cannot_lower_three_point_minimum() -> None:
+    with pytest.raises(ValueError, match="from 3 through 5"):
+        validate_history_floor_authorization(
+            {
+                "targetPeriod": "2030-01",
+                "status": "official_source_exposes_fewer_than_six_prints",
+                "availablePrintCount": 2,
+                "availablePeriods": [
+                    {"type": "month", "value": "2029-11"},
+                    {"type": "month", "value": "2029-12"},
+                ],
+            }
+        )
+
+
+def test_history_floor_counts_canonical_periods_not_alias_labels() -> None:
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["historicalContext"] = [
+        {
+            "period": {"type": "month", "value": "2025-11"},
+            "label": "November 2025",
+            "value": 26317011,
+        },
+        {
+            "period": {"type": "month", "value": "2026-03"},
+            "label": "March 2026",
+            "value": 26203615,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "April 2026",
+            "value": 26182019,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "2026-04",
+            "value": 26182019,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "Apr 2026",
+            "value": 26182019,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "2026 April print",
+            "value": 26182019,
+        },
+    ]
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 3,
+        "detail": "x",
+    }
+    target = {
+        "anchors": {
+            "2025-11": 26317011,
+            "2026-03": 26203615,
+            "2026-04": 26182019,
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = analyst_runner.validate_cells(
+        [cell], allow_existing_slug=True, target_context=target
+    )
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("duplicate canonical periods" in error for error in errors)
+    assert any("has 3 distinct canonical prints" in error for error in errors)
 
 
 def test_history_floor_refuses_short_history_without_attestation() -> None:
     report = history_floor_validation(history_floor_test_cell(4))
 
     assert report["ok"] is False
-    assert any("historyAvailability" in error for error in report["cells"][0]["errors"])
+    assert any("reviewed docket" in error for error in report["cells"][0]["errors"])
 
 
 @pytest.mark.parametrize(
@@ -3117,6 +3302,13 @@ def test_history_floor_does_not_retroactively_change_published_replays() -> None
     )
 
 
+def test_pre_floor_version_still_requires_three_legacy_points() -> None:
+    report = history_floor_validation(history_floor_test_cell(2), agent_version="2.5.9")
+
+    assert report["ok"] is False
+    assert "needs >=3 historical points" in report["cells"][0]["errors"]
+
+
 @pytest.mark.parametrize("agent_version", [None, "fixture", "2.5"])
 def test_history_floor_missing_or_malformed_version_fails_closed(
     agent_version: object,
@@ -3127,7 +3319,7 @@ def test_history_floor_missing_or_malformed_version_fails_closed(
 
     assert report["ok"] is False
     assert any(
-        "historicalContext has 5 distinct numeric prints" in error
+        "historicalContext has 5 distinct canonical prints" in error
         for error in report["cells"][0]["errors"]
     )
 
@@ -3398,7 +3590,13 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
                 {
                     "dataPointId": "x.y.2027.first_print",
                     "reasoning": [{"kind": "text", "text": "base rate"}],
-                    "historicalContext": [{"label": "2023", "value": 17.6}],
+                    "historicalContext": [
+                        {
+                            "period": {"type": "year", "value": "2023"},
+                            "label": "2023",
+                            "value": 17.6,
+                        }
+                    ],
                 }
             ]
         )
@@ -3410,7 +3608,11 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
     )
     assert result.returncode == 0, result.stderr
     assert json.loads(dst.read_text())[0]["historicalContext"] == [
-        {"label": "2023", "value": 17.6}
+        {
+            "label": "2023",
+            "value": 17.6,
+            "period": {"type": "year", "value": "2023"},
+        }
     ]
 
 
