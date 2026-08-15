@@ -1365,7 +1365,12 @@ def test_all_committed_pre_floor_records_replay_through_promotion() -> None:
         ):
             manifests.append((manifest_path, manifest, version))
 
-    assert len(manifests) == 509
+    # The pre-floor corpus GROWS until the enforcing version ships:
+    # every roll before this change publishes sub-2.5.10 records, so an
+    # exact pin rots on the merge ref (509 at fix time, 510 one day
+    # later). The floor proves discovery works; the sweep below proves
+    # the universal property that actually matters.
+    assert len(manifests) >= 509
     cell_count = 0
     history_row_count = 0
     rooted_count = 0
@@ -1389,8 +1394,8 @@ def test_all_committed_pre_floor_records_replay_through_promotion() -> None:
             cell_count += 1
             history_row_count += len(cell["historicalContext"])
 
-    assert cell_count == 509
-    assert history_row_count == 2_637
+    assert cell_count == len(manifests)
+    assert history_row_count >= 2_637
     assert rooted_count == 326
     assert len(manifests) - rooted_count == 183
 
