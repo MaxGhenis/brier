@@ -139,7 +139,18 @@ def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
                 f"could not parse {EXPIRED_REGISTRATIONS_TS}: invalid expired "
                 f"entry on array line {line_number}"
             )
-        parsed_ids.append(entry_match.group(1))
+        entry = entry_match.group(1)
+        # This parser reads raw characters; the TypeScript runtime decodes
+        # string escapes. An escape-spelled entry (\u0066…, \x66…, \") would
+        # therefore mean different ids to the two consumers, so any entry
+        # that is not plain unescaped id text refuses outright — the list
+        # is repo-controlled and every legitimate id is bare ASCII.
+        if "\\" in entry or not re.fullmatch(r"[a-z0-9._-]+", entry):
+            raise ChallengeSubmissionError(
+                f"could not parse {EXPIRED_REGISTRATIONS_TS}: expired entry "
+                f"on array line {line_number} is not plain unescaped id text"
+            )
+        parsed_ids.append(entry)
     ids = frozenset(parsed_ids)
     if not ids:
         raise ChallengeSubmissionError(

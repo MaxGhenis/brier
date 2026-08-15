@@ -711,3 +711,23 @@ def test_partially_malformed_ratchet_array_fails_closed(
     )
     with pytest.raises(ingest.ChallengeSubmissionError, match="invalid expired entry"):
         run_ingest(submission_repo)
+
+
+def test_expired_list_refuses_escape_spelled_entries(tmp_path: pathlib.Path) -> None:
+    # The 2026-08-14 review reproduction: this parser reads raw characters
+    # while the TypeScript runtime decodes string escapes, so an entry
+    # spelled "fixture…" means one id to the site and a different
+    # literal to Python — a terminal candidate slipped the roll's seed
+    # guard. Any entry that is not plain unescaped id text refuses.
+    site_data = tmp_path / "site" / "src" / "data"
+    site_data.mkdir(parents=True)
+    escaped = "\\u0066ixture.seed.expired.2026_07.first_print"
+    (site_data / "expired-unforecast-registrations.ts").write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        f'  "{escaped}",\n'
+        "] as const;\n"
+    )
+    with pytest.raises(
+        ingest.ChallengeSubmissionError, match="not plain unescaped id text"
+    ):
+        ingest.expired_unforecast_registrations(tmp_path)
