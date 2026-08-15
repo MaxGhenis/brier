@@ -495,6 +495,7 @@ def test_parse_ref_period_handles_every_catalog_annual_id() -> None:
             "retired_worker_awards.share_claimed_age_62.2025.first_print"
         ),
         "ssa.cola.annual_adjustment.2027.first_print",
+        "eia.ng.vented_flared.us.annual.2025.first_print",
     }
     generated = (
         ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"

@@ -3,9 +3,10 @@
 
 For recurring registry entries, the docket cursor is the latest PUBLISHED
 period (recovered from the live catalog by inverting the slug template):
-failed or unpublished attempts keep the cursor in place and are retried on
-the next roll rather than silently skipped (F10). A recurring entry with no
-published cell may declare one reviewed, explicitly dated seed period.
+failed or unpublished attempts keep the cursor in place. Once a target has an
+immutable registration, ordinary rolls leave it to the explicit in-grace retry
+lane rather than re-registering it (F10). A recurring entry with no published
+cell may declare one reviewed, explicitly dated seed period.
 Reviewed annual snapshot entries are separate one-shot seeds with an explicit
 fiscal year and capture window. The records/ directories still provide
 attempt visibility, and the live catalog's slug set is the final duplicate
@@ -34,11 +35,18 @@ import re
 import sys
 import urllib.parse
 
+from ingest_challenge_submissions import (
+    ChallengeSubmissionError,
+    expired_unforecast_registrations,
+    load_registered_targets,
+)
+from register_targets import derive_data_point_id
 from thesis_log_client import load_thesis_log
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
 RECORDS = ROOT / "records" / "thesis-analyst"
+TARGET_REGISTRATIONS = ROOT / "records" / "targets"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
 ROLL_HORIZON_DAYS = 75
 SNAPSHOT_SEED_HORIZON_DAYS = ROLL_HORIZON_DAYS
@@ -324,9 +332,10 @@ def latest_published_period(
     """Latest period with a PUBLISHED cell in the live catalog.
 
     The docket cursor advances only past published work: a run that
-    failed validation, tests, or deployment keeps the cursor in place
-    and is retried on the next roll instead of silently vanishing from
-    the public record (review finding F10).
+    failed validation, tests, or deployment keeps the cursor in place.
+    Registered failures are retried against their existing snapshot by
+    retry_batch_targets.py rather than silently vanishing or being
+    re-registered (review finding F10).
     """
     periods = published_periods(entry, catalog_slugs)
     if not periods:
@@ -594,7 +603,8 @@ def conditional_pair_seed_targets(
     dataPointIds, the byte-exact conditional texts, and an explicit
     expectedReleaseWindow — so nothing here is inferred from cadence. An
     arm whose catalog slug is already published is never re-emitted; a
-    failed arm keeps its slot and is retried on the next roll (F10).
+    registered failed arm keeps its slot and uses the explicit in-grace retry
+    lane instead of receiving a new registration (F10).
     """
 
     pair = entry.get("conditionalPair")
@@ -744,7 +754,9 @@ def recurring_seed_target(
 
     The seed period and its release date are immutable registry inputs. This
     helper never cadence-steps either value: after the seed slug is published,
-    the normal published-period cursor owns all future rolls.
+    the normal published-period cursor owns all future rolls. If the seed is
+    registered but remains unpublished, main's candidate guard leaves that
+    immutable registration to the explicit retry or terminal-expiry flow.
     """
 
     cadence = entry.get("cadence")
@@ -971,6 +983,65 @@ def select_capped_targets(
     return targets, dropped
 
 
+def append_roll_candidate(
+    candidates: list[tuple[int, str, dict | list[dict]]],
+    priority: int,
+    sort_key: str,
+    unit: dict | list[dict],
+    *,
+    expired_data_point_ids: frozenset[str],
+    registered_data_point_ids: frozenset[str],
+    allow_registered_bounded: bool = False,
+) -> None:
+    """Append an eligible target unit without reviving or re-registering ids.
+
+    Conditional arms are one chronological unit. If either arm is terminally
+    expired or already registered, both arms stay out of the candidate pool and
+    each skipped arm is reported before cap selection. The attested bounded
+    lane may deliberately reuse an existing resolve-by-bound registration, but
+    it can never reuse a terminally expired id.
+    """
+
+    group = unit if isinstance(unit, list) else [unit]
+    target_ids = [
+        derive_data_point_id(target, target.get("previousTarget")) for target in group
+    ]
+    expired_in_unit = sorted(expired_data_point_ids.intersection(target_ids))
+    reuses_bounded_registration = allow_registered_bounded and all(
+        target.get("resolutionDateBasis") == "resolve-by-bound" for target in group
+    )
+    registered_in_unit = (
+        []
+        if reuses_bounded_registration
+        else sorted(registered_data_point_ids.intersection(target_ids))
+    )
+    if not expired_in_unit and not registered_in_unit:
+        candidates.append((priority, sort_key, unit))
+        return
+
+    for target, data_point_id in zip(group, target_ids):
+        slug = target.get("catalogSlug", "?")
+        if data_point_id in expired_data_point_ids:
+            reason = f"dataPointId {data_point_id} is terminally expired-unforecast"
+        elif expired_in_unit:
+            reason = (
+                "conditional pair-mate dataPointId "
+                f"{expired_in_unit[0]} is terminally expired-unforecast"
+            )
+        elif data_point_id in registered_data_point_ids:
+            reason = (
+                f"dataPointId {data_point_id} already has an immutable "
+                "registration; refusing to re-register"
+            )
+        else:
+            reason = (
+                "conditional pair-mate dataPointId "
+                f"{registered_in_unit[0]} already has an immutable registration; "
+                "refusing to split the pair"
+            )
+        print(f"  skip {slug}: {reason}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1004,10 +1075,19 @@ def main() -> int:
     ):
         print(f"unknown registry series: {args.series}", file=sys.stderr)
         return 1
+    try:
+        expired_data_point_ids = expired_unforecast_registrations(ROOT)
+        registered_data_point_ids = frozenset(
+            load_registered_targets(TARGET_REGISTRATIONS)
+        )
+    except ChallengeSubmissionError as error:
+        print(f"cannot load roll exclusion state: {error}", file=sys.stderr)
+        return 1
+
     existing, published_forecasts, observed_slugs = live_catalog()
     today = dt.date.today()
 
-    candidates: list[tuple[int, str, dict]] = []
+    candidates: list[tuple[int, str, dict | list[dict]]] = []
     for entry in registry:
         if args.series and entry.get("series") != args.series:
             continue
@@ -1033,13 +1113,19 @@ def main() -> int:
             # or forecasting one arm ahead of its sibling would let the
             # later arm run with extra information.
             deadline = entry["conditionalPair"]["conditionDeadline"]
-            candidates.append((2, deadline, pair_targets))
+            append_roll_candidate(
+                candidates,
+                2,
+                deadline,
+                pair_targets,
+                expired_data_point_ids=expired_data_point_ids,
+                registered_data_point_ids=registered_data_point_ids,
+                allow_registered_bounded=args.include_bounded,
+            )
             continue
         if entry["cadence"] == "annual":
             extras = entry.get("extras")
-            binding = (
-                extras.get("sourceBinding") if isinstance(extras, dict) else None
-            )
+            binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
             calendar_gated_annual = (
                 isinstance(binding, dict)
                 and binding.get("adapter") in CALENDAR_GATED_SOURCE_ADAPTERS
@@ -1054,9 +1140,10 @@ def main() -> int:
                     if target is not None
                     else ""
                 )
-            elif calendar_gated_annual and latest_published_period(
-                entry, existing
-            ) is not None:
+            elif (
+                calendar_gated_annual
+                and latest_published_period(entry, existing) is not None
+            ):
                 # Unlike annual snapshots and bounded seeds, an official
                 # calendar series is recurring. Its published seed joins the
                 # normal cursor below; an undated successor still fails at
@@ -1065,13 +1152,9 @@ def main() -> int:
                 sort_key = ""
             elif calendar_gated_annual:
                 target = recurring_seed_target(entry, existing, today)
-                sort_key = (
-                    target["expectedReleaseDate"] if target is not None else ""
-                )
+                sort_key = target["expectedReleaseDate"] if target is not None else ""
             else:
-                target = bounded_annual_first_print_seed_target(
-                    entry, existing, today
-                )
+                target = bounded_annual_first_print_seed_target(entry, existing, today)
                 sort_key = (
                     target["expectedReleaseWindow"]["start"]
                     if target is not None
@@ -1081,13 +1164,18 @@ def main() -> int:
                 calendar_gated_annual
                 and latest_published_period(entry, existing) is not None
             ):
-                print(
-                    f"  skip {entry['series']}: no eligible reviewed "
-                    "annual seed"
-                )
+                print(f"  skip {entry['series']}: no eligible reviewed annual seed")
                 continue
             if target is not None:
-                candidates.append((2, sort_key, target))
+                append_roll_candidate(
+                    candidates,
+                    2,
+                    sort_key,
+                    target,
+                    expired_data_point_ids=expired_data_point_ids,
+                    registered_data_point_ids=registered_data_point_ids,
+                    allow_registered_bounded=args.include_bounded,
+                )
                 continue
         latest = latest_published_period(entry, existing)
         if latest is None:
@@ -1098,7 +1186,15 @@ def main() -> int:
                     "eligible reviewed seed"
                 )
                 continue
-            candidates.append((0, target["expectedReleaseDate"], target))
+            append_roll_candidate(
+                candidates,
+                0,
+                target["expectedReleaseDate"],
+                target,
+                expired_data_point_ids=expired_data_point_ids,
+                registered_data_point_ids=registered_data_point_ids,
+                allow_registered_bounded=args.include_bounded,
+            )
             continue
         next_result = next_roll_period(entry, existing, observed_slugs, today)
         if next_result is None:
@@ -1121,7 +1217,7 @@ def main() -> int:
             > (period_key(latest[0], entry["cadence"]) or ())
         ):
             print(
-                f"  retry {entry['series']} {nxt}: an attempt for "
+                f"  pending {entry['series']} {nxt}: an attempt for "
                 f"{attempted} was recorded but never published"
             )
         slug = format_slug(entry["slug"], nxt, entry["cadence"])
@@ -1157,7 +1253,15 @@ def main() -> int:
         # One-shot snapshots get the middle lane so a permanently busy
         # monthly docket cannot starve their finite preregistration window.
         priority = 1 if entry["cadence"] == "weekly" else 3
-        candidates.append((priority, nxt, target))
+        append_roll_candidate(
+            candidates,
+            priority,
+            nxt,
+            target,
+            expired_data_point_ids=expired_data_point_ids,
+            registered_data_point_ids=registered_data_point_ids,
+            allow_registered_bounded=args.include_bounded,
+        )
 
     targets, dropped = select_capped_targets(candidates, args.max_targets)
     if dropped > 0:

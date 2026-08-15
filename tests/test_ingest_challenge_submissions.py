@@ -628,7 +628,10 @@ def test_missing_ratchet_file_fails_closed(
 ) -> None:
     fixture = submission_repo
     ratchet = (
-        fixture["repo"] / "site" / "src" / "data"
+        fixture["repo"]
+        / "site"
+        / "src"
+        / "data"
         / "expired-unforecast-registrations.ts"
     )
     ratchet.unlink()
@@ -643,7 +646,10 @@ def test_quoted_comments_do_not_expire_ids(
     submission_repo: dict[str, Any],
 ) -> None:
     ratchet = (
-        submission_repo["repo"] / "site" / "src" / "data"
+        submission_repo["repo"]
+        / "site"
+        / "src"
+        / "data"
         / "expired-unforecast-registrations.ts"
     )
     ratchet.write_text(
@@ -666,7 +672,10 @@ def test_comment_only_ratchet_array_fails_closed(
     submission_repo: dict[str, Any],
 ) -> None:
     ratchet = (
-        submission_repo["repo"] / "site" / "src" / "data"
+        submission_repo["repo"]
+        / "site"
+        / "src"
+        / "data"
         / "expired-unforecast-registrations.ts"
     )
     ratchet.write_text(
@@ -679,3 +688,66 @@ def test_comment_only_ratchet_array_fails_closed(
     )
     with pytest.raises(ingest.ChallengeSubmissionError, match="empty expired set"):
         run_ingest(submission_repo)
+
+
+def test_partially_malformed_ratchet_array_fails_closed(
+    submission_repo: dict[str, Any],
+) -> None:
+    ratchet = (
+        submission_repo["repo"]
+        / "site"
+        / "src"
+        / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  "agency.fixture.expired.2029_12.first_print",\n'
+        '  "agency.fixture.silently-dropped.2029_12.first_print"\n'
+        "] as const;\n"
+    )
+    submission_repo["head"] = commit_all(
+        submission_repo["repo"], "Partially malformed ratchet"
+    )
+    with pytest.raises(ingest.ChallengeSubmissionError, match="invalid expired entry"):
+        run_ingest(submission_repo)
+
+
+def test_expired_list_refuses_escape_spelled_entries(tmp_path: pathlib.Path) -> None:
+    # The 2026-08-14 review reproduction: this parser reads raw characters
+    # while the TypeScript runtime decodes string escapes, so an entry
+    # spelled "fixture…" means one id to the site and a different
+    # literal to Python — a terminal candidate slipped the roll's seed
+    # guard. Any entry that is not plain unescaped id text refuses.
+    site_data = tmp_path / "site" / "src" / "data"
+    site_data.mkdir(parents=True)
+    escaped = "\\u0066ixture.seed.expired.2026_07.first_print"
+    (site_data / "expired-unforecast-registrations.ts").write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        f'  "{escaped}",\n'
+        "] as const;\n"
+    )
+    with pytest.raises(
+        ingest.ChallengeSubmissionError, match="not plain unescaped id text"
+    ):
+        ingest.expired_unforecast_registrations(tmp_path)
+
+
+def test_expired_list_admits_the_uppercase_ppi_id_lineage(
+    tmp_path: pathlib.Path,
+) -> None:
+    # bls.wp.WPSFD4.<period>.first_print is a real registered id shape
+    # (records/targets/2026-07-25-7753f0f1…), and the non-native roll
+    # path preserves the stem for successors — a lowercase-only
+    # allowlist would wedge both the ingest and the roll if that
+    # lineage ever needed the terminal ratchet.
+    site_data = tmp_path / "site" / "src" / "data"
+    site_data.mkdir(parents=True)
+    (site_data / "expired-unforecast-registrations.ts").write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  "bls.wp.WPSFD4.2026-08.first_print",\n'
+        "] as const;\n"
+    )
+    assert ingest.expired_unforecast_registrations(tmp_path) == frozenset(
+        {"bls.wp.WPSFD4.2026-08.first_print"}
+    )
