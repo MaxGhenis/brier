@@ -1,0 +1,1305 @@
+[
+  {
+    "slug": "us-crp-enrolled-acres-september-2027-ceiling-27-million-source-recovered-2026-08-13",
+    "country": "US",
+    "type": "conditional",
+    "title": "US CRP enrolled acres, September 2027, 27m ceiling",
+    "question": "What will USDA FSA Conservation Reserve Program Statistics, CRP Monthly Summary, TOTAL CRP row, Acres column report for total enrolled acres for September 2027, not seasonally adjusted administrative total, on the first print, conditional on an enacted farm bill setting the CRP acreage ceiling at 27,000,000 acres for FY2027-31?",
+    "unit": "count",
+    "pointEstimate": 26650000,
+    "ciLow": 26250000,
+    "ciHigh": 26950000,
+    "confidence": 0.8,
+    "resolutionDate": "2027-12-31",
+    "resolutionSource": "USDA Farm Service Agency, Conservation Reserve Program Statistics, CRP Monthly Summary",
+    "resolutionSourceUrl": "https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp",
+    "resolutionRule": "Resolve from the first USDA FSA Conservation Reserve Program Statistics CRP Monthly Summary for September 2027, TOTAL CRP row, Acres column, reported as whole acres. Use the first print only; later corrections or revisions do not change the resolved value. The conditional resolves only if an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31; if that condition fails, mark this cell unresolved.",
+    "dataPointId": "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.ceiling_27_million_source_recovered_2026_08_13",
+    "conditionalOn": "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31",
+    "historicalContext": [
+      {
+        "label": "September 2025",
+        "value": 25766115,
+        "period": {
+          "type": "month",
+          "value": "2025-09"
+        }
+      },
+      {
+        "label": "October 2025",
+        "value": 26316110,
+        "period": {
+          "type": "month",
+          "value": "2025-10"
+        }
+      },
+      {
+        "label": "November 2025",
+        "value": 26317011,
+        "period": {
+          "type": "month",
+          "value": "2025-11"
+        }
+      },
+      {
+        "label": "December 2025",
+        "value": 26279615,
+        "period": {
+          "type": "month",
+          "value": "2025-12"
+        }
+      },
+      {
+        "label": "January 2026",
+        "value": 26255016,
+        "period": {
+          "type": "month",
+          "value": "2026-01"
+        }
+      },
+      {
+        "label": "February 2026",
+        "value": 26231997,
+        "period": {
+          "type": "month",
+          "value": "2026-02"
+        }
+      },
+      {
+        "label": "March 2026",
+        "value": 26203615,
+        "period": {
+          "type": "month",
+          "value": "2026-03"
+        }
+      },
+      {
+        "label": "April 2026",
+        "value": 26182019,
+        "period": {
+          "type": "month",
+          "value": "2026-04"
+        }
+      }
+    ],
+    "drivers": [
+      "April 2026 enrolled acres at 26,182,019",
+      "27,000,000 acre conditional ceiling limits upper tail",
+      "2026 FSA accepted acres imply near-cap pressure",
+      "Recent monthly levels drifted down after October jump",
+      "First-print monthly-change volatility sets interval"
+    ],
+    "sourceContext": [
+      "https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp",
+      "https://www.fsa.usda.gov/sites/default/files/2026-07/CRPMonthlyApril2026WithPageNumbers.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-06/CRPMonthlyMarch2026WithPageNumbers.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-06/CRPMonthlyFebruary2026WithPageNumbers_0.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-05/CRPMonthlyJanuary2026WithPageNumbers.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-04/CRPMonthlyDecember2025WithPageNumbers.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-03/CRPMonthlyNovember2025WithPageNumbers.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-03/CRPMonthlyOctober2025WithPageNumbers.pdf",
+      "https://www.fsa.usda.gov/sites/default/files/2026-03/CRPMonthlySeptember2025WithPageNumbers_0.pdf",
+      "https://www.fsa.usda.gov/news-events/news/07-07-2026/usda-accepts-22-million-acres-2026-conservation-reserve-program-1",
+      "https://uscode.house.gov/view.xhtml?edition=prelim&path=%2Fprelim%40title16%2Fchapter58%2Fsubchapter4%2Fpart1%2Fsubpartb",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-08-15T15:24:07Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Resolution framing"
+      },
+      {
+        "kind": "text",
+        "text": "This is the registered resolve-by-bound CRP target. I byte-echo the Thesis bound 2027-12-31 and use the registered FSA CRP statistics page as the methodology identity URL, not as evidence of a scheduled release day. The target is the September 2027 first-print TOTAL CRP Acres cell."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis_announcement_fetch.fetch_official_announcement",
+        "call": "fetch_official_announcement(url='https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp')",
+        "result": "Fetched exact registered official announcement URL; statusCode=200, responseBytes=121043, responseSha256=3e8bec384447e4bc1c4bd8336eb345b9705e685f8641700be66f1b2c1bb541bc."
+      },
+      {
+        "kind": "tool",
+        "tool": "resolve_pending.fsa_crp_fetch_period",
+        "call": "fsa_crp_fetch_period(enrolled_acres_total, periods 2026-04, 2026-03, 2026-02)",
+        "result": "Official parser values from FSA CRP Monthly Summary PDFs: 2026-04=26182019 from CRPMonthlyApril2026WithPageNumbers.pdf; 2026-03=26203615 from CRPMonthlyMarch2026WithPageNumbers.pdf; 2026-02=26231997 from CRPMonthlyFebruary2026WithPageNumbers_0.pdf."
+      },
+      {
+        "kind": "tool",
+        "tool": "resolve_pending.fsa_crp_fetch_period",
+        "call": "fsa_crp_fetch_period(enrolled_acres_total, periods 2026-01, 2025-12, 2025-11)",
+        "result": "Official parser values from FSA CRP Monthly Summary PDFs: 2026-01=26255016; 2025-12=26279615; 2025-11=26317011."
+      },
+      {
+        "kind": "tool",
+        "tool": "resolve_pending.fsa_crp_fetch_period",
+        "call": "fsa_crp_fetch_period(enrolled_acres_total, periods 2025-10, 2025-09, 2026-05, 2026-06, 2026-07)",
+        "result": "Official parser values: 2025-10=26316110 and 2025-09=25766115. Later checked periods 2026-05, 2026-06, and 2026-07 returned value=None from the landing URL, so April 2026 is the latest parsed numeric print in this run."
+      },
+      {
+        "kind": "tool",
+        "tool": "web.open",
+        "call": "open FSA July 7 2026 CRP enrollment release",
+        "result": "Official FSA release dated July 07, 2026 says USDA is accepting 2.2 million acres into CRP for 2026; total acreage is capped at 27 million acres for fiscal year 2026; nearly 1.5 million acres were set to expire on Sept. 30; just over 982,000 acres were offered for re-enrollment; 1.5 million acres of new land were offered."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl uscode.house.gov",
+        "call": "curl U.S. Code title 16 CRP conservation reserve acreage text",
+        "result": "Fetched U.S. Code text includes: fiscal year 2023, not more than 27,000,000 acres. This supports treating 27,000,000 as a statutory acreage ceiling concept; the cell condition supplies the FY2027-31 extension."
+      },
+      {
+        "kind": "tool",
+        "tool": "scripts/run_time_series_models.py",
+        "call": "PYTHONPATH=. python3 scripts/run_time_series_models.py --models persistence,statsmodels-local-level --round-increment 1",
+        "result": "Model candidates from the 8 fetched monthly values: persistence.last_print point=26182019, p10=26150031, p90=26402558, calibrationN=7, walk_forward meanAbsoluteError=97984; statsmodels sarimax_local_level_drift point=26241434, p10=25984397, p90=26498471, calibrationN=7, walk_forward meanAbsoluteError=173985."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: the last 8 official CRP monthly total enrolled-acre prints span 25,766,115 to 26,317,011, with mean level 26,193,937 and latest print 26,182,019. The strongest benchmark is last-print persistence because its walk-forward mean absolute error, 97,984 acres, beats the local-level candidate's 173,985 acres on this short history."
+      },
+      {
+        "kind": "math",
+        "text": "Successive monthly changes from the fetched history are +549995, +901, -37396, -24599, -23019, -28382, -21596 acres; mean change = +59415 and sigma = 216637 acres. A one-step 80% half-width is 1.28*sigma = 277295 acres. The volatility sample is short and includes the large 2025-10 enrollment jump; for a September 2027 stock under the 27,000,000 conditional ceiling, I widen moderately for the 17-month horizon and cap constraint: downside half-width 400000 acres and upside half-width 300000 acres."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: selected prior is persistence at 26182019 from the 2026-04 official print, using 2025-09 through 2026-04 history. Adjustment components: +490000 acres from 70% of the inside-view accepted-minus-expiring signal, approximately 2.2 million accepted less 1.5 million expiring, treated as an assumption about net FY2026/FY2027 enrollment pressure rather than direct arithmetic on the September 2027 stock; -22019 rounding/shrinkage because recent monthly prints after 2025-11 drifted lower. Point = 26182019 + 490000 - 22019 = 26650000. Interval method: realized first-print monthly-change sigma = 216637, 1.28*sigma = 277295, widened to [-400000,+300000] for horizon and ceiling asymmetry, giving implied bounds 26250000 to 26950000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: downside risk would land below the interval if FY2027 expirations are large and re-enrollment participation weakens despite the ceiling. Upside risk would land above the interval if FSA keeps nearly all expiring acres and uses the 27,000,000 acre ceiling more completely than in recent first prints."
+      },
+      {
+        "kind": "tool",
+        "tool": "curl app.thesisinstitute.org/specs.json",
+        "call": "curl -sS https://app.thesisinstitute.org/specs.json | rg slug",
+        "result": "Slug uniqueness check for us-crp-enrolled-acres-september-2027-ceiling-27-million-source-recovered-2026-08-13 returned 0 matching published specs in command output."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic."
+      },
+      {
+        "kind": "forecast",
+        "point": 26650000,
+        "ciLow": 26250000,
+        "ciHigh": 26950000
+      }
+    ],
+    "agentReportedRunAt": "2026-08-15T15:20:37Z",
+    "runStartedAt": "2026-08-15T15:16:02Z",
+    "promptMode": "full",
+    "registrationCommit": "f816f33e1cea6e50d33bd0314c88a7e901b77e17",
+    "targetContentHash": "3b4f941cc92555b67700fdb1edf99b3c5d38378a53a6243aefb5663a9cde87f7",
+    "targetRegistrationPath": "records/targets/2026-08-13-3b4f941cc92555b67700fdb1edf99b3c5d38378a53a6243aefb5663a9cde87f7.json",
+    "registeredAtUtc": "2026-08-13T22:43:51Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 25650000.0,
+        "upper": 27400000.0
+      },
+      "points": [
+        {
+          "value": 25650000.0,
+          "probability": 0.0
+        },
+        {
+          "value": 25658750.0,
+          "probability": 0.00145833333333
+        },
+        {
+          "value": 25667500.0,
+          "probability": 0.00291666666667
+        },
+        {
+          "value": 25676250.0,
+          "probability": 0.004375
+        },
+        {
+          "value": 25685000.0,
+          "probability": 0.00583333333333
+        },
+        {
+          "value": 25693750.0,
+          "probability": 0.00729166666667
+        },
+        {
+          "value": 25702500.0,
+          "probability": 0.00875
+        },
+        {
+          "value": 25711250.0,
+          "probability": 0.0102083333333
+        },
+        {
+          "value": 25720000.0,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 25728750.0,
+          "probability": 0.013125
+        },
+        {
+          "value": 25737500.0,
+          "probability": 0.0145833333333
+        },
+        {
+          "value": 25746250.0,
+          "probability": 0.0160416666667
+        },
+        {
+          "value": 25755000.0,
+          "probability": 0.0175
+        },
+        {
+          "value": 25763750.0,
+          "probability": 0.0189583333333
+        },
+        {
+          "value": 25772500.0,
+          "probability": 0.0204166666667
+        },
+        {
+          "value": 25781250.0,
+          "probability": 0.021875
+        },
+        {
+          "value": 25790000.0,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 25798750.0,
+          "probability": 0.0247916666667
+        },
+        {
+          "value": 25807500.0,
+          "probability": 0.02625
+        },
+        {
+          "value": 25816250.0,
+          "probability": 0.0277083333333
+        },
+        {
+          "value": 25825000.0,
+          "probability": 0.0291666666667
+        },
+        {
+          "value": 25833750.0,
+          "probability": 0.030625
+        },
+        {
+          "value": 25842500.0,
+          "probability": 0.0320833333333
+        },
+        {
+          "value": 25851250.0,
+          "probability": 0.0335416666667
+        },
+        {
+          "value": 25860000.0,
+          "probability": 0.035
+        },
+        {
+          "value": 25868750.0,
+          "probability": 0.0364583333333
+        },
+        {
+          "value": 25877500.0,
+          "probability": 0.0379166666667
+        },
+        {
+          "value": 25886250.0,
+          "probability": 0.039375
+        },
+        {
+          "value": 25895000.0,
+          "probability": 0.0408333333333
+        },
+        {
+          "value": 25903750.0,
+          "probability": 0.0422916666667
+        },
+        {
+          "value": 25912500.0,
+          "probability": 0.04375
+        },
+        {
+          "value": 25921250.0,
+          "probability": 0.0452083333333
+        },
+        {
+          "value": 25930000.0,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 25938750.0,
+          "probability": 0.048125
+        },
+        {
+          "value": 25947500.0,
+          "probability": 0.0495833333333
+        },
+        {
+          "value": 25956250.0,
+          "probability": 0.0510416666667
+        },
+        {
+          "value": 25965000.0,
+          "probability": 0.0525
+        },
+        {
+          "value": 25973750.0,
+          "probability": 0.0539583333333
+        },
+        {
+          "value": 25982500.0,
+          "probability": 0.0554166666667
+        },
+        {
+          "value": 25991250.0,
+          "probability": 0.056875
+        },
+        {
+          "value": 26000000.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 26008750.0,
+          "probability": 0.0597916666667
+        },
+        {
+          "value": 26017500.0,
+          "probability": 0.06125
+        },
+        {
+          "value": 26026250.0,
+          "probability": 0.0627083333333
+        },
+        {
+          "value": 26035000.0,
+          "probability": 0.0641666666667
+        },
+        {
+          "value": 26043750.0,
+          "probability": 0.065625
+        },
+        {
+          "value": 26052500.0,
+          "probability": 0.0670833333333
+        },
+        {
+          "value": 26061250.0,
+          "probability": 0.0685416666667
+        },
+        {
+          "value": 26070000.0,
+          "probability": 0.07
+        },
+        {
+          "value": 26078750.0,
+          "probability": 0.0714583333333
+        },
+        {
+          "value": 26087500.0,
+          "probability": 0.0729166666667
+        },
+        {
+          "value": 26096250.0,
+          "probability": 0.074375
+        },
+        {
+          "value": 26105000.0,
+          "probability": 0.0758333333333
+        },
+        {
+          "value": 26113750.0,
+          "probability": 0.0772916666667
+        },
+        {
+          "value": 26122500.0,
+          "probability": 0.07875
+        },
+        {
+          "value": 26131250.0,
+          "probability": 0.0802083333333
+        },
+        {
+          "value": 26140000.0,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 26148750.0,
+          "probability": 0.083125
+        },
+        {
+          "value": 26157500.0,
+          "probability": 0.0845833333333
+        },
+        {
+          "value": 26166250.0,
+          "probability": 0.0860416666667
+        },
+        {
+          "value": 26175000.0,
+          "probability": 0.0875
+        },
+        {
+          "value": 26183750.0,
+          "probability": 0.0889583333333
+        },
+        {
+          "value": 26192500.0,
+          "probability": 0.0904166666667
+        },
+        {
+          "value": 26201250.0,
+          "probability": 0.091875
+        },
+        {
+          "value": 26210000.0,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 26218750.0,
+          "probability": 0.0947916666667
+        },
+        {
+          "value": 26227500.0,
+          "probability": 0.09625
+        },
+        {
+          "value": 26236250.0,
+          "probability": 0.0977083333333
+        },
+        {
+          "value": 26245000.0,
+          "probability": 0.0991666666667
+        },
+        {
+          "value": 26253750.0,
+          "probability": 0.10375
+        },
+        {
+          "value": 26262500.0,
+          "probability": 0.1125
+        },
+        {
+          "value": 26271250.0,
+          "probability": 0.12125
+        },
+        {
+          "value": 26280000.0,
+          "probability": 0.13
+        },
+        {
+          "value": 26288750.0,
+          "probability": 0.13875
+        },
+        {
+          "value": 26297500.0,
+          "probability": 0.1475
+        },
+        {
+          "value": 26306250.0,
+          "probability": 0.15625
+        },
+        {
+          "value": 26315000.0,
+          "probability": 0.165
+        },
+        {
+          "value": 26323750.0,
+          "probability": 0.17375
+        },
+        {
+          "value": 26332500.0,
+          "probability": 0.1825
+        },
+        {
+          "value": 26341250.0,
+          "probability": 0.19125
+        },
+        {
+          "value": 26350000.0,
+          "probability": 0.2
+        },
+        {
+          "value": 26358750.0,
+          "probability": 0.20875
+        },
+        {
+          "value": 26367500.0,
+          "probability": 0.2175
+        },
+        {
+          "value": 26376250.0,
+          "probability": 0.22625
+        },
+        {
+          "value": 26385000.0,
+          "probability": 0.235
+        },
+        {
+          "value": 26393750.0,
+          "probability": 0.24375
+        },
+        {
+          "value": 26402500.0,
+          "probability": 0.2525
+        },
+        {
+          "value": 26411250.0,
+          "probability": 0.26125
+        },
+        {
+          "value": 26420000.0,
+          "probability": 0.27
+        },
+        {
+          "value": 26428750.0,
+          "probability": 0.27875
+        },
+        {
+          "value": 26437500.0,
+          "probability": 0.2875
+        },
+        {
+          "value": 26446250.0,
+          "probability": 0.29625
+        },
+        {
+          "value": 26455000.0,
+          "probability": 0.305
+        },
+        {
+          "value": 26463750.0,
+          "probability": 0.31375
+        },
+        {
+          "value": 26472500.0,
+          "probability": 0.3225
+        },
+        {
+          "value": 26481250.0,
+          "probability": 0.33125
+        },
+        {
+          "value": 26490000.0,
+          "probability": 0.34
+        },
+        {
+          "value": 26498750.0,
+          "probability": 0.34875
+        },
+        {
+          "value": 26507500.0,
+          "probability": 0.3575
+        },
+        {
+          "value": 26516250.0,
+          "probability": 0.36625
+        },
+        {
+          "value": 26525000.0,
+          "probability": 0.375
+        },
+        {
+          "value": 26533750.0,
+          "probability": 0.38375
+        },
+        {
+          "value": 26542500.0,
+          "probability": 0.3925
+        },
+        {
+          "value": 26551250.0,
+          "probability": 0.40125
+        },
+        {
+          "value": 26560000.0,
+          "probability": 0.41
+        },
+        {
+          "value": 26568750.0,
+          "probability": 0.41875
+        },
+        {
+          "value": 26577500.0,
+          "probability": 0.4275
+        },
+        {
+          "value": 26586250.0,
+          "probability": 0.43625
+        },
+        {
+          "value": 26595000.0,
+          "probability": 0.445
+        },
+        {
+          "value": 26603750.0,
+          "probability": 0.45375
+        },
+        {
+          "value": 26612500.0,
+          "probability": 0.4625
+        },
+        {
+          "value": 26621250.0,
+          "probability": 0.47125
+        },
+        {
+          "value": 26630000.0,
+          "probability": 0.48
+        },
+        {
+          "value": 26638750.0,
+          "probability": 0.48875
+        },
+        {
+          "value": 26647500.0,
+          "probability": 0.4975
+        },
+        {
+          "value": 26656250.0,
+          "probability": 0.508333333333
+        },
+        {
+          "value": 26665000.0,
+          "probability": 0.52
+        },
+        {
+          "value": 26673750.0,
+          "probability": 0.531666666667
+        },
+        {
+          "value": 26682500.0,
+          "probability": 0.543333333333
+        },
+        {
+          "value": 26691250.0,
+          "probability": 0.555
+        },
+        {
+          "value": 26700000.0,
+          "probability": 0.566666666667
+        },
+        {
+          "value": 26708750.0,
+          "probability": 0.578333333333
+        },
+        {
+          "value": 26717500.0,
+          "probability": 0.59
+        },
+        {
+          "value": 26726250.0,
+          "probability": 0.601666666667
+        },
+        {
+          "value": 26735000.0,
+          "probability": 0.613333333333
+        },
+        {
+          "value": 26743750.0,
+          "probability": 0.625
+        },
+        {
+          "value": 26752500.0,
+          "probability": 0.636666666667
+        },
+        {
+          "value": 26761250.0,
+          "probability": 0.648333333333
+        },
+        {
+          "value": 26770000.0,
+          "probability": 0.66
+        },
+        {
+          "value": 26778750.0,
+          "probability": 0.671666666667
+        },
+        {
+          "value": 26787500.0,
+          "probability": 0.683333333333
+        },
+        {
+          "value": 26796250.0,
+          "probability": 0.695
+        },
+        {
+          "value": 26805000.0,
+          "probability": 0.706666666667
+        },
+        {
+          "value": 26813750.0,
+          "probability": 0.718333333333
+        },
+        {
+          "value": 26822500.0,
+          "probability": 0.73
+        },
+        {
+          "value": 26831250.0,
+          "probability": 0.741666666667
+        },
+        {
+          "value": 26840000.0,
+          "probability": 0.753333333333
+        },
+        {
+          "value": 26848750.0,
+          "probability": 0.765
+        },
+        {
+          "value": 26857500.0,
+          "probability": 0.776666666667
+        },
+        {
+          "value": 26866250.0,
+          "probability": 0.788333333333
+        },
+        {
+          "value": 26875000.0,
+          "probability": 0.8
+        },
+        {
+          "value": 26883750.0,
+          "probability": 0.811666666667
+        },
+        {
+          "value": 26892500.0,
+          "probability": 0.823333333333
+        },
+        {
+          "value": 26901250.0,
+          "probability": 0.835
+        },
+        {
+          "value": 26910000.0,
+          "probability": 0.846666666667
+        },
+        {
+          "value": 26918750.0,
+          "probability": 0.858333333333
+        },
+        {
+          "value": 26927500.0,
+          "probability": 0.87
+        },
+        {
+          "value": 26936250.0,
+          "probability": 0.881666666667
+        },
+        {
+          "value": 26945000.0,
+          "probability": 0.893333333333
+        },
+        {
+          "value": 26953750.0,
+          "probability": 0.900833333333
+        },
+        {
+          "value": 26962500.0,
+          "probability": 0.902777777778
+        },
+        {
+          "value": 26971250.0,
+          "probability": 0.904722222222
+        },
+        {
+          "value": 26980000.0,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 26988750.0,
+          "probability": 0.908611111111
+        },
+        {
+          "value": 26997500.0,
+          "probability": 0.910555555556
+        },
+        {
+          "value": 27006250.0,
+          "probability": 0.9125
+        },
+        {
+          "value": 27015000.0,
+          "probability": 0.914444444444
+        },
+        {
+          "value": 27023750.0,
+          "probability": 0.916388888889
+        },
+        {
+          "value": 27032500.0,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 27041250.0,
+          "probability": 0.920277777778
+        },
+        {
+          "value": 27050000.0,
+          "probability": 0.922222222222
+        },
+        {
+          "value": 27058750.0,
+          "probability": 0.924166666667
+        },
+        {
+          "value": 27067500.0,
+          "probability": 0.926111111111
+        },
+        {
+          "value": 27076250.0,
+          "probability": 0.928055555556
+        },
+        {
+          "value": 27085000.0,
+          "probability": 0.93
+        },
+        {
+          "value": 27093750.0,
+          "probability": 0.931944444444
+        },
+        {
+          "value": 27102500.0,
+          "probability": 0.933888888889
+        },
+        {
+          "value": 27111250.0,
+          "probability": 0.935833333333
+        },
+        {
+          "value": 27120000.0,
+          "probability": 0.937777777778
+        },
+        {
+          "value": 27128750.0,
+          "probability": 0.939722222222
+        },
+        {
+          "value": 27137500.0,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 27146250.0,
+          "probability": 0.943611111111
+        },
+        {
+          "value": 27155000.0,
+          "probability": 0.945555555556
+        },
+        {
+          "value": 27163750.0,
+          "probability": 0.9475
+        },
+        {
+          "value": 27172500.0,
+          "probability": 0.949444444444
+        },
+        {
+          "value": 27181250.0,
+          "probability": 0.951388888889
+        },
+        {
+          "value": 27190000.0,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 27198750.0,
+          "probability": 0.955277777778
+        },
+        {
+          "value": 27207500.0,
+          "probability": 0.957222222222
+        },
+        {
+          "value": 27216250.0,
+          "probability": 0.959166666667
+        },
+        {
+          "value": 27225000.0,
+          "probability": 0.961111111111
+        },
+        {
+          "value": 27233750.0,
+          "probability": 0.963055555556
+        },
+        {
+          "value": 27242500.0,
+          "probability": 0.965
+        },
+        {
+          "value": 27251250.0,
+          "probability": 0.966944444444
+        },
+        {
+          "value": 27260000.0,
+          "probability": 0.968888888889
+        },
+        {
+          "value": 27268750.0,
+          "probability": 0.970833333333
+        },
+        {
+          "value": 27277500.0,
+          "probability": 0.972777777778
+        },
+        {
+          "value": 27286250.0,
+          "probability": 0.974722222222
+        },
+        {
+          "value": 27295000.0,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 27303750.0,
+          "probability": 0.978611111111
+        },
+        {
+          "value": 27312500.0,
+          "probability": 0.980555555556
+        },
+        {
+          "value": 27321250.0,
+          "probability": 0.9825
+        },
+        {
+          "value": 27330000.0,
+          "probability": 0.984444444444
+        },
+        {
+          "value": 27338750.0,
+          "probability": 0.986388888889
+        },
+        {
+          "value": 27347500.0,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 27356250.0,
+          "probability": 0.990277777778
+        },
+        {
+          "value": 27365000.0,
+          "probability": 0.992222222222
+        },
+        {
+          "value": 27373750.0,
+          "probability": 0.994166666667
+        },
+        {
+          "value": 27382500.0,
+          "probability": 0.996111111111
+        },
+        {
+          "value": 27391250.0,
+          "probability": 0.998055555556
+        },
+        {
+          "value": 27400000.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 26650000,
+        "median": 26650000,
+        "interval80": {
+          "lower": 26250000,
+          "upper": 26950000
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/prompt.md",
+        "sha256": "092df9171b7750890df2569eb219ed8a9fb6e3465f2ce22532c824eedfa3b97b",
+        "bytes": 38928,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_command.json",
+        "sha256": "ea9fa55b1e51043d6d091a52773ca1a97242fa3d3accdf6d1deea2c7f2b5a01a",
+        "bytes": 2031,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_stdout.jsonl",
+        "sha256": "1c336239559cba0bd5b09ae0bf066c856b3cce32df1d3536bc5a3e36a6aeb03b",
+        "bytes": 1525820,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_events.jsonl",
+        "sha256": "71215b0b9864f0514cba639a1682729d39cfac9e26e7e84ce239165b24b9a673",
+        "bytes": 1526930,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_last_message.txt",
+        "sha256": "78f16fbfb6d56cfa9a3a682833b86f952d9ff377084dcf6777d6a7669a718a2d",
+        "bytes": 9021,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_trace.json",
+        "sha256": "5169143c206bd3170eccd386464bf82a4feeab51458a1e2327490e6925a7c1f6",
+        "bytes": 570,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_stdout.txt",
+        "sha256": "78f16fbfb6d56cfa9a3a682833b86f952d9ff377084dcf6777d6a7669a718a2d",
+        "bytes": 9021,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_prompt.md",
+        "sha256": "17b678ab6cc765fccc3078a65d2a183e707369d165d09d6ebd0dd26cbf485f10",
+        "bytes": 14885,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_command.json",
+        "sha256": "fdddff8abdcb28595e9058f797ca36a1e379c47c7e0d23ee6c38338b9821ff5e",
+        "bytes": 1123,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "74039d0389bb377446de3f702151daa689b59c1174e6ebeacda6ae45c406709b",
+        "bytes": 5157,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_events.jsonl",
+        "sha256": "b6dadd2358c81b60858c2140e679a89531d333e0eb8afa34f7a8ad58be73602b",
+        "bytes": 5246,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_last_message.txt",
+        "sha256": "4bb9439fe425418d760b44d384c7bdc61d6a09f1db697028b4842a3a5b261589",
+        "bytes": 690,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_trace.json",
+        "sha256": "7b24d46c3720e29ca20473d04a07c7e1734e782341ead01f92e581b7d99262a8",
+        "bytes": 564,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_stdout.txt",
+        "sha256": "4bb9439fe425418d760b44d384c7bdc61d6a09f1db697028b4842a3a5b261589",
+        "bytes": 690,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/revision_prompt.md",
+        "sha256": "262d0d7d17c8a1fb07e8ad0cf37a2a882fa81817b9a521c5a2a19bd89fad05f2",
+        "bytes": 49575,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/command.json",
+        "sha256": "df759806f6b023c74a7d20d5348f16211dce40ce044ba3fcd27acce1c0fd74b7",
+        "bytes": 2025,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_stdout.jsonl",
+        "sha256": "5a9857d9c57dafc8a13d42b7ed10e953295eb5358f304a94ca6b175d158aa90e",
+        "bytes": 10354,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_events.jsonl",
+        "sha256": "32b9d45a03106a69e08b8ca3af684a4fa9f609424d67368ecbbf8ec1bcef0840",
+        "bytes": 10376,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_last_message.txt",
+        "sha256": "56c659053e77b21821da8ca846a813187df508f97ffd5b63fa7aee9121cbaec5",
+        "bytes": 9612,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_trace.json",
+        "sha256": "242586e1837167c9d0bb8a04223d66b7eab8e0d71ad3595f781f06e876eb6d34",
+        "bytes": 562,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/stdout.txt",
+        "sha256": "56c659053e77b21821da8ca846a813187df508f97ffd5b63fa7aee9121cbaec5",
+        "bytes": 9612,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/raw_response.txt",
+        "sha256": "56c659053e77b21821da8ca846a813187df508f97ffd5b63fa7aee9121cbaec5",
+        "bytes": 9612,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/parsed_cells.json",
+        "sha256": "08148675aff401812fcd4706328e3fcea1d098ec060663bec170633f1673c30d",
+        "bytes": 11226,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/normalized_cells.json",
+        "sha256": "3a028f6e88025c4ea5240ab2403796f687d36d0c7d80da12138104503851efdf",
+        "bytes": 30021,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/distribution.json",
+        "sha256": "a1d879b15b593d1750d34697449341bdd60cdee547cea2f078664825b8726801",
+        "bytes": 15011,
+        "createdAt": "2026-08-15T15:16:02Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/validation.json",
+        "sha256": "00dc4a493d98ecf54284fb47fdb9d43f329581ad40ac4138e1a41588d944359f",
+        "bytes": 184,
+        "createdAt": "2026-08-15T15:16:02Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-08-15T15:16:02Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "a9e6e79e63153b7df4a33e81b23f05a37ebaf99d3a58ae0c8918ffdace1f305b"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Tighten the interval explanation by noting that the volatility sample is very short and includes the large 2025-10 enrollment jump."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that April 2026 is the latest numeric value returned by the registered adapter in this run, while 2026-05 through 2026-07 returned null."
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the accepted-minus-expiring adjustment slightly more explicit as an inside-view assumption rather than direct enrollment arithmetic."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable on the core target contract: resolver URL, unit, dataPointId, resolve-by-bound date, first-print rule, and parser-backed recent CRP base rates are coherent."
+    }
+  }
+]

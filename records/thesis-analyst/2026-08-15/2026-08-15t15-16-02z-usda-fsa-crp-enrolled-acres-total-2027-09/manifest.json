@@ -1,0 +1,402 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-15T15:16:02Z",
+  "runStartedAt": "2026-08-15T15:16:02Z",
+  "sealedAt": "2026-08-15T15:24:07Z",
+  "series": "usda.fsa.crp.enrolled_acres_total",
+  "period": "2027-09",
+  "conditional": "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31",
+  "targetContext": {
+    "anchors": {
+      "2025-11": 26317011,
+      "2026-03": 26203615,
+      "2026-04": 26182019
+    },
+    "catalogSlug": "us-crp-enrolled-acres-september-2027-ceiling-27-million-source-recovered-2026-08-13",
+    "conditionDeadline": "2027-09-30",
+    "conditionId": "cond.crp-acreage-ceiling-fy2027-31.enacted",
+    "conditional": "an enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027-31",
+    "country": "US",
+    "dataPointId": "usda.fsa.crp.enrolled_acres_total.2027_09.first_print.ceiling_27_million_source_recovered_2026_08_13",
+    "expectedReleaseWindow": {
+      "end": "2027-12-31",
+      "start": "2027-12-01"
+    },
+    "period": "2027-09",
+    "registeredAt": "2026-08-13T22:43:51Z",
+    "registeredAtUtc": "2026-08-13T22:43:51Z",
+    "registrationCommit": "f816f33e1cea6e50d33bd0314c88a7e901b77e17",
+    "registrationState": "preregistered",
+    "resolutionDate": "2027-12-31",
+    "resolutionDateBasis": "resolve-by-bound",
+    "series": "usda.fsa.crp.enrolled_acres_total",
+    "sourceBinding": {
+      "adapter": "fsa-crp-monthly-summary",
+      "allowedHosts": [
+        "www.fsa.usda.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2027-12-31",
+        "start": "2027-12-01"
+      },
+      "field": "enrolled_acres_total",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "usda.fsa.crp.enrolled_acres_total",
+      "sourceUrl": "https://www.fsa.usda.gov/tools/informational/reports/conservation-statistics/crp",
+      "table": "USDA FSA Conservation Reserve Program Statistics, CRP Monthly Summary, total row",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "3b4f941cc92555b67700fdb1edf99b3c5d38378a53a6243aefb5663a9cde87f7",
+    "targetRegistrationPath": "records/targets/2026-08-13-3b4f941cc92555b67700fdb1edf99b3c5d38378a53a6243aefb5663a9cde87f7.json",
+    "targetUnit": "count",
+    "valueScale": 1
+  },
+  "registrationCommit": "f816f33e1cea6e50d33bd0314c88a7e901b77e17",
+  "targetContentHash": "3b4f941cc92555b67700fdb1edf99b3c5d38378a53a6243aefb5663a9cde87f7",
+  "targetRegistrationPath": "records/targets/2026-08-13-3b4f941cc92555b67700fdb1edf99b3c5d38378a53a6243aefb5663a9cde87f7.json",
+  "registeredAtUtc": "2026-08-13T22:43:51Z",
+  "promptMode": "full",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.11",
+    "model": "gpt-5.5",
+    "promptHash": "87db344b803f5ab4116f3b0f5f01ed64adb8ea1235daa18627ec596fff56e044",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-15T15:16:02Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "a9e6e79e63153b7df4a33e81b23f05a37ebaf99d3a58ae0c8918ffdace1f305b"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tighten the interval explanation by noting that the volatility sample is very short and includes the large 2025-10 enrollment jump."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that April 2026 is the latest numeric value returned by the registered adapter in this run, while 2026-05 through 2026-07 returned null."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the accepted-minus-expiring adjustment slightly more explicit as an inside-view assumption rather than direct enrollment arithmetic."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to note the short volatility sample and the large 2025-10 jump, clarify that April 2026 was the latest numeric registered-adapter value while 2026-05 through 2026-07 returned null, and describe the accepted-minus-expiring adjustment as an inside-view assumption rather than direct enrollment arithmetic.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable on the core target contract: resolver URL, unit, dataPointId, resolve-by-bound date, first-print rule, and parser-backed recent CRP base rates are coherent."
+  },
+  "workspaceHygiene": {
+    "guarded": true,
+    "mutations": []
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/prompt.md",
+      "sha256": "092df9171b7750890df2569eb219ed8a9fb6e3465f2ce22532c824eedfa3b97b",
+      "bytes": 38928,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_command.json",
+      "sha256": "ea9fa55b1e51043d6d091a52773ca1a97242fa3d3accdf6d1deea2c7f2b5a01a",
+      "bytes": 2031,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_stdout.jsonl",
+      "sha256": "1c336239559cba0bd5b09ae0bf066c856b3cce32df1d3536bc5a3e36a6aeb03b",
+      "bytes": 1525820,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_events.jsonl",
+      "sha256": "71215b0b9864f0514cba639a1682729d39cfac9e26e7e84ce239165b24b9a673",
+      "bytes": 1526930,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_last_message.txt",
+      "sha256": "78f16fbfb6d56cfa9a3a682833b86f952d9ff377084dcf6777d6a7669a718a2d",
+      "bytes": 9021,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_codex_trace.json",
+      "sha256": "5169143c206bd3170eccd386464bf82a4feeab51458a1e2327490e6925a7c1f6",
+      "bytes": 570,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_stdout.txt",
+      "sha256": "78f16fbfb6d56cfa9a3a682833b86f952d9ff377084dcf6777d6a7669a718a2d",
+      "bytes": 9021,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_prompt.md",
+      "sha256": "17b678ab6cc765fccc3078a65d2a183e707369d165d09d6ebd0dd26cbf485f10",
+      "bytes": 14885,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_command.json",
+      "sha256": "fdddff8abdcb28595e9058f797ca36a1e379c47c7e0d23ee6c38338b9821ff5e",
+      "bytes": 1123,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "74039d0389bb377446de3f702151daa689b59c1174e6ebeacda6ae45c406709b",
+      "bytes": 5157,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_events.jsonl",
+      "sha256": "b6dadd2358c81b60858c2140e679a89531d333e0eb8afa34f7a8ad58be73602b",
+      "bytes": 5246,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_last_message.txt",
+      "sha256": "4bb9439fe425418d760b44d384c7bdc61d6a09f1db697028b4842a3a5b261589",
+      "bytes": 690,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_codex_trace.json",
+      "sha256": "7b24d46c3720e29ca20473d04a07c7e1734e782341ead01f92e581b7d99262a8",
+      "bytes": 564,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_stdout.txt",
+      "sha256": "4bb9439fe425418d760b44d384c7bdc61d6a09f1db697028b4842a3a5b261589",
+      "bytes": 690,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/revision_prompt.md",
+      "sha256": "262d0d7d17c8a1fb07e8ad0cf37a2a882fa81817b9a521c5a2a19bd89fad05f2",
+      "bytes": 49575,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/command.json",
+      "sha256": "df759806f6b023c74a7d20d5348f16211dce40ce044ba3fcd27acce1c0fd74b7",
+      "bytes": 2025,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_stdout.jsonl",
+      "sha256": "5a9857d9c57dafc8a13d42b7ed10e953295eb5358f304a94ca6b175d158aa90e",
+      "bytes": 10354,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_events.jsonl",
+      "sha256": "32b9d45a03106a69e08b8ca3af684a4fa9f609424d67368ecbbf8ec1bcef0840",
+      "bytes": 10376,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_last_message.txt",
+      "sha256": "56c659053e77b21821da8ca846a813187df508f97ffd5b63fa7aee9121cbaec5",
+      "bytes": 9612,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/codex_trace.json",
+      "sha256": "242586e1837167c9d0bb8a04223d66b7eab8e0d71ad3595f781f06e876eb6d34",
+      "bytes": 562,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/stdout.txt",
+      "sha256": "56c659053e77b21821da8ca846a813187df508f97ffd5b63fa7aee9121cbaec5",
+      "bytes": 9612,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/raw_response.txt",
+      "sha256": "56c659053e77b21821da8ca846a813187df508f97ffd5b63fa7aee9121cbaec5",
+      "bytes": 9612,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/parsed_cells.json",
+      "sha256": "08148675aff401812fcd4706328e3fcea1d098ec060663bec170633f1673c30d",
+      "bytes": 11226,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/normalized_cells.json",
+      "sha256": "3a028f6e88025c4ea5240ab2403796f687d36d0c7d80da12138104503851efdf",
+      "bytes": 30021,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/distribution.json",
+      "sha256": "a1d879b15b593d1750d34697449341bdd60cdee547cea2f078664825b8726801",
+      "bytes": 15011,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/validation.json",
+      "sha256": "00dc4a493d98ecf54284fb47fdb9d43f329581ad40ac4138e1a41588d944359f",
+      "bytes": 184,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/cells.with_activity.json",
+      "sha256": "92387f6ab8fc1b0c16618a5e8b4de54ad823b6617c77d2ed85ff54fa7c9484e4",
+      "bytes": 44878,
+      "createdAt": "2026-08-15T15:16:02Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-15/2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09/manifest.json",
+      "sha256": "ae7269efcfa995e71763117d127059f15941d5815b5dc1be78e632a91e90e0b5",
+      "bytes": 16129,
+      "createdAt": "2026-08-15T15:16:02Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-crp-enrolled-acres-september-2027-ceiling-27-million-source-recovered-2026-08-13",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "9fbf0087859c557a149a60286140f105e0f5b293",
+  "generationTicket": {
+    "ticketId": "2026-08-15-ac01a361fb2e4ef75e6b4320dd5c0c4a8dc777eb69717d0f3ef3c9abd24d7f22",
+    "ticketPath": "records/tickets/2026-08-15/2026-08-15-ac01a361fb2e4ef75e6b4320dd5c0c4a8dc777eb69717d0f3ef3c9abd24d7f22.json",
+    "nonceSha256": "a05bce1e68aed423bca90f238c1b8d57c2dbf47fe14821cf3171acfa4dc56417"
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "ed7cdc56d5556cdea4ad92adedfcff9f8eb51ea75720f9f677e5d2118ab4ffca"
+}
