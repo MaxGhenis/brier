@@ -52,6 +52,24 @@ import {
 
 describe("Next.js migration", () => {
   describe("Bill detail", () => {
+    it("renders the published CRP pair and retains its refusal history", async () => {
+      render(
+        await BillDetailPage({
+          params: Promise.resolve({ slug: "farm-bill-2-0" }),
+        }),
+      );
+
+      expect(screen.getAllByText("26,650,000").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("26,182,019").length).toBeGreaterThan(0);
+      expect(
+        screen.getByText("Forecast refused — fail-closed"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Every documented attempt failed closed/),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Forecast pending")).not.toBeInTheDocument();
+    });
+
     it("renders the FLARE bounded target honestly for its lane state", async () => {
       // State-adaptive (the #181 precedent): before the ticketed lane
       // publishes the EIA cell, the page must carry the ticketed-lane
