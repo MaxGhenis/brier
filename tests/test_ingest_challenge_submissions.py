@@ -731,3 +731,26 @@ def test_expired_list_refuses_escape_spelled_entries(tmp_path: pathlib.Path) -> 
         ingest.ChallengeSubmissionError, match="not plain unescaped id text"
     ):
         ingest.expired_unforecast_registrations(tmp_path)
+
+
+def test_expired_list_admits_the_uppercase_ppi_id_lineage(
+    tmp_path: pathlib.Path,
+) -> None:
+    # bls.wp.WPSFD4.<period>.first_print is a real registered id shape
+    # (records/targets/2026-07-25-7753f0f1…), and the non-native roll
+    # path preserves the stem for successors — a lowercase-only
+    # allowlist would wedge both the ingest and the roll if that
+    # lineage ever needed the terminal ratchet.
+    site_data = tmp_path / "site" / "src" / "data"
+    site_data.mkdir(parents=True)
+    (site_data / "expired-unforecast-registrations.ts").write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [
+"
+        '  "bls.wp.WPSFD4.2026-08.first_print",
+'
+        "] as const;
+"
+    )
+    assert ingest.expired_unforecast_registrations(tmp_path) == frozenset(
+        {"bls.wp.WPSFD4.2026-08.first_print"}
+    )

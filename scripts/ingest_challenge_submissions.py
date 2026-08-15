@@ -145,7 +145,7 @@ def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
         # therefore mean different ids to the two consumers, so any entry
         # that is not plain unescaped id text refuses outright — the list
         # is repo-controlled and every legitimate id is bare ASCII.
-        if "\\" in entry or not re.fullmatch(r"[a-z0-9._-]+", entry):
+        if "\\" in entry or not re.fullmatch(r"[A-Za-z0-9._-]+", entry):
             raise ChallengeSubmissionError(
                 f"could not parse {EXPIRED_REGISTRATIONS_TS}: expired entry "
                 f"on array line {line_number} is not plain unescaped id text"
