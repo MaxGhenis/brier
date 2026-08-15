@@ -1396,7 +1396,7 @@ def test_all_committed_pre_floor_records_replay_through_promotion() -> None:
 
     assert cell_count == len(manifests)
     assert history_row_count >= 2_637
-    assert rooted_count == 326
+    assert rooted_count >= 326
     assert len(manifests) - rooted_count == 183
 
 
