@@ -100,23 +100,38 @@ def main() -> int:
     target, upgrades_path = sys.argv[1], sys.argv[2]
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from spawned_cells_to_ts import (
-        carry_sealed_run_metadata,
+        SEALED_AGENT_KEY,
+        SEALED_HISTORY_AUTHORIZATION_KEY,
+        load_cells,
         to_forecast_cell,
         validate,
     )
 
     src = pathlib.Path(target).read_text()
-    upgrades = json.load(open(upgrades_path))
-    run_dir = pathlib.Path(upgrades_path).resolve().parent
-    for cell in upgrades:
+    raw_upgrades = json.load(open(upgrades_path))
+    provenances = []
+    for cell in raw_upgrades:
         slug = cell["slug"]
         start, end = find_cell_block(src, slug)
         old = src[start:end]
-        provenance = existing_run_provenance(old)
-        # Stamp only metadata sealed by the run manifest, never claims copied
-        # from the upgrade cell payload itself. Preserve the existing public
-        # label exactly; replacement is not a provenance-granting boundary.
-        carry_sealed_run_metadata([cell], run_dir, provenance=provenance)
+        provenances.append(existing_run_provenance(old))
+
+    # Authenticate the exact upgrades file through the same custody/legacy
+    # boundary as ordinary generated-module promotion. Loading once per public
+    # label preserves the existing cell's provenance without letting this
+    # replacement path bypass current-version custody.
+    loaded_by_provenance: dict[str | None, list[dict]] = {}
+    for provenance in provenances:
+        if provenance not in loaded_by_provenance:
+            loaded_by_provenance[provenance] = load_cells(
+                pathlib.Path(upgrades_path), provenance=provenance
+            )
+
+    for index, provenance in enumerate(provenances):
+        cell = loaded_by_provenance[provenance][index]
+        slug = cell["slug"]
+        start, end = find_cell_block(src, slug)
+        old = src[start:end]
         for f in SPEC_FIELDS:
             old_val = re.search(rf'"?{f}"?:\s*"((?:[^"\\]|\\.)*)"', old)
             if f in cell and not old_val:
@@ -154,9 +169,24 @@ def main() -> int:
                     f"({len(upgraded) - len(published)} suffix chars dropped)"
                 )
                 cell = {**cell, "resolutionSource": published}
+        sealed_agent = cell.get(SEALED_AGENT_KEY)
+        sealed_authorization = cell.get(SEALED_HISTORY_AUTHORIZATION_KEY)
         errs = [
             e
-            for e in validate(cell, set())
+            for e in validate(
+                cell,
+                set(),
+                agent_version=(
+                    sealed_agent.get("agentVersion")
+                    if isinstance(sealed_agent, dict)
+                    else None
+                ),
+                trusted_history_authorization=(
+                    sealed_authorization
+                    if isinstance(sealed_authorization, dict)
+                    else None
+                ),
+            )
             if "collide" not in e and "dataPointId" not in e
         ]
         if errs:

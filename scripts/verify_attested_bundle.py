@@ -238,8 +238,7 @@ def _load_ticket_context(
         if successor is not None:
             raise _fail(
                 "ticket",
-                f"generation ticket {ticket['ticketId']} was superseded by "
-                f"{successor}",
+                f"generation ticket {ticket['ticketId']} was superseded by {successor}",
             )
     except TicketError as exc:
         raise _fail("ticket", str(exc)) from exc
@@ -580,9 +579,7 @@ def _artifact_bytes(
     raw = path.read_bytes()
     digest = hashlib.sha256(raw).hexdigest()
     if type(ref.get("bytes")) is not int or ref["bytes"] != len(raw):
-        raise _fail(
-            phase, f"run {run.index} artifact byte count mismatch: {filename}"
-        )
+        raise _fail(phase, f"run {run.index} artifact byte count mismatch: {filename}")
     if ref.get("sha256") != digest:
         raise _fail(phase, f"run {run.index} artifact hash mismatch: {filename}")
     return raw
@@ -754,9 +751,7 @@ def _replay_codex_stage(
         phase=phase,
     )
     if not isinstance(trace, dict):
-        raise _fail(
-            phase, f"run {run.index} {trace_filename} must be a JSON object"
-        )
+        raise _fail(phase, f"run {run.index} {trace_filename} must be a JSON object")
     command_filename = stage_name("command.json")
     command = _json_artifact(
         bundle_repo,
@@ -766,9 +761,7 @@ def _replay_codex_stage(
         phase=phase,
     )
     if not isinstance(command, dict):
-        raise _fail(
-            phase, f"run {run.index} {command_filename} must be a JSON object"
-        )
+        raise _fail(phase, f"run {run.index} {command_filename} must be a JSON object")
     expected_trace = {
         "provider": "openai",
         "backend": "codex-exec",
@@ -940,8 +933,10 @@ def _check_command_argv(
     policy: dict[str, Any],
     announcement_url: str | None,
 ) -> None:
-    if not isinstance(argv, list) or not argv or not all(
-        isinstance(value, str) for value in argv
+    if (
+        not isinstance(argv, list)
+        or not argv
+        or not all(isinstance(value, str) for value in argv)
     ):
         raise _fail("command shape", f"run {run.index} {filename} argv is invalid")
     for option in FORBIDDEN_COMMAND_OPTIONS:
@@ -1019,9 +1014,7 @@ def _check_command_argv(
             raise ValueError(f"{filename} has unexpected trailing argv: {argv[index:]}")
 
         if announcement_url is not None:
-            command_prefix = (
-                f"mcp_servers.{ANNOUNCEMENT_MCP_SERVER}.command="
-            )
+            command_prefix = f"mcp_servers.{ANNOUNCEMENT_MCP_SERVER}.command="
             command_config = observed_mcp_config[0]
             if not command_config.startswith(command_prefix):
                 raise ValueError(
@@ -1039,10 +1032,10 @@ def _check_command_argv(
                 )
             python_path = pathlib.PurePosixPath(mcp_python)
             expected_python_parent = checkout_path / ".venv" / "bin"
-            if (
-                python_path.parent != expected_python_parent
-                or python_path.name not in {"python", "python3"}
-            ):
+            if python_path.parent != expected_python_parent or python_path.name not in {
+                "python",
+                "python3",
+            }:
                 raise ValueError(
                     f"{filename} announcement MCP Python is not the checkout "
                     "virtual environment interpreter"
@@ -1119,9 +1112,7 @@ def _check_commands(
             )
         artifacts = run.manifest.get("artifacts")
         if not isinstance(artifacts, list):
-            raise _fail(
-                "command shape", f"run {run.index} has no artifact inventory"
-            )
+            raise _fail("command shape", f"run {run.index} has no artifact inventory")
         actual_commands = sorted(
             str(artifact.get("path"))
             for artifact in artifacts
@@ -1137,9 +1128,7 @@ def _check_commands(
                 f"run {run.index} command artifact inventory differs from the "
                 f"ticket runner: {actual_commands} != {expected_commands}",
             )
-        stage_times: dict[
-            str, tuple[dt.datetime, dt.datetime, Any, Any]
-        ] = {}
+        stage_times: dict[str, tuple[dt.datetime, dt.datetime, Any, Any]] = {}
         binding = run.target.get("sourceBinding")
         target_announcement_url = (
             binding.get("sourceUrl")
@@ -1202,10 +1191,7 @@ def _check_commands(
                     "command shape",
                     f"run {run.index} {filename} timeoutSeconds does not match policy",
                 )
-            if (
-                type(command.get("returnCode")) is not int
-                or command["returnCode"] != 0
-            ):
+            if type(command.get("returnCode")) is not int or command["returnCode"] != 0:
                 raise _fail(
                     "command shape",
                     f"run {run.index} {filename} did not complete successfully",
@@ -1227,8 +1213,7 @@ def _check_commands(
             if type(process_return_code) is not int:
                 raise _fail(
                     "command shape",
-                    f"run {run.index} {filename} processReturnCode must be an "
-                    "integer",
+                    f"run {run.index} {filename} processReturnCode must be an integer",
                 )
             timeout_reason = command.get("timeoutReason")
             if timed_out and timeout_reason not in {"idle", "wall"}:
@@ -1360,13 +1345,10 @@ def _check_commands(
             if policy["codexSandbox"] != "read-only"
             else None
         )
-        if not canonical_equal(
-            run.manifest.get("workspaceHygiene"), expected_hygiene
-        ):
+        if not canonical_equal(run.manifest.get("workspaceHygiene"), expected_hygiene):
             raise _fail(
                 "command shape",
-                f"run {run.index} workspace hygiene does not match the ticket "
-                "sandbox",
+                f"run {run.index} workspace hygiene does not match the ticket sandbox",
             )
 
 
@@ -1418,8 +1400,7 @@ def _stage_has_authenticated_announcement_fetch(
             or type(status) is not int
             or not 200 <= status < 300
             or not isinstance(structured.get("responseSha256"), str)
-            or re.fullmatch(r"[0-9a-f]{64}", structured["responseSha256"])
-            is None
+            or re.fullmatch(r"[0-9a-f]{64}", structured["responseSha256"]) is None
         ):
             continue
         return True
@@ -1432,15 +1413,10 @@ def _check_bounded_announcement_fetch(
     draft_events: tuple[dict[str, Any], ...],
     final_events: tuple[dict[str, Any], ...],
 ) -> None:
-    if (
-        run.target.get("resolutionDateBasis", "release-calendar")
-        != "resolve-by-bound"
-    ):
+    if run.target.get("resolutionDateBasis", "release-calendar") != "resolve-by-bound":
         return
     binding = run.target.get("sourceBinding")
-    announcement_url = (
-        binding.get("sourceUrl") if isinstance(binding, dict) else None
-    )
+    announcement_url = binding.get("sourceUrl") if isinstance(binding, dict) else None
     if not isinstance(announcement_url, str) or not announcement_url:
         raise _fail(
             "derivation replay",
@@ -1471,6 +1447,9 @@ def _check_replay(
     prompt_evidence: dict[int, PromptEvidence],
 ) -> None:
     policy = state.ticket["policy"]
+    trusted_checkout = state.path
+    for _part in state.relative.parts:
+        trusted_checkout = trusted_checkout.parent
     replayed_validations: list[dict[str, Any]] = []
     for run in runs:
         evidence = prompt_evidence[run.index]
@@ -1595,6 +1574,11 @@ def _check_replay(
             run.target,
             policy["promptMode"],
             generation_ticket=state.manifest_binding,
+            agent_version=evidence.runtime_meta.get("agentVersion"),
+            checkout_sha=run.manifest.get("checkoutSha"),
+            series=run.manifest.get("series"),
+            target_period=run.manifest.get("period"),
+            history_registry_root=trusted_checkout,
         )
         recorded_validation = _json_artifact(
             bundle_repo,
@@ -1609,9 +1593,7 @@ def _check_replay(
                 f"run {run.index} validation.json differs from replayed "
                 "validation report",
             )
-        if not canonical_equal(
-            run.manifest.get("validation"), replayed_validation
-        ):
+        if not canonical_equal(run.manifest.get("validation"), replayed_validation):
             raise _fail(
                 "derivation replay",
                 f"run {run.index} manifest validation differs from replayed "
@@ -1625,13 +1607,9 @@ def _check_replay(
                 "validation report",
             )
         replayed_errors = [
-            error
-            for cell in replayed_validation["cells"]
-            for error in cell["errors"]
+            error for cell in replayed_validation["cells"] for error in cell["errors"]
         ]
-        if not canonical_equal(
-            run.result.get("validationErrors"), replayed_errors
-        ):
+        if not canonical_equal(run.result.get("validationErrors"), replayed_errors):
             raise _fail(
                 "derivation replay",
                 f"run {run.index} batch result validationErrors differs from "
@@ -1674,9 +1652,7 @@ def _check_replay(
             ),
             normalized_cells=replayed_normalized,
         )
-        if not canonical_equal(
-            run.manifest.get("preSubmitReview"), review_metadata
-        ):
+        if not canonical_equal(run.manifest.get("preSubmitReview"), review_metadata):
             raise _fail(
                 "derivation replay",
                 f"run {run.index} preSubmitReview metadata differs from replay",
@@ -1690,8 +1666,7 @@ def _check_replay(
         activity_refs = [
             artifact
             for artifact in artifacts
-            if artifact.get("artifactType")
-            not in {"cells_with_activity", "manifest"}
+            if artifact.get("artifactType") not in {"cells_with_activity", "manifest"}
         ]
         expected_cells = attach_activity_log(
             replayed_normalized,
@@ -1760,9 +1735,7 @@ def verify_attested_bundle(
 
     with _phase_guard("bundle"):
         bundle = pathlib.Path(bundle_dir).resolve()
-        batch_relative, preliminary_batch = _load_declared_batch(
-            bundle, state.ticket
-        )
+        batch_relative, preliminary_batch = _load_declared_batch(bundle, state.ticket)
         with tempfile.TemporaryDirectory(prefix="thesis-attested-targets-") as temp:
             trusted_targets = pathlib.Path(temp) / "trusted-targets.json"
             trusted_targets.write_text(
@@ -1783,12 +1756,8 @@ def verify_attested_bundle(
             )
         except PublicationError as exc:
             raise _fail("bundle", str(exc)) from exc
-        if not isinstance(batch, dict) or not canonical_equal(
-            batch, preliminary_batch
-        ):
-            raise _fail(
-                "bundle", "batch manifest changed while the bundle was loaded"
-            )
+        if not isinstance(batch, dict) or not canonical_equal(batch, preliminary_batch):
+            raise _fail("bundle", "batch manifest changed while the bundle was loaded")
         runs = _load_runs(bundle_repo, batch, state.ticket)
     print(f"passed bundle check: {batch_relative}")
 

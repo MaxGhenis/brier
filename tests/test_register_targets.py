@@ -17,6 +17,7 @@ import generate_ledger_targets  # noqa: E402
 import generation_tickets  # noqa: E402
 import register_targets  # noqa: E402
 import register_wave  # noqa: E402
+import run_thesis_analyst as analyst_runner  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 
 
@@ -852,8 +853,15 @@ def provenance_replay_cell() -> dict:
         "resolutionRule": "Use the first published synthetic agency value.",
         "dataPointId": "agency.synthetic.rate.2030_01.first_print",
         "historicalContext": [
-            {"label": "2029-11", "value": 0.9},
-            {"label": "2029-12", "value": 1.1},
+            {
+                "period": {"type": "month", "value": f"2029-{month:02d}"},
+                "label": f"2029-{month:02d}",
+                "value": value,
+            }
+            for month, value in enumerate(
+                [0.8, 1.0, 0.9, 1.0, 0.9, 1.1],
+                start=7,
+            )
         ],
         "drivers": ["recent level", "release volatility"],
         "sourceContext": [
@@ -898,8 +906,91 @@ def convert_provenance_replay_candidate(
     candidate_name: str,
     provenance: str | None,
 ) -> pathlib.Path:
-    cells_path = tmp_path / "cells.json"
-    cells_path.write_text(json.dumps([provenance_replay_cell()]) + "\n")
+    # Reuse one deterministic run path so replayed activity paths remain
+    # byte-identical while the fixture satisfies the current custody contract.
+    run_dir = tmp_path / "run-provenance-replay"
+    run_dir.mkdir(exist_ok=True)
+    cell = provenance_replay_cell()
+    created_at = cell["runAt"]
+    raw_cells = json.dumps([cell], indent=2) + "\n"
+    refs = [
+        analyst_runner.write_artifact(
+            run_dir, "prompt", "prompt.md", "forecast prompt\n", created_at
+        ),
+        analyst_runner.write_artifact(
+            run_dir,
+            "command",
+            "command.json",
+            json.dumps({"backend": "external_command", "argv": ["agent"]}),
+            created_at,
+        ),
+        analyst_runner.write_artifact(
+            run_dir, "stdout", "stdout.txt", "model output\n", created_at
+        ),
+        analyst_runner.write_artifact(run_dir, "stderr", "stderr.txt", "", created_at),
+        analyst_runner.write_artifact(
+            run_dir,
+            "raw_response",
+            "raw_response.txt",
+            raw_cells,
+            created_at,
+        ),
+        analyst_runner.write_artifact(
+            run_dir,
+            "parsed_cell",
+            "parsed_cells.json",
+            raw_cells,
+            created_at,
+        ),
+        analyst_runner.write_artifact(
+            run_dir,
+            "normalized_cell",
+            "normalized_cells.json",
+            raw_cells,
+            created_at,
+        ),
+        analyst_runner.write_artifact(
+            run_dir,
+            "run_distribution",
+            "distribution.json",
+            json.dumps(analyst_runner.interval_distribution(cell), indent=2) + "\n",
+            created_at,
+        ),
+        analyst_runner.write_artifact(
+            run_dir,
+            "validation_report",
+            "validation.json",
+            json.dumps({"ok": True, "cells": [{"ok": True, "errors": []}]}),
+            created_at,
+        ),
+    ]
+    cell["activityLog"] = list(refs)
+    cells_path = run_dir / "cells.with_activity.json"
+    refs.append(
+        analyst_runner.write_artifact(
+            run_dir,
+            "cells_with_activity",
+            cells_path.name,
+            json.dumps([cell], indent=2) + "\n",
+            created_at,
+        )
+    )
+    manifest = {
+        "schemaVersion": "thesis_analyst_run_manifest_v1",
+        "createdAt": created_at,
+        "ok": True,
+        "agent": {
+            "agent": "thesis.analyst",
+            "agentVersion": "2.5.10",
+            "promptHash": "a" * 64,
+            "toolPolicyHash": "b" * 64,
+        },
+        "preSubmitReview": None,
+        "cellsPath": str(cells_path),
+        "artifacts": refs,
+        "validation": {"ok": True, "cells": [{"ok": True, "errors": []}]},
+    }
+    analyst_runner.finalize_manifest(run_dir, created_at, manifest, refs)
     batch_path = tmp_path / "batch.json"
     batch_path.write_text("{}\n")
     candidate = tmp_path / candidate_name

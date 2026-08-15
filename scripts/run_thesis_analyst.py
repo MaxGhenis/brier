@@ -53,6 +53,13 @@ from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
 from generation_tickets import TicketError, ticket_manifest_binding
+from history_floor import (
+    HISTORY_AVAILABILITY_STATUS,
+    HISTORY_FLOOR_AGENT_VERSION,
+    canonical_period_identity,
+    history_floor_requires_authorization,
+    reviewed_history_floor_authorization,
+)
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENT_ROOT = ROOT / "agents" / "thesis-analyst"
@@ -61,6 +68,15 @@ DEFAULT_RECORD_ROOT = ROOT / "records" / "thesis-analyst"
 CDF_POINT_COUNT = 201
 INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1"
 AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1"
+HISTORY_AVAILABILITY_PROMPT_EXAMPLE = {
+    "historyAvailability": {
+        "status": HISTORY_AVAILABILITY_STATUS,
+        "availablePrintCount": 5,
+        "detail": (
+            "Series began recently; the official source exposes only these five prints."
+        ),
+    }
+}
 ANNOUNCEMENT_MCP_SERVER = "thesis_announcement_fetch"
 ANNOUNCEMENT_MCP_TOOL = "fetch_official_announcement"
 ANNOUNCEMENT_MCP_SCRIPT = SCRIPTS / "announcement_fetch_mcp.py"
@@ -544,9 +560,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             lines.append(f"- {key}: {json.dumps(value, sort_keys=True)}")
     if target_context.get("resolutionDateBasis") == "resolve-by-bound":
         bound = target_context.get("resolutionDate")
-        announcement_url = (target_context.get("sourceBinding") or {}).get(
-            "sourceUrl"
-        )
+        announcement_url = (target_context.get("sourceBinding") or {}).get("sourceUrl")
         lines += [
             "",
             "# Resolve-by-bound target contract (machine checked)",
@@ -624,7 +638,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
             "line-item estimates, adjacent products) fails anchored "
             "validation even when it is a real official series. For each of "
             "the most recent published periods (fetch at least the latest "
-            "four), run:",
+            "six), run:",
             fetch_command.format(series=series),
         ]
     return "\n".join(lines)
@@ -756,7 +770,13 @@ def build_fast_prompt(
         "resolutionSourceUrl": "https://official-source.example",
         "resolutionRule": "First-print rule with rounding and revision policy",
         "dataPointId": "agency.dataset.concept.period.first_print",
-        "historicalContext": [{"label": "latest", "value": 0}],
+        "historicalContext": [
+            {
+                "period": {"type": "month", "value": "2026-04"},
+                "label": "Human-readable period label",
+                "value": 0,
+            }
+        ],
         "drivers": ["short driver phrases"],
         "sourceContext": ["https://urls-actually-used"],
         "runAt": "date -u +%Y-%m-%dT%H:%M:%SZ",
@@ -790,9 +810,9 @@ def build_fast_prompt(
     target_context_text = f"{target_context_block}\n\n" if target_context_block else ""
     ticket_block = format_generation_ticket(ticket)
     ticket_text = f"{ticket_block}\n" if ticket_block else ""
-    bounded_target = (
-        (target_context or {}).get("resolutionDateBasis") == "resolve-by-bound"
-    )
+    bounded_target = (target_context or {}).get(
+        "resolutionDateBasis"
+    ) == "resolve-by-bound"
     if bounded_target:
         resolution_source_rule = (
             "- resolutionSourceUrl must byte-echo the registered official "
@@ -865,7 +885,9 @@ def build_fast_prompt(
         f"{domain_notes}\n\n"
         "# Default promoted forecasting practices\n"
         "- Resolve the exact first-print target before inside-view evidence.\n"
-        "- Fetch and state the recent official-source reference class.\n"
+        "- Fetch and state the recent official-source reference class: at "
+        "least 6 distinct prints are MANDATORY whenever the official source "
+        "exposes them.\n"
         "- Anchor on the outside-view base rate before current-release "
         "adjustments.\n"
         "- Separate level, momentum, one-off, and policy-mechanism effects "
@@ -911,7 +933,26 @@ def build_fast_prompt(
         "- Use confidence 0.8 exactly.\n"
         "- ciLow < pointEstimate < ciHigh, except discrete policy-rate "
         "targets may put the modal point at an interval edge if needed.\n"
-        "- historicalContext must contain at least 3 numeric fetched points.\n"
+        "- historicalContext must contain at least 6 distinct numeric fetched "
+        "prints. Every entry needs a canonical period object: type month with "
+        "YYYY-MM, quarter with YYYY-Q1..Q4, year/fiscal_year with YYYY, or "
+        "week_ending with YYYY-MM-DD. Its label must unambiguously name that "
+        "same period. The whole trimmed label must be one closed printable-ASCII "
+        "form: YYYY-MM, Month YYYY, YYYY Month, YYYY-QN, YYYY QN, QN YYYY, "
+        "YYYY, calendar year YYYY, FY2026, fiscal year YYYY, YYYY-MM-DD, or "
+        "week ending YYYY-MM-DD. Never add source names, first-print or revision "
+        "prose, ranges, or a second period cue to the label. Relative, "
+        "contradictory, non-ASCII, and multi-period labels refuse. Alternate "
+        "labels do not make duplicate canonical periods distinct. "
+        "Validation refuses fewer unless the sealed checkout carries the "
+        "reviewed authorization below.\n"
+        "- Only when the official source exposes fewer than 6 prints, fetch "
+        "all available prints and add this top-level audit commentary (replace "
+        "5 with the actual count and give a nonempty detail): "
+        f"{json.dumps(HISTORY_AVAILABILITY_PROMPT_EXAMPLE)}\n"
+        "  This model-authored commentary never authorizes an exception: a "
+        "reviewed docket entry in the sealed checkout must independently list "
+        "the exact target period, available count, and canonical periods.\n"
         "- sourceContext must contain at least 2 source URLs actually used.\n"
         "- sourceContext, reasoning, drivers, and tool calls must not cite or "
         "use private meeting notes, call transcripts, email/chat content, "
@@ -1673,10 +1714,9 @@ def announcement_mcp_config(
         f"{server}.cwd=" + json.dumps(str(checkout_root)),
         f"{server}.required=true",
         f'{server}.enabled_tools=["{ANNOUNCEMENT_MCP_TOOL}"]',
-        f"{server}.startup_timeout_sec="
-        f"{ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS}",
+        f"{server}.startup_timeout_sec={ANNOUNCEMENT_MCP_STARTUP_TIMEOUT_SECONDS}",
         f"{server}.tool_timeout_sec={ANNOUNCEMENT_MCP_TOOL_TIMEOUT_SECONDS}",
-        f"{server}.tools.{ANNOUNCEMENT_MCP_TOOL}.approval_mode=\"approve\"",
+        f'{server}.tools.{ANNOUNCEMENT_MCP_TOOL}.approval_mode="approve"',
     ]
 
 
@@ -1698,9 +1738,10 @@ def enforce_ticket_codex_stream_binding(
 ) -> dict[str, Any]:
     """Fail a ticket stage when raw JSONL and the Codex -o file disagree."""
 
-    if command_result.get("backend") != "codex" or command_result.get(
-        "returnCode"
-    ) != 0:
+    if (
+        command_result.get("backend") != "codex"
+        or command_result.get("returnCode") != 0
+    ):
         return command_result
     raw_stdout = command_result.get("codexStdoutRaw")
     raw_stderr = command_result.get("codexStderrRaw")
@@ -1806,8 +1847,7 @@ def workspace_guard_violations(
             )
         for line in sorted(set(pre_git) - set(post_git)):
             violations.append(
-                "workspace tree entry cleared during agent stage: "
-                f"{line.strip()}"
+                f"workspace tree entry cleared during agent stage: {line.strip()}"
             )
     return violations
 
@@ -1855,9 +1895,7 @@ def run_codex_agent_command(
     cmd.extend(["-C", str(ROOT), "-s", sandbox, prompt])
     logged_cmd = [*cmd[:-1], "<prompt>"]
 
-    guard_pre = (
-        workspace_guard_snapshot(out_dir) if sandbox != "read-only" else None
-    )
+    guard_pre = workspace_guard_snapshot(out_dir) if sandbox != "read-only" else None
 
     started_at = utc_now()
     terminated_after_output = False
@@ -2579,16 +2617,13 @@ def _reject_unencodable_numbers(value: Any, path: str = "cell") -> None:
     if isinstance(value, int):
         if abs(value) > 2**53:
             raise RuntimeError(
-                f"{path} carries an integer outside the exactly "
-                "representable range"
+                f"{path} carries an integer outside the exactly representable range"
             )
     elif isinstance(value, float):
         if value != value or value in (float("inf"), float("-inf")):
             raise RuntimeError(f"{path} carries a non-finite number")
         if abs(value) > 1e300:
-            raise RuntimeError(
-                f"{path} carries a float too large to canonicalize"
-            )
+            raise RuntimeError(f"{path} carries a float too large to canonicalize")
     elif isinstance(value, dict):
         for key, item in value.items():
             _reject_unencodable_numbers(item, f"{path}.{key}")
@@ -2650,6 +2685,11 @@ def validate_cells(
     prompt_mode: str = "full",
     collision_exclusion: pathlib.Path | None = None,
     generation_ticket: dict[str, Any] | None = None,
+    agent_version: Any = HISTORY_FLOOR_AGENT_VERSION,
+    checkout_sha: Any = None,
+    series: Any = None,
+    target_period: Any = None,
+    history_registry_root: pathlib.Path | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -2665,15 +2705,34 @@ def validate_cells(
     seen: set[str] = set()
     rows = []
     ok = True
+    trusted_history_authorization = None
+    authorization_error = None
+    if any(history_floor_requires_authorization(cell, agent_version) for cell in cells):
+        try:
+            trusted_history_authorization = reviewed_history_floor_authorization(
+                history_registry_root or ROOT,
+                checkout_sha=checkout_sha,
+                series=series,
+                target_period=target_period,
+            )
+        except ValueError as exc:
+            authorization_error = str(exc)
     for cell in cells:
         errors = validate(
             cell,
             taken | seen,
             target_context=target_context,
             generation_ticket=generation_ticket,
+            agent_version=agent_version,
+            trusted_history_authorization=trusted_history_authorization,
         )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
+        if authorization_error:
+            errors.append(
+                "cannot authenticate reviewed history-floor authorization: "
+                + authorization_error
+            )
         errors.extend(target_context_validation_errors(cell, target_context))
         if prompt_mode in {"ladder", "ladder_v2"}:
             errors.extend(ladder_validation_errors(cell))
@@ -2775,17 +2834,14 @@ def bounded_announcement_errors(
     ):
         try:
             canonical_bound = (
-                datetime.strptime(registered_bound, "%Y-%m-%d")
-                .date()
-                .isoformat()
+                datetime.strptime(registered_bound, "%Y-%m-%d").date().isoformat()
                 == registered_bound
             )
         except ValueError:
             canonical_bound = False
     if not canonical_bound:
         errors.append(
-            "resolve-by-bound target has no canonical registered "
-            "resolutionDate bound"
+            "resolve-by-bound target has no canonical registered resolutionDate bound"
         )
     elif cell.get("resolutionDate") != registered_bound:
         errors.append(
@@ -2793,9 +2849,7 @@ def bounded_announcement_errors(
             f"{registered_bound!r}"
         )
     binding = target_context.get("sourceBinding")
-    announcement_url = (
-        binding.get("sourceUrl") if isinstance(binding, dict) else None
-    )
+    announcement_url = binding.get("sourceUrl") if isinstance(binding, dict) else None
     if not isinstance(announcement_url, str) or not announcement_url:
         errors.append(
             "resolve-by-bound target has no registered official announcement "
@@ -2817,9 +2871,10 @@ def history_anchor_errors(
 ) -> list[str]:
     """Fail closed when fetched history contradicts operator-verified anchors.
 
-    `anchors` in the target context maps a period token (a substring the
-    matching historicalContext label must contain, e.g. "2024") to the
-    official value verified out-of-band from the resolver's own source.
+    `anchors` in the target context maps a period token to the official value
+    verified out-of-band from the resolver's own source. Current cells match
+    that token through their canonical period object. Pre-2.5.10 cells retain
+    the hardened label parser below for replay compatibility.
     Anchors are deliberately NOT injected into the prompt
     (format_target_context omits the key): the agent must fetch its base
     rate independently, and this gate refuses runs whose fetched values
@@ -2972,10 +3027,7 @@ def history_anchor_errors(
             # semicolons) separates like a sentence does.
             if poison_mark in gap:
                 return "poison"
-            if any(
-                c.isalpha() or (c.isascii() and c not in cluster_seps)
-                for c in gap
-            ):
+            if any(c.isalpha() or (c.isascii() and c not in cluster_seps) for c in gap):
                 return "break"
             return "poison"
 
@@ -3066,6 +3118,23 @@ def history_anchor_errors(
             return False
         return tokens == canonical_quarters([key_match])
 
+    def canonical_period_mentions(key: str, period: Any) -> bool:
+        identity = canonical_period_identity(period)
+        if identity is None:
+            return False
+        period_type, period_value = identity
+        stripped = key.strip()
+        if period_type == "quarter":
+            key_match = quarter_key.fullmatch(stripped)
+            if key_match is None:
+                return False
+            year = key_match.group(1) or key_match.group(4)
+            quarter = key_match.group(2) or key_match.group(3)
+            return period_value == f"{year}-Q{quarter}"
+        if period_type in {"month", "year", "fiscal_year", "week_ending"}:
+            return period_value == stripped
+        return False
+
     for key, expected_raw in anchors.items():
         try:
             expected = float(expected_raw)
@@ -3077,7 +3146,11 @@ def history_anchor_errors(
             entry
             for entry in history
             if isinstance(entry, dict)
-            and mentions(str(key), str(entry.get("label", "")))
+            and (
+                canonical_period_mentions(str(key), entry.get("period"))
+                if "period" in entry
+                else mentions(str(key), str(entry.get("label", "")))
+            )
         ]
         if not mentioned:
             errors.append(
@@ -3224,9 +3297,36 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
         ),
         "dataPointId": f"{series}.{slugify(period)}.first_print",
         "historicalContext": [
-            {"label": "t-3", "value": 5.0},
-            {"label": "t-2", "value": 5.1},
-            {"label": "t-1", "value": 5.2},
+            {
+                "period": {"type": "month", "value": "2025-01"},
+                "label": "2025-01",
+                "value": 4.9,
+            },
+            {
+                "period": {"type": "month", "value": "2025-02"},
+                "label": "2025-02",
+                "value": 5.0,
+            },
+            {
+                "period": {"type": "month", "value": "2025-03"},
+                "label": "2025-03",
+                "value": 5.1,
+            },
+            {
+                "period": {"type": "month", "value": "2025-04"},
+                "label": "2025-04",
+                "value": 5.0,
+            },
+            {
+                "period": {"type": "month", "value": "2025-05"},
+                "label": "2025-05",
+                "value": 5.1,
+            },
+            {
+                "period": {"type": "month", "value": "2025-06"},
+                "label": "2025-06",
+                "value": 5.2,
+            },
         ],
         "drivers": ["recent momentum", "release volatility", "labour-market slack"],
         "sourceContext": [
@@ -3239,15 +3339,18 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
             {
                 "kind": "text",
                 "text": (
-                    "Reference class base rate from the last 3 prints is 5.1, "
-                    "with recent values clustered between 5.0 and 5.2."
+                    "Reference class base rate from the last 6 prints is 5.1, "
+                    "with recent values clustered between 4.9 and 5.2."
                 ),
             },
             {
                 "kind": "tool",
                 "tool": "official.lookup",
                 "call": f"official.lookup(series='{series}', period='{period}')",
-                "result": "{t_minus_3: 5.0, t_minus_2: 5.1, t_minus_1: 5.2}",
+                "result": (
+                    "{t_minus_6: 4.9, t_minus_5: 5.0, t_minus_4: 5.1, "
+                    "t_minus_3: 5.0, t_minus_2: 5.1, t_minus_1: 5.2}"
+                ),
             },
             {
                 "kind": "tool",
@@ -3931,6 +4034,10 @@ def main() -> int:
             target_context,
             args.prompt_mode,
             generation_ticket=generation_ticket,
+            agent_version=runtime_meta.get("agentVersion"),
+            checkout_sha=checkout_sha,
+            series=args.series,
+            target_period=args.period,
         )
     except (
         ValueError,
@@ -4044,7 +4151,7 @@ def main() -> int:
         generation_ticket=generation_ticket,
     )
 
-    if args.write_ts:
+    if args.write_ts and manifest["ok"]:
         write_ts_module(cells_path, pathlib.Path(args.write_ts), args.const_name)
 
     print(json.dumps(manifest, indent=2))

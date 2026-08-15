@@ -15,6 +15,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import docket_publication  # noqa: E402
+import run_thesis_analyst  # noqa: E402
+import verify_custody  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from docket_publication import PublicationError  # noqa: E402
 from register_targets import (  # noqa: E402
@@ -35,7 +37,6 @@ TEST_LEDGER_PIN = {
     "jsonlSha256": "0" * 64,
     "lineCount": 128,
 }
-
 
 
 def git(repo: pathlib.Path, *args: str) -> None:
@@ -437,9 +438,7 @@ def test_validate_target_registration_rejects_snapshot_tampering(
         "valueScale": contract["valueScale"],
         "resolutionDateBasis": contract["resolutionDateBasis"],
         "resolutionDate": contract["resolutionDate"],
-        "expectedReleaseWindow": contract["sourceBinding"][
-            "expectedReleaseWindow"
-        ],
+        "expectedReleaseWindow": contract["sourceBinding"]["expectedReleaseWindow"],
         "sourceBinding": contract["sourceBinding"],
         "targetRegistrationPath": relative.as_posix(),
         "targetContentHash": content_hash,
@@ -763,6 +762,127 @@ def test_privileged_publication_requires_and_enforces_upper_bound(
         )
 
 
+def test_publication_reads_short_history_authorization_from_trusted_checkout(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    trusted = tmp_path / "trusted-checkout"
+    (trusted / "scripts").mkdir(parents=True)
+    authorization = {
+        "targetPeriod": "2030-01",
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 3,
+        "availablePeriods": [
+            {"type": "month", "value": f"2029-{month:02d}"} for month in range(10, 13)
+        ],
+    }
+    (trusted / "scripts" / "docket_series.json").write_text(
+        json.dumps(
+            {
+                "series": [
+                    {
+                        "series": "agency.test.rate",
+                        "period": "2030-01",
+                        "extras": {
+                            "historyFloorAuthorization": authorization,
+                        },
+                    }
+                ]
+            }
+        )
+        + "\n"
+    )
+    git(trusted, "init", "-q")
+    git(trusted, "add", "scripts/docket_series.json")
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-qm",
+            "Review young-series authorization",
+        ],
+        cwd=trusted,
+        check=True,
+    )
+    checkout_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=trusted, text=True
+    ).strip()
+
+    staged = tmp_path / "staged-data"
+    cells_relative = RUN_PREFIX / "cells.with_activity.json"
+    manifest_relative = RUN_PREFIX / "manifest.json"
+    cells = [
+        {
+            "historicalContext": [
+                {
+                    "period": {"type": "month", "value": f"2029-{month:02d}"},
+                    "label": f"2029-{month:02d}",
+                    "value": float(month),
+                }
+                for month in range(10, 13)
+            ]
+        }
+    ]
+    manifest = {
+        "ok": True,
+        "cellsPath": cells_relative.as_posix(),
+        "agent": {"agentVersion": "2.5.10"},
+        "checkoutSha": checkout_sha,
+        "series": "agency.test.rate",
+        "period": "2030-01",
+    }
+    batch = {
+        "schemaVersion": "thesis_batch_manifest_v1",
+        "promptMode": "fast",
+        "startedAt": "2030-01-10T12:00:00Z",
+        "finishedAt": "2030-01-10T12:02:00Z",
+        "results": [
+            {
+                "ok": True,
+                "cellsPath": cells_relative.as_posix(),
+                "manifestPath": manifest_relative.as_posix(),
+                "target": {},
+                "startedAt": "2030-01-10T12:00:00Z",
+                "finishedAt": "2030-01-10T12:01:00Z",
+            }
+        ],
+    }
+    for relative, payload in (
+        (BATCH, batch),
+        (cells_relative, cells),
+        (manifest_relative, manifest),
+    ):
+        path = staged.joinpath(*relative.parts)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload) + "\n")
+
+    monkeypatch.setattr(docket_publication, "ROOT", trusted)
+    monkeypatch.setattr(
+        docket_publication, "validate_run_file_inventory", lambda *_args: None
+    )
+    monkeypatch.setattr(
+        docket_publication, "validate_run_binding", lambda *_args, **_kwargs: None
+    )
+    monkeypatch.setattr(verify_custody, "verify_run", lambda *_args: None)
+
+    def replay_validator(_cells: list[dict], **kwargs: object) -> dict[str, bool]:
+        resolved = run_thesis_analyst.reviewed_history_floor_authorization(
+            kwargs["history_registry_root"],
+            checkout_sha=kwargs["checkout_sha"],
+            series=kwargs["series"],
+            target_period=kwargs["target_period"],
+        )
+        return {"ok": resolved == authorization}
+
+    monkeypatch.setattr(run_thesis_analyst, "validate_cells", replay_validator)
+
+    docket_publication.validate_cells(staged, BATCH.as_posix())
+    assert not (staged / ".git").exists()
+
+
 def _real_pre_cutover_v2_target() -> dict:
     """Project a real committed pre-cutover v2 snapshot into a batch target."""
 
@@ -790,9 +910,7 @@ def _real_pre_cutover_v2_target() -> dict:
             "country": contract["country"],
             "targetUnit": contract["unit"],
             "valueScale": contract["valueScale"],
-            "expectedReleaseWindow": contract["sourceBinding"][
-                "expectedReleaseWindow"
-            ],
+            "expectedReleaseWindow": contract["sourceBinding"]["expectedReleaseWindow"],
             "sourceBinding": contract["sourceBinding"],
             "registeredAtUtc": snapshot["registeredAtUtc"],
             "targetContentHash": registration_content_hash(snapshot),

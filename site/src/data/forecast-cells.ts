@@ -105,6 +105,12 @@ export type Unit =
   | "index_points";
 
 export interface HistoricalPoint {
+  // Optional only for already-published pre-2.5.10 cells. Current generated
+  // cells must carry this presentation-independent identity.
+  period?: {
+    type: "month" | "quarter" | "year" | "fiscal_year" | "week_ending";
+    value: string;
+  };
   label: string;
   value: number;
 }

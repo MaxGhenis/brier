@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import subprocess
 import sys
 
 import pytest
@@ -21,6 +22,21 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import replace_cells_in_place  # noqa: E402
 import spawned_cells_to_ts  # noqa: E402
 import verify_wave_reproducibility  # noqa: E402
+
+
+def sealed_agent(version: str = "2.5.10") -> dict[str, str]:
+    return {
+        "agent": "thesis.analyst",
+        "agentVersion": version,
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+    }
+
+
+def successful_manifest(**overrides: object) -> dict:
+    manifest: dict = {"ok": True, "agent": sealed_agent()}
+    manifest.update(overrides)
+    return manifest
 
 
 def probe_cell(resolution_date: str) -> dict:
@@ -43,8 +59,12 @@ def probe_cell(resolution_date: str) -> dict:
             "resolutionSourceUrl": "https://example.gov/data",
             "runAt": "2026-07-10T04:05:26Z",
             "historicalContext": [
-                {"label": "t-2", "value": 18},
-                {"label": "t-1", "value": 19},
+                {
+                    "period": {"type": "month", "value": f"2026-{index:02d}"},
+                    "label": f"2026-{index:02d}",
+                    "value": 17 + index,
+                }
+                for index in range(1, 7)
             ],
             "sourceContext": [
                 "https://example.gov/a",
@@ -80,9 +100,7 @@ DOD_REGISTRATION_PATH = (
     "records/targets/"
     "2026-08-07-59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907.json"
 )
-DOD_CONTENT_HASH = (
-    "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907"
-)
+DOD_CONTENT_HASH = "59b334c6612eaf1c20be70ad587590901539f4fc2a11749e9f6a8f1ef2927907"
 
 
 def registered_dod_context() -> dict:
@@ -137,16 +155,12 @@ def test_forged_contexts_cannot_buy_the_unit_exemption() -> None:
 
     tampered = registered_dod_context()
     tampered["targetContentHash"] = "0" * 64
-    wrong_hash = spawned_cells_to_ts.validate(
-        cell, set(), target_context=tampered
-    )
+    wrong_hash = spawned_cells_to_ts.validate(cell, set(), target_context=tampered)
     assert any("not allowed" in error for error in wrong_hash), wrong_hash
 
     foreign = registered_dod_context()
     foreign["catalogSlug"] = "some-other-slug"
-    wrong_slug = spawned_cells_to_ts.validate(
-        cell, set(), target_context=foreign
-    )
+    wrong_slug = spawned_cells_to_ts.validate(cell, set(), target_context=foreign)
     assert any("not allowed" in error for error in wrong_slug), wrong_slug
 
 
@@ -162,9 +176,7 @@ def bounded_context(start: str = "2026-07-11") -> dict:
 def ticket_context() -> dict:
     return {
         "ticketId": "2026-07-10-deadbeef",
-        "ticketPath": (
-            "records/tickets/2026-07-10/2026-07-10-deadbeef.json"
-        ),
+        "ticketPath": ("records/tickets/2026-07-10/2026-07-10-deadbeef.json"),
         "nonceSha256": "a" * 64,
     }
 
@@ -173,9 +185,7 @@ def test_bounded_cell_requires_ticket_context_literally() -> None:
     cell = probe_cell("2026-07-17")
     cell["runStartedAt"] = "2026-07-10T04:00:00Z"
 
-    errors = spawned_cells_to_ts.validate(
-        cell, set(), target_context=bounded_context()
-    )
+    errors = spawned_cells_to_ts.validate(cell, set(), target_context=bounded_context())
 
     assert "resolve-by-bound target requires generation ticket context" in errors
     ticketed = spawned_cells_to_ts.validate(
@@ -342,9 +352,7 @@ def test_sigma_gate_still_binds_every_other_prompt_mode() -> None:
             }
         ]
         errors = spawned_cells_to_ts.validate(cell, set())
-        assert any(
-            "interval derivation" in error for error in errors
-        ), (mode, errors)
+        assert any("interval derivation" in error for error in errors), (mode, errors)
 
 
 def stampable_cell() -> dict:
@@ -400,19 +408,22 @@ def test_published_stamp_names_the_run_agent_not_the_working_tree() -> None:
     assert spawned_cells_to_ts.SEALED_AGENT_KEY not in run
 
 
-def test_stamp_falls_back_to_live_agent_when_run_sealed_none() -> None:
-    """Pre-manifest inputs keep working: fall back, never crash."""
+def test_stamp_refuses_when_run_sealed_agent_is_absent() -> None:
+    with pytest.raises(ValueError, match="lacks sealed agent metadata"):
+        spawned_cells_to_ts.to_forecast_cell(stampable_cell())
 
-    run = spawned_cells_to_ts.to_forecast_cell(stampable_cell())["predictionRun"]
-    assert run["agentVersion"] == spawned_cells_to_ts.agent_stamp()["agentVersion"]
-    assert "provenance" not in run
-    assert "generationTicket" not in run
+
+def test_metadata_carrier_refuses_when_run_manifest_is_absent(
+    tmp_path: pathlib.Path,
+) -> None:
+    with pytest.raises(ValueError, match="lacks manifest.json"):
+        spawned_cells_to_ts.carry_sealed_run_metadata([stampable_cell()], tmp_path)
 
 
 def test_explicit_ci_stamp_is_not_inferred() -> None:
-    run = spawned_cells_to_ts.to_forecast_cell(
-        stampable_cell(), provenance="ci"
-    )["predictionRun"]
+    cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
+    run = spawned_cells_to_ts.to_forecast_cell(cell, provenance="ci")["predictionRun"]
 
     assert run["provenance"] == "ci"
     assert "generationTicket" not in run
@@ -420,6 +431,7 @@ def test_explicit_ci_stamp_is_not_inferred() -> None:
 
 def test_attested_stamp_carries_public_ticket_identity() -> None:
     cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
     cell[spawned_cells_to_ts.SEALED_GENERATION_TICKET_KEY] = {
         "ticketId": "2030-01-11-deadbeef",
         "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
@@ -438,6 +450,7 @@ def test_attested_stamp_carries_public_ticket_identity() -> None:
 
 def test_unsealed_cell_cannot_self_claim_attested_provenance() -> None:
     cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
     cell["generationTicket"] = {
         "ticketId": "2030-01-11-deadbeef",
         "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
@@ -470,8 +483,11 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     cell[spawned_cells_to_ts.SEALED_VALIDATION_TICKET_KEY] = ticket_context()
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
 
-    loaded = spawned_cells_to_ts.load_cells(cells_path)[0]
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
 
     assert "provenance" not in run
@@ -486,10 +502,12 @@ def test_converter_validation_uses_sealed_bounded_manifest_context(
 ) -> None:
     import json
 
-    manifest = {
-        "targetContext": bounded_context(),
-        "generationTicket": ticket_context(),
-    }
+    manifest = successful_manifest(
+        **{
+            "targetContext": bounded_context(),
+            "generationTicket": ticket_context(),
+        }
+    )
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     cell = probe_cell("2026-07-17")
     cell["runStartedAt"] = "2026-07-01T03:55:00Z"
@@ -497,8 +515,14 @@ def test_converter_validation_uses_sealed_bounded_manifest_context(
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
-    errors = spawned_cells_to_ts.validate(loaded, set())
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
+    errors = spawned_cells_to_ts.validate(
+        loaded,
+        set(),
+        agent_version=loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"],
+    )
 
     assert "resolve-by-bound target requires generation ticket context" not in errors
     assert not any("expectedReleaseWindow.start" in error for error in errors)
@@ -529,35 +553,33 @@ def test_loaded_manifest_ticket_reaches_published_prediction_run(
 ) -> None:
     import json
 
-    manifest = {
-        "agent": {
-            "agent": "thesis.analyst",
-            "agentVersion": "3.0.0",
-            "promptHash": "b" * 64,
-            "toolPolicyHash": "c" * 64,
-        },
-        "generationTicket": {
-            "ticketId": "2030-01-11-deadbeef",
-            "ticketPath": "records/tickets/2030-01-11/2030-01-11-deadbeef.json",
-            "nonceSha256": "a" * 64,
-        },
-    }
+    manifest = successful_manifest(
+        **{
+            "agent": sealed_agent("3.0.0"),
+            "generationTicket": {
+                "ticketId": "2030-01-11-deadbeef",
+                "ticketPath": ("records/tickets/2030-01-11/2030-01-11-deadbeef.json"),
+                "nonceSha256": "a" * 64,
+            },
+        }
+    )
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     cell = stampable_cell()
     cell["runAt"] = "2026-07-01T00:00:00Z"
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    unlabeled = spawned_cells_to_ts.load_cells(cells_path)[0]
-    unlabeled_run = spawned_cells_to_ts.to_forecast_cell(unlabeled)[
-        "predictionRun"
-    ]
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    unlabeled = cells[0]
+    unlabeled_run = spawned_cells_to_ts.to_forecast_cell(unlabeled)["predictionRun"]
     assert "provenance" not in unlabeled_run
     assert "generationTicket" not in unlabeled_run
 
-    loaded = spawned_cells_to_ts.load_cells(
-        cells_path, provenance="local_operator_attested"
-    )[0]
+    spawned_cells_to_ts.carry_sealed_run_metadata(
+        cells, tmp_path, provenance="local_operator_attested"
+    )
+    loaded = cells[0]
     run = spawned_cells_to_ts.to_forecast_cell(
         loaded, provenance="local_operator_attested"
     )["predictionRun"]
@@ -597,7 +619,7 @@ def test_ci_conversion_refuses_ticketed_manifest_literally(
     import json
 
     (tmp_path / "manifest.json").write_text(
-        json.dumps({"generationTicket": {"untrusted": "shape"}})
+        json.dumps(successful_manifest(generationTicket={"untrusted": "shape"}))
     )
     cell = stampable_cell()
     cell["runAt"] = "2026-07-01T00:00:00Z"
@@ -605,15 +627,14 @@ def test_ci_conversion_refuses_ticketed_manifest_literally(
     cells_path.write_text(json.dumps([cell]))
 
     with pytest.raises(ValueError) as error:
-        spawned_cells_to_ts.load_cells(cells_path, provenance="ci")
+        spawned_cells_to_ts.carry_sealed_run_metadata([cell], tmp_path, provenance="ci")
 
     assert str(error.value) == (
-        "ticketed runs must be converted with --provenance "
-        "local_operator_attested"
+        "ticketed runs must be converted with --provenance local_operator_attested"
     )
 
 
-def test_local_attested_conversion_requires_valid_manifest_ticket_literally(
+def test_local_attested_conversion_requires_manifest_literally(
     tmp_path: pathlib.Path,
 ) -> None:
     import json
@@ -629,10 +650,7 @@ def test_local_attested_conversion_requires_valid_manifest_ticket_literally(
             provenance="local_operator_attested",
         )
 
-    assert str(error.value) == (
-        "--provenance local_operator_attested requires a valid "
-        f"generationTicket in {tmp_path / 'manifest.json'}"
-    )
+    assert str(error.value) == (f"cell input lacks manifest.json: {cells_path}")
 
 
 def test_replacement_and_replay_preserve_existing_run_label() -> None:
@@ -648,13 +666,14 @@ def test_replacement_and_replay_preserve_existing_run_label() -> None:
     assert replace_cells_in_place.existing_run_provenance(legacy) is None
     assert verify_wave_reproducibility.committed_run_provenance(labeled) == "ci"
     assert verify_wave_reproducibility.committed_run_provenance(legacy) is None
-    assert verify_wave_reproducibility.trusted_replay_provenance(
-        labeled, [{"results": []}]
-    ) == "ci"
     assert (
         verify_wave_reproducibility.trusted_replay_provenance(
-            legacy, [{"results": []}]
+            labeled, [{"results": []}]
         )
+        == "ci"
+    )
+    assert (
+        verify_wave_reproducibility.trusted_replay_provenance(legacy, [{"results": []}])
         is None
     )
 
@@ -681,15 +700,728 @@ def test_replacement_and_replay_preserve_existing_run_label() -> None:
 def test_sealed_agent_meta_rejects_incomplete_manifest_identity(
     tmp_path: pathlib.Path,
 ) -> None:
-    """A half-filled agent block must fall back, not publish blanks."""
+    """A recorded half-filled agent block must fail, not fall back."""
 
     import json
 
     (tmp_path / "manifest.json").write_text(
-        json.dumps({"agent": {"agent": "thesis.analyst", "agentVersion": ""}})
+        json.dumps(
+            {
+                "ok": True,
+                "agent": {"agent": "thesis.analyst", "agentVersion": ""},
+            }
+        )
     )
-    assert spawned_cells_to_ts.sealed_agent_meta(tmp_path) is None
+    with pytest.raises(ValueError, match="agent metadata is incomplete"):
+        spawned_cells_to_ts.sealed_agent_meta(tmp_path)
     assert spawned_cells_to_ts.sealed_agent_meta(tmp_path / "missing") is None
+
+
+@pytest.mark.parametrize(
+    "agent_version",
+    [
+        "fixture",
+        "2.5",
+        "02.5.9",
+        "2.05.9",
+        "2.5.09",
+        "2.5.9+.",
+        "2.5.9-..",
+        "2.5.9-01",
+        "２.５.９",
+    ],
+)
+def test_promotion_rejects_malformed_sealed_agent_version(
+    tmp_path: pathlib.Path, agent_version: str
+) -> None:
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(agent=sealed_agent(agent_version)))
+    )
+    cells_path = tmp_path / "normalized_cells.json"
+    cell = stampable_cell()
+    cell["runAt"] = "2026-07-01T00:00:00Z"
+    cells_path.write_text(json.dumps([cell]))
+
+    with pytest.raises(ValueError, match="agentVersion is malformed"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+@pytest.mark.parametrize(
+    "agent_version", ["2.5.9-alpha+build", "2.2.0+median3", "0.0.0"]
+)
+def test_sealed_agent_meta_accepts_strict_valid_semver(
+    tmp_path: pathlib.Path, agent_version: str
+) -> None:
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(agent=sealed_agent(agent_version)))
+    )
+
+    meta = spawned_cells_to_ts.sealed_agent_meta(tmp_path)
+
+    assert meta is not None
+    assert meta["agentVersion"] == agent_version
+
+
+def test_promotion_refuses_handmade_pre_floor_manifest(
+    tmp_path: pathlib.Path,
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["runAt"] = "2026-07-01T00:00:00Z"
+    cell["historicalContext"] = cell["historicalContext"][:5]
+    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.9"),
+                cellsPath="records/thesis-analyst/forged/cells.with_activity.json",
+            )
+        )
+    )
+
+    with pytest.raises(ValueError, match="outside the repository records tree"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_promotion_refuses_copied_real_legacy_manifest_with_other_cells(
+    tmp_path: pathlib.Path,
+) -> None:
+    real_manifest = (
+        ROOT
+        / "records/thesis-analyst/2026-06-17"
+        / "2026-06-17t02-04-41z-abs-labour-employment-change-2026-05"
+        / "manifest.json"
+    )
+    (tmp_path / "manifest.json").write_bytes(real_manifest.read_bytes())
+    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="outside the repository records tree"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def committed_legacy_fixture(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    declared_cells_path: str | None = None,
+) -> tuple[pathlib.Path, pathlib.Path]:
+    repo = tmp_path / "repo"
+    run_relative = pathlib.Path(
+        "records/thesis-analyst/2026-07-01/legacy-binding-fixture"
+    )
+    run_dir = repo / run_relative
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+    manifest_path = run_dir / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.0.0"),
+                cellsPath=(
+                    declared_cells_path
+                    or (run_relative / "cells.with_activity.json").as_posix()
+                ),
+            )
+        )
+    )
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "records"], cwd=repo, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=Legacy Fixture",
+            "-c",
+            "user.email=legacy-fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Commit legacy fixture",
+        ],
+        cwd=repo,
+        check=True,
+    )
+    commit = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo, text=True
+    ).strip()
+    monkeypatch.setattr(spawned_cells_to_ts, "ROOT", repo)
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "LEGACY_HISTORY_RECORDS_COMMIT",
+        commit,
+    )
+    return manifest_path, cells_path
+
+
+@pytest.mark.parametrize("changed_artifact", ["manifest", "cells"])
+def test_promotion_refuses_legacy_bytes_changed_after_known_commit(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    changed_artifact: str,
+) -> None:
+    manifest_path, cells_path = committed_legacy_fixture(tmp_path, monkeypatch)
+    if changed_artifact == "manifest":
+        manifest = json.loads(manifest_path.read_text())
+        manifest["agent"]["promptHash"] = "c" * 64
+        manifest_path.write_text(json.dumps(manifest))
+    else:
+        cells_path.write_bytes(cells_path.read_bytes() + b"\n")
+
+    with pytest.raises(ValueError, match="bytes differ from the known committed"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_promotion_refuses_committed_legacy_manifest_bound_to_other_cells(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _manifest_path, cells_path = committed_legacy_fixture(
+        tmp_path,
+        monkeypatch,
+        declared_cells_path=(
+            "records/thesis-analyst/2026-07-01/legacy-binding-fixture/other.json"
+        ),
+    )
+
+    with pytest.raises(ValueError, match="cellsPath does not name converter input"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_later_branch_commit_cannot_expand_known_legacy_records(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _manifest_path, cells_path = committed_legacy_fixture(tmp_path, monkeypatch)
+    cells_path.write_bytes(cells_path.read_bytes() + b"\n")
+    subprocess.run(["git", "add", "records"], cwd=tmp_path / "repo", check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=Legacy Fixture",
+            "-c",
+            "user.email=legacy-fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Change legacy fixture after cutoff",
+        ],
+        cwd=tmp_path / "repo",
+        check=True,
+    )
+
+    with pytest.raises(ValueError, match="bytes differ from the known committed"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def reviewed_history_floor_fixture(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[pathlib.Path, str, dict]:
+    repo = tmp_path / "reviewed-repo"
+    scripts_dir = repo / "scripts"
+    scripts_dir.mkdir(parents=True)
+    authorization = {
+        "targetPeriod": "2030-01",
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "availablePeriods": [
+            {"type": "month", "value": f"2029-{index:02d}"} for index in range(1, 5)
+        ],
+    }
+    registry = {
+        "series": [
+            {
+                "series": "test.reviewed_rate",
+                "period": "2030-01",
+                "extras": {"historyFloorAuthorization": authorization},
+            }
+        ]
+    }
+    (scripts_dir / "docket_series.json").write_text(json.dumps(registry) + "\n")
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "scripts/docket_series.json"], cwd=repo, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=History Floor Fixture",
+            "-c",
+            "user.email=history-floor-fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "Review short-history authorization",
+        ],
+        cwd=repo,
+        check=True,
+    )
+    checkout_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo, text=True
+    ).strip()
+    monkeypatch.setattr(spawned_cells_to_ts, "ROOT", repo)
+    return repo, checkout_sha, authorization
+
+
+def reviewed_four_print_cell() -> dict:
+    cell = probe_cell("2030-01-15")
+    cell.update(
+        {
+            "slug": "borrowed-history-authorization-probe",
+            "dataPointId": "test.borrowed_history_authorization.2030-01",
+            "drivers": ["four-print official history"],
+            "runAt": "2026-07-01T04:00:00Z",
+            "historicalContext": [
+                {
+                    "period": {"type": "month", "value": f"2029-{index:02d}"},
+                    "label": f"2029-{index:02d}",
+                    "value": 16 + index,
+                }
+                for index in range(1, 5)
+            ],
+            "historyAvailability": {
+                "status": "official_source_exposes_fewer_than_six_prints",
+                "availablePrintCount": 4,
+                "detail": "The official source exposes exactly four prints.",
+            },
+            "reasoning": [
+                {"kind": "heading", "text": "Short-history probe"},
+                {
+                    "kind": "text",
+                    "text": "The reference class is the last 4 prints.",
+                },
+                {
+                    "kind": "tool",
+                    "tool": "official.history",
+                    "call": "Fetch the official history",
+                    "result": "Fetched 17, 18, 19, and 20.",
+                },
+                {
+                    "kind": "tool",
+                    "tool": "official.calendar",
+                    "call": "Fetch the official release calendar",
+                    "result": "Release date 2030-01-15.",
+                },
+                {
+                    "kind": "tool",
+                    "tool": "official.metadata",
+                    "call": "Fetch the official series metadata",
+                    "result": "The inventory contains 4 prints.",
+                },
+                {
+                    "kind": "math",
+                    "text": (
+                        "Prior/update/interval: base rate 20; sigma = 7.8125, "
+                        "so 1.28*sigma = 10 and the interval is [10, 30]."
+                    ),
+                },
+                {
+                    "kind": "text",
+                    "text": "Outside the interval if the series breaks regime.",
+                },
+                {"kind": "forecast", "point": 20, "ciLow": 10, "ciHigh": 30},
+            ],
+        }
+    )
+    return cell
+
+
+def test_backdated_current_run_cannot_borrow_reviewed_history_authorization(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo, checkout_sha, authorization = reviewed_history_floor_fixture(
+        tmp_path, monkeypatch
+    )
+    cell = reviewed_four_print_cell()
+    resolved = spawned_cells_to_ts.reviewed_history_floor_authorization(
+        repo,
+        checkout_sha=checkout_sha,
+        series="test.reviewed_rate",
+        target_period="2030-01",
+    )
+    assert resolved == authorization
+    assert (
+        spawned_cells_to_ts.validate(
+            cell,
+            set(),
+            agent_version="2.5.10",
+            trusted_history_authorization=resolved,
+        )
+        == []
+    )
+
+    run_dir = repo / "records/thesis-analyst/2030-01-01/backdated-current-probe"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([cell]))
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                checkoutSha=checkout_sha,
+                series="test.reviewed_rate",
+                period="2030-01",
+                cellsPath=cells_path.relative_to(repo).as_posix(),
+            )
+        )
+    )
+
+    authorization_lookups = []
+
+    def record_authorization_lookup(*args: object, **kwargs: object) -> dict:
+        authorization_lookups.append((args, kwargs))
+        return authorization
+
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "reviewed_history_floor_authorization",
+        record_authorization_lookup,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"agentVersion 2\.5\.10 requires custody_root\.json",
+    ):
+        spawned_cells_to_ts.load_cells(cells_path)
+    assert authorization_lookups == []
+
+
+def test_backdated_current_six_print_run_still_requires_custody(
+    tmp_path: pathlib.Path,
+) -> None:
+    cell = probe_cell("2030-01-15")
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    cells_path = tmp_path / "normalized_cells.json"
+    cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(agent=sealed_agent("2.5.10")))
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"agentVersion 2\.5\.10 requires custody_root\.json",
+    ):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+def test_history_authorization_lookup_follows_current_custody_authentication(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Unit-level call-order coverage: the real verifier is replaced so this
+    # test isolates the exact verify -> sealed-identity lookup sequence. A
+    # separate integration test exercises a genuine runner custody root.
+    repo, checkout_sha, authorization = reviewed_history_floor_fixture(
+        tmp_path, monkeypatch
+    )
+    run_dir = repo / "records/thesis-analyst/2030-01-01/rooted-current-probe"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([reviewed_four_print_cell()]))
+    (run_dir / "custody_root.json").write_text("{}\n")
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                checkoutSha=checkout_sha,
+                series="test.reviewed_rate",
+                period="2030-01",
+                cellsPath=cells_path.relative_to(repo).as_posix(),
+                custodyRootSha256="c" * 64,
+            )
+        )
+    )
+
+    import verify_custody
+
+    events = []
+
+    def verify_first(candidate: pathlib.Path) -> None:
+        events.append(("verify", candidate))
+
+    def authorize_second(
+        repo_root: pathlib.Path,
+        *,
+        checkout_sha: object,
+        series: object,
+        target_period: object,
+    ) -> dict:
+        events.append(
+            (
+                "authorize",
+                repo_root,
+                checkout_sha,
+                series,
+                target_period,
+            )
+        )
+        return authorization
+
+    monkeypatch.setattr(verify_custody, "verify_run", verify_first)
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "reviewed_history_floor_authorization",
+        authorize_second,
+    )
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+
+    assert events == [
+        ("verify", run_dir),
+        (
+            "authorize",
+            repo,
+            checkout_sha,
+            "test.reviewed_rate",
+            "2030-01",
+        ),
+    ]
+    assert loaded[spawned_cells_to_ts.SEALED_HISTORY_AUTHORIZATION_KEY] == authorization
+
+
+def test_invalid_current_custody_refuses_before_history_authorization_lookup(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo, checkout_sha, authorization = reviewed_history_floor_fixture(
+        tmp_path, monkeypatch
+    )
+    run_dir = repo / "records/thesis-analyst/2030-01-01/invalid-current-root"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([reviewed_four_print_cell()]))
+    (run_dir / "custody_root.json").write_text("{}\n")
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                checkoutSha=checkout_sha,
+                series="test.reviewed_rate",
+                period="2030-01",
+                cellsPath=cells_path.relative_to(repo).as_posix(),
+                custodyRootSha256="c" * 64,
+            )
+        )
+    )
+
+    authorization_lookups = []
+
+    def record_authorization_lookup(*args: object, **kwargs: object) -> dict:
+        authorization_lookups.append((args, kwargs))
+        return authorization
+
+    monkeypatch.setattr(
+        spawned_cells_to_ts,
+        "reviewed_history_floor_authorization",
+        record_authorization_lookup,
+    )
+
+    import verify_custody
+
+    with pytest.raises(
+        verify_custody.CustodyError,
+        match="unsupported custody schema",
+    ):
+        spawned_cells_to_ts.load_cells(cells_path)
+    assert authorization_lookups == []
+
+
+def test_in_place_replacement_cannot_bypass_current_custody(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = tmp_path / "target.ts"
+    cell = probe_cell("2030-01-15")
+    cell["runAt"] = "2026-07-01T04:00:00Z"
+    target.write_text(f"export const CELLS = {json.dumps([cell])};\n")
+    original = target.read_text()
+
+    run_dir = tmp_path / "upgrade"
+    run_dir.mkdir()
+    upgrades_path = run_dir / "cells.with_activity.json"
+    upgrades_path.write_text(json.dumps([cell]))
+    (run_dir / "manifest.json").write_text(
+        json.dumps(
+            successful_manifest(
+                agent=sealed_agent("2.5.10"),
+                cellsPath=str(upgrades_path),
+            )
+        )
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["replace_cells_in_place.py", str(target), str(upgrades_path)],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"agentVersion 2\.5\.10 requires custody_root\.json",
+    ):
+        replace_cells_in_place.main()
+    assert target.read_text() == original
+
+
+@pytest.mark.parametrize(
+    "period",
+    [
+        {"type": [], "value": "2026-01"},
+        {"type": {}, "value": "2026-01"},
+        {"type": "month", "value": []},
+    ],
+)
+def test_shared_validation_refuses_unhashable_period_containers(
+    period: dict[str, object],
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["historicalContext"][0]["period"] = period
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.10",
+    )
+
+    assert "historicalContext[0] has no valid canonical period identity" in errors
+
+
+@pytest.mark.parametrize("row", [[], "row", 7, None])
+def test_shared_validation_refuses_non_object_history_rows(
+    row: object,
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["historicalContext"] = [row]
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.10",
+    )
+
+    assert "historicalContext[0] must be an object" in errors
+
+
+@pytest.mark.parametrize("history", [None, "rows", 7, {}])
+def test_shared_validation_refuses_non_list_history(
+    history: object,
+) -> None:
+    cell = probe_cell("2026-07-17")
+    cell["historicalContext"] = history
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.10",
+    )
+
+    assert "historicalContext must be a list" in errors
+
+
+def test_promotion_keeps_valid_pre_floor_record_with_legacy_history() -> None:
+    cells_path = (
+        ROOT
+        / "records/thesis-analyst/2026-08-12"
+        / "2026-08-12t21-21-45z-us-dol-initial-claims-sa-week-2026-08-15"
+        / "cells.with_activity.json"
+    )
+
+    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    assert all("period" not in row for row in loaded["historicalContext"])
+    assert (
+        spawned_cells_to_ts.validate(
+            loaded,
+            set(),
+            agent_version=loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"],
+        )
+        == []
+    )
+    assert (
+        spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]["agentVersion"]
+        == "2.5.9"
+    )
+
+
+def test_all_committed_pre_floor_records_replay_through_promotion() -> None:
+    manifests: list[tuple[pathlib.Path, dict, str]] = []
+    for manifest_path in sorted(
+        (ROOT / "records/thesis-analyst").rglob("manifest.json")
+    ):
+        manifest = json.loads(manifest_path.read_text())
+        agent = manifest.get("agent") if isinstance(manifest, dict) else None
+        version = agent.get("agentVersion") if isinstance(agent, dict) else None
+        if (
+            manifest.get("ok") is True
+            and spawned_cells_to_ts.valid_agent_version(version)
+            and not spawned_cells_to_ts.agent_version_enforces_history_floor(version)
+        ):
+            manifests.append((manifest_path, manifest, version))
+
+    # The pre-floor corpus GROWS until the enforcing version ships:
+    # every roll before this change publishes sub-2.5.10 records, so an
+    # exact pin rots on the merge ref (509 at fix time, 510 one day
+    # later). The floor proves discovery works; the sweep below proves
+    # the universal property that actually matters.
+    assert len(manifests) >= 509
+    cell_count = 0
+    history_row_count = 0
+    rooted_count = 0
+    for manifest_path, manifest, version in manifests:
+        rooted_count += int((manifest_path.parent / "custody_root.json").is_file())
+        cells_path = ROOT / manifest["cellsPath"]
+        loaded = spawned_cells_to_ts.load_cells(cells_path)
+        assert len(loaded) == 1, cells_path
+        for cell in loaded:
+            sealed_version = cell[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"]
+            assert sealed_version == version
+            assert (
+                spawned_cells_to_ts.history_floor_errors(
+                    cell,
+                    agent_version=sealed_version,
+                )
+                == []
+            ), cells_path
+            projected = spawned_cells_to_ts.to_forecast_cell(cell)
+            assert projected["predictionRun"]["agentVersion"] == version
+            cell_count += 1
+            history_row_count += len(cell["historicalContext"])
+
+    assert cell_count == len(manifests)
+    assert history_row_count >= 2_637
+    assert rooted_count >= 326
+    assert len(manifests) - rooted_count == 183
+
+
+def test_recorded_failed_manifest_never_promotes(tmp_path: pathlib.Path) -> None:
+    manifest = successful_manifest()
+    manifest["ok"] = False
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    cells_path = tmp_path / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="run manifest is not successful"):
+        spawned_cells_to_ts.load_cells(cells_path)
+
+
+@pytest.mark.parametrize(
+    "filename", ["cells.with_activity.json", "normalized_cells.json"]
+)
+def test_cell_input_without_manifest_never_uses_live_fallback(
+    tmp_path: pathlib.Path, filename: str
+) -> None:
+    cells_path = tmp_path / filename
+    cells_path.write_text(json.dumps([stampable_cell()]))
+
+    with pytest.raises(ValueError, match="lacks manifest.json"):
+        spawned_cells_to_ts.load_cells(cells_path)
 
 
 def test_reviewer_text_matching_the_screen_is_withheld() -> None:
@@ -699,6 +1431,7 @@ def test_reviewer_text_matching_the_screen_is_withheld() -> None:
     # evidence: the projection withholds the matching string behind the
     # marker while the run record keeps the original.
     cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed_agent()
     cell["preSubmitReview"] = {
         "schemaVersion": "thesis_pre_submit_review_v1",
         "status": "completed",
@@ -764,9 +1497,12 @@ def test_agent_planted_review_dies_at_the_carrier(
     }
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
+    (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
 
-    # No manifest at all: the planted review must not survive loading.
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    # The successful manifest has no review: the planted review must not survive.
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     assert "preSubmitReview" not in loaded
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
     assert "preSubmitReview" not in run
@@ -777,15 +1513,15 @@ def test_manifest_review_overrides_any_cell_claim(
 ) -> None:
     import json
 
-    manifest = {
-        "preSubmitReview": {
+    manifest = successful_manifest(
+        preSubmitReview={
             "schemaVersion": "thesis_pre_submit_review_v1",
             "status": "completed",
             "summary": "Runner-sealed review.",
             "findings": [],
             "dispositions": [],
         }
-    }
+    )
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     cell = stampable_cell()
     cell["runAt"] = "2026-07-01T04:00:00Z"
@@ -793,7 +1529,9 @@ def test_manifest_review_overrides_any_cell_claim(
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
 
-    [loaded] = spawned_cells_to_ts.load_cells(cells_path)
+    cells = [cell]
+    spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
+    loaded = cells[0]
     assert loaded["preSubmitReview"]["summary"] == "Runner-sealed review."
     run = spawned_cells_to_ts.to_forecast_cell(loaded)["predictionRun"]
     assert run["preSubmitReview"]["summary"] == "Runner-sealed review."
@@ -906,9 +1644,7 @@ def test_judge_loader_screens_review_end_to_end(tmp_path: pathlib.Path) -> None:
     marker = spawned_cells_to_ts.PRIVATE_SOURCE_MARKER
     assert marker in blob
     assert "planted" not in blob
-    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(
-        blob.replace(marker, "")
-    )
+    assert not spawned_cells_to_ts.PRIVATE_SOURCE_RE.search(blob.replace(marker, ""))
     # A malformed dict where the summary string belongs refuses with a
     # typed error instead of smuggling content past compaction.
     manifest_path.write_text(
@@ -937,8 +1673,7 @@ def test_existing_slugs_sees_both_key_forms_and_rejects_lookalikes(
     # A commented-out literal still counts: the scan reads source text,
     # and over-matching only makes the collision guard more conservative.
     (site_data / "forecast-examples" / "a.ts").write_text(
-        'export const A = [{ slug: "bare-one" }];\n'
-        '// slug: "commented-four"\n'
+        'export const A = [{ slug: "bare-one" }];\n// slug: "commented-four"\n'
     )
     (site_data / "forecast-examples" / "auto-b.ts").write_text(
         '[{ "slug": "quoted-two",'
@@ -948,7 +1683,5 @@ def test_existing_slugs_sees_both_key_forms_and_rejects_lookalikes(
     (site_data / "forecast-cells.ts").write_text(
         'const CELLS = [{ slug: "cells-three" }];\n'
     )
-    got = spawned_cells_to_ts.existing_slugs(
-        site_data, site_data / "__none__.ts"
-    )
+    got = spawned_cells_to_ts.existing_slugs(site_data, site_data / "__none__.ts")
     assert got == {"bare-one", "quoted-two", "cells-three", "commented-four"}

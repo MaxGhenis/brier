@@ -734,8 +734,7 @@ def validate_target_registration(
         template_matches = [
             entry
             for entry in docket_entries
-            if isinstance(entry, dict)
-            and entry.get("series") == contract.get("series")
+            if isinstance(entry, dict) and entry.get("series") == contract.get("series")
         ]
         try:
             require_conditional_docket_template(
@@ -839,9 +838,7 @@ def require_run_within_grace(
     manifest start and each sealed cell's runAt.
     """
 
-    registered = parse_instant(
-        target.get("registeredAtUtc"), "target registeredAtUtc"
-    )
+    registered = parse_instant(target.get("registeredAtUtc"), "target registeredAtUtc")
     deadline = registered + dt.timedelta(days=ORPHAN_GRACE_DAYS)
     if run_start >= deadline:
         raise PublicationError(
@@ -962,9 +959,7 @@ def validate_cells(
             "privileged target validation requires publishValidatedAtUtc"
         )
     if publish_upper is not None and batch_finished_at > publish_upper:
-        raise PublicationError(
-            "batch finishes after privileged publication validation"
-        )
+        raise PublicationError("batch finishes after privileged publication validation")
     referenced_payloads: set[pathlib.PurePosixPath] = set()
     referenced_manifests: set[pathlib.PurePosixPath] = set()
 
@@ -1049,6 +1044,7 @@ def validate_cells(
         if not cells_value:
             continue
 
+        agent = manifest.get("agent") if manifest is not None else None
         report = shared_validate_cells(
             cells,
             target_context=target,
@@ -1057,6 +1053,15 @@ def validate_cells(
             generation_ticket=(
                 manifest.get("generationTicket") if manifest is not None else None
             ),
+            agent_version=(
+                agent.get("agentVersion") if isinstance(agent, dict) else None
+            ),
+            checkout_sha=(manifest.get("checkoutSha") if manifest else None),
+            series=(manifest.get("series") if manifest else None),
+            target_period=(manifest.get("period") if manifest else None),
+            # The staged bundle is data, not authority and may not even be a
+            # Git checkout. Read reviewed authorization from trusted code.
+            history_registry_root=ROOT,
         )
         if bool(report.get("ok")) != expected_ok:
             raise PublicationError(

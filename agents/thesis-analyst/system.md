@@ -88,8 +88,28 @@ double-count it as extra evidence.
    announcement pins methodology identity; it does not establish the deadline
    or release window. Do not invent a scheduled day.
 2. **Fetch the history.** Pull the recent series history (6–24 prints) from
-   the official source or its sanctioned mirror per the skill. This is the
-   only admissible evidence: numbers you fetched this run.
+   the official source or its sanctioned mirror per the skill. At least 6
+   distinct prints are MANDATORY when the official source exposes them, and
+   validation refuses fewer. Give every historical entry a structured
+   canonical period independent of its display label: `month`/`YYYY-MM`,
+   `quarter`/`YYYY-Q1`…`YYYY-Q4`, `year` or `fiscal_year`/`YYYY`, or
+   `week_ending`/`YYYY-MM-DD`. The label must unambiguously name that same
+   period. The whole trimmed label must be one closed, printable-ASCII period
+   form: `YYYY-MM`, `Month YYYY`, `YYYY Month`, `YYYY-QN`, `YYYY QN`,
+   `QN YYYY`, `YYYY`, `calendar year YYYY`, `FY2026`, `fiscal year YYYY`,
+   `YYYY-MM-DD`, or `week ending YYYY-MM-DD`. Do not add source names,
+   `first print`, revision prose, ranges, or a second period cue to the label.
+   Relative, contradictory, non-ASCII, and multi-period labels refuse.
+   Alternate labels for one canonical period are one print. If the source
+   exposes fewer than 6, fetch all of them and add
+   `historyAvailability` with status
+   `official_source_exposes_fewer_than_six_prints`, the matching
+   `availablePrintCount`, and a nonempty `detail`. That is audit commentary,
+   not permission to bypass the floor: validation also requires an exact
+   series/target-period authorization, including the complete canonical
+   period inventory, committed to the reviewed docket in the sealed checkout.
+   The agent cannot create or replace that authorization. Fetched numbers are
+   the only admissible forecast evidence.
 3. **Outside view first.** Compute the base-rate prior: the distribution of
    recent comparable prints (level, change, or surprise — whichever the
    question asks). State it explicitly in the trace. For repeated official

@@ -481,6 +481,7 @@ def test_parse_ref_period_handles_every_catalog_annual_id() -> None:
         "census.spm.child_poverty_rate.2027",
         "census.spm.child_poverty_rate.2028",
         "census.spm.poverty_rate_65_plus.2025.first_print",
+        "eia.ng.vented_flared.us.annual.2025.first_print",
         "hhs.aspe.poverty_guideline.household_size_4.48dc.2027",
         # Reviewed 2026-08-08: the three SBA custody-family fy2026 seeds
         # preregistered by the attested-lane mint; bare SBA years route
@@ -1666,12 +1667,8 @@ def test_main_qcew_branch_refuses_registered_window_drift_before_side_effects(
         "ledger_state",
         lambda *_args: ("", "blob", "c" * 40),
     )
-    monkeypatch.setattr(
-        resolve_pending, "qcew_fetch_period", unexpected_side_effect
-    )
-    monkeypatch.setattr(
-        resolve_pending, "qcew_resolution_fact", unexpected_side_effect
-    )
+    monkeypatch.setattr(resolve_pending, "qcew_fetch_period", unexpected_side_effect)
+    monkeypatch.setattr(resolve_pending, "qcew_resolution_fact", unexpected_side_effect)
     monkeypatch.setattr(resolve_pending, "archive_response", unexpected_side_effect)
     monkeypatch.setattr(
         resolve_pending, "propose_ledger_append", unexpected_side_effect
@@ -1717,11 +1714,7 @@ def test_main_qcew_branch_refuses_next_day_completed_fetch(
         }
     }
     raw = (
-        ROOT
-        / "tests"
-        / "fixtures"
-        / "qcew"
-        / "child_day_care_services_2025_annual.csv"
+        ROOT / "tests" / "fixtures" / "qcew" / "child_day_care_services_2025_annual.csv"
     ).read_bytes()
     (tmp_path / "scripts").mkdir()
     (tmp_path / "scripts" / "docket_series.json").write_text(
@@ -1809,9 +1802,7 @@ def test_main_qcew_branch_refuses_joint_calendar_page_and_date_drift(
     )
     entry = json.loads(json.dumps(canonical_entry))
     entry["period"] = entry["seedPeriod"] = period
-    entry["releaseCalendarUrl"] = (
-        "https://www.bls.gov/schedule/news_release/cewqtr.htm"
-    )
+    entry["releaseCalendarUrl"] = "https://www.bls.gov/schedule/news_release/cewqtr.htm"
     entry["releaseDates"][period] = release_date
     target = {
         "series": series,
@@ -1878,9 +1869,7 @@ def test_main_qcew_branch_refuses_joint_calendar_page_and_date_drift(
     monkeypatch.setattr(
         resolve_pending, "registration_contracts", lambda: {ref: registration}
     )
-    monkeypatch.setattr(
-        resolve_pending, "qcew_fetch_period", unexpected_qcew_fetch
-    )
+    monkeypatch.setattr(resolve_pending, "qcew_fetch_period", unexpected_qcew_fetch)
     monkeypatch.setattr(
         resolve_pending,
         "utc_now",

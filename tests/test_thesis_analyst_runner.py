@@ -17,6 +17,12 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import generation_tickets  # noqa: E402
 import median_rollout_ensemble as median_ensemble  # noqa: E402
 import run_thesis_analyst as analyst_runner  # noqa: E402
+import spawned_cells_to_ts  # noqa: E402
+from history_floor import (  # noqa: E402
+    canonical_period_identities_from_label,
+    canonical_period_identity,
+    validate_history_floor_authorization,
+)
 from run_thesis_analyst import (  # noqa: E402
     interval_distribution,
 )
@@ -179,6 +185,8 @@ def test_print_prompt_contains_question_spec():
     assert "# Cell contract (verbatim" in result.stdout
     assert "Default promoted practices" in result.stdout
     assert "outside-view base rate before current-news adjustments" in result.stdout
+    assert "At least 6 distinct prints are MANDATORY" in " ".join(result.stdout.split())
+    assert "official_source_exposes_fewer_than_six_prints" in result.stdout
 
 
 def test_fast_prompt_inlines_contract_and_allows_optional_repo_reads():
@@ -214,6 +222,9 @@ def test_fast_prompt_inlines_contract_and_allows_optional_repo_reads():
     assert "Every tool step result must include at least one fetched numeric" in (
         result.stdout
     )
+    assert "at least 6 distinct prints are MANDATORY" in result.stdout
+    assert "Validation refuses fewer" in result.stdout
+    assert "official_source_exposes_fewer_than_six_prints" in result.stdout
     assert "- series: boe.bank_rate" in result.stdout
     assert "Bank of England MPC" in result.stdout
     assert "docs/cell-contract.md" in result.stdout
@@ -394,7 +405,13 @@ def test_empty_cell_payload_fails_instead_of_green_manifest(
     assert "empty cell payload" in manifest["error"]["message"]
 
 
-def _run_fake_codex_case(tmp_path: Path, name: str, cell) -> tuple[int, Path]:
+def _run_fake_codex_case(
+    tmp_path: Path,
+    name: str,
+    cell,
+    *,
+    extra_args: list[str] | None = None,
+) -> tuple[int, Path]:
     out_dir = tmp_path / name
     codex_home = tmp_path / f"{name}-codex-home"
     codex_home.mkdir()
@@ -418,6 +435,7 @@ def _run_fake_codex_case(tmp_path: Path, name: str, cell) -> tuple[int, Path]:
             "gpt-5.5",
             "--out-dir",
             str(out_dir),
+            *(extra_args or []),
         ],
         cwd=ROOT,
         env=env,
@@ -707,9 +725,7 @@ def test_custody_rejects_forged_parse_phase_and_loose_error_equality(
             if Path(str(ref["path"])).name != "manifest.json"
         ]
         manifest["artifacts"] = refs
-        runner_mod.finalize_manifest(
-            out_dir, manifest["runStartedAt"], manifest, refs
-        )
+        runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
 
     def forge_parse_complete(manifest) -> None:
         manifest["error"]["phase"] = "parse"
@@ -773,9 +789,7 @@ def test_custody_requires_explicit_null_presentation(tmp_path: Path) -> None:
         if Path(str(ref["path"])).name != "manifest.json"
     ]
     manifest["artifacts"] = refs
-    runner_mod.finalize_manifest(
-        out_dir, manifest["runStartedAt"], manifest, refs
-    )
+    runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
     with pytest.raises(CustodyError, match="does not present as failed"):
         verify_run(out_dir)
 
@@ -811,9 +825,7 @@ def test_custody_rejects_a_failure_phase_that_presents_as_complete(
         if Path(str(ref["path"])).name != "manifest.json"
     ]
     manifest["artifacts"] = refs
-    runner_mod.finalize_manifest(
-        out_dir, manifest["runStartedAt"], manifest, refs
-    )
+    runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
 
     with pytest.raises(CustodyError, match="does not present as failed"):
         verify_run(out_dir)
@@ -844,15 +856,12 @@ def test_custody_requires_the_phase_artifacts_typed(tmp_path: Path) -> None:
     refs = [
         ref
         for ref in manifest["artifacts"]
-        if Path(str(ref["path"])).name
-        not in {"normalized_cells.json", "manifest.json"}
+        if Path(str(ref["path"])).name not in {"normalized_cells.json", "manifest.json"}
     ]
     (out_dir / "normalized_cells.json").unlink()
     manifest["artifacts"] = refs
     manifest.pop("custodyRootSha256", None)
-    runner_mod.finalize_manifest(
-        out_dir, manifest["runStartedAt"], manifest, refs
-    )
+    runner_mod.finalize_manifest(out_dir, manifest["runStartedAt"], manifest, refs)
     with pytest.raises(CustodyError):
         verify_run(out_dir)
 
@@ -1209,15 +1218,15 @@ def test_generation_ticket_refuses_non_codex_executable_override() -> None:
 
     assert completed.returncode != 0
     assert completed.stderr.strip() == (
-        "ticket mode refuses THESIS_CODEX_BIN unless its executable basename is "
-        "codex"
+        "ticket mode refuses THESIS_CODEX_BIN unless its executable basename is codex"
     )
 
 
 def test_ticket_manifest_binding_requires_exact_canonical_context() -> None:
     ticket = generation_ticket_context()
-    assert generation_tickets.ticket_record_path(ticket["ticketId"]).as_posix() == (
-        ticket["ticketPath"]
+    assert (
+        generation_tickets.ticket_record_path(ticket["ticketId"]).as_posix()
+        == (ticket["ticketPath"])
     )
     assert generation_tickets.ticket_manifest_binding(ticket) == {
         "ticketId": ticket["ticketId"],
@@ -2068,9 +2077,7 @@ def test_codex_network_run_records_grant_and_clean_guard(tmp_path):
     codex_home.mkdir()
     (codex_home / "auth.json").write_text("{}\n")
     fake_codex = tmp_path / "fake_codex.py"
-    write_fake_codex(
-        fake_codex, review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
-    )
+    write_fake_codex(fake_codex, review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8))
 
     env = {
         **os.environ,
@@ -2112,9 +2119,7 @@ def test_codex_network_run_records_grant_and_clean_guard(tmp_path):
     trace = json.loads((out_dir / "codex_trace.json").read_text())
     assert trace["networkAccess"] is True
     assert trace["sandbox"] == "workspace-write"
-    assert "Outbound network access is enabled" in (
-        out_dir / "prompt.md"
-    ).read_text()
+    assert "Outbound network access is enabled" in (out_dir / "prompt.md").read_text()
 
 
 def test_codex_network_run_fails_closed_on_workspace_mutation(tmp_path):
@@ -2208,7 +2213,7 @@ def review_test_cell(
             "kind": "tool",
             "tool": "official.lookup",
             "call": "official.lookup(series='test.reviewed_rate')",
-            "result": "Fetched t-3 4.9, t-2 5.0, t-1 5.2.",
+            "result": ("Fetched t-6 4.8, t-5 4.9, t-4 5.0, t-3 4.9, t-2 5.0, t-1 5.2."),
         },
         {
             "kind": "tool",
@@ -2225,7 +2230,7 @@ def review_test_cell(
         {
             "kind": "text",
             "text": (
-                "Base rate prior from the reference class of the last 3 "
+                "Base rate prior from the reference class of the last 6 "
                 "prints is the recent center near 5.1 before the small "
                 "current-release adjustment."
             ),
@@ -2272,9 +2277,12 @@ def review_test_cell(
         ),
         "dataPointId": "test.reviewed_rate.january_2030.first_print",
         "historicalContext": [
-            {"label": "t-3", "value": 4.9},
-            {"label": "t-2", "value": 5.0},
-            {"label": "t-1", "value": 5.2},
+            {
+                "period": {"type": "month", "value": f"2029-{index:02d}"},
+                "label": f"2029-{index:02d}",
+                "value": value,
+            }
+            for index, value in enumerate([4.8, 4.9, 5.0, 4.9, 5.0, 5.2], start=1)
         ],
         "drivers": [
             "recent reference class",
@@ -2312,9 +2320,7 @@ def test_ticket_codex_stream_binding_refuses_o_file_only_success() -> None:
         "backend": "codex",
         "returnCode": 0,
         "stderr": "",
-        "codexStdoutRaw": json.dumps(
-            {"type": "turn.completed", "usage": {}}
-        ),
+        "codexStdoutRaw": json.dumps({"type": "turn.completed", "usage": {}}),
         "codexStderrRaw": "",
         "codexLastMessage": '{"pointEstimate": 1}',
         "codexTrace": {"effectiveReturnCode": 0, "lastError": None},
@@ -2324,9 +2330,7 @@ def test_ticket_codex_stream_binding_refuses_o_file_only_success() -> None:
 
     assert bound["returnCode"] == 1
     assert bound["codexTrace"]["effectiveReturnCode"] == 1
-    assert "raw JSONL and the codex_last_message artifact disagree" in bound[
-        "stderr"
-    ]
+    assert "raw JSONL and the codex_last_message artifact disagree" in bound["stderr"]
     assert result["returnCode"] == 0
 
 
@@ -2371,25 +2375,17 @@ def test_collision_exclusion_ignores_only_the_exact_generated_wave(
     monkeypatch.setattr(analyst_runner, "ROOT", tmp_path)
 
     blocked = analyst_runner.validate_cells([cell])
-    assert any(
-        "slug collides" in error
-        for error in blocked["cells"][0]["errors"]
-    )
+    assert any("slug collides" in error for error in blocked["cells"][0]["errors"])
 
-    allowed = analyst_runner.validate_cells(
-        [cell], collision_exclusion=own_wave
-    )
+    allowed = analyst_runner.validate_cells([cell], collision_exclusion=own_wave)
     assert allowed["ok"] is True
 
     (examples / "competing-wave.ts").write_text(
         f'export const wave = [{{ slug: "{cell["slug"]}" }}];\n'
     )
-    still_blocked = analyst_runner.validate_cells(
-        [cell], collision_exclusion=own_wave
-    )
+    still_blocked = analyst_runner.validate_cells([cell], collision_exclusion=own_wave)
     assert any(
-        "slug collides" in error
-        for error in still_blocked["cells"][0]["errors"]
+        "slug collides" in error for error in still_blocked["cells"][0]["errors"]
     )
 
 
@@ -2422,9 +2418,17 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                     ),
                     "dataPointId": "test.runtime_model.january_2030.first_print",
                     "historicalContext": [
-                        {"label": "t-3", "value": 4.9},
-                        {"label": "t-2", "value": 5.0},
-                        {"label": "t-1", "value": 5.2},
+                        {
+                            "period": {
+                                "type": "month",
+                                "value": f"2029-{index:02d}",
+                            },
+                            "label": f"2029-{index:02d}",
+                            "value": value,
+                        }
+                        for index, value in enumerate(
+                            [4.8, 4.9, 5.0, 4.9, 5.0, 5.2], start=1
+                        )
                     ],
                     "drivers": [
                         "recent reference class",
@@ -2442,14 +2446,17 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                             "kind": "text",
                             "text": (
                                 "The base-rate reference class is the last "
-                                "three synthetic prints around 5.0 percent."
+                                "six synthetic prints around 5.0 percent."
                             ),
                         },
                         {
                             "kind": "tool",
                             "tool": "official.lookup",
                             "call": "lookup synthetic latest values",
-                            "result": "Fetched t-3 4.9, t-2 5.0, t-1 5.2.",
+                            "result": (
+                                "Fetched t-6 4.8, t-5 4.9, t-4 5.0, "
+                                "t-3 4.9, t-2 5.0, t-1 5.2."
+                            ),
                         },
                         {
                             "kind": "tool",
@@ -2970,8 +2977,8 @@ def test_ladder_v2_prompt_swaps_the_derivation_contract() -> None:
 
     # v1 keeps the parametric discipline; v2 replaces it with the
     # quantile-native contract and never demands the sigma idiom.
-    assert 'sigma = X' in v1 and "1.28*sigma" in v1
-    assert 'sigma = X' not in v2 and "1.28*sigma" not in v2
+    assert "sigma = X" in v1 and "1.28*sigma" in v1
+    assert "sigma = X" not in v2 and "1.28*sigma" not in v2
     assert "10th percentile at X" in v2
     assert "90th percentile at Z" in v2
     assert "promptMode ladder_v2" in v2
@@ -3029,6 +3036,786 @@ def test_canonical_steps_are_stripped_to_contract_keys(tmp_path: Path) -> None:
     assert steps[2] == {"kind": "forecast", "point": 5, "ciLow": 4, "ciHigh": 6}
 
 
+def history_floor_test_cell(print_count: int) -> dict:
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["historicalContext"] = [
+        {
+            "period": {"type": "month", "value": f"2029-{index:02d}"},
+            "label": f"2029-{index:02d}",
+            "value": 4.5 + index / 10,
+        }
+        for index in range(1, print_count + 1)
+    ]
+    return cell
+
+
+def history_floor_validation(
+    cell: dict,
+    agent_version: object = analyst_runner.HISTORY_FLOOR_AGENT_VERSION,
+) -> dict:
+    return analyst_runner.validate_cells(
+        [cell],
+        allow_existing_slug=True,
+        agent_version=agent_version,
+    )
+
+
+def test_history_floor_refuses_five_entry_run_with_custody_clean_record(
+    tmp_path: Path,
+) -> None:
+    generated_ts = tmp_path / "must-not-promote.ts"
+    code, out_dir = _run_fake_codex_case(
+        tmp_path,
+        "five-print-history",
+        history_floor_test_cell(5),
+        extra_args=["--write-ts", str(generated_ts)],
+    )
+
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    errors = manifest["validation"]["cells"][0]["errors"]
+    assert any(
+        "historicalContext has 5 distinct canonical prints" in error
+        and "at least 6 are mandatory" in error
+        for error in errors
+    )
+    _custody_passes(out_dir)
+    assert not generated_ts.exists()
+
+
+def test_history_floor_accepts_current_run_with_genuine_custody_root(
+    tmp_path: Path,
+) -> None:
+    generated_ts = tmp_path / "current-rooted.ts"
+    code, out_dir = _run_fake_codex_case(
+        tmp_path,
+        "six-print-current-history",
+        history_floor_test_cell(6),
+        extra_args=["--write-ts", str(generated_ts)],
+    )
+
+    assert code == 0
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is True
+    assert spawned_cells_to_ts.agent_version_enforces_history_floor(
+        manifest["agent"]["agentVersion"]
+    )
+    _custody_passes(out_dir)
+
+    [loaded] = spawned_cells_to_ts.load_cells(out_dir / "cells.with_activity.json")
+    sealed_version = loaded[spawned_cells_to_ts.SEALED_AGENT_KEY]["agentVersion"]
+    sealed_authorization = loaded.get(
+        spawned_cells_to_ts.SEALED_HISTORY_AUTHORIZATION_KEY
+    )
+    assert sealed_version == manifest["agent"]["agentVersion"]
+    assert loaded["custodyRootSha256"] == manifest["custodyRootSha256"]
+    assert (
+        spawned_cells_to_ts.validate(
+            loaded,
+            set(),
+            agent_version=sealed_version,
+            trusted_history_authorization=sealed_authorization,
+        )
+        == []
+    )
+    assert generated_ts.exists()
+
+
+def test_history_floor_accepts_six_numeric_entries() -> None:
+    assert history_floor_validation(history_floor_test_cell(6))["ok"] is True
+
+
+def test_history_floor_counts_distinct_periods_with_identical_values() -> None:
+    cell = history_floor_test_cell(6)
+    for row in cell["historicalContext"]:
+        row["value"] = 5.0
+
+    assert history_floor_validation(cell)["ok"] is True
+
+
+def test_history_floor_refuses_agent_only_attestation_even_with_detail_x() -> None:
+    cell = history_floor_test_cell(4)
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "detail": "x",
+    }
+    cell["_sealedAgentMeta"] = {
+        "agent": "thesis.analyst",
+        "agentVersion": "2.5.9",
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+    }
+    cell["_sealedHistoryFloorAuthorization"] = {
+        "targetPeriod": "2030-01",
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "availablePeriods": [
+            {"type": "month", "value": f"2029-{index:02d}"} for index in range(1, 5)
+        ],
+    }
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    assert any(
+        "reviewed docket authorizes this exact series and target period" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
+def test_history_floor_accepts_exact_reviewed_docket_authorization(
+    tmp_path: Path,
+) -> None:
+    periods = [{"type": "month", "value": f"2029-{index:02d}"} for index in range(1, 5)]
+    registry = {
+        "series": [
+            {
+                "series": "test.reviewed_rate",
+                "period": "2030-01",
+                "extras": {
+                    "historyFloorAuthorization": {
+                        "targetPeriod": "2030-01",
+                        "status": "official_source_exposes_fewer_than_six_prints",
+                        "availablePrintCount": 4,
+                        "availablePeriods": periods,
+                    }
+                },
+            }
+        ]
+    }
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "docket_series.json").write_text(
+        json.dumps(registry) + "\n"
+    )
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "add", "scripts/docket_series.json"], cwd=tmp_path, check=True
+    )
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-qm",
+            "Review young-series authorization",
+        ],
+        cwd=tmp_path,
+        check=True,
+    )
+    checkout_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    cell = history_floor_test_cell(4)
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 4,
+        "detail": "The official source contains four prints.",
+    }
+    report = analyst_runner.validate_cells(
+        [cell],
+        allow_existing_slug=True,
+        agent_version="2.5.10",
+        checkout_sha=checkout_sha,
+        series="test.reviewed_rate",
+        target_period="2030-01",
+        history_registry_root=tmp_path,
+    )
+
+    assert report["ok"] is True, report
+
+
+def test_reviewed_authorization_cannot_lower_three_point_minimum() -> None:
+    with pytest.raises(ValueError, match="from 3 through 5"):
+        validate_history_floor_authorization(
+            {
+                "targetPeriod": "2030-01",
+                "status": "official_source_exposes_fewer_than_six_prints",
+                "availablePrintCount": 2,
+                "availablePeriods": [
+                    {"type": "month", "value": "2029-11"},
+                    {"type": "month", "value": "2029-12"},
+                ],
+            }
+        )
+
+
+def test_history_floor_counts_canonical_periods_not_alias_labels() -> None:
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["historicalContext"] = [
+        {
+            "period": {"type": "month", "value": "2025-11"},
+            "label": "November 2025",
+            "value": 26317011,
+        },
+        {
+            "period": {"type": "month", "value": "2026-03"},
+            "label": "March 2026",
+            "value": 26203615,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "April 2026",
+            "value": 26182019,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "2026-04",
+            "value": 26182019,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "Apr 2026",
+            "value": 26182019,
+        },
+        {
+            "period": {"type": "month", "value": "2026-04"},
+            "label": "2026 April print",
+            "value": 26182019,
+        },
+    ]
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 3,
+        "detail": "x",
+    }
+    target = {
+        "anchors": {
+            "2025-11": 26317011,
+            "2026-03": 26203615,
+            "2026-04": 26182019,
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = analyst_runner.validate_cells(
+        [cell], allow_existing_slug=True, target_context=target
+    )
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("duplicate canonical periods" in error for error in errors)
+    assert any("has 3 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_labels_that_contradict_forged_periods(
+    tmp_path: Path,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for row in cell["historicalContext"]:
+        row["label"] = "April 2029"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    # The existing anchor path trusts the structured period and therefore
+    # passes. The shared floor must independently bind each parseable label.
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = analyst_runner.validate_cells(
+        [cell], allow_existing_slug=True, target_context=target
+    )
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("label period month 2029-04 does not match" in error for error in errors)
+    assert any("has 1 distinct canonical prints" in error for error in errors)
+
+    code, out_dir = _run_fake_codex_case(tmp_path, "mismatched-period-labels", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert any(
+        "label period month 2029-04 does not match" in error
+        for error in manifest["validation"]["cells"][0]["errors"]
+    )
+    _custody_passes(out_dir)
+
+
+def test_history_floor_refuses_overlapping_contradictory_period_tokens() -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["label"] = f"April 2029-{index:02d}"
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any(
+        "label has ambiguous or unsupported period syntax" in error for error in errors
+    )
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_orphan_period_tokens_beside_forged_periods() -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["period"] = {"type": "month", "value": f"2026-{index:02d}"}
+        row["label"] = f"April value for 2026-{index:02d}"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    # The anchor check sees each planted numeric token. The shared floor must
+    # also reject the unbound month token rather than count those six aliases.
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any(
+        "label has ambiguous or unsupported period syntax" in error for error in errors
+    )
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "label_template",
+    [
+        "month 4 value for {period}",
+        "Q.2 value for {period}",
+        "{period} / may",
+    ],
+)
+def test_history_floor_closed_label_grammar_blocks_ascii_aliases(
+    label_template: str,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        period = f"2026-{index:02d}"
+        row["period"] = {"type": "month", "value": period}
+        row["label"] = label_template.format(period=period)
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("closed single-period label grammar" in error for error in errors)
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_fullwidth_orphan_tokens_beside_forged_periods(
+    tmp_path: Path,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["period"] = {"type": "month", "value": f"2026-{index:02d}"}
+        row["label"] = f"Ａｐｒｉｌ value for 2026-{index:02d}"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = analyst_runner.validate_cells(
+        [cell], allow_existing_slug=True, target_context=target
+    )
+    assert report["ok"] is False
+    assert any(
+        "characters outside printable ASCII" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+    code, out_dir = _run_fake_codex_case(tmp_path, "fullwidth-period-labels", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    _custody_passes(out_dir)
+
+
+@pytest.mark.parametrize("solidus", ["⁄", "∕", "／"])
+def test_history_floor_refuses_unicode_solidus_period_aliases(
+    solidus: str,
+) -> None:
+    cell = history_floor_test_cell(6)
+    for index, row in enumerate(cell["historicalContext"], start=1):
+        row["period"] = {"type": "month", "value": f"2026-{index:02d}"}
+        row["label"] = f"2026-{index:02d}{solidus}04"
+    target = {
+        "anchors": {
+            row["period"]["value"]: row["value"] for row in cell["historicalContext"]
+        }
+    }
+
+    assert analyst_runner.history_anchor_errors(cell, target) == []
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("characters outside printable ASCII" in error for error in errors)
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+def test_history_floor_refuses_six_shorthand_period_ranges() -> None:
+    labels = [
+        "December/January 2029",
+        "January/February 2029",
+        "February/March 2029",
+        "March/April 2029",
+        "April/May 2029",
+        "May/June 2029",
+    ]
+    cell = history_floor_test_cell(6)
+    for row, label in zip(cell["historicalContext"], labels):
+        row["label"] = label
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any(
+        "label has ambiguous or unsupported period syntax" in error for error in errors
+    )
+    assert any("has 0 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "label, expected_error",
+    [
+        ("latest print", "label has ambiguous or unsupported period syntax"),
+        (
+            "March 2029 / April 2029",
+            "label has ambiguous or unsupported period syntax",
+        ),
+        (
+            "January/February 2029",
+            "label has ambiguous or unsupported period syntax",
+        ),
+        (
+            "１2029-01２",
+            "label has ambiguous or unsupported period syntax",
+        ),
+        (
+            "January 2029\u200b",
+            "label has ambiguous or unsupported period syntax",
+        ),
+    ],
+)
+def test_history_floor_refuses_unbound_or_ambiguous_labels(
+    label: str, expected_error: str
+) -> None:
+    cell = history_floor_test_cell(6)
+    cell["historicalContext"][0]["label"] = label
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    assert any(expected_error in error for error in report["cells"][0]["errors"])
+
+
+def test_history_floor_refuses_unicode_digit_aliases_of_one_month() -> None:
+    aliases = [
+        "2026-04",
+        "２０２６-０４",
+        "٢٠٢٦-٠٤",
+        "۲۰۲۶-۰۴",
+        "२०२६-०४",
+        "২০২৬-০৪",
+    ]
+    cell = history_floor_test_cell(6)
+    cell["historicalContext"] = [
+        {
+            "period": {"type": "month", "value": alias},
+            "label": "April 2026",
+            "value": 5.0,
+        }
+        for alias in aliases
+    ]
+
+    assert canonical_period_identity(cell["historicalContext"][0]["period"]) == (
+        "month",
+        "2026-04",
+    )
+    assert all(
+        canonical_period_identity(row["period"]) is None
+        for row in cell["historicalContext"][1:]
+    )
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    errors = report["cells"][0]["errors"]
+    assert any("has no valid canonical period identity" in error for error in errors)
+    assert any("has 1 distinct canonical prints" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "label, expected",
+    [
+        ("April 2026", ("month", "2026-04")),
+        ("Sept. 2026", ("month", "2026-09")),
+        ("2026 April", ("month", "2026-04")),
+        ("2026-Q1", ("quarter", "2026-Q1")),
+        ("2026 Q1", ("quarter", "2026-Q1")),
+        ("Q1 2026", ("quarter", "2026-Q1")),
+        ("calendar year 2026", ("year", "2026")),
+        ("FY2026", ("fiscal_year", "2026")),
+        ("fiscal year 2026", ("fiscal_year", "2026")),
+        ("2026-04-03", ("week_ending", "2026-04-03")),
+        ("week ending 2026-04-03", ("week_ending", "2026-04-03")),
+    ],
+)
+def test_history_floor_parses_supported_display_label_periods(
+    label: str, expected: tuple[str, str]
+) -> None:
+    assert canonical_period_identities_from_label(label) == {expected}
+
+
+@pytest.mark.parametrize(
+    "label",
+    [
+        "January/February 2026",
+        "2026-01/02",
+        "2026-Q1/Q2",
+        "2029 Q1/2",
+        "Q1/2 2029",
+        "2026/27",
+        "week ending 2026-04-03/10",
+        "１2026-04２",
+        "April 2026 / May ２０２６",
+        "April ²⁰²⁶ / 2026-01",
+        "April ②⓪②⑥ / 2026-01",
+        "2026-01 April",
+        "FY2026 Q1",
+        "FYQ1 2029",
+        "2029 quarter 1",
+        "2026 QIV",
+        "2026 QI",
+        "2026 Q1 / II",
+        "2026-Q1 April",
+        "2026-01 Q4",
+        "week ending 2026-04-03 Q1",
+        "Ｑ1 2029",
+        "ＦＹ2029",
+        "fiscal\u00a0year 2026",
+        "fiscal\u2028year 2026",
+        "week\u00a0ending 2026",
+        "week\u2028ending 2026",
+        "2026-Q1⁄2",
+        "2026 Q1⁄2",
+        "2026-01⁄02",
+        "2026-01∕02",
+        "2026-01／02",
+        "2026⁄27",
+        "week ending 2026-04-03⁄10",
+        "2026−04",
+        "2026˗04",
+        "2026➖04",
+        "2̶0̶2̶6̶-0̶4̶ / 2026-01",
+        "Аpril value for 2026-01",
+        "April 2026 value may be revised",
+        "2026-04 value may be revised",
+        "2026-01 / may",
+        "2026-01 and may",
+        "may value for 2026-01",
+        "month 4 value for 2026-01",
+        "M04 value for 2026-01",
+        "Q.2 value for 2026-01",
+        "Q_1 2029",
+        "Q.1 2029",
+        "Q-1 2029",
+        "1Q 2029",
+        "2029-QTR1",
+        "April 2026 fiscally adjusted",
+        "April 2026 FYI preliminary",
+    ],
+)
+def test_history_floor_label_parser_rejects_hidden_period_shorthand(
+    label: str,
+) -> None:
+    assert canonical_period_identities_from_label(label) == set()
+
+
+def test_history_floor_refuses_oversized_json_integer_with_diagnostic() -> None:
+    cell = history_floor_test_cell(6)
+    cell["historicalContext"][0]["value"] = 10**400
+
+    report = history_floor_validation(cell)
+
+    assert report["ok"] is False
+    assert (
+        "historicalContext[0] has no finite numeric value"
+        in report["cells"][0]["errors"]
+    )
+
+
+def test_history_floor_refuses_short_history_without_attestation() -> None:
+    report = history_floor_validation(history_floor_test_cell(4))
+
+    assert report["ok"] is False
+    assert any("reviewed docket" in error for error in report["cells"][0]["errors"])
+
+
+@pytest.mark.parametrize(
+    "availability",
+    [
+        {
+            "status": "official_source_exposes_fewer_than_six_prints",
+            "availablePrintCount": 4,
+            "detail": "   ",
+        },
+        {
+            "status": "official_source_exposes_fewer_than_six_prints",
+            "availablePrintCount": 3,
+            "detail": "Only four official prints exist.",
+        },
+        {
+            "status": "fewer_than_six",
+            "availablePrintCount": 4,
+            "detail": "Only four official prints exist.",
+        },
+    ],
+)
+def test_history_floor_refuses_malformed_attestation(availability: dict) -> None:
+    cell = history_floor_test_cell(4)
+    cell["historyAvailability"] = availability
+
+    assert history_floor_validation(cell)["ok"] is False
+
+
+def test_history_floor_does_not_retroactively_change_published_replays() -> None:
+    assert (
+        history_floor_validation(history_floor_test_cell(5), agent_version="2.5.9")[
+            "ok"
+        ]
+        is True
+    )
+
+
+def test_pre_floor_version_still_requires_three_legacy_points() -> None:
+    report = history_floor_validation(history_floor_test_cell(2), agent_version="2.5.9")
+
+    assert report["ok"] is False
+    assert "needs >=3 historical points" in report["cells"][0]["errors"]
+
+
+@pytest.mark.parametrize(
+    "history, expected_error",
+    [
+        ([[], [], []], "historicalContext[0] must be an object"),
+        ([{}, {}], "historicalContext[0] has no nonempty label"),
+        (["x", 7, None], "historicalContext[0] must be an object"),
+    ],
+)
+def test_pre_floor_version_refuses_malformed_legacy_history_shapes(
+    history: list[object],
+    expected_error: str,
+) -> None:
+    cell = history_floor_test_cell(3)
+    cell["historicalContext"] = history
+
+    report = history_floor_validation(cell, agent_version="2.5.9")
+
+    assert report["ok"] is False
+    assert expected_error in report["cells"][0]["errors"]
+
+
+@pytest.mark.parametrize(
+    "row, expected_error",
+    [
+        ({"label": "   ", "value": 1.0}, "has no nonempty label"),
+        ({"label": "legacy", "value": float("inf")}, "has no finite numeric value"),
+        ({"label": "legacy", "value": float("nan")}, "has no finite numeric value"),
+        ({"label": "legacy", "value": True}, "has no finite numeric value"),
+    ],
+)
+def test_pre_floor_version_requires_labeled_finite_numeric_legacy_rows(
+    row: dict[str, object],
+    expected_error: str,
+) -> None:
+    cell = history_floor_test_cell(3)
+    cell["historicalContext"][0] = row
+
+    report = history_floor_validation(cell, agent_version="2.5.9")
+
+    assert report["ok"] is False
+    assert any(expected_error in error for error in report["cells"][0]["errors"])
+
+
+@pytest.mark.parametrize(
+    "agent_version",
+    [
+        None,
+        "fixture",
+        "2.5",
+        "02.5.9",
+        "2.05.9",
+        "2.5.09",
+        "2.5.9+.",
+        "2.5.9-..",
+        "2.5.9-01",
+        "２.５.９",
+    ],
+)
+def test_history_floor_missing_or_malformed_version_fails_closed(
+    agent_version: object,
+) -> None:
+    report = history_floor_validation(
+        history_floor_test_cell(5), agent_version=agent_version
+    )
+
+    assert report["ok"] is False
+    assert any(
+        "historicalContext has 5 distinct canonical prints" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
+@pytest.mark.parametrize("agent_version", ["2.5.9-alpha+build", "2.2.0+median3"])
+def test_history_floor_preserves_valid_complex_pre_floor_versions(
+    agent_version: str,
+) -> None:
+    assert (
+        history_floor_validation(
+            history_floor_test_cell(5), agent_version=agent_version
+        )["ok"]
+        is True
+    )
+
+
+def test_history_floor_refuses_overlong_version_without_crashing() -> None:
+    report = history_floor_validation(
+        history_floor_test_cell(5), agent_version=f"{'9' * 5000}.0.0"
+    )
+
+    assert report["ok"] is False
+    assert (
+        "sealed agentVersion is missing or malformed; current history floor applies"
+        in report["cells"][0]["errors"]
+    )
+    assert any(
+        "historicalContext has 5 distinct canonical prints" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
+@pytest.mark.parametrize("agent_version", ["2.5.10-0", "2.5.10-alpha"])
+def test_floor_version_family_prereleases_cannot_waive_existing_check(
+    agent_version: str,
+) -> None:
+    report = history_floor_validation(
+        history_floor_test_cell(5), agent_version=agent_version
+    )
+
+    assert report["ok"] is False
+    assert not any(
+        "agentVersion is missing or malformed" in error
+        for error in report["cells"][0]["errors"]
+    )
+
+
 def test_history_anchor_gate_passes_matching_values() -> None:
     cell = {
         "historicalContext": [
@@ -3053,18 +3840,14 @@ def test_history_anchor_gate_refuses_wrong_vintage() -> None:
             {"label": "2024 ACS 1-year U.S. B28005 65+ broadband share", "value": 84.8},
         ]
     }
-    errors = analyst_runner.history_anchor_errors(
-        cell, {"anchors": {"2024": 88.2}}
-    )
+    errors = analyst_runner.history_anchor_errors(cell, {"anchors": {"2024": 88.2}})
     assert len(errors) == 1
     assert "contradict" in errors[0] and "88.2" in errors[0]
 
 
 def test_history_anchor_gate_requires_anchored_periods() -> None:
     cell = {"historicalContext": [{"label": "2022 share", "value": 84.8}]}
-    errors = analyst_runner.history_anchor_errors(
-        cell, {"anchors": {"2024": 88.2}}
-    )
+    errors = analyst_runner.history_anchor_errors(cell, {"anchors": {"2024": 88.2}})
     assert len(errors) == 1 and "no historicalContext entry" in errors[0]
 
 
@@ -3089,9 +3872,7 @@ def test_target_context_binds_the_preregistered_conditional_verbatim() -> None:
     exact = {"conditionalOn": registered}
     drifted = {"conditionalOn": registered.replace("$1", "one dollar")}
     context = {"conditional": registered}
-    assert (
-        analyst_runner.target_context_validation_errors(exact, context) == []
-    )
+    assert analyst_runner.target_context_validation_errors(exact, context) == []
     errors = analyst_runner.target_context_validation_errors(drifted, context)
     assert len(errors) == 1 and "conditionalOn" in errors[0]
     missing = analyst_runner.target_context_validation_errors({}, context)
@@ -3122,9 +3903,7 @@ def test_bounded_target_context_renders_bound_and_announcement() -> None:
     assert "does not establish the bound or expected release window" in block
     assert "outer bound, not a scheduled release day" in block
     assert "resolutionDate must byte-echo the registered resolve-by bound" in block
-    assert (
-        "thesis_announcement_fetch.fetch_official_announcement" in block
-    )
+    assert "thesis_announcement_fetch.fetch_official_announcement" in block
     assert "reasoning-token claim" in block
 
 
@@ -3144,7 +3923,7 @@ def test_bounded_announcement_mcp_config_is_exact_and_target_scoped() -> None:
         'newsroom/spm-announcement.html"]',
         'mcp_servers.thesis_announcement_fetch.cwd="/trusted/checkout"',
         "mcp_servers.thesis_announcement_fetch.required=true",
-        'mcp_servers.thesis_announcement_fetch.enabled_tools=['
+        "mcp_servers.thesis_announcement_fetch.enabled_tools=["
         '"fetch_official_announcement"]',
         "mcp_servers.thesis_announcement_fetch.startup_timeout_sec=10",
         "mcp_servers.thesis_announcement_fetch.tool_timeout_sec=30",
@@ -3190,9 +3969,7 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         target_context=context,
         generation_ticket={
             "ticketId": "2030-01-10-deadbeef",
-            "ticketPath": (
-                "records/tickets/2030-01-10/2030-01-10-deadbeef.json"
-            ),
+            "ticketPath": ("records/tickets/2030-01-10/2030-01-10-deadbeef.json"),
             "nonceSha256": "a" * 64,
         },
     )["ok"]
@@ -3217,8 +3994,7 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         missing_bound, missing_context
     )
     assert errors == [
-        "resolve-by-bound target has no canonical registered resolutionDate "
-        "bound"
+        "resolve-by-bound target has no canonical registered resolutionDate bound"
     ]
 
     malformed_context = {**context, "resolutionDate": "2027-02-29"}
@@ -3226,8 +4002,7 @@ def test_bounded_cell_gate_requires_byte_echo_but_not_reasoning_fetch_proof() ->
         bounded_cell(), malformed_context
     )
     assert errors == [
-        "resolve-by-bound target has no canonical registered resolutionDate "
-        "bound"
+        "resolve-by-bound target has no canonical registered resolutionDate bound"
     ]
 
 
@@ -3237,9 +4012,12 @@ def test_calendar_target_context_does_not_require_announcement_tool_fetch() -> N
         "sourceBinding": {"sourceUrl": "https://example.com/calendar"},
     }
     assert analyst_runner.target_context_validation_errors(cell, context) == []
-    assert analyst_runner.target_context_validation_errors(
-        cell, {**context, "resolutionDateBasis": "release-calendar"}
-    ) == []
+    assert (
+        analyst_runner.target_context_validation_errors(
+            cell, {**context, "resolutionDateBasis": "release-calendar"}
+        )
+        == []
+    )
 
 
 def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
@@ -3278,9 +4056,7 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
     assert not dst.exists()
 
     # Wrong-typed fields refuse with the type named.
-    src.write_text(
-        json.dumps([{"reasoning": "prose", "historicalContext": []}])
-    )
+    src.write_text(json.dumps([{"reasoning": "prose", "historicalContext": []}]))
     result = subprocess.run(
         [sys.executable, str(script), str(src), str(dst)],
         capture_output=True,
@@ -3306,7 +4082,13 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
                 {
                     "dataPointId": "x.y.2027.first_print",
                     "reasoning": [{"kind": "text", "text": "base rate"}],
-                    "historicalContext": [{"label": "2023", "value": 17.6}],
+                    "historicalContext": [
+                        {
+                            "period": {"type": "year", "value": "2023"},
+                            "label": "2023",
+                            "value": 17.6,
+                        }
+                    ],
                 }
             ]
         )
@@ -3318,8 +4100,29 @@ def test_normalizer_refuses_schema_incomplete_drafts_with_diagnostics(
     )
     assert result.returncode == 0, result.stderr
     assert json.loads(dst.read_text())[0]["historicalContext"] == [
-        {"label": "2023", "value": 17.6}
+        {
+            "label": "2023",
+            "value": 17.6,
+            "period": {"type": "year", "value": "2023"},
+        }
     ]
+
+    # A period object cannot manufacture its own corroborating display label.
+    # Preserve the missing label as null so shared validation refuses it.
+    missing_label = history_floor_test_cell(6)
+    missing_label["historicalContext"][0].pop("label")
+    src.write_text(json.dumps([missing_label]))
+    result = subprocess.run(
+        [sys.executable, str(script), str(src), str(dst)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    [normalized] = json.loads(dst.read_text())
+    assert normalized["historicalContext"][0]["label"] is None
+    report = history_floor_validation(normalized)
+    assert report["ok"] is False
+    assert "historicalContext[0] has no nonempty label" in report["cells"][0]["errors"]
 
 
 def test_full_prompt_embeds_the_cell_contract_verbatim() -> None:
@@ -3467,6 +4270,8 @@ def test_target_context_surfaces_the_resolution_parser_command() -> None:
     )
     assert "FSA_CRP_ADAPTERS['usda.fsa.crp.enrolled_acres_total']" in crp
     assert "fsa_crp_fetch_period" in crp
+    assert "fetch at least the latest six" in crp
+    assert "fetch at least the latest four" not in crp
 
     eia = analyst_runner.format_target_context(
         {
@@ -3500,8 +4305,7 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         "historicalContext": [
             {
                 "label": (
-                    "BEA ITA Table 5.1 line 18, "
-                    "2026 Q1 current June 24 2026 vintage"
+                    "BEA ITA Table 5.1 line 18, 2026 Q1 current June 24 2026 vintage"
                 ),
                 "value": 18511,
             },
@@ -3589,9 +4393,7 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
         cell = {"historicalContext": [{"label": label, "value": 18511}]}
         errors = analyst_runner.history_anchor_errors(cell, context)
         assert errors and "no historicalContext entry mentions" in errors[0], label
-    twice = {"historicalContext": [
-        {"label": "2026 Q1 (2026Q1) print", "value": 18511}
-    ]}
+    twice = {"historicalContext": [{"label": "2026 Q1 (2026Q1) print", "value": 18511}]}
     assert analyst_runner.history_anchor_errors(twice, context) == []
     # Prose "quarterly" after a digit is not a designator.
     for label in (
@@ -3632,9 +4434,7 @@ def test_quarter_anchor_labels_normalize_across_standard_writings() -> None:
 def test_target_context_never_guesses_parser_series_from_data_point_id() -> None:
     missing_series = analyst_runner.format_target_context(
         {
-            "dataPointId": (
-                "irs.actc.total_claims.2027.first_print.foreign_suffix"
-            ),
+            "dataPointId": ("irs.actc.total_claims.2027.first_print.foreign_suffix"),
             "sourceBinding": {"adapter": "irs-soi-pub1304"},
         }
     )
