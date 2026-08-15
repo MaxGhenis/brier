@@ -21,6 +21,26 @@ export interface ConditionalGroup {
 
 export const CONDITIONAL_GROUPS: ConditionalGroup[] = [
   {
+    slug: "crp-enrolled-acres-sep2027-ceiling-27m",
+    title: "CRP enrolled acres under the FY2027–31 ceiling",
+    question:
+      "What will USDA FSA's CRP Monthly Summary report for total enrolled acres in September 2027 under a 27,000,000-acre FY2027–31 ceiling versus no enacted FY2027–31 ceiling?",
+    eventLabel:
+      "An enacted farm bill sets the CRP acreage ceiling at 27,000,000 acres for FY2027–31",
+    trueArmSlug:
+      "us-crp-enrolled-acres-september-2027-ceiling-27-million-source-recovered-2026-08-13",
+    falseArmSlug:
+      "us-crp-enrolled-acres-september-2027-no-fy2027-31-ceiling-source-recovered-2026-08-13",
+    gapNote:
+      "The 467,981-acre gap between arms is the forecasted effect of the " +
+      "27,000,000-acre FY2027–31 ceiling on September 2027 CRP enrollment " +
+      "— published before Congress decides. Each arm resolves against the " +
+      "USDA FSA CRP Monthly Summary first print when its registered " +
+      "condition holds; an enactment setting a different FY2027–31 ceiling " +
+      "resolves neither arm.",
+    nonExhaustivePair: true,
+  },
+  {
     slug: "spm-child-poverty-cy2027-threshold-one-dollar",
     title: "Child SPM poverty under the $1 earned-income threshold",
     question:
