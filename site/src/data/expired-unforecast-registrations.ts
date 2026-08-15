@@ -35,15 +35,19 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   // generating against the stale registration now would violate the same
   // chronology guarantee, so the registration terminates explicitly here.
   "ons.ppi.output_all_manufactured_yoy.2026_07.first_print",
-  // The 2026-07-31 hackathon-day seeds crossed the seven-day orphan grace
-  // on 2026-08-07 without a forecast. The MTIS May and CES June first
-  // prints are already public, so forecasting them now would be hindsight;
-  // the ECI 2026 Q3 print remains in the future but terminates here for
-  // the PPI precedent's reason — a run against a week-stale registration
-  // breaks the chronology the grace window exists to protect.
+  // The 2026-07-31 hackathon-day MTIS May and CES June seeds crossed the
+  // seven-day orphan grace on 2026-08-07 without a forecast. Both first
+  // prints are already public, so forecasting them now would be hindsight.
   "census.mtis.total_business_inventories_level.may_2026.first_print",
   "bls.ces.average_hourly_earnings_private.june_2026.first_print",
-  "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print",
+  // The ECI Q3 seed from that wave did terminate on the record, but the
+  // 2026-08-14 auto-roll accidentally re-registered the same dataPointId
+  // before the seed guard existed. That fresh registration is now the live
+  // record, so the id no longer satisfies this list's own contract of being
+  // genuinely unforecast and out of grace and is not an active entry here.
+  // Ordinary rolls now refuse both terminal ids and ids with an existing
+  // immutable registration. If the fresh registration lapses through grace
+  // unforecast, a new terminal entry will be added.
   // The 2026-08-03 Farm Bill CRP conditional-pair registrations
   // (ticket …7916cf57) could never be forecast: every documented
   // attempt failed closed and published nothing. The two August 3 rolls

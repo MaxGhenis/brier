@@ -61,6 +61,30 @@ def recurring_seed_entry() -> dict:
     }
 
 
+def configure_roll_exclusion_state(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    expired_ids: list[str],
+) -> None:
+    repo_root = tmp_path / "repo"
+    expired_path = (
+        repo_root / "site" / "src" / "data" / "expired-unforecast-registrations.ts"
+    )
+    expired_path.parent.mkdir(parents=True)
+    entries = "".join(f'  "{data_point_id}",\n' for data_point_id in expired_ids)
+    expired_path.write_text(
+        f"export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n{entries}] as const;\n"
+    )
+    target_registrations = repo_root / "records" / "targets"
+    target_registrations.mkdir(parents=True)
+    monkeypatch.setattr(roll_docket, "ROOT", repo_root)
+    monkeypatch.setattr(
+        roll_docket,
+        "TARGET_REGISTRATIONS",
+        target_registrations,
+    )
+
+
 def test_recurring_seed_is_admitted_with_an_exact_registration_window() -> None:
     entry = recurring_seed_entry()
 
@@ -557,6 +581,154 @@ def test_main_prioritizes_dated_seeds_before_a_capped_cursor_target(
         "fixture.seed.later",
     ]
     assert all(target["seedPeriod"] == target["period"] for target in targets)
+
+
+def test_main_skips_expired_seed_before_cap_without_affecting_nonlisted_seed(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    expired = recurring_seed_entry()
+    expired.update(
+        {
+            "series": "fixture.seed.expired",
+            "slug": "expired-{month}-{year}",
+            "releaseDates": {"2026-07": "2026-07-27"},
+        }
+    )
+    healthy = copy.deepcopy(expired)
+    healthy.update(
+        {
+            "series": "fixture.seed.healthy",
+            "slug": "healthy-{month}-{year}",
+            "releaseDates": {"2026-07": "2026-08-20"},
+        }
+    )
+    expired_id = "fixture.seed.expired.2026_07.first_print"
+    configure_roll_exclusion_state(tmp_path, monkeypatch, [expired_id])
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [expired, healthy]}))
+    output = tmp_path / "targets.json"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 7, 25)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket, "RECORDS", tmp_path / "records")
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(roll_docket, "live_catalog", lambda: (set(), {}, set()))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["roll_docket.py", "--max-targets", "1", "--out", str(output)],
+    )
+
+    assert roll_docket.main() == 0
+
+    assert [
+        target["catalogSlug"] for target in json.loads(output.read_text())["targets"]
+    ] == ["healthy-july-2026"]
+    stdout = capsys.readouterr().out
+    assert (
+        f"  skip expired-july-2026: dataPointId {expired_id} is "
+        "terminally expired-unforecast\n"
+    ) in stdout
+    assert "capped:" not in stdout
+
+
+def test_main_refuses_an_unparseable_expired_registration_list(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    configure_roll_exclusion_state(
+        tmp_path,
+        monkeypatch,
+        ["fixture.seed.expired.2026_07.first_print"],
+    )
+    expired_path = (
+        roll_docket.ROOT
+        / "site"
+        / "src"
+        / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    expired_path.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  "fixture.seed.expired.2026_07.first_print",\n'
+        '  "fixture.seed.silently-dropped.2026_07.first_print"\n'
+        "] as const;\n"
+    )
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [recurring_seed_entry()]}))
+    output = tmp_path / "targets.json"
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(
+        roll_docket,
+        "live_catalog",
+        lambda: pytest.fail("catalog fetch must not run with an unreadable ratchet"),
+    )
+    monkeypatch.setattr(sys, "argv", ["roll_docket.py", "--out", str(output)])
+
+    assert roll_docket.main() == 1
+    assert not output.exists()
+    assert "could not parse" in capsys.readouterr().err
+
+
+def test_fresh_eci_registration_prevents_another_seed_registration(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    registry_data = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        row
+        for row in registry_data["series"]
+        if row["series"] == "bls.eci.total_compensation_private_industry_qoq"
+    )
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [entry]}))
+    output = tmp_path / "targets.json"
+    records = tmp_path / "records"
+    (
+        records
+        / "2026-08-14"
+        / (
+            "2026-08-14t17-30-00z-"
+            "bls-eci-total-compensation-private-industry-qoq-2026-q3"
+        )
+    ).mkdir(parents=True)
+    published_slug = roll_docket.format_slug(entry["slug"], "2026-Q2", entry["cadence"])
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 8, 14)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket, "RECORDS", records)
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        roll_docket,
+        "live_catalog",
+        lambda: ({published_slug}, {}, set()),
+    )
+    monkeypatch.setattr(sys, "argv", ["roll_docket.py", "--out", str(output)])
+
+    assert roll_docket.main() == 0
+    assert json.loads(output.read_text()) == {"targets": []}
+    stdout = capsys.readouterr().out
+    assert (
+        "  pending bls.eci.total_compensation_private_industry_qoq 2026-Q3: "
+        "an attempt for 2026-q3 was recorded but never published\n"
+    ) in stdout
+    assert "  retry " not in stdout
+    assert (
+        "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print "
+        "already has an immutable registration; refusing to re-register"
+    ) in stdout
 
 
 def test_main_hands_a_published_seed_back_to_the_ordinary_cursor(
@@ -1171,6 +1343,46 @@ def test_main_routes_bounded_pairs_only_to_ticket_selection(
         "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
         "additional-child-tax-credit-total-claims-ty2027-current-law",
     ]
+
+
+def test_main_skips_every_conditional_arm_when_one_id_is_expired(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = conditional_pair_entry()
+    [expired_arm, healthy_arm] = entry["conditionalPair"]["arms"]
+    expired_id = expired_arm["dataPointId"]
+    configure_roll_exclusion_state(tmp_path, monkeypatch, [expired_id])
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [entry]}))
+    output = tmp_path / "targets.json"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 8, 1)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(roll_docket, "live_catalog", lambda: (set(), {}, set()))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["roll_docket.py", "--include-bounded", "--out", str(output)],
+    )
+
+    assert roll_docket.main() == 0
+    assert json.loads(output.read_text()) == {"targets": []}
+    stdout = capsys.readouterr().out
+    assert (
+        f"  skip {expired_arm['catalogSlug']}: dataPointId {expired_id} is "
+        "terminally expired-unforecast\n"
+    ) in stdout
+    assert (
+        f"  skip {healthy_arm['catalogSlug']}: conditional pair-mate "
+        f"dataPointId {expired_id} is terminally expired-unforecast\n"
+    ) in stdout
 
 
 def test_conditional_pair_stops_when_release_window_opens_literally(

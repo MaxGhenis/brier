@@ -126,13 +126,39 @@ def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
         )
     # Line-anchored: an entry is a line holding exactly one quoted id and
     # a trailing comma. Quoted text inside // comments must not expire an
-    # id, and a comment-only array must still hit the empty-set error.
-    ids = frozenset(
-        re.findall(r'^\s*"([^"]+)",\s*$', match.group(1), flags=re.M)
-    )
+    # id. Every other nonblank line is corruption: accepting the valid
+    # subset would silently revive whichever terminal ids failed to parse.
+    parsed_ids: list[str] = []
+    for line_number, line in enumerate(match.group(1).splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("//"):
+            continue
+        entry_match = re.fullmatch(r'"([^"]+)",', stripped)
+        if entry_match is None:
+            raise ChallengeSubmissionError(
+                f"could not parse {EXPIRED_REGISTRATIONS_TS}: invalid expired "
+                f"entry on array line {line_number}"
+            )
+        entry = entry_match.group(1)
+        # This parser reads raw characters; the TypeScript runtime decodes
+        # string escapes. An escape-spelled entry (\u0066…, \x66…, \") would
+        # therefore mean different ids to the two consumers, so any entry
+        # that is not plain unescaped id text refuses outright — the list
+        # is repo-controlled and every legitimate id is bare ASCII.
+        if "\\" in entry or not re.fullmatch(r"[A-Za-z0-9._-]+", entry):
+            raise ChallengeSubmissionError(
+                f"could not parse {EXPIRED_REGISTRATIONS_TS}: expired entry "
+                f"on array line {line_number} is not plain unescaped id text"
+            )
+        parsed_ids.append(entry)
+    ids = frozenset(parsed_ids)
     if not ids:
         raise ChallengeSubmissionError(
             f"parsed an empty expired set from {EXPIRED_REGISTRATIONS_TS}"
+        )
+    if len(ids) != len(parsed_ids):
+        raise ChallengeSubmissionError(
+            f"parsed duplicate ids from {EXPIRED_REGISTRATIONS_TS}"
         )
     return ids
 
