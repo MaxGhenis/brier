@@ -744,12 +744,9 @@ def test_expired_list_admits_the_uppercase_ppi_id_lineage(
     site_data = tmp_path / "site" / "src" / "data"
     site_data.mkdir(parents=True)
     (site_data / "expired-unforecast-registrations.ts").write_text(
-        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [
-"
-        '  "bls.wp.WPSFD4.2026-08.first_print",
-'
-        "] as const;
-"
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  "bls.wp.WPSFD4.2026-08.first_print",\n'
+        "] as const;\n"
     )
     assert ingest.expired_unforecast_registrations(tmp_path) == frozenset(
         {"bls.wp.WPSFD4.2026-08.first_print"}
