@@ -126,13 +126,28 @@ def expired_unforecast_registrations(repo_root: Path) -> frozenset[str]:
         )
     # Line-anchored: an entry is a line holding exactly one quoted id and
     # a trailing comma. Quoted text inside // comments must not expire an
-    # id, and a comment-only array must still hit the empty-set error.
-    ids = frozenset(
-        re.findall(r'^\s*"([^"]+)",\s*$', match.group(1), flags=re.M)
-    )
+    # id. Every other nonblank line is corruption: accepting the valid
+    # subset would silently revive whichever terminal ids failed to parse.
+    parsed_ids: list[str] = []
+    for line_number, line in enumerate(match.group(1).splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("//"):
+            continue
+        entry_match = re.fullmatch(r'"([^"]+)",', stripped)
+        if entry_match is None:
+            raise ChallengeSubmissionError(
+                f"could not parse {EXPIRED_REGISTRATIONS_TS}: invalid expired "
+                f"entry on array line {line_number}"
+            )
+        parsed_ids.append(entry_match.group(1))
+    ids = frozenset(parsed_ids)
     if not ids:
         raise ChallengeSubmissionError(
             f"parsed an empty expired set from {EXPIRED_REGISTRATIONS_TS}"
+        )
+    if len(ids) != len(parsed_ids):
+        raise ChallengeSubmissionError(
+            f"parsed duplicate ids from {EXPIRED_REGISTRATIONS_TS}"
         )
     return ids
 

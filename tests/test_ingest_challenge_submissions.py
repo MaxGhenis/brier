@@ -628,7 +628,10 @@ def test_missing_ratchet_file_fails_closed(
 ) -> None:
     fixture = submission_repo
     ratchet = (
-        fixture["repo"] / "site" / "src" / "data"
+        fixture["repo"]
+        / "site"
+        / "src"
+        / "data"
         / "expired-unforecast-registrations.ts"
     )
     ratchet.unlink()
@@ -643,7 +646,10 @@ def test_quoted_comments_do_not_expire_ids(
     submission_repo: dict[str, Any],
 ) -> None:
     ratchet = (
-        submission_repo["repo"] / "site" / "src" / "data"
+        submission_repo["repo"]
+        / "site"
+        / "src"
+        / "data"
         / "expired-unforecast-registrations.ts"
     )
     ratchet.write_text(
@@ -666,7 +672,10 @@ def test_comment_only_ratchet_array_fails_closed(
     submission_repo: dict[str, Any],
 ) -> None:
     ratchet = (
-        submission_repo["repo"] / "site" / "src" / "data"
+        submission_repo["repo"]
+        / "site"
+        / "src"
+        / "data"
         / "expired-unforecast-registrations.ts"
     )
     ratchet.write_text(
@@ -678,4 +687,27 @@ def test_comment_only_ratchet_array_fails_closed(
         submission_repo["repo"], "Comment-only ratchet"
     )
     with pytest.raises(ingest.ChallengeSubmissionError, match="empty expired set"):
+        run_ingest(submission_repo)
+
+
+def test_partially_malformed_ratchet_array_fails_closed(
+    submission_repo: dict[str, Any],
+) -> None:
+    ratchet = (
+        submission_repo["repo"]
+        / "site"
+        / "src"
+        / "data"
+        / "expired-unforecast-registrations.ts"
+    )
+    ratchet.write_text(
+        "export const EXPIRED_UNFORECAST_REGISTRATIONS = [\n"
+        '  "agency.fixture.expired.2029_12.first_print",\n'
+        '  "agency.fixture.silently-dropped.2029_12.first_print"\n'
+        "] as const;\n"
+    )
+    submission_repo["head"] = commit_all(
+        submission_repo["repo"], "Partially malformed ratchet"
+    )
+    with pytest.raises(ingest.ChallengeSubmissionError, match="invalid expired entry"):
         run_ingest(submission_repo)
