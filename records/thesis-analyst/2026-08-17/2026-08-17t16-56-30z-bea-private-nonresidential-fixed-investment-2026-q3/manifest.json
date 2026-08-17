@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-17T16:56:30Z",
+  "runStartedAt": "2026-08-17T16:56:30Z",
+  "sealedAt": "2026-08-17T16:58:57Z",
+  "series": "bea.private_nonresidential_fixed_investment",
+  "period": "2026-Q3",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-private-nonresidential-fixed-investment-q3-2026",
+    "country": "US",
+    "dataPointId": "bea.private_nonresidential_fixed_investment.2026_q3.first_print",
+    "expectedReleaseDate": "2026-10-29",
+    "expectedReleaseWindow": {
+      "end": "2026-10-29",
+      "start": "2026-10-29"
+    },
+    "period": "2026-Q3",
+    "registeredAt": "2026-08-17T16:54:17Z",
+    "registeredAtUtc": "2026-08-17T16:54:17Z",
+    "registrationCommit": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+    "seedPeriod": "2026-Q3",
+    "series": "bea.private_nonresidential_fixed_investment",
+    "sourceBinding": {
+      "adapter": "bea-release",
+      "allowedHosts": [
+        "apps.bea.gov",
+        "www.bea.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-29",
+        "start": "2026-10-29"
+      },
+      "field": "Line 2: Nonresidential",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "T50305:L2",
+      "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+      "table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 2 (Nonresidential)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "78ab7e77198fa656ee058e98fa6d3e8743b3f9f24714b851883bee7fff4d2114",
+    "targetRegistrationPath": "records/targets/2026-08-17-78ab7e77198fa656ee058e98fa6d3e8743b3f9f24714b851883bee7fff4d2114.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "registrationCommit": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+  "targetContentHash": "78ab7e77198fa656ee058e98fa6d3e8743b3f9f24714b851883bee7fff4d2114",
+  "targetRegistrationPath": "records/targets/2026-08-17-78ab7e77198fa656ee058e98fa6d3e8743b3f9f24714b851883bee7fff4d2114.json",
+  "registeredAtUtc": "2026-08-17T16:54:17Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.11",
+    "model": "gpt-5.5",
+    "promptHash": "87db344b803f5ab4116f3b0f5f01ed64adb8ea1235daa18627ec596fff56e044",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-17T16:56:30Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "84d48089849a8d627f0824f145bfed1d7e9f2a6f9585efc6e6197758af827820"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tighten the driver wording to specify the five straight increases run from 2025-Q1 through 2026-Q2."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the interval step, briefly state whether sigma is computed on level changes using 2023-Q1 to 2026-Q2 consecutive quarters."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to specify that the five straight recent increases run from 2025-Q1 through 2026-Q2 and to state explicitly that sigma is computed from consecutive quarterly level changes over 2023-Q1 to 2026-Q2; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to specify that the five straight recent increases run from 2025-Q1 through 2026-Q2 and to state explicitly that sigma is computed from consecutive quarterly level changes over 2023-Q1 to 2026-Q2; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable: resolver fields match the ledger target, the prior/update/interval logic is compact and coherent, and no blocking leakage or unit issue is apparent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/prompt.md",
+      "sha256": "49b9479eee00033071aa96bf9a7691697c71688733f47d4beef120b832f95c54",
+      "bytes": 10698,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_command.json",
+      "sha256": "b6fb39552782bd2b99f123967dc7eeb7f11afc6b5a8edb4a49bd9b7062d86c47",
+      "bytes": 773,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_codex_stdout.jsonl",
+      "sha256": "fee5d6f9d1f01da83320f9d290b06aa2bce9f0febbb8db3ca1c6385fd40de2f8",
+      "bytes": 286635,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_codex_stderr.log",
+      "sha256": "9e008a98a73eb9eb0a8d57d91739b3ea8729014e6f65bd61ad9e59b348c712c7",
+      "bytes": 233,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_codex_events.jsonl",
+      "sha256": "aa21d79aacd945de41e840a5d7079531ae3ac147a097fdd84348a8d921b634aa",
+      "bytes": 286813,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_codex_last_message.txt",
+      "sha256": "34fe5ff9875903ae517207646e521c2f1b41ca36b4e7253f69a58366d0ebd888",
+      "bytes": 6648,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_codex_trace.json",
+      "sha256": "40943c802fac26ff2652f517886166ef26ea327069e5c53f1e406701acd33ed4",
+      "bytes": 560,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_stdout.txt",
+      "sha256": "34fe5ff9875903ae517207646e521c2f1b41ca36b4e7253f69a58366d0ebd888",
+      "bytes": 6648,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/draft_stderr.txt",
+      "sha256": "d45875df3de75809779e53e34ef39223911bb031649cc2e2849cecff55b6cd50",
+      "bytes": 248,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_prompt.md",
+      "sha256": "64f5f8d9d090ed247f859d42ced504c00877f51d64fd44ff7fe038ff082bf444",
+      "bytes": 10007,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_command.json",
+      "sha256": "cb8452a9fcf0fe620c0378ac9787fbab338f7c26b888809bb1b798d5565e9dd7",
+      "bytes": 769,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "2b3ba4db86f96047f7046fc5fcaca713ec2465e10a2b5017f7668ce9b2a97962",
+      "bytes": 823,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_codex_stderr.log",
+      "sha256": "764982de7beb1f11eeba2c01fe783b4c0505949968af718da4b63ddd2d4a9e0a",
+      "bytes": 233,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_codex_events.jsonl",
+      "sha256": "6e1afdb0d9f83ecfed21b20e3fa91b38044070119c61aeb26dba642fdabd27b1",
+      "bytes": 845,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_codex_last_message.txt",
+      "sha256": "9b2f13bf8b46c1655d37b4011b5c016461a4f524f381c27eb829ea703492df6a",
+      "bytes": 487,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_codex_trace.json",
+      "sha256": "c98baa1271ef4c1b1c2e63243fe7963d65f85dc6f1a8c93ba1af8d60f548022b",
+      "bytes": 555,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_stdout.txt",
+      "sha256": "9b2f13bf8b46c1655d37b4011b5c016461a4f524f381c27eb829ea703492df6a",
+      "bytes": 487,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/pre_submit_review_stderr.txt",
+      "sha256": "e694052644e5d9814adb7852329817f58cb75c45ac247e6f4148c6aa56786e7d",
+      "bytes": 248,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/revision_prompt.md",
+      "sha256": "a1aa200ad23f83eb2004a689409cebb219c592bc2c27d4994f0227bbfd38fd1f",
+      "bytes": 18769,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/command.json",
+      "sha256": "c815fbede203baa090d3e4805e370ab8807c86558b6259af75083482fcae5f94",
+      "bytes": 767,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/codex_stdout.jsonl",
+      "sha256": "8fb64dc625ccd58ee7a8f9fb6def597852d4cc87ee37d7f0baa8f1b8c17ccad3",
+      "bytes": 7792,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/codex_stderr.log",
+      "sha256": "c5d19bd1c1d92ef22f060d8aa09734654264178a00e1f0af47f53f60286017e0",
+      "bytes": 233,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/codex_events.jsonl",
+      "sha256": "6ce8f5c690de866d6b3d4cb71c13979d1cb68145158d0775ca681d5bae18b060",
+      "bytes": 7814,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/codex_last_message.txt",
+      "sha256": "0e64f8f0fbfabbf636910d9e6b9ffa7237910f1879237ce083fb6f482f413c22",
+      "bytes": 7047,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/codex_trace.json",
+      "sha256": "16adf992d0505837afc280b68cfd2147fc7320d432d3035dd183e733541ded08",
+      "bytes": 552,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/stdout.txt",
+      "sha256": "0e64f8f0fbfabbf636910d9e6b9ffa7237910f1879237ce083fb6f482f413c22",
+      "bytes": 7047,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/stderr.txt",
+      "sha256": "d567c6a1443ea4ae40f8661fd91b9c121907f88389e555c0ca9365f476bc94ee",
+      "bytes": 248,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/raw_response.txt",
+      "sha256": "0e64f8f0fbfabbf636910d9e6b9ffa7237910f1879237ce083fb6f482f413c22",
+      "bytes": 7047,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/parsed_cells.json",
+      "sha256": "42691a917152e105f1571165a56dcbfa134562f8b29680840343b4cdfbf325ce",
+      "bytes": 8818,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/normalized_cells.json",
+      "sha256": "8dab3c8357024c8dde1389a53279a6bafa6bb91c19938f7237bdbac26ffb2163",
+      "bytes": 26263,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/distribution.json",
+      "sha256": "4fe2659356abe7fea8284a8f1ecf8e31d86f280d787d2e442264b57b8ed6cf63",
+      "bytes": 13661,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/validation.json",
+      "sha256": "12cbbfb3610fa54a771864eace6f6b8ae1385f2d7800ccc0ff166d085c9eda92",
+      "bytes": 151,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/cells.with_activity.json",
+      "sha256": "c257d2be0e4009896ce47e0b92c41afa8f4fa5b4ae1a118bd73d463d104085ce",
+      "bytes": 40425,
+      "createdAt": "2026-08-17T16:56:30Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-56-30z-bea-private-nonresidential-fixed-investment-2026-q3/manifest.json",
+      "sha256": "e567569066c3d2222eef264a7292d6a4aadc437858a62b7eaef26068bfd80419",
+      "bytes": 14838,
+      "createdAt": "2026-08-17T16:56:30Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-private-nonresidential-fixed-investment-q3-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "f22415b2063d3c23aa7817e8fd0e853d157d9c47e066a2d90a635c6f8d2a94d0"
+}

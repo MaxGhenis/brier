@@ -1,0 +1,54 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: dol.eta.continued_claims.sa
+- period: week_2026-08-22
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. The cell's unit must equal targetUnit below byte-for-byte, even when it is not a member of the contract's exploratory unit menu. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "continued-claims-week-2026-08-22"
+- country: "US"
+- targetUnit: "millions"
+- dataPointId: "dol.eta.continued_claims.sa.week_2026-08-22.first_print"
+- expectedReleaseWindow: {"end": "2026-09-05", "start": "2026-09-01"}
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-09-05", "start": "2026-09-01"}, "field": "CCSA", "releasePolicy": "advance_vintage", "sourceSeriesId": "CCSA", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA", "table": "ALFRED graph CSV", "transform": {"factor": 1e-06, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-08-17-8aed8abb263c72b5f3047e785d78a9a285c92820da192cadb03ffcaf826ddf0c.json"
+- targetContentHash: "8aed8abb263c72b5f3047e785d78a9a285c92820da192cadb03ffcaf826ddf0c"
+- registrationCommit: "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95"
+- registeredAtUtc: "2026-08-17T16:54:17Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+1b94aac00f3267a80c8ad7bed6caf49909d1b9c9b6499d261b68d499810d1224
+
+# Draft forecast response
+{"slug":"continued-claims-week-2026-08-22","country":"US","type":"data","title":"US Continued Claims, Week Ending 2026-08-22","question":"What will the U.S. Department of Labor Employment and Training Administration first-print seasonally adjusted insured unemployment (continued claims, CCSA) be for week ending 2026-08-22?","unit":"millions","pointEstimate":1.785,"ciLow":1.749,"ciHigh":1.821,"confidence":0.8,"resolutionDate":"2026-09-03","resolutionSource":"U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims Report","resolutionSourceUrl":"https://www.dol.gov/ui/data.pdf","resolutionRule":"Use the first official ETA Unemployment Insurance Weekly Claims news release that reports seasonally adjusted insured unemployment for week ending 2026-08-22. Take the advance/first-print seasonally adjusted insured unemployment level for that week, measured in persons, and multiply by 0.000001 to express it in millions. Do not use later revisions or corrected historical vintages unless the first-print release itself is withdrawn before publication.","dataPointId":"dol.eta.continued_claims.sa.week_2026-08-22.first_print","historicalContext":[{"period":{"type":"week_ending","value":"2026-05-30"},"label":"week ending 2026-05-30","value":1.786},{"period":{"type":"week_ending","value":"2026-06-06"},"label":"week ending 2026-06-06","value":1.8},{"period":{"type":"week_ending","value":"2026-06-13"},"label":"week ending 2026-06-13","value":1.812},{"period":{"type":"week_ending","value":"2026-06-20"},"label":"week ending 2026-06-20","value":1.806},{"period":{"type":"week_ending","value":"2026-06-27"},"label":"week ending 2026-06-27","value":1.821},{"period":{"type":"week_ending","value":"2026-07-04"},"label":"week ending 2026-07-04","value":1.798},{"period":{"type":"week_ending","value":"2026-07-11"},"label":"week ending 2026-07-11","value":1.789},{"period":{"type":"week_ending","value":"2026-07-18"},"label":"week ending 2026-07-18","value":1.777},{"period":{"type":"week_ending","value":"2026-07-25"},"label":"week ending 2026-07-25","value":1.799},{"period":{"type":"week_ending","value":"2026-08-01"},"label":"week ending 2026-08-01","value":1.777}],"drivers":["recent seasonally adjusted insured unemployment centered near 1.79 million","latest first-print level below the recent four-week average","initial claims for week ending 2026-08-08 rose to 209000 but remained low","three-week forecast horizon before the 2026-09-03 release","weekly continued-claims changes recently had about 0.016 million standard deviation"],"sourceContext":["https://www.dol.gov/ui/data.pdf","https://oui.doleta.gov/unemploy/claims_arch.asp","https://fred.stlouisfed.org/releases/calendar?m=&ob=n&od=asc&rid=180&ve=2026-12-31&vs=2026-01-01&y=","https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA"],"runAt":"2026-08-17T17:05:40Z","reasoning":[{"kind":"heading","text":"Forecast for CCSA week ending 2026-08-22"},{"kind":"text","text":"Framing and exact resolver: the target is ETA continued claims, also called seasonally adjusted insured unemployment, for week ending 2026-08-22, first print only, reported in the UI Weekly Claims News Release and converted from persons to millions. The variant used throughout is seasonally adjusted insured unemployment, not initial claims, not not-seasonally-adjusted claims, and not all-program continued weeks."},{"kind":"tool","tool":"official.lookup","call":"Checked ETA archive/schedule page and release calendar context for the UI Weekly Claims News Release timing.","result":"ETA archive states the UI Weekly Claims News Release is published each Thursday morning at 8:30 AM EST, with 1 listed 2026 non-Thursday exception: Wednesday, November 25, 2026 at 8:30 AM EST; the release calendar also lists Thursday September 03, 2026 at 7:30 AM Central for the Unemployment Insurance Weekly Claims Report."},{"kind":"tool","tool":"official.lookup","call":"Fetched the current DOL UI Weekly Claims PDF dated Thursday, August 13, 2026.","result":"The August 13, 2026 release reported advance seasonally adjusted insured unemployment for week ending August 1, 2026 of 1,777,000, down 22,000 from the revised July 25 level of 1,799,000; the 4-week moving average was 1,785,500."},{"kind":"tool","tool":"official.lookup","call":"Read the official PDF's seasonally adjusted US weekly UI claims history table for recent insured-unemployment prints.","result":"Recent seasonally adjusted insured unemployment values in thousands were: May 30 2026 = 1,786; June 6 = 1,800; June 13 = 1,812; June 20 = 1,806; June 27 = 1,821; July 4 = 1,798; July 11 = 1,789; July 18 = 1,777; July 25 = 1,799; August 1 = 1,777."},{"kind":"tool","tool":"official.lookup","call":"Read the same DOL PDF for contemporaneous initial-claims context.","result":"Initial claims, seasonally adjusted, were 209,000 for week ending August 8, 2026, up 9,000 from the revised August 1 level of 200,000; the 4-week moving average was 199,000."},{"kind":"text","text":"Base rate/reference class: over the recent official reference class from week ending 2026-05-30 through 2026-08-01, seasonally adjusted insured unemployment stayed in a narrow 1.777 million to 1.821 million range, with the latest 1.777 million near the low end but the four-week average still 1.7855 million."},{"kind":"text","text":"Level, momentum, one-off, and policy-mechanism effects: level argues for partial reversion from 1.777 toward the 1.7855 four-week average; recent momentum is nearly flat; the 209000 initial-claims print is a small upward pressure on later continued claims; no policy rule change or special program shock is evident in the public release text."},{"kind":"math","text":"Prior/update/interval: persistence prior starts at the latest official SA insured unemployment print, 1.777 million for week ending 2026-08-01. Historical sample is the 12 successive weekly changes from 2026-05-09 through 2026-08-01 implied by the fetched official table, with mean weekly change about +0.0005 million and weekly sigma = 0.0163 million. For the three-week horizon to 2026-08-22, horizon sigma = sqrt(3)*0.0163 = 0.0283 million, and the 80% half-width is about 1.28*sigma = 0.036 million. Updates: +0.002 million trend drift, +0.004 million level reversion toward the 4-week average, and +0.002 million for the latest initial-claims uptick, giving point 1.785 million and interval 1.785 +/- 0.036 = [1.749, 1.821]."},{"kind":"text","text":"Counter-considerations: upside risk would come from the August 8, August 15, and August 22 claims cohorts translating into slower exits from UI, which would land above the interval if insured unemployment rises past about 1.821 million. Downside risk would come from rapid summer recalls or claims-processing normalization, which would land below the interval if the print falls under about 1.749 million. An outside the interval result would most likely reflect a genuine labor-market turn or a temporary reporting/seasonal-adjustment shock rather than normal week-to-week noise."},{"kind":"forecast","point":1.785,"ciLow":1.749,"ciHigh":1.821}]}

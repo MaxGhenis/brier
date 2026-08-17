@@ -1,0 +1,975 @@
+[
+  {
+    "slug": "us-private-research-development-fixed-investment-q3-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US private R&D fixed investment, Q3 2026",
+    "question": "What will BEA report as the first-print nominal seasonally adjusted annual-rate value for private fixed investment in research and development, NIPA Table 5.3.5 line 18, in 2026-Q3?",
+    "unit": "usd_billions",
+    "pointEstimate": 964,
+    "ciLow": 934,
+    "ciHigh": 994,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-29",
+    "resolutionSource": "U.S. Bureau of Economic Analysis GDP advance release, NIPA Table 5.3.5 line 18",
+    "resolutionSourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+    "resolutionRule": "Resolve to the first official BEA GDP advance-release print for 2026-Q3, NIPA Table 5.3.5, line 18 Research and development, nominal seasonally adjusted annual rate. Use the published table value transformed by multiplying the table's millions-of-dollars value by 0.001 to usd_billions, retaining the precision implied by the official table; do not use later second, third, annual-update, or comprehensive-revision values except insofar as BEA has already incorporated them into the first Q3 advance-release table on 2026-10-29.",
+    "dataPointId": "bea.research_and_development_fixed_investment.2026_q3.first_print",
+    "historicalContext": [
+      {
+        "label": "2025-Q1",
+        "value": 817.78,
+        "period": {
+          "type": "quarter",
+          "value": "2025-Q1"
+        }
+      },
+      {
+        "label": "2025-Q2",
+        "value": 829.769,
+        "period": {
+          "type": "quarter",
+          "value": "2025-Q2"
+        }
+      },
+      {
+        "label": "2025-Q3",
+        "value": 855.584,
+        "period": {
+          "type": "quarter",
+          "value": "2025-Q3"
+        }
+      },
+      {
+        "label": "2025-Q4",
+        "value": 881.507,
+        "period": {
+          "type": "quarter",
+          "value": "2025-Q4"
+        }
+      },
+      {
+        "label": "2026-Q1",
+        "value": 909.507,
+        "period": {
+          "type": "quarter",
+          "value": "2026-Q1"
+        }
+      },
+      {
+        "label": "2026-Q2",
+        "value": 937.772,
+        "period": {
+          "type": "quarter",
+          "value": "2026-Q2"
+        }
+      }
+    ],
+    "drivers": [
+      "recent nominal R&D investment level rose in each listed quarter",
+      "Q2 advance release reported current-dollar GDP up 7.9 percent SAAR",
+      "BEA said Q2 intellectual property products growth included research and development",
+      "September 2026 annual update can rebase the level before the Q3 advance print",
+      "advance GDP estimates use partial source data and BEA projections"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule/full",
+      "https://www.bea.gov/news/2026/gdp-advance-estimate-2nd-quarter-2026",
+      "https://fred.stlouisfed.org/series/Y006RC1Q027SBEA",
+      "https://alfred.stlouisfed.org/release?et=&ob=pv&od=desc&pageID=1&rd=2025-06-26&rid=53&t=nonresidential",
+      "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey"
+    ],
+    "runAt": "2026-08-17T17:02:01Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US private research and development fixed investment, 2026-Q3 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Resolver framing: this is BEA NIPA Table 5.3.5 line 18, Research and development, nominal seasonally adjusted annual rate. The registered target unit is usd_billions, so the resolver multiplies BEA's table value in millions by 0.001. The exact source concept is T50305:L18, mirrored by FRED/ALFRED series Y006RC1Q027SBEA; FRED and ALFRED are history mirrors only, and BEA is the resolving source."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA's 2026 release schedule and the current GDP advance-release page for the release date and current macro context.",
+        "result": "BEA's schedule lists GDP (Advance Estimate), 3rd Quarter 2026 on October 29, 2026 at 8:30 AM; the Q2 2026 advance release reported real GDP +1.5 percent SAAR, current-dollar GDP +7.9 percent SAAR, real final sales to private domestic purchasers +3.9 percent, and PCE prices +5.1 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Variant check: all historical anchors are the same nominal seasonally adjusted annual-rate R&D fixed-investment variant as the target, not real growth rates, not annual data, and not government R&D."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the latest FRED public BEA mirror for Y006RC1Q027SBEA, the BEA R&D fixed-investment series corresponding to NIPA Table 5.3.5 line 18.",
+        "result": "The fetched recent values were 2025-Q2 829.769, 2025-Q3 855.584, 2025-Q4 881.507, 2026-Q1 909.507, and 2026-Q2 937.772 usd_billions; FRED identifies the source as BEA, release Gross Domestic Product, units billions of dollars SAAR, quarterly."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked ALFRED's GDP release history for the same BEA/FRED series to extend the recent reference class back one additional distinct quarter.",
+        "result": "The ALFRED GDP release page for the nonresidential tag shows Y006RC1Q027SBEA, Gross Private Domestic Investment: Fixed Investment: Nonresidential: Intellectual Property Products: Research and Development, with Q1 2025 at 817.780 usd_billions on the 2025-06-26 release page."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA's Q2 2026 advance-release technical notes for source-data mechanisms relevant to the next advance print.",
+        "result": "BEA reported Q2 2026 real GDP +1.5 percent SAAR and current-dollar GDP +7.9 percent SAAR; Q2 investment increased, intellectual property products increased, and BEA attributed the R&D component to a judgmental trend and BLS Current Employment Statistics."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: over the six fetched quarterly levels from 2025-Q1 through 2026-Q2, the five one-quarter changes were +11.989, +25.815, +25.923, +28.000, and +28.265 usd_billions, for a mean base rate of about +23.998 usd_billions per quarter."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the last fetched level, 937.772, plus the 2025-Q1 to 2026-Q2 mean quarterly change of 23.998, giving 961.770. I add about 2.2 for continued nominal momentum, the cited Q2 BEA IPP/R&D strength, and the upward recent run rate in the fetched series, giving a point estimate of 964. For interval sizing, sigma is computed from the fetched successive quarterly level changes: sigma = 6.809 usd_billions, so 1.28*sigma = 8.715. I judgmentally widen to a 30 usd_billions half-width because the Q3 first print follows BEA's September 30, 2026 annual update and the advance estimate uses partial source data plus projections; final bounds are 964-30=934 and 964+30=994."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: stronger Q3 nominal GDP, continued IPP/R&D acceleration, or an upward annual-update level revision would land above the interval. Downside risk: weaker R&D source inputs, slower corporate R&D capitalization, or a downward annual-update rebasing would land below the interval. An outside the interval outcome would most likely require both a large annual-update level shift and an unusually large Q3 R&D source-data surprise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique by tying the +2.2 update to cited BEA/FRED evidence rather than uncited AI/software/payroll claims, explicitly stating FRED/ALFRED are mirrors, and clarifying that the 30 billion half-width is judgmental widening beyond recent realized volatility."
+      },
+      {
+        "kind": "forecast",
+        "point": 964,
+        "ciLow": 934,
+        "ciHigh": 994
+      }
+    ],
+    "agentReportedRunAt": "2026-08-17T16:59:05Z",
+    "runStartedAt": "2026-08-17T16:58:57Z",
+    "promptMode": "fast",
+    "registrationCommit": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+    "targetContentHash": "a80665069544aa19303c03ea1fb560eba0b15bc2443c19c8b09bfe4d9f0f3ac1",
+    "targetRegistrationPath": "records/targets/2026-08-17-a80665069544aa19303c03ea1fb560eba0b15bc2443c19c8b09bfe4d9f0f3ac1.json",
+    "registeredAtUtc": "2026-08-17T16:54:17Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 889.0,
+        "upper": 1039.0
+      },
+      "points": [
+        {
+          "value": 889.0,
+          "probability": 0.0
+        },
+        {
+          "value": 889.75,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 890.5,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 891.25,
+          "probability": 0.005
+        },
+        {
+          "value": 892.0,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 892.75,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 893.5,
+          "probability": 0.01
+        },
+        {
+          "value": 894.25,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 895.0,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 895.75,
+          "probability": 0.015
+        },
+        {
+          "value": 896.5,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 897.25,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 898.0,
+          "probability": 0.02
+        },
+        {
+          "value": 898.75,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 899.5,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 900.25,
+          "probability": 0.025
+        },
+        {
+          "value": 901.0,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 901.75,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 902.5,
+          "probability": 0.03
+        },
+        {
+          "value": 903.25,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 904.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 904.75,
+          "probability": 0.035
+        },
+        {
+          "value": 905.5,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 906.25,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 907.0,
+          "probability": 0.04
+        },
+        {
+          "value": 907.75,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 908.5,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 909.25,
+          "probability": 0.045
+        },
+        {
+          "value": 910.0,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 910.75,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 911.5,
+          "probability": 0.05
+        },
+        {
+          "value": 912.25,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 913.0,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 913.75,
+          "probability": 0.055
+        },
+        {
+          "value": 914.5,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 915.25,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 916.0,
+          "probability": 0.06
+        },
+        {
+          "value": 916.75,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 917.5,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 918.25,
+          "probability": 0.065
+        },
+        {
+          "value": 919.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 919.75,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 920.5,
+          "probability": 0.07
+        },
+        {
+          "value": 921.25,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 922.0,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 922.75,
+          "probability": 0.075
+        },
+        {
+          "value": 923.5,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 924.25,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 925.0,
+          "probability": 0.08
+        },
+        {
+          "value": 925.75,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 926.5,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 927.25,
+          "probability": 0.085
+        },
+        {
+          "value": 928.0,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 928.75,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 929.5,
+          "probability": 0.09
+        },
+        {
+          "value": 930.25,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 931.0,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 931.75,
+          "probability": 0.095
+        },
+        {
+          "value": 932.5,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 933.25,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 934.0,
+          "probability": 0.1
+        },
+        {
+          "value": 934.75,
+          "probability": 0.11
+        },
+        {
+          "value": 935.5,
+          "probability": 0.12
+        },
+        {
+          "value": 936.25,
+          "probability": 0.13
+        },
+        {
+          "value": 937.0,
+          "probability": 0.14
+        },
+        {
+          "value": 937.75,
+          "probability": 0.15
+        },
+        {
+          "value": 938.5,
+          "probability": 0.16
+        },
+        {
+          "value": 939.25,
+          "probability": 0.17
+        },
+        {
+          "value": 940.0,
+          "probability": 0.18
+        },
+        {
+          "value": 940.75,
+          "probability": 0.19
+        },
+        {
+          "value": 941.5,
+          "probability": 0.2
+        },
+        {
+          "value": 942.25,
+          "probability": 0.21
+        },
+        {
+          "value": 943.0,
+          "probability": 0.22
+        },
+        {
+          "value": 943.75,
+          "probability": 0.23
+        },
+        {
+          "value": 944.5,
+          "probability": 0.24
+        },
+        {
+          "value": 945.25,
+          "probability": 0.25
+        },
+        {
+          "value": 946.0,
+          "probability": 0.26
+        },
+        {
+          "value": 946.75,
+          "probability": 0.27
+        },
+        {
+          "value": 947.5,
+          "probability": 0.28
+        },
+        {
+          "value": 948.25,
+          "probability": 0.29
+        },
+        {
+          "value": 949.0,
+          "probability": 0.3
+        },
+        {
+          "value": 949.75,
+          "probability": 0.31
+        },
+        {
+          "value": 950.5,
+          "probability": 0.32
+        },
+        {
+          "value": 951.25,
+          "probability": 0.33
+        },
+        {
+          "value": 952.0,
+          "probability": 0.34
+        },
+        {
+          "value": 952.75,
+          "probability": 0.35
+        },
+        {
+          "value": 953.5,
+          "probability": 0.36
+        },
+        {
+          "value": 954.25,
+          "probability": 0.37
+        },
+        {
+          "value": 955.0,
+          "probability": 0.38
+        },
+        {
+          "value": 955.75,
+          "probability": 0.39
+        },
+        {
+          "value": 956.5,
+          "probability": 0.4
+        },
+        {
+          "value": 957.25,
+          "probability": 0.41
+        },
+        {
+          "value": 958.0,
+          "probability": 0.42
+        },
+        {
+          "value": 958.75,
+          "probability": 0.43
+        },
+        {
+          "value": 959.5,
+          "probability": 0.44
+        },
+        {
+          "value": 960.25,
+          "probability": 0.45
+        },
+        {
+          "value": 961.0,
+          "probability": 0.46
+        },
+        {
+          "value": 961.75,
+          "probability": 0.47
+        },
+        {
+          "value": 962.5,
+          "probability": 0.48
+        },
+        {
+          "value": 963.25,
+          "probability": 0.49
+        },
+        {
+          "value": 964.0,
+          "probability": 0.5
+        },
+        {
+          "value": 964.75,
+          "probability": 0.51
+        },
+        {
+          "value": 965.5,
+          "probability": 0.52
+        },
+        {
+          "value": 966.25,
+          "probability": 0.53
+        },
+        {
+          "value": 967.0,
+          "probability": 0.54
+        },
+        {
+          "value": 967.75,
+          "probability": 0.55
+        },
+        {
+          "value": 968.5,
+          "probability": 0.56
+        },
+        {
+          "value": 969.25,
+          "probability": 0.57
+        },
+        {
+          "value": 970.0,
+          "probability": 0.58
+        },
+        {
+          "value": 970.75,
+          "probability": 0.59
+        },
+        {
+          "value": 971.5,
+          "probability": 0.6
+        },
+        {
+          "value": 972.25,
+          "probability": 0.61
+        },
+        {
+          "value": 973.0,
+          "probability": 0.62
+        },
+        {
+          "value": 973.75,
+          "probability": 0.63
+        },
+        {
+          "value": 974.5,
+          "probability": 0.64
+        },
+        {
+          "value": 975.25,
+          "probability": 0.65
+        },
+        {
+          "value": 976.0,
+          "probability": 0.66
+        },
+        {
+          "value": 976.75,
+          "probability": 0.67
+        },
+        {
+          "value": 977.5,
+          "probability": 0.68
+        },
+        {
+          "value": 978.25,
+          "probability": 0.69
+        },
+        {
+          "value": 979.0,
+          "probability": 0.7
+        },
+        {
+          "value": 979.75,
+          "probability": 0.71
+        },
+        {
+          "value": 980.5,
+          "probability": 0.72
+        },
+        {
+          "value": 981.25,
+          "probability": 0.73
+        },
+        {
+          "value": 982.0,
+          "probability": 0.74
+        },
+        {
+          "value": 982.75,
+          "probability": 0.75
+        },
+        {
+          "value": 983.5,
+          "probability": 0.76
+        },
+        {
+          "value": 984.25,
+          "probability": 0.77
+        },
+        {
+          "value": 985.0,
+          "probability": 0.78
+        },
+        {
+          "value": 985.75,
+          "probability": 0.79
+        },
+        {
+          "value": 986.5,
+          "probability": 0.8
+        },
+        {
+          "value": 987.25,
+          "probability": 0.81
+        },
+        {
+          "value": 988.0,
+          "probability": 0.82
+        },
+        {
+          "value": 988.75,
+          "probability": 0.83
+        },
+        {
+          "value": 989.5,
+          "probability": 0.84
+        },
+        {
+          "value": 990.25,
+          "probability": 0.85
+        },
+        {
+          "value": 991.0,
+          "probability": 0.86
+        },
+        {
+          "value": 991.75,
+          "probability": 0.87
+        },
+        {
+          "value": 992.5,
+          "probability": 0.88
+        },
+        {
+          "value": 993.25,
+          "probability": 0.89
+        },
+        {
+          "value": 994.0,
+          "probability": 0.9
+        },
+        {
+          "value": 994.75,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 995.5,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 996.25,
+          "probability": 0.905
+        },
+        {
+          "value": 997.0,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 997.75,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 998.5,
+          "probability": 0.91
+        },
+        {
+          "value": 999.25,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1000.0,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1000.75,
+          "probability": 0.915
+        },
+        {
+          "value": 1001.5,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1002.25,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1003.0,
+          "probability": 0.92
+        },
+        {
+          "value": 1003.75,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1004.5,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1005.25,
+          "probability": 0.925
+        },
+        {
+          "value": 1006.0,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1006.75,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1007.5,
+          "probability": 0.93
+        },
+        {
+          "value": 1008.25,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1009.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1009.75,
+          "probability": 0.935
+        },
+        {
+          "value": 1010.5,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1011.25,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1012.0,
+          "probability": 0.94
+        },
+        {
+          "value": 1012.75,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1013.5,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1014.25,
+          "probability": 0.945
+        },
+        {
+          "value": 1015.0,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1015.75,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1016.5,
+          "probability": 0.95
+        },
+        {
+          "value": 1017.25,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1018.0,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1018.75,
+          "probability": 0.955
+        },
+        {
+          "value": 1019.5,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1020.25,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1021.0,
+          "probability": 0.96
+        },
+        {
+          "value": 1021.75,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1022.5,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1023.25,
+          "probability": 0.965
+        },
+        {
+          "value": 1024.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1024.75,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1025.5,
+          "probability": 0.97
+        },
+        {
+          "value": 1026.25,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1027.0,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1027.75,
+          "probability": 0.975
+        },
+        {
+          "value": 1028.5,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1029.25,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1030.0,
+          "probability": 0.98
+        },
+        {
+          "value": 1030.75,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1031.5,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1032.25,
+          "probability": 0.985
+        },
+        {
+          "value": 1033.0,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1033.75,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1034.5,
+          "probability": 0.99
+        },
+        {
+          "value": 1035.25,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1036.0,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1036.75,
+          "probability": 0.995
+        },
+        {
+          "value": 1037.5,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1038.25,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1039.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 964,
+        "median": 964,
+        "interval80": {
+          "lower": 934,
+          "upper": 994
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

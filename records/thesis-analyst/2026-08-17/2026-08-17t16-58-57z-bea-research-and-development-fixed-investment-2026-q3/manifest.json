@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-17T16:58:57Z",
+  "runStartedAt": "2026-08-17T16:58:57Z",
+  "sealedAt": "2026-08-17T17:02:01Z",
+  "series": "bea.research_and_development_fixed_investment",
+  "period": "2026-Q3",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-private-research-development-fixed-investment-q3-2026",
+    "country": "US",
+    "dataPointId": "bea.research_and_development_fixed_investment.2026_q3.first_print",
+    "expectedReleaseDate": "2026-10-29",
+    "expectedReleaseWindow": {
+      "end": "2026-10-29",
+      "start": "2026-10-29"
+    },
+    "period": "2026-Q3",
+    "registeredAt": "2026-08-17T16:54:17Z",
+    "registeredAtUtc": "2026-08-17T16:54:17Z",
+    "registrationCommit": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bea.gov/news/schedule",
+    "seedPeriod": "2026-Q3",
+    "series": "bea.research_and_development_fixed_investment",
+    "sourceBinding": {
+      "adapter": "bea-release",
+      "allowedHosts": [
+        "apps.bea.gov",
+        "www.bea.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-29",
+        "start": "2026-10-29"
+      },
+      "field": "Line 18: Research and development",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "T50305:L18",
+      "sourceUrl": "https://apps.bea.gov/iTable/?ReqID=19&step=3&isuri=1&nipa_table_list=145&categories=survey",
+      "table": "Gross Domestic Product advance release, NIPA Table 5.3.5, line 18 (Research and development)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "a80665069544aa19303c03ea1fb560eba0b15bc2443c19c8b09bfe4d9f0f3ac1",
+    "targetRegistrationPath": "records/targets/2026-08-17-a80665069544aa19303c03ea1fb560eba0b15bc2443c19c8b09bfe4d9f0f3ac1.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "registrationCommit": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+  "targetContentHash": "a80665069544aa19303c03ea1fb560eba0b15bc2443c19c8b09bfe4d9f0f3ac1",
+  "targetRegistrationPath": "records/targets/2026-08-17-a80665069544aa19303c03ea1fb560eba0b15bc2443c19c8b09bfe4d9f0f3ac1.json",
+  "registeredAtUtc": "2026-08-17T16:54:17Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.11",
+    "model": "gpt-5.5",
+    "promptHash": "87db344b803f5ab4116f3b0f5f01ed64adb8ea1235daa18627ec596fff56e044",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-17T16:58:57Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "99d4dd82cf38d7545f9bc0b394dca8dbc8f610df67b01a771414254bd90e283c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The +2.2 inside-view adjustment cites software, AI, and professional payroll trends, but the shown evidence only directly supports recent BEA R&D/IPP strength and Q2 macro context.",
+        "actionRequested": "Either tie the +2.2 adjustment only to the cited BEA/FRED evidence or add a cited public source for the software/AI/professional-payroll claim."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that FRED/ALFRED are mirrors only and BEA is the resolving source."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the 30 billion half-width is judgmental widening beyond realized recent-quarter volatility rather than mechanically implied by the five-change sample."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique by tying the +2.2 update to cited BEA/FRED evidence rather than uncited AI/software/payroll claims, explicitly stating FRED/ALFRED are mirrors, and clarifying that the 30 billion half-width is judgmental widening beyond recent realized volatility.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique by tying the +2.2 update to cited BEA/FRED evidence rather than uncited AI/software/payroll claims, explicitly stating FRED/ALFRED are mirrors, and clarifying that the 30 billion half-width is judgmental widening beyond recent realized volatility.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique by tying the +2.2 update to cited BEA/FRED evidence rather than uncited AI/software/payroll claims, explicitly stating FRED/ALFRED are mirrors, and clarifying that the 30 billion half-width is judgmental widening beyond recent realized volatility.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; resolver, unit, first-print rule, prior/update/interval structure, and JSON fields are coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/prompt.md",
+      "sha256": "a8bb00b03642747cfa6b25fa07f8381ec4c7462c13d27d2fa3d65cda52d12506",
+      "bytes": 10731,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_command.json",
+      "sha256": "2e5fccaf96731395a7ac6c07cdcd6a8b3b5f4649eaa75c1a472cfcdc07773b28",
+      "bytes": 775,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_codex_stdout.jsonl",
+      "sha256": "01870e3ff23d7b8e9c0de8ae4ca3a264377bcd5fce2bcc5dd39dddb5c45deb18",
+      "bytes": 1012686,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_codex_stderr.log",
+      "sha256": "7b07c7e72f3889cfa4d6e9b59a0e6170ffbcd236c3c54e014064acddd09e43bd",
+      "bytes": 233,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_codex_events.jsonl",
+      "sha256": "fbf6f3b0aacdac358d21ae1007c1c74509ea08064e9fcf861555bf37e5f207a2",
+      "bytes": 1012769,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_codex_last_message.txt",
+      "sha256": "1b2d446335d057094fba49b5f1fcc6e832e0f7971c4d85d129d5e91e23225dbc",
+      "bytes": 6671,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_codex_trace.json",
+      "sha256": "d2cafab3fc424ee0c9c53e9cc1e119d8dd576fd2c622598cf7539974d7261064",
+      "bytes": 560,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_stdout.txt",
+      "sha256": "1b2d446335d057094fba49b5f1fcc6e832e0f7971c4d85d129d5e91e23225dbc",
+      "bytes": 6671,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/draft_stderr.txt",
+      "sha256": "2abd61cbbf012214e206f7ef677a30c62f6b81824a76b5b82368919b238398dd",
+      "bytes": 248,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_prompt.md",
+      "sha256": "5e08c61e085b7c4eff1923774966ca122e90dac1c13eac96fcc1cae23f9fbec9",
+      "bytes": 10063,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_command.json",
+      "sha256": "fc6ce5c393627e2ade699f2c6bf9d425eab8f57ee9701ed8e7548e6e85a41177",
+      "bytes": 771,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "c6e481837183cfd36cd6012b7cf6ae9923b68b86e7e0be398777e5f5525200c6",
+      "bytes": 1282,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_codex_stderr.log",
+      "sha256": "7a76e9d730504a26ecd840f01c99e30a4ec921653bab2bd8578280adf11aca4b",
+      "bytes": 233,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_codex_events.jsonl",
+      "sha256": "e6ec7724948383c37e4772b8276593d8cd412bb8a7657e4775ebe86499ca7df1",
+      "bytes": 1304,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_codex_last_message.txt",
+      "sha256": "a5a6aca316dc40913e93ee35803f399a106cf4f8e8e8cf27bfed7cc4210dd2f6",
+      "bytes": 926,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_codex_trace.json",
+      "sha256": "4f6b1ef26e424eb21d6a54f8485dc5b0ace01634af4fb0c3e8df68b00da87279",
+      "bytes": 552,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_stdout.txt",
+      "sha256": "a5a6aca316dc40913e93ee35803f399a106cf4f8e8e8cf27bfed7cc4210dd2f6",
+      "bytes": 926,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/pre_submit_review_stderr.txt",
+      "sha256": "de99c106576f5d8a799a88ba2e9b945c04fec950fc1fa113fc89ea31b2ef0d51",
+      "bytes": 248,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/revision_prompt.md",
+      "sha256": "40b9c50846d7ec02e8496be6d9df3d0ddc0f68a811ab1c260102fcb8bd85a685",
+      "bytes": 19264,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/command.json",
+      "sha256": "e0b058f5610d3835316a14444c6e0ae23548b1f283f5bcecbdc9a9aaba760d4a",
+      "bytes": 769,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/codex_stdout.jsonl",
+      "sha256": "e056626c3cd539eeecfabd3e7987bf58851385134c75d94ecd72a7034f7daed4",
+      "bytes": 7667,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/codex_stderr.log",
+      "sha256": "a57b7a11ce942b145e27461f6d4e2120b0db2976764fe5fea9a72067e8c23829",
+      "bytes": 233,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/codex_events.jsonl",
+      "sha256": "1437efc26a87e63e7e61526599a16bd266def7bb8d88ebfbd84ab7b96b135228",
+      "bytes": 7689,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/codex_last_message.txt",
+      "sha256": "a89f012918b852d717c13d29a1825a5746dbf1681ad60a6b6dd1fa472cca8f60",
+      "bytes": 7042,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/codex_trace.json",
+      "sha256": "42c1609fe5c31f6e5230c86b4e561667f9898d8f91012141463d3249e3433667",
+      "bytes": 552,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/stdout.txt",
+      "sha256": "a89f012918b852d717c13d29a1825a5746dbf1681ad60a6b6dd1fa472cca8f60",
+      "bytes": 7042,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/stderr.txt",
+      "sha256": "db5735d52d389acdfcb005d606bde5531fd967ee65a9db056f62a29f9c0fbb28",
+      "bytes": 248,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/raw_response.txt",
+      "sha256": "a89f012918b852d717c13d29a1825a5746dbf1681ad60a6b6dd1fa472cca8f60",
+      "bytes": 7042,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/parsed_cells.json",
+      "sha256": "dbec9dc327c17048681d3dd7fb97a4b6d269d3e96e99b15593a87f238d5bfae9",
+      "bytes": 8231,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/normalized_cells.json",
+      "sha256": "60c0f5ba9a3ae30d810296137a47d03c14bbd22ceebd683f7b2509ebbf69f348",
+      "bytes": 25623,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/distribution.json",
+      "sha256": "60864552d5fc43a96cb6605e58fecf70afddeb5d8c8d361140ab17469341e892",
+      "bytes": 13608,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/validation.json",
+      "sha256": "0669206c51c471a7013757b6743d92a3b19d171740dcedcfa9385240e5caf466",
+      "bytes": 157,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/cells.with_activity.json",
+      "sha256": "a53158fd8c159fa8b4c584bd38373bfdf270b45a879c811574c97dc619689e70",
+      "bytes": 40827,
+      "createdAt": "2026-08-17T16:58:57Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-17/2026-08-17t16-58-57z-bea-research-and-development-fixed-investment-2026-q3/manifest.json",
+      "sha256": "6bde5420b18b8210b1853236205f41275f10e05afb9bfc3346181b7d3679e9b8",
+      "bytes": 15781,
+      "createdAt": "2026-08-17T16:58:57Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-private-research-development-fixed-investment-q3-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "f3a73cbcc701b9315d3ec1d35ea05889b2c07f95",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "3d0f365eaa73f34b240e36761d3f4ae6316e9a064f23c5ebf93d4924cea13678"
+}

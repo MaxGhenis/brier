@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is methodologically coherent, but its resolver/source fields do not match the canonical ledger sourceBinding.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft names the DOL PDF as resolutionSourceUrl, while the canonical target contract binds resolution to the ALFRED graph CSV for CCSA with adapter alfred-fred and releasePolicy advance_vintage.",
+      "actionRequested": "Change the resolver/source fields to match the ledger sourceBinding byte-for-byte in substance: ALFRED graph CSV, sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA, field CCSA, advance/first vintage, multiply by 1e-06. Keep the DOL PDF only as cited evidence or explanatory official-release context if desired."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the reasoning, explicitly note that the underlying official ETA print is mirrored through the registered ALFRED advance-vintage resolver.",
+    "The prior/update/interval step is strong; no replacement forecast is needed."
+  ]
+}
