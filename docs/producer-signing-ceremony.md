@@ -16,7 +16,7 @@ allowlisted, attested publication path.
   variable into the run's attested records push. The public key lives under `records/trust/`, so adding it in an
   ordinary local or PR-merge records commit would fail records provenance.
 - Confirm that `records/CHAIN_HEAD.json` names the current reachable chain
-  head and that the full suite is green at the locked `receipt==0.3.0` pin.
+  head and that the full suite is green at the locked `receipt==0.5.1` pin.
 
 ## Generate and pin the key
 
