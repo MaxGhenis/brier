@@ -60,6 +60,8 @@ class CallResult:
     duration_s: float
     prompt_tokens: Optional[int] = None
     completion_tokens: Optional[int] = None
+    resolved_model: Optional[str] = None
+    request_id: Optional[str] = None
     error: Optional[str] = None
 
 
@@ -125,7 +127,9 @@ def call_model(
                 usage = resp.get("usage") or {}
                 return CallResult(text=text, ok=True, duration_s=time.time() - start,
                                   prompt_tokens=usage.get("prompt_tokens"),
-                                  completion_tokens=usage.get("completion_tokens"))
+                                  completion_tokens=usage.get("completion_tokens"),
+                                  resolved_model=resp.get("model"),
+                                  request_id=resp.get("id"))
             req = urllib.request.Request(
                 ANTHROPIC_URL,
                 data=body,
@@ -146,6 +150,8 @@ def call_model(
                 duration_s=time.time() - start,
                 prompt_tokens=usage.get("input_tokens"),
                 completion_tokens=usage.get("output_tokens"),
+                resolved_model=payload.get("model"),
+                request_id=payload.get("id"),
             )
         except urllib.error.HTTPError as e:
             detail = ""
@@ -747,6 +753,7 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     record["calls"].append(
         {"role": "draft", "ok": first.ok, "duration_s": round(first.duration_s, 2),
          "prompt_tokens": first.prompt_tokens, "completion_tokens": first.completion_tokens,
+         "resolved_model": first.resolved_model, "request_id": first.request_id,
          "max_tokens": max_tokens, "error": first.error}
     )
     if not first.ok:
@@ -768,6 +775,8 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     record["calls"].append({"role": "skeptic", "ok": critique.ok,
                             "duration_s": round(critique.duration_s, 2),
                             "completion_tokens": critique.completion_tokens,
+                            "resolved_model": critique.resolved_model,
+                            "request_id": critique.request_id,
                             "max_tokens": DEBATE_MAX_TOKENS,
                             "error": critique.error})
     if not critique.ok:
@@ -781,6 +790,8 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     record["calls"].append({"role": "verifier", "ok": verification.ok,
                             "duration_s": round(verification.duration_s, 2),
                             "completion_tokens": verification.completion_tokens,
+                            "resolved_model": verification.resolved_model,
+                            "request_id": verification.request_id,
                             "max_tokens": DEBATE_MAX_TOKENS,
                             "error": verification.error})
     if not verification.ok:
@@ -795,6 +806,8 @@ def run_single(unit: dict, provisions: dict, config: dict) -> dict:
     record["calls"].append({"role": "judge", "ok": judged.ok,
                             "duration_s": round(judged.duration_s, 2),
                             "completion_tokens": judged.completion_tokens,
+                            "resolved_model": judged.resolved_model,
+                            "request_id": judged.request_id,
                             "max_tokens": DEBATE_MAX_TOKENS,
                             "error": judged.error})
     if not judged.ok:
