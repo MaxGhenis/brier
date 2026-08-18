@@ -89,6 +89,64 @@ def test_runner_ladder_distribution_matches_strategy_builder():
     assert actual["transformVersion"] == "agent_cdf_v1"
 
 
+def _quantile_cell(ladder: object) -> dict:
+    return {
+        "pointEstimate": 100.0,
+        "ciLow": 90.0,
+        "ciHigh": 110.0,
+        "thresholdLadder": ladder,
+    }
+
+
+def test_declared_ladder_must_promote_or_fail_closed() -> None:
+    # A cell that DECLARES a quantile contract but carries a malformed ladder
+    # must fail promotion, not silently degrade to the interval_seeded CDF
+    # (which both mislabels provenance and re-derives a distribution the run
+    # already authored).
+    malformed = _quantile_cell({"thresholds": [90.0, 100.0]})  # missing probs
+    with pytest.raises(ValueError, match="thresholdLadder"):
+        analyst_runner.materialize_run_distributions([malformed])
+
+
+def test_wellformed_ladder_still_promotes_agent_reported() -> None:
+    cell = _quantile_cell(
+        {
+            "thresholds": [90.0, 100.0, 110.0],
+            "cumulativeProbabilities": [0.1, 0.5, 0.9],
+        }
+    )
+    distribution = analyst_runner.materialize_run_distributions([cell])
+    assert distribution["provenance"] == "agent_reported"
+
+
+def test_cell_without_ladder_keeps_interval_path() -> None:
+    cell = {"pointEstimate": 100.0, "ciLow": 90.0, "ciHigh": 110.0}
+    distribution = analyst_runner.materialize_run_distributions([cell])
+    assert distribution["provenance"] == "interval_seeded"
+
+
+def test_explicitly_null_ladder_also_fails_closed() -> None:
+    # "thresholdLadder": null is still a declaration — the run authored the
+    # key. Only absence of the key may take the interval path.
+    with pytest.raises(ValueError, match="thresholdLadder"):
+        analyst_runner.materialize_run_distributions([_quantile_cell(None)])
+
+
+def test_malformed_ladder_leaves_custody_clean_seal_refusal(tmp_path: Path) -> None:
+    # PR #78's bug end to end: a quantile-declaring cell whose ladder cannot
+    # materialize must refuse at seal with a custody-verifiable ok:false
+    # manifest — not silently relabel the distribution interval_seeded.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell["thresholdLadder"] = {"thresholds": [4.6, 5.2, 5.9]}
+    code, out_dir = _run_fake_codex_case(tmp_path, "malformed-ladder", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "seal"
+    assert "thresholdLadder" in manifest["error"]["message"]
+    _custody_passes(out_dir)
+
+
 def test_median3_requires_exactly_three_distinct_custody_runs(tmp_path, monkeypatch):
     monkeypatch.setattr(median_ensemble, "verify_run", lambda _run_dir: None)
 
