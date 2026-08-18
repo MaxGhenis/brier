@@ -308,7 +308,7 @@ def _final_call_caps(rec: dict) -> tuple[int, ...]:
 def load_runs(path: Path, units: dict[str, dict]) -> tuple[list[dict], dict[str, Any]]:
     """Read the JSONL defensively. Every rejection is counted, never silent."""
     q: dict[str, Any] = {
-        "path": str(path),
+        "path": _repo_relative(path),
         "lines_total": 0,
         "lines_blank": 0,
         "lines_malformed_json": 0,
@@ -2088,7 +2088,7 @@ def write_figure(idx: Index, idx_plaus: Index, uncond: dict[str, float], units: 
     fig.savefig(png, dpi=130)
     fig.savefig(svg)
     plt.close(fig)
-    return {"written": True, "png": str(png), "svg": str(svg), "n_columns": len(cols),
+    return {"written": True, "png": _repo_relative(png), "svg": _repo_relative(svg), "n_columns": len(cols),
             "columns": [f"{c['dim']}:{c['level']}" for c in cols],
             "y_limits": [lo_lim, hi_lim], "n_offscale_points": n_offscale,
             "series_normalised": series,
@@ -2110,6 +2110,15 @@ def _jsonable(o: Any) -> Any:
             return None
         return o
     return o
+
+
+def _repo_relative(path: Path) -> str:
+    """Render study provenance paths without checkout-specific prefixes."""
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(HERE.parents[1]).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def main() -> None:
@@ -2161,9 +2170,9 @@ def main() -> None:
 
     meta = {
         "generated_at": generated_at,
-        "runs_path": str(args.runs),
-        "ground_truth_path": str(args.ground_truth),
-        "outdir": str(args.outdir),
+        "runs_path": _repo_relative(args.runs),
+        "ground_truth_path": _repo_relative(args.ground_truth),
+        "outdir": _repo_relative(args.outdir),
         "seed": args.seed,
         "bootstrap_draws": args.bootstrap,
         "bootstrap_meets_prereg_minimum": args.bootstrap >= 2000,

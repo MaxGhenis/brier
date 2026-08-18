@@ -26,8 +26,9 @@ that path itself and requiring the driver to report the same SHA-256.
   Prove it can fail:  python3 experiments/billimpact/pin_against_typescript.py \
                           --negative-control all
 
-Exit 0 only when every case agrees within tolerance AND both sides agree on
-which cases are scoreable at all.
+Exit 0 when every supported-domain case agrees within tolerance and status.
+Synthetic zero-width cases remain visible as explicitly excluded,
+out-of-contract probes because the site intentionally rejects them.
 """
 from __future__ import annotations
 
@@ -53,6 +54,9 @@ REL_TOL = 1e-9
 ABS_TOL = 1e-9
 REAL_CASE_TARGET = 20
 CASE_SEED = 20260731
+OUT_OF_CONTRACT_REASON = (
+    "synthetic zero-width intervals are outside the TypeScript scorer contract"
+)
 
 sys.path.insert(0, str(HERE))
 import scoring  # noqa: E402  (path shim above is deliberate)
@@ -460,6 +464,7 @@ def main() -> int:
     both_rejected: list[str] = []
     ts_only_rejected: list[tuple[str, str]] = []
     py_only_rejected: list[tuple[str, str]] = []
+    excluded_out_of_contract: list[dict[str, Any]] = []
 
     for case in cases:
         ts, py = ts_by_id.get(case["id"]), py_by_id.get(case["id"])
@@ -473,9 +478,18 @@ def main() -> int:
         elif not ts_ok and not py_ok:
             both_rejected.append(case["label"])
         elif py_ok:
-            ts_only_rejected.append(
-                (case["label"], ts.get("score_error") or ts.get("build_error") or "?")
-            )
+            if (
+                case["family"] == "synthetic"
+                and case["ci_low"] == case["ci_high"] == case["point"]
+            ):
+                excluded_out_of_contract.append(
+                    {"id": case["id"], "label": case["label"],
+                     "reason": OUT_OF_CONTRACT_REASON}
+                )
+            else:
+                ts_only_rejected.append(
+                    (case["label"], ts.get("score_error") or ts.get("build_error") or "?")
+                )
         else:
             py_only_rejected.append(
                 (case["label"], py.get("score_error") or py.get("build_error") or "?")
@@ -566,6 +580,11 @@ def main() -> int:
     print(f"  both rejected           : {len(both_rejected)}")
     print(f"  TS rejected, Py scored  : {len(ts_only_rejected)}")
     print(f"  TS scored,  Py rejected : {len(py_only_rejected)}")
+    print(f"  excluded out of contract: {len(excluded_out_of_contract)}")
+    print(
+        "  excluded_out_of_contract: "
+        + json.dumps(excluded_out_of_contract, sort_keys=True)
+    )
     divergent_status = ts_only_rejected + py_only_rejected
     for label, reason in divergent_status[:30]:
         print(f"      {label:<46} {reason[:64]}")

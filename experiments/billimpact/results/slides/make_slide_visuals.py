@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-OUT = Path("/Users/davidgringras26-27/Desktop/HACKATHON-2026-07-31/SLIDE-VISUALS")
+OUT = Path(__file__).resolve().parent
 FIGSIZE = (13.333, 7.5)
 DPI = 180
 

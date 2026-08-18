@@ -1,6 +1,6 @@
 # Results table — one row per configuration cell
 
-Generated 2026-07-31T10:56:09-04:00 from `/Users/davidgringras26-27/career/thesis/experiments/billimpact/runs_api.jsonl`.
+Generated 2026-07-31T10:56:09-04:00 from `experiments/billimpact/runs_api.jsonl`.
 
 **N = 2520 runs read, 2520 scored, 42 configuration cells, 12 units.** Sweep completion: 2520/2520 cells (100.0%).
 

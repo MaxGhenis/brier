@@ -19,7 +19,7 @@ import json
 import statistics
 from pathlib import Path
 
-HERE = Path("/Users/davidgringras26-27/career/thesis/experiments/billimpact")
+HERE = Path(__file__).resolve().parents[2]
 DOSE_ORDER = ["third", "actual", "tripled"]
 DOSE_USD = {"third": 100, "actual": 300, "tripled": 900}
 
