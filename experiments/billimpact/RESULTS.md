@@ -235,8 +235,8 @@ swings 0.98→0.36 and 0.85→0.30. opus: −0.014 [−0.038, +0.015] (5%, n.s.)
 last history value| > 1 history SD).** On the 17 big-shock units the leading
 configuration beats persistence 17/17 (−1.016 [−1.606, −0.480]) and its naive
 same-model configuration 16/17 (−0.225 [−0.342, −0.131]); on the 19 quiet
-units both comparisons are null. The margin concentrates exactly where a
-statute moves the series. The stratifier is ex-post (it uses the realized
+units both comparisons are null. The margin concentrates on the 17
+big-realized-move units. The stratifier is ex-post (it uses the realized
 move) and is reported as a description of where the skill lives, not a
 selection rule.
 
@@ -300,6 +300,10 @@ the class of artefact this study exists to detect, caught by its own
 machinery.
 
 ## 8 · What none of this supports
+
+**Model pinning.** The July 31 results are pinned to the frozen outputs. Model
+execution was pinned only to requested aliases such as `claude-fable-5`, so a
+rerun cannot promise the same provider model snapshot.
 
 N = 20 retrospective units across 5 laws; 12 of them are 6 states × 2 months
 and not independent; every dimension is measured at one reference config;
