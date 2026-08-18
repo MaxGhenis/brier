@@ -79,6 +79,7 @@ from ledger_release_chain import (
     verify_producer_signature_bytes,
     verify_release_chain,
 )
+from pin_ledger import PinError, _validate_catalog_binding
 from register_targets import (
     LEGACY_BOUNDED_CONDITIONAL_IDS,
     RegistrationError,
@@ -10550,6 +10551,67 @@ def _base_has_release_chain(tree: RepositoryTree) -> bool:
     return any(relative.startswith(prefix) for relative in tree.files)
 
 
+def _regenerate_series_catalog(
+    stage: pathlib.Path,
+    *,
+    candidate_ledger: bytes,
+    base_registry: bytes,
+) -> bytes:
+    """Regenerate and validate the catalog using the staged base's generator."""
+
+    generator = stage / "scripts" / "build_series_catalog.py"
+    if not generator.is_file():
+        raise LedgerProposalError(
+            "base commit is missing series-catalog generator "
+            "scripts/build_series_catalog.py"
+        )
+    completed = subprocess.run(
+        [sys.executable, str(generator)],
+        cwd=stage,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        suffix = f": {detail[:500]}" if detail else ""
+        raise LedgerProposalError(
+            "staged series-catalog generator failed with exit code "
+            f"{completed.returncode}{suffix}"
+        )
+
+    registry_path = stage / "ledger" / "series_uuid_registry.jsonl"
+    try:
+        regenerated_registry = registry_path.read_bytes()
+    except OSError as exc:
+        raise LedgerProposalError(
+            "staged series-catalog generator removed the UUID registry"
+        ) from exc
+    if regenerated_registry != base_registry:
+        raise LedgerProposalError(
+            "staged series-catalog generator minted or superseded series identities"
+        )
+
+    catalog_path = stage / "ledger" / "series_catalog.json"
+    try:
+        catalog = catalog_path.read_bytes()
+    except OSError as exc:
+        raise LedgerProposalError(
+            "staged series-catalog generator did not write ledger/series_catalog.json"
+        ) from exc
+    try:
+        # Keep proposal-time checks identical to the same-commit predicate used
+        # by pin_ledger before Thesis accepts a chronicle commit.
+        _validate_catalog_binding(
+            catalog,
+            candidate_ledger,
+            label="regenerated ledger/series_catalog.json",
+            registry_raw=regenerated_registry,
+        )
+    except PinError as exc:
+        raise LedgerProposalError(str(exc)) from exc
+    return catalog
+
+
 def _prepare_release_files(
     tree: RepositoryTree,
     *,
@@ -10618,6 +10680,18 @@ def _prepare_release_files(
             enforce_production_pins=enforce_production_pins,
             clock_skew_seconds=clock_skew_seconds,
         )
+        registry_path = "ledger/series_uuid_registry.jsonl"
+        base_registry = tree.files.get(registry_path)
+        if base_registry is None:
+            raise LedgerProposalError(
+                f"base commit is missing UUID registry {registry_path}"
+            )
+        (stage / LEDGER_RELATIVE).write_bytes(candidate_ledger)
+        catalog = _regenerate_series_catalog(
+            stage,
+            candidate_ledger=candidate_ledger,
+            base_registry=base_registry,
+        )
         manifest, manifest_raw = _build_next_release_manifest(
             candidate_ledger,
             immutable_prefix,
@@ -10652,7 +10726,6 @@ def _prepare_release_files(
             timeout_seconds=timeout,
         )
 
-        (stage / LEDGER_RELATIVE).write_bytes(candidate_ledger)
         manifest_path.write_bytes(manifest_raw)
         receipt_paths = receipt_paths_for_manifest(manifest_path)
         for tsa, token in receipts.items():
@@ -10673,7 +10746,7 @@ def _prepare_release_files(
                 *receipt_paths.values(),
                 producer_signature_path,
             )
-        }
+        } | {"ledger/series_catalog.json": catalog}
 
 
 def ledger_state(repo: str, branch: str, path: str) -> tuple[str, str, str]:
@@ -10908,6 +10981,21 @@ def _collect_release_tree_files(
         blob_shas[path] = entry["sha"]
 
 
+# Same-commit inputs the staged catalog regeneration needs beyond the ledger
+# itself: the generator, the gate module it imports, and the generator's three
+# data inputs (prior catalog for identity carry-over, UUID registry, docket
+# seed). _prepare_release_files refuses the witnessed append when any of these
+# is absent from the base commit, so dropping one here fails closed rather
+# than silently skipping regeneration.
+CATALOG_REGENERATION_INPUTS = (
+    "scripts/build_series_catalog.py",
+    "scripts/check_thesis_facts_append.py",
+    "ledger/series_catalog.json",
+    "ledger/series_uuid_registry.jsonl",
+    "ledger/seeds/thesis_docket_series.json",
+)
+
+
 def _fetch_repository_tree(
     repo: str, commit_sha: str, ledger_path: str
 ) -> RepositoryTree:
@@ -10936,6 +11024,7 @@ def _fetch_repository_tree(
     for wanted, required in (
         (ledger_path, True),
         (PREFIX_RELATIVE.as_posix(), False),
+        *((path, False) for path in CATALOG_REGENERATION_INPUTS),
     ):
         blob = _repository_blob_at_path(
             repo, root_entries, wanted, cache, required=required
