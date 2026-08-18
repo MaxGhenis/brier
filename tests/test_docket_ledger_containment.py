@@ -836,10 +836,6 @@ def test_authoritative_chronicle_catalog_fetch_uses_committed_ref(
     """Keep the live gate independently testable from the legacy pin test."""
 
     pin = _load(PIN_PATH, "committed ledger pin")
-    assert not ({"catalogSha256", "catalogBytes"} & set(pin)), (
-        "remove this legacy-pin regression once the committed pin carries "
-        "catalog metadata"
-    )
     authoritative = FIXTURE_PATH.read_bytes()
     seen: list[str] = []
 
