@@ -125,6 +125,28 @@ def test_cell_without_ladder_keeps_interval_path() -> None:
     assert distribution["provenance"] == "interval_seeded"
 
 
+def test_explicitly_null_ladder_also_fails_closed() -> None:
+    # "thresholdLadder": null is still a declaration — the run authored the
+    # key. Only absence of the key may take the interval path.
+    with pytest.raises(ValueError, match="thresholdLadder"):
+        analyst_runner.materialize_run_distributions([_quantile_cell(None)])
+
+
+def test_malformed_ladder_leaves_custody_clean_seal_refusal(tmp_path: Path) -> None:
+    # PR #78's bug end to end: a quantile-declaring cell whose ladder cannot
+    # materialize must refuse at seal with a custody-verifiable ok:false
+    # manifest — not silently relabel the distribution interval_seeded.
+    cell = review_test_cell(point=5.2, ci_low=4.6, ci_high=5.9)
+    cell["thresholdLadder"] = {"thresholds": [4.6, 5.2, 5.9]}
+    code, out_dir = _run_fake_codex_case(tmp_path, "malformed-ladder", cell)
+    assert code == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["error"]["phase"] == "seal"
+    assert "thresholdLadder" in manifest["error"]["message"]
+    _custody_passes(out_dir)
+
+
 def test_median3_requires_exactly_three_distinct_custody_runs(tmp_path, monkeypatch):
     monkeypatch.setattr(median_ensemble, "verify_run", lambda _run_dir: None)
 

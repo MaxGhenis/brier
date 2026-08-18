@@ -317,7 +317,7 @@ def materialize_run_distributions(
     distributions = []
     for cell in cells:
         distribution = ladder_distribution(cell)
-        if distribution is None and cell.get("thresholdLadder") is not None:
+        if distribution is None and "thresholdLadder" in cell:
             # The cell DECLARED a quantile contract; degrading it to the
             # interval_seeded transform would mislabel provenance and discard
             # the distribution the run authored. Fail closed instead.
