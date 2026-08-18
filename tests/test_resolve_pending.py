@@ -2141,10 +2141,21 @@ def _fake_catalog_generator() -> bytes:
 import hashlib
 import json
 import pathlib
+import sys
+
+# Mirror the real generator's import topology: build_series_catalog imports
+# check_thesis_facts_append, which imports the consumer-owned receipt_pins.
+# A staging omission of either module must fail these tests the way it would
+# fail a real witnessed append.
+sys.path.insert(0, str(pathlib.Path.cwd() / "scripts"))
+import check_thesis_facts_append  # noqa: F401
 
 root = pathlib.Path.cwd()
 ledger = (root / "ledger" / "official_observations.jsonl").read_bytes()
 registry = (root / "ledger" / "series_uuid_registry.jsonl").read_bytes()
+# The real generator reads the docket seed unconditionally; a staging
+# omission must fail here the way it would fail a real append.
+(root / "ledger" / "seeds" / "thesis_docket_series.json").read_bytes()
 catalog_path = root / "ledger" / "series_catalog.json"
 catalog = json.loads(catalog_path.read_text())
 catalog["observations_sha256"] = hashlib.sha256(ledger).hexdigest()
@@ -2224,6 +2235,11 @@ def _release_fixture_tree(
         "ledger/series_uuid_registry.jsonl": registry,
         "ledger/series_catalog.json": catalog,
         "scripts/build_series_catalog.py": _fake_catalog_generator(),
+        "scripts/check_thesis_facts_append.py": (
+            b"import receipt_pins  # noqa: F401  (real gate reads pin config)\n"
+        ),
+        "scripts/receipt_pins.py": b"APPEND_GATE_SPEC = None\nLEDGER_SPEC = None\n",
+        "ledger/seeds/thesis_docket_series.json": b"[]\n",
         manifest_path: manifest_raw,
         **{
             f"releases/manifests/{pathlib.PurePosixPath(manifest_name).stem}."
@@ -2536,6 +2552,7 @@ def test_catalog_regeneration_inputs_cover_the_fixture_stage(
     assert resolve_pending.CATALOG_REGENERATION_INPUTS == (
         "scripts/build_series_catalog.py",
         "scripts/check_thesis_facts_append.py",
+        "scripts/receipt_pins.py",
         "ledger/series_catalog.json",
         "ledger/series_uuid_registry.jsonl",
         "ledger/seeds/thesis_docket_series.json",

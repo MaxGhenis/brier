@@ -10990,6 +10990,7 @@ def _collect_release_tree_files(
 CATALOG_REGENERATION_INPUTS = (
     "scripts/build_series_catalog.py",
     "scripts/check_thesis_facts_append.py",
+    "scripts/receipt_pins.py",
     "ledger/series_catalog.json",
     "ledger/series_uuid_registry.jsonl",
     "ledger/seeds/thesis_docket_series.json",
