@@ -2136,6 +2136,38 @@ def _sign_test_manifest(
     return signature_path.read_bytes()
 
 
+def _fake_catalog_generator() -> bytes:
+    return b"""#!/usr/bin/env python3
+import hashlib
+import json
+import pathlib
+import sys
+
+# Mirror the real generator's import topology: build_series_catalog imports
+# check_thesis_facts_append, which imports the consumer-owned receipt_pins.
+# A staging omission of either module must fail these tests the way it would
+# fail a real witnessed append.
+sys.path.insert(0, str(pathlib.Path.cwd() / "scripts"))
+import check_thesis_facts_append  # noqa: F401
+
+root = pathlib.Path.cwd()
+ledger = (root / "ledger" / "official_observations.jsonl").read_bytes()
+registry = (root / "ledger" / "series_uuid_registry.jsonl").read_bytes()
+# The real generator reads the docket seed unconditionally; a staging
+# omission must fail here the way it would fail a real append.
+(root / "ledger" / "seeds" / "thesis_docket_series.json").read_bytes()
+catalog_path = root / "ledger" / "series_catalog.json"
+catalog = json.loads(catalog_path.read_text())
+catalog["observations_sha256"] = hashlib.sha256(ledger).hexdigest()
+catalog["observation_rows"] = len(
+    [line for line in ledger.splitlines() if line.strip()]
+)
+catalog["uuid_registry_sha256"] = hashlib.sha256(registry).hexdigest()
+catalog_path.write_text(json.dumps(catalog, sort_keys=True) + "\\n")
+print("minted=0 superseded=0")
+"""
+
+
 def _release_fixture_tree(
     tmp_path: pathlib.Path,
 ) -> tuple[
@@ -2150,6 +2182,20 @@ def _release_fixture_tree(
     producer_private_key, signing_key_pem = _generate_test_producer_keypair(tsa_root)
     requester = _local_timestamp_requester(tsa_root)
     ledger = b'{"source_record_id":"fixture.base","value":0}\n'
+    registry = b'{"uuid":"00000000-0000-4000-8000-000000000001"}\n'
+    catalog = (
+        json.dumps(
+            {
+                "generator_version": 3,
+                "observations_sha256": hashlib.sha256(ledger).hexdigest(),
+                "observation_rows": 1,
+                "uuid_registry_sha256": hashlib.sha256(registry).hexdigest(),
+                "series": [],
+            },
+            sort_keys=True,
+        ).encode()
+        + b"\n"
+    )
     immutable_prefix = b'{"prefixLineCount":0}\n'
     created_at = (
         (dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2))
@@ -2186,6 +2232,14 @@ def _release_fixture_tree(
     files = {
         "ledger/official_observations.jsonl": ledger,
         "ledger/immutable_prefix.json": immutable_prefix,
+        "ledger/series_uuid_registry.jsonl": registry,
+        "ledger/series_catalog.json": catalog,
+        "scripts/build_series_catalog.py": _fake_catalog_generator(),
+        "scripts/check_thesis_facts_append.py": (
+            b"import receipt_pins  # noqa: F401  (real gate reads pin config)\n"
+        ),
+        "scripts/receipt_pins.py": b"APPEND_GATE_SPEC = None\nLEDGER_SPEC = None\n",
+        "ledger/seeds/thesis_docket_series.json": b"[]\n",
         manifest_path: manifest_raw,
         **{
             f"releases/manifests/{pathlib.PurePosixPath(manifest_name).stem}."
@@ -2390,6 +2444,15 @@ def test_append_proposal_builds_byte_correct_verified_release(
     assert len(published) == 1
     changes = published[0]
     assert changes["ledger/official_observations.jsonl"] == candidate
+    assert "ledger/series_uuid_registry.jsonl" not in changes
+    regenerated_catalog = json.loads(changes["ledger/series_catalog.json"])
+    assert regenerated_catalog["observations_sha256"] == hashlib.sha256(
+        candidate
+    ).hexdigest()
+    assert regenerated_catalog["observation_rows"] == 2
+    assert regenerated_catalog["uuid_registry_sha256"] == hashlib.sha256(
+        tree.files["ledger/series_uuid_registry.jsonl"]
+    ).hexdigest()
     release_paths = [path for path in changes if path.startswith("releases/")]
     assert len(release_paths) == 4
     manifest_path = next(path for path in release_paths if path.endswith(".json"))
@@ -2448,6 +2511,95 @@ def test_append_proposal_builds_byte_correct_verified_release(
         (args, body) for args, body in calls if "/merge" in " ".join(args)
     )
     assert merge_call[1] == {"merge_method": "rebase", "sha": "c" * 40}
+
+
+def test_append_proposal_catalog_generator_failure_is_closed(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    tree.files["scripts/build_series_catalog.py"] = b"raise SystemExit(17)\n"
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.generator-fail","value":1}\n'
+    )
+
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="series-catalog generator failed with exit code 17",
+    ):
+        resolve_pending._prepare_release_files(
+            tree,
+            path="ledger/official_observations.jsonl",
+            candidate_ledger=candidate,
+            added=1,
+            requester=requester,
+            timeout_seconds=10,
+            clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+            anchor_dir=anchor_dir,
+            now=dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2),
+            producer_signing_key=signing_key_pem,
+        )
+
+
+def test_catalog_regeneration_inputs_cover_the_fixture_stage(
+    tmp_path: pathlib.Path,
+) -> None:
+    # The staged generator can only see files _fetch_repository_tree actually
+    # fetched. Every non-release file the witnessed fixture stages must be the
+    # ledger itself, the immutable prefix, or a declared regeneration input —
+    # otherwise these tests pass against a stage the real fetch would never
+    # populate (the fixture-fidelity gap behind the 8/14 coherence break).
+    assert resolve_pending.CATALOG_REGENERATION_INPUTS == (
+        "scripts/build_series_catalog.py",
+        "scripts/check_thesis_facts_append.py",
+        "scripts/receipt_pins.py",
+        "ledger/series_catalog.json",
+        "ledger/series_uuid_registry.jsonl",
+        "ledger/seeds/thesis_docket_series.json",
+    )
+    tree, _anchor_dir, _requester, _signing_key = _release_fixture_tree(tmp_path)
+    allowed = {
+        "ledger/official_observations.jsonl",
+        "ledger/immutable_prefix.json",
+        *resolve_pending.CATALOG_REGENERATION_INPUTS,
+    }
+    unfetched = {
+        path
+        for path in tree.files
+        if not path.startswith("releases/") and path not in allowed
+    }
+    assert unfetched == set()
+
+
+def test_append_proposal_catalog_generator_cannot_mint_series(
+    tmp_path: pathlib.Path,
+) -> None:
+    tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    tree.files["scripts/build_series_catalog.py"] = b"""import pathlib
+path = pathlib.Path("ledger/series_uuid_registry.jsonl")
+path.write_bytes(path.read_bytes() + b'{"uuid":"new"}\\n')
+"""
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.minted","value":1}\n'
+    )
+
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="minted or superseded series identities",
+    ):
+        resolve_pending._prepare_release_files(
+            tree,
+            path="ledger/official_observations.jsonl",
+            candidate_ledger=candidate,
+            added=1,
+            requester=requester,
+            timeout_seconds=10,
+            clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+            anchor_dir=anchor_dir,
+            now=dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2),
+            producer_signing_key=signing_key_pem,
+        )
 
 
 @pytest.mark.parametrize("signing_key", [None, ""])
@@ -2773,6 +2925,21 @@ def test_pre_genesis_append_emits_no_release_files_or_tsa(monkeypatch) -> None:
     def unexpected_tsa(*_args):
         raise AssertionError("pre-genesis proposal contacted a TSA")
 
+    assert (
+        resolve_pending._prepare_release_files(
+            tree,
+            path="ledger/official_observations.jsonl",
+            candidate_ledger=candidate,
+            added=1,
+            requester=unexpected_tsa,
+            timeout_seconds=10,
+            clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+            anchor_dir=None,
+            now=None,
+            producer_signing_key=None,
+        )
+        == {}
+    )
     merged = resolve_pending.propose_ledger_append(
         "PolicyEngine/chronicle",
         "codex/thesis-ledger-facts",
