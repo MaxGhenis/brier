@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-19T15:41:19Z",
+  "runStartedAt": "2026-08-19T15:41:19Z",
+  "sealedAt": "2026-08-19T15:43:23Z",
+  "series": "ons.labour.vacancies_total",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "uk-vacancies-may-jul-2026",
+    "country": "UK",
+    "dataPointId": "ons.labour.vacancies_total.2026_07.first_print",
+    "expectedReleaseDate": "2026-09-15",
+    "expectedReleaseWindow": {
+      "end": "2026-09-15",
+      "start": "2026-09-15"
+    },
+    "period": "2026-07",
+    "registeredAt": "2026-08-19T15:37:16Z",
+    "registeredAtUtc": "2026-08-19T15:37:16Z",
+    "registrationCommit": "1a8c5d83d07cc6160ba5e11d8754092d64a2fc64",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/ap2y/unem",
+    "series": "ons.labour.vacancies_total",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-15",
+        "start": "2026-09-15"
+      },
+      "field": "UK Vacancies (thousands) - Total, seasonally adjusted, value for 2026 JUL",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "AP2Y",
+      "sourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/ap2y/unem",
+      "table": "Claimant count and vacancies time series (UNEM)",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "UK Vacancies (thousands) - Total, seasonally adjusted, value for 2026 JUL",
+    "sourceSeriesId": "AP2Y",
+    "sourceTable": "Claimant count and vacancies time series (UNEM)",
+    "targetContentHash": "2c9ce13c4e282d7375b8e1811bdd814a314e03e873df8ba165e8d9a14efcdcf1",
+    "targetRegistrationPath": "records/targets/2026-08-19-2c9ce13c4e282d7375b8e1811bdd814a314e03e873df8ba165e8d9a14efcdcf1.json",
+    "targetUnit": "thousands",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "1a8c5d83d07cc6160ba5e11d8754092d64a2fc64",
+  "targetContentHash": "2c9ce13c4e282d7375b8e1811bdd814a314e03e873df8ba165e8d9a14efcdcf1",
+  "targetRegistrationPath": "records/targets/2026-08-19-2c9ce13c4e282d7375b8e1811bdd814a314e03e873df8ba165e8d9a14efcdcf1.json",
+  "registeredAtUtc": "2026-08-19T15:37:16Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.11",
+    "model": "gpt-5.5",
+    "promptHash": "87db344b803f5ab4116f3b0f5f01ed64adb8ea1235daa18627ec596fff56e044",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-19T15:41:19Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "431c6f639eb7f78882055d9801345b867f74252d66e64347cf1bf44dd3bcd6d1"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tighten the ledger-label discrepancy sentence so it clearly distinguishes the known 2026 JUN AP2Y latest value from the registered 2026 JUL target resolving on 2026-09-15."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the tail-risk sentence, name the rolling-vacancy target explicitly so the upside/downside scenarios are unmistakably tied to AP2Y rather than broader labour-market indicators."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted both reviewer suggestions by clarifying that 2026 JUN is the latest observed AP2Y value while 2026 JUL is the registered target, and by tying the upside and downside scenarios explicitly to AP2Y rolling vacancies. No reviewer critiques were rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted both reviewer suggestions by clarifying that 2026 JUN is the latest observed AP2Y value while 2026 JUL is the registered target, and by tying the upside and downside scenarios explicitly to AP2Y rolling vacancies. No reviewer critiques were rejected.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; it ties the forecast to the registered AP2Y 2026 JUL first-print target, states a persistence prior, explains the update, and keeps point/interval fields coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/prompt.md",
+      "sha256": "885b7743197dc3622119c6ae976181a801a9450287ed5d087ed03c3ac0941031",
+      "bytes": 10710,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_command.json",
+      "sha256": "991a23b5aafb6b82034496761fce96b78909c7979f2e394da1e4cae1af0f9e6e",
+      "bytes": 756,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "f2aa1ec6b20fe568802b92cf57c5abf6cd4b1e556ed34301f5426414f23f7739",
+      "bytes": 13298,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_codex_stderr.log",
+      "sha256": "63c1afca5e04decb95b68d095548e3737ac2c9af43f3e5e8b0a02efcb02d7c60",
+      "bytes": 233,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_codex_events.jsonl",
+      "sha256": "d2400c79592b2b6642c3ab521fbb17daf955f06911ae8202892a8b8ae4e08dec",
+      "bytes": 13352,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_codex_last_message.txt",
+      "sha256": "3ee828c89429e7e816b4541b52a41c2c3bf1fd2f72566b036b8e55bd36a362fd",
+      "bytes": 5887,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_codex_trace.json",
+      "sha256": "c609a20dae98a7b2f2b77ca2b96731d06ea11afc2ce85b73394a19eaa2b093af",
+      "bytes": 559,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_stdout.txt",
+      "sha256": "3ee828c89429e7e816b4541b52a41c2c3bf1fd2f72566b036b8e55bd36a362fd",
+      "bytes": 5887,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/draft_stderr.txt",
+      "sha256": "2cac1cefb3f60514f198efa18f324d51dcff2060ec91b1f3e3459f93dd5e496a",
+      "bytes": 248,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_prompt.md",
+      "sha256": "14452a1e662caeddcb825644b33a19826678192d01570abbe98cf43128f5195b",
+      "bytes": 9333,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_command.json",
+      "sha256": "51a7a970092f7d8741665b9f868d354161d92204531ebf13fa81d6fd4e7f237f",
+      "bytes": 752,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "657dd2e0fc828d470aa9098038d2586bbf71237947630016d835688497e1c199",
+      "bytes": 947,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "c66414630543e2dafb2135301a7cde35beae1057d32cbbd1ee996cdc0f1c46d6",
+      "bytes": 233,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "641445dd24fb3a9b07ec0f1fa3dc65c448b8e2f43ca35d61efa33d3f333a67ed",
+      "bytes": 969,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "e72caded35f5078140dbcb689b60cfed9092ac6bcc9a338a2ed3cd8466ee42f4",
+      "bytes": 621,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "76364152ba8103b87cb625cf6362f3773183d1653c5010c556b831dc958a6a9e",
+      "bytes": 552,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "e72caded35f5078140dbcb689b60cfed9092ac6bcc9a338a2ed3cd8466ee42f4",
+      "bytes": 621,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "1bcce27969e97f9d554576ffa1045f0f5a16019ee1df3047281c104ecbfa594d",
+      "bytes": 248,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/revision_prompt.md",
+      "sha256": "29bdd87b0d5ee279d77c98efa9d8c5ff103272fc5e47bbb12c16907071320c5e",
+      "bytes": 18154,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/command.json",
+      "sha256": "a2f59e91c4eaab8ecdcb695979bbb6821157d6b5fa45b030871a93bed6c98f15",
+      "bytes": 750,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/codex_stdout.jsonl",
+      "sha256": "69e2cacc852460e80dc1519f10737b1ff1364b87a7941d736902636f3c55c1b3",
+      "bytes": 6957,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/codex_stderr.log",
+      "sha256": "24e95bd8373794dabf27be64bef2ba3b58d1432bc1b4df96f80669e75c530d0c",
+      "bytes": 233,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/codex_events.jsonl",
+      "sha256": "4eef282f7ee8ddc9e24cde756e77adb6283a562f264e2856d4b3ace3c87b44b4",
+      "bytes": 6979,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/codex_last_message.txt",
+      "sha256": "9a7dc127c85ffb1c3c6dab23c3867601e8d7f260bc6a4a841dfc558b3c4d2ce2",
+      "bytes": 6247,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/codex_trace.json",
+      "sha256": "d4c59e2b3dadd3316209e3a23fdcebf6e0c575fe18e3c6bbafdc6b54b314685b",
+      "bytes": 555,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/stdout.txt",
+      "sha256": "9a7dc127c85ffb1c3c6dab23c3867601e8d7f260bc6a4a841dfc558b3c4d2ce2",
+      "bytes": 6247,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/stderr.txt",
+      "sha256": "b3229c3cec7c54690e6ae21d90d755f1156d9288d62656224dc952ac3e34a901",
+      "bytes": 248,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/raw_response.txt",
+      "sha256": "9a7dc127c85ffb1c3c6dab23c3867601e8d7f260bc6a4a841dfc558b3c4d2ce2",
+      "bytes": 6247,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/parsed_cells.json",
+      "sha256": "55e00f9c85b83f56beaf21cb1771f5759ef2f160ff66d892619f2ccb2ff77194",
+      "bytes": 7843,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/normalized_cells.json",
+      "sha256": "7b9b8300098d8f83fd0ccd3a59516ae2c49ce9471817104e43040114e249fa51",
+      "bytes": 25331,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/distribution.json",
+      "sha256": "fa7da968ea42d681e49f19a9ec544d76e4d36aa48a9f08e5a9913bd872b5899e",
+      "bytes": 13704,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/validation.json",
+      "sha256": "3af898c9e512ff18268b0de455f4aa5e185587d09805e106dd7f20344fa0bc40",
+      "bytes": 126,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/cells.with_activity.json",
+      "sha256": "298f1968e4e85ebd99771330ef76c5e161fc6bbd2eddae927d6bc7c0e8875f53",
+      "bytes": 39051,
+      "createdAt": "2026-08-19T15:41:19Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-41-19z-ons-labour-vacancies-total-2026-07/manifest.json",
+      "sha256": "c1b82716be310163c00d0d77747ab1689eb45723607b7541c70a1736da5fd522",
+      "bytes": 14553,
+      "createdAt": "2026-08-19T15:41:19Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-vacancies-may-jul-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "1a8c5d83d07cc6160ba5e11d8754092d64a2fc64",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "cc5e924b094ce250d29f82c75886c6150aa114d570cb11644d9238ca85890f80"
+}

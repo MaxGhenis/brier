@@ -1,0 +1,393 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-08-19T15:39:34Z",
+  "runStartedAt": "2026-08-19T15:39:34Z",
+  "sealedAt": "2026-08-19T15:41:19Z",
+  "series": "ons.earnings.regular_pay_yoy",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "uk-regular-pay-growth-may-jul-2026",
+    "country": "UK",
+    "dataPointId": "ons.earnings.regular_pay_yoy.2026_07.first_print",
+    "expectedReleaseDate": "2026-09-15",
+    "expectedReleaseWindow": {
+      "end": "2026-09-15",
+      "start": "2026-09-15"
+    },
+    "period": "2026-07",
+    "registeredAt": "2026-08-19T15:37:16Z",
+    "registeredAtUtc": "2026-08-19T15:37:16Z",
+    "registrationCommit": "1a8c5d83d07cc6160ba5e11d8754092d64a2fc64",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai9/lms",
+    "series": "ons.earnings.regular_pay_yoy",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-15",
+        "start": "2026-09-15"
+      },
+      "field": "AWE: Whole Economy Year on Year Three Month Average Growth (%): Seasonally Adjusted Regular Pay Excluding Arrears, value for 2026 JUL",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "KAI9",
+      "sourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai9/lms",
+      "table": "Labour market statistics time series (LMS)",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "AWE: Whole Economy Year on Year Three Month Average Growth (%): Seasonally Adjusted Regular Pay Excluding Arrears, value for 2026 JUL",
+    "sourceSeriesId": "KAI9",
+    "sourceTable": "Labour market statistics time series (LMS)",
+    "targetContentHash": "b5e60c946429e3044f6145c5e79929649ce3f717336154df75101aed572a2c5e",
+    "targetRegistrationPath": "records/targets/2026-08-19-b5e60c946429e3044f6145c5e79929649ce3f717336154df75101aed572a2c5e.json",
+    "targetUnit": "percent",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "1a8c5d83d07cc6160ba5e11d8754092d64a2fc64",
+  "targetContentHash": "b5e60c946429e3044f6145c5e79929649ce3f717336154df75101aed572a2c5e",
+  "targetRegistrationPath": "records/targets/2026-08-19-b5e60c946429e3044f6145c5e79929649ce3f717336154df75101aed572a2c5e.json",
+  "registeredAtUtc": "2026-08-19T15:37:16Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.5.11",
+    "model": "gpt-5.5",
+    "promptHash": "87db344b803f5ab4116f3b0f5f01ed64adb8ea1235daa18627ec596fff56e044",
+    "toolPolicyHash": "024388e49298be19f06d31f4aa89de0878a6bc78bcbb8eb78a8687d93d774c51",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-08-19T15:39:34Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "e38d17100e203b3192f1b6d4b53e26196431b0a0b838a49adcfbef13c02a0379"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is sized from the cross-sectional dispersion of the last 12 level values, not from month-to-month realized volatility, first-print forecast errors, or another explicit uncertainty model for a one-month-ahead three-month-average target.",
+        "actionRequested": "Revise the interval explanation to use realized monthly changes or historical one-step errors if available, or explicitly justify why level dispersion is the intended uncertainty proxy."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the compact Prior/update/interval step state the final one-off adjustment as a single value rather than '+0.0 to +0.1' since the point estimate applies no visible adjustment."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider replacing the generic 'latest' bulletin citation with the exact observed KAI9 page/release evidence already named, to reduce link-rot ambiguity."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by switching the uncertainty arithmetic from level dispersion to realized monthly changes and narrowing the interval; accepted the suggestion to make the one-off adjustment a single 0.0 value and kept source context focused on the exact KAI9 and September 2026 ONS pages.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by switching the uncertainty arithmetic from level dispersion to realized monthly changes and narrowing the interval; accepted the suggestion to make the one-off adjustment a single 0.0 value and kept source context focused on the exact KAI9 and September 2026 ONS pages.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by switching the uncertainty arithmetic from level dispersion to realized monthly changes and narrowing the interval; accepted the suggestion to make the one-off adjustment a single 0.0 value and kept source context focused on the exact KAI9 and September 2026 ONS pages.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with one methodological warning: the resolver and JSON fields align with the ledger, but the interval basis should be tightened."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/prompt.md",
+      "sha256": "57225ccc6f1945d0575e0ccd9bba9f5c4e84e92cdf24de98ee58012d4b38be7d",
+      "bytes": 10768,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_command.json",
+      "sha256": "d9d2217a79204d00fc321c03b0c6dfa8cb021cd9095cfd3f1a59cd4c656b75e9",
+      "bytes": 758,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "ed4f74d522d44e2f7efe2f04572a95fb3d1f640b9ce307eeabab251690a0275e",
+      "bytes": 12606,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_codex_stderr.log",
+      "sha256": "13b7917119f049e66363050da806e16a4277422aef10820510fdb1d569f942d8",
+      "bytes": 233,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_codex_events.jsonl",
+      "sha256": "acc7ec61b8bc6fae1c3f2ba0d7958e86000823db6db931fc128b24d7dfc1f625",
+      "bytes": 12694,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_codex_last_message.txt",
+      "sha256": "43408bcdaf6bdd6d024b476f770f29102481298ebae31d1414c820280fbdfa08",
+      "bytes": 5959,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_codex_trace.json",
+      "sha256": "57fd057ff353adabd6bee397930970a296800327f5c771a29c7672e40b33489f",
+      "bytes": 558,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_stdout.txt",
+      "sha256": "43408bcdaf6bdd6d024b476f770f29102481298ebae31d1414c820280fbdfa08",
+      "bytes": 5959,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/draft_stderr.txt",
+      "sha256": "537f2e25bd63258e975a30d7deee6c9da720eba1ef26cd1efad6a95f38e71d80",
+      "bytes": 248,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_prompt.md",
+      "sha256": "5bbcf145516aacfa79f1626bca3a01baf10cf45fcbc8ba128c2b1baa6719cca1",
+      "bytes": 9463,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_command.json",
+      "sha256": "f5839636abfdcd8099a0566f3f530e18cee1df6acd4eaf91c251428445606985",
+      "bytes": 754,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "541861d164623eee63631a784f0bdc604d1e73779519af31ad6bd6ef3e095df0",
+      "bytes": 1403,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "e6f4f3daace180af7bf68ec4ace2ec8ecab798bea8834a602ac5e0116e7cd380",
+      "bytes": 233,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "12c824821697a14af6d8feaab752d72fbeaa1607a31d6fce99eee13babafffe8",
+      "bytes": 1425,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "f974b35a394fe1830c527bd29bcda81aff589983b19937fc07c6671bb4fa6d50",
+      "bytes": 1061,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "400bfc97469ef209acef01055637c93a8fba57fee814565257dd708a356ff387",
+      "bytes": 552,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "f974b35a394fe1830c527bd29bcda81aff589983b19937fc07c6671bb4fa6d50",
+      "bytes": 1061,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "6f1552ea46a187419e2dc9748062d6d665c3364fed724e3f05cf04383abb93c4",
+      "bytes": 248,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/revision_prompt.md",
+      "sha256": "64c0d1ad18643b58fd92a47618d119cabd58ab7d44ca12fc92ee5d4249369258",
+      "bytes": 18724,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/command.json",
+      "sha256": "af8ac89457a6e3218d6ce2c4c1ec598a3f9a4f814d45291963adb4c43eaf2206",
+      "bytes": 752,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/codex_stdout.jsonl",
+      "sha256": "63fa1a48059c2695e02f54e55a43f403bc97ed2f220a897cd137727275716076",
+      "bytes": 6999,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/codex_stderr.log",
+      "sha256": "86f0dcdf02bba9b29d4dbf7d5f175358b63097859b6d25f737b6d67a3d4b070f",
+      "bytes": 233,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/codex_events.jsonl",
+      "sha256": "889edef08cb4f00f61edab74e47596424a78fd60ecf5aeef61300dfc6ded6523",
+      "bytes": 7021,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/codex_last_message.txt",
+      "sha256": "6b53b01b54ad1624cafbf22bfde8030efd48e988ccd8efe0e62dad40618f0205",
+      "bytes": 6299,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/codex_trace.json",
+      "sha256": "44a1e62058e342662d192bdeddf19ccfbf5bcf158befcdf9e756a12272751140",
+      "bytes": 553,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/stdout.txt",
+      "sha256": "6b53b01b54ad1624cafbf22bfde8030efd48e988ccd8efe0e62dad40618f0205",
+      "bytes": 6299,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/stderr.txt",
+      "sha256": "5bc46fbce3fe5fdda6dccb0d4727fd24059e1fc761f3534424c5532f052dab38",
+      "bytes": 248,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/raw_response.txt",
+      "sha256": "6b53b01b54ad1624cafbf22bfde8030efd48e988ccd8efe0e62dad40618f0205",
+      "bytes": 6299,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/parsed_cells.json",
+      "sha256": "380beb5f3bdef830d4ccd7d9393283426117ebb11d545d1e3f01f5692e4a0528",
+      "bytes": 7875,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/normalized_cells.json",
+      "sha256": "0590449f2d9cb8da5d0f744f382119e863c1d1f22366bb2d67e1c10e946d7d59",
+      "bytes": 24887,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/distribution.json",
+      "sha256": "b8869a1b54369709519750413e204ce995a01659c60704aaa8e9e29a51f5ba66",
+      "bytes": 13228,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/validation.json",
+      "sha256": "fa55e5abb2d75d73cc7ad3c2652ab8dbcd6c29521636750f6b6fc6503b9dd52c",
+      "bytes": 135,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/cells.with_activity.json",
+      "sha256": "c9cdbabf8a8fcde0692a8abe5c95b36e122552aefaaac406774c5b57396a4abf",
+      "bytes": 39798,
+      "createdAt": "2026-08-19T15:39:34Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-08-19/2026-08-19t15-39-34z-ons-earnings-regular-pay-yoy-2026-07/manifest.json",
+      "sha256": "9d6b7267784a978378384800a01e67a6712b699c00bf567fda0277d1d6bad5c6",
+      "bytes": 15728,
+      "createdAt": "2026-08-19T15:39:34Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-regular-pay-growth-may-jul-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "checkoutSha": "1a8c5d83d07cc6160ba5e11d8754092d64a2fc64",
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "e74d81b4deeb5875b5a1e7e4fd130cfa17a6c23c0a54dd151c191a940f2ee26b"
+}
