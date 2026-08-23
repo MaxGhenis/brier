@@ -80,6 +80,7 @@ try:
     from policy_chain_validation import (
         agent_version_enforces_policy_chain,
         conditional_policy_chain_errors,
+        conditional_target_context_errors,
     )
     from private_source_screen import (
         PRIVATE_SOURCE_MARKER,  # noqa: F401  (re-exported for tests/tools)
@@ -323,16 +324,38 @@ def validate(
             errs.append(f"tool step without numeric result: {t.get('tool')}")
     if not any(s.get("kind") == "math" for s in steps):
         errs.append("no math step")
-    sealed_prompt_mode = str(
-        cell.get("promptMode")
+    errs.extend(
+        conditional_target_context_errors(
+            cell,
+            target_context=target_context,
+            agent_version=agent_version,
+        )
+    )
+    authenticated_prompt_mode = prompt_mode
+    if authenticated_prompt_mode is None:
+        carried_prompt_mode = cell.get(SEALED_PROMPT_MODE_KEY)
+        authenticated_prompt_mode = (
+            carried_prompt_mode if isinstance(carried_prompt_mode, str) else None
+        )
+    interval_prompt_mode = str(
+        authenticated_prompt_mode
+        or cell.get("promptMode")
         or (cell.get("predictionRun") or {}).get("promptMode")
         or "full"
     )
-    effective_prompt_mode = prompt_mode or sealed_prompt_mode
-    if effective_prompt_mode in {
-        "fast",
-        "full",
-    } and agent_version_enforces_policy_chain(agent_version):
+    known_prompt_modes = {"fast", "full", "ladder", "ladder_v2", "median3"}
+    unknown_authenticated_mode = (
+        authenticated_prompt_mode is not None
+        and authenticated_prompt_mode not in known_prompt_modes
+    )
+    if unknown_authenticated_mode:
+        errs.append(
+            "conditional policy chain: unsupported authenticated prompt mode "
+            f"{authenticated_prompt_mode!r}"
+        )
+    elif agent_version_enforces_policy_chain(
+        agent_version
+    ) and authenticated_prompt_mode not in {"ladder", "ladder_v2"}:
         errs.extend(
             conditional_policy_chain_errors(cell, target_context=target_context)
         )
@@ -411,7 +434,7 @@ def validate(
         math_text = " ".join(
             s.get("text") or "" for s in steps if s.get("kind") == "math"
         )
-        if sealed_prompt_mode == "ladder_v2":
+        if interval_prompt_mode == "ladder_v2":
             # ladder_v2's pre-registered derivation contract (2026-07-10) is
             # quantile-native: the ladder rungs plus the interpolated tail
             # percentiles stated literally, no parametric sigma disclosure.
@@ -491,6 +514,7 @@ SEALED_GENERATION_TICKET_KEY = "_sealedGenerationTicket"
 # runner, replay, and converter paths.
 SEALED_TARGET_CONTEXT_KEY = "_sealedTargetContext"
 SEALED_VALIDATION_TICKET_KEY = "_sealedValidationGenerationTicket"
+SEALED_PROMPT_MODE_KEY = "_sealedPromptMode"
 # Validation-only reviewed docket authorization resolved from the sealed Git
 # checkout named by the run manifest. Never accept this key from input JSON.
 SEALED_HISTORY_AUTHORIZATION_KEY = "_sealedHistoryFloorAuthorization"
@@ -675,7 +699,9 @@ def carry_sealed_run_metadata(
         cell.pop(SEALED_GENERATION_TICKET_KEY, None)
         cell.pop(SEALED_TARGET_CONTEXT_KEY, None)
         cell.pop(SEALED_VALIDATION_TICKET_KEY, None)
+        cell.pop(SEALED_PROMPT_MODE_KEY, None)
         cell.pop(SEALED_HISTORY_AUTHORIZATION_KEY, None)
+        cell.pop("promptMode", None)
         # Review metadata is runner-authored, never agent-authored: an
         # agent-planted preSubmitReview would otherwise be excluded from
         # private_source_hits and then masked as if a reviewer wrote it.
@@ -704,6 +730,9 @@ def carry_sealed_run_metadata(
     ):
         raise ValueError(f"manifest targetContext is invalid: {manifest_path}")
     validation_ticket = manifest.get("generationTicket")
+    sealed_prompt_mode = manifest.get("promptMode")
+    if sealed_prompt_mode is not None and not isinstance(sealed_prompt_mode, str):
+        raise ValueError(f"manifest promptMode is invalid: {manifest_path}")
     if provenance == "ci" and has_ticket:
         raise ValueError(
             "ticketed runs must be converted with --provenance local_operator_attested"
@@ -728,6 +757,9 @@ def carry_sealed_run_metadata(
             cell[SEALED_GENERATION_TICKET_KEY] = sealed_ticket
         if sealed_target_context is not None:
             cell[SEALED_TARGET_CONTEXT_KEY] = sealed_target_context
+        if isinstance(sealed_prompt_mode, str):
+            cell["promptMode"] = sealed_prompt_mode
+            cell[SEALED_PROMPT_MODE_KEY] = sealed_prompt_mode
         if isinstance(validation_ticket, dict):
             cell[SEALED_VALIDATION_TICKET_KEY] = validation_ticket
 

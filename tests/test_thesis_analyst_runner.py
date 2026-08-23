@@ -2493,6 +2493,139 @@ def test_conditional_policy_chain_requires_each_structural_component(
     assert expected_error in analyst_runner.conditional_policy_chain_errors(cell)
 
 
+def test_conditional_policy_chain_rejects_adversarial_cue_soup() -> None:
+    cell = conditional_policy_test_cell(
+        "Policy chain: Touched population is unknown, while fetched count 12 claims "
+        "belongs to an unrelated program; study "
+        f"{POLICY_PRECEDENT_URL} does not inform our response per target outcome; "
+        "no offsetting effect exists; lag effect."
+    )
+
+    errors = analyst_runner.conditional_policy_chain_errors(cell)
+
+    assert (
+        "conditional policy chain: Policy chain step must state a fetched numeric "
+        "count for the touched population"
+    ) in errors
+    assert (
+        "conditional policy chain: Policy chain step must state offsetting responses"
+    ) in errors
+    assert (
+        "conditional policy chain: Policy chain step must tie propagation to a cited "
+        "precedent URL"
+    ) in errors
+
+
+@pytest.mark.parametrize(
+    ("component", "expected_error"),
+    [
+        (
+            "population",
+            "conditional policy chain: Policy chain step must state a fetched "
+            "numeric count for the touched population",
+        ),
+        (
+            "propagation",
+            "conditional policy chain: Policy chain step must tie propagation to a "
+            "cited precedent URL",
+        ),
+        (
+            "offsets",
+            "conditional policy chain: Policy chain step must state offsetting "
+            "responses",
+        ),
+        (
+            "timing",
+            "conditional policy chain: Policy chain step must state timing or lag",
+        ),
+    ],
+)
+def test_conditional_policy_chain_rejects_negated_component_clauses(
+    component: str,
+    expected_error: str,
+) -> None:
+    kwargs = {
+        "population": "Touched population: a fetched count of 12,000 teachers",
+        "propagation": (
+            "Propagation: the evaluation at "
+            f"{POLICY_PRECEDENT_URL} found a response per funded unit, implying "
+            "the measured outcome"
+        ),
+        "offsets": "Offsets: hiring responses could counteract the effect",
+        "timing": "Timing/lag: implementation lag reaches the 2030 target period",
+    }
+    replacements = {
+        "population": (
+            "Touched population: the fetched count of 12,000 teachers is unknown"
+        ),
+        "propagation": (
+            "Propagation: the study at "
+            f"{POLICY_PRECEDENT_URL} does not imply a response per funded unit "
+            "in the measured outcome"
+        ),
+        "offsets": "Offsets: no behavioral response counteracts the effect",
+        "timing": "Timing/lag: no implementation lag reaches the 2030 target period",
+    }
+    kwargs[component] = replacements[component]
+    cell = conditional_policy_test_cell(complete_policy_precedent_step(**kwargs))
+
+    assert expected_error in analyst_runner.conditional_policy_chain_errors(cell)
+
+
+def test_conditional_policy_chain_requires_unit_next_to_population_count() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(
+            population=(
+                "Touched population: workers are eligible and the fetched count is 12"
+            )
+        )
+    )
+
+    assert (
+        "conditional policy chain: Policy chain step must state a fetched numeric "
+        "count for the touched population"
+        in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
+@pytest.mark.parametrize(
+    "placeholder",
+    [
+        "POLICY_CHAIN_URL_0",
+        "[PRECEDENT_URL]",
+        "[precedent_url]",
+        "PRECEDENT_URL",
+    ],
+)
+def test_conditional_policy_chain_rejects_agent_placeholder_tokens_anywhere(
+    placeholder: str,
+) -> None:
+    cell = conditional_policy_test_cell(complete_policy_precedent_step())
+    cell["reasoning"].insert(
+        -1,
+        {"kind": "text", "text": f"Unused template residue: {placeholder}"},
+    )
+
+    assert any(
+        "agent-authored text contains an unsubstituted placeholder token" in error
+        for error in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
+def test_conditional_policy_chain_rejects_placeholder_citation_injection() -> None:
+    cell = conditional_policy_test_cell(
+        "Policy chain: touched population fetched count 12 workers; study "
+        "POLICY_CHAIN_URL_0 response per target outcome. Citation "
+        f"{POLICY_PRECEDENT_URL}; offsetting responses could reduce it; "
+        "implementation lag reaches the target period."
+    )
+
+    assert any(
+        "agent-authored text contains an unsubstituted placeholder token" in error
+        for error in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
 def test_fast_conditional_policy_chain_missing_step_fails_closed(
     tmp_path: Path,
 ) -> None:
@@ -2595,6 +2728,22 @@ def test_fast_conditional_policy_chain_requires_precedent_or_explicit_fallback(
             "https://example.com/reviewed-rate",
             "https://example.com./reviewed-rate",
         ),
+        (
+            "https://leg.example/bill/1",
+            "https://leg.example/bill/%31",
+        ),
+        (
+            "https://leg.example/bill/1",
+            "https://leg.example/a/../bill/1",
+        ),
+        (
+            "https://leg.example/bill/~sponsor",
+            "https://LEG.example:443/bill/%7esponsor",
+        ),
+        (
+            "https://leg.example/bill%2F1",
+            "https://leg.example/bill%2f1",
+        ),
     ],
 )
 def test_conditional_policy_chain_rejects_resolution_url_as_precedent(
@@ -2649,6 +2798,32 @@ def test_conditional_policy_chain_accepts_distinct_same_host_precedent() -> None
     assert analyst_runner.conditional_policy_chain_errors(cell) == []
 
 
+@pytest.mark.parametrize(
+    "redirect_url",
+    [
+        "https://redirect.example/go?url=https%3A%2F%2Fleg.example%2Fbill%2F1",
+        "https://redirect.example/go?u=https://leg.example/bill/1",
+        "https://redirect.example/https%3A%2F%2Fleg.example%2Fbill%2F1",
+        "https://redirect.example/go?next=%2568%2574%2574%2570%253A%252F%252Fleg.example",
+    ],
+)
+def test_conditional_policy_chain_rejects_unauthenticated_redirectors(
+    redirect_url: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(redirect_url),
+        include_precedent_url=False,
+    )
+    cell["resolutionSourceUrl"] = "https://leg.example/bill/1"
+    cell["sourceContext"].extend([cell["resolutionSourceUrl"], redirect_url])
+
+    assert (
+        "conditional policy chain: precedent URL must be distinct from the "
+        "conditional instrument and resolution source URLs"
+        in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
 def test_conditional_policy_chain_rejects_table_without_effect_precedent_cue() -> None:
     table_url = "https://www.bls.gov/data/table.htm"
     cell = conditional_policy_test_cell(
@@ -2697,6 +2872,16 @@ def test_conditional_policy_chain_accepts_realistic_covered_population_prose() -
     cell = conditional_policy_test_cell(
         complete_policy_precedent_step(
             population="The policy covers a fetched count of 12,000 teachers"
+        )
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+def test_conditional_policy_chain_accepts_scaled_population_count() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(
+            population="The policy covers a fetched count of 2.5 million workers"
         )
     )
 
@@ -2817,8 +3002,8 @@ def test_fast_conditional_policy_chain_no_precedent_with_bound_passes(
 ) -> None:
     step = (
         "Policy chain: the policy touches a fetched count of 12,000 teachers; "
-        "higher pay translates into the measured outcome, but propagation has "
-        "no fetched precedent; policy term bound: [-0.2, +0.4] percentage "
+        "higher pay translates into the measured outcome; there is no fetched "
+        "precedent; policy term bound: [-0.2, +0.4] percentage "
         "points; policy "
         "term is low-confidence; hiring offsets could erase the gain; "
         "implementation lag limits the effect in the 2030 period."
@@ -2983,6 +3168,29 @@ def test_conditional_policy_chain_does_not_treat_confidence_as_effect_bound(
 
 
 @pytest.mark.parametrize(
+    "bound",
+    [
+        "policy effect spans 0 to 80% (CI)",
+        "policy effect spans 0 to 80%, CI",
+        "policy effect spans 0 to 80 percent, confidence interval",
+        "policy effect spans 0 to 80% (two-sided) CI",
+    ],
+)
+def test_conditional_policy_chain_rejects_ci_after_arbitrary_separators(
+    bound: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_fallback_step(bound),
+        include_precedent_url=False,
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: 'no fetched precedent' path must state a "
+        "numeric policy-term bound"
+    ]
+
+
+@pytest.mark.parametrize(
     "label",
     [
         "policy term is not low-confidence",
@@ -3046,8 +3254,8 @@ def test_conditional_policy_chain_does_not_ignore_a_conflicting_second_step() ->
         (
             "policy-no-precedent-no-bound",
             "Policy chain: the policy touches a fetched count of 12,000 "
-            "teachers; higher pay translates into the measured outcome, but "
-            "propagation has no fetched precedent; the "
+            "teachers; higher pay translates into the measured outcome; "
+            "there is no fetched precedent; the "
             "low-confidence policy term lacks a quantitative limit; hiring "
             "responses could counteract the effect; implementation lag remains.",
             "conditional policy chain: 'no fetched precedent' path must state "
@@ -3056,8 +3264,8 @@ def test_conditional_policy_chain_does_not_ignore_a_conflicting_second_step() ->
         (
             "policy-no-precedent-population-is-not-bound",
             "Policy chain: the policy touches a fetched count of 12,000 "
-            "teachers; higher pay translates into the measured outcome, but "
-            "propagation has no fetched precedent; the "
+            "teachers; higher pay translates into the measured outcome; "
+            "there is no fetched precedent; the "
             "low-confidence policy term remains uncertain; at most 12,000 "
             "teachers are touched; hiring responses could counteract the "
             "effect within the 2030 resolution period after an implementation "
@@ -3068,8 +3276,8 @@ def test_conditional_policy_chain_does_not_ignore_a_conflicting_second_step() ->
         (
             "policy-no-precedent-no-confidence",
             "Policy chain: the policy touches a fetched count of 12,000 "
-            "teachers; higher pay translates into the measured outcome, but "
-            "propagation has no fetched precedent; policy term "
+            "teachers; higher pay translates into the measured outcome; "
+            "there is no fetched precedent; policy term "
             "bound: [-0.2, +0.4] percentage points; hiring responses could "
             "counteract the effect; implementation lag "
             "remains.",
@@ -4957,11 +5165,16 @@ def test_full_prompt_embeds_the_cell_contract_verbatim() -> None:
     assert "byte-for-byte" in prompt
     assert "conditional_on" not in prompt
 
-    unconditional, _ = analyst_runner.build_run_prompt(
-        "bls.cps.unemployment_rate", "2026-06", None, "full"
+
+def test_unconditional_full_prompt_preserves_frozen_2_5_11_bytes() -> None:
+    unconditional, meta = analyst_runner.build_run_prompt(
+        "bls.cps.unemployment_rate", "2030-01", None, "full"
     )
     assert "conditionalOn: null" in unconditional
-    assert contract in unconditional
+    assert meta["agentVersion"] == "2.5.11"
+    assert hashlib.sha256(unconditional.encode()).hexdigest() == (
+        "a613517b3749ac82d2dd418475a9b211eab1753c2b10ece927875dbe34aad0e9"
+    )
 
 
 def test_fast_prompt_names_conditional_on_exactly() -> None:
@@ -5005,6 +5218,31 @@ def test_policy_chain_contract_floor_matches_current_agent_version() -> None:
     )
 
     assert meta["agentVersion"] == policy_chain_validation.POLICY_CHAIN_AGENT_VERSION
+
+
+def test_policy_chain_version_override_is_derived_from_base_agent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base_meta = {
+        "agent": "thesis.analyst",
+        "agentVersion": "2.6.0",
+        "model": "test-model",
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+        "skills": [],
+    }
+    footer = f"(agent thesis.analyst v2.6.0, prompt {'a' * 12}, tools {'b' * 12})\n"
+    monkeypatch.setattr(
+        analyst_runner,
+        "build_prompt",
+        lambda _series, _period, _conditional: (footer, base_meta),
+    )
+
+    _prompt, meta = analyst_runner.build_run_prompt(
+        "test.policy", "2030", POLICY_CONDITIONAL, "full"
+    )
+
+    assert meta["agentVersion"] == "2.6.1"
 
 
 @pytest.mark.parametrize(
@@ -5054,6 +5292,10 @@ def test_pre_submit_review_requires_conditional_policy_chain_changes() -> None:
     assert "low-confidence label" in prompt
     assert "requires REQUEST_CHANGES" in prompt
     assert "direction and size with the cited precedent" in prompt
+    assert "cue soup" in prompt
+    assert "negated, unknown, or unrelated" in prompt
+    assert "citation disconnected from the propagation sentence" in prompt
+    assert "severity `blocking`" in prompt
     assert '"decision": "APPROVE|REQUEST_CHANGES"' in prompt
     assert "coherence|leakage|policy_chain" in prompt
 

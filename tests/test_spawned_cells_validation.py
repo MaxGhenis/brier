@@ -447,9 +447,62 @@ def test_converter_exempts_current_ladder_modes(prompt_mode: str) -> None:
         converter_policy_cell(None, prompt_mode=prompt_mode),
         set(),
         agent_version="2.5.12",
+        prompt_mode=prompt_mode,
     )
 
     assert policy_chain_validation_errors(errors) == []
+
+
+def test_converter_rejects_unknown_current_conditional_prompt_mode() -> None:
+    errors = spawned_cells_to_ts.validate(
+        converter_policy_cell(None, prompt_mode="bogus"),
+        set(),
+        agent_version="2.5.12",
+        prompt_mode="bogus",
+    )
+
+    assert policy_chain_validation_errors(errors) == [
+        "conditional policy chain: unsupported authenticated prompt mode 'bogus'"
+    ]
+
+
+def test_converter_rejects_conditional_target_relabelled_as_data() -> None:
+    cell = converter_policy_cell(None)
+    cell["type"] = "data"
+    target_context = {
+        "conditional": "A registered policy changes the measured outcome."
+    }
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        target_context=target_context,
+        agent_version="2.5.12",
+        prompt_mode="full",
+    )
+
+    assert policy_chain_validation_errors(errors) == [
+        "conditional policy chain: authenticated conditional target requires cell "
+        "type 'conditional'"
+    ]
+
+
+@pytest.mark.parametrize("claimed_mode", ["ladder", "ladder_v2"])
+def test_converter_requires_manifest_authentication_for_ladder_exemption(
+    claimed_mode: str,
+) -> None:
+    cell = converter_policy_cell(None, prompt_mode=claimed_mode)
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.12",
+    )
+
+    assert policy_chain_validation_errors(errors) == [
+        "conditional policy chain: missing reasoning step beginning exactly "
+        "'Policy chain:'"
+    ]
 
 
 def test_converter_accepts_complete_current_policy_chain() -> None:
@@ -592,9 +645,13 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     }
     cell[spawned_cells_to_ts.SEALED_TARGET_CONTEXT_KEY] = bounded_context()
     cell[spawned_cells_to_ts.SEALED_VALIDATION_TICKET_KEY] = ticket_context()
+    cell[spawned_cells_to_ts.SEALED_PROMPT_MODE_KEY] = "ladder"
+    cell["promptMode"] = "ladder"
     cells_path = tmp_path / "normalized_cells.json"
     cells_path.write_text(json.dumps([cell]))
-    (tmp_path / "manifest.json").write_text(json.dumps(successful_manifest()))
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(successful_manifest(promptMode="full"))
+    )
 
     cells = [cell]
     spawned_cells_to_ts.carry_sealed_run_metadata(cells, tmp_path)
@@ -606,6 +663,8 @@ def test_loaded_cell_cannot_spoof_private_sealed_metadata(
     assert run["agent"] != "spoofed.agent"
     assert spawned_cells_to_ts.SEALED_TARGET_CONTEXT_KEY not in loaded
     assert spawned_cells_to_ts.SEALED_VALIDATION_TICKET_KEY not in loaded
+    assert loaded[spawned_cells_to_ts.SEALED_PROMPT_MODE_KEY] == "full"
+    assert loaded["promptMode"] == "full"
 
 
 def test_converter_validation_uses_sealed_bounded_manifest_context(

@@ -62,7 +62,9 @@ from history_floor import (
 )
 from policy_chain_validation import (  # noqa: F401  (public test/tool re-export)
     POLICY_CHAIN_AGENT_VERSION,
+    agent_version_enforces_policy_chain,
     conditional_policy_chain_errors,
+    next_patch_agent_version,
 )
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -459,9 +461,25 @@ def load_prompt_builder():
             sys.path.pop(0)
 
 
-def build_prompt(series: str, period: str, conditional: str | None) -> tuple[str, dict]:
+def build_prompt(
+    series: str,
+    period: str,
+    conditional: str | None,
+    *,
+    contract_override: str | None = None,
+    legacy_policy_chain: bool = False,
+) -> tuple[str, dict]:
     builder = load_prompt_builder()
-    return builder.build(series, period, conditional), builder.agent_meta()
+    return (
+        builder.build(
+            series,
+            period,
+            conditional,
+            contract_override=contract_override,
+            legacy_policy_chain=legacy_policy_chain,
+        ),
+        builder.agent_meta(),
+    )
 
 
 def build_run_prompt(
@@ -472,15 +490,36 @@ def build_run_prompt(
     target_context: dict[str, Any] | None = None,
     ticket: dict[str, str] | None = None,
     network_tools: bool = False,
+    replay_agent_version: str | None = None,
+    contract_override: str | None = None,
 ) -> tuple[str, dict]:
-    prompt, meta = build_prompt(series, period, conditional)
-    if conditional and mode in {"fast", "full"}:
+    legacy_policy_chain = bool(replay_agent_version) and not (
+        agent_version_enforces_policy_chain(replay_agent_version)
+    )
+    if contract_override is None and not legacy_policy_chain:
+        # Preserve the small public seam used by tests and callers that replace
+        # the base builder; replay-only arguments take the extended path below.
+        prompt, meta = build_prompt(series, period, conditional)
+    else:
+        prompt, meta = build_prompt(
+            series,
+            period,
+            conditional,
+            contract_override=contract_override,
+            legacy_policy_chain=legacy_policy_chain,
+        )
+    prior_meta = meta
+    target_agent_version = meta["agentVersion"]
+    if replay_agent_version is not None:
+        target_agent_version = replay_agent_version
+    elif conditional and mode in {"fast", "full"}:
+        target_agent_version = next_patch_agent_version(meta["agentVersion"])
+    if target_agent_version != meta["agentVersion"]:
         # The strengthened conditional contract is a mode-scoped analyst
         # revision. Keep ladder/ladder_v2 (and unconditional) prompt metadata
         # byte-stable while giving new ordinary conditional cells an epoch the
         # converter can enforce without retro-rejecting 2.5.11 records.
-        prior_meta = meta
-        meta = {**meta, "agentVersion": POLICY_CHAIN_AGENT_VERSION}
+        meta = {**meta, "agentVersion": target_agent_version}
         if mode == "full":
             old_footer = (
                 f"(agent {prior_meta['agent']} v{prior_meta['agentVersion']}, "
@@ -516,6 +555,7 @@ def build_run_prompt(
                 target_context,
                 ticket,
                 network_tools=network_tools,
+                include_conditional_policy_chain=not legacy_policy_chain,
             ),
             meta,
         )
@@ -853,9 +893,14 @@ def build_fast_prompt(
         "- Add one reasoning step whose text begins exactly `Policy chain:`. "
         "For the fail-safe form, label its clauses `Touched population:`, "
         "`Propagation:`, `Offsets:`, and `Timing/lag:`. Name every fetched "
-        "precedent URL in that step and repeat each URL exactly in "
-        "sourceContext. A precedent URL must be distinct from any bill or "
-        "measure URL in the conditional and from resolutionSourceUrl.\n"
+        "precedent URL in that step, put it in the same sentence as the "
+        "propagation claim, and repeat it exactly in sourceContext. The "
+        "fetched count's number and population unit/noun must occur in the "
+        "same clause. A clause containing no/not/unknown/unrelated/none does "
+        "not supply a component. Do not leave bracketed or ALL-CAPS template "
+        "slots anywhere in the cell. A precedent URL must be distinct from "
+        "any bill or measure URL in the conditional and from "
+        "resolutionSourceUrl.\n"
         "- If no fetched precedent is available, the `Policy chain:` step must "
         "still state propagation to the measured quantity, contain the exact "
         "phrase `no fetched precedent`, state a finite, ordered, unit-bearing "
@@ -2315,9 +2360,12 @@ def build_pre_submit_review_prompt(
         "fetched precedent` with a finite, ordered, unit-bearing numeric "
         "policy-term bound and a low-confidence label. A missing or "
         "noncompliant step requires "
-        "REQUEST_CHANGES with a blocking policy_chain fix. Compare the policy "
-        "effect's direction and size with the cited precedent and flag any "
-        "inconsistency.\n"
+        "REQUEST_CHANGES with a blocking policy_chain fix. Treat cue soup as "
+        "noncompliant: reject any component that is negated, unknown, or "
+        "unrelated, and reject a citation disconnected from the propagation "
+        "sentence. Compare the policy effect's direction and size with the "
+        "cited precedent and flag any inconsistency. Any such failure must use "
+        "severity `blocking` and decision `REQUEST_CHANGES`.\n"
         if enforce_policy_chain
         else ""
     )

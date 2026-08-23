@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 import re
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 POLICY_CHAIN_AGENT_VERSION = "2.5.12"
 POLICY_CHAIN_AGENT_VERSION_PARTS = (2, 5, 12)
@@ -29,6 +29,48 @@ _VERSION_RE = re.compile(
     r"(?P<patch>0|[1-9][0-9]*)"
     r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?"
 )
+_UNRESERVED = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+)
+_PERCENT_ESCAPE_RE = re.compile(r"%([0-9A-Fa-f]{2})")
+_ENCODED_HTTP_RE = re.compile(
+    r"%(?:25)*(?:68)%(?:25)*(?:74)%(?:25)*(?:74)%(?:25)*(?:70)"
+    r"(?:%(?:25)*(?:73))?",
+    re.IGNORECASE,
+)
+_ABSOLUTE_HTTP_RE = re.compile(r"https?://", re.IGNORECASE)
+_NEGATED_CLAUSE_RE = re.compile(
+    r"\b(?:no|not|unknown|unrelated|none)\b",
+    re.IGNORECASE,
+)
+_BRACKETED_TEMPLATE_SLOT_RE = re.compile(
+    r"(?:\[\s*|<\s*|\{\{?\s*)"
+    r"[A-Za-z][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z][A-Za-z0-9_]*)*"
+    r"(?:\s*\]|\s*>|\s*\}\}?)"
+)
+_ALL_CAPS_TEMPLATE_SLOT_RE = re.compile(
+    r"\b(?:POLICY_CHAIN_URL_[0-9]+|(?:[A-Z][A-Z0-9]*_)+[A-Z0-9]+|"
+    r"LOW|HIGH|UNIT)\b"
+)
+_AGENT_AUTHORED_FIELDS = {
+    "conditionalOn",
+    "country",
+    "dataPointId",
+    "drivers",
+    "historicalContext",
+    "question",
+    "reasoning",
+    "resolutionDate",
+    "resolutionRule",
+    "resolutionSource",
+    "resolutionSourceUrl",
+    "runAt",
+    "slug",
+    "sourceContext",
+    "title",
+    "type",
+    "unit",
+}
 _POPULATION_CUE_RE = re.compile(
     r"\b(?:touch(?:es|ed|ing)?|affect(?:s|ed|ing)?|eligible|"
     r"cover(?:s|ed|ing)?|appl(?:y|ies|ied|ying)\s+to|"
@@ -45,13 +87,9 @@ _POPULATION_COUNT_NOUN_RE = re.compile(
 )
 _NUMBER_THEN_POPULATION_RE = re.compile(
     rf"{POLICY_CHAIN_NUMBER_RE.format(name='value')}\s*"
+    rf"(?:(?:thousand|million|billion|trillion)s?\s+)?"
     rf"(?:(?:eligible|affected|covered|treated|exposed|touched)\s+)?"
     rf"{_POPULATION_COUNT_NOUN_RE.pattern}",
-    re.IGNORECASE,
-)
-_COUNT_THEN_NUMBER_RE = re.compile(
-    rf"{_POPULATION_COUNT_NOUN_RE.pattern}\s*(?:of|is|=|:)?\s*"
-    rf"{POLICY_CHAIN_NUMBER_RE.format(name='value')}",
     re.IGNORECASE,
 )
 _PROPAGATION_RE = re.compile(
@@ -95,14 +133,19 @@ _TIMING_RE = re.compile(
     re.IGNORECASE,
 )
 _CLAUSE_BOUNDARY_RE = re.compile(r"[;\n]|(?<=[.!?])\s+")
+_SENTENCE_BOUNDARY_RE = re.compile(r"\n+|(?<=[.!?])\s+")
 _DATE_CUE_RE = re.compile(
     r"\b(?:years?|fy|cy|date|calendar|fiscal|release|resolution|period|"
     r"months?|quarters?|days?|weeks?|report|publication|vintage)\b",
     re.IGNORECASE,
 )
+_CONFIDENCE_TOKEN = (
+    r"(?:ci\b|confidence(?:\s+interval)?\b|credible\s+interval\b|"
+    r"level\s+of\s+confidence\b)"
+)
 _CONFIDENCE_SUFFIX_RE = re.compile(
-    r"^[-\s]*(?:ci\b|confidence\b|credible\s+interval\b|"
-    r"level\s+of\s+confidence\b)",
+    rf"^(?:(?:[^\w()]|\([^)]*\)))*"
+    rf"(?:{_CONFIDENCE_TOKEN}|\([^)]*(?:{_CONFIDENCE_TOKEN})[^)]*\))",
     re.IGNORECASE,
 )
 
@@ -171,6 +214,20 @@ def agent_version_enforces_policy_chain(agent_version: Any) -> bool:
     return parts >= POLICY_CHAIN_AGENT_VERSION_PARTS
 
 
+def next_patch_agent_version(agent_version: Any) -> str:
+    """Derive a mode-scoped contract version without relabeling future agents."""
+
+    if not isinstance(agent_version, str):
+        raise ValueError("base agent version must be a semantic-version string")
+    match = _VERSION_RE.fullmatch(agent_version)
+    if match is None:
+        raise ValueError(f"base agent version is malformed: {agent_version!r}")
+    major, minor, patch = (
+        int(match.group(name)) for name in ("major", "minor", "patch")
+    )
+    return f"{major}.{minor}.{patch + 1}"
+
+
 def policy_chain_urls(text: str) -> list[str]:
     """Extract cited HTTP(S) URLs without surrounding prose punctuation."""
 
@@ -190,6 +247,72 @@ def policy_chain_urls(text: str) -> list[str]:
     return urls
 
 
+def _normalize_percent_escapes(value: str) -> str:
+    def replace(match: re.Match[str]) -> str:
+        byte = int(match.group(1), 16)
+        character = chr(byte)
+        return character if character in _UNRESERVED else f"%{byte:02X}"
+
+    return _PERCENT_ESCAPE_RE.sub(replace, value)
+
+
+def _remove_dot_segments(path: str) -> str:
+    """RFC 3986 section 5.2.4 without collapsing distinct double slashes."""
+
+    remaining = path
+    output = ""
+    while remaining:
+        if remaining.startswith("../"):
+            remaining = remaining[3:]
+        elif remaining.startswith("./"):
+            remaining = remaining[2:]
+        elif remaining.startswith("/./"):
+            remaining = "/" + remaining[3:]
+        elif remaining == "/.":
+            remaining = "/"
+        elif remaining.startswith("/../"):
+            remaining = "/" + remaining[4:]
+            output = output.rsplit("/", 1)[0]
+        elif remaining == "/..":
+            remaining = "/"
+            output = output.rsplit("/", 1)[0]
+        elif remaining in {".", ".."}:
+            remaining = ""
+        else:
+            separator = remaining.find("/", 1 if remaining.startswith("/") else 0)
+            if separator < 0:
+                output += remaining
+                remaining = ""
+            else:
+                output += remaining[:separator]
+                remaining = remaining[separator:]
+    return output
+
+
+def _redirect_surface_views(value: str) -> list[str]:
+    views = []
+    current = value
+    for _ in range(4):
+        views.append(current)
+        decoded = unquote(current)
+        if decoded == current:
+            break
+        current = decoded
+    return views
+
+
+def _is_unauthenticated_redirector(url: str) -> bool:
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return True
+    surface = parsed.path + (f"?{parsed.query}" if parsed.query else "")
+    return any(
+        _ABSOLUTE_HTTP_RE.search(view) or _ENCODED_HTTP_RE.search(view)
+        for view in _redirect_surface_views(surface)
+    )
+
+
 def _url_identity(url: str) -> tuple[str, int | None, str] | None:
     try:
         parsed = urlparse(url)
@@ -201,11 +324,15 @@ def _url_identity(url: str) -> tuple[str, int | None, str] | None:
         return None
     if (parsed.scheme.lower(), port) in {("http", 80), ("https", 443)}:
         port = None
-    path = parsed.path.rstrip("/") or "/"
+    if _is_unauthenticated_redirector(url):
+        return None
+    normalized_host = _normalize_percent_escapes(hostname).lower().rstrip(".")
+    path = _remove_dot_segments(_normalize_percent_escapes(parsed.path))
+    path = path.rstrip("/") or "/"
     # HTTP-to-HTTPS redirects and query aliases do not turn an instrument or
     # series page into a distinct effect precedent. A precedent on a shared
     # endpoint must use a genuinely distinct path so this gate fails closed.
-    return hostname.lower().rstrip("."), port, path
+    return normalized_host, port, path
 
 
 def _urls_in_value(value: Any) -> list[str]:
@@ -327,35 +454,60 @@ def has_numeric_policy_term_bound(text: str, cell_unit: Any = None) -> bool:
 
 
 def _clauses(text: str) -> list[str]:
-    protected = text
-    replacements: dict[str, str] = {}
-    for index, url in enumerate(policy_chain_urls(text)):
-        token = f"POLICY_CHAIN_URL_{index}"
-        protected = protected.replace(url, token, 1)
-        replacements[token] = url
-    clauses = []
-    for part in _CLAUSE_BOUNDARY_RE.split(protected):
-        if not part.strip():
-            continue
-        for token, url in replacements.items():
-            part = part.replace(token, url)
-        clauses.append(part.strip())
-    return clauses
+    # Sentence punctuation inside a URL is never followed by whitespace, so
+    # the boundary expression can operate directly on source text. Avoiding
+    # substitution also removes an author-collidable placeholder namespace.
+    return [part.strip() for part in _CLAUSE_BOUNDARY_RE.split(text) if part.strip()]
+
+
+def _sentences(text: str) -> list[str]:
+    return [part.strip() for part in _SENTENCE_BOUNDARY_RE.split(text) if part.strip()]
+
+
+def _affirmative_clauses(text: str) -> list[str]:
+    return [
+        clause for clause in _clauses(text) if not _NEGATED_CLAUSE_RE.search(clause)
+    ]
+
+
+def _agent_authored_strings(cell: dict[str, Any]) -> list[str]:
+    def strings(value: Any) -> list[str]:
+        if isinstance(value, str):
+            return [value]
+        if isinstance(value, list):
+            return [text for entry in value for text in strings(entry)]
+        if isinstance(value, dict):
+            return [text for entry in value.values() for text in strings(entry)]
+        return []
+
+    return [
+        text
+        for field in _AGENT_AUTHORED_FIELDS
+        if field in cell
+        for text in strings(cell[field])
+    ]
+
+
+def _placeholder_tokens(cell: dict[str, Any]) -> list[str]:
+    tokens = []
+    for text in _agent_authored_strings(cell):
+        for pattern in (_BRACKETED_TEMPLATE_SLOT_RE, _ALL_CAPS_TEMPLATE_SLOT_RE):
+            for match in pattern.finditer(text):
+                token = match.group(0)
+                if token not in tokens:
+                    tokens.append(token)
+    return tokens
 
 
 def _has_fetched_population_count(text: str) -> bool:
-    for clause in _clauses(text):
+    for clause in _affirmative_clauses(text):
         if not (
             re.search(r"\bfetched\b", clause, re.IGNORECASE)
             and _POPULATION_CUE_RE.search(clause)
             and _POPULATION_COUNT_NOUN_RE.search(clause)
         ):
             continue
-        local_matches = [
-            *list(_NUMBER_THEN_POPULATION_RE.finditer(clause)),
-            *list(_COUNT_THEN_NUMBER_RE.finditer(clause)),
-        ]
-        for match in local_matches:
+        for match in _NUMBER_THEN_POPULATION_RE.finditer(clause):
             value = _parse_number(match.group("value"))
             if value is None or value < 0:
                 continue
@@ -397,16 +549,19 @@ def _has_fetched_population_count(text: str) -> bool:
 
 
 def _url_segment(text: str, url: str) -> str:
-    """Return only the sentence-sized component containing ``url``."""
+    """Return only the sentence containing ``url``."""
 
-    return next((clause for clause in _clauses(text) if url in clause), "")
+    return next((sentence for sentence in _sentences(text) if url in sentence), "")
 
 
 def _precedent_is_tied_to_propagation(text: str, urls: list[str]) -> bool:
     return any(
-        _PROPAGATION_RE.search(segment_without_url)
-        and _MEASURED_QUANTITY_RE.search(segment_without_url)
-        and _PRECEDENT_EVIDENCE_RE.search(segment_without_url)
+        any(
+            _PROPAGATION_RE.search(clause)
+            and _MEASURED_QUANTITY_RE.search(clause)
+            and _PRECEDENT_EVIDENCE_RE.search(clause)
+            for clause in _affirmative_clauses(segment_without_url)
+        )
         for url in urls
         if (segment := _url_segment(text, url))
         and (segment_without_url := POLICY_CHAIN_URL_RE.sub("", segment))
@@ -419,8 +574,32 @@ def _has_propagation_component(text: str) -> bool:
         and _MEASURED_QUANTITY_RE.search(clause)
         and not _OFFSET_RE.search(clause)
         and not _TIMING_RE.search(clause)
-        for clause in _clauses(text)
+        for clause in _affirmative_clauses(text)
     )
+
+
+def conditional_target_context_errors(
+    cell: dict[str, Any],
+    *,
+    target_context: dict[str, Any] | None,
+    agent_version: Any,
+) -> list[str]:
+    """Keep a sealed conditional target from being relabeled to bypass the gate."""
+
+    conditional = (
+        target_context.get("conditional") if isinstance(target_context, dict) else None
+    )
+    if (
+        agent_version_enforces_policy_chain(agent_version)
+        and isinstance(conditional, str)
+        and conditional.strip()
+        and cell.get("type") != "conditional"
+    ):
+        return [
+            "conditional policy chain: authenticated conditional target requires cell "
+            "type 'conditional'"
+        ]
+    return []
 
 
 def conditional_policy_chain_errors(
@@ -430,6 +609,11 @@ def conditional_policy_chain_errors(
 
     if cell.get("type") != "conditional":
         return []
+    placeholder_errors = [
+        "conditional policy chain: agent-authored text contains an unsubstituted "
+        f"placeholder token: {token!r}"
+        for token in _placeholder_tokens(cell)
+    ]
     reasoning = cell.get("reasoning")
     policy_steps = []
     if isinstance(reasoning, list):
@@ -442,8 +626,9 @@ def conditional_policy_chain_errors(
         ]
     if not policy_steps:
         return [
+            *placeholder_errors,
             "conditional policy chain: missing reasoning step beginning exactly "
-            "'Policy chain:'"
+            "'Policy chain:'",
         ]
 
     source_context = cell.get("sourceContext")
@@ -453,7 +638,7 @@ def conditional_policy_chain_errors(
         else set()
     )
     excluded = _excluded_precedent_identities(cell, target_context)
-    all_errors = []
+    all_errors = list(placeholder_errors)
     for text in policy_steps:
         errors = []
         component_text = POLICY_CHAIN_URL_RE.sub("", text)
@@ -462,12 +647,16 @@ def conditional_policy_chain_errors(
                 "conditional policy chain: Policy chain step must state a fetched "
                 "numeric count for the touched population"
             )
-        if not _OFFSET_RE.search(component_text):
+        if not any(
+            _OFFSET_RE.search(clause) for clause in _affirmative_clauses(component_text)
+        ):
             errors.append(
                 "conditional policy chain: Policy chain step must state offsetting "
                 "responses"
             )
-        if not _TIMING_RE.search(component_text):
+        if not any(
+            _TIMING_RE.search(clause) for clause in _affirmative_clauses(component_text)
+        ):
             errors.append(
                 "conditional policy chain: Policy chain step must state timing or lag"
             )
@@ -501,6 +690,9 @@ def conditional_policy_chain_errors(
         else:
             cited_urls = policy_chain_urls(text)
             eligible_urls = []
+            redirector_urls = [
+                url for url in cited_urls if _is_unauthenticated_redirector(url)
+            ]
             for url in cited_urls:
                 identity = _url_identity(url)
                 if identity is not None and identity not in excluded:
@@ -511,7 +703,7 @@ def conditional_policy_chain_errors(
                     "precedent URL also listed exactly in sourceContext or contain "
                     "exact phrase 'no fetched precedent'"
                 )
-            elif not eligible_urls:
+            elif redirector_urls or not eligible_urls:
                 errors.append(
                     "conditional policy chain: precedent URL must be distinct from "
                     "the conditional instrument and resolution source URLs"
