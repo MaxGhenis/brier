@@ -325,8 +325,11 @@ def attested_bundle(
     fixture_case = getattr(request, "param", None)
     bounded = fixture_case == "bounded"
     conditional = fixture_case in {
+        "conditional_fast",
+        "conditional_full",
+        "conditional_ladder",
         "conditional_ladder_v2",
-        "legacy_conditional_full",
+        "legacy_conditional_ladder",
     }
     repo = tmp_path / "checkout"
     repo.mkdir()
@@ -382,10 +385,14 @@ def attested_bundle(
                 },
             }
         )
+    fixture_prompt_modes = {
+        "conditional_full": "full",
+        "conditional_ladder": "ladder",
+        "conditional_ladder_v2": "ladder_v2",
+        "legacy_conditional_ladder": "ladder",
+    }
     policy = {
-        "promptMode": (
-            "ladder_v2" if fixture_case == "conditional_ladder_v2" else "fast"
-        ),
+        "promptMode": fixture_prompt_modes.get(fixture_case, "fast"),
         "codexModel": "gpt-ticket-main",
         "codexReasoningEffort": "high",
         "codexSandbox": "read-only",
@@ -394,8 +401,6 @@ def attested_bundle(
         "reviewCodexSearch": True,
         "timeoutSeconds": 1,
     }
-    if fixture_case == "legacy_conditional_full":
-        policy["promptMode"] = "full"
     ticket = generation_tickets.validate_ticket(
         {
             "schemaVersion": generation_tickets.TICKET_SCHEMA,
@@ -634,13 +639,8 @@ def attested_bundle(
             else None
         ),
     )
-    # Historical bundles predate the sealed review-prompt mode marker. Their
-    # conditional review artifact therefore carries the v0.1 bytes even when
-    # the run itself used full mode. Explicit ladder rendering is byte-identical
-    # to that frozen legacy template and makes this fixture fail on the old
-    # verifier's implicit-full replay.
     recorded_review_prompt_mode = (
-        "ladder" if fixture_case == "legacy_conditional_full" else policy["promptMode"]
+        None if fixture_case == "legacy_conditional_ladder" else policy["promptMode"]
     )
     review_prompt = analyst.build_pre_submit_review_prompt(
         series=target["series"],
@@ -741,7 +741,7 @@ def attested_bundle(
         "generationTicket": binding,
         "checkoutSha": ticket_sha,
     }
-    if fixture_case != "legacy_conditional_full":
+    if fixture_case != "legacy_conditional_ladder":
         manifest["preSubmitReviewPromptMode"] = policy["promptMode"]
     write_payload(run_manifest_path(fixture), manifest)
 
@@ -793,27 +793,48 @@ def test_consistent_attested_bundle_passes(attested_bundle: AttestedFixture) -> 
     verify(attested_bundle)
 
 
-@pytest.mark.parametrize("attested_bundle", ["conditional_ladder_v2"], indirect=True)
-def test_conditional_ladder_v2_review_prompt_replays_byte_exactly(
+@pytest.mark.parametrize(
+    "attested_bundle", ["conditional_ladder", "conditional_ladder_v2"], indirect=True
+)
+def test_conditional_ladder_review_prompt_replays_byte_exactly(
     attested_bundle: AttestedFixture,
 ) -> None:
     verify(attested_bundle)
 
     manifest = json.loads(run_manifest_path(attested_bundle).read_text())
-    assert manifest["preSubmitReviewPromptMode"] == "ladder_v2"
+    assert manifest["preSubmitReviewPromptMode"] == manifest["promptMode"]
     assert (
         b"policy_chain"
         not in run_path(attested_bundle, "pre_submit_review_prompt.md").read_bytes()
     )
 
 
-@pytest.mark.parametrize("attested_bundle", ["legacy_conditional_full"], indirect=True)
-def test_legacy_conditional_review_prompt_without_mode_replays_byte_exactly(
+@pytest.mark.parametrize(
+    "attested_bundle", ["conditional_fast", "conditional_full"], indirect=True
+)
+def test_future_conditional_review_prompt_replays_sealed_mode_byte_exactly(
     attested_bundle: AttestedFixture,
 ) -> None:
     verify(attested_bundle)
 
     manifest = json.loads(run_manifest_path(attested_bundle).read_text())
+    assert manifest["preSubmitReviewPromptMode"] == manifest["promptMode"]
+    assert (
+        b"policy_chain"
+        in run_path(attested_bundle, "pre_submit_review_prompt.md").read_bytes()
+    )
+
+
+@pytest.mark.parametrize(
+    "attested_bundle", ["legacy_conditional_ladder"], indirect=True
+)
+def test_legacy_conditional_bundle_without_review_mode_replays_byte_exactly(
+    attested_bundle: AttestedFixture,
+) -> None:
+    verify(attested_bundle)
+
+    manifest = json.loads(run_manifest_path(attested_bundle).read_text())
+    assert manifest["agent"]["agentVersion"] == "2.5.11"
     assert "preSubmitReviewPromptMode" not in manifest
     assert (
         b"policy_chain"
@@ -1150,6 +1171,81 @@ def test_review_prompt_mode_mismatch_is_refused(
         "policy check failed: run 0 preSubmitReviewPromptMode does not match "
         "ticket policy: 'full' != 'fast'"
     )
+
+
+@pytest.mark.parametrize("attested_bundle", ["conditional_fast"], indirect=True)
+def test_current_agent_missing_review_prompt_mode_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_run_manifest(
+        attested_bundle,
+        lambda manifest: manifest.pop("preSubmitReviewPromptMode"),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "policy check failed: run 0 current agent requires a string "
+        "preSubmitReviewPromptMode"
+    )
+
+
+@pytest.mark.parametrize("attested_bundle", ["conditional_fast"], indirect=True)
+def test_current_agent_null_review_prompt_mode_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_run_manifest(
+        attested_bundle,
+        lambda manifest: manifest.__setitem__("preSubmitReviewPromptMode", None),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "policy check failed: run 0 current agent requires a string "
+        "preSubmitReviewPromptMode"
+    )
+
+
+@pytest.mark.parametrize("attested_bundle", ["conditional_fast"], indirect=True)
+def test_current_review_mode_cannot_be_downgraded_with_manifest_version(
+    attested_bundle: AttestedFixture,
+) -> None:
+    def downgrade(manifest: dict[str, Any]) -> None:
+        manifest["agent"]["agentVersion"] = "2.5.11"
+        manifest.pop("preSubmitReviewPromptMode")
+
+    rewrite_run_manifest(attested_bundle, downgrade)
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "prompt reconstruction check failed: run 0 agent metadata does not "
+        "match trusted prompt metadata"
+    )
+
+
+def test_legacy_agent_policy_allows_absent_review_prompt_mode(
+    attested_bundle: AttestedFixture,
+) -> None:
+    manifest = json.loads(run_manifest_path(attested_bundle).read_text())
+    manifest["agent"]["agentVersion"] = "2.5.11"
+    manifest.pop("preSubmitReviewPromptMode")
+    run = verifier.RunEnvelope(
+        index=0,
+        result={},
+        target=attested_bundle.ticket["targets"][0],
+        manifest_relative=RUN_RELATIVE / "manifest.json",
+        manifest_path=run_manifest_path(attested_bundle),
+        manifest=manifest,
+    )
+    policy = attested_bundle.ticket["policy"]
+    batch = {
+        batch_field: policy[policy_field]
+        for batch_field, policy_field in verifier.POLICY_FIELDS.items()
+    }
+
+    verifier._check_policy(batch, attested_bundle.ticket, [run])
 
 
 def test_ticket_id_mismatch_is_refused(attested_bundle: AttestedFixture) -> None:

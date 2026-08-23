@@ -151,9 +151,12 @@ floor without the matching reviewed docket entry from the sealed checkout.
 For fast and full conditional runs, one reasoning step beginning exactly
 `Policy chain:` must decompose the touched population (with a fetched count),
 propagation to the measured quantity, offsetting responses, and timing/lag.
-The pre-submit reviewer checks those four components and whether the policy
-effect's direction and size are consistent with its cited precedent. The
-runner's literal evidence gate is specified below.
+The machine-safe form labels the four clauses `Touched population:`,
+`Propagation:`, `Offsets:`, and `Timing/lag:`; realistic prose passes when it
+contains the same structural cues. The propagation clause must tie the effect
+to the cited precedent, not merely place a URL elsewhere in the step. The
+pre-submit reviewer also checks whether the policy effect's direction and size
+are consistent with that precedent.
 
 Machine-checked requirements (CI-validated literally, not approximately;
 a trace missing any is rejected):
@@ -164,13 +167,36 @@ a trace missing any is rejected):
 - the falsification step must use one of the literal phrasings
   "upside risk", "downside risk", "outside the interval", or
   "would land above/below the interval";
-- fast and full conditional cells must include a reasoning step whose text
-  begins exactly `Policy chain:` and either cites at least one fetched
-  precedent URL that also appears exactly in `sourceContext`, or contains the
-  exact phrase `no fetched precedent`, states a numeric policy-term bound, and
-  labels that term `low-confidence`. The runner applies this gate only to
-  fast/full runs; the dispatch-only `ladder` and `ladder_v2` contracts and
-  validators remain sealed;
+- new fast/full conditional runs carry the mode-scoped thesis.analyst 2.5.12
+  contract version and must include a reasoning step whose text begins exactly
+  `Policy chain:`. In that same step, literal component cues must identify (1)
+  a fetched numeric count tied locally to a touched-population noun (a report
+  year elsewhere in the clause is not a count), (2) propagation to the
+  measured quantity, (3) offsetting or behavioral responses, and (4) timing or
+  lag relative to the target period. Both the runner and
+  `spawned_cells_to_ts.py` invoke the same shared validator. Earlier 2.5.11
+  records retain their historical contract;
+- the precedent branch must cite at least one fetched effect precedent URL in
+  the propagation clause and repeat it exactly in `sourceContext`. A bill,
+  measure, or other instrument URL named by the registered conditional cannot
+  serve as the precedent, nor can `resolutionSourceUrl` (or its registered
+  source-binding equivalent). HTTP/HTTPS spelling, default ports, fragments,
+  host case, and a trailing slash do not manufacture distinct evidence. A
+  genuinely distinct study on the same host remains admissible;
+- the fallback branch must contain the exact phrase `no fetched precedent`,
+  state propagation separately from its bound, label the policy term
+  `low-confidence`, and state a finite, ordered, unit-bearing numeric effect
+  bound. The unit can be the exact canonical cell-unit token or an explicit
+  measurement-unit word. Two-endpoint bounds require LOW < HIGH;
+  reversed and zero-width ranges such as `[0, 0]` refuse. An explicit
+  singleton `policy term bound: 0 UNIT` is admissible. Confidence levels,
+  confidence intervals, release years, and numbers with no measurement unit
+  are not effect bounds. The explicit guaranteed-pass form is
+  `policy term bound: [LOW, HIGH] UNIT; policy term is low-confidence`;
+  natural forms including `policy effect spans -0.2 to +0.4 percentage points`
+  and `policy effect is bounded within ±0.4 percentage points` also pass;
+- the dispatch-only `ladder` and `ladder_v2` policy-chain contracts and
+  validators remain sealed and are exempt from this fast/full gate;
 - one math step must begin "Prior/update/interval:" and SHOW the interval
   arithmetic: compute sigma from the fetched history (successive changes
   for level/rate series; the values themselves for change/flow series),

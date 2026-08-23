@@ -60,6 +60,10 @@ from history_floor import (
     history_floor_requires_authorization,
     reviewed_history_floor_authorization,
 )
+from policy_chain_validation import (  # noqa: F401  (public test/tool re-export)
+    POLICY_CHAIN_AGENT_VERSION,
+    conditional_policy_chain_errors,
+)
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENT_ROOT = ROOT / "agents" / "thesis-analyst"
@@ -470,6 +474,28 @@ def build_run_prompt(
     network_tools: bool = False,
 ) -> tuple[str, dict]:
     prompt, meta = build_prompt(series, period, conditional)
+    if conditional and mode in {"fast", "full"}:
+        # The strengthened conditional contract is a mode-scoped analyst
+        # revision. Keep ladder/ladder_v2 (and unconditional) prompt metadata
+        # byte-stable while giving new ordinary conditional cells an epoch the
+        # converter can enforce without retro-rejecting 2.5.11 records.
+        prior_meta = meta
+        meta = {**meta, "agentVersion": POLICY_CHAIN_AGENT_VERSION}
+        if mode == "full":
+            old_footer = (
+                f"(agent {prior_meta['agent']} v{prior_meta['agentVersion']}, "
+                f"prompt {prior_meta['promptHash'][:12]}, "
+                f"tools {prior_meta['toolPolicyHash'][:12]})"
+            )
+            new_footer = (
+                f"(agent {meta['agent']} v{meta['agentVersion']}, "
+                f"prompt {meta['promptHash'][:12]}, "
+                f"tools {meta['toolPolicyHash'][:12]})"
+            )
+            old_suffix = old_footer + "\n"
+            if not prompt.endswith(old_suffix):
+                raise RuntimeError("full prompt is missing its agent metadata footer")
+            prompt = prompt[: -len(old_suffix)] + new_footer + "\n"
     target_context_block = format_target_context(target_context)
     ticket_block = format_generation_ticket(ticket)
     if mode == "full":
@@ -825,11 +851,15 @@ def build_fast_prompt(
         "experiment cited by URL; (c) offsetting responses; and (d) timing or "
         "lag relative to the resolution period.\n"
         "- Add one reasoning step whose text begins exactly `Policy chain:`. "
-        "Name every fetched precedent URL in that step and repeat each URL "
-        "exactly in sourceContext.\n"
+        "For the fail-safe form, label its clauses `Touched population:`, "
+        "`Propagation:`, `Offsets:`, and `Timing/lag:`. Name every fetched "
+        "precedent URL in that step and repeat each URL exactly in "
+        "sourceContext. A precedent URL must be distinct from any bill or "
+        "measure URL in the conditional and from resolutionSourceUrl.\n"
         "- If no fetched precedent is available, the `Policy chain:` step must "
-        "instead contain the exact phrase `no fetched precedent`, state a "
-        "numeric bound and label the policy term low-confidence; use the "
+        "still state propagation to the measured quantity, contain the exact "
+        "phrase `no fetched precedent`, state a finite, ordered, unit-bearing "
+        "numeric bound, and label the policy term low-confidence; use the "
         "explicit form `policy term bound: [LOW, HIGH] UNIT; policy term is "
         "low-confidence`.\n\n"
         if conditional and include_conditional_policy_chain
@@ -2280,9 +2310,11 @@ def build_pre_submit_review_prompt(
         "exactly `Policy chain:` that decomposes the touched population with a "
         "fetched count, propagation to the measured quantity, offsetting "
         "responses, and timing or lag. The step must either cite a fetched "
-        "precedent URL also listed exactly in sourceContext, or state `no "
-        "fetched precedent` with a numeric policy-term bound and a "
-        "low-confidence label. A missing or noncompliant step requires "
+        "precedent URL also listed exactly in sourceContext and distinct from "
+        "the conditional instrument and resolution source URLs, or state `no "
+        "fetched precedent` with a finite, ordered, unit-bearing numeric "
+        "policy-term bound and a low-confidence label. A missing or "
+        "noncompliant step requires "
         "REQUEST_CHANGES with a blocking policy_chain fix. Compare the policy "
         "effect's direction and size with the cited precedent and flag any "
         "inconsistency.\n"
@@ -2628,6 +2660,7 @@ def write_failure_manifest(
         "targetContext": target_context,
         **registration_binding(target_context),
         "promptMode": args.prompt_mode,
+        "preSubmitReviewPromptMode": args.prompt_mode,
         "agent": meta,
         "ok": False,
         "cellsPath": None,
@@ -2743,145 +2776,6 @@ def seal_normalized_cells(
     return materialize_run_distributions(cells)
 
 
-POLICY_CHAIN_URL_RE = re.compile(r"https?://[^\s<>'\"`]+")
-POLICY_CHAIN_TERM_RE = r"(?:policy[- ](?:term|effect)|effect[- ](?:size|term))"
-POLICY_CHAIN_BOUND_CUE_RE = (
-    r"(?:bound(?:ed)?(?:\s+(?:between|from|to|at|by))?|"
-    r"(?:in\s+the\s+)?range(?:d)?(?:\s+(?:between|from|of))?|"
-    r"between|at most|no more than)"
-)
-POLICY_CHAIN_NUMBER_RE = (
-    r"(?<![\w.])(?:[+\-±]\s*)?"
-    r"(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\.\d+)(?![\w.])"
-)
-POLICY_CHAIN_BOUND_RE = re.compile(
-    rf"(?:\b{POLICY_CHAIN_TERM_RE}\b\s+(?:is\s+)?"
-    rf"{POLICY_CHAIN_BOUND_CUE_RE}|"
-    rf"\bbound(?:ed)?\s+(?:the\s+)?{POLICY_CHAIN_TERM_RE}\b"
-    rf"(?:\s+(?:between|from|to|at|by))?)"
-    rf"\s*(?:is\s*)?(?::|=)?\s*[\[(]?\s*{POLICY_CHAIN_NUMBER_RE}|"
-    rf"\b{POLICY_CHAIN_TERM_RE}\b\s+(?:is\s+)?within\s+"
-    rf"±\s*{POLICY_CHAIN_NUMBER_RE}",
-    re.IGNORECASE,
-)
-POLICY_CHAIN_INEQUALITY_BOUND_RE = re.compile(
-    rf"{POLICY_CHAIN_NUMBER_RE}\s*(?:<=|≤)\s*"
-    rf"\b{POLICY_CHAIN_TERM_RE}\b\s*(?:<=|≤)\s*"
-    rf"{POLICY_CHAIN_NUMBER_RE}",
-    re.IGNORECASE,
-)
-POLICY_CHAIN_LOW_CONFIDENCE_RE = re.compile(
-    rf"(?:\blow-confidence\s+{POLICY_CHAIN_TERM_RE}\b|"
-    rf"\b{POLICY_CHAIN_TERM_RE}\b\s*(?::|-)?\s*"
-    rf"(?:is\s+|remains\s+|(?:is\s+)?label(?:ed)?(?:\s+as)?\s+)?"
-    rf"\blow-confidence\b|"
-    rf"\blabel(?:ed)?\s+(?:the\s+)?{POLICY_CHAIN_TERM_RE}\b\s+"
-    rf"(?:as\s+)?\blow-confidence\b)",
-    re.IGNORECASE,
-)
-
-
-def policy_chain_urls(text: str) -> list[str]:
-    """Extract cited HTTP(S) URLs without surrounding prose punctuation."""
-
-    urls = []
-    for match in POLICY_CHAIN_URL_RE.findall(text):
-        url = match.rstrip(".,;:!?")
-        for closing, opening in ((")", "("), ("]", "["), ("}", "{")):
-            while url.endswith(closing) and url.count(closing) > url.count(opening):
-                url = url[:-1]
-        try:
-            parsed = urlparse(url)
-            hostname = parsed.hostname
-        except ValueError:
-            continue
-        if parsed.scheme in {"http", "https"} and hostname:
-            urls.append(url)
-    return urls
-
-
-def has_numeric_policy_term_bound(text: str) -> bool:
-    """Recognize an explicit effect bound without accepting confidence levels."""
-
-    if POLICY_CHAIN_INEQUALITY_BOUND_RE.search(text):
-        return True
-    for match in POLICY_CHAIN_BOUND_RE.finditer(text):
-        suffix = text[match.end() :]
-        confidence_suffix = re.match(
-            r"[-\s]*(?:(?:%|percent(?:age)?|pct|per[-\s]+cent)[-\s]*)?"
-            r"(?:level[-\s]+of[-\s]+)?confidence\b",
-            suffix,
-            re.IGNORECASE,
-        )
-        if not confidence_suffix:
-            return True
-    return False
-
-
-def conditional_policy_chain_errors(cell: dict[str, Any]) -> list[str]:
-    """Validate the fetched-precedent branch for ordinary conditional runs."""
-
-    if cell.get("type") != "conditional":
-        return []
-    reasoning = cell.get("reasoning")
-    policy_steps = []
-    if isinstance(reasoning, list):
-        policy_steps = [
-            step["text"]
-            for step in reasoning
-            if isinstance(step, dict)
-            and isinstance(step.get("text"), str)
-            and step["text"].startswith("Policy chain:")
-        ]
-    if not policy_steps:
-        return [
-            "conditional policy chain: missing reasoning step beginning exactly "
-            "'Policy chain:'"
-        ]
-
-    source_context = cell.get("sourceContext")
-    source_urls = (
-        {entry for entry in source_context if isinstance(entry, str)}
-        if isinstance(source_context, list)
-        else set()
-    )
-    all_errors = []
-    for text in policy_steps:
-        errors = []
-        if "no fetched precedent" in text:
-            text_without_urls = POLICY_CHAIN_URL_RE.sub("", text)
-            if not has_numeric_policy_term_bound(text_without_urls):
-                errors.append(
-                    "conditional policy chain: 'no fetched precedent' path must "
-                    "state a numeric policy-term bound"
-                )
-            if not POLICY_CHAIN_LOW_CONFIDENCE_RE.search(text_without_urls):
-                errors.append(
-                    "conditional policy chain: 'no fetched precedent' path must "
-                    "label the policy term low-confidence"
-                )
-        else:
-            cited_urls = policy_chain_urls(text)
-            if not cited_urls:
-                errors.append(
-                    "conditional policy chain: Policy chain step must cite a "
-                    "precedent URL also listed exactly in sourceContext or contain "
-                    "exact phrase 'no fetched precedent'"
-                )
-            else:
-                for url in cited_urls:
-                    if url not in source_urls:
-                        errors.append(
-                            "conditional policy chain: precedent URL in Policy chain "
-                            "step is not listed exactly in sourceContext: "
-                            f"{url!r}"
-                        )
-        for error in errors:
-            if error not in all_errors:
-                all_errors.append(error)
-    return all_errors
-
-
 def validate_cells(
     cells: list[dict],
     allow_existing_slug: bool = False,
@@ -2929,6 +2823,7 @@ def validate_cells(
             generation_ticket=generation_ticket,
             agent_version=agent_version,
             trusted_history_authorization=trusted_history_authorization,
+            prompt_mode=prompt_mode,
         )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
@@ -2938,8 +2833,6 @@ def validate_cells(
                 + authorization_error
             )
         errors.extend(target_context_validation_errors(cell, target_context))
-        if prompt_mode in {"fast", "full"}:
-            errors.extend(conditional_policy_chain_errors(cell))
         if prompt_mode in {"ladder", "ladder_v2"}:
             errors.extend(ladder_validation_errors(cell))
         if errors:
@@ -4332,13 +4225,9 @@ def main() -> int:
         "promptMode": args.prompt_mode,
         "agent": runtime_meta,
         "preSubmitReview": pre_submit_review,
-        # This optional marker versions mode-sensitive review prompt bytes.
-        # Its absence is the legacy v0.1 template used by existing bundles.
-        **(
-            {"preSubmitReviewPromptMode": args.prompt_mode}
-            if pre_submit_review is not None
-            else {}
-        ),
+        # This marker versions mode-sensitive review-prompt bytes. Only
+        # pre-contract agent versions may omit it and replay legacy v0.1.
+        "preSubmitReviewPromptMode": args.prompt_mode,
         **(
             {
                 "workspaceHygiene": {

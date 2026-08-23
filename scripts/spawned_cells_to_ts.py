@@ -77,6 +77,10 @@ try:
         reviewed_history_floor_authorization,
         valid_agent_version,
     )
+    from policy_chain_validation import (
+        agent_version_enforces_policy_chain,
+        conditional_policy_chain_errors,
+    )
     from private_source_screen import (
         PRIVATE_SOURCE_MARKER,  # noqa: F401  (re-exported for tests/tools)
         PRIVATE_SOURCE_RE,
@@ -217,6 +221,7 @@ def validate(
     generation_ticket: dict | None = None,
     agent_version: object = None,
     trusted_history_authorization: dict | None = None,
+    prompt_mode: str | None = None,
 ) -> list[str]:
     if target_context is None:
         carried_context = cell.get(SEALED_TARGET_CONTEXT_KEY)
@@ -318,6 +323,19 @@ def validate(
             errs.append(f"tool step without numeric result: {t.get('tool')}")
     if not any(s.get("kind") == "math" for s in steps):
         errs.append("no math step")
+    sealed_prompt_mode = str(
+        cell.get("promptMode")
+        or (cell.get("predictionRun") or {}).get("promptMode")
+        or "full"
+    )
+    effective_prompt_mode = prompt_mode or sealed_prompt_mode
+    if effective_prompt_mode in {
+        "fast",
+        "full",
+    } and agent_version_enforces_policy_chain(agent_version):
+        errs.extend(
+            conditional_policy_chain_errors(cell, target_context=target_context)
+        )
     # Interval width must be derived, not vibed: the math step has to show
     # sigma (or the 1.28 z-multiplier) so the width is auditable. Applies to
     # cells run on/after 2026-07-05, same cutoff as trace-depth.test.ts —
@@ -393,12 +411,7 @@ def validate(
         math_text = " ".join(
             s.get("text") or "" for s in steps if s.get("kind") == "math"
         )
-        prompt_mode = str(
-            cell.get("promptMode")
-            or (cell.get("predictionRun") or {}).get("promptMode")
-            or ""
-        )
-        if prompt_mode == "ladder_v2":
+        if sealed_prompt_mode == "ladder_v2":
             # ladder_v2's pre-registered derivation contract (2026-07-10) is
             # quantile-native: the ladder rungs plus the interpolated tail
             # percentiles stated literally, no parametric sigma disclosure.

@@ -16,6 +16,7 @@ COMPARISON_GENERATOR = ROOT / "scripts" / "thesis_records_to_comparisons.py"
 sys.path.insert(0, str(ROOT / "scripts"))
 import generation_tickets  # noqa: E402
 import median_rollout_ensemble as median_ensemble  # noqa: E402
+import policy_chain_validation  # noqa: E402
 import run_thesis_analyst as analyst_runner  # noqa: E402
 import spawned_cells_to_ts  # noqa: E402
 from history_floor import (  # noqa: E402
@@ -1769,6 +1770,7 @@ def test_command_run_can_capture_pre_submit_review_loop(tmp_path):
     artifact_types = {artifact["artifactType"] for artifact in manifest["artifacts"]}
 
     assert manifest["ok"] is True
+    assert manifest["preSubmitReviewPromptMode"] == "full"
     assert manifest["preSubmitReview"]["status"] == "completed"
     assert manifest["preSubmitReview"]["reviewer"]["model"] == "gpt-5.5-reviewer"
     assert manifest["preSubmitReview"]["findings"][0]["rubricItem"] == "interval"
@@ -2362,6 +2364,36 @@ POLICY_CONDITIONAL = (
 POLICY_PRECEDENT_URL = "https://example.com/policy-precedent"
 
 
+def complete_policy_precedent_step(
+    precedent_url: str = POLICY_PRECEDENT_URL,
+    *,
+    population: str = "Touched population: a fetched count of 12,000 teachers",
+    propagation: str | None = None,
+    offsets: str = "Offsets: hiring and turnover could counteract the response",
+    timing: str = (
+        "Timing/lag: implementation lag leaves half the effect in the 2030 "
+        "resolution period"
+    ),
+) -> str:
+    propagation = propagation or (
+        "Propagation: the evaluation at "
+        f"{precedent_url} found a 0.3-point response per funded unit, implying "
+        "a 0.2-point measured effect"
+    )
+    return "Policy chain: " + "; ".join([population, propagation, offsets, timing])
+
+
+def complete_policy_fallback_step(bound: str) -> str:
+    return (
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "Propagation: higher pay translates into the measured outcome; there is no "
+        "fetched precedent; "
+        f"{bound}; policy term is low-confidence; Offsets: hiring responses "
+        "could counteract it; Timing/lag: implementation lag leaves the effect "
+        "in the 2030 resolution period."
+    )
+
+
 def conditional_policy_test_cell(
     policy_step: str | None,
     *,
@@ -2420,6 +2452,47 @@ def test_fast_conditional_policy_chain_with_cited_precedent_passes(
     assert policy_validation_errors(out_dir) == []
 
 
+@pytest.mark.parametrize(
+    ("step", "expected_error"),
+    [
+        (
+            "Policy chain: " + POLICY_PRECEDENT_URL,
+            "conditional policy chain: Policy chain step must state a fetched "
+            "numeric count for the touched population",
+        ),
+        (
+            complete_policy_precedent_step(population="Population size is uncertain"),
+            "conditional policy chain: Policy chain step must state a fetched "
+            "numeric count for the touched population",
+        ),
+        (
+            complete_policy_precedent_step(
+                propagation="Evidence URL: " + POLICY_PRECEDENT_URL
+            ),
+            "conditional policy chain: Policy chain step must tie propagation "
+            "to a cited precedent URL",
+        ),
+        (
+            complete_policy_precedent_step(offsets="Responses are not discussed"),
+            "conditional policy chain: Policy chain step must state offsetting "
+            "responses",
+        ),
+        (
+            complete_policy_precedent_step(timing="The effect changes the outcome"),
+            "conditional policy chain: Policy chain step must state timing or lag",
+        ),
+    ],
+    ids=["url-only", "population", "propagation", "offsets", "timing"],
+)
+def test_conditional_policy_chain_requires_each_structural_component(
+    step: str,
+    expected_error: str,
+) -> None:
+    cell = conditional_policy_test_cell(step)
+
+    assert expected_error in analyst_runner.conditional_policy_chain_errors(cell)
+
+
 def test_fast_conditional_policy_chain_missing_step_fails_closed(
     tmp_path: Path,
 ) -> None:
@@ -2441,8 +2514,10 @@ def test_fast_conditional_policy_chain_url_must_be_in_source_context(
 ) -> None:
     step = (
         "Policy chain: the policy touches a fetched count of 12,000 teachers; "
-        f"{POLICY_PRECEDENT_URL} supplies the propagation estimate; behavioral "
-        "offsets halve it; the remaining effect arrives before the 2030 print."
+        f"the evaluation at {POLICY_PRECEDENT_URL} supplies the propagation "
+        "estimate of a 0.3-point response per funded unit, implying the "
+        "measured effect; behavioral offsets halve it; the "
+        "remaining effect arrives before the 2030 print."
     )
     code, out_dir = run_fast_conditional_policy_case(
         tmp_path,
@@ -2460,7 +2535,11 @@ def test_fast_conditional_policy_chain_url_must_be_in_source_context(
 
 def test_conditional_policy_chain_rejects_url_without_hostname() -> None:
     cell = conditional_policy_test_cell(
-        "Policy chain: the purported precedent is https://)",
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "Propagation: the purported precedent at https:// implies a response "
+        "per funded unit in the measured outcome; Offsets: hiring "
+        "responses could counteract it; Timing/lag: implementation lag leaves "
+        "the effect in the 2030 resolution period.",
         include_precedent_url=False,
     )
     cell["sourceContext"].append("https://")
@@ -2477,8 +2556,9 @@ def test_fast_conditional_policy_chain_requires_precedent_or_explicit_fallback(
 ) -> None:
     step = (
         "Policy chain: the policy touches a fetched count of 12,000 teachers; "
-        "the 0.2-point propagation term is judgmental; hiring offsets halve "
-        "it; implementation lag leaves half the effect in the 2030 period."
+        "the policy change translates into a judgmental 0.2-point measured "
+        "effect; hiring offsets halve it; implementation lag leaves half the "
+        "effect in the 2030 period."
     )
     code, out_dir = run_fast_conditional_policy_case(
         tmp_path,
@@ -2494,15 +2574,254 @@ def test_fast_conditional_policy_chain_requires_precedent_or_explicit_fallback(
     ]
 
 
+@pytest.mark.parametrize(
+    ("resolution_url", "cited_url"),
+    [
+        ("https://example.com/reviewed-rate", "https://example.com/reviewed-rate"),
+        ("https://www.bls.gov/table.htm", "https://www.bls.gov/table.htm"),
+        (
+            "https://example.com/reviewed-rate/",
+            "https://EXAMPLE.com/reviewed-rate#method",
+        ),
+        (
+            "https://example.com/reviewed-rate",
+            "http://example.com/reviewed-rate",
+        ),
+        (
+            "https://example.com/reviewed-rate",
+            "https://example.com/reviewed-rate?utm_source=alias",
+        ),
+        (
+            "https://example.com/reviewed-rate",
+            "https://example.com./reviewed-rate",
+        ),
+    ],
+)
+def test_conditional_policy_chain_rejects_resolution_url_as_precedent(
+    resolution_url: str,
+    cited_url: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(cited_url),
+        include_precedent_url=False,
+    )
+    cell["resolutionSourceUrl"] = resolution_url
+    cell["sourceContext"].append(cited_url)
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: precedent URL must be distinct from the "
+        "conditional instrument and resolution source URLs"
+    ]
+
+
+def test_conditional_policy_chain_rejects_conditional_measure_url_as_precedent() -> (
+    None
+):
+    measure_url = "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+    conditional = (
+        "The measure at HTTPS://www.congress.gov/bill/119th-congress/"
+        "house-bill/8800 is enacted before the deadline."
+    )
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(measure_url),
+        include_precedent_url=False,
+    )
+    cell["conditionalOn"] = conditional
+    cell["sourceContext"].append(measure_url)
+
+    assert analyst_runner.conditional_policy_chain_errors(
+        cell, target_context={"conditional": conditional}
+    ) == [
+        "conditional policy chain: precedent URL must be distinct from the "
+        "conditional instrument and resolution source URLs"
+    ]
+
+
+def test_conditional_policy_chain_accepts_distinct_same_host_precedent() -> None:
+    precedent_url = "https://example.gov/program-evaluation"
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(precedent_url),
+        include_precedent_url=False,
+    )
+    cell["resolutionSourceUrl"] = "https://example.gov/measured-series"
+    cell["sourceContext"].extend([cell["resolutionSourceUrl"], precedent_url])
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+def test_conditional_policy_chain_rejects_table_without_effect_precedent_cue() -> None:
+    table_url = "https://www.bls.gov/data/table.htm"
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(
+            table_url,
+            propagation=(
+                f"Propagation: the table at {table_url} reports 0.3 and the "
+                "policy effect is 0.2 percentage points"
+            ),
+        ),
+        include_precedent_url=False,
+    )
+    cell["sourceContext"].append(table_url)
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: Policy chain step must tie propagation to a "
+        "cited precedent URL"
+    ]
+
+
+@pytest.mark.parametrize(
+    "population",
+    [
+        (
+            "Touched population: fetched the 2024 report and the count of "
+            "affected teachers is unknown"
+        ),
+        "Touched population: a fetched 2026 report discusses workers",
+    ],
+)
+def test_conditional_policy_chain_rejects_unrelated_year_as_population_count(
+    population: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(population=population)
+    )
+
+    assert (
+        "conditional policy chain: Policy chain step must state a fetched "
+        "numeric count for the touched population"
+        in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
+def test_conditional_policy_chain_accepts_realistic_covered_population_prose() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(
+            population="The policy covers a fetched count of 12,000 teachers"
+        )
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+@pytest.mark.parametrize(
+    "population",
+    [
+        (
+            "Touched population: a fetched study affects workers and reports "
+            "an effect of 0.3 units"
+        ),
+        ("Touched population: fetched the bill and assumed 12 workers are affected"),
+        "Touched population: fetched count is 80% of affected workers",
+    ],
+)
+def test_conditional_policy_chain_ties_fetched_to_population_count(
+    population: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(population=population)
+    )
+
+    assert (
+        "conditional policy chain: Policy chain step must state a fetched "
+        "numeric count for the touched population"
+        in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
+def test_conditional_policy_chain_accepts_fetched_report_population_count() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(
+            population="The fetched report counts 2,026 affected workers"
+        )
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+@pytest.mark.parametrize(
+    "propagation",
+    [
+        (
+            f"Propagation: citation {POLICY_PRECEDENT_URL}. The policy effect "
+            "is +0.2 percentage points"
+        ),
+        (
+            f"Background study: {POLICY_PRECEDENT_URL}. Propagation: a guessed "
+            "change reaches the measured outcome"
+        ),
+    ],
+)
+def test_conditional_policy_chain_rejects_precedent_in_disconnected_sentence(
+    propagation: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(propagation=propagation)
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: Policy chain step must tie propagation to a "
+        "cited precedent URL"
+    ]
+
+
+def test_conditional_policy_chain_rejects_year_as_propagation_quantity() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_precedent_step(
+            propagation=(
+                f"Propagation: the study at {POLICY_PRECEDENT_URL} reports a "
+                "change in 2020"
+            )
+        )
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: Policy chain step must tie propagation to a "
+        "cited precedent URL"
+    ]
+
+
+def test_conditional_policy_chain_rejects_component_nouns_without_relations() -> None:
+    cell = conditional_policy_test_cell(
+        "Policy chain: Touched population: fetched count of 12,000 workers; "
+        f"the study at {POLICY_PRECEDENT_URL} implies an effect on turnover in "
+        "the target period."
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: Policy chain step must state offsetting responses",
+        "conditional policy chain: Policy chain step must state timing or lag",
+        "conditional policy chain: Policy chain step must tie propagation to a "
+        "cited precedent URL",
+    ]
+
+
+def test_conditional_policy_chain_does_not_read_components_from_url_path() -> None:
+    path_cues_url = "https://example.com/study/outcome/implies/counteract/lag"
+    cell = conditional_policy_test_cell(
+        "Policy chain: Touched population: fetched count of 12,000 workers; "
+        + path_cues_url,
+        include_precedent_url=False,
+    )
+    cell["sourceContext"].append(path_cues_url)
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: Policy chain step must state offsetting responses",
+        "conditional policy chain: Policy chain step must state timing or lag",
+        "conditional policy chain: Policy chain step must tie propagation to a "
+        "cited precedent URL",
+    ]
+
+
 def test_fast_conditional_policy_chain_no_precedent_with_bound_passes(
     tmp_path: Path,
 ) -> None:
     step = (
         "Policy chain: the policy touches a fetched count of 12,000 teachers; "
-        "propagation has no fetched precedent; policy term bound: [-0.2, +0.4] "
-        "percentage points; policy term is low-confidence; hiring offsets "
-        "could erase the gain; implementation lag limits the effect in the "
-        "2030 period."
+        "higher pay translates into the measured outcome, but propagation has "
+        "no fetched precedent; policy term bound: [-0.2, +0.4] percentage "
+        "points; policy "
+        "term is low-confidence; hiring offsets could erase the gain; "
+        "implementation lag limits the effect in the 2030 period."
     )
     code, out_dir = run_fast_conditional_policy_case(
         tmp_path,
@@ -2526,12 +2845,110 @@ def test_conditional_policy_chain_accepts_clear_numeric_bound_forms(
     bound: str,
 ) -> None:
     cell = conditional_policy_test_cell(
-        "Policy chain: there is no fetched precedent; "
-        f"{bound}; policy term is low-confidence.",
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "Propagation: higher pay translates into the measured outcome; there is no "
+        "fetched precedent; "
+        f"{bound}; policy term is low-confidence; Offsets: hiring responses "
+        "could counteract it; Timing/lag: implementation lag leaves the effect "
+        "in the 2030 resolution period.",
         include_precedent_url=False,
     )
 
     assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+@pytest.mark.parametrize(
+    "bound",
+    [
+        "policy effect spans -0.2 to +0.4 percentage points",
+        "policy effect is bounded within ±0.4 percentage points",
+    ],
+)
+def test_conditional_policy_chain_accepts_realistic_numeric_bound_prose(
+    bound: str,
+) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_fallback_step(bound),
+        include_precedent_url=False,
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+@pytest.mark.parametrize(
+    "bound",
+    [
+        "policy effect bound: [0, 0] percentage points",
+        "policy effect bound: [0.4, 0.4] percentage points",
+        "policy effect bound: [+0.4, -0.2] percentage points",
+        f"policy effect bound: [{'9' * 400}, {'9' * 401}] percentage points",
+        "policy effect spans -0.2 to +0.4",
+        "policy effect is bounded at 2030, the release year",
+        "policy effect spans 2029 to 2030 days",
+        "policy effect bound: [2029, 2030] weeks",
+        "policy effect is bounded at 80% CI",
+        "policy effect spans 0 to 80 percent-confidence",
+        "policy effect spans 0 to 80 pct-confidence",
+    ],
+    ids=[
+        "zero-width-zero",
+        "zero-width-nonzero",
+        "reversed",
+        "non-finite",
+        "missing-unit",
+        "release-year",
+        "year-endpoints-days",
+        "year-endpoints-weeks",
+        "confidence-interval",
+        "hyphenated-percent-confidence",
+        "hyphenated-pct-confidence",
+    ],
+)
+def test_conditional_policy_chain_rejects_invalid_numeric_bounds(bound: str) -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_fallback_step(bound),
+        include_precedent_url=False,
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: 'no fetched precedent' path must state a "
+        "numeric policy-term bound"
+    ]
+
+
+def test_conditional_policy_chain_accepts_explicit_zero_with_unit() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_fallback_step("policy term bound: 0 percentage points"),
+        include_precedent_url=False,
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+def test_conditional_policy_chain_accepts_exact_canonical_cell_unit() -> None:
+    cell = conditional_policy_test_cell(
+        complete_policy_fallback_step("policy term bound: [-0.2, +0.4] percent_growth"),
+        include_precedent_url=False,
+    )
+    cell["unit"] = "percent_growth"
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == []
+
+
+def test_conditional_policy_chain_fallback_requires_separate_propagation() -> None:
+    cell = conditional_policy_test_cell(
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "there is no fetched precedent; policy effect spans -0.2 to +0.4 "
+        "percentage points; policy term is low-confidence; Offsets: hiring "
+        "responses could counteract it; Timing/lag: implementation lag leaves "
+        "the effect in the 2030 resolution period.",
+        include_precedent_url=False,
+    )
+
+    assert analyst_runner.conditional_policy_chain_errors(cell) == [
+        "conditional policy chain: Policy chain step must state propagation to "
+        "the measured quantity"
+    ]
 
 
 @pytest.mark.parametrize(
@@ -2550,8 +2967,12 @@ def test_conditional_policy_chain_does_not_treat_confidence_as_effect_bound(
     confidence_bound: str,
 ) -> None:
     cell = conditional_policy_test_cell(
-        "Policy chain: there is no fetched precedent; the policy effect is "
-        f"bounded at {confidence_bound}; policy term is low-confidence.",
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "Propagation: higher pay translates into the measured outcome; there is no "
+        "fetched precedent; the policy effect is "
+        f"bounded at {confidence_bound}; policy term is low-confidence; Offsets: "
+        "hiring responses could counteract it; Timing/lag: implementation lag "
+        "leaves the effect in the 2030 resolution period.",
         include_precedent_url=False,
     )
 
@@ -2572,8 +2993,12 @@ def test_conditional_policy_chain_requires_low_confidence_term_label(
     label: str,
 ) -> None:
     cell = conditional_policy_test_cell(
-        "Policy chain: there is no fetched precedent; policy term bound: "
-        f"[-0.2, +0.4] percentage points; {label}.",
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "Propagation: higher pay translates into the measured outcome; there is no "
+        "fetched precedent; policy term bound: "
+        f"[-0.2, +0.4] percentage points; {label}; Offsets: hiring responses "
+        "could counteract it; Timing/lag: implementation lag leaves the effect "
+        "in the 2030 resolution period.",
         include_precedent_url=False,
     )
 
@@ -2585,16 +3010,26 @@ def test_conditional_policy_chain_requires_low_confidence_term_label(
 
 def test_conditional_policy_chain_does_not_ignore_a_conflicting_second_step() -> None:
     cell = conditional_policy_test_cell(
-        "Policy chain: a fetched precedent evaluation at "
-        f"{POLICY_PRECEDENT_URL} anchors the effect."
+        "Policy chain: Touched population: a fetched count of 12,000 teachers; "
+        "Propagation: a fetched precedent evaluation at "
+        f"{POLICY_PRECEDENT_URL} estimates a response per funded unit, implying "
+        "the measured effect; Offsets: hiring "
+        "responses could counteract it; Timing/lag: implementation lag leaves "
+        "the effect in the 2030 resolution period."
     )
     cell["reasoning"].insert(
         -1,
         {
             "kind": "text",
             "text": (
-                "Policy chain: there is no fetched precedent; policy term is "
-                "low-confidence, but no numeric bound is available."
+                "Policy chain: Touched population: a fetched count of 12,000 "
+                "teachers; Propagation: higher pay translates into the measured "
+                "outcome; "
+                "there is no fetched precedent; policy "
+                "term is low-confidence, but no numeric bound is available; "
+                "Offsets: hiring responses could counteract it; Timing/lag: "
+                "implementation lag leaves the effect in the 2030 resolution "
+                "period."
             ),
         },
     )
@@ -2611,27 +3046,33 @@ def test_conditional_policy_chain_does_not_ignore_a_conflicting_second_step() ->
         (
             "policy-no-precedent-no-bound",
             "Policy chain: the policy touches a fetched count of 12,000 "
-            "teachers; propagation has no fetched precedent; the "
+            "teachers; higher pay translates into the measured outcome, but "
+            "propagation has no fetched precedent; the "
             "low-confidence policy term lacks a quantitative limit; hiring "
-            "offsets and implementation lag remain.",
+            "responses could counteract the effect; implementation lag remains.",
             "conditional policy chain: 'no fetched precedent' path must state "
             "a numeric policy-term bound",
         ),
         (
             "policy-no-precedent-population-is-not-bound",
-            "Policy chain: propagation has no fetched precedent; the "
+            "Policy chain: the policy touches a fetched count of 12,000 "
+            "teachers; higher pay translates into the measured outcome, but "
+            "propagation has no fetched precedent; the "
             "low-confidence policy term remains uncertain; at most 12,000 "
-            "teachers are touched; hiring offsets apply within the 2030 "
-            "resolution period after an implementation lag.",
+            "teachers are touched; hiring responses could counteract the "
+            "effect within the 2030 resolution period after an implementation "
+            "lag.",
             "conditional policy chain: 'no fetched precedent' path must state "
             "a numeric policy-term bound",
         ),
         (
             "policy-no-precedent-no-confidence",
             "Policy chain: the policy touches a fetched count of 12,000 "
-            "teachers; propagation has no fetched precedent; policy term "
-            "bound: [-0.2, +0.4] percentage points; hiring offsets and "
-            "implementation lag remain.",
+            "teachers; higher pay translates into the measured outcome, but "
+            "propagation has no fetched precedent; policy term "
+            "bound: [-0.2, +0.4] percentage points; hiring responses could "
+            "counteract the effect; implementation lag "
+            "remains.",
             "conditional policy chain: 'no fetched precedent' path must label "
             "the policy term low-confidence",
         ),
@@ -4541,7 +4982,11 @@ def test_fast_prompt_names_conditional_on_exactly() -> None:
     assert "offsetting responses" in prompt
     assert "timing or lag relative to the resolution period" in prompt
     assert "begins exactly `Policy chain:`" in prompt
+    for label in ("Touched population:", "Propagation:", "Offsets:", "Timing/lag:"):
+        assert f"`{label}`" in prompt
     assert "repeat each URL exactly in sourceContext" in prompt
+    assert "distinct from any bill or measure URL" in prompt
+    assert "from resolutionSourceUrl" in prompt
     assert "exact phrase `no fetched precedent`" in prompt
     assert "policy term bound: [LOW, HIGH] UNIT" in prompt
     assert "policy term is low-confidence" in prompt
@@ -4552,6 +4997,39 @@ def test_fast_prompt_names_conditional_on_exactly() -> None:
     assert "conditionalOn: null" in unconditional
     assert '"conditionalOn"' not in unconditional
     assert "# Conditional policy chain (required)" not in unconditional
+
+
+def test_policy_chain_contract_floor_matches_current_agent_version() -> None:
+    _prompt, meta = analyst_runner.build_run_prompt(
+        "test.policy", "2030", POLICY_CONDITIONAL, "fast"
+    )
+
+    assert meta["agentVersion"] == policy_chain_validation.POLICY_CHAIN_AGENT_VERSION
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected_sha256"),
+    [
+        (
+            "ladder",
+            "96525dfdb9d2a40fb107b0ae7d3f59f763684a6b569ebb2787e9b6d545f57956",
+        ),
+        (
+            "ladder_v2",
+            "69b4aeb84a68d43ab8c9605db80a973018ce845089358da414a7a01e35995710",
+        ),
+    ],
+)
+def test_policy_chain_revision_preserves_frozen_ladder_prompt_bytes(
+    mode: str,
+    expected_sha256: str,
+) -> None:
+    prompt, meta = analyst_runner.build_run_prompt(
+        "agency.test.rate", "2030-01", POLICY_CONDITIONAL, mode
+    )
+
+    assert hashlib.sha256(prompt.encode()).hexdigest() == expected_sha256
+    assert meta["agentVersion"] == "2.5.11"
 
 
 def test_pre_submit_review_requires_conditional_policy_chain_changes() -> None:
@@ -4641,6 +5119,7 @@ def test_conditional_policy_chain_validation_respects_prompt_mode_boundary(
         [conditional_policy_test_cell(None)],
         allow_existing_slug=True,
         prompt_mode=mode,
+        agent_version=policy_chain_validation.POLICY_CHAIN_AGENT_VERSION,
     )
     policy_errors = [
         error
@@ -4649,6 +5128,21 @@ def test_conditional_policy_chain_validation_respects_prompt_mode_boundary(
     ]
 
     assert bool(policy_errors) is expects_policy_error
+
+
+def test_runner_validation_grandfathers_explicit_legacy_prompt_mode() -> None:
+    report = analyst_runner.validate_cells(
+        [conditional_policy_test_cell(None)],
+        allow_existing_slug=True,
+        prompt_mode="full",
+        agent_version="2.5.11",
+    )
+
+    assert not [
+        error
+        for error in report["cells"][0]["errors"]
+        if error.startswith("conditional policy chain:")
+    ]
 
 
 @pytest.mark.parametrize("mode", ["full", "fast", "ladder", "ladder_v2"])

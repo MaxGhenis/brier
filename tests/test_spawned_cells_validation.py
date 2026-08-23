@@ -355,6 +355,117 @@ def test_sigma_gate_still_binds_every_other_prompt_mode() -> None:
         assert any("interval derivation" in error for error in errors), (mode, errors)
 
 
+def converter_policy_cell(
+    policy_step: str | None,
+    *,
+    prompt_mode: str = "full",
+) -> dict:
+    cell = probe_cell("2026-07-17")
+    cell.update(
+        {
+            "type": "conditional",
+            "conditionalOn": "A registered policy changes the measured outcome.",
+            "promptMode": prompt_mode,
+        }
+    )
+    if policy_step is not None:
+        cell["reasoning"].append({"kind": "text", "text": policy_step})
+    return cell
+
+
+def converter_policy_step(precedent_url: str) -> str:
+    return (
+        "Policy chain: Touched population: a fetched count of 12,000 workers; "
+        f"Propagation: the evaluation at {precedent_url} found a 0.3-point "
+        "response per funded unit and implies a measured effect; Offsets: "
+        "turnover could counteract it; Timing/lag: implementation lag leaves "
+        "half the effect in the resolution period."
+    )
+
+
+def policy_chain_validation_errors(errors: list[str]) -> list[str]:
+    return [error for error in errors if error.startswith("conditional policy chain:")]
+
+
+def test_converter_enforces_current_conditional_policy_chain() -> None:
+    errors = spawned_cells_to_ts.validate(
+        converter_policy_cell(None),
+        set(),
+        agent_version="2.5.12",
+    )
+
+    assert policy_chain_validation_errors(errors) == [
+        "conditional policy chain: missing reasoning step beginning exactly "
+        "'Policy chain:'"
+    ]
+
+
+def test_converter_uses_sealed_target_context_for_precedent_exclusions() -> None:
+    measure_url = "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+    conditional = f"The measure at {measure_url} is enacted before the deadline."
+    cell = converter_policy_cell(converter_policy_step(measure_url))
+    cell["conditionalOn"] = conditional
+    cell["sourceContext"].append(measure_url)
+    cell[spawned_cells_to_ts.SEALED_TARGET_CONTEXT_KEY] = {"conditional": conditional}
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.12",
+    )
+
+    assert policy_chain_validation_errors(errors) == [
+        "conditional policy chain: precedent URL must be distinct from the "
+        "conditional instrument and resolution source URLs"
+    ]
+
+
+def test_converter_grandfathers_pre_policy_chain_agent() -> None:
+    errors = spawned_cells_to_ts.validate(
+        converter_policy_cell(None),
+        set(),
+        agent_version="2.5.11",
+    )
+
+    assert policy_chain_validation_errors(errors) == []
+
+
+def test_converter_grandfathers_pre_policy_chain_agent_with_sealed_mode() -> None:
+    errors = spawned_cells_to_ts.validate(
+        converter_policy_cell(None),
+        set(),
+        agent_version="2.5.11",
+        prompt_mode="full",
+    )
+
+    assert policy_chain_validation_errors(errors) == []
+
+
+@pytest.mark.parametrize("prompt_mode", ["ladder", "ladder_v2"])
+def test_converter_exempts_current_ladder_modes(prompt_mode: str) -> None:
+    errors = spawned_cells_to_ts.validate(
+        converter_policy_cell(None, prompt_mode=prompt_mode),
+        set(),
+        agent_version="2.5.12",
+    )
+
+    assert policy_chain_validation_errors(errors) == []
+
+
+def test_converter_accepts_complete_current_policy_chain() -> None:
+    precedent_url = "https://example.gov/program-evaluation"
+    cell = converter_policy_cell(converter_policy_step(precedent_url))
+    cell["sourceContext"].append(precedent_url)
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        agent_version="2.5.12",
+    )
+
+    assert policy_chain_validation_errors(errors) == []
+
+
 def stampable_cell() -> dict:
     """Minimal cell with the fields to_forecast_cell copies verbatim."""
     cell = {key: "?" for key in spawned_cells_to_ts.REQUIRED}

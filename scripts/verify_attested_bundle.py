@@ -50,6 +50,7 @@ from generation_tickets import (
     ticket_manifest_binding,
     ticket_record_path,
 )
+from policy_chain_validation import agent_version_enforces_policy_chain
 from run_thesis_analyst import (
     ANNOUNCEMENT_MCP_SERVER,
     ANNOUNCEMENT_MCP_TOOL,
@@ -410,13 +411,30 @@ def _check_policy(
                 f"{run.manifest.get('promptMode')!r} != "
                 f"{policy['promptMode']!r}",
             )
-        # Existing bundles have no review-stage marker and replay the frozen
-        # v0.1 bytes. New bundles seal the actual mode so replay can select the
-        # fast/full policy rubric without changing ladder prompt bytes.
-        review_prompt_mode = run.manifest.get("preSubmitReviewPromptMode")
-        if (
-            review_prompt_mode is not None
-            and review_prompt_mode != policy["promptMode"]
+        # Existing pre-contract bundles have no review-stage marker and replay
+        # the frozen v0.1 bytes. The current agent must seal the mode: otherwise
+        # removing the marker could downgrade a new conditional review to the
+        # legacy template while preserving internally consistent artifacts.
+        review_mode_key = "preSubmitReviewPromptMode"
+        review_prompt_mode = run.manifest.get(review_mode_key)
+        agent = run.manifest.get("agent")
+        agent_version = agent.get("agentVersion") if isinstance(agent, dict) else None
+        if agent_version_enforces_policy_chain(agent_version) and (
+            review_mode_key not in run.manifest
+            or not isinstance(review_prompt_mode, str)
+        ):
+            raise _fail(
+                "policy",
+                f"run {run.index} current agent requires a string "
+                "preSubmitReviewPromptMode",
+            )
+        if review_mode_key in run.manifest and not isinstance(review_prompt_mode, str):
+            raise _fail(
+                "policy",
+                f"run {run.index} preSubmitReviewPromptMode must be a string",
+            )
+        if isinstance(review_prompt_mode, str) and (
+            review_prompt_mode != policy["promptMode"]
         ):
             raise _fail(
                 "policy",
