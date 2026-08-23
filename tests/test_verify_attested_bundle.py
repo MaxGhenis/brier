@@ -852,6 +852,24 @@ def test_current_conditional_review_contract_failure_is_refused(
         verify(attested_bundle)
 
 
+@pytest.mark.parametrize("attested_bundle", ["conditional_fast"], indirect=True)
+def test_current_conditional_raw_placeholder_sweep_is_replayed(
+    attested_bundle: AttestedFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        verifier,
+        "agent_authored_placeholder_errors",
+        lambda _cell: ["synthetic raw placeholder"],
+    )
+
+    with pytest.raises(
+        verifier.AttestedBundleError,
+        match="validation.json differs from replayed validation report",
+    ):
+        verify(attested_bundle)
+
+
 @pytest.mark.parametrize(
     "attested_bundle", ["legacy_conditional_ladder"], indirect=True
 )

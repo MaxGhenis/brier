@@ -55,6 +55,7 @@ from policy_chain_validation import agent_version_enforces_policy_chain
 from run_thesis_analyst import (
     ANNOUNCEMENT_MCP_SERVER,
     ANNOUNCEMENT_MCP_TOOL,
+    agent_authored_placeholder_errors,
     announcement_mcp_config,
     attach_activity_log,
     build_pre_submit_review_metadata,
@@ -1680,6 +1681,12 @@ def _check_replay(
             series=run.manifest.get("series"),
             target_period=run.manifest.get("period"),
             history_registry_root=trusted_checkout,
+            raw_agent_errors=(
+                [agent_authored_placeholder_errors(cell) for cell in replayed_parsed]
+                if state.ticket.get("schemaVersion") == TICKET_SCHEMA
+                and bool(run.target.get("conditional"))
+                else None
+            ),
         )
         recorded_validation = _json_artifact(
             bundle_repo,
