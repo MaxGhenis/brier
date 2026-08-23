@@ -106,6 +106,78 @@ describe("condition registry", () => {
     expect(conditionForContract(exactContract)).toBe(condition);
     expect(conditionForContract(`${exactContract} `)).toBeUndefined();
   });
+
+  it("registers the staged teacher-pay pair as literal complements", () => {
+    const enacted = CONDITIONS.find(
+      (condition) =>
+        condition.conditionId === "cond.teacher-pay-acts-2027-06-30.enacted",
+    );
+    const notEnacted = CONDITIONS.find(
+      (condition) =>
+        condition.conditionId ===
+        "cond.teacher-pay-acts-2027-06-30.not-enacted",
+    );
+    expect(enacted?.type).toBe("provision_enacted");
+    expect(enacted?.matchStrings).toEqual([
+      "H.R. 2021 (American Teacher Act) or S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30.",
+    ]);
+    expect(notEnacted?.matchStrings).toEqual([
+      "Neither H.R. 2021 (American Teacher Act) nor S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30.",
+    ]);
+    expect(enacted?.complementOf).toBe(notEnacted?.conditionId);
+    expect(notEnacted?.complementOf).toBe(enacted?.conditionId);
+    expect(enacted?.resolvesBy).toBe("2027-06-30");
+    expect(notEnacted?.resolvesBy).toBe("2027-06-30");
+  });
+
+  it("keeps the staged NSF threshold conditions non-exhaustive", () => {
+    const high = CONDITIONS.find(
+      (condition) =>
+        condition.conditionId ===
+        "cond.nsf-fy2027-full-year-appropriation.gte-7000m",
+    );
+    const low = CONDITIONS.find(
+      (condition) =>
+        condition.conditionId ===
+        "cond.nsf-fy2027-full-year-appropriation.lte-5000m",
+    );
+    expect(high?.type).toBe("recorded_status");
+    expect(low?.type).toBe("recorded_status");
+    expect(high?.complementOf).toBeUndefined();
+    expect(low?.complementOf).toBeUndefined();
+    expect(high?.matchStrings[0]).toContain("at least $7,000 million");
+    expect(high?.matchStrings[0]).toContain("$8,750 million");
+    expect(low?.matchStrings[0]).toContain("at most $5,000 million");
+    expect(high?.resolvesBy).toBe("2027-12-31");
+    expect(low?.resolvesBy).toBe("2027-12-31");
+  });
+
+  it("binds every staged GDM arm to its exact registered condition", () => {
+    const draft = JSON.parse(
+      readFileSync(
+        join(__dirname, "../../../drafts/gdm-lane-conditional-pairs.json"),
+        "utf8",
+      ),
+    ) as {
+      comparisons: Array<{
+        unconditional: { catalogSlug: string };
+        unconditionalSlug: string;
+        arms: Array<{ conditional: string; conditionId: string }>;
+      }>;
+    };
+    expect(draft.comparisons).toHaveLength(2);
+    for (const comparison of draft.comparisons) {
+      expect(comparison.unconditionalSlug).toBe(
+        comparison.unconditional.catalogSlug,
+      );
+      expect(comparison.arms).toHaveLength(2);
+      for (const arm of comparison.arms) {
+        const condition = conditionForContract(arm.conditional);
+        expect(condition, arm.conditionId).toBeDefined();
+        expect(condition?.conditionId).toBe(arm.conditionId);
+      }
+    }
+  });
 });
 
 describe("provision_enacted conditions", () => {
@@ -415,10 +487,7 @@ describe("s3596 ACTC threshold conditional pair (thesis#106)", () => {
       "2027; current law holds. The $2,500 operative amount is applied by " +
       "IRC §24(h)(6), while §24(d)(1)(B)(i) contains the underlying $3,000 " +
       "amount.";
-    expect(currentLaw?.matchStrings).toEqual([
-      actcConditional,
-      spmConditional,
-    ]);
+    expect(currentLaw?.matchStrings).toEqual([actcConditional, spmConditional]);
     expect(conditionForContract(actcConditional)).toBe(currentLaw);
     expect(conditionForContract(spmConditional)).toBe(currentLaw);
   });

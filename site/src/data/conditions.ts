@@ -412,6 +412,85 @@ export const CONDITIONS: ConditionDefinition[] = [
       "deadline: exactly one of the two premises holds once 2026-12-31 " +
       "passes, so exactly one arm scores.",
   },
+  // Teacher-pay bill enactment conditions for the staged NAEP 2030
+  // comparison. These are literal complements over the two named 119th-
+  // Congress bills; successor legislation does not satisfy the enacted arm.
+  {
+    type: "provision_enacted",
+    conditionId: "cond.teacher-pay-acts-2027-06-30.enacted",
+    description:
+      "H.R. 2021 (American Teacher Act) or S. 2481 (Pay Teachers Act) is " +
+      "enacted into law on or before 2027-06-30.",
+    matchStrings: [
+      "H.R. 2021 (American Teacher Act) or S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30.",
+    ],
+    status: "open",
+    resolvesBy: "2027-06-30",
+    provisionDescription:
+      "Enactment of H.R. 2021 (American Teacher Act) or S. 2481 " +
+      "(Pay Teachers Act)",
+    statutoryTest:
+      "H.R. 2021 (American Teacher Act) or S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30.",
+    checkSource: PROVISION_ENACTED_CHECK_SOURCE,
+    deadline: "2027-06-30",
+    complementOf: "cond.teacher-pay-acts-2027-06-30.not-enacted",
+    note:
+      "Bill identities: https://www.congress.gov/bill/119th-congress/" +
+      "house-bill/2021 and https://www.congress.gov/bill/119th-congress/" +
+      "senate-bill/2481.",
+  },
+  {
+    type: "recorded_status",
+    conditionId: "cond.teacher-pay-acts-2027-06-30.not-enacted",
+    description:
+      "Neither H.R. 2021 (American Teacher Act) nor S. 2481 (Pay Teachers " +
+      "Act) is enacted into law on or before 2027-06-30.",
+    matchStrings: [
+      "Neither H.R. 2021 (American Teacher Act) nor S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30.",
+    ],
+    status: "open",
+    resolvesBy: "2027-06-30",
+    complementOf: "cond.teacher-pay-acts-2027-06-30.enacted",
+    note:
+      "Literal negation of the named-bill enactment condition; successor " +
+      "teacher-pay legislation alone does not make this premise false.",
+  },
+  // NSF funding thresholds for the staged S&E-articles comparison. They are
+  // intentionally not complements: a full-year level between $5,000M and
+  // $7,000M satisfies neither premise, so neither conditional arm scores.
+  {
+    type: "recorded_status",
+    conditionId: "cond.nsf-fy2027-full-year-appropriation.gte-7000m",
+    description:
+      "NSF FY2027 full-year enacted appropriation is at least $7,000 " +
+      "million, including $8,750 million if a full-year continuing " +
+      "resolution annualizes the FY2026 enacted level.",
+    matchStrings: [
+      "NSF FY2027 full-year enacted appropriation is at least $7,000 million, including $8,750 million if a full-year continuing resolution annualizes the FY2026 enacted level.",
+    ],
+    status: "open",
+    resolvesBy: "2027-12-31",
+    evidenceUrl: "https://www.congress.gov/crs-product/R48929",
+    note:
+      "Resolve from the first CRS R48929 revision that labels the aggregate " +
+      "National Science Foundation FY2027 amount enacted; temporary CRs do " +
+      "not resolve the condition.",
+  },
+  {
+    type: "recorded_status",
+    conditionId: "cond.nsf-fy2027-full-year-appropriation.lte-5000m",
+    description:
+      "NSF FY2027 full-year enacted appropriation is at most $5,000 million.",
+    matchStrings: [
+      "NSF FY2027 full-year enacted appropriation is at most $5,000 million.",
+    ],
+    status: "open",
+    resolvesBy: "2027-12-31",
+    evidenceUrl: "https://www.congress.gov/crs-product/R48929",
+    note:
+      "Not the complement of the at-least-$7,000M condition; values strictly " +
+      "between $5,000M and $7,000M fail both premises.",
+  },
 ];
 
 const BY_MATCH_STRING = new Map<string, ConditionDefinition>(

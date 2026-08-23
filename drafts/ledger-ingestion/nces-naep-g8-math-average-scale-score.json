@@ -1,0 +1,81 @@
+{
+  "proposed_concept": "nces.naep.g8_math_average_scale_score",
+  "status": "blocked_pending_chronicle_identity_and_real_fixture",
+  "unit": "index_points",
+  "cadence": "year",
+  "proposedFrom": "gdm-experiments-2026-08-21",
+  "metricText": "NAEP grade-8 mathematics national average composite scale score, published whole-number score.",
+  "note": "The production docket cannot name this series until Chronicle mints its UUID and Thesis witnesses the resulting catalog. The adapter also needs a saved real Data Service response; this sandbox could not resolve the official host for curl.",
+  "adapterFamily": "nces-naep-data-service (new)",
+  "publisher": "National Center for Education Statistics",
+  "statisticalProduct": "National Assessment of Educational Progress, Mathematics, Grade 8",
+  "likelyUrlPattern": "https://www.nationsreportcard.gov/DataService/GetAdhocData.aspx?type=data&subject=mathematics&grade=8&subscale=MRPCM&variable=TOTAL&jurisdiction=NT&stattype=MN%3AMN&Year={year}",
+  "chronicleSeed": {
+    "series": "nces.naep.g8_math_average_scale_score",
+    "cadence": "year",
+    "comment": "NAEP grade-8 mathematics national average MRPCM composite scale score, whole-number published print.",
+    "extras": {
+      "targetUnit": "index_points",
+      "country": "US"
+    }
+  },
+  "sourceBindingDraft": {
+    "adapter": "nces-naep-data-service",
+    "sourceUrl": "https://nces.ed.gov/nationsreportcard/about/calendar.aspx",
+    "sourceSeriesId": "nces.naep.g8_math_average_scale_score",
+    "field": "result[0].value rounded to the NCES published whole scale score",
+    "table": "NAEP Data Service: mathematics, grade 8, MRPCM composite, TOTAL, jurisdiction NT, mean MN:MN",
+    "transform": {
+      "operation": "round",
+      "decimals": 0,
+      "mode": "decimal_half_up"
+    },
+    "releasePolicy": "first_print",
+    "allowedHosts": [
+      "nces.ed.gov",
+      "www.nationsreportcard.gov"
+    ]
+  },
+  "resolutionRuleDraft": "Fetch the exact NAEP Data Service query for the target assessment year, require status 200 and exactly one row matching mathematics, grade 8, MRPCM, TOTAL, NT, and MN:MN, retain the raw decimal in evidence, and resolve to NCES's published whole-number score using decimal round-half-up. Freeze the first official print and ignore later revisions.",
+  "roundingDecision": "The scoring value is the published integer, not the API's latent decimal. The 2024 response value 273.83 therefore anchors at 274.",
+  "releaseEvidence": {
+    "officialCalendar": "https://nces.ed.gov/nationsreportcard/about/calendar.aspx",
+    "2026": "Winter 2026 assessment; estimated Winter 2027 release; no official day.",
+    "2028": "Winter 2028 assessment; estimated Fall 2028 release; no official day.",
+    "2030": "Winter 2030 assessment; estimated Fall 2030 release; no official day."
+  },
+  "targetDrafts": [
+    {
+      "period": "2026",
+      "dataPointId": "nces.naep.g8_math_average_scale_score.2026.first_print",
+      "catalogSlug": "naep-grade-8-mathematics-national-average-scale-score-2026",
+      "resolutionDateBasis": "resolve-by-bound",
+      "expectedReleaseWindow": {
+        "start": "2026-12-01",
+        "end": "2027-06-30"
+      },
+      "resolutionDate": "2027-06-30"
+    },
+    {
+      "period": "2030",
+      "dataPointId": "nces.naep.g8_math_average_scale_score.2030.first_print",
+      "catalogSlug": "naep-grade-8-mathematics-national-average-scale-score-2030",
+      "resolutionDateBasis": "resolve-by-bound",
+      "expectedReleaseWindow": {
+        "start": "2030-09-01",
+        "end": "2030-12-31"
+      },
+      "resolutionDate": "2030-12-31"
+    }
+  ],
+  "anchorCandidates": {
+    "2024": 274
+  },
+  "requiredWork": [
+    "Land the Chronicle seed, canonical UUID registry row, and regenerated series catalog before any Thesis docket row.",
+    "Capture a real 2024 NT Data Service JSON response and the official assessment-calendar HTML with curl in a network-enabled checkout; commit them as resolver fixtures.",
+    "Implement a fail-closed adapter that authenticates every query dimension, unique-row identity, finite numeric value, and decimal-half-up integer publication rule.",
+    "Integrator-verify at least three official historical first-print anchors and document them in docs/anchor-verifications.md.",
+    "After Chronicle is pinned on Thesis main, add two explicit bounded one-shot docket entries (2026 and the 2030 comparison); do not configure annual successors."
+  ]
+}

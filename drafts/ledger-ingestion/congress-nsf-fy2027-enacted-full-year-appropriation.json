@@ -1,0 +1,59 @@
+{
+  "proposed_concept": "congress.appropriations.nsf_fy2027_enacted_full_year",
+  "status": "draft_policy_state_not_registered",
+  "unit": "usd_millions",
+  "cadence": "fiscal_year",
+  "proposedFrom": "gdm-experiments-2026-08-21",
+  "metricText": "National Science Foundation aggregate full-year FY2027 enacted appropriation, in nominal USD millions.",
+  "note": "CRS R48929 is the cleanest candidate resolver because its revisioned CJS table can print a single NSF FY2027 Enacted aggregate, including a full-year CR treatment. This target is not registered: Chronicle has no identity, no real revision fixture or three historical first-print anchors have been admitted, and enactment can make the answer knowable before a later ticket could honestly be minted.",
+  "adapterFamily": "crs-cjs-appropriations (new, policy-state)",
+  "publisher": "Congressional Research Service via Congress.gov",
+  "statisticalProduct": "CRS R48929, Funding for Commerce, Justice, Science, and Related Agencies",
+  "likelyUrlPattern": "https://www.congress.gov/crs-product/R48929 and its immutable revision PDF URLs",
+  "chronicleSeed": {
+    "series": "congress.appropriations.nsf_fy2027_enacted_full_year",
+    "cadence": "fiscal_year",
+    "comment": "CRS aggregate NSF full-year enacted appropriation, nominal USD millions; temporary CRs excluded until full-year authority exists.",
+    "extras": {
+      "targetUnit": "usd_millions",
+      "country": "US"
+    }
+  },
+  "sourceBindingDraft": {
+    "adapter": "crs-cjs-appropriations",
+    "sourceUrl": "https://www.congress.gov/crs-product/R48929",
+    "sourceSeriesId": "congress.appropriations.nsf_fy2027_enacted_full_year",
+    "field": "National Science Foundation / FY2027 Enacted",
+    "table": "CRS R48929, Funding for Commerce, Justice, Science, and Related Agencies",
+    "transform": {
+      "operation": "identity",
+      "factor": 1
+    },
+    "releasePolicy": "first_print",
+    "allowedHosts": [
+      "www.congress.gov"
+    ]
+  },
+  "resolutionRuleDraft": "Ignore temporary continuing resolutions. Resolve only after law provides NSF budget authority through 2027-09-30, then freeze the first CRS R48929 revision whose CJS table labels the aggregate National Science Foundation FY2027 amount Enacted. If a full-year CR continues the FY2026 enacted rate, use CRS's annualized aggregate (the current comparator assumes $8,750 million). Preserve the revision timestamp and immutable PDF. Follow CRS scope for account totals, rescissions, transfers, prior-year balances, and scorekeeping instead of recomputing them judgmentally from bill prose.",
+  "targetDrafts": [
+    {
+      "period": "FY2027",
+      "dataPointId": "congress.appropriations.nsf_fy2027_enacted_full_year.fy2027.enacted_print",
+      "catalogSlug": "nsf-full-year-fy2027-enacted-appropriation",
+      "resolutionDateBasis": "resolve-by-bound",
+      "expectedReleaseWindow": null,
+      "resolutionDate": null,
+      "blockedReason": "No safe future window start is currently committed: full-year authority can be enacted at any time, and target registration must predate answer knowability."
+    }
+  ],
+  "anchorCandidates": {
+    "FY2026": 8750
+  },
+  "requiredWork": [
+    "Land the Chronicle seed, canonical UUID registry row, and regenerated series catalog before any Thesis docket row.",
+    "Capture real version-history HTML plus immutable CRS PDF revisions for at least three enacted fiscal years, including a regular appropriations law and a full-year CR.",
+    "Implement and test a fail-closed revision/table parser that requires the aggregate NSF row and an enacted column and preserves first-print custody.",
+    "Integrator-verify at least three official historical first prints and document CRS scope treatment in docs/anchor-verifications.md.",
+    "Do not register FY2027 if the answer becomes knowable before a clean registration and ticket can be chronology-witnessed; use the admitted recurring identity for a later fiscal year instead."
+  ]
+}

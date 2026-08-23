@@ -1,0 +1,69 @@
+{
+  "proposed_concept": "ncses.sei.publications_output.us_se_articles",
+  "status": "blocked_pending_chronicle_identity_and_real_fixture",
+  "unit": "thousands",
+  "cadence": "year",
+  "proposedFrom": "gdm-experiments-2026-08-21",
+  "metricText": "United States science and engineering articles in all fields, fractional count by author institutional address, expressed in thousands.",
+  "note": "The 2029 value must resolve from the first NCSES Indicators edition that reports it, not from a guessed 2031 product slug or a later revised edition. Chronicle has not admitted the identity, and the required real page/workbook fixture could not be fetched in this sandbox.",
+  "adapterFamily": "ncses-indicators-publications (new)",
+  "publisher": "National Center for Science and Engineering Statistics",
+  "statisticalProduct": "Science and Engineering Indicators, Publications Output / Discovery, fractional-count article table",
+  "likelyUrlPattern": "https://www.ncses.nsf.gov/pubs/{future-product}/figure/{future-figure}; discovery must begin from https://ncses.nsf.gov/indicators/reports",
+  "chronicleSeed": {
+    "series": "ncses.sei.publications_output.us_se_articles",
+    "cadence": "year",
+    "comment": "U.S. S&E journal articles and conference proceedings indexed in Scopus, all fields, fractionally counted by institutional address, thousands.",
+    "extras": {
+      "targetUnit": "thousands",
+      "country": "US"
+    }
+  },
+  "sourceBindingDraft": {
+    "adapter": "ncses-indicators-publications",
+    "sourceUrl": "https://www.ncses.nsf.gov/pubs/nsbsep20261/figure/29",
+    "sourceSeriesId": "ncses.sei.publications_output.us_se_articles",
+    "field": "Publication year={period}; United States",
+    "table": "S&E articles in all S&E fields, fractional count, by region, country, or economy",
+    "transform": {
+      "operation": "multiply",
+      "factor": 0.001
+    },
+    "releasePolicy": "first_print",
+    "allowedHosts": [
+      "ncses.nsf.gov",
+      "www.ncses.nsf.gov"
+    ]
+  },
+  "resolutionRuleDraft": "Resolve from the first official NCSES Science and Engineering Indicators publication that reports publication year 2029 for the United States, all S&E fields, peer-reviewed journal articles and conference proceedings indexed in Scopus, using fractional credit by author institutional address. Preserve the first edition's exact integer count, multiply by 0.001, retain three decimal places in thousands, and ignore later revisions.",
+  "releaseEvidence": {
+    "schedule": "https://ncses.nsf.gov/schedule-of-release-dates",
+    "status": "The State of U.S. Science and Engineering is biennial, but its next release is TBD; no official 2029-value release year or day is posted.",
+    "labBoundRationale": "The 2031 cycle is plausible from past thematic releases, but the draft uses a conservative 2030-2032 Thesis commitment and does not call any day official."
+  },
+  "targetDrafts": [
+    {
+      "period": "2029",
+      "dataPointId": "ncses.sei.publications_output.us_se_articles.2029.first_print",
+      "catalogSlug": "us-science-engineering-articles-fractional-count-2029",
+      "resolutionDateBasis": "resolve-by-bound",
+      "expectedReleaseWindow": {
+        "start": "2030-01-01",
+        "end": "2032-12-31"
+      },
+      "resolutionDate": "2032-12-31"
+    }
+  ],
+  "anchorCandidates": {
+    "2022": 448.935,
+    "2023": 431.338,
+    "2024": 439.892
+  },
+  "requiredWork": [
+    "Land the Chronicle seed, canonical UUID registry row, and regenerated series catalog before any Thesis docket row.",
+    "Capture the real Figure 29 HTML and its official XLSX with curl, preserving source bytes as fixtures; verify that the 2024 United States value is 439,892.",
+    "Implement official-report discovery that follows only NCSES Indicators product pages and refuses ambiguous products, count bases, country labels, years, or duplicate rows.",
+    "Integrator-verify at least three first-print anchors from the same metric identity and document them in docs/anchor-verifications.md.",
+    "After Chronicle is pinned on Thesis main, add one explicit bounded 2029 comparison entry; never infer a 2031 release date from cadence."
+  ]
+}

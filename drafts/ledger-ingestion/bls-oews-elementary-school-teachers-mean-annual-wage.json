@@ -1,0 +1,68 @@
+{
+  "proposed_concept": "bls.oews.elementary_school_teachers_mean_annual_wage",
+  "status": "blocked_pending_chronicle_identity_and_real_fixture",
+  "unit": "usd",
+  "cadence": "year",
+  "proposedFrom": "gdm-experiments-2026-08-21",
+  "metricText": "BLS OEWS national cross-industry mean annual wage for elementary school teachers, except special education, SOC 25-2021.",
+  "note": "The requested /oes/current/oes252021.htm URL now redirects to the tables landing page. Resolution should use the official national bulk workbook and exact A_MEAN row. Chronicle has not admitted the identity, and the real ZIP/workbook fixture could not be fetched because terminal DNS is unavailable.",
+  "adapterFamily": "generic-url with a dedicated oews resolver family",
+  "publisher": "Bureau of Labor Statistics",
+  "statisticalProduct": "May Occupational Employment and Wage Statistics, National Occupational Employment and Wage Estimates",
+  "likelyUrlPattern": "https://www.bls.gov/oes/special-requests/oesm{yy}nat.zip",
+  "chronicleSeed": {
+    "series": "bls.oews.elementary_school_teachers_mean_annual_wage",
+    "cadence": "year",
+    "comment": "May OEWS national cross-industry A_MEAN for elementary school teachers, except special education (SOC 25-2021).",
+    "extras": {
+      "targetUnit": "usd",
+      "country": "US"
+    }
+  },
+  "sourceBindingDraft": {
+    "adapter": "generic-url",
+    "sourceUrl": "https://www.bls.gov/oes/tables.htm",
+    "sourceSeriesId": "bls.oews.elementary_school_teachers_mean_annual_wage",
+    "field": "national cross-industry OCC_CODE=25-2021 / A_MEAN",
+    "table": "May OEWS National Occupational Employment and Wage Estimates, national cross-industry",
+    "transform": {
+      "operation": "identity",
+      "factor": 1
+    },
+    "releasePolicy": "first_print",
+    "allowedHosts": [
+      "www.bls.gov"
+    ]
+  },
+  "resolutionRuleDraft": "Fetch the official OEWS tables landing page with a browser user agent, discover and archive the exact May 2027 national ZIP, parse its national cross-industry workbook, require exactly one row with OCC_CODE 25-2021, and take finite numeric A_MEAN in dollars. Refuse suppressed, duplicate, wrong-period, or wrong-table rows and freeze the first official print.",
+  "releaseEvidence": {
+    "calendar": "https://www.bls.gov/schedule/news_release/ocwage.htm",
+    "status": "BLS has not posted an official May 2027 OEWS release day.",
+    "labBoundRationale": "Recent releases fall in the following year's spring; the draft's January-June 2028 interval is a conservative Thesis commitment, not an agency announcement."
+  },
+  "targetDrafts": [
+    {
+      "period": "2027",
+      "dataPointId": "bls.oews.elementary_school_teachers_mean_annual_wage.may_2027.first_print",
+      "catalogSlug": "bls-oews-elementary-school-teachers-mean-annual-wage-may-2027",
+      "resolutionDateBasis": "resolve-by-bound",
+      "expectedReleaseWindow": {
+        "start": "2028-01-01",
+        "end": "2028-06-30"
+      },
+      "resolutionDate": "2028-06-30"
+    }
+  ],
+  "anchorCandidates": {
+    "May 2023": 70740,
+    "May 2024": 69790,
+    "May 2025": 72650
+  },
+  "requiredWork": [
+    "Land the Chronicle seed, canonical UUID registry row, and regenerated series catalog before any Thesis docket row.",
+    "Capture the real OEWS tables landing HTML and oesm25nat.zip with curl using a browser user agent; commit the unmodified response/workbook bytes as fixtures.",
+    "Add an oews generic-url resolver route that authenticates the archive year, workbook member, national cross-industry scope, SOC 25-2021, and A_MEAN.",
+    "Integrator-verify at least three official first-print anchors and document them in docs/anchor-verifications.md.",
+    "After Chronicle is pinned on Thesis main, add one explicit bounded May 2027 one-shot; replace the bound with a release-calendar date only if BLS posts one before registration."
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "thesis_conditional_comparison_draft_v1",
+  "status": "blocked_pending_series_admission",
+  "note": "These definitions are drafts only. They are not in scripts/docket_series.json or site/src/data/conditional-groups.ts, and no cells were copied from exploratory runs. Each comparison requires an unconditional baseline generated in the same wave as its independently generated arms.",
+  "comparisons": [
+    {
+      "id": "naep-2030-teacher-pay-acts",
+      "series": "nces.naep.g8_math_average_scale_score",
+      "period": "2030",
+      "unconditional": {
+        "catalogSlug": "naep-grade-8-mathematics-national-average-scale-score-2030",
+        "dataPointId": "nces.naep.g8_math_average_scale_score.2030.first_print"
+      },
+      "arms": [
+        {
+          "catalogSlug": "naep-grade-8-mathematics-national-average-scale-score-2030-teacher-pay-acts-enacted",
+          "dataPointId": "nces.naep.g8_math_average_scale_score.2030.first_print.teacher_pay_acts_enacted",
+          "conditionId": "cond.teacher-pay-acts-2027-06-30.enacted",
+          "conditional": "H.R. 2021 (American Teacher Act) or S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30."
+        },
+        {
+          "catalogSlug": "naep-grade-8-mathematics-national-average-scale-score-2030-teacher-pay-acts-not-enacted",
+          "dataPointId": "nces.naep.g8_math_average_scale_score.2030.first_print.teacher_pay_acts_not_enacted",
+          "conditionId": "cond.teacher-pay-acts-2027-06-30.not-enacted",
+          "conditional": "Neither H.R. 2021 (American Teacher Act) nor S. 2481 (Pay Teachers Act) is enacted into law on or before 2027-06-30."
+        }
+      ],
+      "conditionDeadline": "2027-06-30",
+      "unconditionalSlug": "naep-grade-8-mathematics-national-average-scale-score-2030",
+      "gapNote": "Baseline and arms are generated independently in one preregistration wave. Their differences are elicitation contrasts, not causal estimates.",
+      "blockedBy": [
+        "Chronicle identity and witnessed Thesis pin",
+        "real NAEP response fixture and production adapter",
+        "integrator-verified anchors"
+      ]
+    },
+    {
+      "id": "se-articles-2029-nsf-fy2027-funding",
+      "series": "ncses.sei.publications_output.us_se_articles",
+      "period": "2029",
+      "unconditional": {
+        "catalogSlug": "us-science-engineering-articles-fractional-count-2029",
+        "dataPointId": "ncses.sei.publications_output.us_se_articles.2029.first_print"
+      },
+      "arms": [
+        {
+          "catalogSlug": "us-science-engineering-articles-fractional-count-2029-nsf-fy2027-gte-7000m",
+          "dataPointId": "ncses.sei.publications_output.us_se_articles.2029.first_print.nsf_fy2027_gte_7000m",
+          "conditionId": "cond.nsf-fy2027-full-year-appropriation.gte-7000m",
+          "conditional": "NSF FY2027 full-year enacted appropriation is at least $7,000 million, including $8,750 million if a full-year continuing resolution annualizes the FY2026 enacted level."
+        },
+        {
+          "catalogSlug": "us-science-engineering-articles-fractional-count-2029-nsf-fy2027-lte-5000m",
+          "dataPointId": "ncses.sei.publications_output.us_se_articles.2029.first_print.nsf_fy2027_lte_5000m",
+          "conditionId": "cond.nsf-fy2027-full-year-appropriation.lte-5000m",
+          "conditional": "NSF FY2027 full-year enacted appropriation is at most $5,000 million."
+        }
+      ],
+      "conditionDeadline": "2027-12-31",
+      "unconditionalSlug": "us-science-engineering-articles-fractional-count-2029",
+      "gapNote": "Baseline and arms are generated independently in one preregistration wave. Their differences are elicitation contrasts, not causal estimates. The two funding thresholds are non-exhaustive: a value strictly between $5,000M and $7,000M satisfies neither arm.",
+      "blockedBy": [
+        "Chronicle NCSES identity and witnessed Thesis pin",
+        "real NCSES fixture and production adapter",
+        "integrator-verified anchors",
+        "machine-tested CRS NSF policy-state evidence before the funding condition becomes knowable"
+      ]
+    }
+  ]
+}
