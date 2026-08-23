@@ -36,6 +36,8 @@ def _dormant_producer_signing(
         return
     monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
     monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
+
+
 import witnessed_timeline as timeline_module  # noqa: E402
 from canonical_json import (  # noqa: E402
     canonical_bytes,
@@ -605,6 +607,7 @@ def test_token_time_rejects_future_and_impossibly_early_values() -> None:
 def synthetic_custody_run(tmp_path: pathlib.Path) -> pathlib.Path:
     run_dir = tmp_path / "run"
     created_at = "2026-01-01T00:00:00Z"
+    cell = {"slug": "synthetic", "pointEstimate": 1.5, "model": "fixture-model"}
     refs = [
         write_artifact(run_dir, "prompt", "prompt.md", "forecast prompt\n", created_at),
         write_artifact(
@@ -623,14 +626,14 @@ def synthetic_custody_run(tmp_path: pathlib.Path) -> pathlib.Path:
             run_dir,
             "parsed_cell",
             "parsed_cells.json",
-            json.dumps([{"slug": "synthetic", "pointEstimate": 1.5}], indent=2),
+            json.dumps([cell], indent=2),
             created_at,
         ),
         write_artifact(
             run_dir,
             "normalized_cell",
             "normalized_cells.json",
-            json.dumps([{"slug": "synthetic", "pointEstimate": 1.5}], indent=2),
+            json.dumps([cell], indent=2),
             created_at,
         ),
         write_artifact(
@@ -648,7 +651,7 @@ def synthetic_custody_run(tmp_path: pathlib.Path) -> pathlib.Path:
             created_at,
         ),
     ]
-    cells = [{"slug": "synthetic", "pointEstimate": 1.5, "activityLog": refs}]
+    cells = [{**cell, "activityLog": refs}]
     refs.append(
         write_artifact(
             run_dir,
@@ -662,6 +665,7 @@ def synthetic_custody_run(tmp_path: pathlib.Path) -> pathlib.Path:
         "schemaVersion": "thesis_analyst_run_manifest_v1",
         "createdAt": created_at,
         "ok": True,
+        "agent": {"model": cell["model"]},
         "preSubmitReview": None,
         "cellsPath": str(run_dir / "cells.with_activity.json"),
         "artifacts": refs,
@@ -924,9 +928,9 @@ def test_writer_shaped_recorder_v2_inventory_verifies(
     misplaced = body_dir / "junk/runs-0.json.gz"
     misplaced.parent.mkdir(parents=True)
     original.rename(misplaced)
-    payload["logChunks"]["runs:0"][
-        "archivePath"
-    ] = f"records/2030-01-01/bodies-{run_id}/junk/runs-0.json.gz"
+    payload["logChunks"]["runs:0"]["archivePath"] = (
+        f"records/2030-01-01/bodies-{run_id}/junk/runs-0.json.gz"
+    )
     write_json(snapshot, payload)
     with pytest.raises(CustodyError, match="archive path mismatch"):
         verify_recorder_snapshot(snapshot)

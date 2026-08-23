@@ -1916,6 +1916,33 @@ def write_fake_codex(
     path.chmod(0o755)
 
 
+def wrap_fake_gemini_node(path: Path) -> None:
+    """Wrap a Python fake in a labelled, guardable 0.36 Node entrypoint."""
+    python_path = path.with_name(f"{path.name}.py")
+    path.replace(python_path)
+    python_path.chmod(0o755)
+    (path.parent / "package.json").write_text(
+        json.dumps(
+            {
+                "name": "@google/gemini-cli",
+                "version": "0.36.0",
+                "thesisTestFake": True,
+            }
+        )
+    )
+    path.write_text(
+        "#!/usr/bin/env node\n"
+        "'use strict';\n"
+        "const {spawnSync} = require('node:child_process');\n"
+        f"const result = spawnSync({json.dumps(sys.executable)}, "
+        f"[{json.dumps(str(python_path))}, ...process.argv.slice(2)], "
+        "{stdio: 'inherit', env: process.env});\n"
+        "if (result.error) throw result.error;\n"
+        "process.exit(result.status ?? 1);\n"
+    )
+    path.chmod(0o755)
+
+
 def write_fake_gemini(
     path: Path,
     cell: dict,
@@ -1923,7 +1950,9 @@ def write_fake_gemini(
     *,
     runtime_model: str = "gemini-3.7-flash-runtime",
     split_on_api_key: bool = False,
+    split_after_text: str | None = None,
     tool_name: str = "google_web_search",
+    invalid_utf8: bool = False,
 ) -> None:
     """Write a Gemini CLI 0.36 stream-json stand-in.
 
@@ -1948,7 +1977,12 @@ def write_fake_gemini(
                     "split_at = text.index(os.environ['GEMINI_API_KEY']) + "
                     "len(os.environ['GEMINI_API_KEY']) // 2"
                     if split_on_api_key
-                    else "split_at = len(text) // 2"
+                    else (
+                        f"split_at = text.index({split_after_text!r}) + "
+                        f"len({split_after_text!r})"
+                        if split_after_text is not None
+                        else "split_at = len(text) // 2"
+                    )
                 ),
                 "events = [",
                 "  {",
@@ -2016,11 +2050,23 @@ def write_fake_gemini(
                 "  },",
                 "]",
                 "for event in events:",
-                "    print(json.dumps(event), flush=True)",
+                "    encoded = json.dumps(event).encode()",
+                *(
+                    [
+                        "    if event['type'] == 'tool_result':",
+                        "        encoded = encoded.replace(",
+                        "            b'Fetched', b'Fetched\\xff', 1",
+                        "        )",
+                    ]
+                    if invalid_utf8
+                    else []
+                ),
+                "    sys.stdout.buffer.write(encoded + b'\\n')",
+                "    sys.stdout.buffer.flush()",
             ]
         )
     )
-    path.chmod(0o755)
+    wrap_fake_gemini_node(path)
 
 
 def test_gemini_model_run_captures_full_gemini_trace(tmp_path: Path) -> None:
@@ -2081,6 +2127,9 @@ def test_gemini_model_run_captures_full_gemini_trace(tmp_path: Path) -> None:
     assert command["argv"][command["argv"].index("-m") + 1] == requested_model
     assert command["argv"][command["argv"].index("--approval-mode") + 1] == ("default")
     assert "--sandbox" in command["argv"]
+    assert command["argv"][command["argv"].index("--policy") + 1] == (
+        "<gemini-read-only-policy>"
+    )
     assert command["argv"][command["argv"].index("--admin-policy") + 1] == (
         "<gemini-read-only-policy>"
     )
@@ -2122,9 +2171,19 @@ def test_gemini_model_run_captures_full_gemini_trace(tmp_path: Path) -> None:
     assert trace["stats"]["tool_calls"] == 1
     assert runtime_model in trace["stats"]["models"]
     assert trace["approvalMode"] == "default"
-    assert trace["sandbox"] is True
+    assert trace["sandboxRequested"] is True
+    assert trace["sandbox"] is False
+    assert trace["sandboxEnforcement"] == "not-enforced-test-fake"
+    assert trace["sandboxProfile"] == "strict-open"
+    assert trace["containerSandboxes"] == "refused-before-spawn"
+    assert trace["repositoryAccess"] is None
+    assert trace["repositoryAccessEnforcement"] == "not-enforced-test-fake"
     assert trace["toolPolicy"]["allowedTools"] == ["google_web_search"]
     assert trace["protocolValid"] is True
+    assert trace["sessionPersistence"] == "not-enforced-test-fake"
+    assert trace["persistenceGuard"]["sandboxRelaunch"] == ("not-enforced-test-fake")
+    assert trace["persistenceGuard"]["cliVersion"] == "0.36.0"
+    assert trace["persistenceGuard"]["testFake"] is True
     verification = verify_run(out_dir)
     assert verification.inventory_status == "complete"
     assert verification.run_succeeded is True
@@ -2139,12 +2198,14 @@ def test_gemini_invocation_enforces_deny_by_default_policy(tmp_path: Path) -> No
         review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
         extra_lines=[
             "policy_path = pathlib.Path(args[args.index('--admin-policy') + 1])",
+            "user_policy_path = pathlib.Path(args[args.index('--policy') + 1])",
             (
                 "settings_path = pathlib.Path(os.environ['GEMINI_CLI_HOME']) "
                 "/ '.gemini' / 'settings.json'"
             ),
             f"pathlib.Path({str(probe_path)!r}).write_text(json.dumps({{",
             "  'policy': policy_path.read_text(),",
+            "  'userPolicy': user_policy_path.read_text(),",
             "  'settings': json.loads(settings_path.read_text()),",
             "  'sandbox': '--sandbox' in args,",
             "  'approvalMode': args[args.index('--approval-mode') + 1],",
@@ -2181,11 +2242,70 @@ def test_gemini_invocation_enforces_deny_by_default_policy(tmp_path: Path) -> No
     assert probe["sandbox"] is True
     assert probe["approvalMode"] == "default"
     assert probe["policy"] == analyst_runner.GEMINI_READ_ONLY_POLICY
+    assert probe["userPolicy"] == analyst_runner.GEMINI_READ_ONLY_POLICY
     assert 'toolName = "*"' in probe["policy"]
     assert 'toolName = "google_web_search"' in probe["policy"]
+    priorities = [
+        int(line.partition("=")[2].strip())
+        for line in probe["policy"].splitlines()
+        if line.startswith("priority =")
+    ]
+    # Gemini CLI 0.36 rejects an entire policy file when any priority
+    # exceeds the schema's closed [0, 999] range.
+    assert priorities == [998, 999]
     assert probe["settings"]["security"]["disableYoloMode"] is True
     assert probe["settings"]["security"]["disableAlwaysAllow"] is True
     assert probe["settings"]["experimental"]["plan"] is False
+    assert probe["settings"]["skills"]["enabled"] is False
+
+
+def test_gemini_ignored_admin_policy_diagnostic_fails_closed(
+    tmp_path: Path,
+) -> None:
+    out_dir = tmp_path / "ignored-admin-policy-run"
+    fake_gemini = tmp_path / "gemini"
+    diagnostic = (
+        "Security Warning: Ignoring --admin-policy because system policies are present."
+    )
+    write_fake_gemini(
+        fake_gemini,
+        review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+        extra_lines=[f"print({diagnostic!r}, file=sys.stderr)"],
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.gemini_rate",
+            "--period",
+            "2030-01",
+            "--gemini-model",
+            "gemini-3.7-flash",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "THESIS_GEMINI_BIN": str(fake_gemini),
+            "GEMINI_API_KEY": "neutral-policy-diagnostic-key",
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    command = json.loads((out_dir / "command.json").read_text())
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    trace = json.loads((out_dir / "gemini_trace.json").read_text())
+    assert command["returnCode"] == 1
+    assert manifest["ok"] is False
+    assert trace["policyDiagnosticDetected"] is True
+    assert diagnostic in (out_dir / "stderr.txt").read_text()
+    assert verify_run(out_dir).run_succeeded is False
 
 
 def test_gemini_disallowed_tool_event_fails_closed(tmp_path: Path) -> None:
@@ -2362,6 +2482,56 @@ def test_gemini_oauth_prompts_fail_closed_despite_valid_result(
     assert verification.run_succeeded is False
 
 
+def test_gemini_oauth_prompt_split_across_deltas_fails_closed(
+    tmp_path: Path,
+) -> None:
+    out_dir = tmp_path / "split-oauth-prompt-run"
+    fake_gemini = tmp_path / "gemini"
+    oauth_url = "https://auth.example.test/device?token=public-test-token"
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["reasoning"][2]["result"] += (
+        f" Opening your browser for OAuth sign-in at {oauth_url}"
+    )
+    write_fake_gemini(
+        fake_gemini,
+        cell,
+        split_after_text="OAu",
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.gemini_rate",
+            "--period",
+            "2030-01",
+            "--gemini-model",
+            "gemini-3.7-flash",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "THESIS_GEMINI_BIN": str(fake_gemini),
+            "GEMINI_API_KEY": "not-a-real-gemini-key",
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    trace = json.loads((out_dir / "gemini_trace.json").read_text())
+    assert manifest["ok"] is False
+    assert trace["oauthPromptDetected"] is True
+    assert oauth_url not in (out_dir / "gemini_stdout.jsonl").read_text()
+    assert oauth_url not in (out_dir / "raw_response.txt").read_text()
+    assert verify_run(out_dir).run_succeeded is False
+
+
 def test_gemini_timeout_without_terminal_result_fails_closed(tmp_path: Path) -> None:
     out_dir = tmp_path / "truncated-timeout-run"
     fake_gemini = tmp_path / "gemini"
@@ -2387,6 +2557,7 @@ def test_gemini_timeout_without_terminal_result_fails_closed(tmp_path: Path) -> 
         )
     )
     fake_gemini.chmod(0o755)
+    wrap_fake_gemini_node(fake_gemini)
 
     completed = subprocess.run(
         [
@@ -2412,7 +2583,10 @@ def test_gemini_timeout_without_terminal_result_fails_closed(tmp_path: Path) -> 
         capture_output=True,
         text=True,
         check=False,
-        timeout=10,
+        # Repository fingerprinting happens before the child starts and can
+        # be slow under a concurrent full-suite run. The runner's own one-
+        # second timeout is asserted from the sealed trace below.
+        timeout=30,
     )
 
     assert completed.returncode == 1
@@ -2471,6 +2645,49 @@ def test_gemini_stream_capture_limit_fails_closed(tmp_path: Path) -> None:
     assert verify_run(out_dir).run_succeeded is False
 
 
+def test_gemini_invalid_utf8_stream_fails_closed(tmp_path: Path) -> None:
+    out_dir = tmp_path / "invalid-utf8-run"
+    fake_gemini = tmp_path / "gemini"
+    write_fake_gemini(
+        fake_gemini,
+        review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+        invalid_utf8=True,
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.gemini_rate",
+            "--period",
+            "2030-01",
+            "--gemini-model",
+            "gemini-3.7-flash",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "THESIS_GEMINI_BIN": str(fake_gemini),
+            "GEMINI_API_KEY": "not-a-real-gemini-key",
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    trace = json.loads((out_dir / "gemini_trace.json").read_text())
+    assert manifest["ok"] is False
+    assert "not valid UTF-8" in trace["captureError"]
+    assert trace["protocolValid"] is False
+    assert "�" not in (out_dir / "gemini_stdout.jsonl").read_text()
+    assert verify_run(out_dir).run_succeeded is False
+
+
 def test_failed_codex_review_preserves_gemini_forecaster_attribution(
     tmp_path: Path,
 ) -> None:
@@ -2479,6 +2696,7 @@ def test_failed_codex_review_preserves_gemini_forecaster_attribution(
     requested_model = "gemini-3.7-flash"
     runtime_model = "gemini-3.7-flash-runtime"
     draft = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    draft["model"] = "gpt-review"
     write_fake_gemini(fake_gemini, draft, runtime_model=runtime_model)
 
     completed = subprocess.run(
@@ -2521,6 +2739,27 @@ def test_failed_codex_review_preserves_gemini_forecaster_attribution(
     refs = [
         dict(ref) for ref in manifest["artifacts"] if ref["artifactType"] != "manifest"
     ]
+    cells_path = out_dir / "cells.with_activity.json"
+    original_cells = json.loads(cells_path.read_text())
+    forged_cells = json.loads(json.dumps(original_cells))
+    forged_cells[0]["model"] = "gpt-review"
+    cells_path.write_text(json.dumps(forged_cells, indent=2) + "\n")
+    cells_bytes = cells_path.read_bytes()
+    cells_ref = next(
+        ref for ref in refs if ref["artifactType"] == "cells_with_activity"
+    )
+    cells_ref["sha256"] = hashlib.sha256(cells_bytes).hexdigest()
+    cells_ref["bytes"] = len(cells_bytes)
+    manifest.pop("custodyRootSha256", None)
+    manifest["artifacts"] = refs
+    analyst_runner.finalize_manifest(out_dir, manifest["createdAt"], manifest, refs)
+    with pytest.raises(CustodyError, match="cell 0 model disagrees"):
+        verify_run(out_dir)
+
+    cells_path.write_text(json.dumps(original_cells, indent=2) + "\n")
+    cells_bytes = cells_path.read_bytes()
+    cells_ref["sha256"] = hashlib.sha256(cells_bytes).hexdigest()
+    cells_ref["bytes"] = len(cells_bytes)
     manifest["agent"] = {
         **manifest["agent"],
         "backend": "codex",
@@ -2528,6 +2767,7 @@ def test_failed_codex_review_preserves_gemini_forecaster_attribution(
     }
     manifest["agent"].pop("runtimeModel", None)
     manifest.pop("custodyRootSha256", None)
+    manifest["artifacts"] = refs
     analyst_runner.finalize_manifest(out_dir, manifest["createdAt"], manifest, refs)
     with pytest.raises(CustodyError, match="forecast-producing stage"):
         verify_run(out_dir)
@@ -3155,7 +3395,15 @@ def test_parse_gemini_jsonl_concatenates_deltas_and_keeps_tool_events() -> None:
                 "input": 10,
                 "duration_ms": 12,
                 "tool_calls": 1,
-                "models": {runtime_model: {"total_tokens": 15}},
+                "models": {
+                    runtime_model: {
+                        "total_tokens": 15,
+                        "input_tokens": 10,
+                        "output_tokens": 5,
+                        "cached": 2,
+                        "input": 10,
+                    }
+                },
             },
         },
     ]
@@ -3177,6 +3425,201 @@ def test_parse_gemini_jsonl_concatenates_deltas_and_keeps_tool_events() -> None:
     assert parsed["runtimeModels"] == [runtime_model]
     assert parsed["resultStatus"] == "success"
     assert parsed["stats"]["tool_calls"] == 1
+
+
+@pytest.mark.parametrize("result_field", ["response", "content", "message"])
+def test_parse_gemini_jsonl_rejects_result_only_response_fields(
+    result_field: str,
+) -> None:
+    events = [
+        {"type": "init", "session_id": "session-1", "model": "gemini-test"},
+        {
+            "type": "result",
+            "status": "success",
+            "stats": {"models": {"gemini-test": {}}},
+            result_field: "{}",
+        },
+    ]
+
+    parsed = analyst_runner.parse_gemini_jsonl(
+        "\n".join(json.dumps(event) for event in events) + "\n",
+        "",
+    )
+
+    assert parsed["assistantText"] == ""
+    assert parsed["protocolValid"] is False
+    assert any("no assistant response" in error for error in parsed["protocolErrors"])
+
+
+def test_parse_gemini_jsonl_preserves_malformed_diagnostic_while_redacting() -> None:
+    neutral_secret = "neutral" + "-cross-delta-value-59317"
+    split_at = len(neutral_secret) // 2
+    diagnostic = "diagnostic: malformed line must remain in the sealed trace"
+    events = [
+        {"type": "init", "session_id": "session-1", "model": "gemini-test"},
+        {
+            "type": "message",
+            "role": "assistant",
+            "content": "prefix " + neutral_secret[:split_at],
+            "delta": True,
+        },
+        {
+            "type": "message",
+            "role": "assistant",
+            "content": neutral_secret[split_at:] + " suffix",
+            "delta": True,
+        },
+        {
+            "type": "result",
+            "status": "success",
+            "stats": {"models": {"gemini-test": {}}},
+        },
+    ]
+    lines = [json.dumps(events[0]), diagnostic, *map(json.dumps, events[1:])]
+
+    parsed = analyst_runner.parse_gemini_jsonl(
+        "\n".join(lines) + "\n",
+        "",
+        exact_secrets=[neutral_secret],
+    )
+
+    assert parsed["protocolValid"] is False
+    assert any("malformed stdout JSONL" in error for error in parsed["protocolErrors"])
+    assert diagnostic in parsed["sanitizedStdout"]
+    assert neutral_secret not in parsed["sanitizedStdout"]
+    assert neutral_secret not in parsed["assistantText"]
+    assert "[REDACTED]" in parsed["sanitizedStdout"]
+
+
+@pytest.mark.parametrize("resource_shape", ["deep", "oversized-integer"])
+def test_parse_gemini_jsonl_seals_decoder_resource_failures(
+    resource_shape: str,
+) -> None:
+    neutral_secret = "neutral-resource-limit-key-78123"
+    encoded_secret = "".join(f"\\u{ord(char):04x}" for char in neutral_secret)
+    if resource_shape == "deep":
+        resource_value = "[" * 1200 + "0" + "]" * 1200
+    else:
+        resource_value = "9" * 5000
+    hostile_line = (
+        '{"type":"message","role":"assistant","content":"'
+        + encoded_secret
+        + '","resource":'
+        + resource_value
+        + "}"
+    )
+
+    parsed = analyst_runner.parse_gemini_jsonl(
+        hostile_line + "\n",
+        "",
+        exact_secrets=[neutral_secret],
+    )
+
+    assert parsed["protocolValid"] is False
+    assert any("resource limits" in error for error in parsed["protocolErrors"])
+    assert parsed["sanitizedStdout"].strip() == (
+        analyst_runner.JSON_RESOURCE_DIAGNOSTIC
+    )
+    assert neutral_secret not in parsed["sanitizedStdout"]
+    assert encoded_secret not in parsed["sanitizedStdout"]
+    assert neutral_secret not in parsed["nonJsonLines"]
+    assert encoded_secret not in parsed["nonJsonLines"]
+
+
+@pytest.mark.parametrize(
+    ("message", "error_fragment"),
+    [
+        (
+            {"type": "message", "role": "assistant", "content": {}},
+            "content is not a string",
+        ),
+        (
+            {"type": "message", "role": "assistant", "content": "{}"},
+            "not a delta event",
+        ),
+        (
+            {"type": "message", "role": "system", "content": "{}"},
+            "unknown role",
+        ),
+    ],
+)
+def test_parse_gemini_jsonl_rejects_malformed_message_events(
+    message: dict,
+    error_fragment: str,
+) -> None:
+    stats = {
+        "total_tokens": 1,
+        "input_tokens": 1,
+        "output_tokens": 0,
+        "cached": 0,
+        "input": 1,
+        "duration_ms": 1,
+        "tool_calls": 0,
+        "models": {
+            "gemini-test": {
+                "total_tokens": 1,
+                "input_tokens": 1,
+                "output_tokens": 0,
+                "cached": 0,
+                "input": 1,
+            }
+        },
+    }
+    events = [
+        {"type": "init", "session_id": "session-1", "model": "gemini-test"},
+        {"type": "message", "role": "user", "content": "prompt"},
+        message,
+        {"type": "result", "status": "success", "stats": stats},
+    ]
+
+    parsed = analyst_runner.parse_gemini_jsonl(
+        "\n".join(json.dumps(event) for event in events) + "\n",
+        "",
+    )
+
+    assert parsed["protocolValid"] is False
+    assert any(error_fragment in error for error in parsed["protocolErrors"])
+
+
+def test_parse_gemini_jsonl_requires_complete_consistent_statistics() -> None:
+    events = [
+        {"type": "init", "session_id": "session-1", "model": "gemini-test"},
+        {"type": "message", "role": "user", "content": "prompt"},
+        {
+            "type": "message",
+            "role": "assistant",
+            "content": "{}",
+            "delta": True,
+        },
+        {
+            "type": "result",
+            "status": "success",
+            "stats": {
+                "total_tokens": 1,
+                "input_tokens": 1,
+                "output_tokens": 0,
+                "cached": 0,
+                "input": 1,
+                "tool_calls": 1,
+                "models": {"gemini-test": {"total_tokens": 1}},
+            },
+        },
+    ]
+
+    parsed = analyst_runner.parse_gemini_jsonl(
+        "\n".join(json.dumps(event) for event in events) + "\n",
+        "",
+    )
+
+    assert parsed["protocolValid"] is False
+    assert any("stats.duration_ms" in error for error in parsed["protocolErrors"])
+    assert any(
+        "stats.tool_calls disagrees" in error for error in parsed["protocolErrors"]
+    )
+    assert any(
+        "runtime model statistics invalid" in error
+        for error in parsed["protocolErrors"]
+    )
 
 
 @pytest.mark.parametrize(
@@ -3288,6 +3731,49 @@ def test_parse_gemini_jsonl_rejects_invalid_protocol(
         lines.insert(1, extra_line)
 
     parsed = analyst_runner.parse_gemini_jsonl("\n".join(lines) + "\n", "")
+
+    assert parsed["protocolValid"] is False
+    assert any(error_fragment in error for error in parsed["protocolErrors"])
+
+
+@pytest.mark.parametrize(
+    ("stderr", "result_error", "error_fragment"),
+    [
+        (
+            json.dumps({"type": "error", "message": "authentication failed"}),
+            None,
+            "stderr contains an error event",
+        ),
+        (
+            "",
+            {"type": "AUTHENTICATION", "message": "authentication failed"},
+            "terminal result contains an error",
+        ),
+        ("", ["authentication failed"], "terminal result contains an error"),
+    ],
+)
+def test_parse_gemini_jsonl_rejects_error_payloads_in_every_stream(
+    stderr: str,
+    result_error: object | None,
+    error_fragment: str,
+) -> None:
+    result = {
+        "type": "result",
+        "status": "success",
+        "stats": {"models": {"gemini-test": {}}},
+    }
+    if result_error is not None:
+        result["error"] = result_error
+    events = [
+        {"type": "init", "session_id": "session-1", "model": "gemini-test"},
+        {"type": "message", "role": "assistant", "content": "{}"},
+        result,
+    ]
+
+    parsed = analyst_runner.parse_gemini_jsonl(
+        "\n".join(json.dumps(event) for event in events) + "\n",
+        stderr,
+    )
 
     assert parsed["protocolValid"] is False
     assert any(error_fragment in error for error in parsed["protocolErrors"])

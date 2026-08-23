@@ -67,6 +67,7 @@ def parent_cell(index: int, run_at: str) -> dict:
         "confidence": 0.8,
         "drivers": ["fixture"],
         "sourceContext": [target["resolutionSourceUrl"]],
+        "model": "fixture",
         "reasoning": [
             {"kind": "heading", "text": "Fixture"},
             {

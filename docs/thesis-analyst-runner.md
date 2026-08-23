@@ -80,10 +80,13 @@ evidence, `--codex-sandbox` to change the execution sandbox, and
 ## API-key-backed Gemini CLI run
 
 Use the native Gemini path to run the same Thesis prompt through Gemini CLI.
-Set `GEMINI_API_KEY` in the runner's parent environment first; the runner reads
-that variable but never invokes a secret manager itself. It resolves the binary
-from `THESIS_GEMINI_BIN` when set, otherwise from `gemini` on `PATH`, and fails
-closed when either the executable or API key is missing.
+Production runs are macOS-only: the runner requires Apple's exact
+`/usr/bin/sandbox-exec`, forces Gemini's `strict-open` seatbelt profile, and
+refuses Linux container and Windows backends before starting the CLI. Set
+`GEMINI_API_KEY` in the runner's parent environment first; the runner reads that
+variable but never invokes a secret manager itself. It resolves the binary from
+`THESIS_GEMINI_BIN` when set, otherwise from `gemini` on `PATH`, and fails closed
+when either the executable or API key is missing.
 
 ```bash
 python3 scripts/run_thesis_analyst.py \
@@ -95,32 +98,98 @@ python3 scripts/run_thesis_analyst.py \
 The invocation is:
 
 ```text
-gemini -m MODEL --approval-mode plan -o stream-json -p PROMPT
+gemini -m MODEL --approval-mode default --sandbox \
+  --policy <generated-search-only-policy> \
+  --admin-policy <generated-search-only-policy> -o stream-json -p PROMPT
 ```
 
 The full prompt is passed directly as the `-p` value rather than on stdin or
 through a pointer file: `-p` is required for deterministic headless operation,
 while stdin content would be prepended to it. `command.json` records `<prompt>`
 in place of those bytes, and `prompt.md` remains the canonical prompt artifact.
-`plan` is the only approval mode used: read-only tools such as web search and
-fetch can run, while `yolo` and `auto_edit` are never enabled.
+The approval-mode label is not the safety boundary. Gemini CLI 0.36's
+noninteractive `exit_plan_mode` transition selects YOLO, so this lane disables
+Plan mode and does not register either Plan transition tool. A generated policy
+is supplied through both policy flags and loaded at the effective admin tier,
+denies every tool except `google_web_search`, `tools.core` independently
+registers only that tool, and the strict native seatbelt supplies an OS-level
+backstop. The runner refuses to launch when a system TOML would make Gemini
+ignore the sealed
+admin policy, and it rejects policy-loader diagnostics in the captured stream.
+Direct web fetch, shell, file, MCP, memory, edit, and Plan tools are unavailable.
+An unknown or disallowed tool event in the output stream fails the run closed.
 
-Each Gemini stage runs with a fresh temporary `HOME` containing only
-`.gemini/settings.json` with
-`{"security":{"auth":{"selectedType":"gemini-api-key"}}}`. This prevents a
-real user setting such as `oauth-personal` from opening a browser in a headless
-run; the runner also detects the OAuth browser-prompt text and fails closed.
-Gemini CLI merges workspace settings over user settings, so the stage also uses
-a clean temporary working directory rather than a checkout that might contain
-`.gemini/settings.json`. The v1 Gemini backend therefore cannot read repository
-files. That isolation is intentional and does not prevent its plan-mode web
-tools from gathering public evidence.
+Each Gemini stage runs with fresh, identical temporary `HOME` and
+`GEMINI_CLI_HOME` values. Its `.gemini/settings.json` selects API-key auth,
+disables YOLO/always-allow, hooks, telemetry, session checkpoints, agents,
+skills, Plan mode, and tool-output spill files, and pins the search-only core
+tool list. A fresh home and working directory contain no extension or MCP
+configuration. A child-only system-settings path seals the enforceable values
+against machine configuration. The empty temporary working directory contains
+a mode-0600 empty `.env` sentinel: Gemini's dotenv search stops there instead
+of walking through attacker-controlled ancestor directories and rehydrating
+variables that the runner's environment allowlist removed. Just-in-time
+context is enabled, directory-tree injection is disabled, and each stage
+selects an unpredictable context filename backed by a mode-0600 empty sentinel
+in that working directory. Ancestor `GEMINI.md` files therefore are not the
+selected context source. `NO_BROWSER=true` is set only for the Gemini child,
+and alternate OAuth/browser diagnostics still fail closed. The v1 Gemini
+backend therefore cannot read repository files or user Gemini state.
 
-Plan mode is reinforced by an unconditional workspace guard around every
-Gemini stage. The runner fingerprints the run directory and repository tree
-before and after execution and fails the run closed on any mutation, recording
-`workspaceMutations` in `command.json` and `workspaceHygiene` in
+Gemini CLI 0.36 normally persists full chats and selected tool/error payloads.
+The runner loads a child-only Node guard before the CLI and uses an argv
+launcher so that guard is loaded again across Gemini's macOS seatbelt hop; the
+shipped strict-open profile is an OS-level backstop, not the sole isolation
+boundary. That profile retains macOS system and cache allowances; the empty
+target, temporary home and TMPDIR, sealed tool policy, and context controls
+provide repository and user-state isolation. The entrypoint is launched
+through an explicitly resolved absolute Node executable, and the child `PATH`
+is rebuilt from fixed system and already-resolved runtime directories rather
+than inherited ordering. The guard blocks content-bearing writes before bytes
+reach disk while leaving non-content bootstrap files available. Docker,
+Podman, LXC, and runsc are refused before even an image probe because daemon
+state or descendant argv could retain the key. Model, prompt, output/temp
+paths, reviewer inputs, and converter inputs are checked for exact key overlap
+before artifacts or child processes exist. Local git and converter
+subprocesses use the same credential-free allowlist as other non-Gemini
+children. `GEMINI_API_KEY` is therefore environment-only and confined to the
+guarded Gemini process tree.
+Real runs require the `@google/gemini-cli` 0.36.0 Node entrypoint: both the
+package version and guard version are recorded, so a future CLI cannot silently
+invalidate these version-specific write and stream assumptions. The fake-CLI
+tests use a Node/package-shaped wrapper pinned to that version and labelled
+`thesisTestFake` in its package metadata. Its trace explicitly reports that
+session-persistence, seatbelt, and repository isolation were not exercised; no
+environment switch relaxes the production Node/version gate.
+
+The search-only policy is reinforced by an unconditional workspace guard around
+every Gemini stage. The runner fingerprints the run directory and repository
+tree before and after execution and fails the run closed on any mutation,
+recording `workspaceMutations` in `command.json` and `workspaceHygiene` in
 `manifest.json`.
+
+Gemini stdout and stderr are drained through pipes into one bounded in-memory
+capture; unredacted capture bytes never enter temporary files. The absolute
+combined ceiling is 8 MiB. `THESIS_GEMINI_CAPTURE_LIMIT_BYTES` may lower that
+ceiling but cannot raise it. Overflow terminates the whole process group,
+discards partial buffers, and seals a controlled failed run. Timeout,
+interruption, and exceptional waiter paths also terminate and reap the process
+group before the temporary Gemini home is removed. SIGINT, SIGTERM, SIGHUP, and
+SIGQUIT all take that cleanup path. Invalid UTF-8 is a capture failure rather
+than being repaired into a different JSON stream.
+
+A stream is successful only when the process exits zero and emits exactly one
+init event first and one successful result event last, including nonempty
+`stats.models`. Malformed JSONL, error events, duplicate or missing terminal
+events, unpaired tool ids, disallowed tools, timeout, and overflow all fail
+closed. Decoder resource-limit failures are retained as a controlled redacted
+diagnostic. OAuth and policy diagnostics are checked again after assistant
+deltas are reconstructed. Exact API-key redaction is repeated after deltas are
+concatenated, so a credential split across physical events cannot reappear in
+the reconstructed response or persisted event stream. Sanitization preserves
+ordinary malformed and non-object source lines as failed-trace evidence. The
+original stderr is preserved apart from redaction and may be followed by a
+controlled runner failure diagnostic.
 
 For batches, pass `--gemini-model` to `scripts/run_thesis_batch.py` or set
 `THESIS_GEMINI_MODEL`. Non-ticket batches refuse ambiguous command, Codex, and
@@ -217,7 +286,9 @@ native Gemini, and `--command` paths:
    allowlist, never a denylist — so an env dump has nothing secret to print.
    Codex authenticates through `CODEX_HOME/auth.json` (subscription login or
    CI `codex login --with-api-key`), not env vars. The Gemini backend alone
-   adds `GEMINI_API_KEY` and overrides `HOME` with its temporary directory.
+   adds `GEMINI_API_KEY`, fixes `HOME` and `GEMINI_CLI_HOME` to the same
+   temporary directory, and adds only controlled settings, no-persistence,
+   temporary-directory, and `NO_BROWSER=true` variables.
    The key value is never placed in argv or any artifact; `command.json`
    records subprocess environment variable names only. A `--command` agent
    that genuinely needs another variable requires a deliberate, reviewed
@@ -371,9 +442,13 @@ mock modes. Codex stages always preserve all five Codex trace files, even when
 an individual stream is empty; Gemini stages likewise preserve all four Gemini
 trace files. The verifier selects the required family from each stage's
 `command.json`, so mixed Gemini-forecaster/Codex-review runs remain complete.
-It rejects missing required files and any regular file in the run directory
-that is not referenced by the manifest. Roots without an inventory version
-remain verifiable only as `legacy-incomplete` records.
+It also requires `raw_response.txt` to byte-match the forecast-producing
+stage's stdout and binds Gemini backend/model/runtime attribution in
+`manifest.agent` to that same stage. A failed Codex review therefore cannot
+relabel a retained Gemini draft. It rejects missing required files and any
+regular file in the run directory that is not referenced by the manifest.
+Roots without an inventory version remain verifiable only as
+`legacy-incomplete` records.
 
 ## Convert to a generated catalog module
 

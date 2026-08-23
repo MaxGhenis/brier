@@ -868,6 +868,7 @@ def provenance_replay_cell() -> dict:
             "https://agency.example/history",
             "https://agency.example/calendar",
         ],
+        "model": "fixture-model",
         "runAt": "2026-07-01T12:00:00Z",
         "reasoning": [
             {"kind": "heading", "text": "Synthetic agency rate"},
@@ -925,7 +926,7 @@ def convert_provenance_replay_candidate(
             created_at,
         ),
         analyst_runner.write_artifact(
-            run_dir, "stdout", "stdout.txt", "model output\n", created_at
+            run_dir, "stdout", "stdout.txt", raw_cells, created_at
         ),
         analyst_runner.write_artifact(run_dir, "stderr", "stderr.txt", "", created_at),
         analyst_runner.write_artifact(
@@ -982,6 +983,7 @@ def convert_provenance_replay_candidate(
         "agent": {
             "agent": "thesis.analyst",
             "agentVersion": "2.5.10",
+            "model": cell["model"],
             "promptHash": "a" * 64,
             "toolPolicyHash": "b" * 64,
         },

@@ -203,10 +203,17 @@ model-candidate JSON, and validation report. When pre-submit review is enabled,
 the draft forecast, review prompt, reviewer output, revision prompt, and final
 response are also artifacts. Codex CLI runs additionally preserve the raw
 stdout JSONL, raw stderr log, normalized event JSONL, last assistant message,
-and trace summary. Gemini CLI runs preserve the raw stream JSONL, normalized
-`tool_use`/`tool_result` event JSONL, final assistant response, and a trace
-summary containing session, requested and runtime model, statistics, token
-usage, timeout, OAuth-refusal, and tool-event metadata. The allowed artifact
+and trace summary. Gemini CLI runs preserve the redacted stream JSONL,
+normalized `tool_use`/`tool_result` event JSONL, final assistant response, and
+a trace summary containing session, requested and runtime model, strict
+terminal-protocol status, bounded-capture status, statistics, token usage,
+timeout, OAuth refusal, and tool-event metadata. Gemini succeeds only with one
+init event first, one terminal successful result with model statistics last,
+paired successful search-only tool ids, a zero process exit, an enforced
+deny-by-default policy, and no policy/auth diagnostic. Its bounded pipe capture
+and production no-persistence guard ensure redaction precedes every
+content-bearing disk write. Labelled test fakes disclose that persistence and
+OS sandbox enforcement were not exercised. The allowed artifact
 types include `model_candidates` for outputs from
 `scripts/run_time_series_models.py`.
 
@@ -240,6 +247,9 @@ provenance}` — promptHash = sha256(system.md), toolPolicyHash =
 sha256(skills/\*.md sorted by filename), version from agent.yaml. The recorded
 model is the actual runtime model when the command names one with `-m`,
 `--model`, or `--model=...`; otherwise it falls back to the agent.yaml default.
+The runner overwrites any model-authored cell label with this trusted invocation
+model, and custody verification rejects a rooted cell whose model differs from
+`manifest.agent.model`.
 Bump the version when any agent file changes.
 
 New ordinary workflow output has `predictionRun.provenance = "ci"`. A run

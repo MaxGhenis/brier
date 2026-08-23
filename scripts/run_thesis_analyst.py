@@ -42,9 +42,11 @@ import pathlib
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unicodedata
 from datetime import datetime, timedelta, timezone
@@ -88,8 +90,182 @@ GEMINI_API_KEY_ERROR = (
 GEMINI_CLI_NOT_FOUND_ERROR = (
     "Gemini CLI not found; install gemini or set THESIS_GEMINI_BIN"
 )
-GEMINI_OAUTH_PROMPT_TEXT = "Opening authentication page in your browser"
-GEMINI_AUTH_SETTINGS = {"security": {"auth": {"selectedType": "gemini-api-key"}}}
+GEMINI_ALLOWED_TOOLS = ("google_web_search",)
+GEMINI_CAPTURE_LIMIT_BYTES = 8 * 1024 * 1024
+GEMINI_CAPTURE_LIMIT_ENV = "THESIS_GEMINI_CAPTURE_LIMIT_BYTES"
+GEMINI_SUPPORTED_CLI_VERSION = "0.36.0"
+GEMINI_MODEL_RE = re.compile(r"(?:models/)?[A-Za-z0-9][A-Za-z0-9._:-]{0,127}\Z")
+GEMINI_OAUTH_PROMPT_RE = re.compile(
+    r"(?:oauth.{0,80}browser|browser.{0,80}oauth|"
+    r"(?:attempting to open|opening).{0,80}authentication page.{0,80}browser)",
+    re.IGNORECASE | re.DOTALL,
+)
+GEMINI_OAUTH_URL_RE = re.compile(r"https?://[^\s\"']+", re.IGNORECASE)
+GEMINI_POLICY_DIAGNOSTIC_RE = re.compile(
+    r"(?:Security Warning:\s*(?:Ignoring --admin-policy|"
+    r"Skipping system policies)|Failed to check system policies|"
+    r"\[(?:ADMIN|USER|WORKSPACE|DEFAULT)\]\s+Policy file\s+"
+    r"(?:warning|error))",
+    re.IGNORECASE,
+)
+GEMINI_AUTH_SETTINGS = {
+    "security": {
+        "auth": {"selectedType": "gemini-api-key"},
+        "disableYoloMode": True,
+        "disableAlwaysAllow": True,
+    },
+    # Gemini CLI 0.36's built-in headless Plan transition selects YOLO.
+    # This lane does not register either transition tool and does not rely
+    # on experimental Plan mode for its safety boundary.
+    "general": {
+        "checkpointing": {"enabled": False},
+        "enableAutoUpdateNotification": False,
+    },
+    "privacy": {"usageStatisticsEnabled": False},
+    "telemetry": {"enabled": False, "logPrompts": False},
+    "hooksConfig": {"enabled": False},
+    "experimental": {
+        "plan": False,
+        "jitContext": True,
+        "toolOutputMasking": {"enabled": False},
+        "enableAgents": False,
+    },
+    "skills": {"enabled": False},
+    "context": {"includeDirectoryTree": False},
+    "tools": {
+        "core": list(GEMINI_ALLOWED_TOOLS),
+        "exclude": ["enter_plan_mode", "exit_plan_mode"],
+        "truncateToolOutputThreshold": 0,
+    },
+}
+GEMINI_READ_ONLY_POLICY = """# Thesis Gemini lane: search-only, deny by default.
+[[rule]]
+toolName = "*"
+decision = "deny"
+priority = 998
+denyMessage = "Thesis Gemini runs permit only public web search."
+
+[[rule]]
+toolName = "google_web_search"
+decision = "allow"
+priority = 999
+"""
+
+# Gemini CLI 0.36 persists chats and large tool outputs below its project temp
+# directory.  The preload fails those writes with ENOSPC, which the CLI's chat
+# recorder explicitly treats as "disable recording".  Capture still happens
+# through the runner's bounded pipes and is redacted before artifact writes.
+GEMINI_NO_PERSIST_PRELOAD = r"""'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const {fileURLToPath} = require('node:url');
+
+const cliHome = path.resolve(
+  process.env.GEMINI_CLI_HOME || process.env.HOME || '.',
+);
+const projectTempRoot = path.join(cliHome, '.gemini', 'tmp');
+const processTempRoot = path.resolve(os.tmpdir());
+
+function resolvedPath(value) {
+  if (value instanceof URL) return path.resolve(fileURLToPath(value));
+  return path.resolve(Buffer.isBuffer(value) ? value.toString() : value);
+}
+
+function isWithin(root, candidate) {
+  const relative = path.relative(root, candidate);
+  return relative === '' ||
+    (!relative.startsWith(`..${path.sep}`) && relative !== '..' &&
+     !path.isAbsolute(relative));
+}
+
+function isSensitiveGeminiPath(value) {
+  if (typeof value !== 'string' && !Buffer.isBuffer(value) &&
+      !(value instanceof URL)) return false;
+  const resolved = resolvedPath(value);
+  if (isWithin(projectTempRoot, resolved)) {
+    const relative = path.relative(projectTempRoot, resolved);
+    const segments = relative.split(path.sep);
+    const basename = path.basename(resolved);
+    if (segments.includes('tool-outputs')) return true;
+    if (segments.includes('chats') &&
+        /^session-[^/]*\.json$/.test(basename)) return true;
+    if (basename === 'logs.json') return true;
+  }
+  return path.dirname(resolved) === processTempRoot &&
+    /^gemini-client-error-[^/]*\.json$/.test(path.basename(resolved));
+}
+
+function refuse(value) {
+  if (!isSensitiveGeminiPath(value)) return;
+  const error = new Error('Thesis disables Gemini session persistence');
+  error.code = 'ENOSPC';
+  throw error;
+}
+
+for (const name of ['writeFileSync', 'appendFileSync']) {
+  const original = fs[name];
+  fs[name] = function(value, ...args) {
+    refuse(value);
+    return original.call(this, value, ...args);
+  };
+}
+for (const name of ['writeFile', 'appendFile']) {
+  const original = fs[name];
+  fs[name] = function(value, ...args) {
+    try {
+      refuse(value);
+    } catch (error) {
+      const callback = args.at(-1);
+      if (typeof callback === 'function') {
+        queueMicrotask(() => callback(error));
+        return;
+      }
+      throw error;
+    }
+    return original.call(this, value, ...args);
+  };
+}
+for (const name of ['writeFile', 'appendFile']) {
+  const original = fs.promises[name];
+  fs.promises[name] = async function(value, ...args) {
+    refuse(value);
+    return original.call(this, value, ...args);
+  };
+}
+const originalCreateWriteStream = fs.createWriteStream;
+fs.createWriteStream = function(value, ...args) {
+  refuse(value);
+  return originalCreateWriteStream.call(this, value, ...args);
+};
+
+// Gemini's container sandbox builders either embed GEMINI_API_KEY in argv or
+// hand it to a daemon that can retain container configuration after the CLI
+// dies. Refuse every supported container backend before even an image probe;
+// this lane succeeds only with an in-process native OS sandbox.
+const childProcess = require('node:child_process');
+const originalSpawn = childProcess.spawn;
+childProcess.spawn = function(command, args, options) {
+  const executable = path.basename(String(command)).toLowerCase();
+  if (['docker', 'docker.exe', 'podman', 'podman.exe',
+       'lxc', 'lxc.exe', 'runsc', 'runsc.exe'].includes(executable)) {
+    throw new Error('Thesis refuses container-backed Gemini sandboxes');
+  }
+  if (Array.isArray(args) && process.env.GEMINI_API_KEY) {
+    const secretArg = `GEMINI_API_KEY=${process.env.GEMINI_API_KEY}`;
+    if (args.includes(secretArg)) {
+      throw new Error(
+        'Thesis refuses a Gemini sandbox that puts GEMINI_API_KEY in argv',
+      );
+    }
+  }
+  return originalSpawn.call(this, command, args, options);
+};
+
+// The bundled CLI imports named built-in exports as ESM. Synchronize the
+// patched CommonJS bindings before those modules load.
+require('node:module').syncBuiltinESMExports();
+"""
 
 
 def utc_now() -> str:
@@ -1356,6 +1532,7 @@ AGENT_ENV_ALLOWLIST = (
 )
 
 REDACTED_PLACEHOLDER = "[REDACTED]"
+JSON_RESOURCE_DIAGNOSTIC = "[JSON diagnostic omitted: decoder resource limit]"
 
 # `NAME=value` lines for credential-shaped env var names: the incident shape.
 ENV_SECRET_ASSIGNMENT_RE = re.compile(
@@ -1415,6 +1592,24 @@ def redact_exact_secrets(text: str, secrets: list[str]) -> str:
     return text
 
 
+def redact_sensitive_json_value(value: Any, secrets: list[str]) -> Any:
+    """Redact exact backend secrets and generic credential shapes recursively."""
+    if isinstance(value, str):
+        return redact_text(redact_exact_secrets(value, secrets))
+    if isinstance(value, list):
+        return [redact_sensitive_json_value(item, secrets) for item in value]
+    if isinstance(value, dict):
+        return {
+            (
+                redact_text(redact_exact_secrets(key, secrets))
+                if isinstance(key, str)
+                else key
+            ): redact_sensitive_json_value(item, secrets)
+            for key, item in value.items()
+        }
+    return value
+
+
 def redact_json_value(value: Any) -> Any:
     if isinstance(value, str):
         return redact_text(value)
@@ -1438,8 +1633,13 @@ def redact_stream_line(line: str) -> str:
         payload = json.loads(stripped)
     except json.JSONDecodeError:
         return redact_text(line)
-    redacted = redact_json_value(payload)
-    return line if redacted == payload else json.dumps(redacted)
+    except (RecursionError, ValueError):
+        return JSON_RESOURCE_DIAGNOSTIC
+    try:
+        redacted = redact_json_value(payload)
+        return line if redacted == payload else json.dumps(redacted)
+    except (RecursionError, ValueError):
+        return JSON_RESOURCE_DIAGNOSTIC
 
 
 def redact_stream_text(text: str) -> str:
@@ -1467,8 +1667,13 @@ def redact_response_text(text: str) -> str:
         payload = json.loads(text)
     except json.JSONDecodeError:
         return redact_stream_text(text)
-    redacted = redact_json_value(payload)
-    return text if redacted == payload else json.dumps(redacted, indent=2)
+    except (RecursionError, ValueError):
+        return JSON_RESOURCE_DIAGNOSTIC
+    try:
+        redacted = redact_json_value(payload)
+        return text if redacted == payload else json.dumps(redacted, indent=2)
+    except (RecursionError, ValueError):
+        return JSON_RESOURCE_DIAGNOSTIC
 
 
 def run_agent_command(
@@ -1592,6 +1797,14 @@ def positive_int_env(name: str, default: int) -> int:
     return value if value > 0 else default
 
 
+def contains_gemini_oauth_prompt(text: str) -> bool:
+    folded = text.casefold()
+    return bool(
+        GEMINI_OAUTH_PROMPT_RE.search(text)
+        or ("oauth" in folded and "authentication" in folded)
+    )
+
+
 def wait_for_codex_process(
     process: subprocess.Popen[str],
     last_message_file: pathlib.Path,
@@ -1683,61 +1896,477 @@ def wait_for_codex_process(
         time.sleep(poll_interval)
 
 
-def wait_for_stream_process(
-    process: subprocess.Popen[str],
-    timeout_seconds: int,
+def gemini_capture_limit_bytes() -> int:
+    """Return the fixed ceiling, optionally lowered for constrained runs/tests."""
+    configured = positive_int_env(
+        GEMINI_CAPTURE_LIMIT_ENV,
+        GEMINI_CAPTURE_LIMIT_BYTES,
+    )
+    return min(configured, GEMINI_CAPTURE_LIMIT_BYTES)
+
+
+def validate_gemini_nonsecret_inputs(
     *,
-    heartbeat_paths: list[pathlib.Path],
-    max_idle_seconds: float = 120.0,
-    poll_interval: float = 0.5,
+    prompt: str,
+    model: str,
+    api_key: str,
+    path_inputs: tuple[str, ...] = (),
 ) -> None:
-    """Wait for a streaming CLI with Codex-equivalent wall/idle limits.
+    """Keep the env-only API key out of argv, paths, and persisted inputs."""
+    if not GEMINI_MODEL_RE.fullmatch(model):
+        raise RuntimeError("Gemini model must be a plain model identifier")
+    if api_key in model or api_key in prompt:
+        raise RuntimeError(
+            "Gemini invocation refused because an argv input overlaps GEMINI_API_KEY"
+        )
+    if any(api_key in value for value in path_inputs):
+        raise RuntimeError(
+            "Gemini invocation refused because a filesystem path overlaps "
+            "GEMINI_API_KEY"
+        )
 
-    Codex has a separate `-o` last-message file whose stability lets the
-    harness terminate a CLI that lingers after completing. Gemini emits its
-    terminal result on stdout, so its waiter uses the same wall and idle
-    semantics without treating an early init/message event as completion.
+
+def validate_gemini_downstream_inputs(
+    args: argparse.Namespace,
+    *,
+    api_key: str,
+) -> None:
+    """Reject key overlap with every later child argv or persisted path."""
+    selected_values = [
+        value for value in vars(args).values() if isinstance(value, str) and value
+    ]
+    selected_values.extend(
+        value
+        for name in (
+            *AGENT_ENV_ALLOWLIST,
+            "THESIS_GEMINI_BIN",
+            "THESIS_GEMINI_NODE_BIN",
+            "THESIS_CODEX_BIN",
+            GEMINI_CAPTURE_LIMIT_ENV,
+            "THESIS_GEMINI_IDLE_TIMEOUT_SECONDS",
+        )
+        if (value := os.getenv(name))
+    )
+    selected_values.extend(
+        [
+            str(ROOT),
+            str(sys.executable),
+            str(SCRIPTS / "normalize_spawn_json.py"),
+            str(SCRIPTS / "spawned_cells_to_ts.py"),
+            "git",
+            "rev-parse",
+            "HEAD",
+        ]
+    )
+    if any(api_key in value for value in selected_values):
+        raise RuntimeError(
+            "Gemini invocation refused because a downstream input overlaps "
+            "GEMINI_API_KEY"
+        )
+
+
+def gemini_system_policies_dir() -> pathlib.Path:
+    """Mirror Gemini CLI 0.36's non-overridable system policy directory."""
+    if sys.platform == "darwin":
+        return pathlib.Path("/Library/Application Support/GeminiCli/policies")
+    if os.name == "nt":
+        return pathlib.Path(r"C:\ProgramData\gemini-cli\policies")
+    return pathlib.Path("/etc/gemini-cli/policies")
+
+
+def assert_gemini_process_isolation_supported(*, test_fake: bool) -> None:
+    """Require the native macOS sandbox and POSIX process-group cleanup."""
+    if test_fake:
+        return
+    if os.name != "posix" or sys.platform != "darwin":
+        raise RuntimeError(
+            "Gemini CLI backend requires the native macOS sandbox and POSIX "
+            "process-group isolation; container and Windows execution is refused"
+        )
+    sandbox_exec = pathlib.Path("/usr/bin/sandbox-exec")
+    if (
+        not sandbox_exec.is_file()
+        or sandbox_exec.resolve() != sandbox_exec
+        or not os.access(sandbox_exec, os.X_OK)
+    ):
+        raise RuntimeError("Gemini CLI backend requires macOS sandbox-exec")
+
+
+def require_gemini_node_runtime(*, api_key: str) -> pathlib.Path:
+    """Resolve an explicit Node runtime without trusting inherited PATH order."""
+    override = os.getenv("THESIS_GEMINI_NODE_BIN")
+    candidates: list[str] = []
+    if override:
+        override_path = pathlib.Path(override)
+        if not override_path.is_absolute():
+            raise RuntimeError(
+                "THESIS_GEMINI_NODE_BIN must name an absolute executable"
+            )
+        candidates.append(override)
+    candidates.extend(
+        [
+            "/opt/homebrew/opt/node/bin/node",
+            "/usr/local/opt/node/bin/node",
+            "/opt/homebrew/bin/node",
+            "/usr/local/bin/node",
+            "/usr/bin/node",
+        ]
+    )
+    for candidate in candidates:
+        path = pathlib.Path(candidate)
+        try:
+            resolved = path.resolve(strict=True)
+        except OSError:
+            continue
+        if resolved.is_file() and os.access(resolved, os.X_OK):
+            if api_key in str(path) or api_key in str(resolved):
+                raise RuntimeError(
+                    "Gemini invocation refused because the Node runtime path "
+                    "overlaps GEMINI_API_KEY"
+                )
+            return resolved
+    raise RuntimeError(
+        "Gemini CLI backend requires a trusted Node runtime; set "
+        "THESIS_GEMINI_NODE_BIN to an absolute executable"
+    )
+
+
+def controlled_gemini_path(gemini_bin: str, node_bin: pathlib.Path) -> str:
+    """Expose only system tools plus the already-resolved Gemini runtimes."""
+    directories = [
+        "/usr/bin",
+        "/bin",
+        "/usr/sbin",
+        "/sbin",
+        str(pathlib.Path(gemini_bin).absolute().parent),
+        str(pathlib.Path(gemini_bin).resolve().parent),
+        str(node_bin.parent),
+    ]
+    return os.pathsep.join(dict.fromkeys(directories))
+
+
+def assert_no_gemini_system_policy_override() -> None:
+    """Fail before launch when Gemini would ignore our sealed admin policy."""
+    policy_dir = gemini_system_policies_dir()
+    try:
+        has_toml = any(path.suffix == ".toml" for path in policy_dir.iterdir())
+    except FileNotFoundError:
+        return
+    except OSError as exc:
+        raise RuntimeError(
+            "Gemini system policy directory could not be verified"
+        ) from exc
+    if has_toml:
+        raise RuntimeError(
+            "Gemini system policies would override the Thesis tool policy"
+        )
+
+
+def write_gemini_no_persist_preload(work_dir: pathlib.Path) -> pathlib.Path:
+    """Install the child-only Node guard before Gemini can persist a prompt."""
+    preload_path = work_dir / ".thesis-gemini-no-persist.cjs"
+    preload_path.write_text(GEMINI_NO_PERSIST_PRELOAD)
+    preload_path.chmod(0o600)
+    return preload_path
+
+
+def gemini_cli_node_script(gemini_bin: str) -> pathlib.Path | None:
+    """Return the official Node entrypoint, or None for the Python fake CLI."""
+    try:
+        path = pathlib.Path(gemini_bin).resolve(strict=True)
+        with path.open("rb") as stream:
+            first_line = stream.readline(256).decode("utf-8", errors="ignore")
+    except OSError:
+        return None
+    if "node" in first_line.casefold() or path.suffix in {".js", ".mjs", ".cjs"}:
+        return path
+    return None
+
+
+def gemini_cli_package_metadata(gemini_script: pathlib.Path) -> dict[str, Any]:
+    """Read the nearest @google/gemini-cli package identity."""
+    for directory in gemini_script.parents:
+        package_path = directory / "package.json"
+        try:
+            package = json.loads(package_path.read_text())
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            continue
+        if package.get("name") == "@google/gemini-cli":
+            return package
+    return {}
+
+
+def require_guardable_gemini_cli(
+    gemini_bin: str,
+    *,
+    api_key: str,
+) -> pathlib.Path:
+    """Require the pinned Node entrypoint needed by the persistence guard."""
+    if api_key in gemini_bin:
+        raise RuntimeError(
+            "Gemini invocation refused because the executable path overlaps "
+            "GEMINI_API_KEY"
+        )
+    gemini_script = gemini_cli_node_script(gemini_bin)
+    if gemini_script is None:
+        raise RuntimeError(
+            "Gemini CLI must be a Node entrypoint so the no-persistence guard "
+            "can be enforced"
+        )
+    if api_key in str(gemini_script):
+        raise RuntimeError(
+            "Gemini invocation refused because the resolved executable path "
+            "overlaps GEMINI_API_KEY"
+        )
+    package = gemini_cli_package_metadata(gemini_script)
+    if str(package.get("version") or "") != GEMINI_SUPPORTED_CLI_VERSION:
+        raise RuntimeError(
+            "Gemini CLI persistence and stream guards require "
+            f"@google/gemini-cli {GEMINI_SUPPORTED_CLI_VERSION}"
+        )
+    return gemini_script
+
+
+def write_gemini_node_launcher(
+    work_dir: pathlib.Path,
+    gemini_script: pathlib.Path,
+) -> pathlib.Path:
+    """Write a launcher that survives Gemini's macOS seatbelt relaunch.
+
+    Gemini 0.36 rebuilds NODE_OPTIONS on the macOS sandbox hop, but relaunches
+    process.argv[1]. Keeping this file there reloads the no-persist guard in
+    both the outer and inner Node processes.
     """
-    start = time.time()
-    last_activity_at = start
-    heartbeat_snapshot: tuple[tuple[int, int, int], ...] | None = None
+    launcher_path = work_dir / ".thesis-gemini-launcher.cjs"
+    launcher_path.write_text(
+        "#!/usr/bin/env node\n"
+        "'use strict';\n"
+        "const args = process.argv.slice(2);\n"
+        "if (args.some((arg) => arg === '--record-responses' || "
+        "arg.startsWith('--record-responses='))) {\n"
+        "  throw new Error('Thesis forbids Gemini response recording');\n"
+        "}\n"
+        "require('./.thesis-gemini-no-persist.cjs');\n"
+        "const {pathToFileURL} = require('node:url');\n"
+        f"import(pathToFileURL({json.dumps(str(gemini_script))}).href)\n"
+        "  .catch((error) => { console.error(error); process.exitCode = 1; });\n"
+    )
+    launcher_path.chmod(0o700)
+    return launcher_path
 
-    def snapshot_activity() -> tuple[tuple[int, int, int], ...]:
-        snapshot: list[tuple[int, int, int]] = []
-        for path in heartbeat_paths:
-            if not path.exists():
-                snapshot.append((0, 0, 0))
-                continue
+
+def terminate_process_group(process: subprocess.Popen[bytes]) -> None:
+    """Terminate and reap a Gemini process plus descendants, idempotently."""
+    if os.name == "posix":
+        process_group = process.pid
+
+        def group_is_alive() -> bool:
             try:
-                stat = path.stat()
+                os.killpg(process_group, 0)
+            except ProcessLookupError:
+                return False
+            except PermissionError:
+                return True
+            return True
+
+        try:
+            os.killpg(process_group, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        except OSError:
+            if process.poll() is None:
+                process.terminate()
+
+        deadline = time.monotonic() + 1
+        while time.monotonic() < deadline:
+            # Reap the group leader promptly. A zombie leader otherwise makes
+            # killpg(..., 0) look live for the full grace period.
+            process.poll()
+            if not group_is_alive():
+                break
+            time.sleep(0.05)
+        if group_is_alive():
+            try:
+                os.killpg(process_group, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
             except OSError:
-                snapshot.append((0, 0, 0))
-                continue
-            snapshot.append((1, stat.st_size, stat.st_mtime_ns))
-        return tuple(snapshot)
-
-    while True:
-        if process.poll() is not None:
-            return
-
-        now = time.time()
-        if now - start > timeout_seconds:
-            raise subprocess.TimeoutExpired(process.args, timeout_seconds)
-
-        current_heartbeat = snapshot_activity()
-        if current_heartbeat != heartbeat_snapshot:
-            heartbeat_snapshot = current_heartbeat
-            last_activity_at = now
-        elif now - last_activity_at >= max_idle_seconds:
-            process.terminate()
+                if process.poll() is None:
+                    process.kill()
+        if process.poll() is None:
             try:
                 process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.wait()
-            raise subprocess.TimeoutExpired(process.args, max_idle_seconds)
+        return
 
-        time.sleep(poll_interval)
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+
+
+def capture_gemini_process(
+    process: subprocess.Popen[bytes],
+    timeout_seconds: int,
+    *,
+    max_idle_seconds: float,
+    max_bytes: int,
+    poll_interval: float = 0.05,
+) -> dict[str, Any]:
+    """Drain Gemini pipes into one bounded in-memory capture.
+
+    No unredacted stream byte is written to disk. If the combined ceiling is
+    crossed, both partial buffers are discarded and the process group is
+    stopped; callers persist only a controlled failure diagnostic.
+    """
+    if process.stdout is None or process.stderr is None:
+        raise RuntimeError("Gemini capture requires stdout and stderr pipes")
+
+    buffers = {"stdout": bytearray(), "stderr": bytearray()}
+    lock = threading.Lock()
+    limit_exceeded = threading.Event()
+    reader_failed = threading.Event()
+    reader_errors: list[str] = []
+    bytes_seen = 0
+    last_activity_at = time.monotonic()
+
+    def drain(name: str, stream: Any) -> None:
+        nonlocal bytes_seen, last_activity_at
+        try:
+            while True:
+                chunk = os.read(stream.fileno(), 64 * 1024)
+                if not chunk:
+                    return
+                with lock:
+                    bytes_seen += len(chunk)
+                    last_activity_at = time.monotonic()
+                    remaining = max(0, max_bytes - sum(map(len, buffers.values())))
+                    if remaining:
+                        buffers[name].extend(chunk[:remaining])
+                    if len(chunk) > remaining:
+                        limit_exceeded.set()
+                        return
+        except OSError as exc:
+            with lock:
+                reader_errors.append(f"{name} capture failed: {exc}")
+            reader_failed.set()
+
+    threads = [
+        threading.Thread(
+            target=drain,
+            args=(name, stream),
+            name=f"gemini-{name}-capture",
+            daemon=True,
+        )
+        for name, stream in (
+            ("stdout", process.stdout),
+            ("stderr", process.stderr),
+        )
+    ]
+    started_at = time.monotonic()
+    timed_out = False
+    timeout_reason: str | None = None
+    started_threads: list[threading.Thread] = []
+    try:
+        for thread in threads:
+            thread.start()
+            started_threads.append(thread)
+        while process.poll() is None:
+            if limit_exceeded.is_set() or reader_failed.is_set():
+                break
+            now = time.monotonic()
+            if now - started_at > timeout_seconds:
+                timed_out = True
+                timeout_reason = "wall"
+                break
+            with lock:
+                idle_for = now - last_activity_at
+            if idle_for >= max_idle_seconds:
+                timed_out = True
+                timeout_reason = "idle"
+                break
+            time.sleep(poll_interval)
+    finally:
+        # This is also called after normal CLI exit to kill any background
+        # descendants that inherited the API key or network capability.
+        terminate_process_group(process)
+        for thread in started_threads:
+            thread.join(timeout=5)
+        process.stdout.close()
+        process.stderr.close()
+
+    overflowed = limit_exceeded.is_set()
+    with lock:
+        captured_stdout = bytes(buffers["stdout"])
+        captured_stderr = bytes(buffers["stderr"])
+        total_seen = bytes_seen
+        capture_errors = list(reader_errors)
+    if overflowed:
+        captured_stdout = b""
+        captured_stderr = b""
+
+    decoded: dict[str, str] = {}
+    for name, captured in (
+        ("stdout", captured_stdout),
+        ("stderr", captured_stderr),
+    ):
+        try:
+            decoded[name] = captured.decode("utf-8", errors="strict")
+        except UnicodeDecodeError as exc:
+            decoded[name] = ""
+            capture_errors.append(
+                f"{name} capture is not valid UTF-8 at byte {exc.start}"
+            )
+    capture_error = "; ".join(capture_errors) or None
+    return {
+        "stdout": decoded["stdout"],
+        "stderr": decoded["stderr"],
+        "processReturnCode": process.returncode
+        if process.returncode is not None
+        else 1,
+        "timedOut": timed_out,
+        "timeoutReason": timeout_reason,
+        "captureLimitBytes": max_bytes,
+        "captureBytesSeen": total_seen,
+        "captureLimitExceeded": overflowed,
+        "captureError": capture_error,
+    }
+
+
+def install_gemini_cleanup_signal_handlers() -> dict[signal.Signals, Any]:
+    """Route terminating POSIX signals through Gemini cleanup finally blocks."""
+    if threading.current_thread() is not threading.main_thread():
+        return {}
+
+    handled = [signal.SIGINT, signal.SIGTERM]
+    for name in ("SIGHUP", "SIGQUIT"):
+        candidate = getattr(signal, name, None)
+        if candidate is not None:
+            handled.append(candidate)
+    previous = {candidate: signal.getsignal(candidate) for candidate in handled}
+
+    def handle_cleanup_signal(signum: int, _frame: Any) -> None:
+        try:
+            name = signal.Signals(signum).name
+        except ValueError:
+            name = str(signum)
+        raise RuntimeError(f"Gemini run interrupted by {name}")
+
+    for candidate in handled:
+        signal.signal(candidate, handle_cleanup_signal)
+    return previous
+
+
+def restore_gemini_cleanup_signal_handlers(
+    previous: dict[signal.Signals, Any],
+) -> None:
+    for candidate, handler in previous.items():
+        signal.signal(candidate, handler)
 
 
 def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
@@ -1785,85 +2414,384 @@ def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
     }
 
 
-def parse_gemini_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
-    """Parse Gemini CLI 0.36 stream-json without discarding raw events."""
+def parse_gemini_jsonl(
+    stdout_text: str,
+    stderr_text: str,
+    *,
+    exact_secrets: list[str] | None = None,
+    expected_model: str | None = None,
+    allowed_tools: tuple[str, ...] = GEMINI_ALLOWED_TOOLS,
+) -> dict[str, Any]:
+    """Parse and strictly validate Gemini CLI 0.36 stream-json.
+
+    Successful output has one init event first, one successful result event
+    last, complete result statistics, paired tool calls, and no malformed or
+    error events. Unknown stream shapes fail closed rather than being silently
+    upgraded into forecast records.
+    """
+    secrets = exact_secrets or []
     events: list[dict[str, Any]] = []
     tool_events: list[dict[str, Any]] = []
+    assistant_indices: list[int] = []
     assistant_chunks: list[str] = []
-    result_response: str | None = None
-    stats: dict[str, Any] | None = None
-    result_status: str | None = None
-    session_id: str | None = None
-    init_model: str | None = None
-    last_error: str | None = None
+    user_indices: list[int] = []
+    result_indices: list[int] = []
+    init_indices: list[int] = []
+    protocol_errors: list[str] = []
     non_json_lines: list[str] = []
+    pending_tool_ids: set[str] = set()
+    completed_tool_ids: set[str] = set()
+    seen_tool_ids: set[str] = set()
+    last_error: str | None = None
+    source_lines = stdout_text.splitlines(keepends=True)
+    sanitized_lines = [
+        redact_stream_text(redact_exact_secrets(line, secrets)) for line in source_lines
+    ]
+    event_source_indices: list[int] = []
+    changed_event_indices: set[int] = set()
+    known_event_types = {
+        "init",
+        "message",
+        "tool_use",
+        "tool_result",
+        "error",
+        "result",
+    }
 
-    for stream_name, text in (("stdout", stdout_text), ("stderr", stderr_text)):
-        for line in text.splitlines():
-            stripped = line.strip()
-            if not stripped:
-                continue
-            try:
-                payload = json.loads(stripped)
-            except json.JSONDecodeError:
-                non_json_lines.append(f"{stream_name}: {line}")
-                continue
-            if not isinstance(payload, dict):
-                continue
-            events.append(payload)
-            event_type = payload.get("type")
-            if event_type == "init":
-                if payload.get("session_id"):
-                    session_id = str(payload["session_id"])
-                if payload.get("model"):
-                    init_model = str(payload["model"])
-            elif event_type == "message" and payload.get("role") == "assistant":
-                content = payload.get("content")
-                if isinstance(content, str):
-                    assistant_chunks.append(content)
-            elif event_type in {"tool_use", "tool_result"}:
-                tool_events.append(payload)
-            elif event_type == "error":
-                last_error = str(payload.get("message") or "Gemini CLI error")
-            elif event_type == "result":
-                result_status = (
-                    str(payload["status"])
-                    if payload.get("status") is not None
-                    else None
-                )
-                if isinstance(payload.get("stats"), dict):
-                    stats = payload["stats"]
-                for key in ("response", "content", "message"):
-                    if isinstance(payload.get(key), str) and payload[key]:
-                        result_response = payload[key]
-                        break
-                if isinstance(payload.get("error"), dict):
-                    last_error = str(
-                        payload["error"].get("message") or "Gemini CLI result error"
+    def omit_resource_limited_line(source_index: int, original_line: str) -> str:
+        newline = (
+            "\r\n"
+            if original_line.endswith("\r\n")
+            else "\n"
+            if original_line.endswith("\n")
+            else "\r"
+            if original_line.endswith("\r")
+            else ""
+        )
+        safe_line = JSON_RESOURCE_DIAGNOSTIC + newline
+        sanitized_lines[source_index] = safe_line
+        return safe_line
+
+    for source_index, line in enumerate(source_lines):
+        line_number = source_index + 1
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            raw_payload = json.loads(stripped)
+        except json.JSONDecodeError:
+            non_json_lines.append(f"stdout: {sanitized_lines[source_index]}")
+            protocol_errors.append(f"malformed stdout JSONL at line {line_number}")
+            continue
+        except (RecursionError, ValueError):
+            safe_line = omit_resource_limited_line(source_index, line)
+            non_json_lines.append(f"stdout: {safe_line}")
+            protocol_errors.append(
+                f"stdout JSONL exceeded decoder resource limits at line {line_number}"
+            )
+            continue
+        if not isinstance(raw_payload, dict):
+            protocol_errors.append(
+                f"stdout event at line {line_number} is not a JSON object"
+            )
+            continue
+        try:
+            payload = redact_sensitive_json_value(raw_payload, secrets)
+            payload_changed = payload != raw_payload
+        except (RecursionError, ValueError):
+            safe_line = omit_resource_limited_line(source_index, line)
+            non_json_lines.append(f"stdout: {safe_line}")
+            protocol_errors.append(
+                f"stdout JSONL exceeded redaction resource limits at line {line_number}"
+            )
+            continue
+        events.append(payload)
+        event_index = len(events) - 1
+        event_source_indices.append(source_index)
+        if payload_changed:
+            changed_event_indices.add(event_index)
+        event_type = payload.get("type")
+        if event_type not in known_event_types:
+            protocol_errors.append(
+                f"unknown Gemini stdout event type at line {line_number}: "
+                f"{event_type!r}"
+            )
+            continue
+        if event_type == "init":
+            init_indices.append(event_index)
+        elif event_type == "message":
+            role = payload.get("role")
+            content = payload.get("content")
+            if role == "user":
+                user_indices.append(event_index)
+                if not isinstance(content, str):
+                    protocol_errors.append(
+                        "Gemini user message content is not a string"
                     )
-                elif isinstance(payload.get("error"), str):
-                    last_error = payload["error"]
+                if payload.get("delta") not in (None, False):
+                    protocol_errors.append(
+                        "Gemini user message unexpectedly declares a delta"
+                    )
+            elif role == "assistant":
+                if not isinstance(content, str):
+                    protocol_errors.append(
+                        "Gemini assistant message content is not a string"
+                    )
+                elif payload.get("delta") is not True:
+                    protocol_errors.append(
+                        "Gemini assistant message is not a delta event"
+                    )
+                else:
+                    assistant_indices.append(event_index)
+                    assistant_chunks.append(content)
+            else:
+                protocol_errors.append(f"Gemini message has an unknown role: {role!r}")
+        elif event_type == "tool_use":
+            tool_events.append(payload)
+            tool_name = payload.get("tool_name")
+            if tool_name not in allowed_tools:
+                protocol_errors.append(
+                    f"disallowed tool event in Gemini stream: {tool_name!r}"
+                )
+            tool_id = payload.get("tool_id")
+            if not isinstance(tool_id, str) or not tool_id:
+                protocol_errors.append("tool_use event lacks a nonempty tool_id")
+            elif tool_id in seen_tool_ids:
+                protocol_errors.append(f"duplicate tool_use id: {tool_id}")
+            else:
+                seen_tool_ids.add(tool_id)
+                pending_tool_ids.add(tool_id)
+        elif event_type == "tool_result":
+            tool_events.append(payload)
+            tool_name = payload.get("tool_name")
+            if tool_name is not None and tool_name not in allowed_tools:
+                protocol_errors.append(
+                    f"disallowed tool event in Gemini stream: {tool_name!r}"
+                )
+            tool_id = payload.get("tool_id")
+            if not isinstance(tool_id, str) or not tool_id:
+                protocol_errors.append("tool_result event lacks a nonempty tool_id")
+            elif tool_id in completed_tool_ids:
+                protocol_errors.append(f"duplicate tool_result id: {tool_id}")
+            elif tool_id not in pending_tool_ids:
+                protocol_errors.append(
+                    f"tool_result {tool_id!r} arrived without a matching tool_use"
+                )
+            else:
+                pending_tool_ids.remove(tool_id)
+                completed_tool_ids.add(tool_id)
+            if payload.get("status") != "success" or payload.get("error"):
+                protocol_errors.append(
+                    f"Gemini tool_result {tool_id!r} did not succeed"
+                )
+        elif event_type == "error":
+            last_error = str(payload.get("message") or "Gemini CLI error")
+            protocol_errors.append("Gemini stream contains an error event")
+        elif event_type == "result":
+            result_indices.append(event_index)
 
+    for line_number, line in enumerate(stderr_text.splitlines(), start=1):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        safe_line = redact_stream_line(redact_exact_secrets(line, secrets))
+        try:
+            payload = json.loads(stripped)
+        except json.JSONDecodeError:
+            non_json_lines.append(f"stderr: {safe_line}")
+            continue
+        except (RecursionError, ValueError):
+            non_json_lines.append(f"stderr: {JSON_RESOURCE_DIAGNOSTIC}")
+            protocol_errors.append(
+                f"stderr JSON exceeded decoder resource limits at line {line_number}"
+            )
+            continue
+        try:
+            payload = redact_sensitive_json_value(payload, secrets)
+        except (RecursionError, ValueError):
+            non_json_lines.append(f"stderr: {JSON_RESOURCE_DIAGNOSTIC}")
+            protocol_errors.append(
+                f"stderr JSON exceeded redaction resource limits at line {line_number}"
+            )
+            continue
+        if isinstance(payload, dict) and payload.get("type") == "error":
+            last_error = str(payload.get("message") or "Gemini CLI error")
+            protocol_errors.append("Gemini stderr contains an error event")
+
+    if len(init_indices) != 1:
+        protocol_errors.append(
+            f"expected exactly one init event; found {len(init_indices)}"
+        )
+    elif init_indices[0] != 0:
+        protocol_errors.append("Gemini init event is not the first event")
+    if len(user_indices) != 1:
+        protocol_errors.append(
+            f"expected exactly one user message; found {len(user_indices)}"
+        )
+    elif user_indices[0] != 1:
+        protocol_errors.append("Gemini user message is not the second event")
+
+    init_event = events[init_indices[0]] if len(init_indices) == 1 else {}
+    session_id = init_event.get("session_id")
+    init_model = init_event.get("model")
+    if len(init_indices) == 1:
+        if not isinstance(session_id, str) or not session_id:
+            protocol_errors.append("Gemini init event lacks session_id")
+            session_id = None
+        if not isinstance(init_model, str) or not init_model:
+            protocol_errors.append("Gemini init event lacks model")
+            init_model = None
+        elif expected_model is not None and init_model != expected_model:
+            protocol_errors.append(
+                "Gemini init model disagrees with requested model: "
+                f"{init_model!r} != {expected_model!r}"
+            )
+
+    if len(result_indices) != 1:
+        protocol_errors.append(
+            f"expected exactly one terminal result event; found {len(result_indices)}"
+        )
+    elif result_indices[0] != len(events) - 1:
+        protocol_errors.append("Gemini result event is not the final event")
+
+    result_event = events[result_indices[0]] if len(result_indices) == 1 else {}
+    result_status = result_event.get("status")
+    if len(result_indices) == 1 and result_status != "success":
+        protocol_errors.append(
+            f"Gemini terminal result status is not success: {result_status!r}"
+        )
+    stats = result_event.get("stats") if len(result_indices) == 1 else None
+    if (
+        not isinstance(stats, dict)
+        or not isinstance(stats.get("models"), dict)
+        or not stats.get("models")
+    ):
+        protocol_errors.append("Gemini terminal result lacks nonempty stats.models")
+        stats = None
+    if stats is not None:
+        required_stat_fields = (
+            "total_tokens",
+            "input_tokens",
+            "output_tokens",
+            "cached",
+            "input",
+            "duration_ms",
+            "tool_calls",
+        )
+
+        def valid_stat_number(value: Any) -> bool:
+            return (
+                isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(value)
+                and value >= 0
+            )
+
+        for field in required_stat_fields:
+            if not valid_stat_number(stats.get(field)):
+                protocol_errors.append(
+                    f"Gemini terminal result has invalid stats.{field}"
+                )
+        if stats.get("tool_calls") != len(seen_tool_ids):
+            protocol_errors.append(
+                "Gemini stats.tool_calls disagrees with streamed tool_use events"
+            )
+        required_model_fields = (
+            "total_tokens",
+            "input_tokens",
+            "output_tokens",
+            "cached",
+            "input",
+        )
+        for runtime_model_name, model_stats in stats["models"].items():
+            if not isinstance(runtime_model_name, str) or not runtime_model_name:
+                protocol_errors.append(
+                    "Gemini terminal result has an invalid runtime model name"
+                )
+                continue
+            if not isinstance(model_stats, dict):
+                protocol_errors.append(
+                    f"Gemini runtime model {runtime_model_name!r} lacks statistics"
+                )
+                continue
+            for field in required_model_fields:
+                if not valid_stat_number(model_stats.get(field)):
+                    protocol_errors.append(
+                        "Gemini runtime model statistics invalid: "
+                        f"{runtime_model_name!r}.{field}"
+                    )
+    result_error = result_event.get("error")
+    if "error" in result_event and result_error is not None:
+        if isinstance(result_error, dict):
+            last_error = str(result_error.get("message") or "Gemini CLI result error")
+        elif isinstance(result_error, str) and result_error:
+            last_error = result_error
+        else:
+            last_error = "Gemini CLI result error"
+        protocol_errors.append("Gemini terminal result contains an error")
+    if pending_tool_ids:
+        protocol_errors.append(
+            "Gemini stream has tool_use events without results: "
+            + ", ".join(sorted(pending_tool_ids))
+        )
+
+    # Gemini CLI 0.36's terminal result contains status/stats only. Accepting
+    # invented response/content/message fields would let a malformed stream
+    # bypass the required assistant delta events.
+    raw_assistant_text = "".join(assistant_chunks).strip()
+    assistant_text = redact_response_text(
+        redact_exact_secrets(raw_assistant_text, secrets)
+    )
+    if not assistant_text:
+        protocol_errors.append("Gemini stream contains no assistant response")
+    if assistant_text != raw_assistant_text:
+        if assistant_indices:
+            for event_index in assistant_indices[:-1]:
+                events[event_index]["content"] = ""
+                changed_event_indices.add(event_index)
+            events[assistant_indices[-1]]["content"] = assistant_text
+            changed_event_indices.add(assistant_indices[-1])
+
+    # Preserve every original diagnostic/malformed/non-object line. Only
+    # events requiring redaction are reserialized in place; this prevents
+    # sanitization from laundering an invalid stream into a cleaner trace.
+    for event_index in changed_event_indices:
+        source_index = event_source_indices[event_index]
+        original_line = source_lines[source_index]
+        newline = (
+            "\r\n"
+            if original_line.endswith("\r\n")
+            else "\n"
+            if original_line.endswith("\n")
+            else "\r"
+            if original_line.endswith("\r")
+            else ""
+        )
+        sanitized_lines[source_index] = json.dumps(events[event_index]) + newline
+    sanitized_stdout = "".join(sanitized_lines)
+    tool_events = [
+        event for event in events if event.get("type") in {"tool_use", "tool_result"}
+    ]
     events_jsonl = "\n".join(json.dumps(event) for event in tool_events)
     if events_jsonl:
         events_jsonl += "\n"
-    runtime_models = (
-        [str(name) for name in stats.get("models", {})]
-        if isinstance(stats, dict) and isinstance(stats.get("models"), dict)
-        else []
-    )
+    runtime_models = [str(name) for name in stats.get("models", {})] if stats else []
     return {
         "events": events,
         "toolEvents": tool_events,
         "eventsJsonl": events_jsonl,
-        "assistantText": result_response or "".join(assistant_chunks).strip(),
+        "sanitizedStdout": sanitized_stdout,
+        "assistantText": assistant_text,
         "stats": stats,
         "resultStatus": result_status,
+        "resultCount": len(result_indices),
         "sessionId": session_id,
         "initModel": init_model,
         "runtimeModels": runtime_models,
         "lastError": last_error,
         "nonJsonLines": "\n".join(non_json_lines),
+        "protocolValid": not protocol_errors,
+        "protocolErrors": protocol_errors,
     }
 
 
@@ -1970,6 +2898,7 @@ def git_porcelain_lines(out_dir: pathlib.Path) -> list[str] | None:
             capture_output=True,
             text=True,
             timeout=120,
+            env=agent_subprocess_env(),
         )
     except Exception:
         return None
@@ -2009,11 +2938,14 @@ def git_root_fingerprint(out_dir: pathlib.Path) -> str | None:
         ".",
     ]
     if out_relative:
-        diff_argv.extend(
-            [f":(exclude){out_relative}", f":(exclude){out_relative}/**"]
-        )
+        diff_argv.extend([f":(exclude){out_relative}", f":(exclude){out_relative}/**"])
     try:
-        diff = subprocess.run(diff_argv, capture_output=True, timeout=120)
+        diff = subprocess.run(
+            diff_argv,
+            capture_output=True,
+            timeout=120,
+            env=agent_subprocess_env(),
+        )
         untracked = subprocess.run(
             [
                 "git",
@@ -2026,6 +2958,7 @@ def git_root_fingerprint(out_dir: pathlib.Path) -> str | None:
             ],
             capture_output=True,
             timeout=120,
+            env=agent_subprocess_env(),
         )
     except Exception:
         return None
@@ -2353,23 +3286,44 @@ def run_gemini_agent_command(
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(GEMINI_API_KEY_ERROR)
+    validate_gemini_nonsecret_inputs(
+        prompt=prompt,
+        model=model,
+        api_key=api_key,
+        path_inputs=(
+            str(out_dir.resolve()),
+            str(pathlib.Path(tempfile.gettempdir()).resolve()),
+            prefix,
+        ),
+    )
+    assert_no_gemini_system_policy_override()
 
     gemini_bin = resolve_gemini_cli()
+    gemini_script = require_guardable_gemini_cli(gemini_bin, api_key=api_key)
+    node_bin = require_gemini_node_runtime(api_key=api_key)
+    gemini_test_fake = bool(
+        gemini_cli_package_metadata(gemini_script).get("thesisTestFake") is True
+    )
+    assert_gemini_process_isolation_supported(test_fake=gemini_test_fake)
     out_dir.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        gemini_bin,
-        "-m",
-        model,
-        "--approval-mode",
-        "plan",
-        "-o",
-        "stream-json",
-        "-p",
-        prompt,
-    ]
     logged_cmd = [
-        redact_text(redact_exact_secrets(str(arg), [api_key]))
-        for arg in [*cmd[:-1], "<prompt>"]
+        redact_text(redact_exact_secrets(argument, [api_key]))
+        for argument in [
+            gemini_bin,
+            "-m",
+            model,
+            "--approval-mode",
+            "default",
+            "--sandbox",
+            "--policy",
+            "<gemini-read-only-policy>",
+            "--admin-policy",
+            "<gemini-read-only-policy>",
+            "-o",
+            "stream-json",
+            "-p",
+            "<prompt>",
+        ]
     ]
     recorded_model = redact_text(redact_exact_secrets(model, [api_key]))
     guard_pre = workspace_guard_snapshot(out_dir)
@@ -2378,11 +3332,13 @@ def run_gemini_agent_command(
     timeout_reason: str | None = None
     process_return_code = 1
     process_error: str | None = None
-    stdout_path: pathlib.Path | None = None
-    stderr_path: pathlib.Path | None = None
     raw_stdout = ""
     raw_stderr = ""
     gemini_env_names: list[str] = []
+    capture_limit = gemini_capture_limit_bytes()
+    capture_bytes_seen = 0
+    capture_limit_exceeded = False
+    capture_error: str | None = None
 
     try:
         with (
@@ -2392,62 +3348,145 @@ def run_gemini_agent_command(
             gemini_home = pathlib.Path(home_dir)
             settings_dir = gemini_home / ".gemini"
             settings_dir.mkdir(parents=True)
-            (settings_dir / "settings.json").write_text(
-                json.dumps(GEMINI_AUTH_SETTINGS, separators=(",", ":")) + "\n"
+            context_filename = f".thesis-context-{os.urandom(16).hex()}.md"
+            run_settings = copy.deepcopy(GEMINI_AUTH_SETTINGS)
+            run_settings["context"]["fileName"] = context_filename
+            settings_text = json.dumps(run_settings, separators=(",", ":")) + "\n"
+            (settings_dir / "settings.json").write_text(settings_text)
+            system_settings_path = settings_dir / "system-settings.json"
+            system_settings_path.write_text(settings_text)
+            system_defaults_path = settings_dir / "system-defaults.json"
+            system_defaults_path.write_text("{}\n")
+            for controlled_settings in (
+                settings_dir / "settings.json",
+                system_settings_path,
+                system_defaults_path,
+            ):
+                controlled_settings.chmod(0o600)
+            policy_path = settings_dir / "thesis-read-only-policy.toml"
+            policy_path.write_text(GEMINI_READ_ONLY_POLICY)
+            policy_path.chmod(0o600)
+            preload_path = write_gemini_no_persist_preload(pathlib.Path(work_dir))
+            launcher_path = write_gemini_node_launcher(
+                pathlib.Path(work_dir),
+                gemini_script,
             )
+            child_tmp_dir = gemini_home / "tmp"
+            child_tmp_dir.mkdir(mode=0o700)
+            context_sentinel = pathlib.Path(work_dir) / context_filename
+            context_fd = os.open(
+                context_sentinel,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+            os.close(context_fd)
+            dotenv_sentinel = pathlib.Path(work_dir) / ".env"
+            sentinel_fd = os.open(
+                dotenv_sentinel,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+            os.close(sentinel_fd)
+            if dotenv_sentinel.is_symlink() or dotenv_sentinel.stat().st_size != 0:
+                raise RuntimeError("Gemini dotenv sentinel is not an empty file")
+            if context_sentinel.is_symlink() or context_sentinel.stat().st_size != 0:
+                raise RuntimeError("Gemini context sentinel is not an empty file")
             gemini_env = agent_subprocess_env(
-                {"HOME": str(gemini_home), "GEMINI_API_KEY": api_key}
+                {
+                    "PATH": controlled_gemini_path(gemini_bin, node_bin),
+                    "HOME": str(gemini_home),
+                    "GEMINI_CLI_HOME": str(gemini_home),
+                    "GEMINI_CLI_SYSTEM_SETTINGS_PATH": str(system_settings_path),
+                    "GEMINI_CLI_SYSTEM_DEFAULTS_PATH": str(system_defaults_path),
+                    "GEMINI_API_KEY": api_key,
+                    "NO_BROWSER": "true",
+                    "TMPDIR": str(child_tmp_dir),
+                    # Overwrite rather than inherit NODE_OPTIONS. The preload
+                    # path is relative so the macOS seatbelt relaunch resolves
+                    # the copy in the temporary working directory.
+                    "NODE_OPTIONS": f"--require=./{preload_path.name}",
+                    "SEATBELT_PROFILE": "strict-open",
+                }
             )
             gemini_env_names = sorted(gemini_env)
-            with (
-                tempfile.NamedTemporaryFile(mode="w+", delete=False) as stdout_file,
-                tempfile.NamedTemporaryFile(mode="w+", delete=False) as stderr_file,
-            ):
-                stdout_path = pathlib.Path(stdout_file.name)
-                stderr_path = pathlib.Path(stderr_file.name)
+            cmd = [
+                gemini_bin,
+                "-m",
+                model,
+                "--approval-mode",
+                "default",
+                "--sandbox",
+                "--policy",
+                str(policy_path),
+                "--admin-policy",
+                str(policy_path),
+                "-o",
+                "stream-json",
+                "-p",
+                prompt,
+            ]
+            popen_cmd = [str(node_bin), str(launcher_path), *cmd[1:]]
+            if any(api_key in argument for argument in popen_cmd):
+                raise RuntimeError(
+                    "Gemini invocation refused because argv contains GEMINI_API_KEY"
+                )
+            process: subprocess.Popen[bytes] | None = None
+            capture_owns_process = False
+            previous_signal_handlers = install_gemini_cleanup_signal_handlers()
+            try:
                 process = subprocess.Popen(
-                    cmd,
+                    popen_cmd,
                     stdin=subprocess.DEVNULL,
-                    stdout=stdout_file,
-                    stderr=stderr_file,
-                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     cwd=work_dir,
                     env=gemini_env,
+                    start_new_session=True,
                 )
                 idle_limit = positive_int_env(
                     "THESIS_GEMINI_IDLE_TIMEOUT_SECONDS",
                     min(timeout_seconds, 120),
                 )
-                try:
-                    wait_for_stream_process(
-                        process,
-                        timeout_seconds,
-                        heartbeat_paths=[stdout_path, stderr_path],
-                        max_idle_seconds=idle_limit,
-                    )
-                except subprocess.TimeoutExpired as exc:
-                    timed_out = True
-                    timeout_reason = "idle" if exc.timeout == idle_limit else "wall"
-                    if process.poll() is None:
-                        process.kill()
-                    process.wait()
-                process_return_code = process.returncode or 0
+                # Once entered, capture_gemini_process owns process-group
+                # termination and reaping on success and every exception path.
+                capture_owns_process = True
+                capture = capture_gemini_process(
+                    process,
+                    timeout_seconds,
+                    max_idle_seconds=idle_limit,
+                    max_bytes=capture_limit,
+                )
+                raw_stdout = capture["stdout"]
+                raw_stderr = capture["stderr"]
+                process_return_code = int(capture["processReturnCode"])
+                timed_out = bool(capture["timedOut"])
+                timeout_reason = capture["timeoutReason"]
+                capture_bytes_seen = int(capture["captureBytesSeen"])
+                capture_limit_exceeded = bool(capture["captureLimitExceeded"])
+                capture_error = capture["captureError"]
+            finally:
+                if process is not None and not capture_owns_process:
+                    terminate_process_group(process)
+                restore_gemini_cleanup_signal_handlers(
+                    previous_signal_handlers,
+                )
     except FileNotFoundError:
         process_return_code = 127
         process_error = GEMINI_CLI_NOT_FOUND_ERROR
     except Exception as exc:
         process_return_code = 1
         process_error = f"Error running Gemini CLI: {exc}"
-    finally:
-        if stdout_path is not None and stdout_path.exists():
-            raw_stdout = stdout_path.read_text()
-            stdout_path.unlink(missing_ok=True)
-        if stderr_path is not None and stderr_path.exists():
-            raw_stderr = stderr_path.read_text()
-            stderr_path.unlink(missing_ok=True)
 
     stdout_text = redact_stream_text(redact_exact_secrets(raw_stdout, [api_key]))
     stderr_text = redact_stream_text(redact_exact_secrets(raw_stderr, [api_key]))
+    combined_diagnostics = f"{stdout_text}\n{stderr_text}"
+    oauth_prompt_detected = contains_gemini_oauth_prompt(combined_diagnostics)
+    policy_diagnostic_detected = bool(
+        GEMINI_POLICY_DIAGNOSTIC_RE.search(combined_diagnostics)
+    )
+    if oauth_prompt_detected:
+        stdout_text = GEMINI_OAUTH_URL_RE.sub("[REDACTED_URL]", stdout_text)
+        stderr_text = GEMINI_OAUTH_URL_RE.sub("[REDACTED_URL]", stderr_text)
     workspace_mutations = workspace_guard_violations(
         guard_pre, out_dir, allowed_new=set()
     )
@@ -2455,8 +3494,36 @@ def run_gemini_agent_command(
         redact_text(redact_exact_secrets(mutation, [api_key]))
         for mutation in workspace_mutations
     ]
-    parsed = parse_gemini_jsonl(stdout_text, stderr_text)
-    final_text = redact_response_text(parsed["assistantText"])
+    parsed = parse_gemini_jsonl(
+        stdout_text,
+        stderr_text,
+        exact_secrets=[api_key],
+        expected_model=model,
+    )
+    reconstructed_assistant = parsed["assistantText"]
+    oauth_prompt_detected = oauth_prompt_detected or contains_gemini_oauth_prompt(
+        reconstructed_assistant
+    )
+    policy_diagnostic_detected = policy_diagnostic_detected or bool(
+        GEMINI_POLICY_DIAGNOSTIC_RE.search(reconstructed_assistant)
+    )
+    if oauth_prompt_detected:
+        oauth_urls = GEMINI_OAUTH_URL_RE.findall(reconstructed_assistant)
+        redacted_stdout = GEMINI_OAUTH_URL_RE.sub(
+            "[REDACTED_URL]", parsed["sanitizedStdout"]
+        )
+        stderr_text = GEMINI_OAUTH_URL_RE.sub("[REDACTED_URL]", stderr_text)
+        if oauth_urls:
+            parsed = parse_gemini_jsonl(
+                redacted_stdout,
+                stderr_text,
+                exact_secrets=[api_key, *oauth_urls],
+                expected_model=model,
+            )
+        else:
+            parsed["sanitizedStdout"] = redacted_stdout
+    stdout_text = parsed["sanitizedStdout"]
+    final_text = parsed["assistantText"] if parsed["protocolValid"] else ""
     runtime_models = parsed["runtimeModels"]
     runtime_model = (
         model
@@ -2465,29 +3532,58 @@ def run_gemini_agent_command(
         if runtime_models
         else None
     )
-    oauth_prompt_detected = GEMINI_OAUTH_PROMPT_TEXT.casefold() in (
-        f"{stdout_text}\n{stderr_text}".casefold()
-    )
-
-    effective_return_code = process_return_code
-    if final_text and (process_return_code == 0 or timed_out):
+    effective_return_code = 1
+    if timed_out:
+        effective_return_code = 124
+    elif (
+        process_return_code == 0
+        and not capture_limit_exceeded
+        and capture_error is None
+        and parsed["protocolValid"]
+        and final_text
+        and not oauth_prompt_detected
+        and not policy_diagnostic_detected
+        and not process_error
+    ):
         effective_return_code = 0
-    if parsed["resultStatus"] not in (None, "success"):
-        effective_return_code = 1
-    last_error = parsed["lastError"] or process_error
+    elif process_return_code > 0:
+        effective_return_code = process_return_code
+
+    errors = []
+    if process_error:
+        errors.append(process_error)
+    if capture_limit_exceeded:
+        errors.append(
+            "Gemini CLI stream capture exceeded the fixed byte limit; "
+            "partial output was discarded"
+        )
+    if capture_error:
+        errors.append(capture_error)
+    if parsed["lastError"]:
+        errors.append(str(parsed["lastError"]))
+    if parsed["protocolErrors"]:
+        errors.append(
+            "Gemini CLI stream protocol invalid: " + "; ".join(parsed["protocolErrors"])
+        )
+    last_error = "; ".join(errors) or None
     if last_error:
         last_error = redact_text(redact_exact_secrets(str(last_error), [api_key]))
     if oauth_prompt_detected:
         effective_return_code = 1
         last_error = (
-            "Gemini CLI emitted an OAuth browser prompt; refusing "
-            "non-interactive run"
+            "Gemini CLI emitted an OAuth browser prompt; refusing non-interactive run"
         )
         final_text = ""
-    if timed_out and not final_text:
-        effective_return_code = 124
+    if policy_diagnostic_detected:
+        effective_return_code = 1
+        last_error = (
+            "Gemini CLI reported a policy enforcement diagnostic; refusing the run"
+        )
+        final_text = ""
 
-    stderr_output = parsed["nonJsonLines"] or stderr_text
+    # Keep stderr byte-for-byte except for the already-applied redaction.
+    # Stdout diagnostics remain in the stdout JSONL artifact.
+    stderr_output = stderr_text
     if last_error and last_error not in stderr_output:
         stderr_output = f"{stderr_output.rstrip()}\n{last_error}\n".lstrip()
     finished_at = utc_now()
@@ -2500,20 +3596,64 @@ def run_gemini_agent_command(
         "runtimeModels": runtime_models,
         "sessionId": parsed["sessionId"],
         "initModel": parsed["initModel"],
-        "approvalMode": "plan",
+        "approvalMode": "default",
+        "sandboxRequested": True,
+        "sandbox": not gemini_test_fake and effective_return_code == 0,
+        "sandboxEnforcement": (
+            "not-enforced-test-fake"
+            if gemini_test_fake
+            else "native-strict-open"
+            if effective_return_code == 0
+            else "not-established-failed-run"
+        ),
+        "sandboxProfile": "strict-open",
+        "containerSandboxes": "refused-before-spawn",
+        "toolPolicy": {
+            "mode": "deny-by-default",
+            "allowedTools": list(GEMINI_ALLOWED_TOOLS),
+            "sha256": sha256_bytes(GEMINI_READ_ONLY_POLICY.encode()),
+        },
         "outputFormat": "stream-json",
         "workingDirectory": "temporary",
-        "repositoryAccess": False,
+        "repositoryAccess": False if not gemini_test_fake else None,
+        "repositoryAccessEnforcement": (
+            "not-enforced-test-fake"
+            if gemini_test_fake
+            else "strict-open-temporary-target"
+            if effective_return_code == 0
+            else "not-established-failed-run"
+        ),
         "timeoutSeconds": timeout_seconds,
         "timedOut": timed_out,
         "timeoutReason": timeout_reason,
         "processReturnCode": process_return_code,
         "effectiveReturnCode": effective_return_code,
         "resultStatus": parsed["resultStatus"],
+        "resultCount": parsed["resultCount"],
         "stats": parsed["stats"],
         "eventCount": len(parsed["events"]),
         "toolEventCount": len(parsed["toolEvents"]),
+        "protocolValid": parsed["protocolValid"],
+        "protocolErrors": parsed["protocolErrors"],
+        "captureStorage": "bounded-memory",
+        "captureLimitBytes": capture_limit,
+        "captureBytesSeen": capture_bytes_seen,
+        "captureLimitExceeded": capture_limit_exceeded,
+        "captureError": capture_error,
         "oauthPromptDetected": oauth_prompt_detected,
+        "policyDiagnosticDetected": policy_diagnostic_detected,
+        "sessionPersistence": (
+            "not-enforced-test-fake" if gemini_test_fake else "blocked-before-write"
+        ),
+        "persistenceGuard": {
+            "cliVersion": GEMINI_SUPPORTED_CLI_VERSION,
+            "testFake": gemini_test_fake,
+            "nodeRuntime": str(node_bin),
+            "nodePreloadSha256": sha256_bytes(GEMINI_NO_PERSIST_PRELOAD.encode()),
+            "sandboxRelaunch": (
+                "not-enforced-test-fake" if gemini_test_fake else "argv-launcher"
+            ),
+        },
         "lastError": last_error,
     }
     return {
@@ -2523,6 +3663,9 @@ def run_gemini_agent_command(
         "model": recorded_model,
         "runtimeModel": runtime_model,
         "timeoutSeconds": timeout_seconds,
+        "captureLimitBytes": capture_limit,
+        "captureBytesSeen": capture_bytes_seen,
+        "captureLimitExceeded": capture_limit_exceeded,
         "workspaceMutations": workspace_mutations,
         "startedAt": started_at,
         "finishedAt": finished_at,
@@ -2595,6 +3738,17 @@ def append_command_artifacts(
                     **(
                         {"envVarNames": command_result["envVarNames"]}
                         if "envVarNames" in command_result
+                        else {}
+                    ),
+                    **(
+                        {
+                            "captureLimitBytes": command_result["captureLimitBytes"],
+                            "captureBytesSeen": command_result["captureBytesSeen"],
+                            "captureLimitExceeded": command_result[
+                                "captureLimitExceeded"
+                            ],
+                        }
+                        if "captureLimitBytes" in command_result
                         else {}
                     ),
                     "returnCode": command_result["returnCode"],
@@ -3158,6 +4312,7 @@ def normalize_cells(parsed_path: pathlib.Path, normalized_path: pathlib.Path) ->
         capture_output=True,
         text=True,
         check=False,
+        env=agent_subprocess_env(),
     )
     if completed.returncode != 0:
         raise RuntimeError(
@@ -3772,6 +4927,7 @@ def write_ts_module(
         capture_output=True,
         text=True,
         check=False,
+        env=agent_subprocess_env(),
     )
     if completed.returncode != 0:
         raise RuntimeError(
@@ -3997,6 +5153,7 @@ def workspace_checkout_sha() -> str:
             cwd=ROOT,
             text=True,
             stderr=subprocess.PIPE,
+            env=agent_subprocess_env(),
         ).strip()
     except subprocess.CalledProcessError as exc:
         detail = (exc.stderr or "").strip()
@@ -4098,6 +5255,7 @@ def run_pre_submit_reviewer(
 def main() -> int:
     args = parse_args()
     generation_ticket = parse_generation_ticket_context(args)
+    gemini_api_key: str | None = None
     if args.codex_network:
         if args.codex_sandbox == "read-only":
             raise SystemExit(
@@ -4112,6 +5270,14 @@ def main() -> int:
                 "--codex-network only applies to --codex-model runs; "
                 "--command agents run unsandboxed and already have network"
             )
+    if args.gemini_model and not args.print_prompt:
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        if not gemini_api_key:
+            raise SystemExit(GEMINI_API_KEY_ERROR)
+        try:
+            validate_gemini_downstream_inputs(args, api_key=gemini_api_key)
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
     run_at = utc_now()
     checkout_sha = workspace_checkout_sha()
     target_context = parse_target_context(args.target_context_json)
@@ -4166,23 +5332,46 @@ def main() -> int:
             "Pre-submit review requires --command, --codex-model, or "
             "--gemini-model for the forecaster"
         )
-    if args.gemini_model:
-        if not os.getenv("GEMINI_API_KEY"):
-            raise SystemExit(GEMINI_API_KEY_ERROR)
-        try:
-            resolve_gemini_cli()
-        except RuntimeError as exc:
-            raise SystemExit(str(exc)) from exc
-
     out_dir = (
         pathlib.Path(args.out_dir)
         if args.out_dir
         else default_out_dir(args.series, args.period, run_at)
     )
+    if args.gemini_model:
+        if not gemini_api_key:
+            raise SystemExit(GEMINI_API_KEY_ERROR)
+        try:
+            validate_gemini_nonsecret_inputs(
+                prompt=prompt,
+                model=args.gemini_model,
+                api_key=gemini_api_key,
+                path_inputs=(
+                    str(out_dir.resolve()),
+                    str(pathlib.Path(tempfile.gettempdir()).resolve()),
+                ),
+            )
+            assert_no_gemini_system_policy_override()
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
+        try:
+            gemini_bin = resolve_gemini_cli()
+            gemini_script = require_guardable_gemini_cli(
+                gemini_bin,
+                api_key=gemini_api_key,
+            )
+            require_gemini_node_runtime(api_key=gemini_api_key)
+            gemini_test_fake = bool(
+                gemini_cli_package_metadata(gemini_script).get("thesisTestFake") is True
+            )
+            assert_gemini_process_isolation_supported(test_fake=gemini_test_fake)
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
+
     refs: list[dict[str, Any]] = []
     refs.append(write_artifact(out_dir, "prompt", "prompt.md", prompt, run_at))
 
     command_result: dict[str, Any] | None = None
+    forecast_result: dict[str, Any] | None = None
     review_status: str | None = None
     review_result: dict[str, Any] | None = None
     review_payload: dict[str, Any] | None = None
@@ -4222,6 +5411,7 @@ def main() -> int:
                 stdout_artifact_type="draft_forecast",
                 generation_ticket=generation_ticket,
             )
+            forecast_result = draft_result
             if draft_result["returnCode"] != 0:
                 review_status = "draft_failed"
                 command_result = draft_result
@@ -4290,6 +5480,7 @@ def main() -> int:
                             announcement_url=announcement_url,
                         )
                     )
+                    forecast_result = command_result
                     append_command_artifacts(
                         refs,
                         out_dir,
@@ -4315,6 +5506,7 @@ def main() -> int:
                     announcement_url=announcement_url,
                 )
             )
+            forecast_result = command_result
             append_command_artifacts(
                 refs,
                 out_dir,
@@ -4366,7 +5558,11 @@ def main() -> int:
         )
         refs.append(write_artifact(out_dir, "stderr", "stderr.txt", "\n", run_at))
 
-    runtime_meta = stamp_runtime_invocation(meta, command_result)
+    # The stage that determines overall success can be the reviewer, while
+    # raw_response still comes from the draft forecaster. Keep failure
+    # propagation on command_result, but attribute the forecast only to the
+    # stage that produced the response being parsed and scored.
+    runtime_meta = stamp_runtime_invocation(meta, forecast_result)
 
     refs.append(
         write_artifact(
@@ -4627,7 +5823,9 @@ def main() -> int:
         refs,
         runtime_meta,
         pre_submit_review,
-        force_model=generation_ticket is not None,
+        # Cell-authored model labels are untrusted forecast content. Every
+        # recorded run binds its public cell to the invocation attribution.
+        force_model=True,
     )
     cells_path = out_dir / "cells.with_activity.json"
     cells_path.write_text(json.dumps(cells_with_activity, indent=2) + "\n")

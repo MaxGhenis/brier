@@ -402,6 +402,71 @@ def _command_backend(run_dir: Path, prefix: str = "") -> str:
     return str(backend)
 
 
+def _command_model(command: dict[str, Any]) -> str | None:
+    argv = command.get("argv")
+    if not isinstance(argv, list):
+        return None
+    for index, arg in enumerate(argv):
+        if arg in {"-m", "--model"} and index + 1 < len(argv):
+            return str(argv[index + 1])
+        if isinstance(arg, str) and arg.startswith("--model="):
+            return arg.split("=", 1)[1]
+    return None
+
+
+def _verify_forecast_stage_binding(
+    run_dir: Path,
+    manifest: dict[str, Any],
+    *,
+    prefix: str,
+) -> None:
+    """Bind raw response and manifest attribution to its producing stage."""
+    stage_stdout = run_dir / f"{prefix}stdout.txt"
+    raw_response = run_dir / "raw_response.txt"
+    if not stage_stdout.is_file() or not raw_response.is_file():
+        raise CustodyError(
+            "forecast-producing stage lacks stdout or raw_response artifact"
+        )
+    if stage_stdout.read_bytes() != raw_response.read_bytes():
+        raise CustodyError(
+            "raw_response.txt disagrees with the forecast-producing stage stdout"
+        )
+
+    command = _load_object(run_dir / f"{prefix}command.json")
+    backend = _command_backend(run_dir, prefix)
+    agent = manifest.get("agent")
+    agent = agent if isinstance(agent, dict) else {}
+    if backend == "gemini_cli":
+        if agent.get("backend") != "gemini_cli":
+            raise CustodyError(
+                "manifest agent backend disagrees with the forecast-producing stage"
+            )
+        command_model = _command_model(command)
+        if not command_model or agent.get("model") != command_model:
+            raise CustodyError(
+                "manifest agent model disagrees with the forecast-producing stage"
+            )
+        trace = _load_object(run_dir / f"{prefix}gemini_trace.json")
+        if trace.get("backend") != "gemini_cli" or trace.get("model") != command_model:
+            raise CustodyError(
+                "Gemini trace attribution disagrees with the forecast-producing stage"
+            )
+        runtime_model = trace.get("runtimeModel")
+        if runtime_model:
+            if agent.get("runtimeModel") != runtime_model:
+                raise CustodyError(
+                    "manifest runtime model disagrees with the forecast-producing stage"
+                )
+        elif agent.get("runtimeModel") not in (None, ""):
+            raise CustodyError(
+                "manifest invents a runtime model for the forecast-producing stage"
+            )
+    elif agent.get("backend") == "gemini_cli":
+        raise CustodyError(
+            "manifest labels a non-Gemini forecast-producing stage as Gemini"
+        )
+
+
 def _prefixed(inventory: dict[str, str], prefix: str) -> dict[str, str]:
     return {
         f"{prefix}{path}": artifact_type for path, artifact_type in inventory.items()
@@ -540,6 +605,12 @@ def _verify_invocation_stages(
             )
         if status in {"revision_failed", "completed"}:
             _required(entries, REVIEWED_STAGE_INVENTORY)
+    producing_prefix = "" if has_final else "draft_" if has_draft else ""
+    _verify_forecast_stage_binding(
+        run_dir,
+        manifest,
+        prefix=producing_prefix,
+    )
     # Parse-failure manifests are sealed before compact review metadata is
     # built; when metadata is absent, the rooted stage filenames are the
     # authoritative record of how far the invocation progressed.
@@ -547,7 +618,10 @@ def _verify_invocation_stages(
 
 
 def _verify_cells_activity(
-    run_dir: Path, manifest_entries: list[dict[str, Any]], entries: list[dict[str, Any]]
+    run_dir: Path,
+    manifest: dict[str, Any],
+    manifest_entries: list[dict[str, Any]],
+    entries: list[dict[str, Any]],
 ) -> None:
     cells_path = run_dir / "cells.with_activity.json"
     try:
@@ -561,11 +635,20 @@ def _verify_cells_activity(
         for ref in manifest_entries
         if ref.get("artifactType") not in {"cells_with_activity", "manifest"}
     ]
+    agent = manifest.get("agent")
+    trusted_model = agent.get("model") if isinstance(agent, dict) else None
+    if not isinstance(trusted_model, str) or not trusted_model:
+        raise CustodyError("analyst manifest lacks trusted agent model attribution")
     for index, cell in enumerate(cells):
         if not isinstance(cell, dict) or cell.get("activityLog") != expected:
             raise CustodyError(
                 f"cells.with_activity.json cell {index} does not expose the "
                 "complete rooted activity prefix"
+            )
+        if cell.get("model") != trusted_model:
+            raise CustodyError(
+                f"cells.with_activity.json cell {index} model disagrees with "
+                "manifest agent attribution"
             )
     entry_paths = {str(entry["path"]) for entry in entries}
     if "cells.with_activity.json" not in entry_paths:
@@ -581,9 +664,7 @@ def _verify_analyst_v2(
     if manifest.get("schemaVersion") != "thesis_analyst_run_manifest_v1":
         raise CustodyError("analyst custody mode has the wrong manifest schema")
     error_obj = manifest.get("error")
-    declared_phase = (
-        error_obj.get("phase") if isinstance(error_obj, dict) else None
-    )
+    declared_phase = error_obj.get("phase") if isinstance(error_obj, dict) else None
     presents_as_failed = (
         manifest.get("ok") is False
         and "validation" in manifest
@@ -601,16 +682,13 @@ def _verify_analyst_v2(
         # manifest under canonical encoding (Python == treats true and 1
         # as equal).
         if not presents_as_failed:
-            raise CustodyError(
-                "failure phase on a run that does not present as failed"
-            )
+            raise CustodyError("failure phase on a run that does not present as failed")
         error_artifact = run_dir / "error.json"
         if not error_artifact.is_file() or canonical_bytes(
             json.loads(error_artifact.read_text())
         ) != canonical_bytes(manifest["error"]):
             raise CustodyError(
-                f"{declared_phase}-failure error artifact disagrees with "
-                "the manifest"
+                f"{declared_phase}-failure error artifact disagrees with the manifest"
             )
     parse_failed = declared_phase == "parse"
     if parse_failed:
@@ -675,8 +753,7 @@ def _verify_analyst_v2(
         present = {str(entry["path"]) for entry in entries}
         if forbidden & present:
             raise CustodyError(
-                f"{phase}-failure inventory contains artifacts from later "
-                "stages"
+                f"{phase}-failure inventory contains artifacts from later stages"
             )
         allowed = {
             *required,
@@ -716,7 +793,7 @@ def _verify_analyst_v2(
             "completed analyst inventory contains unexpected artifacts: "
             + ", ".join(unexpected)
         )
-    _verify_cells_activity(run_dir, manifest_entries, entries)
+    _verify_cells_activity(run_dir, manifest, manifest_entries, entries)
 
 
 def _verify_resolver_v2(
