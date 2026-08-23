@@ -48,6 +48,15 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   // Ordinary rolls now refuse both terminal ids and ids with an existing
   // immutable registration. If the fresh registration lapses through grace
   // unforecast, a new terminal entry will be added.
+  // That happened: the 2026-08-14T17:27Z re-registration crossed the
+  // seven-day orphan grace on 2026-08-21 with no generation run ever
+  // dispatched for it. Its October 30 first print is still in the future,
+  // but forecasting it now would record a run against the nine-day-stale
+  // 2026-08-14 pin — the same chronology violation the JOLTS and vacancies
+  // entries above terminate on — so the accidental re-registration ends
+  // here (added 2026-08-23, alongside the aging/disability resolver batch,
+  // when the lapse surfaced as the first non-skip CI run since 08-18).
+  "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print",
   // The 2026-08-03 Farm Bill CRP conditional-pair registrations
   // (ticket …7916cf57) could never be forecast: every documented
   // attempt failed closed and published nothing. The two August 3 rolls
