@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       // forecasts browser replaced them); temporary in case a curated
       // collections product revives the path.
       { source: "/topics/:path*", destination: "/", permanent: false },
+      // Challenge lane v1 withdrawn 2026-08-23 (rebuilt properly on branch
+      // challenge-lane-v2); accepted v1 submissions stay published on their cells.
+      { source: "/challenge", destination: "/", permanent: false },
       {
         source: "/markets/:path*",
         destination: "/forecasts/:path*",
