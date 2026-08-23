@@ -2267,8 +2267,10 @@ def build_pre_submit_review_prompt(
     target_context: dict[str, Any] | None,
     original_prompt: str,
     draft_response: str,
-    prompt_mode: str = "full",
+    prompt_mode: str | None = None,
 ) -> str:
+    """Build the review artifact, preserving v0.1 bytes when mode is absent."""
+
     conditional_line = conditional if conditional else "null"
     target_context_block = format_target_context(target_context)
     target_context_text = f"\n{target_context_block}\n" if target_context_block else ""
@@ -4330,6 +4332,13 @@ def main() -> int:
         "promptMode": args.prompt_mode,
         "agent": runtime_meta,
         "preSubmitReview": pre_submit_review,
+        # This optional marker versions mode-sensitive review prompt bytes.
+        # Its absence is the legacy v0.1 template used by existing bundles.
+        **(
+            {"preSubmitReviewPromptMode": args.prompt_mode}
+            if pre_submit_review is not None
+            else {}
+        ),
         **(
             {
                 "workspaceHygiene": {

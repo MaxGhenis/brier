@@ -4602,6 +4602,28 @@ def test_conditional_policy_chain_prompt_does_not_modify_ladder_contracts(
     assert "policy_chain" not in review_prompt
 
 
+@pytest.mark.parametrize("mode", [None, "ladder", "ladder_v2"])
+def test_pre_submit_review_preserves_frozen_legacy_bytes_without_policy_gate(
+    mode: str | None,
+) -> None:
+    kwargs = {
+        "series": "agency.test.rate",
+        "period": "2030-01",
+        "conditional": "A statute is enacted before the deadline.",
+        "target_context": None,
+        "original_prompt": "frozen original prompt",
+        "draft_response": '{"forecast": "draft"}',
+    }
+    prompt = analyst_runner.build_pre_submit_review_prompt(
+        **kwargs,
+        **({"prompt_mode": mode} if mode is not None else {}),
+    )
+
+    assert hashlib.sha256(prompt.encode()).hexdigest() == (
+        "5249755d78079b90d2eeea9f9895ec73afa3b2811df8bcdfbb5c8ec00e774f16"
+    )
+
+
 @pytest.mark.parametrize(
     ("mode", "expects_policy_error"),
     [

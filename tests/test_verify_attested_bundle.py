@@ -322,7 +322,12 @@ def codex_jsonl(
 def attested_bundle(
     tmp_path: pathlib.Path, request: pytest.FixtureRequest
 ) -> AttestedFixture:
-    bounded = getattr(request, "param", None) == "bounded"
+    fixture_case = getattr(request, "param", None)
+    bounded = fixture_case == "bounded"
+    conditional = fixture_case in {
+        "conditional_ladder_v2",
+        "legacy_conditional_full",
+    }
     repo = tmp_path / "checkout"
     repo.mkdir()
     git(repo, "init")
@@ -346,7 +351,11 @@ def attested_bundle(
         "catalogSlug": "agency-test-rate-january-2030",
         "series": "agency.test.rate",
         "period": "2030-01",
-        "conditional": None,
+        "conditional": (
+            "A synthetic statute changes the measured rate before the deadline."
+            if conditional
+            else None
+        ),
         "country": "US",
         "targetUnit": "percent",
         "dataPointId": "agency.test.rate.2030_01.first_print",
@@ -374,7 +383,9 @@ def attested_bundle(
             }
         )
     policy = {
-        "promptMode": "fast",
+        "promptMode": (
+            "ladder_v2" if fixture_case == "conditional_ladder_v2" else "fast"
+        ),
         "codexModel": "gpt-ticket-main",
         "codexReasoningEffort": "high",
         "codexSandbox": "read-only",
@@ -383,6 +394,8 @@ def attested_bundle(
         "reviewCodexSearch": True,
         "timeoutSeconds": 1,
     }
+    if fixture_case == "legacy_conditional_full":
+        policy["promptMode"] = "full"
     ticket = generation_tickets.validate_ticket(
         {
             "schemaVersion": generation_tickets.TICKET_SCHEMA,
@@ -438,7 +451,8 @@ def attested_bundle(
         {
             "slug": target["catalogSlug"],
             "country": "US",
-            "type": "data",
+            "type": "conditional" if conditional else "data",
+            **({"conditionalOn": target["conditional"]} if conditional else {}),
             "title": "Synthetic agency test rate",
             "question": "What will the synthetic rate be?",
             "unit": "percent",
@@ -620,6 +634,14 @@ def attested_bundle(
             else None
         ),
     )
+    # Historical bundles predate the sealed review-prompt mode marker. Their
+    # conditional review artifact therefore carries the v0.1 bytes even when
+    # the run itself used full mode. Explicit ladder rendering is byte-identical
+    # to that frozen legacy template and makes this fixture fail on the old
+    # verifier's implicit-full replay.
+    recorded_review_prompt_mode = (
+        "ladder" if fixture_case == "legacy_conditional_full" else policy["promptMode"]
+    )
     review_prompt = analyst.build_pre_submit_review_prompt(
         series=target["series"],
         period=target["period"],
@@ -627,6 +649,7 @@ def attested_bundle(
         target_context=target,
         original_prompt=prompt,
         draft_response=draft_response,
+        prompt_mode=recorded_review_prompt_mode,
     )
     artifact("pre_submit_review_prompt.md", "review_prompt", review_prompt)
     review_command, review_ref = stage(
@@ -718,6 +741,8 @@ def attested_bundle(
         "generationTicket": binding,
         "checkoutSha": ticket_sha,
     }
+    if fixture_case != "legacy_conditional_full":
+        manifest["preSubmitReviewPromptMode"] = policy["promptMode"]
     write_payload(run_manifest_path(fixture), manifest)
 
     batch = {
@@ -766,6 +791,34 @@ def verify(fixture: AttestedFixture, *, now_utc: dt.datetime = NOW_UTC) -> None:
 
 def test_consistent_attested_bundle_passes(attested_bundle: AttestedFixture) -> None:
     verify(attested_bundle)
+
+
+@pytest.mark.parametrize("attested_bundle", ["conditional_ladder_v2"], indirect=True)
+def test_conditional_ladder_v2_review_prompt_replays_byte_exactly(
+    attested_bundle: AttestedFixture,
+) -> None:
+    verify(attested_bundle)
+
+    manifest = json.loads(run_manifest_path(attested_bundle).read_text())
+    assert manifest["preSubmitReviewPromptMode"] == "ladder_v2"
+    assert (
+        b"policy_chain"
+        not in run_path(attested_bundle, "pre_submit_review_prompt.md").read_bytes()
+    )
+
+
+@pytest.mark.parametrize("attested_bundle", ["legacy_conditional_full"], indirect=True)
+def test_legacy_conditional_review_prompt_without_mode_replays_byte_exactly(
+    attested_bundle: AttestedFixture,
+) -> None:
+    verify(attested_bundle)
+
+    manifest = json.loads(run_manifest_path(attested_bundle).read_text())
+    assert "preSubmitReviewPromptMode" not in manifest
+    assert (
+        b"policy_chain"
+        not in run_path(attested_bundle, "pre_submit_review_prompt.md").read_bytes()
+    )
 
 
 @pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)
@@ -1080,6 +1133,22 @@ def test_policy_mismatch_is_refused(attested_bundle: AttestedFixture) -> None:
     assert str(caught.value) == (
         "policy check failed: batch codexModel does not match ticket policy: "
         "'gpt-tampered' != 'gpt-ticket-main'"
+    )
+
+
+def test_review_prompt_mode_mismatch_is_refused(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_run_manifest(
+        attested_bundle,
+        lambda manifest: manifest.__setitem__("preSubmitReviewPromptMode", "full"),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "policy check failed: run 0 preSubmitReviewPromptMode does not match "
+        "ticket policy: 'full' != 'fast'"
     )
 
 

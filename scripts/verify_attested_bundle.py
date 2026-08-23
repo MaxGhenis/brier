@@ -410,6 +410,20 @@ def _check_policy(
                 f"{run.manifest.get('promptMode')!r} != "
                 f"{policy['promptMode']!r}",
             )
+        # Existing bundles have no review-stage marker and replay the frozen
+        # v0.1 bytes. New bundles seal the actual mode so replay can select the
+        # fast/full policy rubric without changing ladder prompt bytes.
+        review_prompt_mode = run.manifest.get("preSubmitReviewPromptMode")
+        if (
+            review_prompt_mode is not None
+            and review_prompt_mode != policy["promptMode"]
+        ):
+            raise _fail(
+                "policy",
+                f"run {run.index} preSubmitReviewPromptMode does not match "
+                f"ticket policy: {review_prompt_mode!r} != "
+                f"{policy['promptMode']!r}",
+            )
 
 
 def _git_output(repo_root: pathlib.Path, *args: str) -> bytes:
@@ -859,6 +873,7 @@ def _check_prompts(
             target_context=run.target,
             original_prompt=prompt,
             draft_response=draft_stage.last_message,
+            prompt_mode=run.manifest.get("preSubmitReviewPromptMode"),
         )
         recorded_review_prompt = _artifact_bytes(
             bundle_repo,
