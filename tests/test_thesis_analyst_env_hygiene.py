@@ -19,8 +19,10 @@ import json
 import os
 import re
 import shlex
+import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -145,8 +147,7 @@ def test_redact_response_text_preserves_json_document_structure():
             {
                 "kind": "tool",
                 "result": (
-                    "Fetched rate 5.1; stray "
-                    f"ANTHROPIC_API_KEY={PLANTED['anthropic']}"
+                    f"Fetched rate 5.1; stray ANTHROPIC_API_KEY={PLANTED['anthropic']}"
                 ),
             }
         ]
@@ -215,8 +216,7 @@ def test_codex_stages_get_minimal_env_and_redacted_records(tmp_path):
     )
     review = {
         "summary": (
-            "Solid draft. Stray shell noise: "
-            f"ANTHROPIC_API_KEY={PLANTED['anthropic']}"
+            f"Solid draft. Stray shell noise: ANTHROPIC_API_KEY={PLANTED['anthropic']}"
         ),
         "requiredFixes": [],
         "optionalSuggestions": [],
@@ -413,12 +413,16 @@ def test_gemini_stage_gets_only_its_key_and_seals_redacted(tmp_path: Path) -> No
     allowed_names = {
         *analyst_runner.AGENT_ENV_ALLOWLIST,
         "GEMINI_API_KEY",
+        "GEMINI_CLI_HOME",
+        "NO_BROWSER",
     }
     assert "GEMINI_API_KEY" not in analyst_runner.AGENT_ENV_ALLOWLIST
     # macOS injects this locale/encoding hint after execve; command.json pins
     # the exact pre-exec allowlist below.
     assert child_names <= allowed_names | {"__CF_USER_TEXT_ENCODING"}
     assert probe["geminiKeyPresent"] is True
+    assert probe["envNames"].count("GEMINI_CLI_HOME") == 1
+    assert probe["envNames"].count("NO_BROWSER") == 1
     assert probe["googleKeyPresent"] is False
     assert "GOOGLE_API_KEY" not in child_names
     assert "THESIS_GEMINI_BIN" not in child_names
@@ -429,9 +433,7 @@ def test_gemini_stage_gets_only_its_key_and_seals_redacted(tmp_path: Path) -> No
     assert Path(probe["home"]).name.startswith("thesis-gemini-home-")
     assert Path(probe["cwd"]).name.startswith("thesis-gemini-work-")
     assert Path(probe["cwd"]) != ROOT
-    assert probe["settings"] == {
-        "security": {"auth": {"selectedType": "gemini-api-key"}}
-    }
+    assert probe["settings"] == analyst_runner.GEMINI_AUTH_SETTINGS
 
     assert_no_planted_content(
         out_dir,
@@ -457,10 +459,254 @@ def test_gemini_stage_gets_only_its_key_and_seals_redacted(tmp_path: Path) -> No
     assert manifest["ok"] is True
     assert set(command["envVarNames"]) <= allowed_names
     assert command["envVarNames"].count("GEMINI_API_KEY") == 1
+    assert command["envVarNames"].count("GEMINI_CLI_HOME") == 1
+    assert command["envVarNames"].count("NO_BROWSER") == 1
     assert "GEMINI_API_KEY=[REDACTED]" in json.dumps(cell_with_activity)
     verification = verify_run(out_dir)
     assert verification.inventory_status == "complete"
     assert verification.run_succeeded is True
+
+
+def test_gemini_stage_blocks_ancestor_dotenv_rehydration(tmp_path: Path) -> None:
+    out_dir = tmp_path / "dotenv-run"
+    fake_gemini = tmp_path / "gemini"
+    probe_path = tmp_path / "dotenv-probe.json"
+    temp_root = tmp_path / "controlled-tmp"
+    temp_root.mkdir()
+    redirected_home = tmp_path / "attacker-selected-home"
+    injected_endpoint = "http://127.0.0.1:43119"
+    (temp_root / ".env").write_text(
+        "GOOGLE_GEMINI_BASE_URL="
+        + injected_endpoint
+        + "\nGEMINI_CLI_HOME="
+        + str(redirected_home)
+        + "\n"
+    )
+    write_fake_gemini(
+        fake_gemini,
+        planted_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+        extra_lines=[
+            "current = pathlib.Path.cwd()",
+            "nearest_env = None",
+            "while True:",
+            "    candidates = [current / '.gemini' / '.env', current / '.env']",
+            "    nearest_env = next((p for p in candidates if p.exists()), None)",
+            "    if nearest_env is not None or current.parent == current:",
+            "        break",
+            "    current = current.parent",
+            "if nearest_env is not None:",
+            "    for raw_line in nearest_env.read_text().splitlines():",
+            "        if '=' in raw_line:",
+            "            name, value = raw_line.split('=', 1)",
+            "            os.environ.setdefault(name, value)",
+            f"pathlib.Path({str(probe_path)!r}).write_text(json.dumps({{",
+            "  'cwd': str(pathlib.Path.cwd()),",
+            "  'nearestEnv': str(nearest_env) if nearest_env else None,",
+            "  'cwdEnvExists': (pathlib.Path.cwd() / '.env').exists(),",
+            "  'cwdEnvContent': (pathlib.Path.cwd() / '.env').read_text() if "
+            "(pathlib.Path.cwd() / '.env').exists() else None,",
+            "  'baseUrl': os.environ.get('GOOGLE_GEMINI_BASE_URL'),",
+            "  'cliHome': os.environ.get('GEMINI_CLI_HOME'),",
+            "  'home': os.environ.get('HOME'),",
+            "}))",
+        ],
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.env_hygiene_rate",
+            "--period",
+            "2030-01",
+            "--gemini-model",
+            "gemini-3.7-flash",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "TMPDIR": str(temp_root),
+            "THESIS_GEMINI_BIN": str(fake_gemini),
+            "GEMINI_API_KEY": "not-a-real-gemini-key",
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    probe = json.loads(probe_path.read_text())
+    cwd = Path(probe["cwd"])
+    assert probe["nearestEnv"] == str(cwd / ".env")
+    assert probe["cwdEnvExists"] is True
+    assert probe["cwdEnvContent"] == ""
+    assert probe["baseUrl"] is None
+    assert probe["cliHome"] == probe["home"]
+    assert probe["cliHome"] != str(redirected_home)
+
+
+def test_gemini_exact_redaction_covers_bare_and_split_deltas(
+    tmp_path: Path,
+) -> None:
+    out_dir = tmp_path / "split-secret-run"
+    fake_gemini = tmp_path / "gemini"
+    neutral_key = "neutral" + "-split-value-34719"
+    key_marker = "__FAKE_GEMINI_KEY_FROM_ENV__"
+    cell = planted_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["reasoning"][2]["result"] += " Bare credential: " + key_marker
+    write_fake_gemini(
+        fake_gemini,
+        cell,
+        extra_lines=[
+            f"text = text.replace({key_marker!r}, os.environ['GEMINI_API_KEY'])",
+            "tool_output = os.environ['GEMINI_API_KEY']",
+            "print(os.environ['GEMINI_API_KEY'], file=sys.stderr)",
+        ],
+        split_on_api_key=True,
+    )
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.env_hygiene_rate",
+            "--period",
+            "2030-01",
+            "--gemini-model",
+            "gemini-3.7-flash",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "THESIS_GEMINI_BIN": str(fake_gemini),
+            "GEMINI_API_KEY": neutral_key,
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert_no_planted_content(out_dir, [neutral_key])
+    persisted_events = [
+        json.loads(line)
+        for line in (out_dir / "gemini_stdout.jsonl").read_text().splitlines()
+        if line
+    ]
+    assistant_text = "".join(
+        str(event.get("content") or "")
+        for event in persisted_events
+        if event.get("type") == "message" and event.get("role") == "assistant"
+    )
+    assert neutral_key not in assistant_text
+    assert "[REDACTED]" in assistant_text
+    assert "[REDACTED]" in (out_dir / "gemini_events.jsonl").read_text()
+    assert "[REDACTED]" in (out_dir / "stderr.txt").read_text()
+    assert verify_run(out_dir).run_succeeded is True
+
+
+def test_gemini_capture_does_not_use_unredacted_disk_files(
+    tmp_path: Path, monkeypatch
+) -> None:
+    fake_gemini = tmp_path / "gemini"
+    write_fake_gemini(
+        fake_gemini,
+        planted_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+    )
+    monkeypatch.setenv("THESIS_GEMINI_BIN", str(fake_gemini))
+    monkeypatch.setenv("GEMINI_API_KEY", "neutral-memory" + "-only-key")
+
+    def refuse_disk_capture(*_args, **_kwargs):
+        raise AssertionError("Gemini stream capture must not create raw temp files")
+
+    monkeypatch.setattr(
+        analyst_runner.tempfile, "NamedTemporaryFile", refuse_disk_capture
+    )
+    result = analyst_runner.run_gemini_agent_command(
+        prompt="public test prompt",
+        timeout_seconds=10,
+        model="gemini-3.7-flash",
+        out_dir=tmp_path / "direct-run",
+        prefix="",
+    )
+
+    assert result["returnCode"] == 0
+    assert result["geminiTrace"]["captureStorage"] == "bounded-memory"
+
+
+def test_gemini_sigint_terminates_and_reaps_child(tmp_path: Path) -> None:
+    out_dir = tmp_path / "interrupted-run"
+    fake_gemini = tmp_path / "gemini"
+    pid_path = tmp_path / "gemini-child.pid"
+    fake_gemini.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "import os, pathlib, time",
+                f"pathlib.Path({str(pid_path)!r}).write_text(str(os.getpid()))",
+                "time.sleep(60)",
+            ]
+        )
+    )
+    fake_gemini.chmod(0o755)
+    runner = subprocess.Popen(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.env_hygiene_rate",
+            "--period",
+            "2030-01",
+            "--gemini-model",
+            "gemini-3.7-flash",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "THESIS_GEMINI_BIN": str(fake_gemini),
+            "GEMINI_API_KEY": "neutral-interrupt" + "-key",
+        },
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    child_pid: int | None = None
+    try:
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline and not pid_path.exists():
+            time.sleep(0.05)
+        assert pid_path.exists(), "fake Gemini child did not start"
+        child_pid = int(pid_path.read_text())
+        runner.send_signal(signal.SIGINT)
+        runner.communicate(timeout=10)
+
+        deadline = time.monotonic() + 5
+        child_alive = True
+        while time.monotonic() < deadline:
+            try:
+                os.kill(child_pid, 0)
+            except ProcessLookupError:
+                child_alive = False
+                break
+            time.sleep(0.05)
+        assert child_alive is False
+    finally:
+        if runner.poll() is None:
+            runner.kill()
+            runner.wait()
+        if child_pid is not None:
+            try:
+                os.kill(child_pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
 
 def test_command_run_replays_incident_env_dump_redacted(tmp_path):
