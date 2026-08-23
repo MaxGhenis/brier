@@ -725,6 +725,22 @@ def test_fresh_eci_registration_prevents_another_seed_registration(
         "an attempt for 2026-q3 was recorded but never published\n"
     ) in stdout
     assert "  retry " not in stdout
+    # The 2026-08-14 re-registration lapsed through orphan grace and was
+    # terminated on 2026-08-23, so the live exclusion state now refuses on
+    # the terminal record first (gate order: expired before registered).
+    assert (
+        "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print "
+        "is terminally expired-unforecast"
+    ) in stdout
+    # The immutable-registration guard still stands on its own: with the
+    # terminal record out of the picture, the same roll refuses on the
+    # existing registration rather than re-registering.
+    monkeypatch.setattr(
+        roll_docket, "expired_unforecast_registrations", lambda _root: frozenset()
+    )
+    assert roll_docket.main() == 0
+    assert json.loads(output.read_text()) == {"targets": []}
+    stdout = capsys.readouterr().out
     assert (
         "bls.eci.total_compensation_private_industry_qoq.2026_q3.first_print "
         "already has an immutable registration; refusing to re-register"
