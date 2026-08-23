@@ -129,10 +129,19 @@ jobs:
       - name: Install playwright chromium
         run: |
           uv venv .probe-venv
-          uv pip install --python .probe-venv/bin/python playwright==1.49.1
+          uv pip install --python .probe-venv/bin/python playwright==1.62.0
           .probe-venv/bin/playwright install --with-deps chromium
       - name: Probe ssa.gov transports
-        run: .probe-venv/bin/python scripts/_probe/ssa_transport_probe.py
+        run: |
+          .probe-venv/bin/python scripts/_probe/ssa_transport_probe.py
+          for url in \
+            https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-06/table01.html \
+            https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-07/table04.html \
+            https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-07/table02.html \
+            https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-06.html \
+            https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.xml; do
+            .probe-venv/bin/python scripts/official_browser_fetch.py "$url" --out /tmp/body || true
+          done
 
   alert-on-main-failure:
     runs-on: ubuntu-latest
