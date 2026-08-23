@@ -493,13 +493,18 @@ def attested_bundle(
     ]
     last_message = json.dumps(raw_cells, indent=2)
     draft_response = last_message
-    review_response = json.dumps(
-        {
-            "summary": "Synthetic review found no required changes.",
-            "requiredFixes": [],
-            "optionalSuggestions": [],
-        }
-    )
+    review_payload = {
+        "summary": "Synthetic review found no required changes.",
+        "requiredFixes": [],
+        "optionalSuggestions": [],
+    }
+    if (
+        ticket["schemaVersion"] == generation_tickets.TICKET_SCHEMA
+        and conditional
+        and policy["promptMode"] in {"fast", "full"}
+    ):
+        review_payload["decision"] = "APPROVE"
+    review_response = json.dumps(review_payload)
     parsed_cells = analyst.extract_json_payload(last_message)
     parsed_temp = tmp_path / "parsed.json"
     normalized_temp = tmp_path / "normalized.json"
@@ -827,6 +832,24 @@ def test_future_conditional_review_prompt_replays_sealed_mode_byte_exactly(
         b"policy_chain"
         in run_path(attested_bundle, "pre_submit_review_prompt.md").read_bytes()
     )
+
+
+@pytest.mark.parametrize("attested_bundle", ["conditional_fast"], indirect=True)
+def test_current_conditional_review_contract_failure_is_refused(
+    attested_bundle: AttestedFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        verifier,
+        "policy_chain_review_payload_errors",
+        lambda _payload: ["synthetic non-blocking policy-chain finding"],
+    )
+
+    with pytest.raises(
+        verifier.AttestedBundleError,
+        match="policy-chain review contract failed",
+    ):
+        verify(attested_bundle)
 
 
 @pytest.mark.parametrize(

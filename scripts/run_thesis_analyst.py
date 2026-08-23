@@ -62,6 +62,7 @@ from history_floor import (
 )
 from policy_chain_validation import (  # noqa: F401  (public test/tool re-export)
     POLICY_CHAIN_AGENT_VERSION,
+    agent_authored_placeholder_errors,
     agent_version_enforces_policy_chain,
     conditional_policy_chain_errors,
     next_patch_agent_version,
@@ -2469,6 +2470,41 @@ def parse_review_payload(text: str) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def policy_chain_review_payload_errors(payload: Any) -> list[str]:
+    """Validate the blocking semantics of a conditional policy-chain review."""
+
+    if not isinstance(payload, dict):
+        return ["policy-chain review response must be a JSON object"]
+    errors = []
+    decision = payload.get("decision")
+    if decision not in {"APPROVE", "REQUEST_CHANGES"}:
+        errors.append("policy-chain review decision must be APPROVE or REQUEST_CHANGES")
+    fixes = payload.get("requiredFixes")
+    if not isinstance(fixes, list):
+        errors.append("policy-chain review requiredFixes must be a list")
+        return errors
+    has_policy_chain_finding = False
+    for index, fix in enumerate(fixes):
+        if not isinstance(fix, dict):
+            errors.append(
+                f"policy-chain review requiredFixes[{index}] must be an object"
+            )
+            continue
+        if fix.get("rubricItem") != "policy_chain":
+            continue
+        has_policy_chain_finding = True
+        if fix.get("severity") != "blocking":
+            errors.append(
+                f"policy-chain review requiredFixes[{index}] must use severity "
+                "'blocking'"
+            )
+    if has_policy_chain_finding and decision != "REQUEST_CHANGES":
+        errors.append(
+            "policy-chain review with a policy_chain finding must request changes"
+        )
+    return errors
+
+
 def build_pre_submit_review_metadata(
     *,
     status: str,
@@ -2836,6 +2872,7 @@ def validate_cells(
     series: Any = None,
     target_period: Any = None,
     history_registry_root: pathlib.Path | None = None,
+    raw_agent_errors: list[list[str]] | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -2863,7 +2900,7 @@ def validate_cells(
             )
         except ValueError as exc:
             authorization_error = str(exc)
-    for cell in cells:
+    for index, cell in enumerate(cells):
         errors = validate(
             cell,
             taken | seen,
@@ -2873,6 +2910,10 @@ def validate_cells(
             trusted_history_authorization=trusted_history_authorization,
             prompt_mode=prompt_mode,
         )
+        if raw_agent_errors is not None and index < len(raw_agent_errors):
+            errors.extend(
+                error for error in raw_agent_errors[index] if error not in errors
+            )
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
         if authorization_error:
@@ -3801,6 +3842,7 @@ def main() -> int:
     draft_ref: dict[str, Any] | None = None
     review_ref: dict[str, Any] | None = None
     revision_prompt_ref: dict[str, Any] | None = None
+    review_gate_errors: list[str] = []
     hygiene_guarded = False
     hygiene_mutations: list[str] = []
 
@@ -3875,9 +3917,23 @@ def main() -> int:
                     generation_ticket=generation_ticket,
                 )
                 review_payload = parse_review_payload(review_result["stdout"])
+                if review_result["returnCode"] == 0 and (
+                    bool(args.conditional) and args.prompt_mode in {"fast", "full"}
+                ):
+                    review_gate_errors = policy_chain_review_payload_errors(
+                        review_payload
+                    )
                 if review_result["returnCode"] != 0:
                     review_status = "review_failed"
                     command_result = review_result
+                    raw_response = draft_result["stdout"]
+                elif review_gate_errors:
+                    # A reviewer that reports a semantic policy-chain failure
+                    # as non-blocking has not satisfied the review contract.
+                    # Keep its raw artifacts, do not silently coerce them, and
+                    # refuse the draft before starting a revision.
+                    review_status = "review_failed"
+                    command_result = draft_result
                     raw_response = draft_result["stdout"]
                 else:
                     revision_prompt = build_revision_prompt(
@@ -4055,6 +4111,13 @@ def main() -> int:
             run_at,
         )
     )
+    conditional_target = bool(args.conditional) or bool(
+        isinstance(target_context, dict) and target_context.get("conditional")
+    )
+    raw_agent_errors = [
+        agent_authored_placeholder_errors(cell) if conditional_target else []
+        for cell in parsed_cells
+    ]
 
     normalized_path = out_dir / "normalized_cells.json"
     try:
@@ -4186,7 +4249,19 @@ def main() -> int:
             checkout_sha=checkout_sha,
             series=args.series,
             target_period=args.period,
+            raw_agent_errors=raw_agent_errors,
         )
+        if review_gate_errors:
+            validation["ok"] = False
+            review_errors = [
+                "pre-submit policy-chain review contract: " + error
+                for error in review_gate_errors
+            ]
+            for row in validation["cells"]:
+                row["ok"] = False
+                row["errors"].extend(
+                    error for error in review_errors if error not in row["errors"]
+                )
     except (
         ValueError,
         TypeError,

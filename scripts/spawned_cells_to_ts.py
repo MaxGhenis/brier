@@ -328,7 +328,6 @@ def validate(
         conditional_target_context_errors(
             cell,
             target_context=target_context,
-            agent_version=agent_version,
         )
     )
     authenticated_prompt_mode = prompt_mode

@@ -66,6 +66,7 @@ from run_thesis_analyst import (
     normalize_cells,
     parse_codex_jsonl,
     parse_review_payload,
+    policy_chain_review_payload_errors,
     seal_normalized_cells,
     stamp_runtime_invocation,
     validate_cells,
@@ -970,6 +971,20 @@ def _check_prompts(
             policy=policy,
             phase="prompt reconstruction",
         )
+        if (
+            state.ticket.get("schemaVersion") == TICKET_SCHEMA
+            and bool(run.target.get("conditional"))
+            and policy["promptMode"] in {"fast", "full"}
+        ):
+            review_errors = policy_chain_review_payload_errors(
+                parse_review_payload(review_stage.last_message)
+            )
+            if review_errors:
+                raise _fail(
+                    "prompt reconstruction",
+                    f"run {run.index} policy-chain review contract failed: "
+                    + "; ".join(review_errors),
+                )
         revision_prompt = build_revision_prompt(
             original_prompt=prompt,
             draft_response=draft_stage.last_message,

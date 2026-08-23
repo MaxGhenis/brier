@@ -169,7 +169,10 @@ The pre-submit review is the semantic judge above that structural floor. Item
 disconnected from the propagation sentence, and must compare the policy
 effect's direction and size with the cited precedent. Any such failure is a
 blocking `policy_chain` finding and requires `REQUEST_CHANGES` before the final
-cell is submitted.
+cell is submitted. For new conditional fast/full runs, the runner and attested
+replay reject a reviewer response that labels a `policy_chain` finding
+non-blocking or pairs one with `APPROVE`; the failed review trace is preserved
+and no revision is started.
 
 Machine-checked requirements (CI-validated literally, not approximately;
 a trace missing any is rejected):

@@ -487,6 +487,30 @@ def test_converter_rejects_conditional_target_relabelled_as_data() -> None:
     ]
 
 
+@pytest.mark.parametrize("prompt_mode", ["ladder", "ladder_v2"])
+def test_converter_rejects_relabelled_conditional_ladder_at_legacy_agent_version(
+    prompt_mode: str,
+) -> None:
+    cell = converter_policy_cell(None, prompt_mode=prompt_mode)
+    cell["type"] = "data"
+    target_context = {
+        "conditional": "A registered policy changes the measured outcome."
+    }
+
+    errors = spawned_cells_to_ts.validate(
+        cell,
+        set(),
+        target_context=target_context,
+        agent_version="2.5.11",
+        prompt_mode=prompt_mode,
+    )
+
+    assert policy_chain_validation_errors(errors) == [
+        "conditional policy chain: authenticated conditional target requires cell "
+        "type 'conditional'"
+    ]
+
+
 @pytest.mark.parametrize("claimed_mode", ["ladder", "ladder_v2"])
 def test_converter_requires_manifest_authentication_for_ladder_exemption(
     claimed_mode: str,

@@ -52,12 +52,13 @@ _ALL_CAPS_TEMPLATE_SLOT_RE = re.compile(
     r"\b(?:POLICY_CHAIN_URL_[0-9]+|(?:[A-Z][A-Z0-9]*_)+[A-Z0-9]+|"
     r"LOW|HIGH|UNIT)\b"
 )
-_AGENT_AUTHORED_FIELDS = {
+_AGENT_AUTHORED_FIELDS = (
     "conditionalOn",
     "country",
     "dataPointId",
     "drivers",
     "historicalContext",
+    "historyAvailability",
     "question",
     "reasoning",
     "resolutionDate",
@@ -70,7 +71,7 @@ _AGENT_AUTHORED_FIELDS = {
     "title",
     "type",
     "unit",
-}
+)
 _POPULATION_CUE_RE = re.compile(
     r"\b(?:touch(?:es|ed|ing)?|affect(?:s|ed|ing)?|eligible|"
     r"cover(?:s|ed|ing)?|appl(?:y|ies|ied|ying)\s+to|"
@@ -289,16 +290,24 @@ def _remove_dot_segments(path: str) -> str:
     return output
 
 
-def _redirect_surface_views(value: str) -> list[str]:
-    views = []
+def _embeds_redirect_target(value: str) -> bool:
+    """Detect absolute HTTP targets through arbitrarily nested encoding.
+
+    Every successful percent-decoding pass shortens the string, so its initial
+    length is a conservative convergence bound. Exhaustion is still treated as
+    a redirect target: offline validation cannot authenticate an unresolved
+    encoding surface.
+    """
+
     current = value
-    for _ in range(4):
-        views.append(current)
+    for _ in range(len(value) + 1):
+        if _ABSOLUTE_HTTP_RE.search(current) or _ENCODED_HTTP_RE.search(current):
+            return True
         decoded = unquote(current)
         if decoded == current:
-            break
+            return False
         current = decoded
-    return views
+    return True
 
 
 def _is_unauthenticated_redirector(url: str) -> bool:
@@ -307,10 +316,7 @@ def _is_unauthenticated_redirector(url: str) -> bool:
     except ValueError:
         return True
     surface = parsed.path + (f"?{parsed.query}" if parsed.query else "")
-    return any(
-        _ABSOLUTE_HTTP_RE.search(view) or _ENCODED_HTTP_RE.search(view)
-        for view in _redirect_surface_views(surface)
-    )
+    return _embeds_redirect_target(surface)
 
 
 def _url_identity(url: str) -> tuple[str, int | None, str] | None:
@@ -470,33 +476,35 @@ def _affirmative_clauses(text: str) -> list[str]:
     ]
 
 
-def _agent_authored_strings(cell: dict[str, Any]) -> list[str]:
-    def strings(value: Any) -> list[str]:
-        if isinstance(value, str):
-            return [value]
-        if isinstance(value, list):
-            return [text for entry in value for text in strings(entry)]
-        if isinstance(value, dict):
-            return [text for entry in value.values() for text in strings(entry)]
-        return []
-
-    return [
-        text
-        for field in _AGENT_AUTHORED_FIELDS
-        if field in cell
-        for text in strings(cell[field])
-    ]
+def _strings(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [text for entry in value for text in _strings(entry)]
+    if isinstance(value, dict):
+        return [text for entry in value.values() for text in _strings(entry)]
+    return []
 
 
-def _placeholder_tokens(cell: dict[str, Any]) -> list[str]:
+def _placeholder_tokens(value: Any) -> list[str]:
     tokens = []
-    for text in _agent_authored_strings(cell):
+    for text in _strings(value):
         for pattern in (_BRACKETED_TEMPLATE_SLOT_RE, _ALL_CAPS_TEMPLATE_SLOT_RE):
             for match in pattern.finditer(text):
                 token = match.group(0)
                 if token not in tokens:
                     tokens.append(token)
     return tokens
+
+
+def agent_authored_placeholder_errors(value: Any) -> list[str]:
+    """Reject template residue in raw or explicitly agent-authored text."""
+
+    return [
+        "conditional policy chain: agent-authored text contains an unsubstituted "
+        f"placeholder token: {token!r}"
+        for token in _placeholder_tokens(value)
+    ]
 
 
 def _has_fetched_population_count(text: str) -> bool:
@@ -582,7 +590,6 @@ def conditional_target_context_errors(
     cell: dict[str, Any],
     *,
     target_context: dict[str, Any] | None,
-    agent_version: Any,
 ) -> list[str]:
     """Keep a sealed conditional target from being relabeled to bypass the gate."""
 
@@ -590,8 +597,7 @@ def conditional_target_context_errors(
         target_context.get("conditional") if isinstance(target_context, dict) else None
     )
     if (
-        agent_version_enforces_policy_chain(agent_version)
-        and isinstance(conditional, str)
+        isinstance(conditional, str)
         and conditional.strip()
         and cell.get("type") != "conditional"
     ):
@@ -609,11 +615,9 @@ def conditional_policy_chain_errors(
 
     if cell.get("type") != "conditional":
         return []
-    placeholder_errors = [
-        "conditional policy chain: agent-authored text contains an unsubstituted "
-        f"placeholder token: {token!r}"
-        for token in _placeholder_tokens(cell)
-    ]
+    placeholder_errors = agent_authored_placeholder_errors(
+        {field: cell[field] for field in _AGENT_AUTHORED_FIELDS if field in cell}
+    )
     reasoning = cell.get("reasoning")
     policy_steps = []
     if isinstance(reasoning, list):

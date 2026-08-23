@@ -600,6 +600,50 @@ def test_malformed_reviewer_findings_do_not_crash() -> None:
     assert "tighten interval" in summaries
 
 
+def test_policy_chain_reviewer_contract_rejects_nonblocking_approval() -> None:
+    errors = analyst_runner.policy_chain_review_payload_errors(
+        {
+            "decision": "APPROVE",
+            "summary": "The precedent is disconnected.",
+            "requiredFixes": [
+                {
+                    "rubricItem": "policy_chain",
+                    "severity": "warning",
+                    "summary": "The precedent is disconnected.",
+                    "actionRequested": "Tie it to propagation.",
+                }
+            ],
+            "optionalSuggestions": [],
+        }
+    )
+
+    assert errors == [
+        "policy-chain review requiredFixes[0] must use severity 'blocking'",
+        "policy-chain review with a policy_chain finding must request changes",
+    ]
+
+
+def test_policy_chain_reviewer_contract_accepts_blocking_request_changes() -> None:
+    assert (
+        analyst_runner.policy_chain_review_payload_errors(
+            {
+                "decision": "REQUEST_CHANGES",
+                "summary": "The precedent is disconnected.",
+                "requiredFixes": [
+                    {
+                        "rubricItem": "policy_chain",
+                        "severity": "blocking",
+                        "summary": "The precedent is disconnected.",
+                        "actionRequested": "Tie it to propagation.",
+                    }
+                ],
+                "optionalSuggestions": [],
+            }
+        )
+        == []
+    )
+
+
 def test_malformed_reviewer_collection_containers_become_findings() -> None:
     # Round-five reproduction: the COLLECTION itself may be a scalar,
     # string, or object rather than a list. list(7) and list(1e309)
@@ -2626,6 +2670,114 @@ def test_conditional_policy_chain_rejects_placeholder_citation_injection() -> No
     )
 
 
+def test_conditional_policy_chain_rejects_history_availability_placeholder() -> None:
+    cell = conditional_policy_test_cell(complete_policy_precedent_step())
+    cell["historyAvailability"] = {
+        "status": "official_source_exposes_fewer_than_six_prints",
+        "availablePrintCount": 5,
+        "detail": "Unused PRECEDENT_URL",
+    }
+
+    assert any(
+        "agent-authored text contains an unsubstituted placeholder token" in error
+        for error in analyst_runner.conditional_policy_chain_errors(cell)
+    )
+
+
+def test_fast_conditional_policy_chain_rejects_placeholder_dropped_by_normalizer(
+    tmp_path: Path,
+) -> None:
+    cell = conditional_policy_test_cell(complete_policy_precedent_step())
+    cell["reasoning"][-1]["text"] = "Normalizer would discard [HIDDEN_SLOT]"
+
+    code, out_dir = run_fast_conditional_policy_case(
+        tmp_path,
+        "policy-raw-placeholder",
+        cell,
+    )
+
+    assert code == 1
+    assert any(
+        "agent-authored text contains an unsubstituted placeholder token" in error
+        for error in policy_validation_errors(out_dir)
+    )
+
+
+def test_fast_conditional_policy_chain_reviewer_contract_failure_blocks_draft(
+    tmp_path: Path,
+) -> None:
+    cell = conditional_policy_test_cell(complete_policy_precedent_step())
+    out_dir = tmp_path / "policy-review-contract"
+    codex_home = tmp_path / "policy-review-contract-codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "policy-review-contract-codex"
+    bad_review = {
+        "decision": "APPROVE",
+        "summary": "The precedent is disconnected.",
+        "requiredFixes": [
+            {
+                "rubricItem": "policy_chain",
+                "severity": "warning",
+                "summary": "The precedent is disconnected.",
+                "actionRequested": "Tie it to propagation.",
+            }
+        ],
+        "optionalSuggestions": [],
+    }
+    write_fake_codex(
+        fake_codex,
+        cell,
+        extra_lines=[
+            "model = args[args.index('-m') + 1]",
+            f"review_text = {json.dumps(json.dumps(bad_review))}",
+            "if model == 'gpt-review':",
+            "    text = review_text",
+        ],
+    )
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--pre-submit-review-codex-model",
+            "gpt-review",
+            "--prompt-mode",
+            "fast",
+            "--conditional",
+            POLICY_CONDITIONAL,
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    assert manifest["ok"] is False
+    assert manifest["preSubmitReview"]["status"] == "review_failed"
+    assert any(
+        "pre-submit policy-chain review contract" in error
+        for error in manifest["validation"]["cells"][0]["errors"]
+    )
+    assert not (out_dir / "revision_prompt.md").exists()
+    _custody_passes(out_dir)
+
+
 def test_fast_conditional_policy_chain_missing_step_fails_closed(
     tmp_path: Path,
 ) -> None:
@@ -2805,6 +2957,7 @@ def test_conditional_policy_chain_accepts_distinct_same_host_precedent() -> None
         "https://redirect.example/go?u=https://leg.example/bill/1",
         "https://redirect.example/https%3A%2F%2Fleg.example%2Fbill%2F1",
         "https://redirect.example/go?next=%2568%2574%2574%2570%253A%252F%252Fleg.example",
+        "https://redirect.example/go?url=http%2525253A%2525252F%2525252Fleg.example",
     ],
 )
 def test_conditional_policy_chain_rejects_unauthenticated_redirectors(
