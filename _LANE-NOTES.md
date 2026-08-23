@@ -37,7 +37,9 @@ Branch: `feat/gemini-cli-backend` (no pushes)
 
 ## Commits
 
-- Pending local commits after the implementation audit.
+- `673a45db` — Add Gemini CLI analyst backend.
+- `69000e4e` — Pass Gemini models through analyst batches.
+- Documentation and final run report pending.
 
 ## 2026-08-23 — implementation and regression verification
 
