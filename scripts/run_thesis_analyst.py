@@ -894,7 +894,7 @@ def build_fast_prompt(
         "For the fail-safe form, label its clauses `Touched population:`, "
         "`Propagation:`, `Offsets:`, and `Timing/lag:`. Name every fetched "
         "precedent URL in that step, put it in the same sentence as the "
-        "propagation claim, and repeat it exactly in sourceContext. The "
+        "propagation claim, and repeat each URL exactly in sourceContext. The "
         "fetched count's number and population unit/noun must occur in the "
         "same clause. A clause containing no/not/unknown/unrelated/none does "
         "not supply a component. Do not leave bracketed or ALL-CAPS template "
