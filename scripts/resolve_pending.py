@@ -11269,11 +11269,119 @@ def _base_has_release_chain(tree: RepositoryTree) -> bool:
     return any(relative.startswith(prefix) for relative in tree.files)
 
 
+REGISTRY_FORBIDDEN_EVENT_FIELDS = ("reclaimed", "revived", "supersedes")
+
+
+def _identity_belongs_to_rows(concept: str, appended_row_ids: list[str]) -> bool:
+    """True when the concept's segments are an in-order subsequence of one
+    appended observation's dataPointId (the generator derives concepts from
+    row ids by dropping period segments, wherever they sit)."""
+    segments = concept.split(".")
+    if len(segments) < 2 or not all(segments):
+        return False
+    for row_id in appended_row_ids:
+        remaining = iter(str(row_id).split("."))
+        if all(segment in remaining for segment in segments):
+            return True
+    return False
+
+
+def _registry_growth_refusal(
+    base_registry: bytes,
+    regenerated_registry: bytes,
+    appended_row_ids: list[str],
+) -> str | None:
+    """Why the regenerated UUID registry exceeds this append's own lifecycle.
+
+    ``None`` when every registry change is the sanctioned first-observation
+    lifecycle for a row this proposal appends: append-only growth whose new
+    lines are plain mints of full identities with fresh UUIDs, or the
+    generator's documented docket-placeholder enrichment (a ``retired``
+    line for the committed placeholder followed by a ``succeeds`` mint that
+    keeps its UUID and concept). Anything else — rewritten committed lines,
+    supersedes/revive/reclaim events, identities that belong to no appended
+    row, placeholder mints, UUID reuse — is named and refused, preserving
+    the 2026-08-17 invariant that appends never rewrite series identities
+    while unblocking the lifecycle it overshot: without this allowance no
+    series could ever take its first observation (fresh identities cannot
+    be pre-minted in chronicle — its generator retires bindings that no
+    observation backs — and a seeded placeholder's first observation is
+    exactly the enrichment the byte-compare refused; resolve loop failures
+    2026-08-18 through 2026-08-22, issues #202-#206).
+    """
+
+    if not regenerated_registry.startswith(base_registry):
+        return "the regenerated registry rewrites committed lines"
+    base_entries: list[dict[str, Any]] = []
+    for line in base_registry.decode("utf-8", "replace").splitlines():
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(entry, dict):
+            base_entries.append(entry)
+    base_uuids = {entry.get("uuid") for entry in base_entries}
+    committed_placeholders = {
+        (entry.get("concept"), entry.get("uuid"))
+        for entry in base_entries
+        if entry.get("geography") is None
+        and entry.get("entity") is None
+        and not any(
+            marker in entry
+            for marker in (*REGISTRY_FORBIDDEN_EVENT_FIELDS, "retired", "succeeds")
+        )
+    }
+    retired_here: set[tuple[Any, Any]] = set()
+    minted_here: set[Any] = set()
+    tail = regenerated_registry[len(base_registry) :]
+    for line in tail.decode("utf-8", "replace").splitlines():
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            return f"appended registry line is not JSON: {line[:120]!r}"
+        if not isinstance(entry, dict):
+            return f"appended registry line is not an object: {line[:120]!r}"
+        concept, uuid = entry.get("concept"), entry.get("uuid")
+        if not isinstance(concept, str) or not isinstance(uuid, str):
+            return f"appended registry line lacks concept/uuid: {line[:120]!r}"
+        if not _identity_belongs_to_rows(concept, appended_row_ids):
+            return (
+                f"appended identity {concept!r} belongs to no observation in "
+                "this append"
+            )
+        forbidden = [
+            marker for marker in REGISTRY_FORBIDDEN_EVENT_FIELDS if marker in entry
+        ]
+        if forbidden:
+            return f"appended registry line carries {forbidden} for {concept!r}"
+        if entry.get("retired") is True:
+            if entry.get("geography") is not None or entry.get("entity") is not None:
+                return f"append retires a non-placeholder identity {concept!r}"
+            if (concept, uuid) not in committed_placeholders:
+                return f"retire of {concept!r} matches no committed docket placeholder"
+            retired_here.add((concept, uuid))
+            continue
+        if entry.get("geography") is None or entry.get("entity") is None:
+            return f"append mints a placeholder identity for {concept!r}"
+        if "succeeds" in entry:
+            if (concept, uuid) not in retired_here:
+                return (
+                    f"succeeds-mint for {concept!r} without its placeholder "
+                    "retire in this append"
+                )
+            continue
+        if uuid in base_uuids or uuid in minted_here:
+            return f"mint for {concept!r} reuses UUID {uuid}"
+        minted_here.add(uuid)
+    return None
+
+
 def _regenerate_series_catalog(
     stage: pathlib.Path,
     *,
     candidate_ledger: bytes,
     base_registry: bytes,
+    appended_row_ids: list[str] | None = None,
 ) -> bytes:
     """Regenerate and validate the catalog using the staged base's generator."""
 
@@ -11305,9 +11413,15 @@ def _regenerate_series_catalog(
             "staged series-catalog generator removed the UUID registry"
         ) from exc
     if regenerated_registry != base_registry:
-        raise LedgerProposalError(
-            "staged series-catalog generator minted or superseded series identities"
+        growth_refusal = _registry_growth_refusal(
+            base_registry, regenerated_registry, appended_row_ids or []
         )
+        if growth_refusal:
+            raise LedgerProposalError(
+                "staged series-catalog generator minted or superseded series "
+                f"identities beyond this append's own first observations: "
+                f"{growth_refusal}"
+            )
 
     catalog_path = stage / "ledger" / "series_catalog.json"
     try:
@@ -11405,10 +11519,21 @@ def _prepare_release_files(
                 f"base commit is missing UUID registry {registry_path}"
             )
         (stage / LEDGER_RELATIVE).write_bytes(candidate_ledger)
+        appended_row_ids: list[str] = []
+        for appended_line in candidate_ledger[len(base_ledger) :].splitlines():
+            if not appended_line.strip():
+                continue
+            try:
+                appended_row = json.loads(appended_line)
+            except json.JSONDecodeError:
+                appended_row = None
+            if isinstance(appended_row, dict):
+                appended_row_ids.append(str(appended_row.get("source_record_id", "")))
         catalog = _regenerate_series_catalog(
             stage,
             candidate_ledger=candidate_ledger,
             base_registry=base_registry,
+            appended_row_ids=appended_row_ids,
         )
         manifest, manifest_raw = _build_next_release_manifest(
             candidate_ledger,
@@ -11457,7 +11582,7 @@ def _prepare_release_files(
             enforce_production_pins=enforce_production_pins,
             clock_skew_seconds=clock_skew_seconds,
         )
-        return {
+        changes = {
             (stage_path.relative_to(stage).as_posix()): stage_path.read_bytes()
             for stage_path in (
                 manifest_path,
@@ -11465,6 +11590,13 @@ def _prepare_release_files(
                 producer_signature_path,
             )
         } | {"ledger/series_catalog.json": catalog}
+        regenerated_registry = (stage / registry_path).read_bytes()
+        if regenerated_registry != base_registry:
+            # The catalog binds the registry it was generated against; a
+            # first-observation mint the growth gate accepted must ship in
+            # the same proposal commit or the merged state is incoherent.
+            changes[registry_path] = regenerated_registry
+        return changes
 
 
 def ledger_state(repo: str, branch: str, path: str) -> tuple[str, str, str]:

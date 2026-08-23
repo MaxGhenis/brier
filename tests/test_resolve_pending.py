@@ -5053,3 +5053,218 @@ def test_main_defers_ssa_edition_pages_on_404_but_not_on_the_by_date(
     assert resolve_pending.main() == 0
     out = capsys.readouterr().out
     assert f"  resolve {ref} -> 66.284 thousands" in out
+
+
+# ---------------------------------------------------------------------------
+# Registry growth: appends may mint their own first observations, nothing else
+# (the 2026-08-17 byte-compare guard overshot — no series could ever take its
+# first observation; resolve-loop failures 2026-08-18..22, issues #202-#206).
+
+
+def _registry_line(**fields) -> bytes:
+    return json.dumps(fields).encode() + b"\n"
+
+
+BASE_REGISTRY = _registry_line(
+    concept="dol.eta.continued_claims.sa",
+    geography={"level": "country", "id": "0100000US", "vintage": "current"},
+    entity={"name": "person", "role": "ui_claimant"},
+    uuid="00000000-0000-4000-8000-000000000001",
+) + _registry_line(
+    concept="census.housing.completions_saar",
+    geography=None,
+    entity=None,
+    uuid="00000000-0000-4000-8000-000000000002",
+)
+FULL_IDENTITY = {
+    "geography": {"level": "country", "id": "0100000US", "vintage": "current"},
+    "entity": {"name": "economy", "role": "aggregate"},
+}
+
+
+def test_registry_growth_allows_own_mints_and_placeholder_enrichment() -> None:
+    refusal = resolve_pending._registry_growth_refusal
+    rows = [
+        "va.vba.mmwr.claims_inventory.week_2026-07-13.first_print",
+        "census.housing.completions_saar.2026_07.first_print",
+    ]
+    grown = (
+        BASE_REGISTRY
+        + _registry_line(
+            concept="census.housing.completions_saar",
+            geography=None,
+            entity=None,
+            uuid="00000000-0000-4000-8000-000000000002",
+            retired=True,
+            note="docket placeholder enriched by first observed identity",
+        )
+        + _registry_line(
+            concept="census.housing.completions_saar",
+            **FULL_IDENTITY,
+            uuid="00000000-0000-4000-8000-000000000002",
+            succeeds={
+                "concept": "census.housing.completions_saar",
+                "geography": None,
+                "entity": None,
+            },
+        )
+        + _registry_line(
+            concept="va.vba.mmwr.claims_inventory",
+            **FULL_IDENTITY,
+            uuid="00000000-0000-4000-8000-000000000003",
+        )
+    )
+    assert refusal(BASE_REGISTRY, grown, rows) is None
+    assert refusal(BASE_REGISTRY, BASE_REGISTRY, rows) is None
+
+
+def test_registry_growth_refuses_everything_beyond_the_appended_rows() -> None:
+    refusal = resolve_pending._registry_growth_refusal
+    rows = ["va.vba.mmwr.claims_inventory.week_2026-07-13.first_print"]
+    mint = dict(concept="va.vba.mmwr.claims_inventory", **FULL_IDENTITY)
+    # Rewriting committed lines is never an append.
+    assert "rewrites committed lines" in refusal(
+        BASE_REGISTRY, BASE_REGISTRY[:-2] + b"x\n", rows
+    )
+    # An identity that belongs to no appended observation.
+    assert "belongs to no observation" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            concept="bea.gdp.advance",
+            **FULL_IDENTITY,
+            uuid="00000000-0000-4000-8000-000000000009",
+        ),
+        rows,
+    )
+    # Single-segment concepts never qualify.
+    assert "belongs to no observation" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            concept="va", **FULL_IDENTITY, uuid="00000000-0000-4000-8000-000000000009"
+        ),
+        rows,
+    )
+    # Supersede/revive/reclaim events stay chronicle-side.
+    assert "['supersedes']" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            **mint,
+            uuid="00000000-0000-4000-8000-000000000009",
+            supersedes="00000000-0000-4000-8000-000000000001",
+            note="x",
+        ),
+        rows,
+    )
+    # UUID reuse outside the sanctioned enrichment.
+    assert "reuses UUID" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(**mint, uuid="00000000-0000-4000-8000-000000000001"),
+        rows,
+    )
+    # Appends may not mint placeholders.
+    assert "placeholder identity" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            concept="va.vba.mmwr.claims_inventory",
+            geography=None,
+            entity=None,
+            uuid="00000000-0000-4000-8000-000000000009",
+        ),
+        rows,
+    )
+    # Retiring anything but a committed placeholder is refused.
+    assert "non-placeholder" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            **mint,
+            uuid="00000000-0000-4000-8000-000000000009",
+            retired=True,
+            note="x",
+        ),
+        rows,
+    )
+    assert "matches no committed docket placeholder" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            concept="va.vba.mmwr.claims_inventory",
+            geography=None,
+            entity=None,
+            uuid="00000000-0000-4000-8000-000000000009",
+            retired=True,
+            note="x",
+        ),
+        ["va.vba.mmwr.claims_inventory.week_2026-07-13.first_print"],
+    )
+    # A succeeds-mint needs its placeholder retire in the same append.
+    assert "without its placeholder retire" in refusal(
+        BASE_REGISTRY,
+        BASE_REGISTRY
+        + _registry_line(
+            concept="census.housing.completions_saar",
+            **FULL_IDENTITY,
+            uuid="00000000-0000-4000-8000-000000000002",
+            succeeds={
+                "concept": "census.housing.completions_saar",
+                "geography": None,
+                "entity": None,
+            },
+        ),
+        ["census.housing.completions_saar.2026_07.first_print"],
+    )
+    # Junk lines fail closed.
+    assert "not JSON" in refusal(BASE_REGISTRY, BASE_REGISTRY + b"not json\n", rows)
+    assert "lacks concept/uuid" in refusal(
+        BASE_REGISTRY, BASE_REGISTRY + b'{"uuid":"new"}\n', rows
+    )
+
+
+def test_append_proposal_accepts_the_generators_own_first_observation_mint(
+    tmp_path: pathlib.Path,
+) -> None:
+    """A staged generator minting exactly the appended row's identity passes."""
+    tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    minted_line = json.dumps(
+        {
+            "concept": "test.series.minted",
+            "geography": {"level": "country", "id": "0100000US", "vintage": "current"},
+            "entity": {"name": "economy", "role": "aggregate"},
+            "uuid": "00000000-0000-4000-8000-00000000aaaa",
+        }
+    )
+    tree.files["scripts/build_series_catalog.py"] = tree.files[
+        "scripts/build_series_catalog.py"
+    ].replace(
+        b"import check_thesis_facts_append  # noqa: F401",
+        b"import check_thesis_facts_append  # noqa: F401\n"
+        b"import json as json_module\n"
+        b"registry_path = pathlib.Path('ledger/series_uuid_registry.jsonl')\n"
+        b"registry_path.write_bytes(registry_path.read_bytes() + "
+        + repr(minted_line + "\n").encode()
+        + b".encode())",
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.minted.2026-07.first_print","value":1}\n'
+    )
+    changes = resolve_pending._prepare_release_files(
+        tree,
+        path="ledger/official_observations.jsonl",
+        candidate_ledger=candidate,
+        added=1,
+        requester=requester,
+        timeout_seconds=10,
+        clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+        anchor_dir=anchor_dir,
+        now=dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2),
+        producer_signing_key=signing_key_pem,
+    )
+    regenerated = changes["ledger/series_uuid_registry.jsonl"]
+    assert regenerated.endswith(minted_line.encode() + b"\n")
+    assert regenerated.startswith(tree.files["ledger/series_uuid_registry.jsonl"])
