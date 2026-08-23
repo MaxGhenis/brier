@@ -14,6 +14,15 @@ batch) resolve straight from the BLS Public Data API v2 series their
 resolutionSourceUrls bind, under a temporal first-print gate and runtime
 anchor verification (see BLS_API_ADAPTERS).
 
+Aging/disability batch (2026-08-23): BLS CPS series (no preliminary
+footnote; latest-month gate), CES home health care, LAUS Colorado (BLS API);
+the VA VBA Monday Morning Workload Report workbook (VA_MMWR_ADAPTERS,
+Last-Modified first-posting gate); SSA SSI Monthly Statistics / Monthly
+Statistical Snapshot editions and the OHO workload XML
+(SSA_OFFICIAL_ADAPTERS) through a declared headless-browser transport
+(scripts/official_browser_fetch.py) with Wayback corroboration, because
+ssa.gov refuses every non-browser client. See docs/anchor-verifications.md.
+
 Usage:
     python3 scripts/resolve_pending.py [--dry-run]
         [--ledger-repo PolicyEngine/chronicle]
@@ -61,6 +70,8 @@ from urllib.parse import quote, urlparse
 from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
 
+import ssa_official_pages
+import va_mmwr
 import verify_records_attestations as records_provenance
 from canonical_json import canonical_bytes, canonical_sha256
 from ledger_release_chain import (
@@ -2202,9 +2213,125 @@ BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
             "2025": 2.6,
         },
     },
+    # Aging/disability batch (wired 2026-08-23). CPS household-survey series
+    # never carry BLS's preliminary "P" footnote (verified live: every
+    # LNS11324230 and LNU02374597 row has empty footnotes), so their
+    # first-print gate is purely temporal (`first_print_gate: latest_month`):
+    # a period is captured only while it is still the series' latest
+    # published month, i.e. before the next Employment Situation. BLS's
+    # stated policy makes that window a first-print window: "BLS policy is to
+    # not revise previous months' official seasonally adjusted CPS estimates
+    # as new data become available during the year. Instead, revisions are
+    # introduced for the most recent 5 years of data at the end of each
+    # year" (bls.gov/cps/seasonal-adjustment-methodology.htm, read
+    # 2026-08-23). LAUS state series carry "P" on the latest month and use
+    # the default gate; the API serves persons, so that spec scales to the
+    # catalog's thousands. Anchors reproduce the cells' own recorded
+    # histories (docs/anchor-verifications.md).
+    "bls.cps.lfpr_55_plus": {
+        "series_id": "LNS11324230",
+        "period_type": "month",
+        "unit": "percent",
+        "label": "US labor force participation rate, 55 years and over (SA)",
+        "source_name": "bls_cps",
+        "source_table": (
+            "Current Population Survey, labor force participation rate, "
+            "55 years and over, seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "LNS11324230",
+        "first_print_gate": "latest_month",
+        "anchor_start_year": 2025,
+        "anchors": {
+            "2025-06": 38.0,
+            "2025-12": 37.9,
+            "2026-04": 37.1,
+            "2026-06": 37.1,
+        },
+    },
+    "bls.cps.LNU02374597": {
+        "series_id": "LNU02374597",
+        "period_type": "month",
+        "unit": "percent",
+        "label": (
+            "US employment-population ratio, persons with a disability, "
+            "16 years and over (NSA)"
+        ),
+        "source_name": "bls_cps",
+        "source_table": (
+            "Current Population Survey, employment-population ratio, persons "
+            "with a disability, 16 years and over, not seasonally adjusted "
+            "(Employment Situation Table A-6)"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "LNU02374597",
+        "first_print_gate": "latest_month",
+        "anchor_start_year": 2025,
+        "anchors": {
+            "2025-06": 22.7,
+            "2025-12": 23.4,
+            "2026-04": 21.8,
+            "2026-06": 21.8,
+        },
+    },
+    "bls.ces.home_health_care_services.employment": {
+        "series_id": "CES6562160001",
+        "period_type": "month",
+        "unit": "thousands",
+        "label": "US home health care services employment (SA)",
+        "source_name": "bls_ces",
+        "source_table": (
+            "Current Employment Statistics, all employees, home health care "
+            "services (NAICS 6216), seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "CES6562160001",
+        "anchor_start_year": 2025,
+        "anchors": {
+            "2025-06": 1778.8,
+            "2025-12": 1830.3,
+            "2026-04": 1868.0,
+            "2026-05": 1878.0,
+        },
+    },
+    "bls.laus.colorado.labor_force": {
+        "series_id": "LASST080000000000006",
+        "period_type": "month",
+        "unit": "thousands",
+        "scale": 0.001,
+        "round": 1,
+        "label": "Colorado civilian labor force (SA)",
+        "source_name": "bls_laus",
+        "source_table": (
+            "Local Area Unemployment Statistics, Colorado, civilian labor "
+            "force, seasonally adjusted (State Employment and Unemployment, "
+            "Table 1)"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "LASST080000000000006",
+        "anchor_start_year": 2025,
+        # API units are persons; the ledger value is scaled to thousands.
+        "anchors": {
+            "2025-06": 3258203,
+            "2025-12": 3254073,
+            "2026-04": 3215558,
+            "2026-06": 3193312,
+        },
+    },
 }
 for _spec in BLS_API_ADAPTERS.values():
-    if _spec["period_type"] == "month":
+    if _spec.get("first_print_gate") == "latest_month":
+        _spec["evidence_notes"] = (
+            "First print for {period} captured from {source_url} (BLS Public "
+            "Data API v2, current estimates only) inside the first-print "
+            "window: at capture the value was still the series' latest "
+            "published month. CPS household-survey rows carry no preliminary "
+            "footnote, and BLS policy is not to revise previous months' "
+            "official seasonally adjusted CPS estimates during the year "
+            "(annual end-of-year revision of the latest 5 years), so the value "
+            "served before the next Employment Situation is the first print."
+        )
+    elif _spec["period_type"] == "month":
         _spec["evidence_notes"] = (
             "First print for {period} captured from {source_url} (BLS Public "
             "Data API v2, current estimates only) inside the first-print "
@@ -3003,6 +3130,542 @@ def cms_provider_data_value(
             "row/column or upstream restructuring"
         )
     return round(value, spec.get("round", 4)), None
+
+
+# ---------------------------------------------------------------------------
+# VA VBA Monday Morning Workload Report (weekly rating-bundle inventory).
+#
+# The cell family binds the VBA Detailed Claims Data page; the resolvable
+# artifact is the weekly MMWR workbook that page links under each Monday
+# report date (the file is named by the preceding Saturday's data-through
+# date: report 07/13/2026 -> MMWR-07-11-2026.xlsx). The national
+# "Compensation and Pension Rating Bundle" "# Pending" cell of the
+# Transformation sheet is the page's headline "Pending Claims" status card.
+# First-posting evidence is the workbook's Last-Modified header: every
+# observed 2026 report was modified on its report Monday (07/06, a holiday
+# week, on the Tuesday), so a file modified more than
+# VA_MMWR_POSTING_WINDOW_DAYS after its report date is a re-post and is
+# refused. Anchors are reproduced from the official workbooks at wiring time
+# and re-verified from the live files at every run; the forecasting cell's
+# own recorded history is deliberately NOT used as an anchor source here —
+# three of its four "fetched" historical values do not exist in any VA
+# workbook (see docs/anchor-verifications.md).
+VA_MMWR_ALLOWED_HOSTS = ("www.benefits.va.gov", "benefits.va.gov")
+VA_MMWR_POSTING_WINDOW_DAYS = 7
+VA_MMWR_ENVELOPE_SCHEMA = "va_mmwr_workbook_capture_v1"
+VA_MMWR_ADAPTERS: dict[str, dict[str, Any]] = {
+    "va.vba.mmwr.claims_inventory": {
+        "series_id": "va-vba-mmwr-rating-bundle-pending",
+        "unit": "thousands",
+        "scale": 0.001,
+        "round": 3,
+        "label": (
+            "VA VBA Monday Morning Workload Report, Compensation and Pension "
+            "Rating Bundle pending claims (national)"
+        ),
+        "source_name": "va_vba_mmwr",
+        "source_table": (
+            "Monday Morning Workload Report workbook, Transformation sheet, "
+            "Compensation and Pension Rating Bundle Metrics (National View), "
+            "# Pending, Compensation and Pension Rating Bundle / Total row"
+        ),
+        "concept_authority": "va_vba",
+        "source_concept": "Compensation and Pension Rating Bundle: # Pending",
+        "source_url": va_mmwr.LANDING_URL,
+        # Report Mondays -> whole pending claims reproduced 2026-08-23 from
+        # the official workbooks the landing page links for those dates.
+        "anchors": {
+            "2026-06-22": 593770,
+            "2026-06-29": 589026,
+            "2026-07-06": 601630,
+        },
+        "sanity_range": (100_000, 2_000_000),
+        "evidence_notes": (
+            "First print for the {period} report captured from the VBA "
+            "Detailed Claims Data page's own link for that report date "
+            "({source_url}): the linked MMWR workbook's Transformation sheet, "
+            "Compensation and Pension Rating Bundle / Total, # Pending (cached "
+            "value of the data_only read), whose Last-Modified header placed "
+            "its posting inside the first-posting window after the report "
+            "date; the workbook's 'Reporting through' cell matched the file's "
+            "data-through date and its cached percent reproduced the counts."
+        ),
+    },
+}
+
+
+def parse_va_mmwr_ref(ref: str, stem: str) -> str | None:
+    """``<stem>.week_YYYY-MM-DD.first_print`` -> ``YYYY-MM-DD`` (report date)."""
+    match = re.fullmatch(
+        rf"{re.escape(stem)}\.week_(\d{{4}}-\d{{2}}-\d{{2}})(?:\.first_print)?", ref
+    )
+    if not match:
+        return None
+    try:
+        dt.date.fromisoformat(match.group(1))
+    except ValueError:
+        return None
+    return match.group(1)
+
+
+def va_mmwr_http_get(url: str) -> tuple[bytes, dict[str, str], str, str]:
+    """(body, lower-cased headers, retrievedAt, finalUrl) with host pinning."""
+    _require_allowed_host(url, VA_MMWR_ALLOWED_HOSTS)
+    request = urllib.request.Request(url, headers={"User-Agent": INTL_USER_AGENT})
+    retrieved_at = utc_now()
+    opener = urllib.request.build_opener(_PinnedRedirectHandler(VA_MMWR_ALLOWED_HOSTS))
+    with opener.open(request, timeout=300) as response:
+        final_url = response.geturl()
+        _require_allowed_host(final_url, VA_MMWR_ALLOWED_HOSTS)
+        headers = {key.lower(): value for key, value in response.headers.items()}
+        return response.read(), headers, retrieved_at, final_url
+
+
+@dataclass(frozen=True)
+class VaMmwrCapture:
+    report_date: dt.date
+    href: str
+    workbook_url: str
+    file_date: dt.date
+    raw: bytes
+    headers: dict[str, str]
+    retrieved_at: str
+    last_modified: dt.datetime
+    reading: va_mmwr.RatingBundleReading
+
+
+def va_mmwr_capture_report(
+    landing_raw: bytes,
+    report_date: dt.date,
+    workbook_cache: dict[str, tuple[bytes, dict[str, str], str, str]],
+) -> tuple[VaMmwrCapture | None, str | None]:
+    """Resolve one report date to its workbook and parsed rating-bundle cell.
+
+    (capture, refusal): identity refusals (no or several links, a file date
+    far from the report date, a non-workbook body, a failed posting gate, a
+    restructured sheet) come back as text; transport failures propagate.
+    """
+    try:
+        href = va_mmwr.landing_workbook_href(landing_raw, report_date)
+        file_date = va_mmwr.workbook_file_date(href)
+        va_mmwr.require_file_date_near_report(file_date, report_date)
+    except va_mmwr.VaMmwrError as exc:
+        return None, str(exc)
+    url = va_mmwr.workbook_url(href)
+    if url not in workbook_cache:
+        workbook_cache[url] = va_mmwr_http_get(url)
+    raw, headers, retrieved_at, final_url = workbook_cache[url]
+    if final_url != url:
+        return None, f"workbook request for {url} landed on {final_url}"
+    content_type = headers.get("content-type", "")
+    if "spreadsheetml" not in content_type and "ms-excel" not in content_type:
+        return None, (
+            f"workbook response is {content_type!r}, not a spreadsheet (the VA "
+            "site answers missing files with an HTML page and HTTP 200)"
+        )
+    last_modified, gate = va_mmwr.posting_gate(
+        headers.get("last-modified"),
+        file_date=file_date,
+        report_date=report_date,
+        window_days=VA_MMWR_POSTING_WINDOW_DAYS,
+    )
+    if gate:
+        return None, gate
+    assert last_modified is not None
+    try:
+        reading = va_mmwr.read_rating_bundle_pending(raw, expected_through=file_date)
+    except va_mmwr.VaMmwrError as exc:
+        return None, str(exc)
+    return (
+        VaMmwrCapture(
+            report_date=report_date,
+            href=href,
+            workbook_url=url,
+            file_date=file_date,
+            raw=raw,
+            headers=headers,
+            retrieved_at=retrieved_at,
+            last_modified=last_modified,
+            reading=reading,
+        ),
+        None,
+    )
+
+
+def va_mmwr_capture_envelope(
+    *,
+    spec: Mapping[str, Any],
+    landing_raw: bytes,
+    landing_retrieved_at: str,
+    target: VaMmwrCapture,
+    anchors: list[VaMmwrCapture],
+    value: float,
+) -> bytes:
+    """Archive every response that authenticated the weekly first print."""
+
+    def capture_block(capture: VaMmwrCapture, *, include_body: bool) -> dict[str, Any]:
+        block: dict[str, Any] = {
+            "reportDate": capture.report_date.isoformat(),
+            "href": capture.href,
+            "url": capture.workbook_url,
+            "dataThroughDate": capture.file_date.isoformat(),
+            "retrievedAt": capture.retrieved_at,
+            "lastModified": capture.headers.get("last-modified"),
+            "etag": capture.headers.get("etag"),
+            "contentType": capture.headers.get("content-type"),
+            "bytes": len(capture.raw),
+            "sha256": hashlib.sha256(capture.raw).hexdigest(),
+            "reading": {
+                "sheet": capture.reading.sheet,
+                "cell": capture.reading.cell,
+                "pending": capture.reading.pending,
+                "pendingOver125": capture.reading.pending_over_125,
+                "pctOver125": capture.reading.pct_over_125,
+                "reportingThrough": capture.reading.reporting_through.isoformat(),
+            },
+        }
+        if include_body:
+            block["bodyBase64"] = base64.b64encode(capture.raw).decode()
+        return block
+
+    return canonical_bytes(
+        {
+            "schemaVersion": VA_MMWR_ENVELOPE_SCHEMA,
+            "landingPage": {
+                "url": va_mmwr.LANDING_URL,
+                "retrievedAt": landing_retrieved_at,
+                "bytes": len(landing_raw),
+                "sha256": hashlib.sha256(landing_raw).hexdigest(),
+                "bodyBase64": base64.b64encode(landing_raw).decode(),
+            },
+            "workbook": capture_block(target, include_body=True),
+            "anchors": [
+                capture_block(anchor, include_body=False) for anchor in anchors
+            ],
+            "derived": {
+                "sourceSeriesId": spec["series_id"],
+                "reportDate": target.report_date.isoformat(),
+                "unit": spec["unit"],
+                "value": value,
+                "postingWindowDays": VA_MMWR_POSTING_WINDOW_DAYS,
+            },
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
+# SSA official statistical pages (SSI Monthly Statistics, Monthly Statistical
+# Snapshot) and the OHO Hearing Office Workload Data XML.
+#
+# Transport: ssa.gov sits behind Akamai Bot Manager and answers every
+# non-browser TLS client with HTTP 403 (verified 2026-08-23: curl/urllib with
+# browser headers, from a laptop and from a GitHub Actions runner; the
+# Wayback Machine's Save Page Now also fails on these URLs). A real headless
+# Chromium, with an honest User-Agent suffix naming this resolver, is served
+# normally; robots.txt disallows none of these paths. The family therefore
+# fetches through scripts/official_browser_fetch.py and records the engine,
+# UA, headers, and hashes in every capture envelope. The Wayback Machine is
+# used only as corroboration: when a capture of the same URL exists, its
+# parsed value must agree with the live page.
+#
+# First-print discipline: SSI Monthly Statistics and Monthly Statistical
+# Snapshot editions live at per-period URLs (…/ssi_monthly/2026-06/table01
+# .html, …/stat_snapshot/2026-06.html). Overlapping months are identical
+# across editions (verified 2026-08-23: May 2026 total recipients 7,322,937
+# in the May, June, and July editions' Table 2; the July edition's June row
+# equals June's Table 1; Table 4 "All areas" equals Table 2's month), so a
+# capture of an edition page reproduces its first print. The OHO workload
+# XML is a rolling URL that is overwritten monthly, so its period must be
+# authenticated from RPTG_PRD_ENDT, falling back to the earliest Wayback
+# capture that carries the target period once the live file has rolled.
+SSA_ALLOWED_HOSTS = ("www.ssa.gov",)
+SSA_CAPTURE_SCHEMA = "ssa_official_page_capture_v1"
+SSA_SSI_MONTHLY_URL = (
+    "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/{period}/{table}.html"
+)
+SSA_SNAPSHOT_URL = (
+    "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/{period}.html"
+)
+SSA_OHO_WORKLOAD_XML_URL = (
+    "https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.xml"
+)
+SSA_OFFICIAL_ADAPTERS: dict[str, dict[str, Any]] = {
+    "ssa.ssi.recipients_aged_65_plus": {
+        "reader": "ssi_table1",
+        "release_evidence": "edition_page",
+        "row": "Total",
+        "column": "65 or older",
+        "url_template": SSA_SSI_MONTHLY_URL,
+        "table": "table01",
+        "series_id": "ssa-ssi-monthly-table01-total-65-plus",
+        "unit": "thousands",
+        "scale": 0.001,
+        "round": 3,
+        "label": (
+            "US SSI recipients aged 65 or older, all federally administered payments"
+        ),
+        "source_name": "ssa_ssi_monthly",
+        "source_table": (
+            "SSI Monthly Statistics, Table 1 (All Federally Administered "
+            "Payments), Number of recipients, Total row, Age 65 or older"
+        ),
+        "concept_authority": "ssa",
+        "source_concept": "Table 1: Number of recipients, Total, 65 or older",
+        "anchors": {"2026-05": 2501549},
+        "sanity_range": (1_500_000, 4_000_000),
+    },
+    "ssa.ssi.recipients.colorado.aged_65_plus": {
+        "reader": "ssi_table4",
+        "release_evidence": "edition_page",
+        "state": "Colorado",
+        "column": "65 or older",
+        "url_template": SSA_SSI_MONTHLY_URL,
+        "table": "table04",
+        "series_id": "ssa-ssi-monthly-table04-colorado-65-plus",
+        "unit": "count",
+        "label": (
+            "Colorado SSI recipients aged 65 or older, all federally "
+            "administered payments"
+        ),
+        "source_name": "ssa_ssi_monthly",
+        "source_table": (
+            "SSI Monthly Statistics, Table 4 (All Federally Administered "
+            "Payments), Colorado row, Age 65 or older"
+        ),
+        "concept_authority": "ssa",
+        "source_concept": "Table 4: Number of recipients, Colorado, 65 or older",
+        "anchors": {"2026-06": 23063},
+        "sanity_range": (10_000, 60_000),
+    },
+    "ssa.ssi.recipients.colorado": {
+        "reader": "ssi_table4",
+        "release_evidence": "edition_page",
+        "state": "Colorado",
+        "column": "Total",
+        "url_template": SSA_SSI_MONTHLY_URL,
+        "table": "table04",
+        "series_id": "ssa-ssi-monthly-table04-colorado-total",
+        "unit": "thousands",
+        "scale": 0.001,
+        "round": 3,
+        "label": "Colorado SSI recipients, all federally administered payments",
+        "source_name": "ssa_ssi_monthly",
+        "source_table": (
+            "SSI Monthly Statistics, Table 4 (All Federally Administered "
+            "Payments), Colorado row, Total"
+        ),
+        "concept_authority": "ssa",
+        "source_concept": "Table 4: Number of recipients, Colorado, Total",
+        "anchors": {"2026-06": 66417},
+        "sanity_range": (30_000, 150_000),
+    },
+    "ssa.ssi.total_recipients": {
+        "reader": "ssi_table2",
+        "release_evidence": "edition_page",
+        "url_template": SSA_SSI_MONTHLY_URL,
+        "table": "table02",
+        "series_id": "ssa-ssi-monthly-table02-total-recipients",
+        "unit": "millions",
+        "scale": 0.000001,
+        "round": 6,
+        "label": "US SSI recipients, all federally administered payments",
+        "source_name": "ssa_ssi_monthly",
+        "source_table": (
+            "SSI Monthly Statistics, Table 2 (All Federally Administered "
+            "Payments), Number of recipients, Total, the edition's own month"
+        ),
+        "concept_authority": "ssa",
+        "source_concept": "Table 2: Number of recipients, Total",
+        "anchors": {"2026-06": 7323731},
+        "sanity_range": (5_000_000, 10_000_000),
+    },
+    "ssa.oasdi.disabled_worker_beneficiaries": {
+        "reader": "snapshot_table2",
+        "release_evidence": "edition_page",
+        "group": "Disability Insurance",
+        "row": "Disabled workers",
+        "url_template": SSA_SNAPSHOT_URL,
+        "series_id": "ssa-stat-snapshot-table02-disabled-workers",
+        "unit": "thousands",
+        "label": (
+            "US disabled-worker beneficiaries in current-payment status "
+            "(Monthly Statistical Snapshot)"
+        ),
+        "source_name": "ssa_stat_snapshot",
+        "source_table": (
+            "Monthly Statistical Snapshot, Table 2 (Social Security benefits), "
+            "Disability Insurance, Disabled workers, Beneficiaries Number "
+            "(thousands)"
+        ),
+        "concept_authority": "ssa",
+        "source_concept": (
+            "Table 2: Disability Insurance, Disabled workers, Number (thousands)"
+        ),
+        "anchors": {"2026-05": 7029},
+        "sanity_range": (5_000, 10_000),
+    },
+    "ssa.hearings.average_processing_time_days": {
+        "reader": "oho_workload_xml",
+        "url_template": SSA_OHO_WORKLOAD_XML_URL,
+        "series_id": "ssa-oho-hearing-office-workload-national-apt",
+        "unit": "count",
+        "label": (
+            "SSA hearings national fiscal-year-to-date average processing time (days)"
+        ),
+        "source_name": "ssa_oho_public_data",
+        "source_table": (
+            "Office of Hearings Operations, Hearing Office Workload Data "
+            "(02_HO_Workload_Data.xml), national Average Processing Time"
+        ),
+        "concept_authority": "ssa",
+        "source_concept": "DSPN_AVGPT (national)",
+        "anchors": {},
+        "sanity_range": (100, 1_000),
+    },
+}
+
+
+def ssa_period_url(spec: Mapping[str, Any], period: str) -> str:
+    return str(spec["url_template"]).format(period=period, table=spec.get("table", ""))
+
+
+def ssa_read_value(
+    spec: Mapping[str, Any], raw: bytes, period: str
+) -> ssa_official_pages.SsaTableReading:
+    """Dispatch to the reviewed reader for ``spec``; raises SsaPageError."""
+    reader = spec["reader"]
+    if reader == "ssi_table1":
+        return ssa_official_pages.ssi_table1_count(
+            raw, period, row=spec["row"], column=spec["column"]
+        )
+    if reader == "ssi_table4":
+        return ssa_official_pages.ssi_table4_count(
+            raw, period, state=spec["state"], column=spec["column"]
+        )
+    if reader == "ssi_table2":
+        return ssa_official_pages.ssi_table2_total_recipients(raw, period)
+    if reader == "snapshot_table2":
+        return ssa_official_pages.snapshot_table2_thousands(
+            raw, period, group=spec["group"], row=spec["row"]
+        )
+    raise ValueError(f"no table reader for {reader!r}")
+
+
+def ssa_scaled_value(spec: Mapping[str, Any], raw_value: int) -> float:
+    value = raw_value * spec.get("scale", 1)
+    digits = spec.get("round")
+    if digits is not None:
+        value = round(value, digits)
+    return round(value, 9) + 0.0
+
+
+def ssa_wayback_fetch(url: str) -> bytes:
+    raw, _retrieved_at, _final = http_get(
+        url, allowed_hosts=("web.archive.org",), timeout=90
+    )
+    return raw
+
+
+def ssa_wayback_corroboration(
+    url: str,
+    parse: Callable[[bytes], int],
+    *,
+    fetch: Callable[[str], bytes] | None = None,
+) -> dict[str, Any]:
+    """Compare the live parsed value with the earliest parseable Wayback capture.
+
+    Never a hard dependency: an unreachable CDX or no capture records
+    ``status: unavailable`` / ``none``. A capture that parses to a different
+    value is reported (``corroboratingCapture.value``) and the caller refuses.
+    ``fetch`` defaults to the module-level ``ssa_wayback_fetch`` looked up at
+    call time so tests can substitute it.
+    """
+    fetch = fetch or ssa_wayback_fetch
+    try:
+        captures = ssa_official_pages.wayback_captures(url, fetch)
+    except Exception as exc:  # noqa: BLE001 - corroboration is best effort
+        return {"status": "unavailable", "error": str(exc)[:300], "captures": []}
+    summary = [
+        {
+            "timestamp": c["timestamp"],
+            "digest": c.get("digest"),
+            "length": c.get("length"),
+        }
+        for c in captures
+    ]
+    for capture in captures:
+        try:
+            body = ssa_official_pages.wayback_capture_body(
+                capture["timestamp"], url, fetch
+            )
+            value = parse(body)
+        except Exception as exc:  # noqa: BLE001 - try the next capture
+            summary_entry = next(
+                s for s in summary if s["timestamp"] == capture["timestamp"]
+            )
+            summary_entry["parse_error"] = str(exc)[:200]
+            continue
+        return {
+            "status": "parsed",
+            "captures": summary,
+            "corroboratingCapture": {
+                "timestamp": capture["timestamp"],
+                "capturedAt": ssa_official_pages.wayback_timestamp_to_iso(
+                    capture["timestamp"]
+                ),
+                "url": ssa_official_pages.wayback_raw_url(capture["timestamp"], url),
+                "sha256": hashlib.sha256(body).hexdigest(),
+                "value": value,
+            },
+        }
+    return {"status": "none" if not captures else "unparseable", "captures": summary}
+
+
+def ssa_capture_envelope(
+    *,
+    spec: Mapping[str, Any],
+    period: str,
+    capture: Any,
+    reading: ssa_official_pages.SsaTableReading | None,
+    raw_value: int | None,
+    value: float | None,
+    anchors: list[dict[str, Any]],
+    wayback: dict[str, Any],
+    extra: dict[str, Any] | None = None,
+) -> bytes:
+    """Archive the browser capture plus everything that authenticated it."""
+    derived: dict[str, Any] = {
+        "sourceSeriesId": spec["series_id"],
+        "reader": spec["reader"],
+        "period": period,
+        "unit": spec["unit"],
+        "rawValue": raw_value,
+        "value": value,
+    }
+    if reading is not None:
+        derived.update(
+            {
+                "row": reading.row,
+                "column": reading.column,
+                "tableCaption": reading.table_caption,
+                "identities": list(reading.identities),
+            }
+        )
+    if extra:
+        derived.update(extra)
+    return canonical_bytes(
+        {
+            "schemaVersion": SSA_CAPTURE_SCHEMA,
+            "transport": capture.transport_record(),
+            "page": {
+                **capture.response_record(),
+                "bodyBase64": base64.b64encode(capture.body).decode(),
+            },
+            "anchors": anchors,
+            "wayback": wayback,
+            "derived": derived,
+        }
+    )
 
 
 MONTH_NUMBERS = {
@@ -6911,12 +7574,26 @@ def bls_annual_first_print(
     return value, None
 
 
+BLS_FIRST_PRINT_GATES = {"latest_preliminary", "latest_month"}
+
+
 def bls_first_print(
-    rows: dict[str, dict[str, Any]], period: str
+    rows: dict[str, dict[str, Any]],
+    period: str,
+    gate: str = "latest_preliminary",
 ) -> tuple[float | None, str | None]:
     """(value, refusal): a value only while `period` is still the series'
-    latest preliminary print; a present-but-revised period is refused, an
-    absent one defers."""
+    latest print; a present-but-revised period is refused, an absent one
+    defers.
+
+    ``gate="latest_preliminary"`` (CES, LAUS, every series BLS flags) also
+    requires the preliminary "P" footnote. ``gate="latest_month"`` is for CPS
+    household-survey series, which BLS never flags preliminary and does not
+    revise between Employment Situation releases: the period must simply
+    still be the latest published month.
+    """
+    if gate not in BLS_FIRST_PRINT_GATES:
+        raise ValueError(f"unknown BLS first-print gate {gate!r}")
     latest_period = max(rows, default=None)
     state = rows.get(period)
     if state is None:
@@ -6927,7 +7604,16 @@ def bls_first_print(
                 "target period was not published"
             )
         return None, None
-    if not (period == latest_period and state["latest"] and state["preliminary"]):
+    is_latest = period == latest_period and state["latest"]
+    if gate == "latest_month":
+        if not is_latest:
+            return None, (
+                f"{period} is published but no longer the latest month; the "
+                "first-print window was missed — resolve manually from an "
+                "archived vintage"
+            )
+        return state["value"], None
+    if not (is_latest and state["preliminary"]):
         return None, (
             f"{period} is published but no longer the latest preliminary "
             "print; the first-print window was missed — resolve manually "
@@ -10251,6 +10937,38 @@ def pending_adapter_refs(
                     (ref, "a19", spec, parsed[0], parsed[1], release_date, forecast)
                 )
             continue
+        va_mmwr_stem = longest_adapter_stem(ref, VA_MMWR_ADAPTERS)
+        if va_mmwr_stem:
+            report_date = parse_va_mmwr_ref(ref, va_mmwr_stem)
+            if report_date is not None:
+                out.append(
+                    (
+                        ref,
+                        "va_mmwr",
+                        VA_MMWR_ADAPTERS[va_mmwr_stem],
+                        "week",
+                        report_date,
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        ssa_stem = longest_adapter_stem(ref, SSA_OFFICIAL_ADAPTERS)
+        if ssa_stem:
+            parsed = parse_ref_period(ref, ssa_stem)
+            if parsed and parsed[0] == "month":
+                out.append(
+                    (
+                        ref,
+                        "ssa_official",
+                        SSA_OFFICIAL_ADAPTERS[ssa_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
         bls_stem = next(
             (stem for stem in BLS_API_ADAPTERS if ref.startswith(stem + ".")),
             None,
@@ -11896,7 +12614,9 @@ FAMILY_ADAPTERS = {
     "irs_soi_pub1304": {"irs-soi-pub1304"},
     "qcew": {"bls-qcew"},
     "sba_pdf": {SBA_BINDING_ADAPTER},
+    "ssa_official": {"ssa-official-page"},
     "usaspending": {"usaspending-api"},
+    "va_mmwr": {"va-mmwr-workbook"},
 }
 
 
@@ -12103,6 +12823,14 @@ def main() -> int:
     # download per distribution URL, shared across cells on the same file.
     cms_metastore_cache: dict[str, tuple[str, str, str] | None] = {}
     cms_csv_cache: dict[str, bytes | None] = {}
+    # VA MMWR: one landing-page read per run; workbooks cached per URL so
+    # anchors and targets that share a week download once.
+    va_landing: tuple[bytes, str] | None = None
+    va_landing_failed = False
+    va_workbook_cache: dict[str, tuple[bytes, dict[str, str], str, str]] = {}
+    # SSA official pages: one headless-browser capture per URL per run.
+    ssa_capture_cache: dict[str, Any] = {}
+    ssa_browser_unavailable: str | None = None
     sba_timeline_cache: Mapping[str, Any] | None = None
     sba_timeline_error: str | None = None
     sba_timeline_loaded = False
@@ -12133,10 +12861,18 @@ def main() -> int:
         # A registered-query snapshot likewise uses resolutionDate as the
         # window's conservative end; its USAspending leg must be allowed to
         # capture the first snapshot from the registered window's start.
+        # SSA editions are per-period pages: the edition's existence is the
+        # release evidence and the cells' resolutionDate is a declared
+        # outer by-date, so the family may capture as soon as the edition
+        # is posted (a missing edition defers on HTTP 404).
+        is_edition_page = (
+            kind == "ssa_official" and spec.get("release_evidence") == "edition_page"
+        )
         if (
             release_day > today
             and resolution_date_basis == DEFAULT_RESOLUTION_DATE_BASIS
             and not is_registered_query_snapshot
+            and not is_edition_page
         ):
             print(f"  release {release_day} not reached: {ref}")
             continue
@@ -12603,10 +13339,18 @@ def main() -> int:
             if period_type == "year":
                 value, refusal = bls_annual_first_print(rows, period)
             else:
-                value, refusal = bls_first_print(rows, period)
+                value, refusal = bls_first_print(
+                    rows,
+                    period,
+                    spec.get("first_print_gate", "latest_preliminary"),
+                )
             if refusal:
                 print(f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — {refusal}")
                 continue
+            if value is not None and ("scale" in spec or "round" in spec):
+                # LAUS serves persons for a catalog in thousands; rounding
+                # follows the cell's resolver (one decimal thousand).
+                value = round(value * spec.get("scale", 1), spec.get("round", 4)) + 0.0
             # The API has no vintage archive, so the capture day IS the
             # source vintage; the latest+preliminary gate above bounds it
             # inside the first-print window.
@@ -12948,6 +13692,385 @@ def main() -> int:
             source_file = fetched_url
             series_id = spec["series_id"]
             extension = "json"
+        elif kind == "va_mmwr":
+            report_date = dt.date.fromisoformat(period)
+            if va_landing is None and not va_landing_failed:
+                try:
+                    landing_raw, _headers, landing_retrieved_at, _final = (
+                        va_mmwr_http_get(va_mmwr.LANDING_URL)
+                    )
+                    va_landing = (landing_raw, landing_retrieved_at)
+                except Exception as exc:  # noqa: BLE001 - defer, don't crash
+                    print(
+                        "  VA MMWR landing page fetch failed (deferring): "
+                        f"{ref} — {exc}"
+                    )
+                    va_landing_failed = True
+            if va_landing is None:
+                continue
+            landing_raw, landing_retrieved_at = va_landing
+            anchor_captures: list[VaMmwrCapture] = []
+            anchor_problem: str | None = None
+            for anchor_date, expected in sorted(spec["anchors"].items()):
+                try:
+                    anchor_capture, anchor_refusal = va_mmwr_capture_report(
+                        landing_raw,
+                        dt.date.fromisoformat(anchor_date),
+                        va_workbook_cache,
+                    )
+                except Exception as exc:  # noqa: BLE001 - defer, don't crash
+                    anchor_problem = f"anchor {anchor_date} fetch failed: {exc}"
+                    break
+                if anchor_refusal or anchor_capture is None:
+                    anchor_problem = f"anchor {anchor_date}: {anchor_refusal}"
+                    break
+                if anchor_capture.reading.pending != expected:
+                    anchor_problem = (
+                        f"anchor {anchor_date}={anchor_capture.reading.pending} "
+                        f"(recorded {expected})"
+                    )
+                    break
+                anchor_captures.append(anchor_capture)
+            if anchor_problem:
+                print(
+                    f"  ANCHOR MISMATCH (refusing, wrong VA workbook cell?): {ref} — "
+                    f"{anchor_problem}"
+                )
+                continue
+            try:
+                target_capture, target_refusal = va_mmwr_capture_report(
+                    landing_raw, report_date, va_workbook_cache
+                )
+            except Exception as exc:  # noqa: BLE001 - defer, don't crash
+                print(f"  VA MMWR workbook fetch failed (deferring): {ref} — {exc}")
+                continue
+            if target_refusal or target_capture is None:
+                if (
+                    target_refusal
+                    and "expected exactly one report link" in target_refusal
+                ):
+                    print(f"  not yet published (deferring): {ref} — {target_refusal}")
+                elif target_refusal and "re-post" in target_refusal:
+                    print(
+                        "  FIRST-PRINT WINDOW MISSED (refusing): "
+                        f"{ref} — {target_refusal}"
+                    )
+                else:
+                    print(
+                        f"  VA MMWR PARSE REFUSAL (refusing): {ref} — {target_refusal}"
+                    )
+                continue
+            low, high = spec["sanity_range"]
+            if not low <= target_capture.reading.pending <= high:
+                print(
+                    f"  VA MMWR PARSE REFUSAL (refusing): {ref} — pending "
+                    f"{target_capture.reading.pending} outside sanity range "
+                    f"[{low}, {high}]"
+                )
+                continue
+            value = (
+                round(target_capture.reading.pending * spec["scale"], spec["round"])
+                + 0.0
+            )
+            raw = va_mmwr_capture_envelope(
+                spec=spec,
+                landing_raw=landing_raw,
+                landing_retrieved_at=landing_retrieved_at,
+                target=target_capture,
+                anchors=anchor_captures,
+                value=value,
+            )
+            # The workbook's Last-Modified (UTC day) is the posting vintage
+            # the gate just authenticated as first; the capture stamp is the
+            # fetch time.
+            release_day = target_capture.last_modified.astimezone(
+                dt.timezone.utc
+            ).date()
+            source_url = target_capture.workbook_url
+            source_file = posixpath.basename(target_capture.href)
+            series_id = spec["series_id"]
+            retrieved_at = target_capture.retrieved_at
+            extension = "json"
+            period_type, period = "week_ending", target_capture.file_date.isoformat()
+            spec = {
+                **spec,
+                "evidence_notes": spec["evidence_notes"].replace(
+                    "{period}", report_date.isoformat()
+                ),
+            }
+        elif kind == "ssa_official":
+            if ssa_browser_unavailable:
+                print(
+                    "  SSA BROWSER ENVIRONMENT FAILURE (fatal): "
+                    f"{ref} — {ssa_browser_unavailable}"
+                )
+                environment_failures.append(f"{ref}: {ssa_browser_unavailable}")
+                continue
+            try:
+                from official_browser_fetch import (
+                    BrowserFetchError,
+                    BrowserFetchUnavailableError,
+                    browser_fetch,
+                )
+            except ImportError as exc:  # pragma: no cover - module ships with the repo
+                ssa_browser_unavailable = f"official_browser_fetch import failed: {exc}"
+                print(
+                    "  SSA BROWSER ENVIRONMENT FAILURE (fatal): "
+                    f"{ref} — {ssa_browser_unavailable}"
+                )
+                environment_failures.append(f"{ref}: {ssa_browser_unavailable}")
+                continue
+
+            def ssa_capture(url: str) -> tuple[Any | None, str | None]:
+                """(capture, refusal) from the per-run browser cache."""
+                nonlocal ssa_browser_unavailable
+                if url in ssa_capture_cache:
+                    return ssa_capture_cache[url], None
+                try:
+                    capture = browser_fetch(url, allowed_hosts=SSA_ALLOWED_HOSTS)
+                except BrowserFetchUnavailableError as exc:
+                    ssa_browser_unavailable = str(exc)
+                    return None, f"environment: {exc}"
+                except BrowserFetchError as exc:
+                    return None, f"fetch failed: {exc}"
+                ssa_capture_cache[url] = capture
+                return capture, None
+
+            if spec["reader"] == "oho_workload_xml":
+                # Rolling URL: authenticate the reporting period from the
+                # file itself, falling back to the earliest Wayback capture
+                # that carries the target period once the live file rolled.
+                url = ssa_period_url(spec, period)
+                capture, capture_refusal = ssa_capture(url)
+                if capture is None:
+                    if capture_refusal and capture_refusal.startswith("environment"):
+                        print(
+                            "  SSA BROWSER ENVIRONMENT FAILURE (fatal): "
+                            f"{ref} — {capture_refusal}"
+                        )
+                        environment_failures.append(f"{ref}: {capture_refusal}")
+                    else:
+                        print(
+                            "  SSA OHO fetch failed (deferring): "
+                            f"{ref} — {capture_refusal}"
+                        )
+                    continue
+                try:
+                    workload = ssa_official_pages.oho_workload_file(capture.body)
+                except ssa_official_pages.SsaPageError as exc:
+                    print(f"  SSA OHO PARSE REFUSAL (refusing): {ref} — {exc}")
+                    continue
+                period_end = workload.reporting_period_end
+                witnessed: dict[str, Any] = {"status": "live", "captures": []}
+                if period_end.strftime("%Y-%m") != period:
+                    if period_end.strftime("%Y-%m") < period:
+                        print(
+                            f"  not yet published (deferring): {ref} — live workload "
+                            f"file still reports through {period_end}"
+                        )
+                        continue
+
+                    # Rolled past the target: the first print survives only
+                    # as an external capture.
+                    def _period_capture(body: bytes) -> int:
+                        candidate = ssa_official_pages.oho_workload_file(body)
+                        if candidate.reporting_period_end.strftime("%Y-%m") != period:
+                            raise ssa_official_pages.SsaPageError(
+                                "capture reports through "
+                                f"{candidate.reporting_period_end}"
+                            )
+                        return int(candidate.reporting_period_end.strftime("%Y%m%d"))
+
+                    witnessed = ssa_wayback_corroboration(url, _period_capture)
+                    corroborating = witnessed.get("corroboratingCapture")
+                    if not corroborating:
+                        print(
+                            f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — the live "
+                            f"workload file now reports through {period_end} and no "
+                            f"Wayback capture carries the {period} reporting period "
+                            f"(status {witnessed.get('status')})"
+                        )
+                        continue
+                    body = ssa_official_pages.wayback_capture_body(
+                        corroborating["timestamp"], url, ssa_wayback_fetch
+                    )
+                    workload = ssa_official_pages.oho_workload_file(body)
+                    witnessed["resolvedFrom"] = {
+                        "timestamp": corroborating["timestamp"],
+                        "url": corroborating["url"],
+                        "sha256": hashlib.sha256(body).hexdigest(),
+                        "bodyBase64": base64.b64encode(body).decode(),
+                    }
+                national, national_note = (
+                    ssa_official_pages.oho_national_average_processing_time(workload)
+                )
+                if national is None:
+                    print(
+                        f"  SOURCE PUBLISHES NO NATIONAL AGGREGATE (refusing): {ref} — "
+                        f"{national_note}; the cell's resolver names a figure its "
+                        "bound "
+                        "source does not print, so it cannot resolve mechanically"
+                    )
+                    continue
+                low, high = spec["sanity_range"]
+                if not low <= national <= high:
+                    print(
+                        f"  SSA OHO PARSE REFUSAL (refusing): {ref} — national APT "
+                        f"{national} outside sanity range [{low}, {high}]"
+                    )
+                    continue
+                value = float(national)
+                raw = ssa_capture_envelope(
+                    spec=spec,
+                    period=period,
+                    capture=capture,
+                    reading=None,
+                    raw_value=national,
+                    value=value,
+                    anchors=[],
+                    wayback=witnessed,
+                    extra={
+                        "reportingPeriodEnd": period_end.isoformat(),
+                        "created": workload.created,
+                        "rows": len(workload.rows),
+                    },
+                )
+                release_day = dt.date.fromisoformat(capture.retrieved_at[:10])
+                source_url = url
+                source_file = posixpath.basename(urlparse(url).path)
+                series_id = spec["series_id"]
+                retrieved_at = capture.retrieved_at
+                extension = "json"
+            else:
+                anchor_records: list[dict[str, Any]] = []
+                anchor_problem = None
+                for anchor_period, expected in sorted(spec["anchors"].items()):
+                    anchor_url = ssa_period_url(spec, anchor_period)
+                    anchor_capture, anchor_refusal = ssa_capture(anchor_url)
+                    if anchor_capture is None:
+                        anchor_problem = f"anchor {anchor_period}: {anchor_refusal}"
+                        break
+                    try:
+                        anchor_reading = ssa_read_value(
+                            spec, anchor_capture.body, anchor_period
+                        )
+                    except ssa_official_pages.SsaPageError as exc:
+                        anchor_problem = f"anchor {anchor_period} unreadable: {exc}"
+                        break
+                    if anchor_reading.value != expected:
+                        anchor_problem = (
+                            f"anchor {anchor_period}={anchor_reading.value} "
+                            f"(recorded {expected})"
+                        )
+                        break
+                    anchor_records.append(
+                        {
+                            "period": anchor_period,
+                            **anchor_capture.response_record(),
+                            "expected": expected,
+                            "observed": anchor_reading.value,
+                            "identities": list(anchor_reading.identities),
+                        }
+                    )
+                if anchor_problem:
+                    if "environment" in anchor_problem:
+                        print(
+                            "  SSA BROWSER ENVIRONMENT FAILURE (fatal): "
+                            f"{ref} — {anchor_problem}"
+                        )
+                        environment_failures.append(f"{ref}: {anchor_problem}")
+                    elif "fetch failed" in anchor_problem:
+                        print(
+                            "  SSA anchor fetch failed (deferring): "
+                            f"{ref} — {anchor_problem}"
+                        )
+                    else:
+                        print(
+                            "  ANCHOR MISMATCH (refusing, wrong SSA table cell?): "
+                            f"{ref} — "
+                            f"{anchor_problem}"
+                        )
+                    continue
+                url = ssa_period_url(spec, period)
+                capture, capture_refusal = ssa_capture(url)
+                if capture is None:
+                    if capture_refusal and capture_refusal.startswith("environment"):
+                        print(
+                            "  SSA BROWSER ENVIRONMENT FAILURE (fatal): "
+                            f"{ref} — {capture_refusal}"
+                        )
+                        environment_failures.append(f"{ref}: {capture_refusal}")
+                    elif capture_refusal and "HTTP 404" in capture_refusal:
+                        print(
+                            "  not yet published (deferring): "
+                            f"{ref} — {capture_refusal}"
+                        )
+                    else:
+                        print(
+                            "  SSA page fetch failed (deferring): "
+                            f"{ref} — {capture_refusal}"
+                        )
+                    continue
+                try:
+                    reading = ssa_read_value(spec, capture.body, period)
+                except ssa_official_pages.SsaPageError as exc:
+                    print(f"  SSA PAGE PARSE REFUSAL (refusing): {ref} — {exc}")
+                    continue
+                low, high = spec["sanity_range"]
+                if not low <= reading.value <= high:
+                    print(
+                        f"  SSA PAGE PARSE REFUSAL (refusing): {ref} — {reading.value} "
+                        f"outside sanity range [{low}, {high}]"
+                    )
+                    continue
+                wayback = ssa_wayback_corroboration(
+                    url, lambda body: ssa_read_value(spec, body, period).value
+                )
+                corroborating = wayback.get("corroboratingCapture")
+                if corroborating and corroborating["value"] != reading.value:
+                    print(
+                        "  WAYBACK CAPTURE DISAGREES (refusing, page revised in "
+                        "place?): "
+                        f"{ref} — live {reading.value} vs capture "
+                        f"{corroborating['timestamp']} {corroborating['value']}"
+                    )
+                    continue
+                value = ssa_scaled_value(spec, reading.value)
+                raw = ssa_capture_envelope(
+                    spec=spec,
+                    period=period,
+                    capture=capture,
+                    reading=reading,
+                    raw_value=reading.value,
+                    value=value,
+                    anchors=anchor_records,
+                    wayback=wayback,
+                )
+                release_day = dt.date.fromisoformat(capture.retrieved_at[:10])
+                source_url = url
+                source_file = posixpath.basename(urlparse(url).path)
+                series_id = spec["series_id"]
+                retrieved_at = capture.retrieved_at
+                extension = "json"
+                corroboration_note = (
+                    f"the earliest Wayback Machine capture of the same page "
+                    f"({corroborating['capturedAt']}) reads the same value"
+                    if corroborating
+                    else "no Wayback Machine capture of the page exists to corroborate"
+                )
+                spec = {
+                    **spec,
+                    "evidence_notes": (
+                        "First print for {period} captured from the edition's own "
+                        "page {source_url} through a declared headless-browser "
+                        "transport (ssa.gov refuses non-browser clients); the page "
+                        "title and table caption name the edition, the parsed row "
+                        "and column are label-anchored, the table's own row/column "
+                        "sums reproduce the published totals, and the prior "
+                        "edition's anchor value was re-read from its page at capture "
+                        f"time; {corroboration_note}."
+                    ),
+                }
         elif kind == "cms_provider_data":
             metastore_key = spec["metastore_url"]
             if metastore_key not in cms_metastore_cache:
@@ -13283,6 +14406,14 @@ def main() -> int:
                 source_url,
                 source_file,
             )
+            if kind == "va_mmwr":
+                # The cell is keyed by the Monday report date; the workbook
+                # by its Saturday data-through date. Name both.
+                row["label"] = (
+                    f"{spec['label']}, report {report_date.isoformat()} "
+                    f"(data through {period})"
+                )
+                row["source_row_keys"] = [report_date.isoformat(), period]
         fetched_rows.append(
             (
                 row,

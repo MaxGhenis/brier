@@ -21,7 +21,7 @@ concurrency: resolve-pending
 jobs:
   resolve:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
         with:
@@ -42,6 +42,16 @@ jobs:
           pip install --user xlrd==2.0.1 pypdf==6.14.2 receipt==0.5.1
           sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
           pdftotext -v 2>&1 | head -1
+          # SSA official pages resolve through a declared headless-browser
+          # transport (scripts/official_browser_fetch.py): ssa.gov's Akamai
+          # Bot Manager answers every non-browser TLS client with 403 while
+          # serving Chromium normally (verified from this runner 2026-08-23).
+          # A missing engine is fatal in the resolver, never a silent defer.
+          pip install --user playwright==1.62.0
+          python3 -m playwright install --with-deps chromium
+          python3 scripts/official_browser_fetch.py \
+            https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/index.html \
+            --out /tmp/ssa-transport-smoke.html | head -c 600
 
       - name: Resolve pending cells against official prints
         id: resolve

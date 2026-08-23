@@ -622,3 +622,132 @@ subcolumn, and the registered transform multiplies the published integer by
 the same reviewed Publication 1304 resolve-by window documented above; the
 2026 release-list workbook provides no TY2024 date from which to infer a
 future exact day.
+
+---
+
+# Anchor verifications — aging/disability batch (2026-08-23)
+
+Integrator session, 2026-08-23 UTC. Four resolver families were wired for
+the aging/disability cells whose resolution dates had passed while the
+ledger still held only the two CMS Care Compare observations. Every value
+below was reproduced from the live official source on 2026-08-23 and is
+re-verified at every resolver run (anchor gates refuse on drift).
+
+## BLS Public Data API: CPS, CES, LAUS (BLS_API_ADAPTERS)
+
+Status: **VERIFIED** against the keyless API
+(`https://api.bls.gov/publicAPI/v2/timeseries/data/<series>`) and
+cross-checked against the cells' own recorded histories. CPS rows carry
+no preliminary footnote at any vintage (every `footnotes` entry is
+`[{}]`), so the two CPS specs declare `first_print_gate: "latest_month"`;
+BLS's methodology page states the policy that makes that window a
+first-print window: "BLS policy is to not revise previous months' official
+seasonally adjusted CPS estimates as new data become available during the
+year. Instead, revisions are introduced for the most recent 5 years of data
+at the end of each year"
+(https://www.bls.gov/cps/seasonal-adjustment-methodology.htm, read
+2026-08-23). CES and LAUS carry `P` on the latest month and use the default
+latest-preliminary gate.
+
+| Series | API id | Anchors (period → API value) | Cell history cross-check |
+|---|---|---|---|
+| `bls.cps.lfpr_55_plus` | `LNS11324230` | 2025-06→38.0; 2025-12→37.9; 2026-04→37.1; 2026-06→37.1 | cell: 2026-03 37.2, 04 37.1, 05 37.1, 06 37.1 — identical |
+| `bls.cps.LNU02374597` | `LNU02374597` | 2025-06→22.7; 2025-12→23.4; 2026-04→21.8; 2026-06→21.8 | cell: 2026-03 22.2, 04 21.8, 05 21.7, 06 21.8 — identical |
+| `bls.ces.home_health_care_services.employment` | `CES6562160001` | 2025-06→1778.8; 2025-12→1830.3; 2026-04→1868.0; 2026-05→1878.0 | cell first prints: 05 1877.5, 06 1880.8 vs API 1878.0/1881.5 (second estimates, +0.03%) |
+| `bls.laus.colorado.labor_force` | `LASST080000000000006` (persons; spec scales ×0.001, rounds 1) | 2025-06→3,258,203; 2025-12→3,254,073; 2026-04→3,215,558; 2026-06→3,193,312 | cell: 03 3227.9, 04 3215.6, 05 3206.2, 06 3193.3 thousand — identical |
+
+Dry-run 2026-08-23 resolved all four July 2026 cells while July was still
+the latest month: LFPR 55+ 36.9, disability EPOP 22.3, home health 1886.1,
+Colorado labor force 3189.0.
+
+## VA VBA Monday Morning Workload Report (VA_MMWR_ADAPTERS)
+
+Status: **VERIFIED** from the official workbooks the VBA Detailed Claims
+Data page (https://www.benefits.va.gov/REPORTS/detailed_claims_data.asp)
+links under each Monday report-date label. The page label is the Monday
+report date; the file is named by the preceding Saturday's data-through
+date. The `Transformation` sheet, "Compensation and Pension Rating Bundle
+Metrics" / National View, "Compensation and Pension Rating Bundle" +
+"Total" row, `# Pending` column (cached value of a formula cell) is the
+page's headline "Pending Claims" status card (601,630 on the 07/06/2026
+report; 632,308 on 08/17/2026, matching the live card's alt text).
+
+| Report date (page label) | Workbook | Reporting through | # Pending | # Pending > 125 | Last-Modified |
+|---|---|---|---|---|---|
+| 06/22/2026 | `MMWR-06-20-2026.xlsx` | June 20, 2026 | 593,770 | 70,879 | Mon, 22 Jun 2026 15:42:38 GMT |
+| 06/29/2026 | `MMWR-06-27-2026.xlsx` | June 27, 2026 | 589,026 | 68,207 | Mon, 29 Jun 2026 14:06:57 GMT |
+| 07/06/2026 | `MMWR-07-04-2026.xlsx` | July 04, 2026 | 601,630 | 69,193 | Tue, 07 Jul 2026 19:33:23 GMT |
+| 07/13/2026 (target) | `MMWR-07-11-2026.xlsx` | July 11, 2026 | 600,878 | 69,481 | Mon, 13 Jul 2026 17:30:32 GMT |
+
+The three anchors above are the runtime gate. The first-posting gate
+requires the workbook's `Last-Modified` day to lie within 7 days after the
+report date (every observed 2026 report was posted on its Monday; the July
+4 holiday week on the Tuesday) and refuses later re-posts.
+
+**Cell history not used as anchors.** The forecasting cell
+`va-pending-disability-claims-2026-07-13` recorded a "fetched" history of
+594,080 / 596,291 / 599,020 / 601,630 for the 06/15–07/06 reports. Only
+601,630 (the status card visible on the HTML page at run time) exists; the
+official workbooks give 586,502 / 593,770 / 589,026 for the other three,
+and the recorded numbers appear nowhere in any MMWR file (the only byte
+matches are `<row r="594080">` row-number attributes in empty-row padding).
+The run's trace shows its sandbox `python`/`curl | rg` calls failing and the
+web tool unable to open `.xlsx`; the smooth +2.2/+2.7/+2.6 thousand "trend"
+was invented. Same failure class as the 2026-07-24 broadband rejection
+(fetch-blind runs fabricate official-looking values); the cell stays
+published and scores against the official 600,878 first print.
+
+## SSA official pages (SSA_OFFICIAL_ADAPTERS)
+
+Transport: ssa.gov (Akamai Bot Manager) answers every non-browser TLS
+client with HTTP 403 — curl and urllib with full browser headers, from a
+laptop and from a GitHub Actions runner, and the Wayback Machine's Save
+Page Now (HTTP 520 "Job failed" on every attempt 2026-08-23). A headless
+Chromium (Playwright 1.62.0) with the transparent User-Agent suffix
+`thesis-resolver/1.0 (+https://app.thesisinstitute.org)` is served normally
+from the same runner (CI probe 2026-08-23: HTTP 200 on all five URLs);
+`robots.txt` disallows none of `/policy/` or `/appeals/`. The family fetches
+through `scripts/official_browser_fetch.py`, records engine, UA, headers and
+hashes in each `ssa_official_page_capture_v1` envelope, and uses Wayback
+captures only as corroboration (a capture that parses to a different value
+refuses the resolution).
+
+First-print basis: SSI Monthly Statistics and Monthly Statistical Snapshot
+editions live at per-period URLs and overlapping months are identical
+across editions — May 2026 total recipients 7,322,937 in the May, June and
+July editions' Table 2; the July edition's June row (7,323,731) equals
+June's Table 1 "All recipients"; July Table 4 "All areas" (7,300,297) equals
+July Table 2 — so a capture of an edition page reproduces its first print.
+Each spec re-reads the prior edition's anchor at capture time:
+
+| Series | Reader | Anchor (prior edition) | Target read 2026-08-23 | Wayback |
+|---|---|---|---|---|
+| `ssa.ssi.recipients_aged_65_plus` | Table 1, Number of recipients / Total / 65 or older | 2026-05 → 2,501,549 (cell history 2501.549) | 2026-06 → 2,505,847 (2505.847 thousand) | no capture |
+| `ssa.ssi.recipients.colorado` | Table 4, Colorado / Total | 2026-06 → 66,417 (cell history 66.417) | 2026-07 → 66,284 | no capture |
+| `ssa.ssi.recipients.colorado.aged_65_plus` | Table 4, Colorado / 65 or older | 2026-06 → 23,063 (cell history 23063) | 2026-07 → 23,094 | no capture |
+| `ssa.ssi.total_recipients` | Table 2, edition month / Total | 2026-06 → 7,323,731 | 2026-07 → 7,300,297 (7.300297 million) | no capture |
+| `ssa.oasdi.disabled_worker_beneficiaries` | Snapshot Table 2, Disability Insurance / Disabled workers / Number (thousands) | 2026-05 → 7,029 (cell history 7029) | 2026-06 → 7,006 | 2026-07-11T20:40:33Z capture reads 7,006 |
+
+Row/column identities checked on every read: Table 1 and Table 4 age
+columns and eligibility columns each sum to the row total; Table 2 payment
+types sum to Total; Snapshot program components sum to the program total
+(±1 per rounded part) and OASI + DI = Total (±2).
+
+## SSA hearings average processing time (ssa.hearings.average_processing_time_days)
+
+Status: **SOURCE PUBLISHES NO NATIONAL AGGREGATE.** The cell binds
+`https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.html`, whose
+table is loaded from `02_HO_Workload_Data.xml`. The live file on
+2026-08-23 (`created="07/10/2026"`, `RPTG_PRD_ENDT 06/26/2026`, 165 rows)
+and its Wayback captures (2026-06-24: through 05/29/2026, 166 rows;
+2026-08-02/08-07/08-14: through 06/26/2026) carry one row per hearing office
+(plus NHC units, NATL ADJUDICATION TEAM, SPECIAL REVIEW CADRE) and no
+national row; the Average Processing Time Ranking Report XML likewise; SSA's
+data dictionary defines `DSPN_AVGPT` only for "Hearing Office Workload Data,
+Hearing Office Average Processing Time Ranking Report". The cell's recorded
+history (279 → 322 days, Oct 2025–May 2026) is not reproducible from these
+files (a dispositions-weighted mean of the June file is 266 days and is not a
+published figure). The adapter reads the witnessed file, authenticates the
+reporting period, and refuses with `SOURCE PUBLISHES NO NATIONAL AGGREGATE`
+rather than computing a derived national statistic the resolver never
+defined.

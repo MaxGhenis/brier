@@ -19,7 +19,7 @@ browser transport instead of a TLS-impersonating client:
 
 Playwright is an optional runtime dependency (``pip install playwright``
 plus ``python -m playwright install --with-deps chromium``). A missing
-engine raises :class:`BrowserFetchUnavailable`, which the resolver treats as
+engine raises :class:`BrowserFetchUnavailableError`, which the resolver treats as
 a fatal environment failure — never as a silent deferral.
 
 CLI (used by the resolver workflow's smoke step and for fixture capture)::
@@ -42,7 +42,7 @@ DEFAULT_TIMEOUT_SECONDS = 90.0
 MAX_BODY_BYTES = 25_000_000
 
 
-class BrowserFetchUnavailable(RuntimeError):
+class BrowserFetchUnavailableError(RuntimeError):
     """The browser engine is not installed in this environment."""
 
 
@@ -96,7 +96,8 @@ def _require_https(url: str, allowed_hosts: tuple[str, ...] | None) -> None:
         raise BrowserFetchError(f"only https URLs are fetched: {url!r}")
     if allowed_hosts is not None and parsed.hostname not in allowed_hosts:
         raise BrowserFetchError(
-            f"host {parsed.hostname!r} is not in the allowed set {sorted(allowed_hosts)!r}"
+            f"host {parsed.hostname!r} is not in the allowed set "
+            f"{sorted(allowed_hosts)!r}"
         )
 
 
@@ -113,7 +114,7 @@ def browser_fetch(
         from playwright.sync_api import Error as PlaywrightError
         from playwright.sync_api import sync_playwright
     except ImportError as exc:  # pragma: no cover - exercised in CI runtime only
-        raise BrowserFetchUnavailable(
+        raise BrowserFetchUnavailableError(
             "playwright is unavailable; install it with `pip install playwright` "
             "and `python -m playwright install --with-deps chromium`"
         ) from exc
@@ -131,7 +132,7 @@ def browser_fetch(
             try:
                 browser = playwright.chromium.launch(headless=True)
             except PlaywrightError as exc:
-                raise BrowserFetchUnavailable(
+                raise BrowserFetchUnavailableError(
                     f"chromium could not launch; run `python -m playwright install "
                     f"--with-deps chromium`: {exc}"
                 ) from exc
@@ -205,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         capture = browser_fetch(args.url, timeout_seconds=args.timeout)
-    except (BrowserFetchUnavailable, BrowserFetchError) as exc:
+    except (BrowserFetchUnavailableError, BrowserFetchError) as exc:
         print(json.dumps({"url": args.url, "error": str(exc)}))
         return 1
     if args.out:

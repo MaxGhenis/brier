@@ -2446,13 +2446,15 @@ def test_append_proposal_builds_byte_correct_verified_release(
     assert changes["ledger/official_observations.jsonl"] == candidate
     assert "ledger/series_uuid_registry.jsonl" not in changes
     regenerated_catalog = json.loads(changes["ledger/series_catalog.json"])
-    assert regenerated_catalog["observations_sha256"] == hashlib.sha256(
-        candidate
-    ).hexdigest()
+    assert (
+        regenerated_catalog["observations_sha256"]
+        == hashlib.sha256(candidate).hexdigest()
+    )
     assert regenerated_catalog["observation_rows"] == 2
-    assert regenerated_catalog["uuid_registry_sha256"] == hashlib.sha256(
-        tree.files["ledger/series_uuid_registry.jsonl"]
-    ).hexdigest()
+    assert (
+        regenerated_catalog["uuid_registry_sha256"]
+        == hashlib.sha256(tree.files["ledger/series_uuid_registry.jsonl"]).hexdigest()
+    )
     release_paths = [path for path in changes if path.startswith("releases/")]
     assert len(release_paths) == 4
     manifest_path = next(path for path in release_paths if path.endswith(".json"))
@@ -4438,3 +4440,616 @@ def test_binding_adapter_mismatch_guards_family_routing() -> None:
     assert mismatch("alfred", {"contract": {}}) is None
     # Families without a declared adapter set are not constrained here.
     assert mismatch("intl", reg("generic-url")) is None
+
+
+# ---------------------------------------------------------------------------
+# Aging/disability batch (2026-08-23): BLS CPS/CES/LAUS, SSA official pages,
+# VA MMWR, SSA hearings.
+
+AGING_FIXTURES = ROOT / "tests" / "fixtures" / "ssa_official"
+
+
+def _aging_log() -> dict:
+    cells = [
+        (
+            "va-pending",
+            "va.vba.mmwr.claims_inventory.week_2026-07-13.first_print",
+            "2026-07-13",
+            "thousands",
+            597.8,
+            609.6,
+        ),
+        (
+            "ssi-65",
+            "ssa.ssi.recipients_aged_65_plus.2026_06.first_print",
+            "2026-07-31",
+            "thousands",
+            2496.2,
+            2510.0,
+        ),
+        (
+            "ssdi",
+            "ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print",
+            "2026-07-31",
+            "thousands",
+            7002.0,
+            7017.0,
+        ),
+        (
+            "hearings",
+            "ssa.hearings.average_processing_time_days.2026-06.first_print",
+            "2026-07-31",
+            "count",
+            322.0,
+            330.0,
+        ),
+        (
+            "lfpr",
+            "bls.cps.lfpr_55_plus.2026-07.first_print",
+            "2026-08-07",
+            "percent",
+            37.0,
+            37.2,
+        ),
+        (
+            "epop",
+            "bls.cps.LNU02374597.2026-07.first_print",
+            "2026-08-07",
+            "percent",
+            20.9,
+            22.3,
+        ),
+        (
+            "hhc",
+            "bls.ces.home_health_care_services.employment.2026-07.first_print",
+            "2026-08-07",
+            "thousands",
+            1881.5,
+            1896.1,
+        ),
+        (
+            "co-ssi",
+            "ssa.ssi.recipients.colorado.2026-07.first_print",
+            "2026-08-31",
+            "thousands",
+            66.181,
+            66.581,
+        ),
+        (
+            "co-ssi-65",
+            "ssa.ssi.recipients.colorado.aged_65_plus.2026-07.first_print",
+            "2026-08-31",
+            "count",
+            23024.0,
+            23096.0,
+        ),
+        (
+            "ssi-total",
+            "ssa.ssi.total_recipients.2026-07.first_print",
+            "2026-08-31",
+            "millions",
+            7.28,
+            7.338,
+        ),
+        (
+            "co-lf",
+            "bls.laus.colorado.labor_force.2026-07.first_print",
+            "2026-08-21",
+            "thousands",
+            3179.0,
+            3185.4,
+        ),
+    ]
+    return {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": slug,
+                "resolutionDate": release,
+                "unit": unit,
+                "interval80": {"lower": lower, "upper": upper},
+            }
+            for slug, _ref, release, unit, lower, upper in cells
+        ],
+        "resolutionLinks": [
+            {"status": "pending", "forecastSlug": slug, "targetFactRef": ref}
+            for slug, ref, *_ in cells
+        ],
+    }
+
+
+def test_pending_adapter_refs_maps_the_aging_disability_batch() -> None:
+    todo = {
+        ref: item
+        for item in resolve_pending.pending_adapter_refs(_aging_log())
+        for ref in [item[0]]
+    }
+    assert len(todo) == 11
+
+    def claim(ref):
+        _ref, kind, spec, period_type, period, release, forecast = todo[ref]
+        assert resolve_pending.adapter_unit_matches(spec, forecast), ref
+        return kind, spec, period_type, period
+
+    kind, spec, period_type, period = claim(
+        "va.vba.mmwr.claims_inventory.week_2026-07-13.first_print"
+    )
+    assert (kind, period_type, period) == ("va_mmwr", "week", "2026-07-13")
+    assert spec["anchors"] == {
+        "2026-06-22": 593770,
+        "2026-06-29": 589026,
+        "2026-07-06": 601630,
+    }
+    kind, spec, period_type, period = claim(
+        "ssa.ssi.recipients_aged_65_plus.2026_06.first_print"
+    )
+    assert (kind, spec["reader"], period) == ("ssa_official", "ssi_table1", "2026-06")
+    # Longest stem wins: the 65+ Colorado cell is not the Colorado total.
+    kind, spec, _, _ = claim(
+        "ssa.ssi.recipients.colorado.aged_65_plus.2026-07.first_print"
+    )
+    assert (spec["reader"], spec["column"], spec["unit"]) == (
+        "ssi_table4",
+        "65 or older",
+        "count",
+    )
+    kind, spec, _, _ = claim("ssa.ssi.recipients.colorado.2026-07.first_print")
+    assert (spec["column"], spec["unit"], spec["scale"]) == (
+        "Total",
+        "thousands",
+        0.001,
+    )
+    kind, spec, _, _ = claim("ssa.ssi.total_recipients.2026-07.first_print")
+    assert (spec["reader"], spec["unit"]) == ("ssi_table2", "millions")
+    kind, spec, _, _ = claim(
+        "ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print"
+    )
+    assert (spec["reader"], spec["row"]) == ("snapshot_table2", "Disabled workers")
+    kind, spec, _, _ = claim(
+        "ssa.hearings.average_processing_time_days.2026-06.first_print"
+    )
+    assert (kind, spec["reader"]) == ("ssa_official", "oho_workload_xml")
+    for ref, series_id, gate in [
+        ("bls.cps.lfpr_55_plus.2026-07.first_print", "LNS11324230", "latest_month"),
+        ("bls.cps.LNU02374597.2026-07.first_print", "LNU02374597", "latest_month"),
+        (
+            "bls.ces.home_health_care_services.employment.2026-07.first_print",
+            "CES6562160001",
+            "latest_preliminary",
+        ),
+        (
+            "bls.laus.colorado.labor_force.2026-07.first_print",
+            "LASST080000000000006",
+            "latest_preliminary",
+        ),
+    ]:
+        kind, spec, period_type, period = claim(ref)
+        assert (kind, spec["series_id"], period) == ("bls_api", series_id, "2026-07")
+        assert spec.get("first_print_gate", "latest_preliminary") == gate
+        assert len(spec["anchors"]) >= 3
+    laus = resolve_pending.BLS_API_ADAPTERS["bls.laus.colorado.labor_force"]
+    assert (laus["scale"], laus["round"]) == (0.001, 1)
+    # Every aging family is bound to a named binding adapter, and a
+    # generic-url registration stays out of it.
+    mismatch = resolve_pending.binding_adapter_mismatch
+    generic = {"contract": {"sourceBinding": {"adapter": "generic-url"}}}
+    assert mismatch("ssa_official", generic) == "generic-url"
+    assert mismatch("va_mmwr", generic) == "generic-url"
+    assert (
+        mismatch(
+            "ssa_official",
+            {"contract": {"sourceBinding": {"adapter": "ssa-official-page"}}},
+        )
+        is None
+    )
+
+
+def test_bls_cps_latest_month_gate_and_preliminary_gate_disagree_on_cps_rows() -> None:
+    # CPS rows never carry the preliminary footnote (live API, 2026-08-23).
+    rows = {
+        "2026-07": {"value": 36.9, "latest": True, "preliminary": False},
+        "2026-06": {"value": 37.1, "latest": False, "preliminary": False},
+    }
+    assert resolve_pending.bls_first_print(rows, "2026-07", "latest_month") == (
+        36.9,
+        None,
+    )
+    value, refusal = resolve_pending.bls_first_print(rows, "2026-06", "latest_month")
+    assert value is None and "no longer the latest month" in refusal
+    assert resolve_pending.bls_first_print(rows, "2026-08", "latest_month") == (
+        None,
+        None,
+    )
+    # The default gate would refuse CPS forever; the specs opt out explicitly.
+    value, refusal = resolve_pending.bls_first_print(rows, "2026-07")
+    assert value is None and "latest preliminary" in refusal
+    with pytest.raises(ValueError, match="unknown BLS first-print gate"):
+        resolve_pending.bls_first_print(rows, "2026-07", "whenever")
+    notes = resolve_pending.BLS_API_ADAPTERS["bls.cps.lfpr_55_plus"]["evidence_notes"]
+    assert "not to revise previous months" in notes
+
+
+class _FakeCapture:
+    """Stand-in for official_browser_fetch.BrowserCapture."""
+
+    def __init__(
+        self, url: str, body: bytes, retrieved_at: str = "2026-08-23T14:00:00Z"
+    ):
+        self.url = url
+        self.final_url = url
+        self.status = 200
+        self.headers = {"content-type": "text/html; charset=UTF-8"}
+        self.body = body
+        self.retrieved_at = retrieved_at
+        self.user_agent = (
+            "HeadlessChrome/151 thesis-resolver/1.0 (+https://app.thesisinstitute.org)"
+        )
+        self.engine = "chromium 151 (playwright 1.62.0)"
+
+    @property
+    def sha256(self) -> str:
+        return hashlib.sha256(self.body).hexdigest()
+
+    def transport_record(self):
+        return {
+            "kind": "headless-browser",
+            "engine": self.engine,
+            "userAgent": self.user_agent,
+            "redirectsAccepted": False,
+        }
+
+    def response_record(self):
+        return {
+            "url": self.url,
+            "finalUrl": self.final_url,
+            "status": self.status,
+            "headers": dict(self.headers),
+            "retrievedAt": self.retrieved_at,
+            "bytes": len(self.body),
+            "sha256": self.sha256,
+        }
+
+
+def _ssa_fixture_pages() -> dict[str, bytes]:
+    base = "https://www.ssa.gov/policy/docs"
+    return {
+        f"{base}/statcomps/ssi_monthly/2026-06/table01.html": (
+            AGING_FIXTURES / "ssi_2026-06_table01.html"
+        ).read_bytes(),
+        f"{base}/statcomps/ssi_monthly/2026-05/table01.html": (
+            AGING_FIXTURES / "ssi_2026-05_table01.html"
+        ).read_bytes(),
+        f"{base}/quickfacts/stat_snapshot/2026-06.html": (
+            AGING_FIXTURES / "stat_snapshot_2026-06.html"
+        ).read_bytes(),
+        f"{base}/quickfacts/stat_snapshot/2026-05.html": (
+            AGING_FIXTURES / "stat_snapshot_2026-05.html"
+        ).read_bytes(),
+        "https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.xml": (
+            AGING_FIXTURES / "ho_workload_2026-06-26.xml"
+        ).read_bytes(),
+    }
+
+
+def _install_aging_main(
+    monkeypatch, refs: list[str], *, utc_now="2026-08-23T14:05:00Z"
+):
+    import official_browser_fetch
+
+    log = _aging_log()
+    monkeypatch.setattr(resolve_pending, "load_thesis_log", lambda _url: log)
+    monkeypatch.setattr(resolve_pending, "pending_claims_refs", lambda _log: [])
+    full = resolve_pending.pending_adapter_refs
+    monkeypatch.setattr(
+        resolve_pending,
+        "pending_adapter_refs",
+        lambda log_: [item for item in full(log_) if item[0] in refs],
+    )
+    monkeypatch.setattr(
+        resolve_pending, "ledger_state", lambda *_a: ("", "blob", "a" * 40)
+    )
+    monkeypatch.setattr(resolve_pending, "registration_contracts", lambda: {})
+    monkeypatch.setattr(resolve_pending, "utc_now", lambda: utc_now)
+    pages = _ssa_fixture_pages()
+    fetched: list[str] = []
+    pages_box = {"pages": pages}
+
+    def fake_browser_fetch(url, *, allowed_hosts=None, timeout_seconds=90.0):
+        pages = pages_box["pages"]
+        fetched.append(url)
+        if url not in pages:
+            raise official_browser_fetch.BrowserFetchError(f"HTTP 404 for {url}")
+        return _FakeCapture(url, pages[url])
+
+    monkeypatch.setattr(official_browser_fetch, "browser_fetch", fake_browser_fetch)
+    envelopes: dict[str, bytes] = {}
+    real_envelope = resolve_pending.ssa_capture_envelope
+
+    def record_envelope(**kwargs):
+        raw = real_envelope(**kwargs)
+        envelopes[kwargs["period"] + ":" + kwargs["spec"]["reader"]] = raw
+        return raw
+
+    monkeypatch.setattr(resolve_pending, "ssa_capture_envelope", record_envelope)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py", "--dry-run"])
+    return fetched, envelopes, pages
+
+
+def test_main_ssa_official_leg_resolves_editions_through_the_browser_transport(
+    monkeypatch, capsys
+) -> None:
+    refs = [
+        "ssa.ssi.recipients_aged_65_plus.2026_06.first_print",
+        "ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print",
+    ]
+    fetched, envelopes, _pages = _install_aging_main(monkeypatch, refs)
+    snapshot_url = (
+        "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-06.html"
+    )
+
+    def fake_wayback(url: str) -> bytes:
+        if "cdx/search" in url:
+            if "stat_snapshot/2026-06.html" in url:
+                return (AGING_FIXTURES / "cdx_stat_snapshot_2026-06.json").read_bytes()
+            return b"[]"
+        assert url.endswith(snapshot_url)
+        return (
+            AGING_FIXTURES / "stat_snapshot_2026-06.wayback-20260711204033.html"
+        ).read_bytes()
+
+    monkeypatch.setattr(resolve_pending, "ssa_wayback_fetch", fake_wayback)
+
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert (
+        "  resolve ssa.ssi.recipients_aged_65_plus.2026_06.first_print"
+        " -> 2505.847 thousands" in out
+    )
+    assert (
+        "  resolve ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print"
+        " -> 7006.0 thousands" in out
+    )
+    assert "dry-run: would append 2 row(s)" in out
+    # Anchors (prior editions) were re-read before the target pages.
+    assert fetched.index(
+        "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-05/table01.html"
+    ) < fetched.index(
+        "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-06/table01.html"
+    )
+    envelope = json.loads(envelopes["2026-06:snapshot_table2"])
+    assert envelope["schemaVersion"] == "ssa_official_page_capture_v1"
+    assert envelope["transport"]["kind"] == "headless-browser"
+    assert envelope["wayback"]["status"] == "parsed"
+    assert envelope["wayback"]["corroboratingCapture"]["timestamp"] == "20260711204033"
+    assert envelope["wayback"]["corroboratingCapture"]["value"] == 7006
+    assert envelope["anchors"][0]["period"] == "2026-05"
+    assert envelope["anchors"][0]["observed"] == 7029
+    assert (
+        envelope["derived"]["rawValue"] == 7006
+        and envelope["derived"]["value"] == 7006.0
+    )
+    table1 = json.loads(envelopes["2026-06:ssi_table1"])
+    assert table1["wayback"]["status"] == "none"
+    assert table1["derived"]["identities"][0].startswith("Total: Under 18 + 18-64")
+
+
+def test_main_ssa_official_leg_refuses_a_disagreeing_wayback_capture(
+    monkeypatch, capsys
+) -> None:
+    refs = ["ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print"]
+    _install_aging_main(monkeypatch, refs)
+    archived = (
+        AGING_FIXTURES / "stat_snapshot_2026-06.wayback-20260711204033.html"
+    ).read_bytes()
+    # Same page, different first print: a 1-unit change in every DI cell
+    # keeps the identities valid but moves the target.
+    tampered = (
+        archived.replace(b">7,006<", b">7,007<")
+        .replace(b">8,008<", b">8,009<")
+        .replace(b">71,255<", b">71,256<")
+    )
+
+    def fake_wayback(url: str) -> bytes:
+        if "cdx/search" in url:
+            return (AGING_FIXTURES / "cdx_stat_snapshot_2026-06.json").read_bytes()
+        return tampered
+
+    monkeypatch.setattr(resolve_pending, "ssa_wayback_fetch", fake_wayback)
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert "WAYBACK CAPTURE DISAGREES (refusing, page revised in place?)" in out
+    assert "live 7006 vs capture 20260711204033 7007" in out
+    assert "nothing new to record" in out
+
+
+def test_main_ssa_official_leg_refuses_anchor_drift_before_the_target(
+    monkeypatch, capsys
+) -> None:
+    refs = ["ssa.ssi.recipients_aged_65_plus.2026_06.first_print"]
+    fetched, _envelopes, _pages = _install_aging_main(monkeypatch, refs)
+    monkeypatch.setitem(
+        resolve_pending.SSA_OFFICIAL_ADAPTERS["ssa.ssi.recipients_aged_65_plus"],
+        "anchors",
+        {"2026-05": 2501548},
+    )
+    monkeypatch.setattr(resolve_pending, "ssa_wayback_fetch", lambda _u: b"[]")
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert "ANCHOR MISMATCH (refusing, wrong SSA table cell?)" in out
+    assert "anchor 2026-05=2501549 (recorded 2501548)" in out
+    assert not any(url.endswith("2026-06/table01.html") for url in fetched)
+
+
+def test_main_ssa_hearings_leg_refuses_because_the_source_has_no_national_row(
+    monkeypatch, capsys
+) -> None:
+    refs = ["ssa.hearings.average_processing_time_days.2026-06.first_print"]
+    _install_aging_main(monkeypatch, refs)
+    monkeypatch.setattr(resolve_pending, "ssa_wayback_fetch", lambda _u: b"[]")
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert "SOURCE PUBLISHES NO NATIONAL AGGREGATE (refusing)" in out
+    assert "RPTG_PRD_ENDT 06/26/2026, 165 hearing-office rows" in out
+    assert "nothing new to record" in out
+
+
+def test_main_ssa_official_leg_treats_a_missing_engine_as_fatal(
+    monkeypatch, capsys
+) -> None:
+    import official_browser_fetch
+
+    refs = ["ssa.ssi.recipients_aged_65_plus.2026_06.first_print"]
+    _install_aging_main(monkeypatch, refs)
+
+    def no_engine(url, **_kwargs):
+        raise official_browser_fetch.BrowserFetchUnavailableError("playwright missing")
+
+    monkeypatch.setattr(official_browser_fetch, "browser_fetch", no_engine)
+    assert resolve_pending.main() == 1
+    out = capsys.readouterr().out
+    assert "SSA BROWSER ENVIRONMENT FAILURE (fatal)" in out
+    assert "environment failures left admitted references unresolvable" in out
+
+
+def _va_workbook_server(
+    monkeypatch, *, target_modified="Mon, 13 Jul 2026 17:30:32 GMT"
+):
+    sys.path.insert(0, str(ROOT / "tests"))
+    from va_mmwr_fixtures import build_workbook
+
+    landing = (
+        ROOT / "tests" / "fixtures" / "va_mmwr" / "detailed_claims_data_excerpt.html"
+    ).read_bytes()
+    books = {
+        "MMWR-06-20-2026.xlsx": (
+            593770,
+            70879,
+            "Reporting through June 20, 2026",
+            "Mon, 22 Jun 2026 15:42:38 GMT",
+        ),
+        "MMWR-06-27-2026.xlsx": (
+            589026,
+            68207,
+            "Reporting through June 27, 2026",
+            "Mon, 29 Jun 2026 14:06:57 GMT",
+        ),
+        "MMWR-07-04-2026.xlsx": (
+            601630,
+            69193,
+            "Reporting through July 04, 2026",
+            "Tue, 07 Jul 2026 19:33:23 GMT",
+        ),
+        "MMWR-07-11-2026.xlsx": (
+            600878,
+            69481,
+            "Reporting through July 11, 2026",
+            target_modified,
+        ),
+    }
+    served: list[str] = []
+
+    def fake_get(url: str):
+        served.append(url)
+        if url == resolve_pending.va_mmwr.LANDING_URL:
+            return landing, {"content-type": "text/html"}, "2026-08-23T14:00:00Z", url
+        name = url.rsplit("/", 1)[-1]
+        pending, over, through, modified = books[name]
+        raw = build_workbook(pending=pending, over_125=over, through=through)
+        headers = {
+            "content-type": (
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ),
+            "last-modified": modified,
+            "etag": f'"{name}"',
+        }
+        return raw, headers, "2026-08-23T14:00:01Z", url
+
+    monkeypatch.setattr(resolve_pending, "va_mmwr_http_get", fake_get)
+    return served
+
+
+def test_main_va_mmwr_leg_resolves_the_report_week_with_anchors(
+    monkeypatch, capsys
+) -> None:
+    ref = "va.vba.mmwr.claims_inventory.week_2026-07-13.first_print"
+    _install_aging_main(monkeypatch, [ref])
+    served = _va_workbook_server(monkeypatch)
+    rows: list[dict] = []
+    real_fact = resolve_pending.generic_fact
+
+    def record(*args, **kwargs):
+        row = real_fact(*args, **kwargs)
+        rows.append(row)
+        return row
+
+    monkeypatch.setattr(resolve_pending, "generic_fact", record)
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert f"  resolve {ref} -> 600.878 thousands" in out
+    # One landing read, four workbooks (three anchors + target), each once.
+    assert served.count(resolve_pending.va_mmwr.LANDING_URL) == 1
+    assert sorted(u.rsplit("/", 1)[-1] for u in served[1:]) == [
+        "MMWR-06-20-2026.xlsx",
+        "MMWR-06-27-2026.xlsx",
+        "MMWR-07-04-2026.xlsx",
+        "MMWR-07-11-2026.xlsx",
+    ]
+    row = rows[0]
+    assert row["period"] == {"type": "week_ending", "value": "2026-07-11"}
+    assert row["observed_at"] == "2026-07-13"
+    assert row["source"]["url"].endswith("/REPORTS/mmwr/2026/MMWR-07-11-2026.xlsx")
+    assert (
+        "Last-Modified header placed its posting"
+        in row["measure"]["concept_evidence_notes"]
+    )
+
+
+def test_main_va_mmwr_leg_refuses_a_reposted_workbook_and_anchor_drift(
+    monkeypatch, capsys
+) -> None:
+    ref = "va.vba.mmwr.claims_inventory.week_2026-07-13.first_print"
+    _install_aging_main(monkeypatch, [ref])
+    _va_workbook_server(monkeypatch, target_modified="Tue, 01 Sep 2026 09:00:00 GMT")
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert "FIRST-PRINT WINDOW MISSED (refusing)" in out and "re-post" in out
+    # Anchor drift refuses before the target is even read.
+    monkeypatch.setitem(
+        resolve_pending.VA_MMWR_ADAPTERS["va.vba.mmwr.claims_inventory"],
+        "anchors",
+        {"2026-06-22": 593771},
+    )
+    _va_workbook_server(monkeypatch)
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert "ANCHOR MISMATCH (refusing, wrong VA workbook cell?)" in out
+    assert "anchor 2026-06-22=593770 (recorded 593771)" in out
+
+
+def test_main_defers_ssa_edition_pages_on_404_but_not_on_the_by_date(
+    monkeypatch, capsys
+) -> None:
+    # The Colorado cells' resolutionDate (2026-08-31) is a by-date; the
+    # edition page is the release evidence, so a 404 defers and a present
+    # page resolves even before that date.
+    ref = "ssa.ssi.recipients.colorado.2026-07.first_print"
+    _fetched, _envelopes, pages = _install_aging_main(
+        monkeypatch, [ref], utc_now="2026-08-23T14:05:00Z"
+    )
+    base = "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly"
+    # The prior edition (anchor) is posted; the target edition is not yet.
+    pages[f"{base}/2026-06/table04.html"] = (
+        AGING_FIXTURES / "ssi_2026-06_table04.html"
+    ).read_bytes()
+    monkeypatch.setattr(resolve_pending, "ssa_wayback_fetch", lambda _u: b"[]")
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert "release 2026-08-31 not reached" not in out
+    assert "not yet published (deferring)" in out and "HTTP 404" in out
+    # Once the edition is posted, the same run resolves before the by-date.
+    pages[f"{base}/2026-07/table04.html"] = (
+        AGING_FIXTURES / "ssi_2026-07_table04.html"
+    ).read_bytes()
+    assert resolve_pending.main() == 0
+    out = capsys.readouterr().out
+    assert f"  resolve {ref} -> 66.284 thousands" in out
