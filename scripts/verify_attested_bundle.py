@@ -40,6 +40,7 @@ from docket_publication import (
     safe_join,
 )
 from generation_tickets import (
+    TICKET_SCHEMA,
     TicketError,
     earliest_resolution_boundary,
     find_ticket_consumption,
@@ -419,6 +420,20 @@ def _check_policy(
         review_prompt_mode = run.manifest.get(review_mode_key)
         agent = run.manifest.get("agent")
         agent_version = agent.get("agentVersion") if isinstance(agent, dict) else None
+        current_ladder_attestation = (
+            ticket.get("schemaVersion") == TICKET_SCHEMA
+            and bool(run.target.get("conditional"))
+            and policy["promptMode"] in {"ladder", "ladder_v2"}
+        )
+        if current_ladder_attestation and (
+            review_mode_key not in run.manifest
+            or not isinstance(review_prompt_mode, str)
+        ):
+            raise _fail(
+                "policy",
+                f"run {run.index} current attestation format requires a string "
+                "preSubmitReviewPromptMode",
+            )
         if agent_version_enforces_policy_chain(agent_version) and (
             review_mode_key not in run.manifest
             or not isinstance(review_prompt_mode, str)
@@ -830,10 +845,46 @@ def _check_prompts(
     state: TicketContext,
     bundle_repo: pathlib.Path,
     runs: list[RunEnvelope],
+    *,
+    trusted_repo_root: pathlib.Path = ROOT,
 ) -> dict[int, PromptEvidence]:
     policy = state.ticket["policy"]
     evidence: dict[int, PromptEvidence] = {}
     for run in runs:
+        replay_agent_version = None
+        contract_override = None
+        if state.ticket.get("schemaVersion") != TICKET_SCHEMA:
+            agent = run.manifest.get("agent")
+            if isinstance(agent, dict) and isinstance(agent.get("agentVersion"), str):
+                replay_agent_version = agent["agentVersion"]
+            if policy["promptMode"] == "full":
+                checkout_sha = run.manifest.get("checkoutSha")
+                if not isinstance(checkout_sha, str) or not re.fullmatch(
+                    r"[0-9a-f]{40}", checkout_sha
+                ):
+                    raise _fail(
+                        "prompt reconstruction",
+                        f"run {run.index} has no canonical checkoutSha for "
+                        "historical contract replay",
+                    )
+                try:
+                    contract_override = subprocess.check_output(
+                        [
+                            "git",
+                            "show",
+                            f"{checkout_sha}:docs/cell-contract.md",
+                        ],
+                        cwd=trusted_repo_root,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                    )
+                except subprocess.CalledProcessError as exc:
+                    detail = (exc.stderr or "").strip()
+                    raise _fail(
+                        "prompt reconstruction",
+                        f"run {run.index} historical cell contract could not be "
+                        "loaded" + (f": {detail}" if detail else ""),
+                    ) from exc
         try:
             prompt, meta = build_run_prompt(
                 run.target["series"],
@@ -843,6 +894,8 @@ def _check_prompts(
                 run.target,
                 ticket=state.prompt_context,
                 network_tools=policy["codexNetwork"],
+                replay_agent_version=replay_agent_version,
+                contract_override=contract_override,
             )
         except (KeyError, TicketError, ValueError) as exc:
             raise _fail(
@@ -1803,7 +1856,12 @@ def verify_attested_bundle(
     print(f"passed binding check: {introducing}")
 
     with _phase_guard("prompt reconstruction"):
-        prompt_evidence = _check_prompts(state, bundle_repo, runs)
+        prompt_evidence = _check_prompts(
+            state,
+            bundle_repo,
+            runs,
+            trusted_repo_root=checkout,
+        )
     print(f"passed prompt reconstruction check: {len(runs)} run(s)")
 
     with _phase_guard("command shape"):

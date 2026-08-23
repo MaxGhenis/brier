@@ -403,7 +403,11 @@ def attested_bundle(
     }
     ticket = generation_tickets.validate_ticket(
         {
-            "schemaVersion": generation_tickets.TICKET_SCHEMA,
+            "schemaVersion": (
+                "generation_ticket_v1"
+                if fixture_case == "legacy_conditional_ladder"
+                else generation_tickets.TICKET_SCHEMA
+            ),
             "ticketId": TICKET_ID,
             "nonce": NONCE,
             "mintedAtUtc": "2030-01-10T11:00:00Z",
@@ -840,6 +844,73 @@ def test_legacy_conditional_bundle_without_review_mode_replays_byte_exactly(
         b"policy_chain"
         not in run_path(attested_bundle, "pre_submit_review_prompt.md").read_bytes()
     )
+
+
+@pytest.mark.parametrize(
+    "attested_bundle", ["conditional_ladder", "conditional_ladder_v2"], indirect=True
+)
+def test_new_ticket_epoch_requires_review_mode_for_conditional_ladder(
+    attested_bundle: AttestedFixture,
+) -> None:
+    rewrite_run_manifest(
+        attested_bundle,
+        lambda manifest: manifest.pop("preSubmitReviewPromptMode"),
+    )
+
+    with pytest.raises(verifier.AttestedBundleError) as caught:
+        verify(attested_bundle)
+    assert str(caught.value) == (
+        "policy check failed: run 0 current attestation format requires a string "
+        "preSubmitReviewPromptMode"
+    )
+
+
+def test_frozen_2_5_11_target_context_bundle_prompts_replay_byte_exactly() -> None:
+    run_relative = pathlib.PurePosixPath(
+        "records/thesis-analyst/2026-08-15/"
+        "2026-08-15t15-16-02z-usda-fsa-crp-enrolled-acres-total-2027-09"
+    )
+    run_dir = ROOT.joinpath(*run_relative.parts)
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    ticket_relative = pathlib.PurePosixPath(manifest["generationTicket"]["ticketPath"])
+    ticket_path = ROOT.joinpath(*ticket_relative.parts)
+    ticket = generation_tickets.load_ticket(ticket_path)
+    prompt_context = {
+        "ticketId": ticket["ticketId"],
+        "ticketPath": ticket_relative.as_posix(),
+        "nonce": ticket["nonce"],
+    }
+    state = verifier.TicketContext(
+        ticket_path,
+        ticket_relative,
+        ticket,
+        prompt_context,
+        generation_tickets.ticket_manifest_binding(prompt_context),
+    )
+    run = verifier.RunEnvelope(
+        0,
+        {},
+        manifest["targetContext"],
+        run_relative / "manifest.json",
+        manifest_path,
+        manifest,
+    )
+    frozen = {
+        "prompt.md": "092df9171b7750890df2569eb219ed8a9fb6e3465f2ce22532c824eedfa3b97b",
+        "pre_submit_review_prompt.md": (
+            "17b678ab6cc765fccc3078a65d2a183e707369d165d09d6ebd0dd26cbf485f10"
+        ),
+        "revision_prompt.md": (
+            "262d0d7d17c8a1fb07e8ad0cf37a2a882fa81817b9a521c5a2a19bd89fad05f2"
+        ),
+    }
+    for filename, expected_sha256 in frozen.items():
+        assert sha256_bytes((run_dir / filename).read_bytes()) == expected_sha256
+
+    evidence = verifier._check_prompts(state, ROOT, [run])
+
+    assert set(evidence) == {0}
 
 
 @pytest.mark.parametrize("attested_bundle", ["bounded"], indirect=True)

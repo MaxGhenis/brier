@@ -23,7 +23,9 @@ from typing import Any
 from canonical_json import canonical_bytes
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-TICKET_SCHEMA = "generation_ticket_v1"
+TICKET_SCHEMA = "generation_ticket_v2"
+LEGACY_TICKET_SCHEMAS = frozenset({"generation_ticket_v1"})
+SUPPORTED_TICKET_SCHEMAS = LEGACY_TICKET_SCHEMAS | {TICKET_SCHEMA}
 
 TICKET_KEYS = {
     "schemaVersion",
@@ -293,7 +295,7 @@ def validate_ticket(ticket: Any) -> dict[str, Any]:
     missing = TICKET_KEYS - set(ticket)
     if missing:
         raise TicketError(f"generation ticket is missing keys: {sorted(missing)}")
-    if ticket["schemaVersion"] != TICKET_SCHEMA:
+    if ticket["schemaVersion"] not in SUPPORTED_TICKET_SCHEMAS:
         raise TicketError(
             f"unsupported generation ticket schema {ticket['schemaVersion']!r}"
         )

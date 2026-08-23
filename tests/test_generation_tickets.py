@@ -197,7 +197,7 @@ def test_mint_and_load_ticket_round_trip(tmp_path: pathlib.Path) -> None:
         registration_set_hash="d" * 64,
     )
 
-    assert ticket["schemaVersion"] == generation_tickets.TICKET_SCHEMA
+    assert ticket["schemaVersion"] == "generation_ticket_v2"
     assert ticket["ticketId"] == f"2030-01-10-{NONCE}"
     assert ticket["targets"] == targets
     assert ticket["policy"] == policy
@@ -214,6 +214,23 @@ def test_mint_and_load_ticket_round_trip(tmp_path: pathlib.Path) -> None:
 
     path = tmp_path / "ticket.json"
     write_ticket(path, ticket)
+    assert generation_tickets.load_ticket(path) == ticket
+
+
+def test_generation_ticket_v1_remains_loadable(tmp_path: pathlib.Path) -> None:
+    ticket = generation_tickets.mint_ticket(
+        [sample_target()],
+        sample_policy(),
+        nonce=NONCE,
+        minted_at_utc=MINTED_AT,
+        expires_hours=EXPIRES_HOURS,
+        attempt=1,
+        registration_set_hash="d" * 64,
+    )
+    ticket["schemaVersion"] = "generation_ticket_v1"
+    path = tmp_path / "legacy-ticket.json"
+    write_ticket(path, ticket)
+
     assert generation_tickets.load_ticket(path) == ticket
 
 
@@ -304,8 +321,7 @@ def test_earliest_resolution_boundary_refuses_malformed_condition_deadline(
     )
 
 
-def test_earliest_resolution_boundary_requires_authenticated_nested_window(
-) -> None:
+def test_earliest_resolution_boundary_requires_authenticated_nested_window() -> None:
     target = sample_target()
     target.pop("sourceBinding")
 
@@ -634,8 +650,8 @@ def test_mint_refuses_non_json_target_before_copy() -> None:
             "generation ticket is missing keys: ['registrationSetHash']",
         ),
         (
-            lambda ticket: ticket.update({"schemaVersion": "generation_ticket_v2"}),
-            "unsupported generation ticket schema 'generation_ticket_v2'",
+            lambda ticket: ticket.update({"schemaVersion": "generation_ticket_v3"}),
+            "unsupported generation ticket schema 'generation_ticket_v3'",
         ),
         (
             lambda ticket: ticket.update({"nonce": "A" * 64}),
@@ -1428,6 +1444,4 @@ def test_mint_cli_refuses_mismatched_supersession_targets(
         f"supersede {predecessor['ticketId']}: registrationSetHash and targets "
         "must be identical\n"
     )
-    assert not conventional_ticket_path(
-        tmp_path, {"ticketId": candidate_id}
-    ).exists()
+    assert not conventional_ticket_path(tmp_path, {"ticketId": candidate_id}).exists()

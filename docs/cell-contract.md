@@ -153,10 +153,23 @@ For fast and full conditional runs, one reasoning step beginning exactly
 propagation to the measured quantity, offsetting responses, and timing/lag.
 The machine-safe form labels the four clauses `Touched population:`,
 `Propagation:`, `Offsets:`, and `Timing/lag:`; realistic prose passes when it
-contains the same structural cues. The propagation clause must tie the effect
-to the cited precedent, not merely place a URL elsewhere in the step. The
-pre-submit reviewer also checks whether the policy effect's direction and size
-are consistent with that precedent.
+contains the same structural cues. This structural lint is deliberately a
+fail-closed floor, not a semantic judge. A clause containing `no`, `not`,
+`does not`, `unknown`, `unrelated`, or `none` cannot supply a component merely
+because it also contains the component's cue words. Any bracketed or ALL-CAPS
+template slot, including `POLICY_CHAIN_URL_n`, is invalid anywhere in
+agent-authored cell text; validation checks the raw and normalized cell rather
+than treating a predictable placeholder as a URL surrogate. The fetched count
+must put its number together with a population unit/noun in the same clause.
+The precedent URL must occur in the same propagation sentence, not merely
+elsewhere in the step.
+
+The pre-submit review is the semantic judge above that structural floor. Item
+10 must reject cue soup, negated/unknown/unrelated components, and citations
+disconnected from the propagation sentence, and must compare the policy
+effect's direction and size with the cited precedent. Any such failure is a
+blocking `policy_chain` finding and requires `REQUEST_CHANGES` before the final
+cell is submitted.
 
 Machine-checked requirements (CI-validated literally, not approximately;
 a trace missing any is rejected):
@@ -167,22 +180,29 @@ a trace missing any is rejected):
 - the falsification step must use one of the literal phrasings
   "upside risk", "downside risk", "outside the interval", or
   "would land above/below the interval";
-- new fast/full conditional runs carry the mode-scoped thesis.analyst 2.5.12
-  contract version and must include a reasoning step whose text begins exactly
+- new fast/full conditional runs carry the next patch version derived from the
+  base analyst version (2.5.12 while the base is 2.5.11) and must include a
+  reasoning step whose text begins exactly
   `Policy chain:`. In that same step, literal component cues must identify (1)
-  a fetched numeric count tied locally to a touched-population noun (a report
-  year elsewhere in the clause is not a count), (2) propagation to the
-  measured quantity, (3) offsetting or behavioral responses, and (4) timing or
-  lag relative to the target period. Both the runner and
+  a fetched numeric count whose number and population unit/noun occur in the
+  same affirmative clause (a report year or a unitless number elsewhere in the
+  clause is not a count), (2) propagation to the measured quantity, (3)
+  offsetting or behavioral responses, and (4) timing or lag relative to the
+  target period. Both the runner and
   `spawned_cells_to_ts.py` invoke the same shared validator. Earlier 2.5.11
   records retain their historical contract;
 - the precedent branch must cite at least one fetched effect precedent URL in
   the propagation clause and repeat it exactly in `sourceContext`. A bill,
   measure, or other instrument URL named by the registered conditional cannot
   serve as the precedent, nor can `resolutionSourceUrl` (or its registered
-  source-binding equivalent). HTTP/HTTPS spelling, default ports, fragments,
-  host case, and a trailing slash do not manufacture distinct evidence. A
-  genuinely distinct study on the same host remains admissible;
+  source-binding equivalent). URL identity lowercases the host, strips default
+  ports and fragments, percent-decodes unreserved characters while
+  case-normalizing remaining escapes, resolves dot-segments, and ignores a
+  trailing slash and query aliases when comparing path identity. A URL whose
+  path or query embeds an absolute URL (including encoded `http`, or common
+  `url=`, `u=`, `redirect=`, `target=`, `dest=`, or `next=` redirectors) cannot
+  be authenticated offline and is rejected fail-closed as non-distinct. A
+  genuinely distinct normalized path on the same host remains admissible;
 - the fallback branch must contain the exact phrase `no fetched precedent`,
   state propagation separately from its bound, label the policy term
   `low-confidence`, and state a finite, ordered, unit-bearing numeric effect
@@ -195,8 +215,18 @@ a trace missing any is rejected):
   `policy term bound: [LOW, HIGH] UNIT; policy term is low-confidence`;
   natural forms including `policy effect spans -0.2 to +0.4 percentage points`
   and `policy effect is bounded within ±0.4 percentage points` also pass;
-- the dispatch-only `ladder` and `ladder_v2` policy-chain contracts and
-  validators remain sealed and are exempt from this fast/full gate;
+- the converter accepts only known prompt modes from authenticated sealed
+  bundle metadata and refuses a conditional target context presented as a
+  non-conditional cell. The dispatch-only `ladder` and `ladder_v2`
+  policy-chain contracts remain exempt from this fast/full gate only when that
+  sealed metadata authenticates the mode; a cell-authored mode cannot claim
+  the exemption;
+- every new conditional `ladder` or `ladder_v2` manifest under the
+  `generation_ticket_v2` attestation-format epoch must carry the string
+  `preSubmitReviewPromptMode`. This epoch is independent of the fast/full
+  policy-chain agent version, so deleting the marker cannot downgrade a new
+  ladder review. Existing `generation_ticket_v1` bundles retain byte-exact
+  replay under their authenticated historical checkout;
 - one math step must begin "Prior/update/interval:" and SHOW the interval
   arithmetic: compute sigma from the fetched history (successive changes
   for level/rate series; the values themselves for change/flow series),
