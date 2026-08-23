@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import re
+import subprocess
 import urllib.error
 import urllib.request
 from typing import Any
@@ -805,12 +806,34 @@ def test_docket_is_contained_in_pinned_catalog() -> None:
     assert type(catalog_bytes) is int and catalog_bytes >= 0, (
         "pin catalogBytes must be a non-negative integer"
     )
-    url = f"https://raw.githubusercontent.com/{pin['repo']}/{pin['sha']}/{CATALOG_PATH}"
-    request = urllib.request.Request(
-        url, headers={"User-Agent": "thesis-containment-test"}
-    )
-    with urllib.request.urlopen(request, timeout=120) as response:
-        raw = response.read()
+    chronicle_checkout = os.environ.get("THESIS_CHRONICLE_CHECKOUT")
+    if chronicle_checkout:
+        completed = subprocess.run(
+            [
+                "git",
+                "-C",
+                chronicle_checkout,
+                "show",
+                f"{pin['sha']}:{CATALOG_PATH}",
+            ],
+            capture_output=True,
+            check=False,
+        )
+        assert completed.returncode == 0, (
+            "local Chronicle checkout lacks the pinned catalog object: "
+            + completed.stderr.decode(errors="replace")
+        )
+        raw = completed.stdout
+    else:
+        url = (
+            f"https://raw.githubusercontent.com/{pin['repo']}/"
+            f"{pin['sha']}/{CATALOG_PATH}"
+        )
+        request = urllib.request.Request(
+            url, headers={"User-Agent": "thesis-containment-test"}
+        )
+        with urllib.request.urlopen(request, timeout=120) as response:
+            raw = response.read()
     assert len(raw) == catalog_bytes, (
         f"pinned catalog byte count mismatch: expected {catalog_bytes}, got {len(raw)}"
     )
