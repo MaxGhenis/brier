@@ -1168,6 +1168,43 @@ def test_select_targets_refuses_partial_conditional_group_literally() -> None:
     )
 
 
+def test_select_targets_keeps_unconditional_baseline_with_conditional_arms() -> None:
+    baseline = sample_target()
+    baseline.pop("conditional")
+    baseline["catalogSlug"] = "synthetic-baseline"
+    enacted = {
+        **sample_target(),
+        "catalogSlug": "synthetic-enacted",
+        "conditional": "Synthetic provision is enacted.",
+    }
+    current_law = {
+        **sample_target(),
+        "catalogSlug": "synthetic-current-law",
+        "conditional": "Synthetic provision is not enacted.",
+    }
+    targets = [baseline, enacted, current_law]
+
+    with pytest.raises(TicketError) as error:
+        generation_tickets.select_targets(
+            targets,
+            slugs=["synthetic-enacted", "synthetic-current-law"],
+        )
+    assert str(error.value) == (
+        "conditional target selection for canary.synthetic.series 2030-Q1 "
+        "requires all slugs: ['synthetic-baseline', 'synthetic-current-law', "
+        "'synthetic-enacted']"
+    )
+
+    assert generation_tickets.select_targets(
+        targets,
+        slugs=[
+            "synthetic-current-law",
+            "synthetic-baseline",
+            "synthetic-enacted",
+        ],
+    ) == targets
+
+
 def test_select_cli_parses_comma_and_newline_slugs(
     tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

@@ -1261,6 +1261,15 @@ def conditional_pair_entry() -> dict:
     )
 
 
+def conditional_comparison_entry() -> dict:
+    entry = conditional_pair_entry()
+    entry["conditionalPair"]["unconditional"] = {
+        "catalogSlug": "additional-child-tax-credit-total-claims-ty2027",
+        "dataPointId": "irs.actc.total_claims.2027.first_print",
+    }
+    return entry
+
+
 def ndaa_conditional_pair_entry() -> dict:
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
     return copy.deepcopy(
@@ -1303,6 +1312,58 @@ def test_conditional_pair_emits_both_arms_before_the_deadline() -> None:
     # Both arms register as one wave: distinct slugs and dataPointIds.
     build_contract(targets[0], dt.date(2026, 8, 1))
     build_contract(targets[1], dt.date(2026, 8, 1))
+
+
+def test_conditional_comparison_emits_baseline_then_both_arms() -> None:
+    entry = conditional_comparison_entry()
+    targets = roll_docket.conditional_pair_seed_targets(
+        entry, set(), dt.date(2026, 8, 1)
+    )
+
+    assert [target["catalogSlug"] for target in targets] == [
+        "additional-child-tax-credit-total-claims-ty2027",
+        "additional-child-tax-credit-total-claims-ty2027-threshold-one-dollar",
+        "additional-child-tax-credit-total-claims-ty2027-current-law",
+    ]
+    baseline = targets[0]
+    assert baseline["dataPointId"] == "irs.actc.total_claims.2027.first_print"
+    assert "conditional" not in baseline
+    assert "conditionId" not in baseline
+    assert "conditionDeadline" not in baseline
+    build_contract(baseline, dt.date(2026, 8, 1))
+    assert [target["conditional"] for target in targets[1:]] == [
+        arm["conditional"] for arm in entry["conditionalPair"]["arms"]
+    ]
+
+    published = {baseline["catalogSlug"]}
+    remaining = roll_docket.conditional_pair_seed_targets(
+        entry, published, dt.date(2026, 8, 1)
+    )
+    assert [target["catalogSlug"] for target in remaining] == [
+        arm["catalogSlug"] for arm in entry["conditionalPair"]["arms"]
+    ]
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda entry: entry["conditionalPair"]["unconditional"].update(extra=True),
+        lambda entry: entry["conditionalPair"]["unconditional"].update(
+            dataPointId="irs.actc.total_claims.2027.first_print.baseline"
+        ),
+        lambda entry: entry["conditionalPair"]["unconditional"].update(
+            catalogSlug=entry["conditionalPair"]["arms"][0]["catalogSlug"]
+        ),
+    ],
+)
+def test_conditional_comparison_rejects_malformed_baseline(mutate) -> None:
+    entry = conditional_comparison_entry()
+    mutate(entry)
+
+    assert (
+        roll_docket.conditional_pair_seed_targets(entry, set(), dt.date(2026, 8, 1))
+        == []
+    )
 
 
 def test_main_routes_bounded_pairs_only_to_ticket_selection(

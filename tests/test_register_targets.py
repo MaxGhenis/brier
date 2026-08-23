@@ -3734,6 +3734,77 @@ def conditional_pair_targets(
     ]
 
 
+def conditional_comparison_entry() -> dict:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = copy.deepcopy(
+        next(
+            row
+            for row in docket["series"]
+            if row["series"] == "irs.actc.total_claims"
+        )
+    )
+    entry["conditionalPair"]["unconditional"] = {
+        "catalogSlug": "additional-child-tax-credit-total-claims-ty2027",
+        "dataPointId": "irs.actc.total_claims.2027.first_print",
+    }
+    return entry
+
+
+def test_conditional_comparison_authenticates_declared_baseline_and_arms() -> None:
+    entry = conditional_comparison_entry()
+    baseline = {
+        **entry["extras"],
+        "series": entry["series"],
+        "period": entry["period"],
+        **entry["conditionalPair"]["unconditional"],
+    }
+    baseline_contract = register_targets.build_contract(
+        baseline, dt.date(2026, 8, 1)
+    )
+    register_targets.require_conditional_docket_template(
+        baseline_contract,
+        [entry],
+        "2026-08-01T00:00:00Z",
+        batch_target=baseline,
+    )
+
+    arm = {
+        **entry["extras"],
+        "series": entry["series"],
+        "period": entry["period"],
+        **entry["conditionalPair"]["arms"][0],
+        "conditionDeadline": entry["conditionalPair"]["conditionDeadline"],
+    }
+    register_targets.require_conditional_docket_template(
+        register_targets.build_contract(arm, dt.date(2026, 8, 1)),
+        [entry],
+        "2026-08-01T00:00:00Z",
+        batch_target=arm,
+    )
+
+    undeclared = dict(baseline, catalogSlug="undeclared-unconditional")
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="does not name this unconditional catalogSlug",
+    ):
+        register_targets.require_conditional_docket_template(
+            register_targets.build_contract(undeclared, dt.date(2026, 8, 1)),
+            [entry],
+            "2026-08-01T00:00:00Z",
+        )
+
+    entry["conditionalPair"]["unconditional"]["dataPointId"] += ".not-base"
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="committed unconditional dataPointId",
+    ):
+        register_targets.require_conditional_docket_template(
+            register_targets.build_contract(arm, dt.date(2026, 8, 1)),
+            [entry],
+            "2026-08-01T00:00:00Z",
+        )
+
+
 def test_conditional_authentication_selects_exact_period_for_reused_series() -> None:
     series = "usaspending.dod.prime_award_obligations"
     docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
@@ -4002,9 +4073,18 @@ def test_skip_unbindable_never_registers_a_lone_conditional_arm(
 
     arms = conditional_pair_targets()
     sabotaged = dict(arms[0], conditionId="   ")  # fails build_contract
+    baseline = {
+        **arms[0],
+        "catalogSlug": "additional-child-tax-credit-total-claims-ty2027",
+        "dataPointId": "irs.actc.total_claims.2027.first_print",
+    }
+    for key in ("conditional", "conditionId", "conditionDeadline"):
+        baseline.pop(key)
     plain = sample_target()
     targets_path = tmp_path / "targets.json"
-    targets_path.write_text(json.dumps({"targets": [sabotaged, arms[1], plain]}))
+    targets_path.write_text(
+        json.dumps({"targets": [baseline, sabotaged, arms[1], plain]})
+    )
 
     registrations = register_targets.register(
         targets_path, registration_date, registered_at_utc, True
@@ -4016,6 +4096,8 @@ def test_skip_unbindable_never_registers_a_lone_conditional_arm(
     err = capsys.readouterr().err
     assert "skipping unbindable target" in err
     assert "skipping sibling conditional arm" in err
+    assert "skipping sibling unconditional baseline" in err
+    assert baseline["catalogSlug"] in err
     assert arms[1]["catalogSlug"] in err
 
     # Control: the intact pair registers both arms together.

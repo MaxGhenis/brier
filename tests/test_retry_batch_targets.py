@@ -430,7 +430,9 @@ def test_select_output_is_immune_to_forged_manifest_rows() -> None:
     assert forged == clean
 
 
-def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
+def _fake_pair_tree(
+    tmp_path: pathlib.Path, *, include_baseline: bool = False
+) -> tuple[dict, str, str] | tuple[dict, str, str, str]:
     # Derive two conditional-arm registrations from a real committed
     # snapshot so the fixture inherits the live schema and ledger-pin
     # shape; only the contract's identity and conditional fields change.
@@ -497,10 +499,38 @@ def _fake_pair_tree(tmp_path: pathlib.Path) -> tuple[dict, str, str]:
             }
         )
         slugs.append(slug)
+    baseline_slug = "test-pair-baseline"
+    if include_baseline:
+        snapshot = copy.deepcopy(base_snapshot)
+        contract = snapshot["targets"][0]
+        contract["series"] = "test.pair.series"
+        contract["period"] = "2027-09"
+        contract["catalogSlug"] = baseline_slug
+        contract["dataPointId"] = (
+            "test.pair.series.2027_09.registered_query_snapshot"
+        )
+        for field in ("conditional", "conditionId", "conditionDeadline"):
+            contract.pop(field, None)
+        content_hash = registration_content_hash(snapshot)
+        name = f"2026-08-07-{content_hash}.json"
+        (reg_dir / name).write_text(json.dumps(snapshot))
+        rows.append(
+            {
+                "ok": False,
+                "target": {
+                    "catalogSlug": baseline_slug,
+                    "targetRegistrationPath": f"records/targets/{name}",
+                    "targetContentHash": content_hash,
+                    "registeredAtUtc": registered_at,
+                },
+            }
+        )
     manifest = {
         "schemaVersion": "thesis_batch_manifest_v1",
         "results": rows,
     }
+    if include_baseline:
+        return manifest, slugs[0], slugs[1], baseline_slug
     return manifest, slugs[0], slugs[1]
 
 
@@ -527,6 +557,38 @@ def test_narrowing_to_one_unpublished_pair_arm_is_refused(
         manifest, slugs=None, allow_succeeded=False, now_utc=WITHIN_GRACE
     , published=frozenset())
     assert sorted(t["catalogSlug"] for t in default) == sorted([arm_a, arm_b])
+
+
+def test_comparison_retry_keeps_failed_baseline_and_arms_atomic(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest, arm_a, arm_b, baseline = _fake_pair_tree(
+        tmp_path, include_baseline=True
+    )
+    monkeypatch.setattr(retry_batch_targets, "ROOT", tmp_path)
+
+    for partial in ([arm_a, arm_b], [baseline]):
+        with pytest.raises(
+            RetrySelectionError, match="retry together or not at all"
+        ):
+            select_retry_targets(
+                manifest,
+                slugs=partial,
+                allow_succeeded=False,
+                now_utc=WITHIN_GRACE,
+                published={},
+            )
+
+    selected = select_retry_targets(
+        manifest,
+        slugs=[baseline, arm_a, arm_b],
+        allow_succeeded=False,
+        now_utc=WITHIN_GRACE,
+        published={},
+    )
+    assert sorted(target["catalogSlug"] for target in selected) == sorted(
+        [baseline, arm_a, arm_b]
+    )
 
 
 def test_lone_failed_arm_with_published_sibling_is_retryable(

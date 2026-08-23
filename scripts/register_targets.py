@@ -1373,20 +1373,19 @@ def require_conditional_docket_template(
     registered_at_utc: str | None = None,
     batch_target: dict[str, Any] | None = None,
 ) -> None:
-    """Reauthenticate a conditional contract against the committed docket.
+    """Reauthenticate a conditional comparison against the committed docket.
 
     The binding and publication steps re-run after every rebase, so the
     committed registry at the CURRENT trusted checkout — not any earlier
     computation — is the authority for which conditional arms exist. The
     check is total: the committed entry must REGENERATE the bound contract
-    byte-for-byte (series, period, slug, dataPointId, conditional text,
-    conditionId, deadline, unit, valueScale, and the full source binding
-    including its window); with a batch target supplied, every other
-    committed target field (resolutionDate, anchors, …) must match it too;
-    the sibling arm must still be present and well-formed; and a series-period
-    whose committed entry carries a conditionalPair is conditional-only —
-    NO unconditional contract may register under it. Any committed-entry
-    drift after registration fails closed before forecasting or publication.
+    byte-for-byte (series, period, slug, dataPointId, conditional text where
+    applicable, unit, valueScale, and the full source binding including its
+    window); with a batch target supplied, every other committed target field
+    (resolutionDate, anchors, …) must match it too. Both arms and any declared
+    unconditional baseline must remain present and well-formed. A pair without
+    an explicit baseline remains conditional-only. Any committed-entry drift
+    after registration fails closed before forecasting or publication.
     """
 
     template_matches = matching_docket_templates(contract, template_matches)
@@ -1399,20 +1398,32 @@ def require_conditional_docket_template(
     )
     arms = pair.get("arms") if isinstance(pair, dict) else None
     if conditional is None:
+        pair_matches = [
+            entry
+            for entry in template_matches
+            if isinstance(entry, dict) and entry.get("conditionalPair") is not None
+        ]
+        if not pair_matches:
+            return
         # Checked across every applicable committed match, so duplicate
         # exact-period authority (or a series-wide fallback for an unknown
-        # period) cannot launder an unconditional contract past the
-        # conditional-only rule.
-        if any(
-            isinstance(entry, dict) and entry.get("conditionalPair") is not None
-            for entry in template_matches
+        # period) cannot launder an unconditional contract past the reviewed
+        # comparison declaration.
+        if not any(
+            isinstance(entry.get("conditionalPair"), dict)
+            and entry["conditionalPair"].get("unconditional") is not None
+            for entry in pair_matches
         ):
             raise RegistrationError(
                 "committed docket makes this series conditional-only; an "
                 f"unconditional contract may not register under it: {label}"
             )
-        return
-    if len(template_matches) != 1:
+        if len(template_matches) != 1:
+            raise RegistrationError(
+                "unconditional comparison target requires exactly one committed "
+                f"docket entry: {label}"
+            )
+    elif len(template_matches) != 1:
         raise RegistrationError(
             f"conditional target requires exactly one committed docket entry: {label}"
         )
@@ -1470,25 +1481,82 @@ def require_conditional_docket_template(
                 f"<series>.<period>.{resolution_token}.<condition_token>: "
                 f"{label}"
             )
-    matching = [
-        arm for arm in arms if arm.get("catalogSlug") == contract.get("catalogSlug")
-    ]
-    if len(matching) != 1:
-        raise RegistrationError(
-            "committed conditional pair does not name this catalogSlug "
-            f"exactly once: {label}"
+    unconditional = pair.get("unconditional")
+    if unconditional is not None:
+        if not isinstance(unconditional, dict) or set(unconditional) != {
+            "catalogSlug",
+            "dataPointId",
+        }:
+            raise RegistrationError(
+                "committed conditionalPair unconditional must contain exactly "
+                f"catalogSlug and dataPointId: {label}"
+            )
+        if not all(
+            isinstance(unconditional.get(field), str)
+            and unconditional[field].strip()
+            for field in ("catalogSlug", "dataPointId")
+        ):
+            raise RegistrationError(
+                "committed conditionalPair unconditional is malformed: "
+                f"{label}"
+            )
+        period_token = str(entry.get("period")).replace("-", "_")
+        expected_baseline_id = (
+            f"{entry.get('series')}.{period_token}.{resolution_token}"
         )
-    arm = matching[0]
+        if unconditional["dataPointId"] != expected_baseline_id:
+            raise RegistrationError(
+                "committed unconditional dataPointId "
+                f"{unconditional['dataPointId']!r} does not match "
+                f"sourceBinding.releasePolicy {release_policy!r}; expected "
+                f"{expected_baseline_id}: {label}"
+            )
+        member_slugs = [
+            unconditional["catalogSlug"],
+            *(arm["catalogSlug"] for arm in arms),
+        ]
+        member_ids = [
+            unconditional["dataPointId"],
+            *(arm["dataPointId"] for arm in arms),
+        ]
+        if len(set(member_slugs)) != 3 or len(set(member_ids)) != 3:
+            raise RegistrationError(
+                "committed comparison baseline and arms require distinct slugs "
+                f"and dataPointIds: {label}"
+            )
+    if conditional is None:
+        assert isinstance(unconditional, dict)
+        if unconditional.get("catalogSlug") != contract.get("catalogSlug"):
+            raise RegistrationError(
+                "committed conditional pair does not name this unconditional "
+                f"catalogSlug exactly once: {label}"
+            )
+        member = unconditional
+    else:
+        matching = [
+            arm for arm in arms if arm.get("catalogSlug") == contract.get("catalogSlug")
+        ]
+        if len(matching) != 1:
+            raise RegistrationError(
+                "committed conditional pair does not name this catalogSlug "
+                f"exactly once: {label}"
+            )
+        member = matching[0]
     reconstructed_target = {
         **extras,
         "series": entry.get("series"),
         "period": entry.get("period"),
-        "catalogSlug": arm.get("catalogSlug"),
-        "dataPointId": arm.get("dataPointId"),
-        "conditional": arm.get("conditional"),
-        "conditionId": arm.get("conditionId"),
-        "conditionDeadline": pair.get("conditionDeadline"),
+        "catalogSlug": member.get("catalogSlug"),
+        "dataPointId": member.get("dataPointId"),
     }
+    if conditional is not None:
+        reconstructed_target.update(
+            {
+                "conditional": member.get("conditional"),
+                "conditionId": member.get("conditionId"),
+                "conditionDeadline": pair.get("conditionDeadline"),
+            }
+        )
     if batch_target is not None:
         # Preserve the established run-context drift verdict for the fields
         # that are consumed by the analyst beyond resolver identity. Bounded
@@ -1518,7 +1586,7 @@ def require_conditional_docket_template(
     except RegistrationError as exc:
         raise RegistrationError(
             "committed docket entry no longer regenerates a valid "
-            f"conditional contract: {label} ({exc})"
+            f"comparison contract: {label} ({exc})"
         ) from exc
     rebuilt = json.loads(canonical_bytes(rebuilt))
     comparable_rebuilt = rebuilt
@@ -1545,7 +1613,7 @@ def require_conditional_docket_template(
         )
         raise RegistrationError(
             "committed docket entry no longer regenerates the registered "
-            f"conditional contract (drifted: {drifted}): {label}"
+            f"comparison contract (drifted: {drifted}): {label}"
         )
     if batch_target is not None:
         # The contract equality above covers the registration projection;
@@ -2016,7 +2084,12 @@ def register(
         # analyst never runs an unregistered target) and are reported loudly
         # so their series get bindings.
         bindable: list[dict[str, Any]] = []
-        skipped_conditional_keys: set[tuple[str, str]] = set()
+        comparison_keys = {
+            (str(target.get("series")), str(target.get("period")))
+            for target in targets
+            if target.get("conditional") is not None
+        }
+        skipped_comparison_keys: set[tuple[str, str]] = set()
         for target in targets:
             try:
                 build_contract(target, registration_date)
@@ -2026,32 +2099,32 @@ def register(
                     f"{target.get('catalogSlug', target.get('series', '?'))}: {exc}",
                     file=sys.stderr,
                 )
-                if target.get("conditional") is not None:
-                    skipped_conditional_keys.add(
-                        (str(target.get("series")), str(target.get("period")))
-                    )
+                key = (str(target.get("series")), str(target.get("period")))
+                if key in comparison_keys:
+                    skipped_comparison_keys.add(key)
                 continue
             bindable.append(target)
-        if skipped_conditional_keys:
-            # Pair atomicity must survive pruning: selection admits a
-            # conditional pair only as one unit (a lone arm is emitted only
-            # when its sibling is already published), so if pruning removes
-            # a conditional arm HERE, registering the arms it shipped with
-            # would publish one premise alone and hand the pruned arm a
-            # later, better-informed wave. Drop the siblings too, loudly;
-            # the whole pair retries together on a later roll.
+        if skipped_comparison_keys:
+            # Comparison atomicity must survive pruning: selection admits the
+            # independently elicited baseline and arms as one unit (a smaller
+            # set is emitted only when the other members are already
+            # published). If any member fails to bind HERE, drop every member
+            # it shipped with so generation time cannot become a hidden
+            # baseline-vs-arm confound.
             kept: list[dict[str, Any]] = []
             for target in bindable:
                 key = (str(target.get("series")), str(target.get("period")))
-                if (
-                    target.get("conditional") is not None
-                    and key in skipped_conditional_keys
-                ):
+                if key in skipped_comparison_keys:
+                    member_kind = (
+                        "conditional arm"
+                        if target.get("conditional") is not None
+                        else "unconditional baseline"
+                    )
                     print(
-                        "skipping sibling conditional arm "
-                        f"{target.get('catalogSlug', '?')}: its pair-mate "
-                        "failed to bind; the pair retries together on a "
-                        "later roll",
+                        f"skipping sibling {member_kind} "
+                        f"{target.get('catalogSlug', '?')}: its comparison-mate "
+                        "failed to bind; the comparison set retries together "
+                        "on a later roll",
                         file=sys.stderr,
                     )
                     continue

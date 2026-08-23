@@ -502,53 +502,58 @@ def select_retry_targets(
         rebuilt_by_slug[slug] = rebuilt
         targets.append(rebuilt)
 
-    # Pair atomicity (roll_docket F10): a conditional pair's unpublished
-    # arms are one unit — publishing one arm ahead of a sibling that also
-    # remains unpublished would hand the later arm extra information.
-    # Retrying a lone failed arm is valid only when every failed sibling
-    # is either selected alongside it or already published (by the
-    # original run or a later retry); otherwise the retry must carry the
-    # whole unpublished failed set together. Arm-ness of BOTH sides comes
-    # from verified registration snapshots — manifest rows contribute
-    # only membership and recorded outcomes, so omitting fields from a
-    # sibling row cannot hide the pair.
-    if any(rebuilt.get("conditional") is not None for rebuilt in targets):
-        contract_by_slug = {
-            slug: load_verified_snapshot(result["target"], label=f"target {slug}")[0][
-                "targets"
-            ][0]
-            for slug, result in by_slug.items()
-        }
-        for slug, rebuilt in rebuilt_by_slug.items():
-            if rebuilt.get("conditional") is None:
-                continue
-            for sibling, sibling_result in by_slug.items():
-                sibling_contract = contract_by_slug[sibling]
-                if (
-                    sibling == slug
-                    or sibling_contract.get("conditional") is None
-                    or sibling_contract.get("series") != rebuilt.get("series")
-                    or sibling_contract.get("period") != rebuilt.get("period")
-                ):
-                    continue
-                if sibling_result.get("ok") or sibling in rebuilt_by_slug:
-                    continue
-                _corroborate_absence(sibling, published, raw_text_slugs)
-                if _published_identity_matches(sibling, published, sibling_result):
-                    continue
-                if sibling in published:
-                    raise RetrySelectionError(
-                        f"target {slug} is a conditional arm whose sibling "
-                        f"{sibling} slug is published under a different "
-                        "registration than the sibling's verified snapshot; "
-                        "the pair is wedged and the registry needs human "
-                        "review"
-                    )
-                raise RetrySelectionError(
-                    f"target {slug} is a conditional arm whose sibling "
-                    f"{sibling} also failed and is not selected; "
-                    "unpublished pair arms retry together or not at all"
+    # Comparison atomicity (roll_docket F10): a conditional pair's optional
+    # unconditional baseline and both arms are one independently elicited
+    # unit. Retrying one failed member is valid only when every other failed
+    # member is selected alongside it or already published; otherwise run
+    # timing itself would become a hidden baseline-vs-arm confound. Membership
+    # comes from verified registration snapshots — manifest rows contribute
+    # only recorded outcomes, so omitting conditional fields there cannot hide
+    # a comparison sibling.
+    contract_by_slug = {
+        slug: load_verified_snapshot(result["target"], label=f"target {slug}")[0][
+            "targets"
+        ][0]
+        for slug, result in by_slug.items()
+    }
+    comparison_keys = {
+        (contract.get("series"), contract.get("period"))
+        for contract in contract_by_slug.values()
+        if contract.get("conditional") is not None
+    }
+    for slug, rebuilt in rebuilt_by_slug.items():
+        key = (rebuilt.get("series"), rebuilt.get("period"))
+        if key not in comparison_keys:
+            continue
+        for sibling, sibling_result in by_slug.items():
+            sibling_contract = contract_by_slug[sibling]
+            if (
+                sibling == slug
+                or (
+                    sibling_contract.get("series"),
+                    sibling_contract.get("period"),
                 )
+                != key
+            ):
+                continue
+            if sibling_result.get("ok") or sibling in rebuilt_by_slug:
+                continue
+            _corroborate_absence(sibling, published, raw_text_slugs)
+            if _published_identity_matches(sibling, published, sibling_result):
+                continue
+            if sibling in published:
+                raise RetrySelectionError(
+                    f"target {slug} is a conditional comparison member whose "
+                    f"sibling {sibling} slug is published under a different "
+                    "registration than the sibling's verified snapshot; the "
+                    "comparison set is wedged and the registry needs human "
+                    "review"
+                )
+            raise RetrySelectionError(
+                f"target {slug} is a conditional comparison member whose "
+                f"sibling {sibling} also failed and is not selected; "
+                "unpublished comparison members retry together or not at all"
+            )
     return targets
 
 

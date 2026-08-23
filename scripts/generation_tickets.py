@@ -1006,12 +1006,21 @@ def select_targets(
     if missing:
         raise TicketError(f"requested catalog slugs are not targets: {missing}")
     requested = set(slugs)
-    conditional_groups: dict[tuple[str, str], set[str]] = {}
-    for target in targets:
-        if isinstance(target.get("conditional"), str) and target["conditional"].strip():
-            key = (target["series"], str(target.get("period") or ""))
-            conditional_groups.setdefault(key, set()).add(target["catalogSlug"])
-    for (target_series, period), required in sorted(conditional_groups.items()):
+    conditional_keys = {
+        (target["series"], str(target.get("period") or ""))
+        for target in targets
+        if isinstance(target.get("conditional"), str)
+        and target["conditional"].strip()
+    }
+    comparison_groups: dict[tuple[str, str], set[str]] = {
+        key: {
+            target["catalogSlug"]
+            for target in targets
+            if (target["series"], str(target.get("period") or "")) == key
+        }
+        for key in conditional_keys
+    }
+    for (target_series, period), required in sorted(comparison_groups.items()):
         included = requested & required
         if included and included != required:
             raise TicketError(

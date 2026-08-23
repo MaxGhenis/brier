@@ -591,20 +591,20 @@ def conditional_pair_seed_targets(
     catalog_slugs: set[str],
     today: dt.date,
 ) -> list[dict]:
-    """Admit the reviewed one-shot conditional-pair arms still unpublished.
+    """Admit a reviewed one-shot comparison set still unpublished.
 
     A conditional pair forecasts one official print under two mutually
-    exclusive legal-state conditions (a legislated provision holding vs
-    current law). Its forecasting window is bounded by the CONDITION
-    deadline, not by the release date: the arms must be preregistered and
-    published while the legislative outcome is open, even though the
-    official print that resolves them may be years away. The registry must
-    pin everything — the exact period, both arm slugs, distinct
-    dataPointIds, the byte-exact conditional texts, and an explicit
-    expectedReleaseWindow — so nothing here is inferred from cadence. An
-    arm whose catalog slug is already published is never re-emitted; a
-    registered failed arm keeps its slot and uses the explicit in-grace retry
-    lane instead of receiving a new registration (F10).
+    exclusive conditions. A pair may additionally pin an unconditional
+    baseline so all three independently elicited forecasts are generated in
+    the same wave. Its forecasting window is bounded by the CONDITION
+    deadline, not by the release date: every member must be preregistered and
+    published while the outcome is open, even though the official print may
+    be years away. The registry pins the exact period, slugs, dataPointIds,
+    byte-exact conditional texts, and expectedReleaseWindow; nothing here is
+    inferred from cadence. A member whose catalog slug is already published
+    is never re-emitted; a registered failed member keeps its slot and uses
+    the explicit in-grace retry lane instead of receiving a new registration
+    (F10).
     """
 
     pair = entry.get("conditionalPair")
@@ -684,6 +684,50 @@ def conditional_pair_seed_targets(
     seen_conditionals: set[str] = set()
     targets: list[dict] = []
     period_token = period.replace("-", "_")
+    binding = extras["sourceBinding"]
+    release_policy = binding.get("releasePolicy")
+    resolution_token = (
+        "registered_query_snapshot"
+        if release_policy == "registered_query_snapshot"
+        else "first_print"
+    )
+    unconditional = pair.get("unconditional")
+    if unconditional is not None:
+        if not isinstance(unconditional, dict) or set(unconditional) != {
+            "catalogSlug",
+            "dataPointId",
+        }:
+            return skip(
+                "unconditional must contain exactly catalogSlug and dataPointId"
+            )
+        baseline_slug = unconditional.get("catalogSlug")
+        baseline_id = unconditional.get("dataPointId")
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (baseline_slug, baseline_id)
+        ):
+            return skip("unconditional requires catalogSlug and dataPointId")
+        expected_baseline_id = (
+            f"{entry['series']}.{period_token}.{resolution_token}"
+        )
+        if baseline_id != expected_baseline_id:
+            return skip(
+                f"unconditional dataPointId {baseline_id!r} does not match "
+                f"sourceBinding.releasePolicy {release_policy!r}; expected "
+                f"{expected_baseline_id}"
+            )
+        seen_slugs.add(baseline_slug)
+        seen_ids.add(baseline_id)
+        if baseline_slug not in catalog_slugs:
+            targets.append(
+                {
+                    **extras,
+                    "series": entry["series"],
+                    "period": period,
+                    "catalogSlug": baseline_slug,
+                    "dataPointId": baseline_id,
+                }
+            )
     for arm in arms:
         if not isinstance(arm, dict):
             return skip("has a non-object arm")
@@ -703,13 +747,6 @@ def conditional_pair_seed_targets(
         # their ids; every other conditional-pair family retains the
         # first_print spelling. A mismatch would route the resolver under
         # different vintage semantics than the committed source binding.
-        binding = extras["sourceBinding"]
-        release_policy = binding.get("releasePolicy")
-        resolution_token = (
-            "registered_query_snapshot"
-            if release_policy == "registered_query_snapshot"
-            else "first_print"
-        )
         if not re.fullmatch(
             rf"{re.escape(entry['series'])}\.{re.escape(period_token)}"
             rf"\.{re.escape(resolution_token)}\.[a-z0-9_]+",
@@ -738,8 +775,16 @@ def conditional_pair_seed_targets(
                 "conditionDeadline": pair["conditionDeadline"],
             }
         )
-    if len(seen_slugs) != 2 or len(seen_ids) != 2 or len(seen_conditionals) != 2:
-        return skip("arms must have distinct slugs, ids, and conditionals")
+    expected_member_count = 3 if unconditional is not None else 2
+    if (
+        len(seen_slugs) != expected_member_count
+        or len(seen_ids) != expected_member_count
+        or len(seen_conditionals) != 2
+    ):
+        return skip(
+            "comparison members must have distinct slugs and ids, and arms "
+            "must have distinct conditionals"
+        )
     return targets
 
 
@@ -963,10 +1008,10 @@ def select_capped_targets(
 ) -> tuple[list[dict], int]:
     """Admit whole candidate units in priority order under the cap.
 
-    A conditional pair's unpublished arms are one unit: selection stops at
-    the first unit that does not fit rather than splitting it (or skipping
-    ahead past it), so the cap can never register or forecast one arm of a
-    pair without its sibling.
+    A conditional comparison's unpublished baseline and arms are one unit:
+    selection stops at the first unit that does not fit rather than splitting
+    it (or skipping ahead past it), so the cap can never register or forecast
+    only part of the comparison set.
     """
 
     ordered = sorted(candidates, key=lambda item: (item[0], item[1]))
@@ -995,11 +1040,12 @@ def append_roll_candidate(
 ) -> None:
     """Append an eligible target unit without reviving or re-registering ids.
 
-    Conditional arms are one chronological unit. If either arm is terminally
-    expired or already registered, both arms stay out of the candidate pool and
-    each skipped arm is reported before cap selection. The attested bounded
-    lane may deliberately reuse an existing resolve-by-bound registration, but
-    it can never reuse a terminally expired id.
+    Conditional comparison members are one chronological unit. If any member
+    is terminally expired or already registered, the whole set stays out of
+    the candidate pool and each skipped member is reported before cap
+    selection. The attested bounded lane may deliberately reuse an existing
+    resolve-by-bound registration, but it can never reuse a terminally expired
+    id.
     """
 
     group = unit if isinstance(unit, list) else [unit]
@@ -1037,7 +1083,7 @@ def append_roll_candidate(
             reason = (
                 "conditional pair-mate dataPointId "
                 f"{registered_in_unit[0]} already has an immutable registration; "
-                "refusing to split the pair"
+                "refusing to split the comparison set"
             )
         print(f"  skip {slug}: {reason}")
 
