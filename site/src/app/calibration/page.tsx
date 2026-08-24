@@ -8,7 +8,11 @@ import {
   buildPredictionSpecs,
   buildRecordedPredictionRunRecords,
 } from "@/data/prediction-specs";
-import { buildBrierRewardExport } from "@/data/brier-lab";
+import {
+  buildBrierRewardExport,
+  isNormalizedScoreAggregateEligible,
+  summarizeNormalizedScores,
+} from "@/data/brier-lab";
 import {
   hasVerifiedClaimedChronology,
   loadPolicyEngineLedger,
@@ -84,35 +88,17 @@ export default async function CalibrationPage() {
     const key = `${row.agent ?? ""}\u0000${row.model ?? ""}`;
     claimedByAgent.set(key, (claimedByAgent.get(key) ?? 0) + 1);
   }
-  const normalizedScores = scores.filter(
-    (score) => score.normalizedCrps !== null && score.sharpness !== null,
+  const normalizedSummary = summarizeNormalizedScores(scores);
+  const normalizedScores = normalizedSummary.eligibleScores;
+  const meanNormalizedCrps = normalizedSummary.meanNormalizedCrps;
+  const meanSharpness = normalizedSummary.meanSharpness;
+  const claimedNormalizedSummary = summarizeNormalizedScores(
+    publishedScores.filter(
+      (score) => score.chronology === "claimed_time_verified",
+    ),
   );
-  const meanNormalizedCrps =
-    normalizedScores.length > 0
-      ? normalizedScores.reduce(
-          (total, score) => total + (score.normalizedCrps ?? 0),
-          0,
-        ) / normalizedScores.length
-      : null;
-  const meanSharpness =
-    normalizedScores.length > 0
-      ? normalizedScores.reduce(
-          (total, score) => total + (score.sharpness ?? 0),
-          0,
-        ) / normalizedScores.length
-      : null;
-  const claimedNormalizedScores = publishedScores.filter(
-    (score) =>
-      score.chronology === "claimed_time_verified" &&
-      score.normalizedCrps !== null,
-  );
-  const claimedMeanNormalizedCrps =
-    claimedNormalizedScores.length > 0
-      ? claimedNormalizedScores.reduce(
-          (total, score) => total + (score.normalizedCrps ?? 0),
-          0,
-        ) / claimedNormalizedScores.length
-      : null;
+  const claimedNormalizedScores = claimedNormalizedSummary.eligibleScores;
+  const claimedMeanNormalizedCrps = claimedNormalizedSummary.meanNormalizedCrps;
   // Until the first custody-v2 cells resolve, the witnessed tier is empty
   // by construction. The cards stay honest but never lead with a wall of
   // zeros: each shows its best PUBLISHED tier as the primary number with
@@ -229,10 +215,10 @@ export default async function CalibrationPage() {
                 ? formatCrps(meanNormalizedCrps)
                 : formatCrps(claimedMeanNormalizedCrps),
               detail: witnessedLive
-                ? `Lower is better; ${normalizedScores.length} of ${scores.length} witness-verified scores have a ledger scale. Mean sharpness ${
+                ? `Lower is better; ${normalizedScores.length} of ${scores.length} witness-verified scores have a usable ledger scale. Mean sharpness ${
                     meanSharpness === null ? "—" : meanSharpness.toFixed(2)
                   }× target scale.`
-                : `Lower is better; ${claimedNormalizedScores.length} of ${publishedScores.length} claimed-time scores have a pre-registered ledger scale.`,
+                : `Lower is better; ${claimedNormalizedScores.length} of ${publishedScores.length} claimed-time scores have a usable pre-registered ledger scale.`,
             },
             {
               label: "CRPS ratio vs persistence",
@@ -637,9 +623,7 @@ export default async function CalibrationPage() {
                   <th className="px-4 py-3 text-right font-normal">
                     Chronology
                   </th>
-                  <th className="px-4 py-3 text-right font-normal">
-                    Normalized CRPS
-                  </th>
+                  <th className="px-4 py-3 text-right font-normal">Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -708,7 +692,9 @@ export default async function CalibrationPage() {
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"
                         style={{ color: "var(--theme-text)" }}
                       >
-                        {formatCrps(score.normalizedCrps)}
+                        {isNormalizedScoreAggregateEligible(score)
+                          ? `nCRPS ${formatCrps(score.normalizedCrps)}`
+                          : `raw CRPS ${formatCrps(score.crps)}`}
                       </td>
                     </tr>
                   );
