@@ -19,7 +19,10 @@ import {
   buildPredictionSpecs,
   buildRecordedPredictionRunRecords,
 } from "@/data/prediction-specs";
-import { buildBrierRewardExport } from "@/data/brier-lab";
+import {
+  buildBrierRewardExport,
+  summarizeNormalizedScores,
+} from "@/data/brier-lab";
 import { CONDITIONS, type ConditionStatus } from "@/data/conditions";
 import {
   FORECAST_CELLS,
@@ -345,6 +348,66 @@ describe("target normalization scale", () => {
     expect(reward.pairedComparison.crpsRatioGeomean).toEqual(
       expect.any(Number),
     );
+  });
+
+  it("excludes floating-point-zero dispersion from normalized aggregates", () => {
+    const degenerateHistory = [
+      observation("2022", 1.1, "2026-02-01T00:00:00Z"),
+      observation("2023", 1.2, "2026-03-01T00:00:00Z"),
+      observation("2024", 1.3, "2026-04-01T00:00:00Z"),
+    ];
+    const degenerateLedger: PolicyEngineLedgerEntry[] = [
+      target,
+      ...historyRegistrations,
+      ...degenerateHistory,
+      outcome,
+    ];
+    const validLedger: PolicyEngineLedgerEntry[] = [
+      target,
+      ...historyRegistrations,
+      ...history,
+      outcome,
+    ];
+    const run = getForecastRunEntries(baseCell)[0];
+    const degenerateScore = scoreResolvedForecastRun(
+      baseCell,
+      run,
+      degenerateLedger,
+    );
+    const validScore = scoreResolvedForecastRun(baseCell, run, validLedger);
+    expect(degenerateScore?.crps).toEqual(expect.any(Number));
+    expect(degenerateScore?.normalizationScaleSource).toBe("ledger_dispersion");
+    expect(degenerateScore?.normalizationScaleObservationCount).toBe(3);
+    expect(degenerateScore?.normalizationScale).toBeGreaterThan(0);
+    expect(degenerateScore?.normalizationScale).toBeLessThan(Number.EPSILON);
+    expect(degenerateScore?.normalizedCrps).toBeGreaterThan(1_000_000);
+    expect(degenerateScore?.sharpness).toBeGreaterThan(1_000_000);
+    expect(validScore).toBeDefined();
+
+    const summary = summarizeNormalizedScores([validScore!, degenerateScore!]);
+    expect(summary.eligibleScores).toEqual([validScore]);
+    expect(summary.meanNormalizedCrps).toBe(validScore?.normalizedCrps);
+    expect(summary.meanSharpness).toBe(validScore?.sharpness);
+    expect(Number.isFinite(summary.meanNormalizedCrps)).toBe(true);
+    expect(Number.isFinite(summary.meanSharpness)).toBe(true);
+    expect(summary.meanNormalizedCrps).toBeLessThan(1_000_000);
+    expect(summary.meanSharpness).toBeLessThan(1_000_000);
+
+    const specs = buildPredictionSpecs([baseCell]);
+    const reward = buildBrierRewardExport({
+      forecasts: [baseCell],
+      specs,
+      runs: buildRecordedPredictionRunRecords([baseCell], specs),
+      ledger: degenerateLedger,
+    });
+    const primary = reward.rewardRows.find(
+      (row) => row.runVariantId === "primary",
+    );
+    const agent = reward.leaderboard.find((row) => row.agent === "test.agent");
+    expect(primary?.reward.components.normalizedCrps).toBe(
+      degenerateScore?.normalizedCrps,
+    );
+    expect(agent?.unpairedMeanNormalizedCrps).toBeNull();
   });
 
   it("ignores contract-bound observations from a foreign suffix series", () => {

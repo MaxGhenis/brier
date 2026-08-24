@@ -173,6 +173,53 @@ export interface BrierPairedComparisonSummary {
   zeroCrpsPairs: number;
 }
 
+interface NormalizationScaleCandidate {
+  normalizationScale: number | null;
+  normalizationScaleSource: "ledger_dispersion" | "unavailable" | null;
+}
+
+export function hasUsableNormalizationScale(
+  score: NormalizationScaleCandidate,
+): boolean {
+  const scale = score.normalizationScale;
+  // Equal decimal step changes can leave a positive sub-epsilon deviation in
+  // binary floating point; that is zero usable dispersion, not a denominator.
+  return (
+    score.normalizationScaleSource === "ledger_dispersion" &&
+    scale !== null &&
+    Number.isFinite(scale) &&
+    scale > Number.EPSILON
+  );
+}
+
+export function isNormalizedScoreAggregateEligible(
+  score: ResolvedForecastScore,
+): score is ResolvedForecastScore & {
+  normalizationScale: number;
+  normalizedCrps: number;
+  sharpness: number;
+} {
+  return (
+    score.normalizationScaleObservationCount >= 3 &&
+    hasUsableNormalizationScale(score) &&
+    isNumber(score.normalizedCrps) &&
+    isNumber(score.sharpness)
+  );
+}
+
+export function summarizeNormalizedScores(scores: ResolvedForecastScore[]) {
+  const eligibleScores = scores.filter(isNormalizedScoreAggregateEligible);
+  return {
+    eligibleScores,
+    meanNormalizedCrps: mean(
+      eligibleScores.map((score) => score.normalizedCrps).filter(isNumber),
+    ),
+    meanSharpness: mean(
+      eligibleScores.map((score) => score.sharpness).filter(isNumber),
+    ),
+  };
+}
+
 export interface BrierRewardExport {
   schemaVersion: "brier_reward_export_v2";
   generatedAt: string;
@@ -572,7 +619,10 @@ export function buildBrierAgentLeaderboard(
         (row) => row.reward.components.crps !== null,
       );
       const scoredRows = group.filter(
-        (row) => row.reward.components.normalizedCrps !== null,
+        (row) =>
+          hasUsableNormalizationScale(row.reward.components) &&
+          isNumber(row.reward.components.normalizedCrps) &&
+          isNumber(row.reward.components.sharpness),
       );
       const artifactRows = group.filter(
         (row) => row.provenance.activityArtifactCount > 0,

@@ -14,6 +14,7 @@ import {
   type PredictionRunRecord,
   type PredictionSpec,
 } from "@/data/prediction-specs";
+import { isNormalizedScoreAggregateEligible } from "@/data/brier-lab";
 import {
   buildThesisLog,
   buildResolutionQueue,
@@ -840,7 +841,9 @@ function ScoreRow({
         {formatSignedValue(score.signedError, score.unit)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {formatNullableScore(score.normalizedCrps)}
+        {isNormalizedScoreAggregateEligible(score)
+          ? formatNullableScore(score.normalizedCrps)
+          : "n/a"}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatCompactNumber(score.crps)}
@@ -876,10 +879,7 @@ function buildScoreboard(
   forecasts: ForecastCell[],
 ): Scoreboard {
   const scoresByNormalizedCrps = scores
-    .filter(
-      (score): score is ResolvedForecastScore & { normalizedCrps: number } =>
-        score.normalizedCrps !== null,
-    )
+    .filter(isNormalizedScoreAggregateEligible)
     .sort((left, right) => {
       const crpsDelta = left.normalizedCrps - right.normalizedCrps;
       if (crpsDelta !== 0) return crpsDelta;
@@ -990,17 +990,18 @@ function buildScoreboardGroups({
 }
 
 function summarizeScores(scores: ResolvedForecastScore[]): ScoreboardSummary {
+  const normalizedScores = scores.filter(isNormalizedScoreAggregateEligible);
   return {
     scored: scores.length,
     meanNormalizedCrps: mean(
-      scores
+      normalizedScores
         .map((score) => score.normalizedCrps)
         .filter((value): value is number => value !== null),
     ),
     meanCrps: mean(scores.map((score) => score.crps)),
     meanAbsoluteError: mean(scores.map((score) => score.absoluteError)),
     meanNormalizedAbsoluteError: mean(
-      scores
+      normalizedScores
         .map((score) => score.normalizedAbsoluteError)
         .filter((value): value is number => value !== null),
     ),
