@@ -69,9 +69,10 @@ required. Targets without that history carry an explicit unavailable baseline
 record; forecast-supplied `historicalContext` is never a baseline input.
 
 The leaderboard reports unpaired means as descriptive statistics, but ranks
-agents by the target-paired difference `agent normalizedCrps - persistence
-normalizedCrps`. It also reports the share of paired targets where the agent's
-normalized CRPS is lower than persistence.
+agents by the geometric mean of per-target raw CRPS ratios (agent over paired
+persistence baseline; below 1 beats persistence), tie-breaking on unpaired
+mean reward and then scored-run count. It also reports the share of paired
+targets where the agent's CRPS beats the baseline's on the same target.
 
 ## LLM Judges
 
