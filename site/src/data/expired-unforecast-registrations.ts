@@ -49,8 +49,15 @@ export const EXPIRED_UNFORECAST_REGISTRATIONS = [
   // immutable registration. If the fresh registration lapses through grace
   // unforecast, a new terminal entry will be added.
   // That happened: the 2026-08-14T17:27Z re-registration crossed the
-  // seven-day orphan grace on 2026-08-21 with no generation run ever
-  // dispatched for it. Its October 30 first print is still in the future,
+  // seven-day orphan grace on 2026-08-21 unforecast. Not ungenerated:
+  // its registering roll (run 31824000315) generated a candidate cell,
+  // but the publish leg failed the site suite on this list's own
+  // exactness contract — the id was still a terminal entry from the
+  // seed's 08-07 termination, and a terminal id gaining a forecast is
+  // precisely what the contract refuses — so no cell or batch manifest
+  // reached main, and the in-grace retry lane's committed-manifest
+  // trust anchor could never reach the target (the 2026-08-05 AWE/PPI
+  // failure mode below). Its October 30 first print is still in the future,
   // but forecasting it now would record a run against the nine-day-stale
   // 2026-08-14 pin — the same chronology violation the JOLTS and vacancies
   // entries above terminate on — so the accidental re-registration ends
