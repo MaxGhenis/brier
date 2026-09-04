@@ -1113,6 +1113,37 @@ def test_a_stale_worker_cannot_finish_after_losing_ownership(core_store):
     assert core_store.list("forecast_run").records == ()
 
 
+def test_a_lease_lost_between_running_and_sealing_commits_nothing(
+    core_store, monkeypatch
+):
+    """The forecast existed, but a worker that lost ownership cannot seal it."""
+    graph = make_graph()
+    forecaster = baseline_forecaster(graph)
+    task = add_task(graph, forecaster, policy="baseline")
+    seed(core_store, graph)
+    claim = claim_task(core_store, task.id)
+
+    real_database_now = execution._database_now
+
+    def steal_then_stamp(store):
+        # Another worker recovered the job while this one was forecasting.
+        with store.connection() as connection:
+            connection.execute(
+                "UPDATE jobs SET generation=generation+1 WHERE id=%s", (claim.job_id,)
+            )
+        return real_database_now(store)
+
+    monkeypatch.setattr(execution, "_database_now", steal_then_stamp)
+    with pytest.raises(LeaseLost):
+        execution.execute_forecast(core_store, claim)
+
+    # The attempt is durable; the result is not, so the outcome stays unknown
+    # for the store to recover rather than being sealed under a lost lease.
+    assert len(attempts_for(core_store, task.id)) == 1
+    assert core_store.list("forecast_run").records == ()
+    assert core_store.list("attempt_result").records == ()
+
+
 def test_only_the_registered_maximum_creates_more_durable_attempts(
     core_store, tmp_path
 ):
