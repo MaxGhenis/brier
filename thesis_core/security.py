@@ -31,6 +31,12 @@ The module is standard library only, by design: `scripts/run_thesis_analyst.py`
 and the source adapters must keep working in a checkout without the `core`
 extra installed.
 
+These functions are for text and JSON-compatible payloads only. Never route
+opaque binary evidence through them — an RFC 3161 request/response DER, a
+signature, a raw archived response body — because verification is over exact
+bytes and any normalization would break it. Hash and store those as they
+arrived; scrub the metadata that describes them instead.
+
 Nothing here reads a keychain, a credential store or a secret file. It only
 ever *removes* values that are already in front of it.
 """

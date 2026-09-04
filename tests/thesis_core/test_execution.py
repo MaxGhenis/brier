@@ -26,6 +26,7 @@ import uuid
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from tests.thesis_core.factories import at, make_forecaster, make_graph
 from thesis_core import execution
@@ -702,27 +703,49 @@ def test_a_parent_credential_is_never_forwarded_or_recorded(
         )
 
 
-def test_a_credential_in_the_registered_argv_is_absent_from_the_command_hash(
-    core_store, tmp_path
-):
+def test_a_credential_can_never_be_registered_in_a_forecaster_argv(core_store):
+    """The contract refuses it outright: registration is the first defense."""
+    with pytest.raises(ValidationError, match="credential-bearing"):
+        make_forecaster(
+            inference_settings={
+                "argv": [sys.executable, f"--token={PLANTED_STDOUT_SECRET}"]
+            }
+        )
+
+
+def test_the_command_document_is_redacted_before_it_is_hashed(core_store, tmp_path):
+    """Second defense: whatever reaches argv is scrubbed before addressing."""
+    leaky = execution._command_document(
+        "operator_subprocess",
+        ("/usr/bin/forecaster", f"--token={PLANTED_STDOUT_SECRET}"),
+        60.0,
+    )
+    assert PLANTED_STDOUT_SECRET not in json.dumps(leaky)
+    assert "[REDACTED]" in json.dumps(leaky["argv"])
+
     script = write_script(tmp_path, "forecaster.py", EVIDENCE_FORECASTER)
     graph = make_graph()
-    forecaster = subprocess_forecaster(
-        graph, script, tmp_path / "out", f"--token={PLANTED_STDOUT_SECRET}"
+    task = add_task(
+        graph,
+        subprocess_forecaster(graph, script, tmp_path / "out"),
+        policy="operator_subprocess",
     )
-    task = add_task(graph, forecaster, policy="operator_subprocess")
     seed(core_store, graph)
-
     run = execution.execute_forecast(
         core_store, claim_task(core_store, task.id), timeout_seconds=60
     )
     attempt = core_store.get(run.attempt_id)
     command = json.loads(core_store.artifacts.read_bytes(attempt.command_hash))
-    assert PLANTED_STDOUT_SECRET not in json.dumps(command)
-    assert "[REDACTED]" in json.dumps(command["argv"])
     assert command["shell"] is False
+    assert command["promptDelivery"] == "stdin"
     assert command["protocol"] == execution.EXECUTION_PROTOCOL
     assert command["disclosure"] == execution.OPERATOR_SUBPROCESS_DISCLOSURE
+    assert command["environmentAllowlist"] == list(execution.AGENT_ENV_ALLOWLIST)
+    # No absolute working directory: the same registered command hashes the
+    # same way on every host.
+    assert str(tmp_path) not in json.dumps(
+        {k: v for k, v in command.items() if k != "argv"}
+    )
 
 
 # --- The frozen policy governs ------------------------------------------------
@@ -1137,6 +1160,61 @@ def test_publication_is_enqueued_with_the_result_not_re_executed(core_store):
     # second model invocation.
     assert core_store.get(run.id) == run
     assert len(attempts_for(core_store, task.id)) == 1
+
+
+def test_followups_may_be_derived_from_the_sealed_run(core_store):
+    """A publication job's subject is the run, which exists only once sealed."""
+    graph = make_graph()
+    forecaster = baseline_forecaster(graph)
+    task = add_task(graph, forecaster, policy="baseline")
+    seed(core_store, graph)
+
+    run = execution.execute_forecast(
+        core_store,
+        claim_task(core_store, task.id),
+        followups=lambda sealed: (
+            JobSpec(
+                kind="publish_run",
+                subject_id=sealed.id,
+                idempotency_key=f"publish-run:{sealed.id}",
+                payload={"experiment_id": graph.experiment.id},
+            ),
+        ),
+    )
+    core_store.deliver_outbox()
+    published = [job for job in core_store.jobs() if job["kind"] == "publish_run"]
+    assert [job["subject_id"] for job in published] == [run.id]
+
+
+def test_a_failed_attempt_schedules_no_publication(core_store, tmp_path):
+    script = write_script(
+        tmp_path,
+        "angry.py",
+        """
+        import sys
+        sys.stdin.read()
+        sys.exit(9)
+        """,
+    )
+    graph = make_graph()
+    task = add_task(
+        graph, subprocess_forecaster(graph, script), policy="operator_subprocess"
+    )
+    seed(core_store, graph)
+
+    called = []
+    assert (
+        execution.execute_forecast(
+            core_store,
+            claim_task(core_store, task.id),
+            timeout_seconds=60,
+            followups=lambda sealed: called.append(sealed) or (),
+        )
+        is None
+    )
+    core_store.deliver_outbox()
+    assert called == []
+    assert [job for job in core_store.jobs() if job["kind"] != "forecast"] == []
 
 
 def test_a_missing_prompt_artifact_refuses_before_any_attempt(core_store):

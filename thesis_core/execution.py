@@ -315,7 +315,7 @@ def execute_forecast(
     timeout_seconds: float = 120,
     lease_seconds: float = 60,
     verify_cohort_proof: CohortProofVerifier | None = None,
-    followups: Sequence[JobSpec] = (),
+    followups: Sequence[JobSpec] | Callable[[ForecastRun], Sequence[JobSpec]] = (),
     work_root: str | os.PathLike[str] | None = None,
 ) -> ForecastRun | None:
     """Run one durable attempt for the claimed evaluation task.
@@ -336,6 +336,13 @@ def execute_forecast(
 
     ``verify_cohort_proof`` is required for prospective tasks and is called
     immediately before ``start_attempt``; see :data:`CohortProofVerifier`.
+
+    ``followups`` are enqueued in the same transaction as a successful result,
+    so publication cannot be lost between sealing and scheduling. Pass a
+    callable to derive them from the sealed run — a publication job's subject
+    is the run, which does not exist until the run is sealed. A failed attempt
+    schedules nothing: there is no forecast to publish, and a failed
+    publication must never re-run generation.
     """
     task_id = claim.subject_id
     task = store.get(task_id)
