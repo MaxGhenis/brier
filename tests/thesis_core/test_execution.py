@@ -643,6 +643,39 @@ def test_timeout_terminates_the_process_and_persists_the_failure(core_store, tmp
     assert not marker.exists()
 
 
+def test_runaway_output_fails_the_attempt_instead_of_the_worker(core_store, tmp_path):
+    """A flood must stay an observable failure, never an unknown outcome."""
+    script = write_script(
+        tmp_path,
+        "flood.py",
+        """
+        import sys
+        sys.stdin.read()
+        block = "x" * 65536
+        while True:
+            sys.stdout.write(block)
+            sys.stdout.flush()
+        """,
+    )
+    graph = make_graph()
+    task = add_task(
+        graph, subprocess_forecaster(graph, script), policy="operator_subprocess"
+    )
+    seed(core_store, graph)
+
+    assert (
+        execution.execute_forecast(
+            core_store, claim_task(core_store, task.id), timeout_seconds=120
+        )
+        is None
+    )
+    result = failed_result(core_store, task.id)
+    assert result.outcome == "failed"
+    captured = core_store.artifacts.read_bytes(result.stdout_hash)
+    assert len(captured) <= execution.MAX_CAPTURED_BYTES
+    assert core_store.list("forecast_run").records == ()
+
+
 def test_a_spawn_failure_is_a_recorded_failure_not_a_crash(core_store, tmp_path):
     graph = make_graph()
     missing = tmp_path / "no-such-forecaster"

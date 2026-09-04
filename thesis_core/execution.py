@@ -155,6 +155,11 @@ _STDIN_CHUNK = 1 << 16
 _POLL_SECONDS = 0.05
 _TERMINATE_GRACE_SECONDS = 2.0
 
+# A valid response is a 201-point CDF: tens of kilobytes. This bound exists so
+# a runaway forecaster fails its own attempt instead of exhausting the worker
+# and turning an observable failure into an unknown outcome.
+MAX_CAPTURED_BYTES = 8 << 20
+
 
 class ExecutionError(Exception):
     """Base class for this module's refusals."""
@@ -275,6 +280,12 @@ def build_prompt(
     from the sealed dependencies alone. Record sections are canonical JSON, so
     they inherit the repository's one serialization; artifact sections are the
     stored bytes verbatim, decoded as UTF-8.
+
+    The prompt is deliberately not scrubbed. Every byte in it comes from a
+    registered artifact or a validated record — and ForecasterVersion already
+    refuses inference settings that redaction would change — so scrubbing here
+    could only corrupt a legitimate instruction that happens to look like a
+    credential, while changing what the model was actually asked.
     """
     sections: list[tuple[str, bytes]] = [
         ("assembly", PROMPT_ASSEMBLY_VERSION.encode("utf-8")),
@@ -326,8 +337,12 @@ def execute_forecast(
     Returns the sealed :class:`ForecastRun` on success, committed atomically
     with its :class:`AttemptResult` and any ``followups``. Returns ``None`` when
     the attempt failed in a way this worker actually observed — a spawn error, a
-    timeout, a nonzero exit, or output that is not one valid forecast — after
-    committing a failed result with its trace artifacts under a valid lease.
+    timeout, a nonzero exit, output past ``MAX_CAPTURED_BYTES``, or output that
+    is not one valid forecast — after committing a failed result with its trace
+    artifacts under a valid lease. Those cases stay distinguishable in the
+    record without a free-text reason: a spawn failure has no exit code and its
+    stderr artifact carries the runtime's own message, a killed process has a
+    negative exit code, and an unparseable response exits zero with no run.
 
     Raises :class:`ExecutionRefused` before any attempt exists when the
     registered contracts do not permit the run, and :class:`LeaseLost` when
@@ -362,6 +377,9 @@ def execute_forecast(
     policy = forecaster.execution_policy
     resolved_argv = _resolve_argv(forecaster, argv)
     observations = [store.get(identity) for identity in bundle.observation_ids]
+    cohort_proof_id, cohort_token_hash = _cohort_binding(
+        task, claim, verify_cohort_proof
+    )
 
     prompt = build_prompt(
         task=task,
@@ -378,15 +396,19 @@ def execute_forecast(
             else store.artifacts.read_bytes(forecaster.briefing_hash)
         ),
     )
+    if cohort_proof_id is not None:
+        prompt += (
+            b"\nVerified prior cohort receipt:\n"
+            + canonical_bytes(
+                {"proof_id": cohort_proof_id, "token_hash": cohort_token_hash}
+            )
+            + b"\n"
+        )
     prompt_hash = store.artifacts.put_bytes(prompt)
     code_hash = _code_identity(store)
     command_hash = store.artifacts.put_bytes(
         canonical_bytes(_command_document(policy, resolved_argv, timeout_seconds))
     )
-    cohort_proof_id, cohort_token_hash = _cohort_binding(
-        task, claim, verify_cohort_proof
-    )
-
     attempt = store.start_attempt(
         claim,
         task_id,
@@ -620,6 +642,10 @@ def _spawn_and_wait(
     lease_seconds: float,
 ) -> _Completed:
     environment = agent_subprocess_env({"TMPDIR": str(directory)})
+    # Re-fence against database time immediately before the process exists, so
+    # the window between committing the attempt and starting the model is as
+    # small as this worker can make it.
+    store.heartbeat(claim, lease_seconds=lease_seconds)
     try:
         process = subprocess.Popen(  # noqa: S603 - argv vector, never a shell
             list(argv),
@@ -644,10 +670,15 @@ def _spawn_and_wait(
 
     stdout = bytearray()
     stderr = bytearray()
+    overflowed = threading.Event()
     workers = [
         threading.Thread(target=_feed, args=(process.stdin, prompt), daemon=True),
-        threading.Thread(target=_drain, args=(process.stdout, stdout), daemon=True),
-        threading.Thread(target=_drain, args=(process.stderr, stderr), daemon=True),
+        threading.Thread(
+            target=_drain, args=(process.stdout, stdout, overflowed), daemon=True
+        ),
+        threading.Thread(
+            target=_drain, args=(process.stderr, stderr, overflowed), daemon=True
+        ),
     ]
     for worker in workers:
         worker.start()
@@ -666,6 +697,10 @@ def _spawn_and_wait(
             elapsed = time.monotonic() - started
             if elapsed >= timeout_seconds:
                 failure = "timeout"
+                _terminate(process)
+                break
+            if overflowed.is_set():
+                failure = "output_too_large"
                 _terminate(process)
                 break
             if time.monotonic() - last_heartbeat >= heartbeat_every:
@@ -691,6 +726,8 @@ def _spawn_and_wait(
     raw_response = redact_response_text(stdout_text)
     exit_code = process.returncode
 
+    if failure is None and overflowed.is_set():
+        failure = "output_too_large"
     if failure is None and exit_code != 0:
         failure = "nonzero_exit"
     distribution = None
@@ -725,11 +762,16 @@ def _feed(stream: Any, data: bytes) -> None:
             pass
 
 
-def _drain(stream: Any, sink: bytearray) -> None:
+def _drain(stream: Any, sink: bytearray, overflowed: threading.Event) -> None:
+    """Capture a stream up to MAX_CAPTURED_BYTES, then stop and say so."""
     try:
         while True:
             chunk = stream.read(_STDIN_CHUNK)
             if not chunk:
+                return
+            if len(sink) + len(chunk) > MAX_CAPTURED_BYTES:
+                sink.extend(chunk[: MAX_CAPTURED_BYTES - len(sink)])
+                overflowed.set()
                 return
             sink.extend(chunk)
     except (ValueError, OSError):
