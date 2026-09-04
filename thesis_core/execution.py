@@ -60,7 +60,7 @@ import subprocess
 import tempfile
 import threading
 import time
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -272,6 +272,7 @@ def build_prompt(
     template: bytes,
     tool_policy: bytes,
     briefing: bytes | None = None,
+    cohort_receipt: Mapping[str, str] | None = None,
 ) -> bytes:
     """Assemble the exact prompt bytes an attempt sends.
 
@@ -280,6 +281,10 @@ def build_prompt(
     from the sealed dependencies alone. Record sections are canonical JSON, so
     they inherit the repository's one serialization; artifact sections are the
     stored bytes verbatim, decoded as UTF-8.
+
+    ``cohort_receipt`` seals the verified independent receipt into the prompt
+    for prospective execution, so the run's actual input commits to a value
+    that could not exist before the cohort was witnessed.
 
     The prompt is deliberately not scrubbed. Every byte in it comes from a
     registered artifact or a validated record — and ForecasterVersion already
@@ -307,6 +312,11 @@ def build_prompt(
             ),
         ]
     )
+    if cohort_receipt is not None:
+        # The independently witnessed receipt is unpredictable before the
+        # cohort was witnessed, so sealing it into the prompt makes it part of
+        # the execution input rather than a claim attached afterwards.
+        sections.append(("cohort_receipt", canonical_bytes(dict(cohort_receipt))))
     rendered = [
         f"===== thesis_core prompt section: {name} =====\n"
         + body.decode("utf-8", errors="replace")
@@ -395,15 +405,12 @@ def execute_forecast(
             if forecaster.briefing_hash is None
             else store.artifacts.read_bytes(forecaster.briefing_hash)
         ),
+        cohort_receipt=(
+            None
+            if cohort_proof_id is None
+            else {"proof_id": cohort_proof_id, "token_hash": cohort_token_hash}
+        ),
     )
-    if cohort_proof_id is not None:
-        prompt += (
-            b"\nVerified prior cohort receipt:\n"
-            + canonical_bytes(
-                {"proof_id": cohort_proof_id, "token_hash": cohort_token_hash}
-            )
-            + b"\n"
-        )
     prompt_hash = store.artifacts.put_bytes(prompt)
     code_hash = _code_identity(store)
     command_hash = store.artifacts.put_bytes(

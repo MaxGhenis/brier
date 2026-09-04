@@ -939,7 +939,10 @@ def test_prospective_dispatch_refuses_without_a_verified_cohort_receipt(core_sto
     assert attempts_for(core_store, task.id) == []
 
 
-def test_a_verified_cohort_receipt_is_committed_before_dispatch(core_store):
+@pytest.mark.parametrize("verified_token_hash", ["b" * 64, "c" * 64])
+def test_a_verified_cohort_receipt_is_committed_before_dispatch(
+    core_store, verified_token_hash
+):
     graph = make_graph(mode="prospective")
     forecaster = baseline_forecaster(graph)
     task = add_task(graph, forecaster, policy="baseline", mode="prospective")
@@ -950,7 +953,7 @@ def test_a_verified_cohort_receipt_is_committed_before_dispatch(core_store):
 
     def verifier(**kwargs):
         seen.update(kwargs)
-        return "b" * 64
+        return verified_token_hash
 
     run = execution.execute_forecast(
         core_store,
@@ -971,7 +974,24 @@ def test_a_verified_cohort_receipt_is_committed_before_dispatch(core_store):
     }
     attempt = core_store.get(run.attempt_id)
     assert attempt.cohort_proof_id == proof.id
-    assert attempt.cohort_token_hash == "b" * 64
+    assert attempt.cohort_token_hash == verified_token_hash
+    prompt = core_store.artifacts.read_bytes(run.prompt_hash)
+    assert proof.id.encode() in prompt
+    assert verified_token_hash.encode() in prompt
+    assert b"prompt section: cohort_receipt" in prompt
+    assert attempt.prompt_hash == run.prompt_hash
+
+
+def test_the_receipt_is_part_of_the_assembled_prompt_identity(core_store):
+    """Sealed as a section, so it changes the prompt hash rather than sitting
+    beside it as an annotation."""
+    graph = make_graph(mode="prospective")
+    parts = _prompt_parts(graph)
+    receipt = {"proof_id": "d" * 64, "token_hash": "e" * 64}
+    with_receipt = execution.build_prompt(**parts | {"cohort_receipt": receipt})
+    assert with_receipt != execution.build_prompt(**parts)
+    assert b"prompt section: cohort_receipt" in with_receipt
+    assert with_receipt == execution.build_prompt(**parts | {"cohort_receipt": receipt})
 
 
 def test_replay_may_omit_the_cohort_proof_and_stays_replay(core_store):
