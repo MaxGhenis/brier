@@ -174,6 +174,62 @@ describe("forecast lab working surfaces", () => {
 });
 
 describe("truthful curves and timing", () => {
+  it("switches to a derived step PDF and back without changing the sealed CDF", () => {
+    const before = JSON.stringify(comparison.distribution);
+    render(<CdfChart comparisons={[comparison]} outcome={4} unitName="percent" />);
+    const originalPath = screen.getByTestId(`cdf-${ids.task}`).getAttribute("d");
+    expect(screen.getByRole("button", { name: "CDF", exact: true })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "PDF", exact: true }));
+    expect(screen.getByRole("button", { name: "PDF", exact: true })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Derived density · per percentage point")).toBeVisible();
+    expect(screen.getByRole("img", { name: /Forecast probability densities/ })).toBeVisible();
+    expect(screen.queryByText("100%")).not.toBeInTheDocument();
+    expect(screen.getByText("0.1", { selector: "text" })).toBeVisible();
+    const path = screen.getByTestId(`pdf-${ids.task}`);
+    expect(path).toHaveAttribute("data-segment-count", "200");
+    expect(path.getAttribute("d")?.match(/L/g)).toHaveLength(401);
+    expect(path.getAttribute("d")).not.toMatch(/NaN|Infinity/);
+    expect(screen.getByText("Observed 4")).toBeVisible();
+    fireEvent.focus(screen.getByRole("button", { name: /Emphasize Recorded forecaster/ }));
+    expect(path).toHaveAttribute("stroke-width", "3.5");
+    fireEvent.click(screen.getByRole("button", { name: "CDF", exact: true }));
+    expect(screen.getByTestId(`cdf-${ids.task}`)).toHaveAttribute("d", originalPath);
+    expect(JSON.stringify(comparison.distribution)).toBe(before);
+  });
+  it("uses a shared density scale while preserving baseline styling", () => {
+    const baseline = {
+      ...comparison,
+      task: { ...comparison.task, id: "8".repeat(64) },
+      is_baseline: true,
+      distribution: {
+        ...comparison.distribution!,
+        points: comparison.distribution!.points.map((p) => ({ ...p, value: p.value / 2 })),
+        support: { lower: 0, upper: 5 },
+      },
+    };
+    render(<CdfChart comparisons={[comparison, baseline]} outcome={null} unitName="percent" />);
+    fireEvent.click(screen.getByRole("button", { name: "PDF", exact: true }));
+    // Densities 0.1 and 0.2 must be half-height and full-height on the same axis.
+    expect(screen.getByTestId(`pdf-${ids.task}`).getAttribute("d")).toContain(",172.0000");
+    expect(screen.getByTestId(`pdf-${baseline.task.id}`).getAttribute("d")).toContain(",34.0000");
+    expect(screen.getByTestId(`pdf-${baseline.task.id}`)).toHaveAttribute("stroke-dasharray", "5 5");
+  });
+  it("explains an unrepresentable density and keeps the CDF available", () => {
+    const narrow = {
+      ...comparison,
+      distribution: {
+        ...comparison.distribution!,
+        points: comparison.distribution!.points.map((p, i) => ({ ...p, value: i * Number.MIN_VALUE })),
+        support: { lower: 0, upper: 200 * Number.MIN_VALUE },
+      },
+    };
+    render(<CdfChart comparisons={[narrow]} outcome={null} unitName="percent" />);
+    fireEvent.click(screen.getByRole("button", { name: "PDF", exact: true }));
+    expect(screen.getByText(/density is unavailable at this numeric scale/)).toBeVisible();
+    expect(screen.queryByTestId(`pdf-${ids.task}`)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "CDF", exact: true }));
+    expect(screen.getByTestId(`cdf-${ids.task}`).getAttribute("d")).not.toMatch(/NaN|Infinity/);
+  });
   it("draws the original 201 CDF points and offers keyboard curve emphasis", () => {
     const before = JSON.stringify(comparison.distribution);
     render(

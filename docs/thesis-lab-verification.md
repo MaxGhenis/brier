@@ -98,3 +98,18 @@ The Mac must remain logged in and awake for scheduled work. Two actual future
 release cycles, qualified prospective timing, production hosting, backups and
 production cutover remain separate acceptance work. No completed future
 resolution is claimed by this verification.
+
+## CDF/PDF display follow-up
+
+The comparison now defaults to the original CDF and offers a derived PDF view.
+All 200 adjacent-interval slopes are drawn as steps on one shared density axis.
+Six added regressions cover integrated probability, unequal widths and plateaus,
+densities above one, numeric overflow/underflow, toggling without CDF mutation,
+outcome markers, keyboard emphasis, and baseline styling. All 1,167 site tests
+and the production build passed after the addition.
+
+The rebuilt localhost preview was checked with the actual two-method CPI cohort
+on desktop and at 390 pixels: both density paths contained 200 intervals and
+finite SVG coordinates, and switching back restored the CDF. Mobile retained
+the existing horizontally scrollable chart. This display change did not run a
+model, alter stored forecast artifacts, or change resolution or scoring.

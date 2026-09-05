@@ -379,6 +379,40 @@
 .lab-chart {
   margin: 16px 0 26px;
 }
+.lab-chart-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--lab-muted);
+  font-size: 11px;
+}
+.lab-chart-toggle {
+  display: flex;
+  border: 1px solid var(--lab-rule);
+  border-radius: 4px;
+  padding: 2px;
+}
+.lab-chart-toggle button {
+  border: 0;
+  border-radius: 2px;
+  padding: 7px 13px;
+  background: transparent;
+  color: var(--lab-muted);
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  cursor: pointer;
+  transition:
+    background-color 0.17s ease,
+    color 0.17s ease;
+}
+.lab-chart-toggle button[aria-pressed="true"] {
+  background: var(--lab-accent);
+  color: white;
+}
 .lab-chart svg {
   display: block;
   width: 100%;

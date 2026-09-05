@@ -2,9 +2,10 @@
 
 import { useId, useState } from "react";
 import type { TaskComparison } from "@/data/generated/thesis-lab";
+import { deriveDensity } from "./density";
 import { number, unit } from "./lab-ui";
 
-/** Draw every sealed point. Quantiles and scientific scores are supplied by the API. */
+/** Draw the sealed CDF or its interval slopes. Scores and quantiles come from the API. */
 export function CdfChart({
   comparisons,
   outcome,
@@ -17,6 +18,7 @@ export function CdfChart({
   const titleId = useId();
   const descriptionId = useId();
   const [focused, setFocused] = useState<string | null>(null);
+  const [view, setView] = useState<"cdf" | "pdf">("cdf");
   const curves = comparisons.filter((row) => row.distribution !== null);
   if (curves.length === 0)
     return (
@@ -35,18 +37,62 @@ export function CdfChart({
   const lower = min - padding;
   const upper = max + padding;
   const x = (value: number) => 68 + ((value - lower) / (upper - lower)) * 824;
-  const y = (value: number) => 310 - value * 276;
+  const densities = curves.map((row) =>
+    deriveDensity(row.distribution!.points),
+  );
+  const densityMax = densities.reduce(
+    (peak, intervals) =>
+      intervals?.reduce((max, p) => Math.max(max, p.density), peak) ?? peak,
+    0,
+  );
+  const yMax = view === "pdf" && densityMax > 0 ? densityMax : 1;
+  const y = (value: number) => 310 - (value / yMax) * 276;
+  const densityUnit =
+    unitName === "percent" ? "percentage point" : unit(unitName);
   return (
     <figure className="lab-chart">
+      <div className="lab-chart-toolbar">
+        <span>
+          {view === "cdf"
+            ? "Cumulative probability"
+            : `Derived density · per ${densityUnit}`}
+        </span>
+        <div
+          className="lab-chart-toggle"
+          role="group"
+          aria-label="Distribution view"
+        >
+          {(["cdf", "pdf"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={view === mode}
+              onClick={() => setView(mode)}
+              title={
+                mode === "cdf"
+                  ? "Cumulative distribution function"
+                  : "Probability density function"
+              }
+            >
+              {mode.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
       <svg
         role="img"
         aria-labelledby={`${titleId} ${descriptionId}`}
         viewBox="0 0 940 366"
       >
-        <title id={titleId}>Forecast cumulative distributions</title>
+        <title id={titleId}>
+          {view === "cdf"
+            ? "Forecast cumulative distributions"
+            : "Forecast probability densities"}
+        </title>
         <desc id={descriptionId}>
-          Each curve plots all 201 original CDF points. The vertical axis is the
-          probability the outcome is at or below the horizontal value.{" "}
+          {view === "cdf"
+            ? "Each curve plots all 201 original CDF points. The vertical axis is the probability the outcome is at or below the horizontal value."
+            : `Density is the slope between each adjacent pair of the 201 stored CDF points, constant within each interval. The vertical axis is density per ${densityUnit}; area over an interval represents its probability.`}{" "}
           {curves.length} loaded methods.
           {outcome !== null && ` Official outcome: ${outcome} ${unitName}.`}
         </desc>
@@ -55,12 +101,12 @@ export function CdfChart({
             <line
               x1="68"
               x2="892"
-              y1={y(p)}
-              y2={y(p)}
+              y1={y(p * yMax)}
+              y2={y(p * yMax)}
               className="lab-chart-grid"
             />
-            <text x="52" y={y(p) + 4} textAnchor="end">
-              {p * 100}%
+            <text x="52" y={y(p * yMax) + 4} textAnchor="end">
+              {view === "cdf" ? `${p * 100}%` : densityTick(p * yMax)}
             </text>
           </g>
         ))}
@@ -75,27 +121,45 @@ export function CdfChart({
         <text x="480" y="362" textAnchor="middle">
           {unit(unitName)}
         </text>
-        {curves.map((row, i) => (
-          <path
-            key={row.task.id}
-            data-testid={`cdf-${row.task.id}`}
-            data-point-count={row.distribution!.points.length}
-            d={row
-              .distribution!.points.map(
-                (point, index) =>
-                  `${index === 0 ? "M" : "L"}${x(point.value).toFixed(4)},${y(point.probability).toFixed(4)}`,
-              )
-              .join(" ")}
-            fill="none"
-            stroke={row.is_baseline ? "#797780" : "#783d68"}
-            strokeWidth={focused === row.task.id ? 3.5 : 2.4}
-            strokeDasharray={
-              row.is_baseline ? "5 5" : i > 1 ? `${4 + i * 2} 3` : undefined
-            }
-            opacity={focused !== null && focused !== row.task.id ? 0.23 : 1}
-            className="lab-curve"
-          />
-        ))}
+        {curves.map((row, i) => {
+          const intervals = densities[i];
+          if (view === "pdf" && !intervals) return null;
+          const path =
+            view === "cdf"
+              ? row
+                  .distribution!.points.map(
+                    (point, index) =>
+                      `${index === 0 ? "M" : "L"}${x(point.value).toFixed(4)},${y(point.probability).toFixed(4)}`,
+                  )
+                  .join(" ")
+              : [
+                  `M${x(intervals![0].lower).toFixed(4)},${y(0).toFixed(4)}`,
+                  ...intervals!.flatMap((interval) => [
+                    `L${x(interval.lower).toFixed(4)},${y(interval.density).toFixed(4)}`,
+                    `L${x(interval.upper).toFixed(4)},${y(interval.density).toFixed(4)}`,
+                  ]),
+                  `L${x(intervals!.at(-1)!.upper).toFixed(4)},${y(0).toFixed(4)}`,
+                ].join(" ");
+          return (
+            <path
+              key={row.task.id}
+              data-testid={`${view}-${row.task.id}`}
+              data-point-count={row.distribution!.points.length}
+              data-segment-count={
+                view === "pdf" ? intervals!.length : undefined
+              }
+              d={path}
+              fill="none"
+              stroke={row.is_baseline ? "#797780" : "#783d68"}
+              strokeWidth={focused === row.task.id ? 3.5 : 2.4}
+              strokeDasharray={
+                row.is_baseline ? "5 5" : i > 1 ? `${4 + i * 2} 3` : undefined
+              }
+              opacity={focused !== null && focused !== row.task.id ? 0.23 : 1}
+              className="lab-curve"
+            />
+          );
+        })}
         {outcome !== null && (
           <g>
             <line
@@ -111,6 +175,16 @@ export function CdfChart({
           </g>
         )}
       </svg>
+      {view === "pdf" &&
+        curves.map(
+          (row, i) =>
+            densities[i] === null && (
+              <p className="lab-notice" key={row.task.id}>
+                {row.agent.label}: density is unavailable at this numeric scale.
+                View the CDF.
+              </p>
+            ),
+        )}
       <figcaption>
         <div className="lab-chart-legend">
           {curves.map((row, i) => (
@@ -137,10 +211,19 @@ export function CdfChart({
           ))}
         </div>
         <p>
-          Cumulative probability · original 201-point distributions ·{" "}
-          {curves.length} loaded methods
+          {view === "cdf"
+            ? "Original 201-point distributions"
+            : "Derived from adjacent CDF points · area represents probability"}{" "}
+          · {curves.length} loaded methods
         </p>
       </figcaption>
     </figure>
   );
+}
+
+function densityTick(value: number): string {
+  if (value === 0) return "0";
+  return value < 0.001 || value >= 1000
+    ? value.toExponential(1)
+    : String(Number(value.toPrecision(3)));
 }
