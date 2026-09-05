@@ -982,7 +982,11 @@ class Lab:
         counts, _ = self.counts(tasks)
         return self.agent_identity(identity) | {
             "experiment_count": len(experiments),
-            "declared_task_count": len(tasks),
+            # Declared coverage comes from cohort membership, including pairs
+            # whose task record is missing. Attempts still use actual tasks.
+            "declared_task_count": sum(
+                len(experiment.target_version_ids) for experiment in experiments
+            ),
             "attempt_counts": counts,
         }
 

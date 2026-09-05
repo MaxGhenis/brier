@@ -192,6 +192,15 @@ def test_invalid_declared_matrix_retains_absent_pair(core_store):
     assert absent["task"] is None
     assert absent["execution"]["attempts_path"] is None
     assert absent["score"]["eligibility"]["reason_codes"] == ["invalid_contract"]
+    client = TestClient(create_app(core_store))
+    agents = client.get("/lab/agents").json()["items"]
+    agent = next(item for item in agents if item["id"] == second.id)
+    assert agent["experiment_count"] == 1
+    assert agent["declared_task_count"] == 1
+    assert agent["attempt_counts"]["total"] == 0
+    detail = client.get(f"/lab/agents/{second.id}")
+    assert detail.status_code == 200, detail.text
+    assert detail.json()["declared_task_count"] == 1
 
 
 def test_collection_and_method_pagination_and_strict_queries(core_store):

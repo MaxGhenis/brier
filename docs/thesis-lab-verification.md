@@ -14,6 +14,17 @@ JSON schema inside the site build root, all 75 focused lab tests and the
 production build passed again. The runtime installer’s three tests passed
 after its asynchronous launchd unload correction.
 
+An additional independent review found that the agent catalog counted existing
+task records instead of declared cohort pairs when a pair was missing. The
+projection now counts declared target memberships, while attempts still count
+actual executions. All 29 lab API tests passed after this correction, including
+list/detail coverage for the absent-pair fixture.
+
+An independently installed wheel passed a smoke covering all 49 packaged core
+files, seven migrations, 13 populated lab routes, strict errors, polling CLI,
+the Codex entry point and exact binary artifacts. No model was run by this smoke.
+Generated-site size budgets also passed.
+
 Focused regression coverage includes missing transitive records and artifacts,
 cross-attempt run ownership, exact-vintage and date-only overdue status,
 timeout sealing, pre-spawn deadline refusal, immutable source schedules,
@@ -68,6 +79,11 @@ scheduled release boundary.
 The localhost app was inspected in the in-app browser on desktop and at a
 390-pixel viewport. The empty forecast list, operations state, fresh target,
 selected-cohort original-CDF comparison and detailed run evidence were checked.
+The agent catalog/detail and experiment matrix links retained the correct
+cohort. Temporarily unloading the loopback API produced the explicit records
+unavailable state without stale results; restoring it restored the data. The
+actual same-origin official-release artifact download retained its exact hash,
+38,855 bytes, attachment disposition, hash ETag and `nosniff` header.
 
 The Mac must remain logged in and awake for scheduled work. Two actual future
 release cycles, qualified prospective timing, production hosting, backups and
