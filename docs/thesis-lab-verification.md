@@ -7,7 +7,7 @@ The operating instructions and remaining release milestones are in
 
 ## Automated checks
 
-The final implementation passed 615 core tests with required, real PostgreSQL,
+The final implementation passed 616 core tests with required, real PostgreSQL,
 219 legacy analyst/environment tests, and all 1,161 site tests. The production
 Next.js build completed with 1,760 static pages. After moving the generated lab
 JSON schema inside the site build root, all 75 focused lab tests and the
@@ -19,6 +19,15 @@ task records instead of declared cohort pairs when a pair was missing. The
 projection now counts declared target memberships, while attempts still count
 actual executions. All 29 lab API tests passed after this correction, including
 list/detail coverage for the absent-pair fixture.
+
+PostgreSQL 16 CI exposed an order-dependent corruption fixture: choosing the
+first observation by content hash sometimes deleted the captured, unreferenced
+target outcome instead of declared historical evidence. Independent checks
+confirmed each referenced observation refuses all four projections with 409,
+while the unrelated outcome correctly leaves this unresolved cohort readable.
+The test now chooses exact declared dependencies and separately checks that
+unreferenced-outcome case. The complete 616-test suite passed after this change;
+no production integrity behavior was weakened or changed.
 
 An independently installed wheel passed a smoke covering all 49 packaged core
 files, seven migrations, 13 populated lab routes, strict errors, polling CLI,

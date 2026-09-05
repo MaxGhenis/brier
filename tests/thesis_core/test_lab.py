@@ -482,12 +482,22 @@ def test_transitive_scientific_reference_loss_refuses_before_validation(
 
     experiment = setup_replay(core_store)
     original = lab_module.context_for_store
+    task = core_store.get(experiment.task_ids[0])
+    bundle = core_store.get(task.evidence_bundle_id)
+    target = core_store.get(task.target_version_id)
+    # Capture also retains an outcome outside this unresolved cohort's closure.
+    # Select the declared dependency, never the first record in hash order.
+    missing_id = {
+        "evidence_bundle": bundle.id,
+        "normalization": experiment.normalization_ids[0],
+        "source_series": target.source_series_id,
+        "observation": bundle.observation_ids[0],
+    }[missing_kind]
 
     def damaged_context(store):
         context = original(store)
         records = dict(context.records)
-        missing = next(r for r in records.values() if r.kind == missing_kind)
-        del records[missing.id]
+        del records[missing_id]
         return replace(context, records=records)
 
     monkeypatch.setattr(lab_module, "context_for_store", damaged_context)
@@ -501,6 +511,44 @@ def test_transitive_scientific_reference_loss_refuses_before_validation(
         response = client.get(path)
         assert response.status_code == 409, (path, response.text)
         assert response.json() == {"error": {"code": "scientific_integrity_failure"}}
+
+
+def test_unreferenced_outcome_loss_does_not_corrupt_unresolved_cohort(
+    core_store, monkeypatch
+):
+    import thesis_core.lab as lab_module
+
+    experiment = setup_replay(core_store)
+    task = core_store.get(experiment.task_ids[0])
+    bundle = core_store.get(task.evidence_bundle_id)
+    target = core_store.get(task.target_version_id)
+    outcome = next(
+        record
+        for record in core_store.iter_records("observation")
+        if record.measurement_period == target.measurement_period
+    )
+    assert outcome.id not in bundle.observation_ids
+    assert outcome.id not in core_store.get(
+        experiment.normalization_ids[0]
+    ).observation_ids
+    original = lab_module.context_for_store
+
+    def without_unreferenced_outcome(store):
+        context = original(store)
+        records = dict(context.records)
+        del records[outcome.id]
+        return replace(context, records=records)
+
+    monkeypatch.setattr(lab_module, "context_for_store", without_unreferenced_outcome)
+    client = TestClient(create_app(core_store))
+    for path in (
+        f"/lab/experiments/{experiment.id}/matrix",
+        f"/lab/experiments/{experiment.id}/results",
+        "/lab/forecasts",
+        f"/lab/agents/{experiment.baseline_forecaster_id}",
+    ):
+        response = client.get(path)
+        assert response.status_code == 200, (path, response.text)
 
 
 def test_cross_attempt_result_cannot_select_another_methods_run(
