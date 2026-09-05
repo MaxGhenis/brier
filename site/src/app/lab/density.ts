@@ -6,14 +6,16 @@ export type DensityInterval = {
   density: number;
 };
 
-/** Derivative of the validated, piecewise linear CDF; no smoothing or normalization. */
+/** Average slope over adjacent CDF intervals, preserving each bin's probability mass. */
 export function deriveDensity(
   points: NumericCdf["points"],
+  intervalsPerBin = 1,
 ): DensityInterval[] | null {
+  if (!Number.isInteger(intervalsPerBin) || intervalsPerBin < 1) return null;
   const intervals: DensityInterval[] = [];
-  for (let i = 1; i < points.length; i++) {
-    const previous = points[i - 1];
-    const current = points[i];
+  for (let i = 0; i < points.length - 1; i += intervalsPerBin) {
+    const previous = points[i];
+    const current = points[Math.min(i + intervalsPerBin, points.length - 1)];
     const width = current.value - previous.value;
     const mass = current.probability - previous.probability;
     const density = mass / width;

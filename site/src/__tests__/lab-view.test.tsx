@@ -181,13 +181,13 @@ describe("truthful curves and timing", () => {
     expect(screen.getByRole("button", { name: "CDF", exact: true })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "PDF", exact: true }));
     expect(screen.getByRole("button", { name: "PDF", exact: true })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Derived density · per percentage point")).toBeVisible();
+    expect(screen.getByText("Binned density · per percentage point")).toBeVisible();
     expect(screen.getByRole("img", { name: /Forecast probability densities/ })).toBeVisible();
     expect(screen.queryByText("100%")).not.toBeInTheDocument();
     expect(screen.getByText("0.1", { selector: "text" })).toBeVisible();
     const path = screen.getByTestId(`pdf-${ids.task}`);
-    expect(path).toHaveAttribute("data-segment-count", "200");
-    expect(path.getAttribute("d")?.match(/L/g)).toHaveLength(401);
+    expect(path).toHaveAttribute("data-segment-count", "40");
+    expect(path.getAttribute("d")?.match(/L/g)).toHaveLength(81);
     expect(path.getAttribute("d")).not.toMatch(/NaN|Infinity/);
     expect(screen.getByText("Observed 4")).toBeVisible();
     fireEvent.focus(screen.getByRole("button", { name: /Emphasize Recorded forecaster/ }));

@@ -5,7 +5,7 @@ import type { TaskComparison } from "@/data/generated/thesis-lab";
 import { deriveDensity } from "./density";
 import { number, unit } from "./lab-ui";
 
-/** Draw the sealed CDF or its interval slopes. Scores and quantiles come from the API. */
+/** Draw the sealed CDF or a binned density. Scores and quantiles come from the API. */
 export function CdfChart({
   comparisons,
   outcome,
@@ -38,7 +38,7 @@ export function CdfChart({
   const upper = max + padding;
   const x = (value: number) => 68 + ((value - lower) / (upper - lower)) * 824;
   const densities = curves.map((row) =>
-    deriveDensity(row.distribution!.points),
+    deriveDensity(row.distribution!.points, 5),
   );
   const densityMax = densities.reduce(
     (peak, intervals) =>
@@ -55,7 +55,7 @@ export function CdfChart({
         <span>
           {view === "cdf"
             ? "Cumulative probability"
-            : `Derived density · per ${densityUnit}`}
+            : `Binned density · per ${densityUnit}`}
         </span>
         <div
           className="lab-chart-toggle"
@@ -92,7 +92,7 @@ export function CdfChart({
         <desc id={descriptionId}>
           {view === "cdf"
             ? "Each curve plots all 201 original CDF points. The vertical axis is the probability the outcome is at or below the horizontal value."
-            : `Density is the slope between each adjacent pair of the 201 stored CDF points, constant within each interval. The vertical axis is density per ${densityUnit}; area over an interval represents its probability.`}{" "}
+            : `An approximate density in 40 bins, each averaging five adjacent CDF intervals to reduce rounding noise. Every bin preserves the probability between its stored endpoints. The vertical axis is density per ${densityUnit}.`}{" "}
           {curves.length} loaded methods.
           {outcome !== null && ` Official outcome: ${outcome} ${unitName}.`}
         </desc>
@@ -149,9 +149,12 @@ export function CdfChart({
                 view === "pdf" ? intervals!.length : undefined
               }
               d={path}
-              fill="none"
+              fill={view === "pdf" && !row.is_baseline ? "#783d68" : "none"}
+              fillOpacity={0.07}
               stroke={row.is_baseline ? "#797780" : "#783d68"}
-              strokeWidth={focused === row.task.id ? 3.5 : 2.4}
+              strokeWidth={
+                focused === row.task.id ? 3.5 : view === "pdf" ? 1.6 : 2.4
+              }
               strokeDasharray={
                 row.is_baseline ? "5 5" : i > 1 ? `${4 + i * 2} 3` : undefined
               }
@@ -213,7 +216,7 @@ export function CdfChart({
         <p>
           {view === "cdf"
             ? "Original 201-point distributions"
-            : "Derived from adjacent CDF points · area represents probability"}{" "}
+            : "40 bins · approximate density · each bin preserves its probability"}{" "}
           · {curves.length} loaded methods
         </p>
       </figcaption>

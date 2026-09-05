@@ -3,6 +3,23 @@ import { deriveDensity } from "@/app/lab/density";
 import { distribution } from "./lab-fixtures";
 
 describe("density derived from the stored CDF", () => {
+  it("preserves each wider bin's probability rather than averaging individual slopes", () => {
+    const points = [
+      { value: 0, probability: 0 },
+      { value: 0.125, probability: 0.25 },
+      { value: 0.5, probability: 0.5 },
+      { value: 2, probability: 0.75 },
+      { value: 3, probability: 1 },
+    ];
+    const bins = deriveDensity(points, 2)!;
+    expect(bins).toEqual([
+      { lower: 0, upper: 0.5, density: 1 },
+      { lower: 0.5, upper: 3, density: 0.2 },
+    ]);
+    for (const bin of bins)
+      expect(bin.density * (bin.upper - bin.lower)).toBe(0.5);
+    expect(deriveDensity(distribution.points, 5)).toHaveLength(40);
+  });
   it("preserves total probability in all 200 uniform intervals", () => {
     const intervals = deriveDensity(distribution.points)!;
     expect(intervals).toHaveLength(200);

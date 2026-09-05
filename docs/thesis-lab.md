@@ -13,9 +13,11 @@ Forecast execution, target resolution and eligibility are separate fields. An
 attempt can finish successfully while its target awaits an official release.
 An unknown attempt remains visible and blocks implicit selection of a later
 attempt. Missing cost and observed model identity remain unknown. CDF charts use
-the original 201 points. The CDF/PDF toggle also offers the derived density:
-the slope between each adjacent pair, constant within each of 200 intervals,
-without smoothing or normalization. All methods share a density scale; for
+the original 201 points. The CDF/PDF toggle also offers an approximate density
+in 40 bins. Each bin averages five adjacent CDF intervals using its endpoint
+probability difference divided by its width, preserving the probability in that
+bin. Wider bins reduce the noise amplified by rounded quantile coordinates;
+they do not alter the stored distribution. All methods share a density scale; for
 percent-valued outcomes its unit is probability per percentage point. A density
 that cannot be represented at the input's numeric scale is explicitly unavailable.
 Display quantiles use the named inverse-CDF method in the API. Browser code does

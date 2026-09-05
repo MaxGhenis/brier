@@ -101,15 +101,18 @@ resolution is claimed by this verification.
 
 ## CDF/PDF display follow-up
 
-The comparison now defaults to the original CDF and offers a derived PDF view.
-All 200 adjacent-interval slopes are drawn as steps on one shared density axis.
-Six added regressions cover integrated probability, unequal widths and plateaus,
+The comparison now defaults to the original CDF and offers an approximate PDF
+in 40 bins on one shared density axis. Each bin averages five native intervals
+while preserving their probability mass. Raw adjacent slopes amplified rounded
+quantile coordinates into alternating spikes in the actual CPI chart; broader
+bins, a thinner outline and a light fill make its shape easier to inspect.
+Seven added regressions cover integrated and per-bin probability, unequal widths and plateaus,
 densities above one, numeric overflow/underflow, toggling without CDF mutation,
-outcome markers, keyboard emphasis, and baseline styling. All 1,167 site tests
+outcome markers, keyboard emphasis, and baseline styling. All 1,168 site tests
 and the production build passed after the addition.
 
 The rebuilt localhost preview was checked with the actual two-method CPI cohort
-on desktop and at 390 pixels: both density paths contained 200 intervals and
+on desktop and at 390 pixels: both density paths contained 40 bins and
 finite SVG coordinates, and switching back restored the CDF. Mobile retained
 the existing horizontally scrollable chart. This display change did not run a
 model, alter stored forecast artifacts, or change resolution or scoring.
