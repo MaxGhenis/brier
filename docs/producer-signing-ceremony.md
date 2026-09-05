@@ -1,8 +1,11 @@
 # Producer-signing ceremony
 
-Producer signing ships dormant. Do not set either activation constant until
-all prerequisites below are on `main` and the activation change has an
-allowlisted, attested publication path.
+Producer signing is armed: `scripts/producer_signing_pins.py` sets both
+activation constants, with the activation boundary at
+`records/2026-07-21/digest-29850168611-1.json`. This page records the ceremony
+that armed it. Neither constant changes outside this path: every prerequisite
+below must be on `main` and the change must have an allowlisted, attested
+publication path (see Rotation).
 
 ## Before the ceremony
 
