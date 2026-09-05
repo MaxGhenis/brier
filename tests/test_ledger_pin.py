@@ -2150,21 +2150,27 @@ def test_history_graph_replays_chronicle_parallel_pr_topology() -> None:
         seen.add(sha)
 
 
+@pytest.mark.parametrize("fork_before_append", [False, True])
 def test_refresh_accepts_parallel_review_branches_and_preserves_acceptance(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
     release_repo: ReleaseRepo,
+    fork_before_append: bool,
 ) -> None:
     repo = release_repo.repo
     _git(repo, "checkout", "-qb", "journal")
+    fork = release_repo.release_one if fork_before_append else release_repo.head
     for branch in ("gate-a", "gate-b", "docs"):
-        _git(repo, "checkout", "-qb", branch, release_repo.head)
+        _git(repo, "checkout", "-qb", branch, fork)
         (repo / f"{branch}.md").write_text(f"{branch} review\n")
         _commit(repo, f"review {branch}")
     _git(repo, "checkout", "-q", "journal")
     _git(repo, "merge", "--no-ff", "-qm", "merge gate-b", "gate-b")
     for branch in ("gate-a", "docs"):
         _git(repo, "checkout", "-q", branch)
+        # When this branch predates row-2, updating it takes the ledger from
+        # the SECOND parent. The later journal merge still retains row-2 from
+        # its own first parent, the original direct append.
         _git(repo, "merge", "--no-ff", "-qm", "update review branch", "journal")
         _git(repo, "checkout", "-q", "journal")
         _git(repo, "merge", "--no-ff", "-qm", f"merge {branch}", branch)
@@ -2254,6 +2260,35 @@ def test_refresh_refuses_new_rows_introduced_by_merge(
     before = {path: path.read_bytes() for path in paths}
 
     with pytest.raises(pin_ledger.PinError, match="changes first-parent ledger bytes"):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in paths} == before
+
+
+def test_refresh_refuses_new_ledger_state_on_review_branch_merge(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    repo = release_repo.repo
+    _git(repo, "checkout", "-qb", "journal")
+    for branch in ("review-a", "review-b"):
+        _git(repo, "checkout", "-qb", branch, release_repo.release_one)
+        (repo / f"{branch}.md").write_text("review change\n")
+        _commit(repo, f"review {branch}")
+    _git(repo, "checkout", "-q", "review-a")
+    _git(repo, "merge", "--no-ff", "--no-commit", "review-b")
+    # Introduce row-2 and its valid signed release directly at this merge,
+    # whose parents both end at row-1. The final journal already has row-2,
+    # so endpoint equality and final-chain checks alone would miss this.
+    _git(repo, "checkout", release_repo.head, "--", "ledger", "releases")
+    _commit(repo, "review merge invents a ledger state absent from both parents")
+    _git(repo, "checkout", "-q", "journal")
+    _git(repo, "merge", "--no-ff", "-qm", "merge review", "review-a")
+    paths = _prepare_refresh(monkeypatch, tmp_path, release_repo)[:3]
+    before = {path: path.read_bytes() for path in paths}
+
+    with pytest.raises(pin_ledger.PinError, match="does not retain any parent's"):
         pin_ledger.refresh()
 
     assert {path: path.read_bytes() for path in paths} == before

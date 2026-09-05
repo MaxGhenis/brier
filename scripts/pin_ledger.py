@@ -1912,6 +1912,7 @@ def refresh(*, require_catalog: bool = False) -> None:
         for sha in commit_metadata
     }
     graph = _history_graph(payloads, pin["sha"], head_sha)
+    mainline = set(graph.first_parent)
 
     states = {pin["sha"]: (old_raw, old_lines, previous_inventory)}
     # The registry ratchet must hold across the CROSSED commits too, not
@@ -1934,11 +1935,21 @@ def refresh(*, require_catalog: bool = False) -> None:
             declared_seen = True
         lines = _lines(raw)
         parent_shas = graph.parents[commit_sha]
-        if len(parent_shas) > 1 and raw != states[parent_shas[0]][0]:
-            raise PinError(
-                f"merge commit {commit_sha[:12]} changes first-parent ledger bytes; "
-                "appends must arrive on single-parent commits"
-            )
+        if len(parent_shas) > 1:
+            parent_raws = [states[parent][0] for parent in parent_shas]
+            if commit_sha in mainline and raw != parent_raws[0]:
+                raise PinError(
+                    f"merge commit {commit_sha[:12]} changes first-parent "
+                    "ledger bytes; appends must arrive on single-parent commits"
+                )
+            # An update-branch merge can import a direct journal append from
+            # its second parent. It must carry one parent's exact state, never
+            # introduce a new state even if that state extends both parents.
+            if raw not in parent_raws:
+                raise PinError(
+                    f"merge commit {commit_sha[:12]} does not retain any parent's "
+                    "exact ledger bytes; appends must arrive on single-parent commits"
+                )
         inventory, immutable_prefix = _remote_release_inventory_at_commit(
             commit_sha,
             commit_payload,
@@ -1974,8 +1985,8 @@ def refresh(*, require_catalog: bool = False) -> None:
         raise PinError("branch history does not end at the verified release inventory")
 
     # A review branch's timestamp is not journal acceptance. Derive each new
-    # row only from the accepted first-parent path; merge commits cannot add
-    # rows because their exact bytes were required to match their first parent.
+    # row only from the accepted first-parent path; merges on that path cannot
+    # add rows because their exact bytes were required to match their first parent.
     rows = list(availability["rows"])
     for commit_sha in graph.first_parent:
         parent_sha = graph.parents[commit_sha][0]
