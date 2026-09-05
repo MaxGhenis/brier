@@ -59,7 +59,8 @@ missing database cannot count as a passing acceptance run.
 
 ## PR review regression checks, September 5
 
-After applying the confirmed Fable code-review findings:
+At fix commit `7d90098e1846cdc4f4778a04cdb2bd32519d947b`, after applying the
+confirmed Fable code-review findings:
 
 - Complete core suite with required PostgreSQL 14.22: **371 passed** in 78.05 s.
 - Security/execution plus the complete legacy environment-hygiene and analyst
@@ -73,6 +74,15 @@ After applying the confirmed Fable code-review findings:
 These regression checks used synthetic credentials, offline official fixtures
 and local test authorities. They did not invoke an external model or timestamp
 service. The site source was unchanged in this revision.
+
+The subsequent execution-review follow-up preserves ordinary mixed diagnostic
+logs while refusing unsafe credential fragments. It adds atomic argument,
+duplicate-key and serialized-JSON regressions. The complete core suite passes
+**412 tests** in 80.04 s with PostgreSQL required. Scoped Ruff, generated-contract
+drift and diff checks also pass. The rebuilt wheel passes the isolated
+installed-package smoke. The science,
+timestamp and API implementation approved or examined at `7d90098e` is unchanged
+by this follow-up.
 
 ## Real source and model smoke
 

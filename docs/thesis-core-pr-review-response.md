@@ -40,6 +40,23 @@ and the actual prospective cohort dispatch gate using locally signed receipts.
 Synthetic trust roots are confined to test fixtures. The original approved
 implementation-plan bytes remain unchanged.
 
+## Follow-up execution review
+
+Fable approved the scientific and timestamp fixes at
+`7d90098e1846cdc4f4778a04cdb2bd32519d947b`. Its execution review identified an
+overly broad malformed-JSON rule that rejected ordinary stderr diagnostics and
+prompt excerpts. The follow-up preserves those mixed logs while inspecting
+credential fragments whose value boundaries cannot be established safely.
+
+Additional local checks exposed whitespace-bearing credential arguments,
+repeated JSON keys, and serialized JSON inside event strings. Argument values
+are now treated atomically; duplicate keys refuse before raw-byte preservation;
+embedded JSON shares the structural depth limit. Mixed-log checks retain scalar
+key lines, recognize escaped names, and avoid treating prose quotes as enclosing
+later credential fields. Complete JSONL events are scrubbed separately from
+unparsed fragments. Regression tests cover successful recorded-log shapes and
+known failures without archiving the planted credential values.
+
 ## Rejected or qualified findings
 
 The database's migration 006 already prevents a second resolution for one

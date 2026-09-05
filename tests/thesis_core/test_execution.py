@@ -30,7 +30,7 @@ from pydantic import ValidationError
 
 from tests.thesis_core.factories import at, make_forecaster, make_graph
 from thesis_core import execution
-from thesis_core.contracts import EvaluationTask, NumericCdf
+from thesis_core.contracts import EvaluationTask, Experiment, NumericCdf
 from thesis_core.security import is_credential_key
 from thesis_core.store import AttemptBlocked, JobSpec, LeaseLost
 
@@ -616,6 +616,25 @@ def test_nonzero_exit_persists_the_failed_trace(core_store, tmp_path):
         "[" * 1100 + '{"api_key":"planted-opaque"}' + "]" * 1100,
         "7" * 5000,
         '{"api_key":{"nested":"planted-opaque"}',
+        '{"branch":{"credentials":{"nested":"planted-opaque"}},"branch":{}}',
+        json.dumps(
+            {
+                "item": {
+                    "aggregated_output": (
+                        '{"branch":{"credentials":{"nested":"planted-opaque"}},'
+                        '"branch":{}}'
+                    )
+                }
+            }
+        ),
+        ('tool log\n{\n"creden\\u0074ials"\n:\n{"nested":"planted-opaque"}\n}\n'),
+        json.dumps(
+            {
+                "aggregated_output": (
+                    'tool log\n{\n"credentials":{"nested":"planted-opaque"}\n}'
+                )
+            }
+        ),
     ],
 )
 def test_worker_seals_unsafe_output_as_failed_without_persisting_raw_bytes(
@@ -663,6 +682,86 @@ def test_worker_seals_unsafe_output_as_failed_without_persisting_raw_bytes(
     assert core_store.recover_expired() == {"requeued": 0, "unknown": 0}
     assert work_once(core_store, kinds=("forecast",), timeout_seconds=10) is None
     assert len(attempts_for(core_store, task.id)) == 1
+
+
+@pytest.mark.parametrize("mixed_diagnostics", [False, True])
+def test_serialized_json_credentials_in_stderr_are_scrubbed_before_a_run_is_sealed(
+    core_store, tmp_path, mixed_diagnostics
+):
+    from thesis_core.worker import work_once
+
+    event = json.dumps(
+        {
+            "type": "item.completed",
+            "item": {
+                "aggregated_output": json.dumps(
+                    {"credentials": {"nested": "opaque-planted-review-value"}}, indent=2
+                )
+            },
+        }
+    )
+    clean_event = json.dumps({"type": "turn.completed", "usage": {"input_tokens": 3}})
+    stderr = event + "\n" + clean_event + "\n"
+    prefix = "[1/3] Building\n[2026-09-05 12:00:00] INFO starting\n{'a': 1}\n"
+    # Representative prompt-echo shape preserved in the actual June 21 Codex
+    # stderr for the 2026-06-20 DOL initial-claims forecast (lines 34 onwards).
+    suffix = (
+        '# Required JSON shape\n{\n  "slug": "kebab-case-unique-vs-catalog",\n'
+        '  "country": "US|UK|CA|AU|EA|JP",\n  "pointEstimate": 0\n}\n'
+    )
+    if mixed_diagnostics:
+        stderr = prefix + stderr + suffix
+    script = write_script(
+        tmp_path,
+        "jsonl_stderr.py",
+        EVIDENCE_FORECASTER + f"\nsys.stderr.write({stderr!r})\n",
+    )
+    graph = make_graph()
+    task = add_task(
+        graph,
+        subprocess_forecaster(graph, script, tmp_path / "out"),
+        policy="operator_subprocess",
+    )
+    graph.records.pop(graph.experiment.id)
+    experiment = graph.add(
+        Experiment(
+            **(
+                graph.experiment.model_dump()
+                | {
+                    "task_ids": (task.id, graph.baseline_task.id),
+                    "forecaster_version_ids": (
+                        task.forecaster_version_id,
+                        graph.baseline.id,
+                    ),
+                }
+            )
+        )
+    )
+    seed(core_store, graph)
+    core_store.enqueue(
+        "forecast",
+        task.id,
+        {"experiment_id": experiment.id},
+        idempotency_key=uuid.uuid4().hex,
+    )
+    completed = work_once(core_store, kinds=("forecast",), timeout_seconds=10)
+    run = core_store.get(completed["run_id"])
+
+    assert run is not None
+    assert job_row(core_store, completed["job_id"])["state"] == "complete"
+    sealed = core_store.artifacts.read_bytes(run.stderr_hash).decode()
+    if mixed_diagnostics:
+        assert sealed.startswith(prefix)
+        assert sealed.endswith(suffix)
+        sealed = sealed[len(prefix) : -len(suffix)]
+    lines = sealed.splitlines()
+    assert lines[-1] == clean_event
+    inner = json.loads(json.loads(lines[0])["item"]["aggregated_output"])
+    assert inner["credentials"] == "[REDACTED]"
+    for digest in (run.stdout_hash, run.stderr_hash, run.raw_response_hash):
+        assert b"opaque-planted-review-value" not in core_store.artifacts.read_bytes(
+            digest
+        )
 
 
 def test_timeout_terminates_the_process_and_persists_the_failure(core_store, tmp_path):
@@ -800,12 +899,21 @@ def test_a_parent_credential_is_never_forwarded_or_recorded(
         ["--api-key=planted-opaque"],
         ["--api-key", "planted-opaque"],
         ["--password", "planted-opaque"],
+        ["--api-key=Bearer planted-opaque"],
+        ["--password=prefix\nplanted-opaque"],
+        ["API_KEY=prefix planted-opaque"],
     ],
 )
 def test_a_credential_can_never_be_registered_in_a_forecaster_argv(arguments):
     """The contract refuses it outright: registration is the first defense."""
     with pytest.raises(ValidationError, match="credential-bearing"):
         make_forecaster(inference_settings={"argv": [sys.executable, *arguments]})
+
+
+@pytest.mark.parametrize("key", ["args", "unexpected"])
+def test_registration_refuses_credentials_in_any_string_vector(key):
+    with pytest.raises(ValidationError, match="credential-bearing"):
+        make_forecaster(inference_settings={key: ["--api-key", "planted-opaque"]})
 
 
 @pytest.mark.parametrize(
@@ -815,6 +923,9 @@ def test_a_credential_can_never_be_registered_in_a_forecaster_argv(arguments):
         ["--api-key=planted-opaque"],
         ["--api-key", "planted-opaque"],
         ["--password", "planted-opaque"],
+        ["--api-key=Bearer planted-opaque"],
+        ["--password=prefix\nplanted-opaque"],
+        ["API_KEY=prefix planted-opaque"],
     ],
 )
 def test_opaque_argv_credentials_are_absent_from_command_bytes(arguments):

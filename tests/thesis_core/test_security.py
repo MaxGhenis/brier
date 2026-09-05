@@ -467,6 +467,7 @@ def test_streams_stay_parseable_and_clean_lines_are_byte_identical():
                         "access_token": PLANTED["opaque_token"],
                         "account_id": "acct-1",
                     },
+                    "credentials": {"nested": PLANTED["opaque_password"]},
                 }
             ),
         },
@@ -481,6 +482,7 @@ def test_streams_stay_parseable_and_clean_lines_are_byte_identical():
     assert inner["OPENAI_API_KEY"] == REDACTED
     assert inner["tokens"]["access_token"] == REDACTED
     assert inner["tokens"]["account_id"] == "acct-1"
+    assert inner["credentials"] == REDACTED
     assert lines[1] == json.dumps(clean)
     assert_no_planted(redacted)
     assert security.redact_stream_text(redacted) == redacted
@@ -557,7 +559,7 @@ def test_unsafe_json_refuses_instead_of_losing_structural_redaction(redactor, pa
 
 
 def test_depth_limit_ignores_json_delimiters_inside_strings():
-    clean = json.dumps({"text": '["' * 2000})
+    clean = json.dumps({"text": "Literal delimiters: " + '["' * 2000})
     assert security.redact_response_text(clean) == clean
 
 
@@ -577,6 +579,9 @@ def test_stream_redaction_preserves_log_labels_and_whole_pretty_json():
         ["--token=planted-opaque"],
         ["--api-key", "planted-opaque"],
         ["--password", "planted-opaque"],
+        ["--api-key=Bearer planted-opaque"],
+        ["--password=prefix\nplanted-opaque"],
+        ["API_KEY=prefix planted-opaque"],
     ],
 )
 def test_structured_argv_redacts_opaque_equals_and_adjacent_credentials(arguments):
@@ -584,4 +589,98 @@ def test_structured_argv_redacts_opaque_equals_and_adjacent_credentials(argument
     cleaned = security.redact_value(value)
     assert "planted-opaque" not in json.dumps(cleaned)
     assert cleaned["argv"][:3] == value["argv"][:3]
+    assert cleaned["argv"][-1].endswith(REDACTED)
     assert security.redact_value(cleaned) == cleaned
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        '{"branch":{"credentials":{"nested":"planted-opaque"}},"branch":{}}',
+        '{"branch":{"credentials":{"nested":"planted-opaque"}},"br\\u0061nch":{}}',
+    ],
+)
+@pytest.mark.parametrize(
+    "redactor", [security.redact_stream_text, security.redact_response_text]
+)
+def test_duplicate_members_refuse_before_preserving_original_bytes(payload, redactor):
+    with pytest.raises(security.RedactionError):
+        redactor(payload)
+    event = json.dumps({"item": {"aggregated_output": payload}})
+    with pytest.raises(security.RedactionError):
+        redactor(event)
+
+
+def test_serialized_json_strings_share_the_nesting_budget_and_fail_closed():
+    inner = json.dumps({"credentials": {"nested": PLANTED["opaque_key"]}})
+    event = json.dumps({"item": {"aggregated_output": json.dumps({"result": inner})}})
+    cleaned = security.redact_response_text(event)
+    assert_no_planted(cleaned)
+    assert security.redact_response_text(cleaned) == cleaned
+
+    # The surrounding JSON and the JSON encoded in its string are one budget.
+    wrapped = "[" * 127 + json.dumps('{"public":{"value":1}}') + "]" * 127
+    with pytest.raises(security.RedactionError):
+        security.redact_response_text(wrapped)
+    malformed = json.dumps({"aggregated_output": '{"credentials":{"nested":"x"}'})
+    with pytest.raises(security.RedactionError):
+        security.redact_response_text(malformed)
+
+
+def test_clean_serialized_previews_and_log_labels_are_byte_identical():
+    preview = json.dumps({"label": "[tool]", "public": {"value": 3}}, indent=2)
+    event = json.dumps({"item": {"aggregated_output": preview}})
+    assert security.redact_response_text(event) == event
+    assert security.redact_stream_text(event + "\n") == event + "\n"
+
+
+@pytest.mark.parametrize("name", ["census_key", "fred_key", "mytoken"])
+def test_plain_text_keeps_case_insensitive_credential_substring_defense(name):
+    assert security.redact_text(f'prefix "{name}": "planted-opaque" suffix') == (
+        f'prefix "{name}": "{REDACTED}" suffix'
+    )
+
+
+@pytest.mark.parametrize("key", ["argv", "args", "unexpected"])
+def test_every_string_vector_scrubs_atomic_and_adjacent_credentials(key):
+    payload = {
+        key: ["driver", "--api-key=Bearer planted-opaque", "--token", "opaque-2"]
+    }
+    cleaned = security.redact_value(payload)
+    assert cleaned[key] == ["driver", f"--api-key={REDACTED}", "--token", REDACTED]
+
+
+@pytest.mark.parametrize(
+    "fragment",
+    [
+        'starting\n{ "creden\\u0074ials":\n {"nested": "planted-opaque"}\n}\nfinished',
+        'starting\n{\n"credentials"\n:\n {"nested": "planted-opaque"}\n}\nfinished',
+        (
+            'starting\n{\n"creden\\u0074ials"\n:\n'
+            ' {"nested": "planted-opaque"}\n}\nfinished'
+        ),
+        "{'credentials': {'nested': 'planted-opaque'}}",
+        "{'creden\\u0074ials': {'nested': 'planted-opaque'}}",
+        'can\'t parse {"credentials":{"nested":"planted-opaque"}}',
+        'unmatched " prose {"credentials":{"nested":"planted-opaque"}}',
+    ],
+)
+def test_mixed_fragments_refuse_escaped_and_multiline_credential_containers(fragment):
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text(fragment)
+    with pytest.raises(security.RedactionError):
+        security.redact_response_text(json.dumps({"aggregated_output": fragment}))
+
+
+def test_mixed_diagnostics_keep_public_fragments_and_scrub_complete_jsonl_events():
+    prefix = "[1/3] Building\n[2026-09-05 12:00:00] INFO starting\n{'a': 1}\n"
+    public = '# Required JSON shape\n{\n  "slug": "example",\n  "pointEstimate": 0\n}\n'
+    nested = json.dumps({"credentials": {"nested": PLANTED["opaque_key"]}}, indent=2)
+    event = json.dumps({"item": {"aggregated_output": nested}})
+    stream = prefix + event + "\n" + public
+    cleaned = security.redact_stream_text(stream)
+    assert cleaned.startswith(prefix)
+    assert cleaned.endswith(public)
+    assert_no_planted(cleaned)
+    inner = json.loads(json.loads(cleaned.splitlines()[3])["item"]["aggregated_output"])
+    assert inner["credentials"] == REDACTED

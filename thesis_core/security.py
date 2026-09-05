@@ -43,6 +43,7 @@ ever *removes* values that are already in front of it.
 
 from __future__ import annotations
 
+import ast
 import json
 import os
 import re
@@ -168,9 +169,9 @@ def redact_text(text: str) -> str:
 def _text_credential_name(name: str) -> bool:
     # Preserve the historical conservative env-name defense while recognizing
     # lowercase/camel-case CLI and JSON names through the structural matcher.
-    return any(word in name for word in ("KEY", "TOKEN", "SECRET", "PASSWORD")) or (
-        is_credential_key(name)
-    )
+    return any(
+        word in name.upper() for word in ("KEY", "TOKEN", "SECRET", "PASSWORD")
+    ) or is_credential_key(name)
 
 
 # --- Credential-shaped names ------------------------------------------------
@@ -638,10 +639,17 @@ def _redact_argv(
             result.append(REDACTED_PLACEHOLDER)
             redact_next = False
             continue
-        result.append(redact_value(item, credential_keys=credential_keys, _depth=depth))
-        if isinstance(item, str) and item.startswith("-"):
+        if isinstance(item, str):
             name, separator, _ = item.partition("=")
-            redact_next = not separator and is_credential_key(name, credential_keys)
+            if is_credential_key(name, credential_keys):
+                if separator:
+                    # An argv element is atomic: its credential value can
+                    # contain whitespace or newlines. A text token regex cannot
+                    # safely decide where that value ends.
+                    result.append(f"{redact_text(name)}={REDACTED_PLACEHOLDER}")
+                    continue
+                redact_next = item.startswith("-")
+        result.append(redact_value(item, credential_keys=credential_keys, _depth=depth))
     return result
 
 
@@ -671,13 +679,33 @@ def redact_value(
     if isinstance(value, str):
         if _URL_SCHEME_RE.match(value):
             return redact_url(value, credential_params=credential_keys)
-        return redact_text(value)
+        if value.lstrip().startswith(("{", "[", '"')):
+            # Tool events often hold serialized JSON under aggregated_output.
+            # Restore its structural key context before scrubbing; recursively
+            # encoded documents consume the same depth budget as containers.
+            try:
+                return _redact_json_text(
+                    value, credential_keys=credential_keys, _depth=_depth + 1
+                )
+            except json.JSONDecodeError:
+                return _redact_mixed_text(
+                    value, credential_keys=credential_keys, _depth=_depth + 1
+                )
+        # A serialized tool result may have a prose prefix before its JSON.
+        # Inspect mixed fragments too; do not let that prefix remove key context.
+        return _redact_mixed_text(
+            value, credential_keys=credential_keys, _depth=_depth + 1
+        )
     if isinstance(value, list):
+        if all(isinstance(item, str) for item in value):
+            return _redact_argv(value, credential_keys, _depth + 1)
         return [
             redact_value(item, credential_keys=credential_keys, _depth=_depth + 1)
             for item in value
         ]
     if isinstance(value, tuple):
+        if all(isinstance(item, str) for item in value):
+            return _redact_argv(value, credential_keys, _depth + 1)
         return [
             redact_value(item, credential_keys=credential_keys, _depth=_depth + 1)
             for item in value
@@ -706,11 +734,11 @@ def redact_json_value(value: Any) -> Any:
 # --- Streams and response documents -----------------------------------------
 
 
-def _check_json_depth(text: str) -> None:
+def _check_json_depth(text: str, *, used_depth: int = 0) -> None:
     """Bound nesting before passing untrusted output to the JSON decoder."""
     if "[" not in text and "{" not in text:
         return
-    depth = 0
+    depth = used_depth
     quoted = False
     escaped = False
     for character in text:
@@ -733,11 +761,28 @@ def _check_json_depth(text: str) -> None:
             depth -= 1
 
 
-def _redact_json_text(text: str, *, indent: int | None = None) -> str:
+def _unique_json_members(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            # Returning original bytes after inspecting only the last duplicate
+            # would preserve earlier credential-bearing members unseen.
+            raise RedactionError("Duplicate JSON members cannot be safely redacted")
+        result[key] = value
+    return result
+
+
+def _redact_json_text(
+    text: str,
+    *,
+    indent: int | None = None,
+    credential_keys: Iterable[str] = (),
+    _depth: int = 0,
+) -> str:
     try:
-        _check_json_depth(text)
-        payload = json.loads(text)
-        redacted = redact_value(payload)
+        _check_json_depth(text, used_depth=_depth)
+        payload = json.loads(text, object_pairs_hook=_unique_json_members)
+        redacted = redact_value(payload, credential_keys=credential_keys, _depth=_depth)
         return text if redacted == payload else json.dumps(redacted, indent=indent)
     except json.JSONDecodeError:
         raise
@@ -748,6 +793,73 @@ def _redact_json_text(text: str, *, indent: int | None = None) -> str:
         raise RedactionError("JSON cannot be safely redacted") from exc
 
 
+def _refuse_credential_fragments(text: str, credential_keys: Iterable[str]) -> None:
+    """Inspect unparsed fragments, including multiline and escaped field names.
+
+    This scanner consumes quoted tokens once. JSON decoding of complete quoted
+    names recognizes unicode escapes; Python repr quotes cover diagnostic dicts.
+    A credential field in a fragment has no reliable value boundary, so it must
+    not be persisted through a text-only fallback. Ordinary log labels and public
+    JSON snippets do not imply credentials and remain intact.
+    """
+    previous: dict[str, int | None] = {'"': None, "'": None}
+    backslashes = 0
+    for position, character in enumerate(text):
+        if character == "\\":
+            backslashes += 1
+            continue
+        escaped = backslashes % 2 != 0
+        backslashes = 0
+        if character not in previous or escaped:
+            continue
+        start = previous[character]
+        previous[character] = position
+        if start is None:
+            continue
+        after = position + 1
+        while after < len(text) and text[after].isspace():
+            after += 1
+        if after >= len(text) or text[after] != ":":
+            continue
+        token = text[start : position + 1]
+        try:
+            key = json.loads(token) if character == '"' else ast.literal_eval(token)
+        except (ValueError, SyntaxError, RecursionError) as exc:
+            raise RedactionError(
+                "Malformed quoted field cannot be safely redacted"
+            ) from exc
+        if isinstance(key, str) and (
+            _text_credential_name(key) or is_credential_key(key, credential_keys)
+        ):
+            raise RedactionError("Credential fragment cannot be safely redacted")
+
+
+def _redact_mixed_text(
+    text: str, *, credential_keys: Iterable[str] = (), _depth: int = 0
+) -> str:
+    """Redact complete JSONL events and inspect only the remaining fragments."""
+    if "\n" not in text:
+        _refuse_credential_fragments(text, credential_keys)
+        return redact_text(text)
+    output: list[str] = []
+    fragments: list[str] = []
+    for line in text.split("\n"):
+        try:
+            output.append(
+                _redact_json_text(line, credential_keys=credential_keys, _depth=_depth)
+            )
+            # A complete event was already structurally inspected. Its keys
+            # must not make a benign mixed stream fail the fragment check.
+            # Scalar string lines can be a multiline object's key. Retain them
+            # in fragment context until their following colon is inspected.
+            fragments.append("" if line.lstrip().startswith(("{", "[")) else line)
+        except json.JSONDecodeError:
+            output.append(redact_text(line))
+            fragments.append(line)
+    _refuse_credential_fragments("\n".join(fragments), credential_keys)
+    return "\n".join(output)
+
+
 def redact_stream_line(line: str) -> str:
     stripped = line.strip()
     if not stripped:
@@ -755,17 +867,7 @@ def redact_stream_line(line: str) -> str:
     try:
         return _redact_json_text(line)
     except json.JSONDecodeError:
-        # Bracketed log labels such as [tool] are plain text. A malformed array
-        # containing JSON syntax still refuses: it may hold opaque credentials
-        # whose protection depends on the surrounding object key.
-        structured_array = stripped.startswith("[") and (
-            '"' in stripped
-            or "{" in stripped
-            or re.match(r"\[\s*(?:[\[\]\d-]|true\b|false\b|null\b)", stripped)
-        )
-        if stripped.startswith(("{", '"')) or structured_array:
-            raise RedactionError("Malformed JSON cannot be safely redacted") from None
-        return redact_text(line)
+        return _redact_mixed_text(line)
 
 
 def redact_stream_text(text: str) -> str:
@@ -773,18 +875,16 @@ def redact_stream_text(text: str) -> str:
 
     JSONL event lines are redacted value-wise so they stay parseable;
     non-JSON lines get plain-text redaction. Clean content passes through
-    byte-identical. Unsafe or malformed structured JSON raises RedactionError.
+    byte-identical. Unsafe JSON or credential fragments raise RedactionError.
     """
     if not text:
         return text
-    if "\n" in text:
-        # Pretty-printed whole documents are a valid stream shape too. Try the
-        # complete document before losing structural context at line breaks.
-        try:
-            return _redact_json_text(text)
-        except json.JSONDecodeError:
-            pass
-    return "\n".join(redact_stream_line(line) for line in text.split("\n"))
+    # Pretty-printed whole documents are a valid stream shape too. Try the
+    # complete document before losing structural context at line breaks.
+    try:
+        return _redact_json_text(text)
+    except json.JSONDecodeError:
+        return _redact_mixed_text(text)
 
 
 def redact_response_text(text: str) -> str:
@@ -799,4 +899,4 @@ def redact_response_text(text: str) -> str:
     try:
         return _redact_json_text(text, indent=2)
     except json.JSONDecodeError:
-        return redact_stream_text(text)
+        return _redact_mixed_text(text)
