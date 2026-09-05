@@ -182,12 +182,12 @@ def work_once(
     except LeaseLost:
         return {"job_id": claim.job_id, "status": "lease_lost"}
     except Exception as exc:
-        from .security import redact_value
+        from .diagnostics import safe_exception_text
 
         failure = {
             "job_id": claim.job_id,
             "kind": claim.kind,
-            "error": redact_value(str(exc)),
+            "error": safe_exception_text(exc),
             "artifact_hash": getattr(exc, "artifact_hash", None),
         }
         # Only the executor can attest an observed terminal model outcome.

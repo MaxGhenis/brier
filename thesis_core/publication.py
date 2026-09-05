@@ -165,7 +165,7 @@ def publish_manifest(
             subject, manifest.recorded_at, anchor_id=anchor_id
         )
     except tsa.TsaError as exc:
-        from .security import redact_value
+        from .diagnostics import safe_exception_text
 
         request_hash = (
             store.artifacts.put_bytes(exc.request_der) if exc.request_der else None
@@ -175,14 +175,12 @@ def publish_manifest(
         )
         error_hash = store.artifacts.put_bytes(
             canonical_bytes(
-                redact_value(
-                    {
-                        "manifest_id": manifest_id,
-                        "request_hash": request_hash,
-                        "response_hash": response_hash,
-                        "error": str(exc),
-                    }
-                )
+                {
+                    "manifest_id": manifest_id,
+                    "request_hash": request_hash,
+                    "response_hash": response_hash,
+                    "error": safe_exception_text(exc),
+                }
             )
         )
         if hasattr(store, "log_publication_attempt"):

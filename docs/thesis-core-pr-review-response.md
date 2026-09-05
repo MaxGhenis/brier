@@ -50,12 +50,34 @@ credential fragments whose value boundaries cannot be established safely.
 
 Additional local checks exposed whitespace-bearing credential arguments,
 repeated JSON keys, and serialized JSON inside event strings. Argument values
-are now treated atomically; duplicate keys refuse before raw-byte preservation;
-embedded JSON shares the structural depth limit. Mixed-log checks retain scalar
+are now treated atomically; repeated JSON members all require inspection before
+raw-byte preservation; embedded JSON shares the structural depth limit. Mixed-log checks retain scalar
 key lines, recognize escaped names, and avoid treating prose quotes as enclosing
 later credential fields. Complete JSONL events are scrubbed separately from
 unparsed fragments. Regression tests cover successful recorded-log shapes and
 known failures without archiving the planted credential values.
+
+A later Fable pass found ordinary Drupal settings and source excerpts still
+triggered refusal. The broader recorded-stream audit also exposed legitimate
+duplicate transport identifiers. The correction distinguishes safely bounded
+values from incomplete credential fragments, preserves every duplicate member
+for inspection and redaction, and keeps complete JSON events separate from text
+filtering. Public settings names retain recursive checks on their children;
+explicitly declared credential names still override these narrow exceptions.
+Escaped names and quoted values remain structurally protected. The repeated
+unescaped-name path avoids a compiler call for each token. Credential containers
+must parse as JSON or a bounded Python literal before removal. Scalar values
+require a definite boundary or short plain diagnostic prose; formatting,
+conditional and other ambiguous expression continuations refuse. A quoted
+conditional branch result is not classified as a field merely because a colon
+follows it.
+
+Worker, capture and publication diagnostics now use a bounded helper that
+withholds an unsafe message while preserving the original failure state. The
+legacy runner handles refusal per channel, retains safe output and observed
+process status, and records which channel was omitted. A refused Codex
+last-message file is cleaned before the result returns. These changes do not
+authorize another model attempt.
 
 ## Rejected or qualified findings
 

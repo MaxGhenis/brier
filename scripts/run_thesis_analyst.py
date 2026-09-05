@@ -68,12 +68,14 @@ _CHECKOUT_ROOT = str(pathlib.Path(__file__).resolve().parents[1])
 if _CHECKOUT_ROOT not in sys.path:
     sys.path.insert(0, _CHECKOUT_ROOT)
 
+from thesis_core.diagnostics import safe_exception_text  # noqa: E402
 from thesis_core.security import (  # noqa: E402
     AGENT_ENV_ALLOWLIST,  # noqa: F401 - re-exported for callers and tests
     ENV_SECRET_ASSIGNMENT_RE,  # noqa: F401 - re-exported
     JSON_SECRET_FIELD_RE,  # noqa: F401 - re-exported
     REDACTED_PLACEHOLDER,  # noqa: F401 - re-exported
     SECRET_TOKEN_RE,  # noqa: F401 - re-exported
+    RedactionError,
     agent_subprocess_env,
     is_credential_key,  # noqa: F401 - re-exported
     redact_headers,  # noqa: F401 - re-exported
@@ -1365,6 +1367,19 @@ def default_out_dir(series: str, period: str, run_at: str) -> pathlib.Path:
 #    post-hoc scrub can break attestation.
 
 
+def _redact_captured_text(text: str, *, response: bool = False) -> tuple[str, bool]:
+    """Preserve an observed result even when one channel cannot be archived."""
+    try:
+        redactor = redact_response_text if response else redact_stream_text
+        return redactor(text), False
+    except RedactionError:
+        size = len(text.encode("utf-8", errors="replace"))
+        return (
+            f"[Output omitted: safe redaction was unavailable; {size} bytes.]\n",
+            True,
+        )
+
+
 def run_agent_command(
     command: str,
     prompt: str,
@@ -1387,15 +1402,26 @@ def run_agent_command(
             env=agent_subprocess_env(),
         )
         finished_at = utc_now()
+        stdout, unsafe_stdout = _redact_captured_text(completed.stdout)
+        stderr, unsafe_stderr = _redact_captured_text(completed.stderr)
+        refused = [
+            name
+            for name, unsafe in (("stdout", unsafe_stdout), ("stderr", unsafe_stderr))
+            if unsafe
+        ]
         return {
             "backend": "external_command",
             "argv": argv,
             "startedAt": started_at,
             "finishedAt": finished_at,
-            "returnCode": completed.returncode,
+            "returnCode": (completed.returncode or 1)
+            if refused
+            else completed.returncode,
+            "processReturnCode": completed.returncode,
             "timedOut": False,
-            "stdout": redact_stream_text(completed.stdout),
-            "stderr": redact_stream_text(completed.stderr),
+            "stdout": stdout,
+            "stderr": stderr,
+            **({"redactionFailures": refused} if refused else {}),
         }
     except subprocess.TimeoutExpired as exc:
         finished_at = utc_now()
@@ -1405,8 +1431,8 @@ def run_agent_command(
             stdout = stdout.decode(errors="replace")
         if isinstance(stderr, bytes):
             stderr = stderr.decode(errors="replace")
-        stdout = redact_stream_text(stdout)
-        stderr = redact_stream_text(stderr)
+        stdout, unsafe_stdout = _redact_captured_text(stdout)
+        stderr, unsafe_stderr = _redact_captured_text(stderr)
         stderr = (
             f"{stderr}\nagent command timed out after {timeout_seconds} seconds\n"
         ).lstrip()
@@ -1419,6 +1445,20 @@ def run_agent_command(
             "timedOut": True,
             "stdout": stdout,
             "stderr": stderr,
+            **(
+                {
+                    "redactionFailures": [
+                        name
+                        for name, unsafe in (
+                            ("stdout", unsafe_stdout),
+                            ("stderr", unsafe_stderr),
+                        )
+                        if unsafe
+                    ]
+                }
+                if unsafe_stdout or unsafe_stderr
+                else {}
+            ),
         }
     except OSError as exc:
         finished_at = utc_now()
@@ -1430,7 +1470,7 @@ def run_agent_command(
             "returnCode": 127,
             "timedOut": False,
             "stdout": "",
-            "stderr": f"agent command could not start: {exc}\n",
+            "stderr": f"agent command could not start: {safe_exception_text(exc)}\n",
         }
 
 
@@ -1823,6 +1863,7 @@ def run_codex_agent_command(
     stdout_text = ""
     stderr_text = ""
     process_return_code = 1
+    redaction_failures: list[str] = []
 
     try:
         codex_home_dir = tempfile.mkdtemp(prefix="thesis-codex-home-")
@@ -1872,8 +1913,13 @@ def run_codex_agent_command(
         finally:
             shutil.rmtree(codex_home_dir, ignore_errors=True)
 
-        stdout_text = redact_stream_text(stdout_path.read_text())
-        stderr_text = redact_stream_text(stderr_path.read_text())
+        stdout_text, unsafe_stdout = _redact_captured_text(stdout_path.read_text())
+        stderr_text, unsafe_stderr = _redact_captured_text(stderr_path.read_text())
+        redaction_failures.extend(
+            name
+            for name, unsafe in (("stdout", unsafe_stdout), ("stderr", unsafe_stderr))
+            if unsafe
+        )
         stdout_path.unlink(missing_ok=True)
         stderr_path.unlink(missing_ok=True)
         workspace_mutations = (
@@ -1910,6 +1956,7 @@ def run_codex_agent_command(
         }
     except Exception as exc:
         finished_at = utc_now()
+        diagnostic = safe_exception_text(exc)
         return {
             "backend": "codex",
             "argv": logged_cmd,
@@ -1920,9 +1967,9 @@ def run_codex_agent_command(
             "returnCode": 1,
             "timedOut": False,
             "stdout": "",
-            "stderr": f"Error running codex CLI: {exc}",
+            "stderr": f"Error running codex CLI: {diagnostic}",
             "codexStdoutRaw": "",
-            "codexStderrRaw": f"Error running codex CLI: {exc}",
+            "codexStderrRaw": f"Error running codex CLI: {diagnostic}",
             "codexEventsJsonl": "",
             "codexLastMessage": "",
             "codexTrace": {
@@ -1930,7 +1977,7 @@ def run_codex_agent_command(
                 "backend": "codex-exec",
                 "model": model,
                 "timeoutSeconds": timeout_seconds,
-                "error": str(exc),
+                "error": diagnostic,
             },
         }
 
@@ -1940,7 +1987,11 @@ def run_codex_agent_command(
     last_message_text = ""
     if last_message_file.exists():
         stripped_last_message = last_message_file.read_text().strip()
-        last_message_text = redact_response_text(stripped_last_message)
+        last_message_text, unsafe_last_message = _redact_captured_text(
+            stripped_last_message, response=True
+        )
+        if unsafe_last_message:
+            redaction_failures.append("last_message")
         if last_message_text != stripped_last_message:
             # Codex wrote this file directly into the run dir; keep the
             # on-disk copy clean even if sealing fails before the artifact
@@ -1956,6 +2007,8 @@ def run_codex_agent_command(
         process_return_code == 0 or terminated_after_output or timed_out
     ):
         effective_return_code = 0
+    if redaction_failures:
+        effective_return_code = effective_return_code or 1
 
     return {
         "backend": "codex",
@@ -1974,6 +2027,7 @@ def run_codex_agent_command(
         "timedOut": timed_out,
         "timeoutReason": timeout_reason,
         "terminatedAfterOutput": terminated_after_output,
+        **({"redactionFailures": redaction_failures} if redaction_failures else {}),
         "stdout": final_text,
         "stderr": parsed["nonJsonStderr"] or stderr_text,
         "codexStdoutRaw": stdout_text,
@@ -1998,6 +2052,7 @@ def run_codex_agent_command(
             "usage": parsed["usage"],
             "eventCount": len(parsed["events"]),
             "lastError": parsed["lastError"],
+            **({"redactionFailures": redaction_failures} if redaction_failures else {}),
         },
     }
 
@@ -2056,6 +2111,11 @@ def append_command_artifacts(
                     ),
                     "returnCode": command_result["returnCode"],
                     "processReturnCode": command_result.get("processReturnCode"),
+                    **(
+                        {"redactionFailures": command_result["redactionFailures"]}
+                        if command_result.get("redactionFailures")
+                        else {}
+                    ),
                     "timedOut": command_result.get("timedOut", False),
                     "timeoutReason": command_result.get("timeoutReason"),
                     "terminatedAfterOutput": command_result.get(

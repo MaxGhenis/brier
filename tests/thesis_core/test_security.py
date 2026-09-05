@@ -550,7 +550,7 @@ print('bounded redaction complete')
     [
         "[" * 1100 + '"planted-opaque"' + "]" * 1100,
         "7" * 5000,
-        '{"api_key": {"nested": "planted-opaque"}',
+        '{"api_key": {"nested": "planted-opaque"',
     ],
 )
 def test_unsafe_json_refuses_instead_of_losing_structural_redaction(redactor, payload):
@@ -603,12 +603,21 @@ def test_structured_argv_redacts_opaque_equals_and_adjacent_credentials(argument
 @pytest.mark.parametrize(
     "redactor", [security.redact_stream_text, security.redact_response_text]
 )
-def test_duplicate_members_refuse_before_preserving_original_bytes(payload, redactor):
-    with pytest.raises(security.RedactionError):
-        redactor(payload)
+def test_duplicate_members_redact_hidden_earlier_credentials(payload, redactor):
+    cleaned = redactor(payload)
+    assert json.loads(cleaned, object_pairs_hook=list) == [
+        ("branch", [("credentials", REDACTED)]),
+        ("branch", []),
+    ]
+    assert "planted-opaque" not in cleaned
+    assert redactor(cleaned) == cleaned
     event = json.dumps({"item": {"aggregated_output": payload}})
-    with pytest.raises(security.RedactionError):
-        redactor(event)
+    cleaned_event = redactor(event)
+    assert "planted-opaque" not in cleaned_event
+    assert json.loads(
+        json.loads(cleaned_event)["item"]["aggregated_output"], object_pairs_hook=list
+    ) == json.loads(cleaned, object_pairs_hook=list)
+    assert redactor(cleaned_event) == cleaned_event
 
 
 def test_serialized_json_strings_share_the_nesting_budget_and_fail_closed():
@@ -622,7 +631,7 @@ def test_serialized_json_strings_share_the_nesting_budget_and_fail_closed():
     wrapped = "[" * 127 + json.dumps('{"public":{"value":1}}') + "]" * 127
     with pytest.raises(security.RedactionError):
         security.redact_response_text(wrapped)
-    malformed = json.dumps({"aggregated_output": '{"credentials":{"nested":"x"}'})
+    malformed = json.dumps({"aggregated_output": '{"credentials":{"nested":"x"'})
     with pytest.raises(security.RedactionError):
         security.redact_response_text(malformed)
 
@@ -665,11 +674,12 @@ def test_every_string_vector_scrubs_atomic_and_adjacent_credentials(key):
         'unmatched " prose {"credentials":{"nested":"planted-opaque"}}',
     ],
 )
-def test_mixed_fragments_refuse_escaped_and_multiline_credential_containers(fragment):
-    with pytest.raises(security.RedactionError):
-        security.redact_stream_text(fragment)
-    with pytest.raises(security.RedactionError):
-        security.redact_response_text(json.dumps({"aggregated_output": fragment}))
+def test_mixed_fragments_scrub_escaped_and_multiline_credential_containers(fragment):
+    cleaned = security.redact_stream_text(fragment)
+    assert "planted-opaque" not in cleaned
+    assert security.redact_stream_text(cleaned) == cleaned
+    event = json.dumps({"aggregated_output": fragment})
+    assert "planted-opaque" not in security.redact_response_text(event)
 
 
 def test_mixed_diagnostics_keep_public_fragments_and_scrub_complete_jsonl_events():
@@ -684,3 +694,481 @@ def test_mixed_diagnostics_keep_public_fragments_and_scrub_complete_jsonl_events
     assert_no_planted(cleaned)
     inner = json.loads(json.loads(cleaned.splitlines()[3])["item"]["aggregated_output"])
     assert inner["credentials"] == REDACTED
+
+
+@pytest.mark.parametrize(
+    "snippet",
+    [
+        (
+            'Fetched page:\n<script>{"theme_token":null,'
+            '"environment_token": "[REDACTED]"}</script>'
+        ),
+        '17: Drupal setting "modal_keyboard":1,',
+        'source excerpt:\n    "source_row_keys": [week],',
+        'rg result: "measureKey": "[REDACTED]",',
+        'log: "credentials": null, "token":false, "keyboard_count":1.25e2',
+        'log: "credentials": [REDACTED], "api_key": "",',
+    ],
+)
+def test_page_settings_and_source_snippets_remain_idempotent(snippet):
+    assert security.redact_stream_text(snippet) == snippet
+    event = json.dumps({"item": {"aggregated_output": snippet}})
+    assert security.redact_stream_text(event + "\n") == event + "\n"
+
+
+@pytest.mark.parametrize(
+    "fragment",
+    [
+        'log: "api_key": "Bearer planted-opaque", done',
+        'log: "api_key": "prefix\\" planted-opaque", done',
+        'log: "api_key": "prefix\nplanted-opaque", done',
+        'log: "creden\\u0074ials": "planted-opaque", done',
+        "log: 'api_key': 'prefix\\' planted-opaque', done",
+        "log: 'creden\\u0074ials': 'planted-opaque', done",
+        'log: "census_key": "prefix\\" planted-opaque", done',
+        'log\n{\n"credentials"\n:\n"planted-opaque"\n}\n',
+    ],
+)
+def test_bounded_credential_scalars_are_redacted_structurally(fragment):
+    cleaned = security.redact_stream_text(fragment)
+    assert "planted-opaque" not in cleaned
+    assert REDACTED in cleaned
+    assert security.redact_stream_text(cleaned) == cleaned
+    event = json.dumps({"item": {"aggregated_output": fragment}})
+    assert "planted-opaque" not in security.redact_stream_text(event)
+
+
+@pytest.mark.parametrize(
+    "fragment",
+    [
+        'log: "api_key": "prefix\\" planted-opaque',
+        'log: "creden\\u0074ials": {"nested":"planted-opaque"',
+        "log: 'credentials': {'nested':'planted-opaque'",
+        'log: "api_key": """planted-opaque"""',
+        'log: "api_key": "prefix" "planted-opaque"',
+        'log: "api_key": "prefix" + "planted-opaque"',
+        'log: "api_key": bare_planted_opaque + continuation',
+    ],
+)
+def test_unbounded_credential_fragments_never_get_raw_text_fallback(fragment):
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text(fragment)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        '{"operator":"equals","name":"consent","value":"planted-opaque"}',
+        "{'nested': ['planted-opaque', {'escaped': 'bracket } \\' text'}]}",
+        '[{"nested":"planted-opaque"}]',
+        '"planted-opaque"',
+        "planted_opaque",
+        'aa="planted-opaque"',
+    ],
+)
+def test_complete_credential_fragment_values_are_replaced_wholesale(value):
+    text = f'page: "cookie": {value}; public setting'
+    cleaned = security.redact_stream_text(text)
+    assert cleaned == f'page: "cookie": "{REDACTED}"; public setting'
+    assert security.redact_stream_text(cleaned) == cleaned
+    event = json.dumps({"aggregated_output": text})
+    assert (
+        json.loads(security.redact_stream_text(event))["aggregated_output"] == cleaned
+    )
+
+
+def test_container_on_separate_parsed_line_uses_the_outer_credential_boundary():
+    text = 'log\n"credentials":\n{"nested":"planted-opaque"}\n'
+    cleaned = security.redact_stream_text(text)
+    assert cleaned == f'log\n"credentials":\n"{REDACTED}"\n'
+    assert security.redact_stream_text(cleaned) == cleaned
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        '{"nested":"planted-opaque"',
+        '{"nested":"planted-opaque"]',
+        '{"nested":"planted-opaque} trailing',
+        '{"nested":"planted-opaque"} + continuation',
+        '{"nested":"planted-opaque"}\n+ continuation',
+        '{"nested":"planted-opaque"}.suffix',
+        '{"nested":/* } */ "planted-opaque"}',
+        '{"nested":` } planted-opaque`}',
+        "{'nested':''' } planted-opaque'''}",
+        "planted_opaque + continuation",
+        "planted_opaque\ncontinuation",
+        'aa="planted-opaque',
+        'aa="prefix" + "planted-opaque"',
+        'aa="prefix" "planted-opaque"',
+    ],
+)
+def test_incomplete_or_ambiguous_credential_values_still_refuse(value):
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text(f'page: "cookie": {value}')
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "'%s' % 'planted-opaque'",
+        "'prefix' if condition else 'planted-opaque'",
+        "'prefix' if condition else planted_opaque",
+        "'prefix' and planted_opaque",
+        "'prefix' instanceof planted_opaque",
+        "'prefix' // comment\n + 'planted-opaque'",
+        "'prefix' /* comment */ + 'planted-opaque'",
+        "'prefix' # comment\n + 'planted-opaque'",
+        "1 + 'planted-opaque'",
+        "1\n+ 'planted-opaque'",
+        "1 if condition else planted_opaque",
+        "None or planted_opaque",
+        '"[REDACTED]" + "planted-opaque"',
+        '[REDACTED] + "planted-opaque"',
+    ],
+)
+def test_scalar_expression_operands_never_survive_partial_redaction(value):
+    text = f'log: "credentials": {value}'
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text(text)
+    with pytest.raises(security.RedactionError):
+        security.redact_response_text(json.dumps({"aggregated_output": text}))
+
+
+def test_legacy_substring_string_matching_cannot_reintroduce_partial_expressions():
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text('log: "census_key": "%s" % "planted-opaque"')
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "{match: /},planted-opaque/};",
+        '{"match": /},planted-opaque/};',
+        '{"nested": /* } */ "planted-opaque"}',
+        '{"nested": // }\n "planted-opaque"}',
+        "{'nested': # }\n 'planted-opaque'}",
+        '{"nested": f"planted-opaque"}',
+        '{"nested": retrieve("planted-opaque")}',
+        '{"nested": `planted-opaque`}',
+    ],
+)
+def test_credential_container_boundaries_require_a_supported_complete_literal(value):
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text(f'log: "credentials": {value}')
+
+
+def test_large_non_json_container_does_not_invoke_the_python_compiler(monkeypatch):
+    def refuse_compilation(*args, **kwargs):
+        raise AssertionError("oversized Python literal was compiled")
+
+    monkeypatch.setattr(security.ast, "literal_eval", refuse_compilation)
+    text = "log: \"credentials\": {'nested': '" + "x" * 65536 + "'}"
+    with pytest.raises(security.RedactionError, match="size limit"):
+        security.redact_stream_text(text)
+
+
+@pytest.mark.parametrize(
+    "suffix", [" trailing", " trailing diagnostic.", " trailing\n"]
+)
+def test_plain_diagnostic_prose_can_follow_a_complete_credential_scalar(suffix):
+    text = 'log: "password": "planted-opaque"' + suffix
+    assert security.redact_stream_text(text) == 'log: "password": "[REDACTED]"' + suffix
+
+
+def test_public_cookie_presentation_text_can_be_truncated():
+    text = (
+        'page: {"message_placeholder_cookieconsent_optout_marketing": '
+        '"Public consent instructions\ncontinued without closing quote'
+    )
+    assert security.redact_stream_text(text) == text
+
+
+@pytest.mark.parametrize("assignment", ["=", "= "])
+def test_quoted_assignment_operands_are_not_ternary_field_names(assignment):
+    text = f'source: check(obj,"field")?left{assignment}"key":right="public":tail;'
+    assert security.redact_stream_text(text) == text
+    event = json.dumps({"aggregated_output": text})
+    assert security.redact_stream_text(event) == event
+    # A real field later in the same source still gets structural protection.
+    with_field = text + ' config={"credentials":{"nested":"planted-opaque"}};'
+    cleaned = security.redact_stream_text(with_field)
+    assert cleaned.startswith(text)
+    assert "planted-opaque" not in cleaned
+
+
+def test_assignment_before_a_parsed_event_does_not_hide_a_later_field():
+    text = 'log =\n{"public":1}\n"credentials": {"nested":"planted-opaque"}'
+    cleaned = security.redact_stream_text(text)
+    assert "planted-opaque" not in cleaned
+    assert cleaned.startswith('log =\n{"public":1}\n')
+
+
+def test_quoted_nested_conditional_operand_is_not_a_password_field():
+    text = 'source: obj.check("public")?"password":flag?call(arg):other;'
+    assert security.redact_stream_text(text) == text
+    event = json.dumps({"aggregated_output": text})
+    assert security.redact_stream_text(event) == event
+    with_field = text + ' config={"password":{"nested":"planted-opaque"}};'
+    cleaned = security.redact_stream_text(with_field)
+    assert cleaned.startswith(text)
+    assert "planted-opaque" not in cleaned
+
+
+def test_question_prose_does_not_hide_a_following_credential_field():
+    text = 'Found it? "password": {"nested":"planted-opaque"}'
+    assert "planted-opaque" not in security.redact_stream_text(text)
+
+
+def test_bounded_container_fragments_share_the_decoded_document_depth_budget():
+    payload = 'log: "credentials": ' + "[" * 3 + '"planted-opaque"' + "]" * 3
+    with pytest.raises(security.RedactionError):
+        security.redact_value(payload, _depth=security.MAX_REDACTION_DEPTH - 2)
+
+
+def test_large_nested_credential_container_is_scanned_once():
+    script = """
+from thesis_core.security import redact_stream_text
+from thesis_core.execution import MAX_CAPTURED_BYTES
+entry = '{"credentials":{"nested":"planted-opaque"}}'
+entries = ','.join([entry] * (MAX_CAPTURED_BYTES // (len(entry) + 1) - 2))
+payload = 'log: "credentials": [' + entries + ']'
+assert redact_stream_text(payload) == 'log: "credentials": "[REDACTED]"'
+print('bounded container scan complete')
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        check=True,
+    )
+    assert result.stdout.strip() == "bounded container scan complete"
+
+
+def test_outer_credential_scalar_wins_over_parsed_lines_inside_it():
+    fragment = (
+        'log\n"credentials": "start\n'
+        '{"public":"planted-opaque","api_key":"other-opaque"}\n'
+        'end"\n'
+    )
+    # The unescaped interior quotes make this an ambiguous multiline value.
+    # Refusal is safe; if it can be bounded, neither inner value may survive.
+    try:
+        cleaned = security.redact_stream_text(fragment)
+    except security.RedactionError:
+        return
+    assert "planted-opaque" not in cleaned
+    assert "other-opaque" not in cleaned
+
+
+def test_pathological_plain_quoted_names_do_not_invoke_a_parser_per_token():
+    script = """
+from unittest.mock import patch
+from thesis_core.security import _credential_fragment_edits
+from thesis_core.execution import MAX_CAPTURED_BYTES
+payload = "'':" * (MAX_CAPTURED_BYTES // 3)
+with patch('thesis_core.security.ast.literal_eval', side_effect=AssertionError), \\
+     patch('thesis_core.security.json.loads', side_effect=AssertionError):
+    assert _credential_fragment_edits(payload, ()) == []
+print('bounded quoted-name scan complete')
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=15,
+        check=True,
+    )
+    assert result.stdout.strip() == "bounded quoted-name scan complete"
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        '{"id":"first","id":"second"}',
+        '{"id":"first","\\u0069d":"second"}',
+        '{"item":{"id":"first","id":"second"},"public":1}',
+        '{"item":{"result":"first"},"item":{"result":"second"}}',
+    ],
+)
+def test_clean_duplicate_transport_members_remain_byte_identical(payload):
+    assert security.redact_stream_text(payload) == payload
+    assert security.redact_stream_text("[tool] starting\n" + payload + "\n") == (
+        "[tool] starting\n" + payload + "\n"
+    )
+    serialized = json.dumps({"aggregated_output": payload})
+    assert security.redact_response_text(serialized) == serialized
+
+
+def test_duplicate_members_share_the_original_depth_budget():
+    nested = "[" * 126 + json.dumps('{"public":{"value":1}}') + "]" * 126
+    payload = '{"item":' + nested + ',"item":{}}'
+    with pytest.raises(security.RedactionError):
+        security.redact_stream_text(payload)
+
+
+def test_changed_sibling_preserves_every_clean_duplicate_member_when_serialized():
+    payload = '{"trace":{"id":"first","id":"second"},"api_key":"planted-opaque"}'
+    cleaned = security.redact_response_text(payload)
+    assert "planted-opaque" not in cleaned
+    assert '"id": "first"' in cleaned
+    assert '"id": "second"' in cleaned
+    assert cleaned.count('"id"') == 2
+    assert security.redact_response_text(cleaned) == cleaned
+    # An outer credential boundary removes the complete duplicate node safely.
+    hidden = '{"credentials":{"id":"planted-opaque","id":"other-opaque"}}'
+    assert json.loads(security.redact_response_text(hidden)) == {
+        "credentials": REDACTED
+    }
+
+
+def test_duplicate_action_members_redact_queries_without_losing_public_ids():
+    query = "https://agency.example/data?api_key=planted-opaque&series=unemployment"
+    payload = (
+        '{"id":"first","action":{"queries":[' + json.dumps(query) + "]},"
+        '"id":"second","action":{"queries":["public data"]}}'
+    )
+    cleaned = security.redact_response_text(payload)
+    assert "planted-opaque" not in cleaned
+    assert json.loads(cleaned, object_pairs_hook=list) == [
+        ("id", "first"),
+        ("action", [("queries", [query.replace("planted-opaque", REDACTED)])]),
+        ("id", "second"),
+        ("action", [("queries", ["public data"])]),
+    ]
+    assert security.redact_response_text(cleaned) == cleaned
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "historyFloorAuthorization",
+        "cookieContentBlocker",
+        "cookiebot",
+        "Cookiebot",
+        "tough-cookie",
+        "message_placeholder_cookieconsent_optout_marketing",
+    ],
+)
+def test_exact_public_settings_names_still_inspect_children_and_declarations(name):
+    public = {name: {"enabled": True, "message": "Consent settings"}}
+    text = json.dumps(public)
+    assert not security.is_credential_key(name)
+    assert security.redact_stream_text(text) == text
+    assert security.redact_stream_text("page: " + text) == "page: " + text
+    assert security.redact_value({name: {"api_key": "planted-opaque"}}) == {
+        name: {"api_key": REDACTED}
+    }
+    assert security.is_credential_key(name, [name])
+    assert security.redact_value(public, credential_keys=[name]) == {name: REDACTED}
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["cookie", "authorization", "customCookiebot", "historyFloorAuthorizationToken"],
+)
+def test_public_settings_exceptions_do_not_exempt_generic_or_extended_names(name):
+    assert security.is_credential_key(name)
+    assert security.redact_value({name: {"nested": "planted-opaque"}}) == {
+        name: REDACTED
+    }
+
+
+@pytest.mark.parametrize(
+    "pseudo_key",
+    [
+        "public source authorization " + "x" * 2420,
+        "public source authorization\n<p>" + "x" * 429850 + "</p>",
+        "source says authorization <example>",
+    ],
+)
+def test_quoted_prose_spans_are_not_fragment_field_names(pseudo_key):
+    text = f'page excerpt: "{pseudo_key}": public_expression'
+    assert security.redact_stream_text(text) == text
+
+
+@pytest.mark.parametrize(
+    "name", ["API key", "provider.api_key", "x-api-key", "credentials"]
+)
+def test_bounded_name_shaped_fragments_support_spaces_separators_and_escapes(name):
+    escaped = '"' + "".join(f"\\u{ord(character):04x}" for character in name) + '"'
+    for quoted_name in (json.dumps(name), escaped):
+        scalar = f'log: {quoted_name}: "planted-opaque"'
+        assert "planted-opaque" not in security.redact_stream_text(scalar)
+        assert "planted-opaque" not in security.redact_stream_text(
+            f'log: {quoted_name}: {{"nested":"planted-opaque"}}'
+        )
+
+
+def test_actual_json_keys_are_inspected_without_the_fragment_name_limit():
+    name = "public source " * 300 + " authorization <example>"
+    cleaned = security.redact_response_text(
+        json.dumps({name: {"nested": "planted-opaque"}})
+    )
+    assert "planted-opaque" not in cleaned
+    assert json.loads(cleaned)[name] == REDACTED
+
+
+def test_mixed_stream_does_not_reapply_text_patterns_to_complete_json_events():
+    output = f"ANTHROPIC_API_KEY={PLANTED['anthropic']}\ntrailing diagnostic\n"
+    event = json.dumps({"monkey": "public", "aggregated_output": output})
+    stream = "[tool] starting\n" + event + "\nfinished\n"
+    cleaned = security.redact_stream_text(stream)
+    parsed = json.loads(cleaned.splitlines()[1])
+    assert parsed["monkey"] == "public"
+    assert parsed["aggregated_output"] == (
+        f"ANTHROPIC_API_KEY={REDACTED}\ntrailing diagnostic\n"
+    )
+    assert security.redact_stream_text(cleaned) == cleaned
+
+
+@pytest.mark.parametrize("name", ["api_key", "password", "credentials", "access_token"])
+@pytest.mark.parametrize("value", ["123456", "0", "-1.25e2"])
+def test_numeric_credentials_are_redacted_in_fragment_scalars(name, value):
+    text = f'log: "{name}": {value}, "modal_keyboard": 1'
+    assert security.redact_stream_text(text) == (
+        f'log: "{name}": "{REDACTED}", "modal_keyboard": 1'
+    )
+
+
+def test_inner_fragment_redaction_yields_to_the_enclosing_json_scalar():
+    scalar = json.dumps("tool said 'password': 'planted-opaque' trailing")
+    cleaned = security.redact_stream_text("log\n" + scalar + "\n")
+    parsed = json.loads(cleaned.splitlines()[1])
+    assert "planted-opaque" not in parsed
+    assert parsed == f"tool said 'password': \"{REDACTED}\" trailing"
+    assert security.redact_stream_text(cleaned) == cleaned
+
+
+def test_already_redacted_json_scalar_does_not_receive_plain_text_patterns():
+    scalar = json.dumps(f"API_KEY={REDACTED}\ntrailing diagnostic")
+    stream = "log\n" + scalar + "\n"
+    assert security.redact_stream_text(stream) == stream
+    assert json.loads(security.redact_stream_text(stream).splitlines()[1]) == (
+        f"API_KEY={REDACTED}\ntrailing diagnostic"
+    )
+
+
+@pytest.mark.parametrize("padding", ["", "   "])
+def test_outer_credential_fragment_wins_over_equal_scalar_bounds(padding):
+    scalar = json.dumps("prefix " + PLANTED["github_pat"] + " planted-opaque")
+    stream = f'log\n"credentials":\n{padding}{scalar}{padding}\n'
+    cleaned = security.redact_stream_text(stream)
+    assert "planted-opaque" not in cleaned
+    assert PLANTED["github_pat"] not in cleaned
+    assert json.loads(cleaned.splitlines()[2]) == REDACTED
+    assert security.redact_stream_text(cleaned) == cleaned
+
+
+def test_partially_crossing_redaction_boundaries_refuse():
+    with pytest.raises(security.RedactionError, match="Crossing"):
+        security._apply_fragment_edits(
+            "0123456789", [(2, 7, "parsed")], [(5, 9, "fragment")]
+        )
+    with pytest.raises(security.RedactionError, match="Crossing"):
+        security._apply_fragment_edits(
+            "0123456789", [(4, 8, "parsed")], [(2, 6, "fragment")]
+        )

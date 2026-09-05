@@ -84,6 +84,27 @@ installed-package smoke. The science,
 timestamp and API implementation approved or examined at `7d90098e` is unchanged
 by this follow-up.
 
+## Recorded-output compatibility and failure handling
+
+The final corrective revision adds pair-aware duplicate-member redaction,
+explicit scalar boundaries, supported container-literal validation and safe
+exception diagnostics. The complete core suite passes **546 tests** in 96.19 s
+with PostgreSQL 14.22 required. The complete legacy analyst, credential-hygiene
+and channel-refusal suites pass **227 tests** in 35.29 s. Scoped Ruff, formatting,
+generated-contract drift and diff checks pass. The rebuilt wheel passes the
+isolated installed-package smoke test.
+
+A read-only audit processed all **2,053 recorded stdout/stderr streams**
+(**374,657,368 bytes**) in 103.31 s: no refusals, **2,026 byte-identical** outputs
+and no non-idempotent results. The other 27 streams were safely redacted under
+the existing credential policy; the archive itself was not rewritten.
+
+These checks cover known failures without raw-output fallback, partial
+credential expressions, safe JSONL preservation and legacy channel custody.
+They use synthetic credentials and local test authorities. The approved plan,
+scientific formulas, prospective admission and trust-verification code remain
+unchanged; the publication exception path now records bounded safe diagnostics.
+
 ## Real source and model smoke
 
 The local pilot captured **36 official Statistics Canada CPI observations**,

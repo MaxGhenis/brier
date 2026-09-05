@@ -309,10 +309,10 @@ def capture(
         )
     except Exception as exc:
         # Errors can contain URLs from transports; scrub them before persistence.
-        from thesis_core.security import redact_value
+        from thesis_core.diagnostics import safe_exception_text
 
         return CaptureResult(
-            source, tuple(exchanges), (), "failed", (str(redact_value(str(exc))),)
+            source, tuple(exchanges), (), "failed", (safe_exception_text(exc),)
         )
 
 

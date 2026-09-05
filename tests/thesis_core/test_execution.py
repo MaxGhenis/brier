@@ -615,26 +615,19 @@ def test_nonzero_exit_persists_the_failed_trace(core_store, tmp_path):
     [
         "[" * 1100 + '{"api_key":"planted-opaque"}' + "]" * 1100,
         "7" * 5000,
-        '{"api_key":{"nested":"planted-opaque"}',
-        '{"branch":{"credentials":{"nested":"planted-opaque"}},"branch":{}}',
-        json.dumps(
-            {
-                "item": {
-                    "aggregated_output": (
-                        '{"branch":{"credentials":{"nested":"planted-opaque"}},'
-                        '"branch":{}}'
-                    )
-                }
-            }
-        ),
-        ('tool log\n{\n"creden\\u0074ials"\n:\n{"nested":"planted-opaque"}\n}\n'),
+        '{"api_key":{"nested":"planted-opaque"',
+        ('tool log\n{\n"creden\\u0074ials"\n:\n{"nested":"planted-opaque"\n'),
         json.dumps(
             {
                 "aggregated_output": (
-                    'tool log\n{\n"credentials":{"nested":"planted-opaque"}\n}'
+                    'tool log\n{\n"credentials":{"nested":"planted-opaque"\n'
                 )
             }
         ),
+        'log: "credentials": "%s" % "planted-opaque"',
+        'log: "credentials": "prefix" if condition else "planted-opaque"',
+        'log: "credentials": 1 + "planted-opaque"',
+        'log: "credentials": {match: /},planted-opaque/};',
     ],
 )
 def test_worker_seals_unsafe_output_as_failed_without_persisting_raw_bytes(
@@ -685,8 +678,9 @@ def test_worker_seals_unsafe_output_as_failed_without_persisting_raw_bytes(
 
 
 @pytest.mark.parametrize("mixed_diagnostics", [False, True])
+@pytest.mark.parametrize("duplicate_members", [False, True])
 def test_serialized_json_credentials_in_stderr_are_scrubbed_before_a_run_is_sealed(
-    core_store, tmp_path, mixed_diagnostics
+    core_store, tmp_path, mixed_diagnostics, duplicate_members
 ):
     from thesis_core.worker import work_once
 
@@ -700,8 +694,27 @@ def test_serialized_json_credentials_in_stderr_are_scrubbed_before_a_run_is_seal
             },
         }
     )
+    if duplicate_members:
+        duplicate_payload = (
+            '{"branch":{"credentials":{"nested":"opaque-planted-review-value"}},'
+            '"branch":{}}'
+        )
+        event = (
+            '{"id":"first","item":{"aggregated_output":'
+            + json.dumps(duplicate_payload)
+            + '},"branch":{"credentials":{"nested":"opaque-planted-review-value"}},'
+            '"branch":{},"id":"second","action":{"queries":'
+            '["https://agency.example/data?api_key=opaque-planted-review-value"]},'
+            '"action":{"queries":["public data"]}}'
+        )
     clean_event = json.dumps({"type": "turn.completed", "usage": {"input_tokens": 3}})
-    stderr = event + "\n" + clean_event + "\n"
+    bounded_values = (
+        'page: "cookie": {"operator":"equals","name":"consent",'
+        '"value":"opaque-planted-review-value"}; '
+        '"key": opaque_planted_identifier; "api_key": aa="opaque-planted-review-value";'
+    )
+    bounded_event = json.dumps({"aggregated_output": bounded_values})
+    stderr = event + "\n" + bounded_event + "\n" + clean_event + "\n"
     prefix = "[1/3] Building\n[2026-09-05 12:00:00] INFO starting\n{'a': 1}\n"
     # Representative prompt-echo shape preserved in the actual June 21 Codex
     # stderr for the 2026-06-20 DOL initial-claims forecast (lines 34 onwards).
@@ -756,10 +769,36 @@ def test_serialized_json_credentials_in_stderr_are_scrubbed_before_a_run_is_seal
         sealed = sealed[len(prefix) : -len(suffix)]
     lines = sealed.splitlines()
     assert lines[-1] == clean_event
+    assert json.loads(lines[1])["aggregated_output"] == (
+        'page: "cookie": "[REDACTED]"; "key": "[REDACTED]"; "api_key": "[REDACTED]";'
+    )
     inner = json.loads(json.loads(lines[0])["item"]["aggregated_output"])
-    assert inner["credentials"] == "[REDACTED]"
+    if duplicate_members:
+        assert inner == {"branch": {}}
+        inner_pairs = json.loads(
+            json.loads(lines[0])["item"]["aggregated_output"], object_pairs_hook=list
+        )
+        assert inner_pairs == [
+            ("branch", [("credentials", "[REDACTED]")]),
+            ("branch", []),
+        ]
+        pairs = json.loads(lines[0], object_pairs_hook=list)
+        assert [item for key, item in pairs if key == "id"] == ["first", "second"]
+        assert [item for key, item in pairs if key == "branch"] == [
+            [("credentials", "[REDACTED]")],
+            [],
+        ]
+        assert [item for key, item in pairs if key == "action"] == [
+            [("queries", ["https://agency.example/data?api_key=[REDACTED]"])],
+            [("queries", ["public data"])],
+        ]
+    else:
+        assert inner["credentials"] == "[REDACTED]"
     for digest in (run.stdout_hash, run.stderr_hash, run.raw_response_hash):
         assert b"opaque-planted-review-value" not in core_store.artifacts.read_bytes(
+            digest
+        )
+        assert b"opaque_planted_identifier" not in core_store.artifacts.read_bytes(
             digest
         )
 

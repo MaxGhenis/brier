@@ -45,9 +45,10 @@ from __future__ import annotations
 
 import ast
 import json
+import keyword
 import os
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 from urllib.parse import unquote_plus, urlsplit, urlunsplit
 
@@ -117,7 +118,7 @@ ENV_SECRET_ASSIGNMENT_RE = re.compile(r"(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)=\S+")
 # `"name": "value"` JSON fields with credential-shaped names — catches an
 # agent cat-ing auth/config files (auth.json and friends) into its trace.
 JSON_SECRET_FIELD_RE = re.compile(
-    r'"([A-Z0-9_-]+)"\s*:\s*"[^"\r\n]*"',
+    r'"([A-Z0-9_-]+)"\s*:\s*"([^"\r\n]*)"',
     re.IGNORECASE,
 )
 
@@ -155,6 +156,8 @@ def redact_text(text: str) -> str:
 
     def json_field(match: re.Match[str]) -> str:
         name = match.group(1)
+        if match.group(2) in ("", REDACTED_PLACEHOLDER):
+            return match.group(0)
         return (
             f'"{name}": "{REDACTED_PLACEHOLDER}"'
             if _text_credential_name(name)
@@ -348,6 +351,19 @@ NON_CREDENTIAL_TRAILING_WORDS = frozenset(
     }
 )
 
+# Exact public settings/package names found in captured source pages. These
+# names do not carry credentials, but their children still receive the normal
+# recursive inspection. Adapter-declared credential names take precedence.
+_PUBLIC_FIELD_NAMES = frozenset(
+    {
+        "historyfloorauthorization",
+        "cookiecontentblocker",
+        "cookiebot",
+        "tough-cookie",
+        "message_placeholder_cookieconsent_optout_marketing",
+    }
+)
+
 
 def credential_key_words(name: str) -> tuple[str, ...]:
     """Split a key/parameter/header name into lowercase words.
@@ -380,6 +396,8 @@ def is_credential_key(name: Any, extra: Iterable[str] = ()) -> bool:
             continue
         if "".join(credential_key_words(declared)) == collapsed:
             return True
+    if name.casefold() in _PUBLIC_FIELD_NAMES:
+        return False
     if words[-1] in NON_CREDENTIAL_TRAILING_WORDS:
         # A path to, hash of, or size of a credential is not the credential.
         return False
@@ -628,6 +646,25 @@ class RedactionError(ValueError):
     """The input cannot safely be preserved by the public-trace redactor."""
 
 
+class _DuplicateJsonObject(dict[str, Any]):
+    """Retain every original member for inspection and lossless serialization."""
+
+    def __init__(self, pairs: list[tuple[str, Any]]):
+        super().__init__(pairs)
+        self.original_pairs = tuple(pairs)
+
+    def __eq__(self, other: object) -> bool:
+        # A last-value dict comparison can conceal an earlier changed member
+        # and make the caller return original bytes containing a credential.
+        return (
+            isinstance(other, _DuplicateJsonObject)
+            and self.original_pairs == other.original_pairs
+        )
+
+    def __ne__(self, other: object) -> bool:
+        return not self == other
+
+
 def _redact_argv(
     value: list[Any] | tuple[Any, ...], credential_keys: Iterable[str], depth: int
 ) -> list[Any]:
@@ -639,7 +676,9 @@ def _redact_argv(
             result.append(REDACTED_PLACEHOLDER)
             redact_next = False
             continue
-        if isinstance(item, str):
+        if isinstance(item, str) and not _URL_SCHEME_RE.match(item):
+            # Query-bearing URLs in arbitrary string vectors are not atomic
+            # credential flags; their public parameters survive URL redaction.
             name, separator, _ = item.partition("=")
             if is_credential_key(name, credential_keys):
                 if separator:
@@ -710,6 +749,17 @@ def redact_value(
             redact_value(item, credential_keys=credential_keys, _depth=_depth + 1)
             for item in value
         ]
+    if isinstance(value, _DuplicateJsonObject):
+        pairs: list[tuple[str, Any]] = []
+        for key, item in value.original_pairs:
+            member = {key: item}
+            # The temporary one-member mapping occupies the SAME node depth.
+            # Never redact in the decoder hook or reset nested-string budgets.
+            cleaned = redact_value(
+                member, credential_keys=credential_keys, _depth=_depth
+            )
+            pairs.extend(cleaned.items())
+        return _DuplicateJsonObject(pairs)
     if isinstance(value, dict):
         redacted: dict[Any, Any] = {}
         for key, item in value.items():
@@ -761,15 +811,47 @@ def _check_json_depth(text: str, *, used_depth: int = 0) -> None:
             depth -= 1
 
 
-def _unique_json_members(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+def _json_object_members(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
         if key in result:
-            # Returning original bytes after inspecting only the last duplicate
-            # would preserve earlier credential-bearing members unseen.
-            raise RedactionError("Duplicate JSON members cannot be safely redacted")
+            return _DuplicateJsonObject(pairs)
         result[key] = value
     return result
+
+
+def _dump_redacted_json(value: Any, indent: int | None, level: int = 0) -> str:
+    """Keep inspected duplicate members when another part of a document changes."""
+    if isinstance(value, dict):
+        pairs = (
+            value.original_pairs
+            if isinstance(value, _DuplicateJsonObject)
+            else value.items()
+        )
+        items = [
+            f"{json.dumps(key)}: {_dump_redacted_json(item, indent, level + 1)}"
+            for key, item in pairs
+        ]
+        opening, closing = "{", "}"
+    elif isinstance(value, list):
+        items = [_dump_redacted_json(item, indent, level + 1) for item in value]
+        opening, closing = "[", "]"
+    else:
+        return json.dumps(value)
+    if not items:
+        return opening + closing
+    if indent is None:
+        return opening + ", ".join(items) + closing
+    pad = " " * indent * (level + 1)
+    return (
+        opening
+        + "\n"
+        + pad
+        + (",\n" + pad).join(items)
+        + "\n"
+        + " " * indent * level
+        + closing
+    )
 
 
 def _redact_json_text(
@@ -781,9 +863,9 @@ def _redact_json_text(
 ) -> str:
     try:
         _check_json_depth(text, used_depth=_depth)
-        payload = json.loads(text, object_pairs_hook=_unique_json_members)
+        payload = json.loads(text, object_pairs_hook=_json_object_members)
         redacted = redact_value(payload, credential_keys=credential_keys, _depth=_depth)
-        return text if redacted == payload else json.dumps(redacted, indent=indent)
+        return text if redacted == payload else _dump_redacted_json(redacted, indent)
     except json.JSONDecodeError:
         raise
     except (ValueError, RecursionError) as exc:
@@ -793,18 +875,165 @@ def _redact_json_text(
         raise RedactionError("JSON cannot be safely redacted") from exc
 
 
-def _refuse_credential_fragments(text: str, credential_keys: Iterable[str]) -> None:
-    """Inspect unparsed fragments, including multiline and escaped field names.
+_SAFE_FRAGMENT_SCALAR = re.compile(
+    r"(?:null|true|false|None|True|False|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?"
+    r"(?:[eE][+-]?[0-9]+)?)(?=$|[\s,}\];])"
+)
 
-    This scanner consumes quoted tokens once. JSON decoding of complete quoted
-    names recognizes unicode escapes; Python repr quotes cover diagnostic dicts.
-    A credential field in a fragment has no reliable value boundary, so it must
-    not be persisted through a text-only fallback. Ordinary log labels and public
-    JSON snippets do not imply credentials and remain intact.
+# Fragment scanning sees prose as well as actual field syntax. Bound decoded
+# names and admit ordinary identifier separators, not whole quoted paragraphs
+# or markup. Real keys in parsed JSON are inspected without this lexical limit.
+_MAX_FRAGMENT_NAME_LENGTH = 256
+_FRAGMENT_NAME_RE = re.compile(r"[A-Za-z0-9_.$@:/+ -]+\Z")
+_FRAGMENT_IDENTIFIER_RE = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*")
+_PLAIN_PROSE_SUFFIX_RE = re.compile(
+    r"[ \t]+[A-Za-z]+(?:[ \t]+[A-Za-z]+)*[.!?]?[ \t]*(?:\r?\n)?\Z"
+)
+_EXPRESSION_WORDS = frozenset(
+    word.casefold()
+    for word in keyword.kwlist
+    + ["instanceof", "typeof", "void", "delete", "new", "function"]
+)
+_MAX_PYTHON_LITERAL_BYTES = 64 * 1024
+
+
+def _fragment_value_delimited(text: str, end: int) -> bool:
+    while end < len(text) and text[end].isspace():
+        end += 1
+    return end == len(text) or text[end] in ",;)]}" or text.startswith("</", end)
+
+
+def _scalar_value_delimited(text: str, end: int) -> bool:
+    if _fragment_value_delimited(text, end):
+        return True
+    # A diagnostic may append plain prose after its value. Keep that narrow:
+    # no code punctuation, keywords, multiline expression or unbounded scan.
+    if len(text) - end > 256:
+        return False
+    suffix = text[end:]
+    return bool(_PLAIN_PROSE_SUFFIX_RE.fullmatch(suffix)) and not any(
+        word.casefold() in _EXPRESSION_WORDS
+        for word in suffix.strip(" .!?\r\n\t").split()
+    )
+
+
+def _validate_container_literal(text: str, start: int, end: int) -> None:
+    literal = text[start:end]
+    try:
+        json.loads(literal)
+        return
+    except json.JSONDecodeError:
+        pass
+    except (ValueError, RecursionError) as exc:
+        raise RedactionError("Credential container cannot be safely parsed") from exc
+    # Existing Python repr logs are supported without compiling arbitrarily
+    # large source input. The bracket scanner already bounded shared depth.
+    if (
+        len(literal) > _MAX_PYTHON_LITERAL_BYTES
+        or len(literal.encode()) > _MAX_PYTHON_LITERAL_BYTES
+    ):
+        raise RedactionError("Credential repr exceeds the safe parser size limit")
+    try:
+        ast.literal_eval(literal)
+    except (ValueError, SyntaxError, RecursionError) as exc:
+        raise RedactionError("Credential container is not a supported literal") from exc
+
+
+def _bounded_container_end(text: str, start: int, used_depth: int) -> int:
+    """Find a complete removable container with one bounded, quote-aware scan."""
+    stack: list[str] = []
+    quote: str | None = None
+    escaped = False
+    for position in range(start, len(text)):
+        character = text[position]
+        if quote:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == quote:
+                quote = None
+            continue
+        if character in ('"', "'"):
+            if text.startswith(character * 3, position):
+                raise RedactionError("Ambiguous credential container quoting")
+            quote = character
+        elif character in "`#" or text.startswith(("//", "/*"), position):
+            # Template literals/comments can contain unmatched brackets whose
+            # apparent closer is not the end of the credential value.
+            raise RedactionError("Ambiguous credential container syntax")
+        elif character in "[{":
+            stack.append("]" if character == "[" else "}")
+            if used_depth + len(stack) > MAX_REDACTION_DEPTH:
+                raise RedactionError("Credential container exceeds redaction depth")
+        elif character in "]}":
+            if not stack or stack.pop() != character:
+                raise RedactionError("Mismatched credential container brackets")
+            if not stack:
+                end = position + 1
+                if _fragment_value_delimited(text, end):
+                    _validate_container_literal(text, start, end)
+                    return end
+                raise RedactionError("Ambiguous credential container continuation")
+    raise RedactionError("Unterminated credential container")
+
+
+def _quoted_token_end(text: str, start: int) -> int | None:
+    quote = text[start]
+    cursor = start + 1
+    while cursor < len(text):
+        if text[cursor] == "\\":
+            cursor += 2
+        elif text[cursor] == quote:
+            return cursor + 1
+        else:
+            cursor += 1
+    return None
+
+
+def _decode_quoted_name(token: str) -> str:
+    # Almost every source/page key is unescaped. Avoid a JSON decoder or Python
+    # compiler invocation for each key in a large captured tool response.
+    if "\\" not in token:
+        return token[1:-1]
+    try:
+        if token[0] == '"':
+            try:
+                return json.loads(token)
+            except json.JSONDecodeError:
+                pass  # Python repr may use double quotes and Python escapes.
+        return ast.literal_eval(token)
+    except (ValueError, SyntaxError, RecursionError) as exc:
+        raise RedactionError(
+            "Malformed quoted field cannot be safely redacted"
+        ) from exc
+
+
+def _credential_fragment_edits(
+    text: str,
+    credential_keys: Iterable[str],
+    scalar_ranges: Sequence[tuple[int, int]] = (),
+    *,
+    value_text: str | None = None,
+    used_depth: int = 0,
+) -> list[tuple[int, int, str]]:
+    """Bound and scrub scalar values; refuse unsafe structural credentials.
+
+    Adjacent unescaped quotes are tracked separately for each quote type, so
+    prose apostrophes cannot hide a later JSON key. Candidate spans are linear
+    in the input. Complete bounded values are replaced by their actual offsets,
+    preserving escaped names and safely handling quoted values across lines.
     """
+    edits: list[tuple[int, int, str]] = []
     previous: dict[str, int | None] = {'"': None, "'": None}
+    classifications: dict[str, tuple[bool, bool]] = {}
     backslashes = 0
+    scalar_index = 0
+    covered_until = 0
+    values = text if value_text is None else value_text
     for position, character in enumerate(text):
+        if position < covered_until:
+            continue
         if character == "\\":
             backslashes += 1
             continue
@@ -821,43 +1050,244 @@ def _refuse_credential_fragments(text: str, credential_keys: Iterable[str]) -> N
             after += 1
         if after >= len(text) or text[after] != ":":
             continue
-        token = text[start : position + 1]
-        try:
-            key = json.loads(token) if character == '"' else ast.literal_eval(token)
-        except (ValueError, SyntaxError, RecursionError) as exc:
-            raise RedactionError(
-                "Malformed quoted field cannot be safely redacted"
-            ) from exc
-        if isinstance(key, str) and (
-            _text_credential_name(key) or is_credential_key(key, credential_keys)
+        before = start - 1
+        while before >= 0 and values[before].isspace():
+            before -= 1
+        if before >= 0 and values[before] == "=":
+            # In captured conditional code, `name="key":...` is an
+            # assignment operand followed by a ternary separator. Its quoted
+            # value is not a field name, even if it contains a credential word.
+            continue
+        if before >= 0 and values[before] == "?":
+            condition = before - 1
+            while condition >= 0 and values[condition].isspace():
+                condition -= 1
+            alternate = after + 1
+            while alternate < len(values) and values[alternate].isspace():
+                alternate += 1
+            identifier = _FRAGMENT_IDENTIFIER_RE.match(values, alternate)
+            if identifier:
+                continuation = identifier.end()
+                while continuation < len(values) and values[continuation].isspace():
+                    continuation += 1
+                if (
+                    condition >= 0
+                    and values[condition] in ")]"
+                    and values.startswith("?", continuation)
+                ):
+                    # `predicate()?"password":flag?call():other` contains a
+                    # quoted branch result, not a credential field. Ordinary
+                    # question prose followed by a field keeps its protection.
+                    continue
+        while (
+            scalar_index < len(scalar_ranges)
+            and scalar_ranges[scalar_index][1] <= position
         ):
+            scalar_index += 1
+        if scalar_index < len(scalar_ranges):
+            scalar_start, scalar_end = scalar_ranges[scalar_index]
+            if scalar_start < start and position < scalar_end - 1:
+                # Its decoded contents were already inspected. Raw interior
+                # quote syntax is not an independent fragment or key boundary.
+                # The complete quoted token remains available as a multiline key.
+                continue
+        # A Python \U escape uses at most ten bytes per decoded character.
+        # Avoid decoding an arbitrarily large pseudo-key found between quotes.
+        if position - start - 1 > _MAX_FRAGMENT_NAME_LENGTH * 10:
+            continue
+        key = _decode_quoted_name(text[start : position + 1])
+        if len(key) > _MAX_FRAGMENT_NAME_LENGTH or not _FRAGMENT_NAME_RE.fullmatch(key):
+            continue
+        if key in classifications:
+            structural, sensitive = classifications[key]
+        else:
+            structural = is_credential_key(key, credential_keys)
+            sensitive = structural or _text_credential_name(key)
+            if len(classifications) < 512:
+                classifications[key] = structural, sensitive
+        if not sensitive:
+            continue
+        value_start = after + 1
+        while value_start < len(values) and values[value_start].isspace():
+            value_start += 1
+        if value_start >= len(values):
+            if structural:
+                raise RedactionError("Credential fragment has no bounded value")
+            continue
+        scalar = _SAFE_FRAGMENT_SCALAR.match(values, value_start)
+        if scalar:
+            if structural and not _scalar_value_delimited(values, scalar.end()):
+                raise RedactionError("Ambiguous credential scalar continuation")
+            if structural and scalar.group() not in (
+                "null",
+                "true",
+                "false",
+                "None",
+                "True",
+                "False",
+            ):
+                edits.append(
+                    (value_start, scalar.end(), json.dumps(REDACTED_PLACEHOLDER))
+                )
+            continue
+        if values.startswith(REDACTED_PLACEHOLDER, value_start):
+            end = value_start + len(REDACTED_PLACEHOLDER)
+            if _scalar_value_delimited(values, end):
+                continue
+        if structural and values[value_start] in "[{":
+            end = _bounded_container_end(values, value_start, used_depth)
+            edits.append((value_start, end, json.dumps(REDACTED_PLACEHOLDER)))
+            covered_until = end
+            previous = {'"': None, "'": None}
+            continue
+        if structural:
+            identifier = _FRAGMENT_IDENTIFIER_RE.match(values, value_start)
+            if identifier and _fragment_value_delimited(values, identifier.end()):
+                edits.append(
+                    (value_start, identifier.end(), json.dumps(REDACTED_PLACEHOLDER))
+                )
+                continue
+            if identifier:
+                assignment = identifier.end()
+                if (
+                    values.startswith("=", assignment)
+                    and assignment + 1 < len(values)
+                    and values[assignment + 1] in ('"', "'")
+                ):
+                    end = _quoted_token_end(values, assignment + 1)
+                    following = end
+                    if following is not None:
+                        while following < len(values) and values[following].isspace():
+                            following += 1
+                    if end is not None and (
+                        _fragment_value_delimited(values, end)
+                        or values.startswith((">", "/>"), following)
+                    ):
+                        # A captured markup attribute is one value. Removing
+                        # only its identifier would expose the quoted contents.
+                        edits.append(
+                            (value_start, end, json.dumps(REDACTED_PLACEHOLDER))
+                        )
+                        covered_until = end
+                        previous = {'"': None, "'": None}
+                        continue
+        if values[value_start] in ('"', "'"):
+            end = _quoted_token_end(values, value_start)
+            if end is not None and _scalar_value_delimited(values, end):
+                value = values[value_start + 1 : end - 1]
+                if value in ("", REDACTED_PLACEHOLDER):
+                    continue
+                edits.append((value_start, end, json.dumps(REDACTED_PLACEHOLDER)))
+                continue
+            # Do not fall back to text patterns that only replace an initial
+            # quoted token while preserving a later operand of its expression.
+            raise RedactionError("Credential string has no safe scalar boundary")
+        # The substring defense still scrubs bounded strings for legacy names
+        # like census_key, but cannot make source_row_keys/modal_keyboard source
+        # snippets into credential-bearing containers.
+        if structural:
             raise RedactionError("Credential fragment cannot be safely redacted")
+    return edits
+
+
+def _apply_fragment_edits(
+    text: str,
+    parsed: list[tuple[int, int, str]],
+    fragments: list[tuple[int, int, str]],
+) -> str:
+    # Fragment values can contain a parsed JSON line. Their outer credential
+    # boundary wins; never reinsert that line into an already-redacted value.
+    bounded: list[tuple[int, int, str]] = []
+    for edit in fragments:
+        if bounded and edit[0] < bounded[-1][1]:
+            if edit[1] <= bounded[-1][1]:
+                continue
+            raise RedactionError("Overlapping credential value boundaries")
+        bounded.append(edit)
+    selected: list[tuple[int, int, str]] = []
+    outer_fragments: list[tuple[int, int, str]] = []
+    index = 0
+    for fragment in bounded:
+        start, end, _ = fragment
+        while index < len(parsed) and parsed[index][1] <= start:
+            selected.append(parsed[index])
+            index += 1
+        if index == len(parsed) or parsed[index][0] >= end:
+            outer_fragments.append(fragment)
+            continue
+        parsed_start, parsed_end, _ = parsed[index]
+        if (
+            parsed_start <= start
+            and parsed_end >= end
+            and (parsed_start < start or parsed_end > end)
+        ):
+            # A fragment inside a JSON scalar string was already redacted and
+            # escaped by that scalar's parser. Inserting its raw replacement
+            # into the enclosing quoted bytes would break their JSON syntax.
+            continue
+        if start <= parsed_start and end >= parsed_end:
+            # An outer credential value wins, including equal spans: the scalar
+            # parser cannot see a credential key on the preceding line.
+            while index < len(parsed) and parsed[index][0] < end:
+                if parsed[index][1] > end:
+                    raise RedactionError("Crossing parsed and credential boundaries")
+                index += 1
+            outer_fragments.append(fragment)
+            continue
+        raise RedactionError("Crossing parsed and credential boundaries")
+    selected.extend(parsed[index:])
+    # Both sequences are ordered by their original offsets; merging is linear.
+    from heapq import merge
+
+    pieces: list[str] = []
+    cursor = 0
+    for start, end, replacement in merge(selected, outer_fragments):
+        # Only unparsed gaps get plain-text patterns. Applying them to a JSONL
+        # event can consume escaped newlines, quotes and its closing braces.
+        pieces.extend((redact_text(text[cursor:start]), replacement))
+        cursor = end
+    pieces.append(redact_text(text[cursor:]))
+    return "".join(pieces)
 
 
 def _redact_mixed_text(
     text: str, *, credential_keys: Iterable[str] = (), _depth: int = 0
 ) -> str:
-    """Redact complete JSONL events and inspect only the remaining fragments."""
+    """Scrub JSONL events, bounded scalar fragments and ordinary diagnostics."""
     if "\n" not in text:
-        _refuse_credential_fragments(text, credential_keys)
-        return redact_text(text)
-    output: list[str] = []
+        edits = _credential_fragment_edits(text, credential_keys, used_depth=_depth)
+        return _apply_fragment_edits(text, [], edits)
+    parsed: list[tuple[int, int, str]] = []
+    scalars: list[tuple[int, int]] = []
     fragments: list[str] = []
+    offset = 0
     for line in text.split("\n"):
         try:
-            output.append(
-                _redact_json_text(line, credential_keys=credential_keys, _depth=_depth)
+            cleaned = _redact_json_text(
+                line, credential_keys=credential_keys, _depth=_depth
             )
-            # A complete event was already structurally inspected. Its keys
-            # must not make a benign mixed stream fail the fragment check.
-            # Scalar string lines can be a multiline object's key. Retain them
-            # in fragment context until their following colon is inspected.
-            fragments.append("" if line.lstrip().startswith(("{", "[")) else line)
+            container = line.lstrip().startswith(("{", "["))
+            # The actual token bounds exclude indentation for containers too:
+            # a credential key on an earlier line owns the whole value token.
+            start = len(line) - len(line.lstrip())
+            end = offset + len(line.rstrip())
+            parsed.append((offset + start, end, cleaned.strip()))
+            if not container:
+                scalars.append((offset + start, end))
+            # Keep original offsets. Scalar string lines may be multiline keys;
+            # only complete containers have independent key/value structure.
+            fragments.append(" " * len(line) if container else line)
         except json.JSONDecodeError:
-            output.append(redact_text(line))
             fragments.append(line)
-    _refuse_credential_fragments("\n".join(fragments), credential_keys)
-    return "\n".join(output)
+        offset += len(line) + 1
+    edits = _credential_fragment_edits(
+        "\n".join(fragments),
+        credential_keys,
+        scalars,
+        value_text=text,
+        used_depth=_depth,
+    )
+    return _apply_fragment_edits(text, parsed, edits)
 
 
 def redact_stream_line(line: str) -> str:
