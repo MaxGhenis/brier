@@ -9,7 +9,7 @@
  */
 
 /** Values the API may return for a row's experiment mode. */
-export type CoreMode = "prospective" | "replay";
+export type CoreMode = "prospective" | "replay" | "live_pilot";
 
 /**
  * A field reading that keeps the difference between "the API said there is no
@@ -365,7 +365,7 @@ export function readMode(source: Record<string, unknown>): ModeReading {
   if (!("mode" in source)) return { state: "missing" };
   const value = source.mode;
   if (value === undefined) return { state: "missing" };
-  if (value === "prospective" || value === "replay") {
+  if (value === "prospective" || value === "replay" || value === "live_pilot") {
     return { state: "value", value };
   }
   if (typeof value === "string" && value.length > 0) {
@@ -409,6 +409,8 @@ export type TimestampReading =
   | { state: "unrecognized"; field: string };
 
 export type TimingOrdering =
+  | { state: "pilot_satisfied" }
+  | { state: "pilot_violated" }
   | { state: "prospective_satisfied" }
   | { state: "prospective_violated" }
   | { state: "replay_later_freeze" }
@@ -525,6 +527,11 @@ export function assessOrdering(
     return effective < declared
       ? { state: "prospective_satisfied" }
       : { state: "prospective_violated" };
+  }
+  if (mode.value === "live_pilot") {
+    return effective < declared
+      ? { state: "pilot_satisfied" }
+      : { state: "pilot_violated" };
   }
   // Comparison resolution is one millisecond, so the replay wording says "at or
   // before" rather than claiming strict precedence it cannot establish.

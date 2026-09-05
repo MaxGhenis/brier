@@ -61,7 +61,11 @@ export function describeTimestampSource(reading: TimestampReading): string {
 export function describeMode(reading: ModeReading): string {
   switch (reading.state) {
     case "value":
-      return reading.value === "prospective" ? "Prospective" : "Replay";
+      return {
+        prospective: "Prospective",
+        replay: "Replay",
+        live_pilot: "Live pilot · unranked",
+      }[reading.value];
     case "unrecognized":
       return reading.raw
         ? `Mode unrecognized (${reading.raw})`
@@ -73,6 +77,10 @@ export function describeMode(reading: ModeReading): string {
 
 export function describeOrdering(ordering: TimingOrdering): string {
   switch (ordering.state) {
+    case "pilot_satisfied":
+      return "Live pilot: bundle frozen before the cutoff; permanently unranked. This is not externally qualified ordering.";
+    case "pilot_violated":
+      return "Live pilot: bundle freeze is not before the cutoff; permanently unranked.";
     case "prospective_satisfied":
       return "Bundle frozen before the declared cutoff.";
     case "prospective_violated":

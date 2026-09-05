@@ -480,7 +480,8 @@
         "mode": {
           "enum": [
             "prospective",
-            "replay"
+            "replay",
+            "live_pilot"
           ],
           "title": "Mode",
           "type": "string"
@@ -571,7 +572,8 @@
         "mode": {
           "enum": [
             "prospective",
-            "replay"
+            "replay",
+            "live_pilot"
           ],
           "title": "Mode",
           "type": "string"
@@ -665,14 +667,18 @@
         "mode": {
           "enum": [
             "prospective",
-            "replay"
+            "replay",
+            "live_pilot"
           ],
           "title": "Mode",
           "type": "string"
         },
         "ranking_policy": {
-          "const": "complete_paired_normalized_crps_v1",
           "default": "complete_paired_normalized_crps_v1",
+          "enum": [
+            "complete_paired_normalized_crps_v1",
+            "unranked_live_pilot_v1"
+          ],
           "title": "Ranking Policy",
           "type": "string"
         }
@@ -1797,6 +1803,8 @@
           "enum": [
             "eligible",
             "replay",
+            "live_pilot",
+            "late_pilot_execution",
             "invalid_contract",
             "invalid_resolution",
             "missing_artifact",

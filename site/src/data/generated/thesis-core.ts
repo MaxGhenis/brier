@@ -66,7 +66,7 @@ export type EvaluationTask = {
   readonly "max_attempts"?: number;
   readonly "selection_rule"?: "first_valid";
   readonly "execution_policy": "operator_subprocess" | "baseline";
-  readonly "mode": "prospective" | "replay";
+  readonly "mode": "prospective" | "replay" | "live_pilot";
 };
 
 export type EvidenceBundle = {
@@ -77,7 +77,7 @@ export type EvidenceBundle = {
   readonly "artifact_refs": ReadonlyArray<ArtifactRef>;
   readonly "information_cutoff": string;
   readonly "policy_version"?: "accepted_and_available_v1";
-  readonly "mode": "prospective" | "replay";
+  readonly "mode": "prospective" | "replay" | "live_pilot";
 };
 
 export type Experiment = {
@@ -89,8 +89,8 @@ export type Experiment = {
   readonly "baseline_forecaster_id": string;
   readonly "normalization_ids"?: ReadonlyArray<string>;
   readonly "registration_deadline": string;
-  readonly "mode": "prospective" | "replay";
-  readonly "ranking_policy"?: "complete_paired_normalized_crps_v1";
+  readonly "mode": "prospective" | "replay" | "live_pilot";
+  readonly "ranking_policy"?: "complete_paired_normalized_crps_v1" | "unranked_live_pilot_v1";
 };
 
 export type ForecastRun = {
@@ -247,7 +247,7 @@ export type ScoreRecord = {
   readonly "publication_proof_id"?: string | null;
   readonly "attempt_result_ids"?: ReadonlyArray<string>;
   readonly "scoring_version"?: "piecewise_linear_crps_v1";
-  readonly "eligibility": "eligible" | "replay" | "invalid_contract" | "invalid_resolution" | "missing_artifact" | "missing_acknowledgement" | "evidence_unavailable" | "invalid_normalization" | "unresolved_attempt" | "not_selected" | "late_attempt_reconciliation" | "outcome_availability_unknown" | "invalid_publication" | "late_publication" | "missing_cohort_proof" | "invalid_cohort" | "late_cohort" | "execution_policy_mismatch";
+  readonly "eligibility": "eligible" | "replay" | "live_pilot" | "late_pilot_execution" | "invalid_contract" | "invalid_resolution" | "missing_artifact" | "missing_acknowledgement" | "evidence_unavailable" | "invalid_normalization" | "unresolved_attempt" | "not_selected" | "late_attempt_reconciliation" | "outcome_availability_unknown" | "invalid_publication" | "late_publication" | "missing_cohort_proof" | "invalid_cohort" | "late_cohort" | "execution_policy_mismatch";
   readonly "crps": number | null;
   readonly "pit": number | null;
   readonly "normalized_crps": number | null;

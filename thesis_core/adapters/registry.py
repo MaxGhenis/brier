@@ -38,10 +38,13 @@ from .timing import (
     BEA_CALENDAR_PARSER,
     BEA_CALENDAR_URL,
     BEA_RELEASE_PARSER,
+    STATCAN_CPI_PORTAL_URL,
+    STATCAN_CPI_RELEASE_PARSER,
     STATCAN_PUBLICATION_PARSER,
     bea_calendar_publication,
     bea_embargo_publication,
     quarter_start,
+    statcan_cpi_next_release,
     statcan_publication,
 )
 
@@ -544,6 +547,16 @@ def release_evidence_from_bytes(
     artifacts: ArtifactStore,
 ) -> ReleaseEvidence:
     validate_source(source)
+    if source.adapter_id == "statcan-cpi-yoy":
+        if source_url != STATCAN_CPI_PORTAL_URL:
+            raise ValueError("release proof URL is not the exact official CPI portal")
+        return ReleaseEvidence(
+            raw_value=statcan_cpi_next_release(raw, measurement_period),
+            timezone="America/Toronto",
+            source_url=source_url,
+            parser_version=STATCAN_CPI_RELEASE_PARSER,
+            artifact=_artifact(artifacts, raw, "text/html"),
+        )
     if source.adapter_id != "bea-fixed-investment":
         raise ValueError(
             "this adapter has no supported first-print release-evidence parser"
@@ -578,9 +591,13 @@ def capture_release_evidence(
     mode: str = "live",
 ) -> tuple[SourceExchange, ReleaseEvidence]:
     source = get_source(adapter_id)
-    if adapter_id != "bea-fixed-investment":
-        raise ValueError("future release capture is currently supported for BEA only")
-    request = HttpRequest(BEA_CALENDAR_URL, role="release")
+    calendars = {
+        "bea-fixed-investment": BEA_CALENDAR_URL,
+        "statcan-cpi-yoy": STATCAN_CPI_PORTAL_URL,
+    }
+    if adapter_id not in calendars:
+        raise ValueError("future release capture is unsupported for this source")
+    request = HttpRequest(calendars[adapter_id], role="release")
     response = (fetch or _fetch)(request)
     exchange = _archive(
         source, request, response, artifacts, mode, dt.datetime.now(dt.timezone.utc)

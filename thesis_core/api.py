@@ -243,6 +243,9 @@ def create_app(store: Store | None = None) -> FastAPI:
 
         return {"items": leaderboard_rows(current_store(), experiment_id)}
 
+    from .lab import mount_routes
+
+    mount_routes(application, current_store)
     return application
 
 

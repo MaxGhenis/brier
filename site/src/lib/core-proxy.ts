@@ -1,3 +1,5 @@
+import { labRoute, validLabQuery } from "./lab-paths";
+
 /**
  * Read-only server proxy to the Thesis core API.
  *
@@ -52,14 +54,18 @@ const ERROR_MESSAGES: Record<CoreProxyErrorCode, string> = {
     "The configured core API base URL is not a usable http(s) URL.",
   invalid_path: "The requested core API path is not a valid endpoint path.",
   endpoint_not_allowed: "That core API endpoint is not on the read allowlist.",
-  invalid_query: "The request carried a query parameter this endpoint does not accept.",
+  invalid_query:
+    "The request carried a query parameter this endpoint does not accept.",
   upstream_unavailable: "The core API could not be reached.",
   upstream_timeout: "The core API did not respond within the proxy deadline.",
-  upstream_redirect: "The core API answered with a redirect, which this proxy never follows.",
+  upstream_redirect:
+    "The core API answered with a redirect, which this proxy never follows.",
   upstream_status: "The core API returned an error status.",
-  upstream_media_type: "The core API returned a response that was not application/json.",
+  upstream_media_type:
+    "The core API returned a response that was not application/json.",
   upstream_invalid_json: "The core API returned a body that is not valid JSON.",
-  upstream_response_too_large: "The core API response exceeded the proxy size limit.",
+  upstream_response_too_large:
+    "The core API response exceeded the proxy size limit.",
 };
 
 const ERROR_STATUS: Record<CoreProxyErrorCode, number> = {
@@ -77,7 +83,13 @@ const ERROR_STATUS: Record<CoreProxyErrorCode, number> = {
   upstream_response_too_large: 502,
 };
 
-export type CoreQueryName = "limit" | "after" | "experiment_id" | "as_of";
+export type CoreQueryName =
+  | "limit"
+  | "after"
+  | "experiment_id"
+  | "as_of"
+  | "method_limit"
+  | "method_after";
 
 /**
  * Exact collection endpoints, each with the query keys it accepts. Anything
@@ -125,8 +137,16 @@ const ISO_INSTANT =
 export function isStrictIsoInstant(value: string): boolean {
   const match = ISO_INSTANT.exec(value);
   if (!match) return false;
-  const [, yearText, monthText, dayText, hourText, minuteText, secondText, zone] =
-    match;
+  const [
+    ,
+    yearText,
+    monthText,
+    dayText,
+    hourText,
+    minuteText,
+    secondText,
+    zone,
+  ] = match;
   const year = Number(yearText);
   const month = Number(monthText);
   const day = Number(dayText);
@@ -158,10 +178,13 @@ function isValidQueryValue(name: CoreQueryName, value: string): boolean {
       return limit >= 1 && limit <= 100;
     }
     case "after":
+    case "method_after":
     case "experiment_id":
       return HEX64.test(value);
     case "as_of":
       return isStrictIsoInstant(value);
+    case "method_limit":
+      return /^[1-9][0-9]?$/.test(value) && Number(value) <= 10;
   }
 }
 
@@ -196,7 +219,11 @@ export function resolveProxyTarget(
   try {
     url = new URL(requestUrl);
   } catch {
-    return { ok: false, code: "invalid_path", reason: "unparseable request url" };
+    return {
+      ok: false,
+      code: "invalid_path",
+      reason: "unparseable request url",
+    };
   }
 
   const pathname = url.pathname;
@@ -225,7 +252,11 @@ export function resolveProxyTarget(
     return { ok: false, code: "invalid_path", reason: "percent-encoding" };
   }
   if (raw.includes(":") || raw.startsWith("/")) {
-    return { ok: false, code: "invalid_path", reason: "absolute or scheme-like path" };
+    return {
+      ok: false,
+      code: "invalid_path",
+      reason: "absolute or scheme-like path",
+    };
   }
 
   const segments = raw.split("/");
@@ -237,12 +268,19 @@ export function resolveProxyTarget(
       return { ok: false, code: "invalid_path", reason: "dot segment" };
     }
     if (!SEGMENT.test(segment)) {
-      return { ok: false, code: "invalid_path", reason: "unexpected characters" };
+      return {
+        ok: false,
+        code: "invalid_path",
+        reason: "unexpected characters",
+      };
     }
   }
 
   let allowedQueries: readonly CoreQueryName[];
-  if (segments.length === 1) {
+  const lab = labRoute(segments);
+  if (lab) {
+    allowedQueries = lab.queries as readonly CoreQueryName[];
+  } else if (segments.length === 1) {
     const allowed = Object.prototype.hasOwnProperty.call(
       CORE_COLLECTION_ENDPOINTS,
       segments[0],
@@ -250,7 +288,11 @@ export function resolveProxyTarget(
       ? CORE_COLLECTION_ENDPOINTS[segments[0]]
       : undefined;
     if (!allowed) {
-      return { ok: false, code: "endpoint_not_allowed", reason: "unknown collection" };
+      return {
+        ok: false,
+        code: "endpoint_not_allowed",
+        reason: "unknown collection",
+      };
     }
     allowedQueries = allowed;
   } else if (segments.length === 2 && segments[0] === CORE_RECORD_COLLECTION) {
@@ -263,7 +305,11 @@ export function resolveProxyTarget(
     }
     allowedQueries = [];
   } else {
-    return { ok: false, code: "endpoint_not_allowed", reason: "unknown path depth" };
+    return {
+      ok: false,
+      code: "endpoint_not_allowed",
+      reason: "unknown path depth",
+    };
   }
 
   const params = url.searchParams;
@@ -275,12 +321,32 @@ export function resolveProxyTarget(
       return { ok: false, code: "invalid_query", reason: "repeated query key" };
     }
     if (!(allowedQueries as readonly string[]).includes(key)) {
-      return { ok: false, code: "invalid_query", reason: "query key not allowed here" };
+      return {
+        ok: false,
+        code: "invalid_query",
+        reason: "query key not allowed here",
+      };
     }
     const value = params.get(key) ?? "";
-    if (!isValidQueryValue(key as CoreQueryName, value)) {
-      return { ok: false, code: "invalid_query", reason: "query value rejected" };
+    if (
+      !(lab
+        ? validLabQuery(key, value, lab)
+        : isValidQueryValue(key as CoreQueryName, value))
+    ) {
+      return {
+        ok: false,
+        code: "invalid_query",
+        reason: "query value rejected",
+      };
     }
+  }
+
+  if (lab?.required?.some((key) => !params.has(key))) {
+    return {
+      ok: false,
+      code: "invalid_query",
+      reason: "missing required query",
+    };
   }
 
   // Rebuild the query from validated pairs in a fixed order rather than
@@ -302,7 +368,10 @@ interface UpstreamBase {
 
 interface UpstreamBaseRejection {
   ok: false;
-  code: Extract<CoreProxyErrorCode, "core_api_unconfigured" | "core_api_misconfigured">;
+  code: Extract<
+    CoreProxyErrorCode,
+    "core_api_unconfigured" | "core_api_misconfigured"
+  >;
 }
 
 export function resolveUpstreamBase(
@@ -371,7 +440,10 @@ class UpstreamTimeout extends Error {}
  * would exhaust the connection pool. Cancelling is fire-and-forget: a stalled
  * source must not delay the error we already decided to return.
  */
-function releaseUpstream(response: Response, controller: AbortController): void {
+function releaseUpstream(
+  response: Response,
+  controller: AbortController,
+): void {
   void response.body?.cancel().catch(() => {});
   controller.abort();
 }
@@ -456,7 +528,9 @@ export async function handleCoreProxyRequest(
     }
     if (!response.ok) {
       releaseUpstream(response, controller);
-      return coreProxyError("upstream_status", { upstreamStatus: response.status });
+      return coreProxyError("upstream_status", {
+        upstreamStatus: response.status,
+      });
     }
     if (!isJsonMediaType(response.headers.get("content-type"))) {
       releaseUpstream(response, controller);
@@ -467,7 +541,10 @@ export async function handleCoreProxyRequest(
     // count of bytes read below, so an understated or absent header cannot
     // buy the upstream any extra bytes.
     const declaredLength = Number(response.headers.get("content-length"));
-    if (Number.isFinite(declaredLength) && declaredLength > MAX_UPSTREAM_BYTES) {
+    if (
+      Number.isFinite(declaredLength) &&
+      declaredLength > MAX_UPSTREAM_BYTES
+    ) {
       releaseUpstream(response, controller);
       return coreProxyError("upstream_response_too_large");
     }

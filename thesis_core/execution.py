@@ -390,6 +390,18 @@ def execute_forecast(
     cohort_proof_id, cohort_token_hash = _cohort_binding(
         task, claim, verify_cohort_proof
     )
+    pilot = task.mode == "live_pilot"
+    experiment_id = (claim.payload or {}).get("experiment_id")
+    if pilot:
+        from .live import (
+            PILOT_DEADLINE_BEFORE_SPAWN,
+            PilotDeadlineError,
+            validate_live_dispatch,
+            verify_wrapper,
+        )
+
+        validate_live_dispatch(store, task, experiment_id)
+        verify_wrapper(store, forecaster, resolved_argv)
 
     prompt = build_prompt(
         task=task,
@@ -413,13 +425,33 @@ def execute_forecast(
     )
     prompt_hash = store.artifacts.put_bytes(prompt)
     code_hash = _code_identity(store)
+    if pilot:
+        sampled = _database_now(store)
+        boundary = validate_live_dispatch(store, task, experiment_id, now=sampled)
+        # Leave one second for allocation/spawn and eventual sealing. The actual
+        # budget is fixed before hashing; later checks may refuse, never alter it.
+        timeout_seconds = min(timeout_seconds, (boundary - sampled).total_seconds() - 1)
+        if timeout_seconds <= 0:
+            raise PilotDeadlineError(PILOT_DEADLINE_BEFORE_SPAWN)
     command_hash = store.artifacts.put_bytes(
         canonical_bytes(_command_document(policy, resolved_argv, timeout_seconds))
     )
-    attempt = store.start_attempt(
-        claim,
-        task_id,
-        lambda sequence, now: Attempt(
+    pilot_deadline_failed = False
+
+    def allocate(sequence, now):
+        nonlocal pilot_deadline_failed
+        if pilot:
+            try:
+                validate_live_dispatch(
+                    store,
+                    task,
+                    experiment_id,
+                    now=now,
+                    budget_seconds=timeout_seconds,
+                )
+            except PilotDeadlineError:
+                pilot_deadline_failed = True
+        return Attempt(
             task_id=task_id,
             code_hash=code_hash,
             sequence=sequence,
@@ -429,13 +461,40 @@ def execute_forecast(
             execution_policy=policy,
             cohort_proof_id=cohort_proof_id,
             cohort_token_hash=cohort_token_hash,
-        ),
+        )
+
+    attempt = store.start_attempt(
+        claim,
+        task_id,
+        allocate,
     )
+
+    def before_spawn():
+        if not pilot:
+            return True
+        if pilot_deadline_failed:
+            return False
+        try:
+            validate_live_dispatch(
+                store,
+                task,
+                experiment_id,
+                budget_seconds=timeout_seconds,
+            )
+        except PilotDeadlineError:
+            return False
+        verify_wrapper(store, forecaster, resolved_argv)
+        return True
 
     # From here a durable attempt exists. Every exit below either commits a
     # terminal result under a valid lease or leaves the outcome unknown.
-    if policy == "baseline":
-        completed = _run_baseline(observations)
+    if pilot_deadline_failed:
+        completed = _pilot_deadline_failure()
+    elif policy == "baseline":
+        if not before_spawn():
+            completed = _pilot_deadline_failure()
+        else:
+            completed = _run_baseline(observations)
     else:
         completed = _run_subprocess(
             store,
@@ -449,6 +508,7 @@ def execute_forecast(
             timeout_seconds=timeout_seconds,
             lease_seconds=lease_seconds,
             work_root=work_root,
+            before_spawn=before_spawn if pilot else None,
         )
 
     stdout_hash = store.artifacts.put_bytes(completed.stdout.encode("utf-8"))
@@ -549,6 +609,18 @@ class _Completed:
         self.failure = failure
 
 
+def _pilot_deadline_failure() -> _Completed:
+    from .live import PILOT_DEADLINE_BEFORE_SPAWN
+
+    return _Completed(
+        stdout="",
+        stderr=PILOT_DEADLINE_BEFORE_SPAWN + "\n",
+        raw_response="",
+        exit_code=None,
+        failure="pilot_deadline_before_spawn",
+    )
+
+
 def _run_baseline(observations: Sequence[ObservationVintage]) -> _Completed:
     """The baseline emits the same response document a subprocess would.
 
@@ -591,6 +663,7 @@ def _run_subprocess(
     timeout_seconds: float,
     lease_seconds: float,
     work_root: str | os.PathLike[str] | None,
+    before_spawn: Callable[[], bool] | None = None,
 ) -> _Completed:
     directory = Path(
         tempfile.mkdtemp(prefix="thesis-core-attempt-", dir=work_root)
@@ -612,6 +685,7 @@ def _run_subprocess(
             directory=directory,
             timeout_seconds=timeout_seconds,
             lease_seconds=lease_seconds,
+            before_spawn=before_spawn,
         )
     finally:
         shutil.rmtree(directory, ignore_errors=True)
@@ -647,12 +721,15 @@ def _spawn_and_wait(
     directory: Path,
     timeout_seconds: float,
     lease_seconds: float,
+    before_spawn: Callable[[], bool] | None = None,
 ) -> _Completed:
     environment = agent_subprocess_env({"TMPDIR": str(directory)})
     # Re-fence against database time immediately before the process exists, so
     # the window between committing the attempt and starting the model is as
     # small as this worker can make it.
     store.heartbeat(claim, lease_seconds=lease_seconds)
+    if before_spawn is not None and not before_spawn():
+        return _pilot_deadline_failure()
     try:
         process = subprocess.Popen(  # noqa: S603 - argv vector, never a shell
             list(argv),
@@ -989,6 +1066,8 @@ def _cohort_binding(
     experiment_id = payload.get("experiment_id")
     cohort_proof_id = payload.get("cohort_proof_id")
     prospective = task.mode == "prospective"
+    if task.mode == "live_pilot" and cohort_proof_id is not None:
+        raise ExecutionRefused("live pilot cannot dispatch with a cohort proof")
     if not cohort_proof_id:
         if prospective:
             raise ExecutionRefused(

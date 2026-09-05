@@ -29,7 +29,7 @@ Sha256 = Annotated[StrictStr, Field(pattern=r"^[0-9a-f]{64}$")]
 Text = Annotated[StrictStr, Field(min_length=1)]
 PositiveInt = Annotated[StrictInt, Field(ge=1)]
 FiniteFloat = Annotated[StrictFloat, Field(allow_inf_nan=False)]
-Mode = Literal["prospective", "replay"]
+Mode = Literal["prospective", "replay", "live_pilot"]
 ExecutionPolicy = Literal["operator_subprocess", "baseline"]
 VintagePolicy = Literal["first_print", "fixed_vintage", "current_unverified"]
 
@@ -337,12 +337,16 @@ class Experiment(ScientificRecord):
     normalization_ids: tuple[Sha256, ...] = ()
     registration_deadline: UtcDatetime
     mode: Mode
-    ranking_policy: Literal["complete_paired_normalized_crps_v1"] = (
-        "complete_paired_normalized_crps_v1"
-    )
+    ranking_policy: Literal[
+        "complete_paired_normalized_crps_v1", "unranked_live_pilot_v1"
+    ] = "complete_paired_normalized_crps_v1"
 
     @model_validator(mode="after")
     def unique_members(self) -> Experiment:
+        if (self.mode == "live_pilot") != (
+            self.ranking_policy == "unranked_live_pilot_v1"
+        ):
+            raise ValueError("live pilot requires its permanently unranked policy")
         for name in (
             "task_ids",
             "target_version_ids",
@@ -527,6 +531,8 @@ class Resolution(ScientificRecord):
 Eligibility = Literal[
     "eligible",
     "replay",
+    "live_pilot",
+    "late_pilot_execution",
     "invalid_contract",
     "invalid_resolution",
     "missing_artifact",
@@ -561,6 +567,12 @@ class ScoreRecord(ScientificRecord):
     normalized_crps: Annotated[FiniteFloat, Field(ge=0)] | None
     reward: FiniteFloat | None
     # No creation clock: repeated evaluations of identical inputs are idempotent.
+
+    @model_validator(mode="after")
+    def pilot_has_no_reward(self) -> ScoreRecord:
+        if self.eligibility == "live_pilot" and self.reward is not None:
+            raise ValueError("live pilot never has a training reward")
+        return self
 
 
 class LegacyImport(ScientificRecord):
@@ -751,6 +763,17 @@ def record_artifact_hashes(record: ScientificRecord) -> tuple[str, ...]:
                 walk(item)
 
     walk(record)
+    if isinstance(record, ForecasterVersion):
+        for name in ("wrapper_sha256", "wrapper_module_sha256"):
+            wrapper = record.inference_settings.get(name)
+            if wrapper is not None:
+                if (
+                    not isinstance(wrapper, str)
+                    or len(wrapper) != 64
+                    or any(char not in "0123456789abcdef" for char in wrapper)
+                ):
+                    raise ValueError("invalid pinned executable artifact hash")
+                hashes.add(wrapper)
     for name in record.artifact_fields:
         value = getattr(record, name)
         if value is not None:

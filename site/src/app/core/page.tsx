@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { CoreExperimentView } from "./CoreExperimentView";
 
@@ -38,6 +39,9 @@ export default function CorePage() {
           prospective evaluations.
         </p>
         <CoreExperimentView />
+        <Link href="/lab/forecasts" className="inline-block mt-8 underline">
+          Open the forecast lab →
+        </Link>
       </main>
     </div>
   );
