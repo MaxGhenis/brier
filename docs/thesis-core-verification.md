@@ -27,7 +27,11 @@ invalidates the current result while preserving the original resolution bytes.
 
 Local verification uses PostgreSQL 14.22 with required database tests, Python
 3.14, Bun 1.3.12 and OpenSSL 3.6.3. The dedicated CI workflow also specifies
-PostgreSQL 14 and 16; the remote matrix has not run for this local branch.
+PostgreSQL 14 and 16. Both remote jobs passed on PR #228's original reviewed
+head, along with the full Python CI, site, packaging and legacy compatibility
+jobs. The [PR review response](thesis-core-pr-review-response.md) records the
+subsequent Fable findings and fixes; the checks below describe the initial
+implementation unless a later revision is stated explicitly.
 
 - Core contracts, actual PostgreSQL concurrency/recovery, subprocess execution,
   source parsing, timestamp verification and API integration: **302 passed**.
@@ -52,6 +56,23 @@ PostgreSQL 14 and 16; the remote matrix has not run for this local branch.
 Reproduce the database tests with the private-cluster helper in the
 [runbook](thesis-core-runbook.md); it sets the required-database flag so a
 missing database cannot count as a passing acceptance run.
+
+## PR review regression checks, September 5
+
+After applying the confirmed Fable code-review findings:
+
+- Complete core suite with required PostgreSQL 14.22: **371 passed** in 78.05 s.
+- Security/execution plus the complete legacy environment-hygiene and analyst
+  runner suites: **381 passed** in 55.68 s. This overlaps the core count.
+- The custody/publication subset, including actual prospective dispatch through
+  locally signed accuracy-bearing receipts: **69 passed** in 33.86 s.
+- Scoped Ruff, generated-contract drift, lockfile consistency and diff checks pass.
+- The wheel rebuilt and passed the installed-package smoke test outside the
+  checkout, including packaged trust assets.
+
+These regression checks used synthetic credentials, offline official fixtures
+and local test authorities. They did not invoke an external model or timestamp
+service. The site source was unchanged in this revision.
 
 ## Real source and model smoke
 

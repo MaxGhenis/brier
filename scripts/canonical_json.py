@@ -1,9 +1,11 @@
 """Compatibility entry point for the shared canonical serializer."""
 
+import importlib.util
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+if importlib.util.find_spec("thesis_core") is None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from thesis_core import canonical as _implementation  # noqa: E402
 
 if __name__ == "__main__":

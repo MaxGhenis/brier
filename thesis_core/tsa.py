@@ -250,28 +250,29 @@ def read_trust_asset(logical: str) -> bytes:
 _read_asset = read_trust_asset
 
 
-def trust_bundle_reference() -> dict[str, Any]:
-    """Return the verifier's code pin for the trust bundle this module uses."""
+def trust_bundle_reference(logical: str | None = None) -> dict[str, Any]:
+    """Select the current or recorded bundle exclusively from verifier code pins."""
 
-    logical = TRUST_BUNDLE_LOGICAL_PATH
+    logical = TRUST_BUNDLE_LOGICAL_PATH if logical is None else logical
     reference = record_chain.CODE_PINNED_TRUST_BUNDLES.get(logical)
     if reference is None:
         raise TsaError(f"trust bundle is not pinned by verifier code: {logical}")
     return dict(reference)
 
 
-def _pinned_bundle() -> tuple[dict[str, Any], dict[str, Any]]:
+def _pinned_bundle(
+    logical: str | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Return the code pin and the parsed packaged bundle that matches it."""
 
-    reference = trust_bundle_reference()
+    reference = trust_bundle_reference(logical)
     logical = str(reference["path"])
     raw = read_trust_asset(logical)
     if hashlib.sha256(raw).hexdigest() != reference.get("sha256") or len(
         raw
     ) != reference.get("size"):
         raise TsaError(
-            "packaged TSA trust bundle does not match the verifier code pin: "
-            f"{logical}"
+            f"packaged TSA trust bundle does not match the verifier code pin: {logical}"
         )
     try:
         payload = json.loads(raw)
@@ -315,8 +316,7 @@ def _select_anchor(payload: dict[str, Any], anchor_id: str) -> dict[str, Any]:
     scheme = urlsplit(endpoint).scheme
     if scheme not in ALLOWED_ENDPOINT_SCHEMES:
         raise TsaError(
-            f"pinned TSA endpoint scheme {scheme!r} is not allowed for "
-            f"{anchor_id!r}",
+            f"pinned TSA endpoint scheme {scheme!r} is not allowed for {anchor_id!r}",
             anchor_id=anchor_id,
             endpoint=endpoint,
         )
@@ -338,7 +338,7 @@ class _Layout:
 
 @contextlib.contextmanager
 def _isolated_layout(
-    subject: bytes, payload: dict[str, Any], anchor_id: str
+    subject: bytes, payload: dict[str, Any], anchor_id: str, bundle_path: str
 ) -> Iterator[_Layout]:
     """Materialize a throwaway records tree holding the packaged trust assets.
 
@@ -350,7 +350,7 @@ def _isolated_layout(
 
     with tempfile.TemporaryDirectory(prefix="thesis-core-tsa-") as temporary:
         records = Path(temporary) / "records"
-        needed = [TRUST_BUNDLE_LOGICAL_PATH]
+        needed = [bundle_path]
         for candidate in payload["anchors"]:
             root = candidate.get("rootCertificate")
             if not isinstance(root, dict) or not isinstance(root.get("path"), str):
@@ -662,6 +662,7 @@ def verify_receipt(
     anchor_id: str = DEFAULT_ANCHOR_ID,
     now: datetime | None = None,
     request: bytes | None = None,
+    trust_bundle_path: str | None = None,
 ) -> VerifiedReceipt:
     """Replay one archived RFC 3161 reply offline against the pinned anchors.
 
@@ -673,6 +674,9 @@ def verify_receipt(
 
     ``now`` overrides the wall clock the shared verifier compares ``genTime``
     against; it does not relax any pin.
+
+    ``trust_bundle_path`` replays a recorded, still code-pinned bundle after
+    the default changes. It never accepts a caller-supplied trust configuration.
     """
 
     if not isinstance(subject, (bytes, bytearray)) or not subject:
@@ -682,9 +686,9 @@ def verify_receipt(
     subject = bytes(subject)
     response = bytes(response)
     recorded_at = _subject_recorded_at(subject)
-    reference, payload = _pinned_bundle()
+    reference, payload = _pinned_bundle(trust_bundle_path)
     anchor_definition = _select_anchor(payload, anchor_id)
-    with _isolated_layout(subject, payload, anchor_id) as layout:
+    with _isolated_layout(subject, payload, anchor_id, reference["path"]) as layout:
         layout.token_path.write_bytes(response)
         return _verify_in_layout(
             layout,
@@ -741,7 +745,7 @@ def request_and_verify(
     endpoint = str(anchor_definition["endpoint"])
     send = transport if transport is not None else post_timestamp_query
 
-    with _isolated_layout(subject, payload, anchor_id) as layout:
+    with _isolated_layout(subject, payload, anchor_id, reference["path"]) as layout:
         query = build_query(layout.subject_path)
         parsed_query = parse_timestamp_query(query)
         if parsed_query.nonce is None:

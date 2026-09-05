@@ -315,6 +315,84 @@ def subject_bytes(recorded_at=SUBJECT_RECORDED_AT, **extra):
     return canonical_bytes(payload)
 
 
+def rotate_test_bundle(monkeypatch):
+    """Keep the old test pin authorized while selecting a new default bundle."""
+    path = "records/trust/tsa-anchors-v3.json"
+    bundle_id = "tsa-anchors-v3"
+    payload = json.loads(tsa.read_trust_asset(BUNDLE_LOGICAL_PATH))
+    payload["bundleId"] = bundle_id
+    raw = canonical_bytes(payload)
+    (tsa.TRUST_ASSET_DIR / Path(path).name).write_bytes(raw)
+    monkeypatch.setattr(
+        record_chain,
+        "CODE_PINNED_TRUST_BUNDLES",
+        record_chain.CODE_PINNED_TRUST_BUNDLES
+        | {
+            path: {
+                "bundleId": bundle_id,
+                "path": path,
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "size": len(raw),
+                "canonicalJsonSha256": canonical_sha256(payload),
+            }
+        },
+    )
+    monkeypatch.setattr(
+        record_chain,
+        "CODE_PINNED_TSA_IDENTITIES",
+        record_chain.CODE_PINNED_TSA_IDENTITIES
+        | {bundle_id: record_chain.CODE_PINNED_TSA_IDENTITIES[BUNDLE_ID]},
+    )
+    monkeypatch.setattr(tsa, "TRUST_BUNDLE_LOGICAL_PATH", path)
+    return path
+
+
+def test_recorded_bundle_replay_survives_default_rotation(pinned_tsa, monkeypatch):
+    receipt = tsa.request_and_verify(
+        subject_bytes(),
+        SUBJECT_RECORDED_AT,
+        anchor_id=pinned_tsa.anchor_id,
+        transport=pinned_tsa.transport(accuracy="millisecs:500"),
+    )
+    new_path = rotate_test_bundle(monkeypatch)
+    replay = tsa.verify_receipt(
+        receipt.subject_bytes,
+        receipt.response_der,
+        request=receipt.request_der,
+        anchor_id=pinned_tsa.anchor_id,
+        trust_bundle_path=receipt.trust_bundle_path,
+    )
+    assert replay.trust_bundle_path == BUNDLE_LOGICAL_PATH
+    assert replay.trust_bundle_sha256 == receipt.trust_bundle_sha256
+    assert replay.accuracy_micros == 500_000
+    new_receipt = tsa.request_and_verify(
+        subject_bytes(),
+        SUBJECT_RECORDED_AT,
+        anchor_id=pinned_tsa.anchor_id,
+        transport=pinned_tsa.transport(),
+    )
+    assert new_receipt.trust_bundle_path == new_path
+    with pytest.raises(tsa.TsaError, match="not pinned by verifier code"):
+        tsa.verify_receipt(
+            receipt.subject_bytes,
+            receipt.response_der,
+            anchor_id=pinned_tsa.anchor_id,
+            trust_bundle_path="records/trust/tsa-anchors-v999.json",
+        )
+    monkeypatch.setattr(
+        record_chain,
+        "CODE_PINNED_TRUST_BUNDLES",
+        {new_path: record_chain.CODE_PINNED_TRUST_BUNDLES[new_path]},
+    )
+    with pytest.raises(tsa.TsaError, match="not pinned by verifier code"):
+        tsa.verify_receipt(
+            receipt.subject_bytes,
+            receipt.response_der,
+            anchor_id=pinned_tsa.anchor_id,
+            trust_bundle_path=BUNDLE_LOGICAL_PATH,
+        )
+
+
 # --------------------------------------------------------------------------
 # Request and verify
 # --------------------------------------------------------------------------

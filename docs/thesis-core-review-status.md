@@ -25,3 +25,10 @@ for reproducible commands.
 The branch has not been deployed. Production provisioning, historical migration
 and publisher cutover remain outside this branch's scope. Verified receipts
 without an accuracy bound remain unordered and cannot qualify a prospective rank.
+
+Fable subsequently reviewed the code in PR #228 at
+`025da734a7a3fa0a475c69aee22f2993ca1c76b3` through four Subfleet passes. The
+execution/security pass requested changes; independent local reproductions
+confirmed the substantive findings and rejected two scientific false positives.
+The [PR review response](thesis-core-pr-review-response.md) records the fixes,
+regression coverage and remaining deployment considerations.

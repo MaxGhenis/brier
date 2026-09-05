@@ -186,6 +186,7 @@ def _dispatch(args, store):
             ForecasterVersion,
             ObservationVintage,
             Resolution,
+            SourceExchange,
             SourceSeries,
             TargetVersion,
             parse_record,
@@ -196,6 +197,19 @@ def _dispatch(args, store):
             from .adapters.registry import validate_source
 
             validate_source(record)
+        if isinstance(record, ObservationVintage):
+            from .adapters.registry import validate_observation
+
+            source = store.get(record.source_series_id)
+            exchanges = {
+                identity: store.get(identity) for identity in record.source_exchange_ids
+            }
+            if not isinstance(source, SourceSeries) or any(
+                not isinstance(exchange, SourceExchange)
+                for exchange in exchanges.values()
+            ):
+                raise ValueError("observation source or exchange has wrong kind")
+            validate_observation(record, source, exchanges, store.artifacts)
         if isinstance(record, ForecasterVersion):
             from .security import is_credential_key, redact_value
 

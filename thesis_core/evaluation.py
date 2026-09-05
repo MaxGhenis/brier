@@ -43,6 +43,13 @@ from .scoring import round_distribution_number, score_numeric_cdf_distribution
 UTC = timezone.utc
 
 
+class OutcomeAvailabilityUnknown(ValueError):  # noqa: N818 - typed eligibility reason
+    """The earliest outcome boundary cannot be independently established."""
+
+    def __init__(self) -> None:
+        super().__init__("outcome_availability_unknown")
+
+
 @dataclass(frozen=True)
 class Availability:
     lower: datetime
@@ -337,19 +344,25 @@ def outcome_boundary(
     target: TargetVersion, context: EvaluationContext
 ) -> datetime | None:
     bounds = []
-    calendar = context.target_availability(target)
-    if calendar:
-        bounds.append(calendar.lower)
-    for record in context.records.values():
-        if (
-            isinstance(record, ObservationVintage)
-            and record.source_series_id == target.source_series_id
-            and record.measurement_period == target.measurement_period
-        ):
-            interval = context.availability(record)
-            if interval:
-                established_upper(context.committed_at(record.id), interval)
-                bounds.append(interval.lower)
+    try:
+        calendar = context.target_availability(target)
+        if calendar:
+            bounds.append(calendar.lower)
+        for record in context.records.values():
+            if (
+                isinstance(record, ObservationVintage)
+                and record.source_series_id == target.source_series_id
+                and record.measurement_period == target.measurement_period
+            ):
+                interval = context.availability(record)
+                if interval:
+                    established_upper(context.committed_at(record.id), interval)
+                    bounds.append(interval.lower)
+    except (ValueError, KeyError, OSError, ArtifactError) as exc:
+        # Skipping a non-replaying observation could select a later print or
+        # calendar time. Refuse the whole boundary with a stable typed reason;
+        # retain the adapter failure as the cause for internal diagnostics.
+        raise OutcomeAvailabilityUnknown() from exc
     return min(bounds) if bounds else None
 
 
@@ -419,7 +432,7 @@ def validate_experiment(
         if experiment.mode == "prospective":
             boundary = outcome_boundary(target, context)
             if boundary is None:
-                raise ValueError("outcome_availability_unknown")
+                raise OutcomeAvailabilityUnknown()
             if (
                 target.resolution_policy == "fixed_vintage"
                 and context.target_availability(target) is None
@@ -739,6 +752,9 @@ def assess_run(
                     "run witness overlaps submission or first-print boundary"
                 )
             eligibility = "eligible"
+    except OutcomeAvailabilityUnknown as exc:
+        eligibility = "outcome_availability_unknown"
+        details.append(str(exc))
     except (ValueError, KeyError, TypeError, OSError, ArtifactError) as exc:
         details.append(str(exc))
     score = ScoreRecord(

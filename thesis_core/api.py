@@ -12,7 +12,9 @@ from pathlib import Path as FilesystemPath
 from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import FastAPI, HTTPException, Path, Query
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 if TYPE_CHECKING:
     from thesis_core.store import Store
@@ -95,12 +97,41 @@ def create_app(store: Store | None = None) -> FastAPI:
     import psycopg
 
     from .artifacts import ArtifactCorrupt, ArtifactError, ArtifactMissing
+    from .service import ExperimentNotFoundError
     from .store import IdentityConflict, RecordMissing, StoreError
 
     application = FastAPI(title="Thesis core", version="1", docs_url="/docs")
 
     def current_store() -> Store:
         return store if store is not None else configured_store()
+
+    @application.exception_handler(StarletteHTTPException)
+    async def request_failure(_request, error):
+        detail = error.detail
+        code = detail.get("code") if isinstance(detail, dict) else None
+        return JSONResponse(
+            {
+                "error": {
+                    "code": code
+                    or {
+                        404: "not_found",
+                        405: "method_not_allowed",
+                    }.get(error.status_code, "invalid_request")
+                }
+            },
+            status_code=error.status_code,
+            headers=error.headers,
+        )
+
+    @application.exception_handler(RequestValidationError)
+    async def invalid_request(_request, _error):
+        return JSONResponse({"error": {"code": "invalid_request"}}, status_code=422)
+
+    @application.exception_handler(ExperimentNotFoundError)
+    async def missing_experiment(_request, _error):
+        return JSONResponse(
+            {"error": {"code": "experiment_not_found"}}, status_code=404
+        )
 
     @application.exception_handler(KeyError)
     @application.exception_handler(RecordMissing)

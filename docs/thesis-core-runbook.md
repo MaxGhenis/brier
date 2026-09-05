@@ -23,7 +23,10 @@ configuration. The example DSN assumes a local database/user already exists;
 `init` applies migrations inside the schema. `--dsn`, `--schema` and
 `--artifacts` override those variables and go before the subcommand. Keep the
 same CAS directory when reopening a schema: database records reference its
-immutable bytes. Do not put credentials in recorded model arguments.
+immutable bytes. Do not put credentials in recorded model arguments. Registration
+refuses credential-shaped flags in either `--api-key=value` or separate
+`--api-key value` form; use the authenticated transport's existing credential
+mechanism instead.
 
 The package is included in the existing `brier` distribution. `uv build --wheel`
 builds its wheel, including migrations, generated schemas and trust assets.

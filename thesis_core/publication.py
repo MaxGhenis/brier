@@ -291,6 +291,7 @@ def verify_proof(store: Store, proof: PublicationProof) -> VerifiedPublication |
             store.artifacts.read_bytes(proof.token_hash),
             request=store.artifacts.read_bytes(proof.request_hash),
             anchor_id=proof.trust_anchor_id,
+            trust_bundle_path=proof.trust_bundle_path,
         )
         if (
             receipt.trust_bundle_path,

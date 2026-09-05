@@ -55,6 +55,7 @@ __all__ = [
     "CREDENTIAL_COLLAPSED_NEEDLES",
     "CREDENTIAL_WORD_PAIRS",
     "NON_CREDENTIAL_TRAILING_WORDS",
+    "RedactionError",
     "ENV_SECRET_ASSIGNMENT_RE",
     "JSON_SECRET_FIELD_RE",
     "REDACTED_PLACEHOLDER",
@@ -107,15 +108,15 @@ def agent_subprocess_env(
 
 REDACTED_PLACEHOLDER = "[REDACTED]"
 
-# `NAME=value` lines for credential-shaped env var names: the incident shape.
-ENV_SECRET_ASSIGNMENT_RE = re.compile(
-    r"([A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*)=\S+"
-)
+# Match complete assignment candidates once, then classify their names. Putting
+# a greedy prefix before KEY/TOKEN/etc. causes quadratic backtracking on output
+# such as a long uppercase hex dump, even when no assignment exists.
+ENV_SECRET_ASSIGNMENT_RE = re.compile(r"(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)=\S+")
 
 # `"name": "value"` JSON fields with credential-shaped names — catches an
 # agent cat-ing auth/config files (auth.json and friends) into its trace.
 JSON_SECRET_FIELD_RE = re.compile(
-    r"\"([A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*)\"\s*:\s*\"[^\"]*\"",
+    r'"([A-Z0-9_-]+)"\s*:\s*"[^"\r\n]*"',
     re.IGNORECASE,
 )
 
@@ -141,9 +142,35 @@ def redact_text(text: str) -> str:
     """Redact credential values from plain text (idempotent)."""
     if not text:
         return text
-    text = ENV_SECRET_ASSIGNMENT_RE.sub(rf"\1={REDACTED_PLACEHOLDER}", text)
-    text = JSON_SECRET_FIELD_RE.sub(rf'"\1": "{REDACTED_PLACEHOLDER}"', text)
+
+    def assignment(match: re.Match[str]) -> str:
+        name = match.group(1)
+        # Lowercase URL query/fragment names belong to redact_url: treating
+        # their entire remaining query as a CLI value would erase clean params.
+        sensitive = any(
+            word in name for word in ("KEY", "TOKEN", "SECRET", "PASSWORD")
+        ) or (name.startswith("-") and is_credential_key(name))
+        return f"{name}={REDACTED_PLACEHOLDER}" if sensitive else match.group(0)
+
+    def json_field(match: re.Match[str]) -> str:
+        name = match.group(1)
+        return (
+            f'"{name}": "{REDACTED_PLACEHOLDER}"'
+            if _text_credential_name(name)
+            else match.group(0)
+        )
+
+    text = ENV_SECRET_ASSIGNMENT_RE.sub(assignment, text)
+    text = JSON_SECRET_FIELD_RE.sub(json_field, text)
     return SECRET_TOKEN_RE.sub(REDACTED_PLACEHOLDER, text)
+
+
+def _text_credential_name(name: str) -> bool:
+    # Preserve the historical conservative env-name defense while recognizing
+    # lowercase/camel-case CLI and JSON names through the structural matcher.
+    return any(word in name for word in ("KEY", "TOKEN", "SECRET", "PASSWORD")) or (
+        is_credential_key(name)
+    )
 
 
 # --- Credential-shaped names ------------------------------------------------
@@ -593,39 +620,79 @@ def redact_headers(
 # --- JSON payloads ----------------------------------------------------------
 
 
-def redact_value(value: Any, *, credential_keys: Iterable[str] = ()) -> Any:
+MAX_REDACTION_DEPTH = 128
+
+
+class RedactionError(ValueError):
+    """The input cannot safely be preserved by the public-trace redactor."""
+
+
+def _redact_argv(
+    value: list[Any] | tuple[Any, ...], credential_keys: Iterable[str], depth: int
+) -> list[Any]:
+    """Preserve argv structure while scrubbing flag/value credential pairs."""
+    result: list[Any] = []
+    redact_next = False
+    for item in value:
+        if redact_next:
+            result.append(REDACTED_PLACEHOLDER)
+            redact_next = False
+            continue
+        result.append(redact_value(item, credential_keys=credential_keys, _depth=depth))
+        if isinstance(item, str) and item.startswith("-"):
+            name, separator, _ = item.partition("=")
+            redact_next = not separator and is_credential_key(name, credential_keys)
+    return result
+
+
+def redact_value(
+    value: Any, *, credential_keys: Iterable[str] = (), _depth: int = 0
+) -> Any:
     """Redact a JSON-compatible payload before it is hashed or persisted.
 
-    Three defenses compose:
+    Four defenses compose:
 
     * every string is scrubbed for known credential formats and `NAME=value`
       shapes (:func:`redact_text`);
     * every URL-shaped string is scrubbed structurally (:func:`redact_url`);
     * every value held under a credential-shaped key is replaced outright,
       recursively, which is the only defense that catches an opaque secret such
-      as ``{"api_key": "plain-secret"}``.
+      as ``{"api_key": "plain-secret"}``;
+    * registered ``argv`` vectors also scrub values adjacent to credential flags.
 
     Object keys themselves are scrubbed too, because a leaked env dump can
     arrive as a key. A payload with nothing to redact compares equal to its
     input, and callers rely on that to keep clean bytes untouched.
+    Excessively deep payloads raise :class:`RedactionError`; callers must not
+    persist their original bytes or substitute a weaker text-only scrub.
     """
+    if _depth > MAX_REDACTION_DEPTH:
+        raise RedactionError("JSON exceeds the public-trace redaction depth limit")
     if isinstance(value, str):
         if _URL_SCHEME_RE.match(value):
             return redact_url(value, credential_params=credential_keys)
         return redact_text(value)
     if isinstance(value, list):
-        return [redact_value(item, credential_keys=credential_keys) for item in value]
+        return [
+            redact_value(item, credential_keys=credential_keys, _depth=_depth + 1)
+            for item in value
+        ]
     if isinstance(value, tuple):
-        return [redact_value(item, credential_keys=credential_keys) for item in value]
+        return [
+            redact_value(item, credential_keys=credential_keys, _depth=_depth + 1)
+            for item in value
+        ]
     if isinstance(value, dict):
         redacted: dict[Any, Any] = {}
         for key, item in value.items():
             clean_key = redact_text(key) if isinstance(key, str) else key
             if is_credential_key(key, credential_keys):
                 redacted[clean_key] = _redacted_for_credential_key(item)
+            elif key == "argv" and isinstance(item, (list, tuple)):
+                redacted[clean_key] = _redact_argv(item, credential_keys, _depth + 1)
             else:
                 redacted[clean_key] = redact_value(
-                    item, credential_keys=credential_keys
+                    item, credential_keys=credential_keys, _depth=_depth + 1
                 )
         return redacted
     return value
@@ -639,16 +706,66 @@ def redact_json_value(value: Any) -> Any:
 # --- Streams and response documents -----------------------------------------
 
 
+def _check_json_depth(text: str) -> None:
+    """Bound nesting before passing untrusted output to the JSON decoder."""
+    if "[" not in text and "{" not in text:
+        return
+    depth = 0
+    quoted = False
+    escaped = False
+    for character in text:
+        if quoted:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                quoted = False
+        elif character == '"':
+            quoted = True
+        elif character in "[{":
+            depth += 1
+            if depth > MAX_REDACTION_DEPTH:
+                raise RedactionError(
+                    "JSON exceeds the public-trace redaction depth limit"
+                )
+        elif character in "]}":
+            depth -= 1
+
+
+def _redact_json_text(text: str, *, indent: int | None = None) -> str:
+    try:
+        _check_json_depth(text)
+        payload = json.loads(text)
+        redacted = redact_value(payload)
+        return text if redacted == payload else json.dumps(redacted, indent=indent)
+    except json.JSONDecodeError:
+        raise
+    except (ValueError, RecursionError) as exc:
+        # The decoder's integer limit and every subsequent recursive operation
+        # must fail closed. Plain-text fallback loses the structural key context
+        # that protects opaque credentials inside an otherwise JSON document.
+        raise RedactionError("JSON cannot be safely redacted") from exc
+
+
 def redact_stream_line(line: str) -> str:
     stripped = line.strip()
     if not stripped:
         return line
     try:
-        payload = json.loads(stripped)
+        return _redact_json_text(line)
     except json.JSONDecodeError:
+        # Bracketed log labels such as [tool] are plain text. A malformed array
+        # containing JSON syntax still refuses: it may hold opaque credentials
+        # whose protection depends on the surrounding object key.
+        structured_array = stripped.startswith("[") and (
+            '"' in stripped
+            or "{" in stripped
+            or re.match(r"\[\s*(?:[\[\]\d-]|true\b|false\b|null\b)", stripped)
+        )
+        if stripped.startswith(("{", '"')) or structured_array:
+            raise RedactionError("Malformed JSON cannot be safely redacted") from None
         return redact_text(line)
-    redacted = redact_value(payload)
-    return line if redacted == payload else json.dumps(redacted)
 
 
 def redact_stream_text(text: str) -> str:
@@ -656,10 +773,17 @@ def redact_stream_text(text: str) -> str:
 
     JSONL event lines are redacted value-wise so they stay parseable;
     non-JSON lines get plain-text redaction. Clean content passes through
-    byte-identical.
+    byte-identical. Unsafe or malformed structured JSON raises RedactionError.
     """
     if not text:
         return text
+    if "\n" in text:
+        # Pretty-printed whole documents are a valid stream shape too. Try the
+        # complete document before losing structural context at line breaks.
+        try:
+            return _redact_json_text(text)
+        except json.JSONDecodeError:
+            pass
     return "\n".join(redact_stream_line(line) for line in text.split("\n"))
 
 
@@ -673,8 +797,6 @@ def redact_response_text(text: str) -> str:
     if not text:
         return text
     try:
-        payload = json.loads(text)
+        return _redact_json_text(text, indent=2)
     except json.JSONDecodeError:
         return redact_stream_text(text)
-    redacted = redact_value(payload)
-    return text if redacted == payload else json.dumps(redacted, indent=2)

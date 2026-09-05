@@ -1,0 +1,66 @@
+# Thesis core PR review response
+
+Fable reviewed PR #228 at `025da734a7a3fa0a475c69aee22f2993ca1c76b3`
+through four Subfleet runs using `claude-fable-5-1`. The execution/security
+review requested changes. Scientific, custody and application reviews approved
+within their scopes with findings. Independent local reproductions confirmed
+the changes below and rejected two proposed scientific defects.
+
+## Implemented corrections
+
+- Credential-shaped command arguments are handled before registration and
+  archival, including lowercase `--api-key=value` and separate flag/value
+  arguments. The archived forecaster and command must not contain those values.
+- Text redaction matches complete assignment candidates once instead of
+  backtracking over every suffix of a long uppercase stream. JSON redaction
+  bounds nesting and refuses documents it cannot safely preserve. The executor
+  records an observed malformed-output failure and a content-omission marker;
+  it does not archive an unsafe fallback or turn that observed failure into an
+  unknown provider outcome.
+- Native observation registration replays the linked official source bytes
+  before committing. A malformed peer observation still prevents an inferred
+  later outcome boundary, but the prospective assessment reports
+  `outcome_availability_unknown` through experiment validation.
+- Receipt replay selects the proof's recorded trust bundle from the verifier's
+  code-pinned registry. New requests use the default bundle. Changing the
+  default therefore does not invalidate an older proof whose original bundle
+  remains authorized; unknown bundles and mismatched bytes still refuse.
+- Public reward and leaderboard exclusions contain typed reasons. Internal
+  exception diagnostics do not enter those rows. Queries naming the wrong
+  record kind return `experiment_not_found`; request and backend errors share
+  the `error.code` envelope.
+- The canonical compatibility shim preserves an already importable installed
+  package, matching the verifier shims. The package's flat trust directory uses
+  a flat package-data glob.
+
+Regression coverage includes synthetic credentials, bounded long output,
+excessive JSON nesting and integer limits, native registration against real
+PostgreSQL, prospective exclusion reasons, historical trust-bundle replay,
+and the actual prospective cohort dispatch gate using locally signed receipts.
+Synthetic trust roots are confined to test fixtures. The original approved
+implementation-plan bytes remain unchanged.
+
+## Rejected or qualified findings
+
+The database's migration 006 already prevents a second resolution for one
+target. Reproduction preserved one resolution and a working resolver. The
+evidence builder already accepts an explicitly selected observation iterable;
+passing one capture after repeated captures succeeds. Neither finding calls
+for changing those scientific contracts.
+
+The read API reconstructs the graph per request. Its throughput at production
+scale has not been established; caching must not silently replace raw evidence
+and receipt verification with trusted score rows. Load testing and deployment
+budgets remain release work. The existing conservative handling of uncertain
+database acknowledgements and heartbeat failures remains intact. Failed
+publication jobs can be explicitly retried; unknown model outcomes require
+reconciliation under the registered attempt policy.
+
+Fable's runtime estimates for the old redaction regex were not measured.
+Local bounded measurements established quadratic scaling. Trust-bundle
+rollover was a latent replay defect, not evidence that current proofs were
+invalid. The earlier setuptools floor also had a preexisting license-format
+incompatibility, so the claimed silent broken-wheel path was conditional.
+
+See the [verification report](thesis-core-verification.md) for executed checks
+and the [runbook](thesis-core-runbook.md) for the local operational contract.

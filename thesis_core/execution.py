@@ -81,9 +81,9 @@ from .contracts import (
 )
 from .security import (
     AGENT_ENV_ALLOWLIST,
+    RedactionError,
     agent_subprocess_env,
     redact_response_text,
-    redact_stream_text,
     redact_text,
     redact_value,
 )
@@ -727,12 +727,34 @@ def _spawn_and_wait(
     for worker in workers:
         worker.join(timeout=_TERMINATE_GRACE_SECONDS)
 
-    # Redact before anything is hashed or content-addressed.
-    stdout_text = redact_stream_text(stdout.decode("utf-8", errors="replace"))
-    stderr_text = redact_stream_text(stderr.decode("utf-8", errors="replace"))
-    raw_response = redact_response_text(stdout_text)
+    # Redact before anything is hashed or content-addressed. An observed child
+    # exit followed by unsafe JSON is a known failed response, not a transport
+    # uncertainty. Preserve unaffected streams and an explicit omission marker;
+    # never downgrade failed structural redaction to a plain-text scrub.
+    redaction_failed = False
+
+    def captured_text(data: bytearray, channel: str) -> str:
+        nonlocal redaction_failed
+        try:
+            return redact_response_text(data.decode("utf-8", errors="replace"))
+        except RedactionError:
+            redaction_failed = True
+            return json.dumps(
+                {
+                    "redactionFailure": "unsafe_json",
+                    "channel": channel,
+                    "capturedBytes": len(data),
+                    "detail": "Content withheld: safe redaction was unavailable.",
+                }
+            )
+
+    stdout_text = captured_text(stdout, "stdout")
+    stderr_text = captured_text(stderr, "stderr")
+    raw_response = stdout_text
     exit_code = process.returncode
 
+    if failure is None and redaction_failed:
+        failure = "invalid_response_unredactable"
     if failure is None and overflowed.is_set():
         failure = "output_too_large"
     if failure is None and exit_code != 0:

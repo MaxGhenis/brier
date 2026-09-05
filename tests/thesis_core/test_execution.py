@@ -609,6 +609,62 @@ def test_nonzero_exit_persists_the_failed_trace(core_store, tmp_path):
     assert b"refused the request" in core_store.artifacts.read_bytes(result.stderr_hash)
 
 
+@pytest.mark.parametrize("channel", ["stdout", "stderr"])
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "[" * 1100 + '{"api_key":"planted-opaque"}' + "]" * 1100,
+        "7" * 5000,
+        '{"api_key":{"nested":"planted-opaque"}',
+    ],
+)
+def test_worker_seals_unsafe_output_as_failed_without_persisting_raw_bytes(
+    core_store, tmp_path, channel, payload
+):
+    import hashlib
+
+    from thesis_core.worker import work_once
+
+    other = "stderr" if channel == "stdout" else "stdout"
+    script = write_script(
+        tmp_path,
+        "unsafe_json.py",
+        f"""
+        import sys
+        sys.stdin.read()
+        sys.{channel}.write({payload!r})
+        sys.{other}.write("safe diagnostic trace\\n")
+        """,
+    )
+    graph = make_graph()
+    task = add_task(
+        graph, subprocess_forecaster(graph, script), policy="operator_subprocess"
+    )
+    seed(core_store, graph)
+    core_store.enqueue("forecast", task.id, {}, idempotency_key=uuid.uuid4().hex)
+    completed = work_once(core_store, kinds=("forecast",), timeout_seconds=10)
+
+    assert completed["run_id"] is None
+    assert job_row(core_store, completed["job_id"])["state"] == "failed"
+    result = failed_result(core_store, task.id)
+    assert result.outcome == "failed"
+    assert result.exit_code == 0
+    assert not core_store.artifacts.exists(hashlib.sha256(payload.encode()).hexdigest())
+    captured = json.loads(
+        core_store.artifacts.read_bytes(getattr(result, f"{channel}_hash"))
+    )
+    assert captured["redactionFailure"] == "unsafe_json"
+    assert captured["capturedBytes"] == len(payload.encode())
+    assert b"safe diagnostic trace" in core_store.artifacts.read_bytes(
+        getattr(result, f"{other}_hash")
+    )
+    for digest in (result.stdout_hash, result.stderr_hash, result.raw_response_hash):
+        assert b"planted-opaque" not in core_store.artifacts.read_bytes(digest)
+    assert core_store.recover_expired() == {"requeued": 0, "unknown": 0}
+    assert work_once(core_store, kinds=("forecast",), timeout_seconds=10) is None
+    assert len(attempts_for(core_store, task.id)) == 1
+
+
 def test_timeout_terminates_the_process_and_persists_the_failure(core_store, tmp_path):
     marker = tmp_path / "finished.marker"
     script = write_script(
@@ -736,14 +792,37 @@ def test_a_parent_credential_is_never_forwarded_or_recorded(
         )
 
 
-def test_a_credential_can_never_be_registered_in_a_forecaster_argv(core_store):
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        [f"--token={PLANTED_STDOUT_SECRET}"],
+        ["--token=planted-opaque"],
+        ["--api-key=planted-opaque"],
+        ["--api-key", "planted-opaque"],
+        ["--password", "planted-opaque"],
+    ],
+)
+def test_a_credential_can_never_be_registered_in_a_forecaster_argv(arguments):
     """The contract refuses it outright: registration is the first defense."""
     with pytest.raises(ValidationError, match="credential-bearing"):
-        make_forecaster(
-            inference_settings={
-                "argv": [sys.executable, f"--token={PLANTED_STDOUT_SECRET}"]
-            }
-        )
+        make_forecaster(inference_settings={"argv": [sys.executable, *arguments]})
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["--token=planted-opaque"],
+        ["--api-key=planted-opaque"],
+        ["--api-key", "planted-opaque"],
+        ["--password", "planted-opaque"],
+    ],
+)
+def test_opaque_argv_credentials_are_absent_from_command_bytes(arguments):
+    command = execution._command_document(
+        "operator_subprocess", ("forecaster", *arguments), 60
+    )
+    assert "planted-opaque" not in json.dumps(command)
+    assert "[REDACTED]" in json.dumps(command)
 
 
 def test_the_command_document_is_redacted_before_it_is_hashed(core_store, tmp_path):

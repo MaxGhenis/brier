@@ -511,3 +511,77 @@ def test_plain_text_redaction_still_covers_the_incident_formats():
     redacted = security.redact_text(dump)
     assert redacted == f"CENSUS_DATA_API_KEY={REDACTED}\nPATH=/usr/bin:/bin"
     assert security.redact_text(redacted) == redacted
+
+
+def test_maximum_captured_output_redacts_with_a_bounded_runtime():
+    """A subprocess timeout makes a regex regression fail without hanging CI."""
+    script = """
+import json
+from thesis_core.execution import MAX_CAPTURED_BYTES
+from thesis_core.security import redact_response_text, redact_text
+for character in ('A', '7', '_'):
+    payload = character * MAX_CAPTURED_BYTES
+    assert redact_text(payload) == payload
+    encoded = json.dumps(payload)
+    assert redact_response_text(encoded) == encoded
+# Repeated keyword candidates also cannot induce nested backtracking.
+payload = 'KEY' * (MAX_CAPTURED_BYTES // 3)
+assert redact_text(payload) == payload
+print('bounded redaction complete')
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=True,
+    )
+    assert result.stdout.strip() == "bounded redaction complete"
+
+
+@pytest.mark.parametrize(
+    "redactor", [security.redact_stream_text, security.redact_response_text]
+)
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "[" * 1100 + '"planted-opaque"' + "]" * 1100,
+        "7" * 5000,
+        '{"api_key": {"nested": "planted-opaque"}',
+    ],
+)
+def test_unsafe_json_refuses_instead_of_losing_structural_redaction(redactor, payload):
+    with pytest.raises(security.RedactionError):
+        redactor(payload)
+
+
+def test_depth_limit_ignores_json_delimiters_inside_strings():
+    clean = json.dumps({"text": '["' * 2000})
+    assert security.redact_response_text(clean) == clean
+
+
+def test_stream_redaction_preserves_log_labels_and_whole_pretty_json():
+    label = "[tool] fetched public data\n[REDACTED]\n"
+    assert security.redact_stream_text(label) == label
+    pretty = json.dumps({"nested": {"api_key": PLANTED["opaque_key"]}}, indent=2)
+    assert PLANTED["opaque_key"] not in security.redact_stream_text(pretty)
+    clean = json.dumps({"pointEstimate": 5.1}, indent=2)
+    assert security.redact_stream_text(clean) == clean
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["--api-key=planted-opaque"],
+        ["--token=planted-opaque"],
+        ["--api-key", "planted-opaque"],
+        ["--password", "planted-opaque"],
+    ],
+)
+def test_structured_argv_redacts_opaque_equals_and_adjacent_credentials(arguments):
+    value = {"argv": ["forecaster", "--max-tokens", "5", *arguments]}
+    cleaned = security.redact_value(value)
+    assert "planted-opaque" not in json.dumps(cleaned)
+    assert cleaned["argv"][:3] == value["argv"][:3]
+    assert security.redact_value(cleaned) == cleaned

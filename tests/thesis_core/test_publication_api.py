@@ -14,7 +14,7 @@ from thesis_core.service import evaluate_experiment
 from thesis_core.worker import schedule_experiment, work_once
 
 from .test_pilot import statcan_fixture
-from .test_tsa import authorities, pinned_tsa  # noqa: F401
+from .test_tsa import authorities, pinned_tsa, rotate_test_bundle  # noqa: F401
 
 
 def completed_pilot(store):
@@ -74,6 +74,44 @@ def test_failed_timestamp_archives_request_and_error(core_store, monkeypatch):
     assert core_store.artifacts.read_bytes(attempts[0]["error_hash"])
     assert attempts[0]["response_hash"] is None
     assert len(tuple(core_store.iter_records("forecast_run"))) == 1
+
+
+def test_proof_replays_recorded_bundle_after_rotation(
+    core_store,
+    pinned_tsa,  # noqa: F811
+    monkeypatch,
+):
+    experiment, run = completed_pilot(core_store)
+    manifest = publication.create_manifest(core_store, experiment.id, run_id=run.id)
+    monkeypatch.setattr(
+        tsa, "post_timestamp_query", pinned_tsa.transport(accuracy="millisecs:500")
+    )
+    proof = publication.publish_manifest(
+        core_store, manifest.id, anchor_id=pinned_tsa.anchor_id
+    )
+    original_bytes = proof.canonical_bytes()
+    original = publication.verify_proof(core_store, proof)
+    assert original is not None and original.interval is not None
+    new_path = rotate_test_bundle(monkeypatch)
+    assert publication.verify_proof(core_store, proof) == original
+    assert core_store.get(proof.id).canonical_bytes() == original_bytes
+
+    # Claiming an unpinned path or a different archived bundle hash cannot add trust.
+    for changes in (
+        {"trust_bundle_path": "records/trust/tsa-anchors-v999.json"},
+        {
+            "trust_bundle_hash": core_store.artifacts.put_bytes(
+                tsa.read_trust_asset(new_path)
+            )
+        },
+    ):
+        altered = PublicationProof.model_validate(proof.model_dump() | changes)
+        core_store.put(altered)
+        assert publication.verify_proof(core_store, altered) is None
+
+    packaged = tsa.TRUST_ASSET_DIR / proof.trust_bundle_path.rsplit("/", 1)[1]
+    packaged.write_bytes(packaged.read_bytes() + b" ")
+    assert publication.verify_proof(core_store, proof) is None
 
 
 def test_api_replay_score_export_and_read_only(core_store):

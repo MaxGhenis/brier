@@ -25,6 +25,7 @@ from .contracts import (
 )
 from .evaluation import (
     EvaluationContext,
+    OutcomeAvailabilityUnknown,
     RunAssessment,
     assess_run,
     build_leaderboard,
@@ -34,6 +35,10 @@ from .evaluation import (
 
 if TYPE_CHECKING:
     from .store import Store
+
+
+class ExperimentNotFoundError(ValueError):
+    """A query does not name an experiment, rather than a corrupt experiment."""
 
 
 def context_for_store(store: Store) -> EvaluationContext:
@@ -154,7 +159,7 @@ def evaluate_experiment(
     context = _context if _context is not None else context_for_store(store)
     experiment = context.records.get(experiment_id)
     if not isinstance(experiment, Experiment):
-        raise ValueError("unknown experiment")
+        raise ExperimentNotFoundError("unknown experiment")
     assessments = []
     for record in context.records.values():
         if not isinstance(record, ForecastRun):
@@ -214,7 +219,7 @@ def _experiments(store: Store, experiment_id: str | None):
     if experiment_id is not None:
         experiment = store.get(experiment_id)
         if not isinstance(experiment, Experiment):
-            raise ValueError("unknown experiment")
+            raise ExperimentNotFoundError("unknown experiment")
         return [experiment]
     return list(store.iter_records(kind="experiment"))
 
@@ -247,9 +252,10 @@ def reward_rows(
                 "declared_information_cutoff": cutoff.isoformat() if cutoff else None,
                 "effective_information_boundary": frozen_text,
                 "evidence_frozen_at": frozen_text,
-                "exclusions": list(assessment.details)
-                if assessment.details
-                else (
+                # Assessment details are operator diagnostics and may contain
+                # filesystem or transport error text. Public rows use only the
+                # closed scientific eligibility vocabulary.
+                "exclusions": (
                     []
                     if assessment.eligibility == "eligible"
                     else [assessment.eligibility]
@@ -351,7 +357,11 @@ def leaderboard_rows(
                     "targets": len(experiment.target_version_ids),
                     "mean_normalized_crps": None,
                     "mode": experiment.mode,
-                    "exclusions": [str(exc)],
+                    "exclusions": [
+                        "outcome_availability_unknown"
+                        if isinstance(exc, OutcomeAvailabilityUnknown)
+                        else "invalid_contract"
+                    ],
                 }
                 for fid in experiment.forecaster_version_ids
             ]

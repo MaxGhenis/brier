@@ -173,6 +173,24 @@ def test_scripts_directory_import_without_pythonpath(tmp_path):
     assert completed.stdout.strip() == "ok"
 
 
+def test_canonical_shim_preserves_an_importable_installed_package(tmp_path):
+    installed = tmp_path / "installed"
+    package = installed / "thesis_core"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "canonical.py").write_text("SOURCE = 'installed'\n")
+    program = (
+        "import sys;"
+        "sys.path[:0] = sys.argv[1:];"
+        "import canonical_json;"
+        "import thesis_core.canonical as core;"
+        "assert canonical_json is core;"
+        "assert core.SOURCE == 'installed'"
+    )
+    completed = _run(["-c", program, installed, SCRIPTS], cwd=tmp_path, isolated=True)
+    assert completed.returncode == 0, completed.stderr
+
+
 def test_shared_modules_import_no_optional_dependency(tmp_path):
     """The pure modules stay usable in a custody-only environment.
 
