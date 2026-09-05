@@ -29,6 +29,22 @@ sequence times powers of ten, following the preferred spacing of
 The lab renders its charts directly in SVG. Domains enclose all loaded curves
 and any observed outcome; tick rounding does not round the underlying data.
 
+Hover or tap the plot to compare every loaded method at one horizontal value.
+The CDF tooltip interpolates between original points. The PDF tooltip reports
+each method's own displayed bin, its density and its probability mass, with
+zero outside support distinguished from an unavailable density. Tab to the chart
+and use arrow keys, Home or End to inspect; Escape or the close control dismisses
+the readout. Touch readouts remain after lifting the finger. Changing view,
+selected runs or domain, scrolling the plot, or resizing clears inspection.
+
+Bill analyses and conditional comparisons remain in the legacy `/bills` and
+`/compare/[slug]` views. The new core does not yet register bill/provision links
+or condition identities and resolutions. Numeric outcome polling does not
+resolve legal conditions. Legacy scoring gates continue to exclude unregistered,
+open or failed conditions. Bringing this workflow into the lab requires explicit
+condition evidence and branch-gated scoring, including nonexhaustive conditions
+for which neither registered branch occurs.
+
 An experiment matrix includes the complete declared target-by-method population,
 including missing, queued, failed and unknown cells. Invalid scientific evidence
 stays visible with closed exclusion reasons. Missing referenced records and

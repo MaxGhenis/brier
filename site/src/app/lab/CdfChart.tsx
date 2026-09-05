@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import type { TaskComparison } from "@/data/generated/thesis-lab";
 import { axisLabels, niceAxis } from "./chart-axis";
+import { ChartInspector } from "./ChartInspector";
 import { deriveDensity } from "./density";
 import { number, unit } from "./lab-ui";
 
@@ -84,108 +85,146 @@ export function CdfChart({
           ))}
         </div>
       </div>
-      <svg
-        role="img"
-        aria-labelledby={`${titleId} ${descriptionId}`}
-        viewBox="0 0 940 366"
+      <ChartInspector
+        key={`${view}:${lower}:${upper}:${curves.map((row) => `${row.task.id}:${row.selected_run?.id}`).join(":")}`}
+        lower={lower}
+        upper={upper}
+        view={view}
+        unitName={unitName}
+        comparisons={curves}
+        densities={densities}
       >
-        <title id={titleId}>
-          {view === "cdf"
-            ? "Forecast cumulative distributions"
-            : "Forecast probability densities"}
-        </title>
-        <desc id={descriptionId}>
-          {view === "cdf"
-            ? "Each curve plots all 201 original CDF points. The vertical axis is the probability the outcome is at or below the horizontal value."
-            : `An approximate density in 40 bins, each averaging five adjacent CDF intervals to reduce rounding noise. Every bin preserves the probability between its stored endpoints. The vertical axis is density per ${densityUnit}.`}{" "}
-          {curves.length} loaded methods.
-          {outcome !== null && ` Official outcome: ${outcome} ${unitName}.`}
-        </desc>
-        {yAxis.ticks.map((value, index) => (
-          <g key={value}>
-            <line
-              x1="68"
-              x2="892"
-              y1={y(value)}
-              y2={y(value)}
-              className="lab-chart-grid"
-            />
-            <text data-axis="y" x="52" y={y(value) + 4} textAnchor="end">
-              {view === "cdf" ? `${yLabels[index]}%` : yLabels[index]}
-            </text>
-          </g>
-        ))}
-        {xAxis.ticks.map((value, index) => (
-          <text
-            data-axis="x"
-            key={value}
-            x={x(value)}
-            y="338"
-            textAnchor="middle"
+        {({ value: inspectedValue, plotRef, onPointerMove, onPointerDown }) => (
+          <svg
+            role="img"
+            aria-labelledby={`${titleId} ${descriptionId}`}
+            viewBox="0 0 940 366"
           >
-            {xLabels[index]}
-          </text>
-        ))}
-        <text x="480" y="362" textAnchor="middle">
-          {unit(unitName)}
-        </text>
-        {curves.map((row, i) => {
-          const intervals = densities[i];
-          if (view === "pdf" && !intervals) return null;
-          const path =
-            view === "cdf"
-              ? row
-                  .distribution!.points.map(
-                    (point, index) =>
-                      `${index === 0 ? "M" : "L"}${x(point.value).toFixed(4)},${y(point.probability).toFixed(4)}`,
-                  )
-                  .join(" ")
-              : [
-                  `M${x(intervals![0].lower).toFixed(4)},${y(0).toFixed(4)}`,
-                  ...intervals!.flatMap((interval) => [
-                    `L${x(interval.lower).toFixed(4)},${y(interval.density).toFixed(4)}`,
-                    `L${x(interval.upper).toFixed(4)},${y(interval.density).toFixed(4)}`,
-                  ]),
-                  `L${x(intervals!.at(-1)!.upper).toFixed(4)},${y(0).toFixed(4)}`,
-                ].join(" ");
-          return (
-            <path
-              key={row.task.id}
-              data-testid={`${view}-${row.task.id}`}
-              data-point-count={row.distribution!.points.length}
-              data-segment-count={
-                view === "pdf" ? intervals!.length : undefined
-              }
-              d={path}
-              fill={view === "pdf" && !row.is_baseline ? "#783d68" : "none"}
-              fillOpacity={0.07}
-              stroke={row.is_baseline ? "#797780" : "#783d68"}
-              strokeWidth={
-                focused === row.task.id ? 3.5 : view === "pdf" ? 1.6 : 2.4
-              }
-              strokeDasharray={
-                row.is_baseline ? "5 5" : i > 1 ? `${4 + i * 2} 3` : undefined
-              }
-              opacity={focused !== null && focused !== row.task.id ? 0.23 : 1}
-              className="lab-curve"
-            />
-          );
-        })}
-        {outcome !== null && (
-          <g>
-            <line
-              x1={x(outcome)}
-              x2={x(outcome)}
-              y1="24"
-              y2="310"
-              className="lab-outcome-line"
-            />
-            <text x={x(outcome)} y="16" textAnchor="middle">
-              Observed {number(outcome)}
+            <title id={titleId}>
+              {view === "cdf"
+                ? "Forecast cumulative distributions"
+                : "Forecast probability densities"}
+            </title>
+            <desc id={descriptionId}>
+              {view === "cdf"
+                ? "Each curve plots all 201 original CDF points. The vertical axis is the probability the outcome is at or below the horizontal value."
+                : `An approximate density in 40 bins, each averaging five adjacent CDF intervals to reduce rounding noise. Every bin preserves the probability between its stored endpoints. The vertical axis is density per ${densityUnit}.`}{" "}
+              {curves.length} loaded methods.
+              {outcome !== null && ` Official outcome: ${outcome} ${unitName}.`}
+            </desc>
+            {yAxis.ticks.map((value, index) => (
+              <g key={value}>
+                <line
+                  x1="68"
+                  x2="892"
+                  y1={y(value)}
+                  y2={y(value)}
+                  className="lab-chart-grid"
+                />
+                <text data-axis="y" x="52" y={y(value) + 4} textAnchor="end">
+                  {view === "cdf" ? `${yLabels[index]}%` : yLabels[index]}
+                </text>
+              </g>
+            ))}
+            {xAxis.ticks.map((value, index) => (
+              <text
+                data-axis="x"
+                key={value}
+                x={x(value)}
+                y="338"
+                textAnchor="middle"
+              >
+                {xLabels[index]}
+              </text>
+            ))}
+            <text x="480" y="362" textAnchor="middle">
+              {unit(unitName)}
             </text>
-          </g>
+            {curves.map((row, i) => {
+              const intervals = densities[i];
+              if (view === "pdf" && !intervals) return null;
+              const path =
+                view === "cdf"
+                  ? row
+                      .distribution!.points.map(
+                        (point, index) =>
+                          `${index === 0 ? "M" : "L"}${x(point.value).toFixed(4)},${y(point.probability).toFixed(4)}`,
+                      )
+                      .join(" ")
+                  : [
+                      `M${x(intervals![0].lower).toFixed(4)},${y(0).toFixed(4)}`,
+                      ...intervals!.flatMap((interval) => [
+                        `L${x(interval.lower).toFixed(4)},${y(interval.density).toFixed(4)}`,
+                        `L${x(interval.upper).toFixed(4)},${y(interval.density).toFixed(4)}`,
+                      ]),
+                      `L${x(intervals!.at(-1)!.upper).toFixed(4)},${y(0).toFixed(4)}`,
+                    ].join(" ");
+              return (
+                <path
+                  key={row.task.id}
+                  data-testid={`${view}-${row.task.id}`}
+                  data-point-count={row.distribution!.points.length}
+                  data-segment-count={
+                    view === "pdf" ? intervals!.length : undefined
+                  }
+                  d={path}
+                  fill={view === "pdf" && !row.is_baseline ? "#783d68" : "none"}
+                  fillOpacity={0.07}
+                  stroke={row.is_baseline ? "#797780" : "#783d68"}
+                  strokeWidth={
+                    focused === row.task.id ? 3.5 : view === "pdf" ? 1.6 : 2.4
+                  }
+                  strokeDasharray={
+                    row.is_baseline
+                      ? "5 5"
+                      : i > 1
+                        ? `${4 + i * 2} 3`
+                        : undefined
+                  }
+                  opacity={
+                    focused !== null && focused !== row.task.id ? 0.23 : 1
+                  }
+                  className="lab-curve"
+                />
+              );
+            })}
+            {outcome !== null && (
+              <g>
+                <line
+                  x1={x(outcome)}
+                  x2={x(outcome)}
+                  y1="24"
+                  y2="310"
+                  className="lab-outcome-line"
+                />
+                <text x={x(outcome)} y="16" textAnchor="middle">
+                  Observed {number(outcome)}
+                </text>
+              </g>
+            )}
+            {inspectedValue !== null && (
+              <line
+                x1={x(inspectedValue)}
+                x2={x(inspectedValue)}
+                y1="34"
+                y2="310"
+                className="lab-chart-crosshair"
+              />
+            )}
+            <rect
+              ref={plotRef}
+              data-testid="chart-inspection-area"
+              x="68"
+              y="34"
+              width="824"
+              height="276"
+              fill="transparent"
+              onPointerMove={onPointerMove}
+              onPointerDown={onPointerDown}
+            />
+          </svg>
         )}
-      </svg>
+      </ChartInspector>
       {view === "pdf" &&
         curves.map(
           (row, i) =>

@@ -419,6 +419,86 @@
   max-height: 450px;
   overflow: visible;
 }
+.lab-chart-interactive {
+  position: relative;
+}
+.lab-chart-scroll {
+  overflow-x: auto;
+}
+.lab-chart-interactive:focus-within {
+  outline: 1px solid var(--lab-accent);
+  outline-offset: 4px;
+}
+.lab-chart-keyboard,
+.lab-chart-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.lab-chart-keyboard {
+  pointer-events: none;
+}
+.lab-chart-crosshair {
+  stroke: var(--lab-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  pointer-events: none;
+}
+.lab-chart-tooltip {
+  position: absolute;
+  top: 12px;
+  z-index: 2;
+  width: 300px;
+  max-width: calc(100% - 16px);
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: var(--lab-bg);
+  border: 1px solid var(--lab-rule);
+  border-radius: 4px;
+  box-shadow: 0 3px 12px #27212b12;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.lab-chart-tooltip [role="tooltip"] > strong {
+  font:
+    500 14px "IBM Plex Mono",
+    monospace;
+}
+.lab-tooltip-close {
+  float: right;
+  border: 0;
+  background: transparent;
+  color: var(--lab-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+.lab-tooltip-context {
+  display: block;
+  color: var(--lab-muted);
+  font-size: 10px;
+}
+.lab-tooltip-method {
+  display: grid;
+  gap: 3px;
+  padding: 9px 0;
+  border-top: 1px solid var(--lab-rule);
+  margin-top: 8px;
+}
+.lab-tooltip-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-wrap: anywhere;
+}
+.lab-tooltip-method b {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+}
 .lab-chart svg text {
   fill: var(--lab-muted);
   font:
@@ -863,9 +943,6 @@
   }
   .lab-cohort-selector a {
     margin-left: 0;
-  }
-  .lab-chart {
-    overflow-x: auto;
   }
   .lab-chart svg {
     min-width: 500px;

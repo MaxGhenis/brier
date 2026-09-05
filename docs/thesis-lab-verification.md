@@ -130,3 +130,21 @@ are 0–5 in units of one, its PDF ticks are 0–1.25 in units of 0.25, and its 
 ticks are 0–100% in units of 20 percentage points. Both curves retain finite SVG
 coordinates. The underlying CDF points, density bins and outcome values remain
 unchanged.
+
+## Chart inspection
+
+Chart tooltips compare all loaded methods at a shared x value. CDF readouts use
+piecewise linear interpolation of the original points; PDF readouts preserve
+each method's own displayed bin bounds and probability mass. Six regressions
+cover interpolation and tails, bin boundaries, scaled plot coordinates,
+mouse dismissal, touch persistence, keyboard changes and resets, method-specific
+support, and precision for narrow ranges at large offsets. Independent review
+prompted adaptive labels and exclusion of the transient close button from the
+Tab order; keyboard users dismiss with Escape.
+
+All 1,183 site tests and the production build passed. The actual CPI comparison
+was inspected with mouse and native range keyboard events, including Home, End,
+Escape and Tab onward to the method controls. At 390 pixels the tooltip stayed
+inside the viewport while the SVG retained horizontal scrolling. Touch retention
+and cancellation have automated coverage; physical touch hardware and audible
+screen-reader announcements were not exercised.
