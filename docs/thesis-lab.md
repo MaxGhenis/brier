@@ -23,6 +23,12 @@ that cannot be represented at the input's numeric scale is explicitly unavailabl
 Display quantiles use the named inverse-CDF method in the API. Browser code does
 not calculate scientific scores.
 
+Both chart axes use round bounds and tick intervals from the 1, 2, 2.5, 5
+sequence times powers of ten, following the preferred spacing of
+[Recharts `niceTicks`](https://github.com/recharts/recharts/pull/7009).
+The lab renders its charts directly in SVG. Domains enclose all loaded curves
+and any observed outcome; tick rounding does not round the underlying data.
+
 An experiment matrix includes the complete declared target-by-method population,
 including missing, queued, failed and unknown cells. Invalid scientific evidence
 stays visible with closed exclusion reasons. Missing referenced records and

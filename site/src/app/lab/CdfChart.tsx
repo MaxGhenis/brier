@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { TaskComparison } from "@/data/generated/thesis-lab";
+import { axisLabels, niceAxis } from "./chart-axis";
 import { deriveDensity } from "./density";
 import { number, unit } from "./lab-ui";
 
@@ -33,9 +34,8 @@ export function CdfChart({
       min = Math.min(min, point.value);
       max = Math.max(max, point.value);
     }
-  const padding = (max - min) * 0.035 || 1;
-  const lower = min - padding;
-  const upper = max + padding;
+  const xAxis = niceAxis(min, max);
+  const { lower, upper } = xAxis;
   const x = (value: number) => 68 + ((value - lower) / (upper - lower)) * 824;
   const densities = curves.map((row) =>
     deriveDensity(row.distribution!.points, 5),
@@ -45,7 +45,12 @@ export function CdfChart({
       intervals?.reduce((max, p) => Math.max(max, p.density), peak) ?? peak,
     0,
   );
-  const yMax = view === "pdf" && densityMax > 0 ? densityMax : 1;
+  const yAxis = niceAxis(0, view === "pdf" && densityMax > 0 ? densityMax : 1);
+  const yMax = yAxis.upper;
+  const xLabels = axisLabels(xAxis.ticks);
+  const yLabels = axisLabels(
+    yAxis.ticks.map((value) => (view === "cdf" ? value * 100 : value)),
+  );
   const y = (value: number) => 310 - (value / yMax) * 276;
   const densityUnit =
     unitName === "percent" ? "percentage point" : unit(unitName);
@@ -96,28 +101,31 @@ export function CdfChart({
           {curves.length} loaded methods.
           {outcome !== null && ` Official outcome: ${outcome} ${unitName}.`}
         </desc>
-        {[0, 0.25, 0.5, 0.75, 1].map((p) => (
-          <g key={p}>
+        {yAxis.ticks.map((value, index) => (
+          <g key={value}>
             <line
               x1="68"
               x2="892"
-              y1={y(p * yMax)}
-              y2={y(p * yMax)}
+              y1={y(value)}
+              y2={y(value)}
               className="lab-chart-grid"
             />
-            <text x="52" y={y(p * yMax) + 4} textAnchor="end">
-              {view === "cdf" ? `${p * 100}%` : densityTick(p * yMax)}
+            <text data-axis="y" x="52" y={y(value) + 4} textAnchor="end">
+              {view === "cdf" ? `${yLabels[index]}%` : yLabels[index]}
             </text>
           </g>
         ))}
-        {[0, 0.25, 0.5, 0.75, 1].map((share) => {
-          const value = lower + share * (upper - lower);
-          return (
-            <text key={share} x={x(value)} y="338" textAnchor="middle">
-              {number(value, 2)}
-            </text>
-          );
-        })}
+        {xAxis.ticks.map((value, index) => (
+          <text
+            data-axis="x"
+            key={value}
+            x={x(value)}
+            y="338"
+            textAnchor="middle"
+          >
+            {xLabels[index]}
+          </text>
+        ))}
         <text x="480" y="362" textAnchor="middle">
           {unit(unitName)}
         </text>
@@ -222,11 +230,4 @@ export function CdfChart({
       </figcaption>
     </figure>
   );
-}
-
-function densityTick(value: number): string {
-  if (value === 0) return "0";
-  return value < 0.001 || value >= 1000
-    ? value.toExponential(1)
-    : String(Number(value.toPrecision(3)));
 }

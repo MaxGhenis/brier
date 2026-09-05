@@ -174,6 +174,27 @@ describe("forecast lab working surfaces", () => {
 });
 
 describe("truthful curves and timing", () => {
+  it("renders round axis labels in both views and includes an outside outcome", () => {
+    const shifted = {
+      ...comparison,
+      distribution: {
+        ...comparison.distribution!,
+        points: comparison.distribution!.points.map((p) => ({ ...p, value: 0.95 + p.value * 0.4 })),
+        support: { lower: 0.95, upper: 4.95 },
+      },
+    };
+    const { container, rerender } = render(<CdfChart comparisons={[shifted]} outcome={null} unitName="percent" />);
+    const labels = (axis: string) => [...container.querySelectorAll(`[data-axis="${axis}"]`)].map((el) => el.textContent);
+    expect(labels("x")).toEqual(["0", "1", "2", "3", "4", "5"]);
+    expect(labels("y")).toEqual(["0%", "20%", "40%", "60%", "80%", "100%"]);
+    fireEvent.click(screen.getByRole("button", { name: "PDF", exact: true }));
+    expect(labels("y")).toEqual(["0", "0.05", "0.1", "0.15", "0.2", "0.25"]);
+    rerender(<CdfChart comparisons={[shifted]} outcome={8.3} unitName="percent" />);
+    expect(labels("x")).toEqual(["0", "2", "4", "6", "8", "10"]);
+    const marker = container.querySelector(".lab-outcome-line")!;
+    expect(Number(marker.getAttribute("x1"))).toBeLessThan(892);
+    expect(Number(marker.getAttribute("x1"))).toBeGreaterThan(68);
+  });
   it("switches to a derived step PDF and back without changing the sealed CDF", () => {
     const before = JSON.stringify(comparison.distribution);
     render(<CdfChart comparisons={[comparison]} outcome={4} unitName="percent" />);

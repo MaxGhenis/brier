@@ -116,3 +116,17 @@ on desktop and at 390 pixels: both density paths contained 40 bins and
 finite SVG coordinates, and switching back restored the CDF. Mobile retained
 the existing horizontally scrollable chart. This display change did not run a
 model, alter stored forecast artifacts, or change resolution or scoring.
+
+## Round axis ticks
+
+CDF and PDF axes now use outward-rounded bounds and 1, 2, 2.5, 5 tick intervals
+times powers of ten. Nine regressions cover both chart views, the observed
+outcome outside forecast support, negative and very small/large ranges,
+floating-point noise at round bounds, and distinct labels for narrow ranges
+around a large offset. All 1,177 site tests and the production build passed.
+
+The rebuilt CPI comparison was checked on desktop and at 390 pixels. Its x ticks
+are 0–5 in units of one, its PDF ticks are 0–1.25 in units of 0.25, and its CDF
+ticks are 0–100% in units of 20 percentage points. Both curves retain finite SVG
+coordinates. The underlying CDF points, density bins and outcome values remain
+unchanged.
