@@ -33,6 +33,7 @@ from .contracts import (
     Resolution,
     ScientificRecord,
     ScoreRecord,
+    SourceExchange,
     SourceSeries,
     TargetVersion,
     record_artifact_hashes,
@@ -260,9 +261,7 @@ def _historical_available(
 ) -> bool:
     for dependency in dependency_closure(record, context):
         acknowledgement = context.committed_at(dependency.id)
-        if acknowledgement is None or (
-            mode == "prospective" and acknowledgement > cutoff
-        ):
+        if acknowledgement is None or (mode != "replay" and acknowledgement > cutoff):
             return False
     return available_by(
         cutoff, context.committed_at(record.id), context.availability(record), mode=mode
@@ -429,7 +428,7 @@ def validate_experiment(
             )
         if context.committed_at(bundle.id) is None:
             raise ValueError("bundle has no authoritative freeze acknowledgement")
-        if experiment.mode == "prospective":
+        if experiment.mode in {"prospective", "live_pilot"}:
             boundary = outcome_boundary(target, context)
             if boundary is None:
                 raise OutcomeAvailabilityUnknown()
@@ -454,6 +453,43 @@ def validate_experiment(
                 )
             ):
                 raise ValueError("bundle contains unavailable or wrong-series evidence")
+    if experiment.mode == "live_pilot":
+        deadline = min(
+            experiment.registration_deadline,
+            *(task.information_cutoff for task in tasks),
+        )
+        for record in dependency_closure(experiment, context):
+            acknowledged = context.committed_at(record.id)
+            if acknowledged is None or acknowledged >= deadline:
+                raise ValueError("pilot preregistration closure was not frozen in time")
+            if any(
+                not context.artifact_exists(h) for h in record_artifact_hashes(record)
+            ):
+                raise ValueError("pilot preregistration artifact is missing")
+        for task in tasks:
+            target = _get(context, task.target_version_id, TargetVersion)
+            evidence = target.release_evidence
+            captures = [
+                record
+                for record in context.records.values()
+                if isinstance(record, SourceExchange)
+                and record.source_series_id == target.source_series_id
+                and record.role == "release"
+                and record.status_code == 200
+                and record.mode == "live"
+                and evidence is not None
+                and record.url == evidence.source_url
+                and record.body == evidence.artifact
+            ]
+            if not any(
+                context.committed_at(record.id) is not None
+                and context.committed_at(record.id) < deadline
+                for record in captures
+            ):
+                raise ValueError("pilot release evidence lacks a prior live capture")
+            forecaster = _get(context, task.forecaster_version_id, ForecasterVersion)
+            if task.max_attempts != 1 or forecaster.retry_policy != "none":
+                raise ValueError("live pilot permits one attempt and no retries")
     return tasks
 
 
@@ -635,6 +671,35 @@ def assess_run(
                 normalized = round_distribution_number(candidate_score)
         if experiment.mode == "replay":
             eligibility = "replay"
+        elif experiment.mode == "live_pilot":
+            boundary = outcome_boundary(target, context)
+            if boundary is None:
+                eligibility = "outcome_availability_unknown"
+                raise ValueError("no authenticated first-print lower boundary")
+            deadline = min(task.information_cutoff, task.submission_deadline, boundary)
+            if any(
+                context.committed_at(record.id) >= attempt.started_at
+                for record in dependency_closure(experiment, context)
+            ):
+                eligibility = "late_pilot_execution"
+                raise ValueError("pilot attempt preceded complete preregistration")
+            times = [
+                attempt.started_at,
+                run.completed_at,
+                context.committed_at(attempt.id),
+                context.committed_at(run.id),
+                *(context.committed_at(rid) for rid in selection.result_ids),
+                *selection.reconciliation_times,
+            ]
+            if any(timestamp is None or timestamp >= deadline for timestamp in times):
+                eligibility = "late_pilot_execution"
+                raise ValueError(
+                    "pilot execution or sealing exceeded its local deadline"
+                )
+            if attempt.cohort_proof_id is not None:
+                eligibility = "invalid_cohort"
+                raise ValueError("pilot attempts cannot claim a cohort ordering proof")
+            eligibility = "live_pilot"
         else:
             boundary = outcome_boundary(target, context)
             if boundary is None:

@@ -66,7 +66,7 @@ def observation_eligible(
     committed_at: Callable[[str], datetime | None],
     witnessed_upper: Callable[[str], datetime | None] | None = None,
 ) -> bool:
-    if mode not in {"prospective", "replay"}:
+    if mode not in {"prospective", "replay", "live_pilot"}:
         raise ValueError("unknown evidence mode")
     cutoff = _utc(information_cutoff)
     official = observation_availability(observation, source, exchanges, artifacts)
@@ -74,9 +74,7 @@ def observation_eligible(
     acknowledgements = [committed_at(identity) for identity in identities]
     if any(value is None for value in acknowledgements):
         return False
-    if mode == "prospective" and any(
-        _utc(value) > cutoff for value in acknowledgements
-    ):
+    if mode != "replay" and any(_utc(value) > cutoff for value in acknowledgements):
         return False
     upper = established_upper(
         committed_at=acknowledgements[-1],

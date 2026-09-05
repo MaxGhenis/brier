@@ -78,9 +78,29 @@ def parser() -> argparse.ArgumentParser:
     replay.add_argument(
         "--argv-json", help="Exact model argv JSON vector; omit for baseline only"
     )
+    live = commands.add_parser(
+        "prepare-live-pilot", help="Preregister a future, permanently unranked pilot"
+    )
+    live.add_argument("measurement_period")
+    live.add_argument("--adapter-id", default="statcan-cpi-yoy")
+    live.add_argument(
+        "--argv-json", help="PATH command argv JSON; omit for baseline only"
+    )
     schedule = commands.add_parser("schedule")
     schedule.add_argument("experiment_id")
     schedule.add_argument("--cohort-proof-id")
+    poll_schedule = commands.add_parser(
+        "schedule-source", help="Register bounded official outcome polling for a target"
+    )
+    poll_schedule.add_argument("target_id")
+    poll_schedule.add_argument("--interval", type=int, default=1800)
+    poll_schedule.add_argument("--max-polls", type=int, default=96)
+    poll_schedule.add_argument("--grace", type=int, default=86400)
+    poll = commands.add_parser(
+        "poll", help="Capture one due source and process only nonforecast follow-ups"
+    )
+    poll.add_argument("--max-jobs", type=int, default=20)
+    commands.add_parser("poll-status", help="Show safe source polling status")
     manifest = commands.add_parser("manifest")
     manifest.add_argument("experiment_id")
     manifest.add_argument("--run-id")
@@ -294,8 +314,8 @@ def _dispatch(args, store):
             "exchange_id": exchange.id,
             "release_evidence": evidence.model_dump(mode="json"),
         }
-    if command == "prepare-replay":
-        from .pilot import prepare_replay
+    if command in {"prepare-replay", "prepare-live-pilot"}:
+        from .pilot import prepare_live_pilot, prepare_replay
 
         argv = json.loads(args.argv_json) if args.argv_json else None
         if argv is not None and (
@@ -304,11 +324,35 @@ def _dispatch(args, store):
             or not all(isinstance(argument, str) and argument for argument in argv)
         ):
             raise ValueError("--argv-json must be a nonempty JSON string array")
-        experiment = prepare_replay(
-            store,
-            args.adapter_id,
-            argv=argv,
-        )
+        if command == "prepare-live-pilot":
+            experiment = prepare_live_pilot(
+                store, args.measurement_period, args.adapter_id, argv=argv
+            )
+            task = store.get(experiment.task_ids[0])
+            target = store.get(experiment.target_version_ids[0])
+            from .evaluation import source_availability_interval
+
+            release = target.release_evidence
+            boundary = source_availability_interval(release.raw_value, release.timezone)
+            return {
+                "experiment_id": experiment.id,
+                "mode": experiment.mode,
+                "ranking_policy": experiment.ranking_policy,
+                "rank_eligible": False,
+                "target_ids": experiment.target_version_ids,
+                "information_cutoff": task.information_cutoff,
+                "registration_deadline": experiment.registration_deadline,
+                "submission_deadline": task.submission_deadline,
+                "release_lower_boundary": boundary.lower,
+                "poll_binding": {
+                    "target_id": target.id,
+                    "adapter_id": args.adapter_id,
+                    "measurement_period": target.measurement_period,
+                    "vintage_date": target.vintage_date,
+                },
+                "forecast_dispatched": False,
+            }
+        experiment = prepare_replay(store, args.adapter_id, argv=argv)
         return {
             "experiment_id": experiment.id,
             "mode": experiment.mode,
@@ -322,6 +366,24 @@ def _dispatch(args, store):
                 store, args.experiment_id, cohort_proof_id=args.cohort_proof_id
             )
         }
+    if command == "schedule-source":
+        from .polling import schedule_source
+
+        return schedule_source(
+            store,
+            args.target_id,
+            interval_seconds=args.interval,
+            max_polls=args.max_polls,
+            grace_seconds=args.grace,
+        )
+    if command == "poll":
+        from .polling import poll_once
+
+        return poll_once(store, max_jobs=args.max_jobs)
+    if command == "poll-status":
+        from .polling import public_status
+
+        return public_status(store)
     if command == "manifest":
         from .publication import create_manifest
 

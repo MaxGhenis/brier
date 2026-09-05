@@ -737,14 +737,16 @@ class Store:
                 ("complete" if outcome == "succeeded" else "failed", claim.job_id),
             )
 
-    def recover_expired(self) -> dict[str, int]:
+    def recover_expired(self, kinds: Sequence[str] | None = None) -> dict[str, int]:
         counts = {"requeued": 0, "unknown": 0}
         with self.transaction() as transaction:
             connection = transaction.connection
             rows = connection.execute(
                 "SELECT * FROM jobs WHERE state='leased' AND "
                 "lease_expires_at<=clock_timestamp() "
-                "ORDER BY id FOR UPDATE SKIP LOCKED",
+                + ("AND kind=ANY(%s) " if kinds is not None else "")
+                + "ORDER BY id FOR UPDATE SKIP LOCKED",
+                (list(kinds),) if kinds is not None else (),
             ).fetchall()
             for row in rows:
                 attempt_id = row["dispatched_attempt_id"]

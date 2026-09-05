@@ -25,6 +25,13 @@ def schedule_experiment(
         raise ValueError("Expected experiment")
     context = context_for_store(store)
     tasks = validate_experiment(experiment, context)
+    if experiment.mode == "live_pilot":
+        from .live import validate_live_dispatch
+
+        if cohort_proof_id is not None:
+            raise ValueError("live pilot cannot dispatch with a cohort proof")
+        for task in tasks:
+            validate_live_dispatch(store, task, experiment.id)
     queued = 0
     for task in tasks:
         attempts = tuple(store.iter_records("attempt", links={"task": task.id}))
@@ -92,10 +99,11 @@ def work_once(
     worker_id: str = "local",
     kinds: tuple[str, ...] | None = None,
     timeout_seconds: float = 120,
+    recovery_kinds: tuple[str, ...] | None = None,
 ) -> dict | None:
     """Process one leased job. Failed publication remains independently retryable."""
     store.repair_acceptances()
-    store.recover_expired()
+    store.recover_expired(recovery_kinds)
     store.deliver_outbox()
     claim = store.claim(worker_id, kinds, lease_seconds=max(60, timeout_seconds + 30))
     if claim is None:
